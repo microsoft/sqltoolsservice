@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -211,7 +212,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
         private void DeleteServerContextualizationTempFile(string serverName)
         {
-            var tempFileName = $"{serverName}.tmp";
+            var bytes = Encoding.UTF8.GetBytes(serverName);
+            var encodedServerName = Convert.ToBase64String(bytes);
+            var tempFileName = $"{encodedServerName}.tmp";
+            
             var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
             if (File.Exists(tempFilePath))
             {

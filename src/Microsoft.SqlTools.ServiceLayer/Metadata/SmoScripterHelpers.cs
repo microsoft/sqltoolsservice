@@ -3,22 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using System;
+using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterHelpers
     {
-        public static async Task<IEnumerable<string>?> GenerateAllServerTableScripts(DbConnection connection)
+        public static IEnumerable<string>? GenerateAllServerTableScripts(DbConnection connection)
         {
             var serverConnection = SmoScripterHelpers.GetServerConnection(connection);
             if (serverConnection == null)
@@ -27,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
 
             Server server = new Server(serverConnection);
-            var scripts = await SmoScripterHelpers.GenerateTableScripts(server);
+            var scripts = SmoScripterHelpers.GenerateTableScripts(server);
 
             return scripts;
         }
@@ -68,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static async Task<IEnumerable<string>> GenerateTableScripts(Server server)
+        private static IEnumerable<string> GenerateTableScripts(Server server)
         {
             var urns = SmoScripterHelpers.GetAllServerTableAndViewUrns(server);
 
@@ -157,11 +156,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             var scripter = new Scripter(server);
             scripter.Options = scriptingOptions;
-            var generatedScripts = await Task.Run(() => scripter.Script(urns));
+            var generatedScripts = scripter.Script(urns);
 
             var scripts = new List<string>();
             foreach (var s in generatedScripts)
             {
+                // Needed to remove '\r' and '\n' characters from script, so that an entire create script
+                // can be written and read as a single line to and from a temp file. Since scripts aren't
+                // going to be read by people, and mainly sent to Copilot to generate accurate suggestions,
+                // a lack of formatting is fine.
                 var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty);
                 scripts.Add(script);
             }

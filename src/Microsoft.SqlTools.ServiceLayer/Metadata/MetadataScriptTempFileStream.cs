@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,7 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="scripts">The generated scripts that will be written to the temporary file.</param>
         public static void Write(string serverName, IEnumerable<string> scripts)
         {
-            var tempFileName = $"{serverName}.tmp";
+            var encodedServerName = Base64Encode(serverName);
+            var tempFileName = $"{encodedServerName}.tmp";
             var generatedScripts = scripts.ToList();
 
             try
@@ -53,7 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <returns>List containing all the scripts in the file.</returns>
         public static IEnumerable<string> Read(string serverName)
         {
-            var tempFileName = $"{serverName}.tmp";
+            var encodedServerName = Base64Encode(serverName);
+            var tempFileName = $"{encodedServerName}.tmp";
             var scripts = new List<string>();
 
             try
@@ -86,21 +89,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Determines if the script file for a server is too old.
+        /// Determines if the script file for a server is too old and needs to be updated
         /// </summary>
         /// <param name="serverName">The name of the file associated with the given server name.</param>
         /// <returns>True: The file was created within the expiration period; False: The script file needs to be created
         /// or updated because it is too old.</returns>
         public static bool IsScriptTempFileUpdateNeeded(string serverName)
         {
-            var tempFileName = $"{serverName}.tmp";
+            var encodedServerName = Base64Encode(serverName);
+            var tempFileName = $"{encodedServerName}.tmp";
 
             try
             {
                 var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
                 if (!File.Exists(tempFilePath))
                 {
-                    return false;
+                    return true;
                 }
                 else
                 {
@@ -110,7 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                      * but for now this is what we're going with.
                      */
                     var lastWriteTime = File.GetLastWriteTime(tempFilePath);
-                    return (DateTime.Now - lastWriteTime).TotalDays < ScriptFileExpirationInDays;
+                    var isUpdateNeeded = (DateTime.Now - lastWriteTime).TotalDays < ScriptFileExpirationInDays ? false : true;
+
+                    return isUpdateNeeded;
                 }
             }
             catch (Exception ex)
@@ -118,6 +124,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 Logger.Warning($"Unable to determine if the script file is older than {ScriptFileExpirationInDays} days. Error: {ex.Message}");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Encodes a string to it's base 64 string representation.
+        /// </summary>
+        /// <param name="str">The string to base64 encode.</param>
+        /// <returns>Base64 encoded string.</returns>
+        private static string Base64Encode(string str)
+        {
+            var bytes = Encoding.UTF8.GetBytes(str);
+            return Convert.ToBase64String(bytes);
         }
     }
 }

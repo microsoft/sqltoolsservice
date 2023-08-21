@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// Handles the event for generating server contextualization scripts. The generated scripts are create
         /// scripts for database objects like tables and views.
         /// </summary>
-        internal static async Task HandleGenerateServerContextualizationNotification(GenerateServerContextualizationParams contextualizationParams,
+        internal static Task HandleGenerateServerContextualizationNotification(GenerateServerContextualizationParams contextualizationParams,
             EventContext eventContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
@@ -137,27 +137,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     {
                         // If scripts have been generated within the last 30 days then there isn't a need to go through the process
                         // of generating scripts again.
-                        if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
+                        if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                         {
-                            return;
+                            return Task.CompletedTask;
                         }
 
-                        var scripts = await SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
-                        if (scripts != null)
+                        _ = Task.Factory.StartNew(() =>
                         {
                             try
                             {
-                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
+                                var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
+                                if (scripts != null)
+                                {
+                                    try
+                                    {
+                                        MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.Error("Failed to generate server scripts");
+                                }
                             }
                             catch (Exception ex)
                             {
-                                Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
+                                Logger.Error($"Unable to generate scripts for server. Error: {ex.Message}");
                             }
-                        }
-                        else
-                        {
-                            Logger.Error("Failed to generate server scripts");
-                        }
+                        });
+                        
                     }
                     catch (Exception ex)
                     {
@@ -169,6 +180,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             {
                 Logger.Error("Failed to find connection info about the server.");
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
