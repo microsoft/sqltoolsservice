@@ -545,9 +545,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (result != null)
                         {
                             await requestContext.SendResult(result);
+                            Logger.Verbose("Signature help response sent.");
                         }
                     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    Logger.Verbose("Signature help request completed.");
                 }
             }
         }
@@ -877,102 +879,104 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="filePath"></param>
         /// <param name="sqlText"></param>
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
-        public async Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+        public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
-
-            if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+            return Task.Run(() =>
             {
-                try
+                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
-                    if (connInfo == null || !parseInfo.IsConnected)
+                    try
                     {
-                        // parse on separate thread so stack size can be increased
-                        var parseThread = new Thread(() =>
+                        if (connInfo == null || !parseInfo.IsConnected)
                         {
-                            try
-                            {
-                                // parse current SQL file contents to retrieve a list of errors
-                                ParseResult parseResult = Parser.IncrementalParse(
-                                scriptFile.Contents,
-                                parseInfo.ParseResult,
-                                this.DefaultParseOptions);
-
-                                parseInfo.ParseResult = parseResult;
-                            }
-                            catch (Exception e)
-                            {
-                                // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
-                                Logger.Error(string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
-                            }
-                        }, ConnectedBindingQueue.QueueThreadStackSize);
-                        parseThread.Start();
-                        parseThread.Join();
-                    }
-                    else
-                    {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                            key: parseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.BindingTimeout,
-                            bindOperation: (bindingContext, cancelToken) =>
+                            // parse on separate thread so stack size can be increased
+                            var parseThread = new Thread(() =>
                             {
                                 try
                                 {
+                                    // parse current SQL file contents to retrieve a list of errors
                                     ParseResult parseResult = Parser.IncrementalParse(
-                                        scriptFile.Contents,
-                                        parseInfo.ParseResult,
-                                        bindingContext.ParseOptions);
+                                    scriptFile.Contents,
+                                    parseInfo.ParseResult,
+                                    this.DefaultParseOptions);
 
                                     parseInfo.ParseResult = parseResult;
-
-                                    List<ParseResult> parseResults = new List<ParseResult>();
-                                    parseResults.Add(parseResult);
-                                    if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                }
+                                catch (Exception e)
+                                {
+                                    // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
+                                    Logger.Error(string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
+                                }
+                            }, ConnectedBindingQueue.QueueThreadStackSize);
+                            parseThread.Start();
+                            parseThread.Join();
+                        }
+                        else
+                        {
+                            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                                key: parseInfo.ConnectionKey,
+                                bindingTimeout: LanguageService.BindingTimeout,
+                                bindOperation: (bindingContext, cancelToken) =>
+                                {
+                                    try
                                     {
-                                        bindingContext.Binder.Bind(
-                                            parseResults,
-                                            connInfo.ConnectionDetails.DatabaseName,
-                                            BindMode.Batch);
+                                        ParseResult parseResult = Parser.IncrementalParse(
+                                            scriptFile.Contents,
+                                            parseInfo.ParseResult,
+                                            bindingContext.ParseOptions);
+
+                                        parseInfo.ParseResult = parseResult;
+
+                                        List<ParseResult> parseResults = new List<ParseResult>();
+                                        parseResults.Add(parseResult);
+                                        if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                        {
+                                            bindingContext.Binder.Bind(
+                                                parseResults,
+                                                connInfo.ConnectionDetails.DatabaseName,
+                                                BindMode.Batch);
+                                        }
                                     }
-                                }
-                                catch (ConnectionException)
-                                {
-                                    Logger.Error("Hit connection exception while binding - disposing binder object...");
-                                }
-                                catch (SqlParserInternalBinderError)
-                                {
-                                    Logger.Error("Hit connection exception while binding - disposing binder object...");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error("Unknown exception during parsing " + ex.ToString());
-                                }
+                                    catch (ConnectionException)
+                                    {
+                                        Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                    }
+                                    catch (SqlParserInternalBinderError)
+                                    {
+                                        Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Error("Unknown exception during parsing " + ex.ToString());
+                                    }
 
-                                return null;
-                            });
+                                    return null;
+                                });
 
-                        queueItem.ItemProcessed.WaitOne();
+                            queueItem.ItemProcessed.WaitOne();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // reset the parse result to do a full parse next time
+                        parseInfo.ParseResult = null;
+                        Logger.Error("Unknown exception during parsing " + ex.ToString());
+                    }
+                    finally
+                    {
+                        Monitor.Exit(parseInfo.BuildingMetadataLock);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    // reset the parse result to do a full parse next time
-                    parseInfo.ParseResult = null;
-                    Logger.Error("Unknown exception during parsing " + ex.ToString());
+                    Logger.Warning("Binding metadata lock timeout in ParseAndBind");
                 }
-                finally
-                {
-                    Monitor.Exit(parseInfo.BuildingMetadataLock);
-                }
-            }
-            else
-            {
-                Logger.Warning("Binding metadata lock timeout in ParseAndBind");
-            }
 
-            return parseInfo.ParseResult;
+                return parseInfo.ParseResult;
+            });
         }
 
         /// <summary>
