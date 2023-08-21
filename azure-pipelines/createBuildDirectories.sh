@@ -13,28 +13,30 @@
 
 # The script need to run from the repo root
 
-# Dirs to create
 dotnetProjectArray=(
-    "./src/Microsoft.Kusto.ServiceLayer/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.Credentials/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.ResourceProvider/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.ResourceProvider.Core/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.ServiceLayer/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.Migration/bin/Debug/net7.0/"
-    "./test/Microsoft.Kusto.ServiceLayer.UnitTests/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.PerfTests/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.Test.Common/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.TestDriver/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.TestDriver.Tests/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.ServiceLayer.UnitTests/bin/Debug/net7.0/"
-    "./test/Microsoft.SqlTools.Test.CompletionExtension/bin/Debug/net7.0/"
-    "./src/Microsoft.SqlTools.Hosting/bin/Debug/netstandard2.0/"
-    "./src/Microsoft.SqlTools.SqlCore/bin/Debug/netstandard2.0/"
+    "./src/Microsoft.Kusto.ServiceLayer"
+    "./src/Microsoft.SqlTools.Credentials"
+    "./src/Microsoft.SqlTools.Hosting"
+    "./src/Microsoft.SqlTools.ResourceProvider"
+    "./src/Microsoft.SqlTools.ResourceProvider.Core"
+    "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl"
+    "./src/Microsoft.SqlTools.ServiceLayer"
+    "./src/Microsoft.SqlTools.Migration"
+    "./src/Microsoft.SqlTools.SqlCore"
+    "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
+    "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
+    "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
+    "./test/Microsoft.SqlTools.ServiceLayer.PerfTests"
+    "./test/Microsoft.SqlTools.ServiceLayer.Test.Common"
+    "./test/Microsoft.SqlTools.ServiceLayer.TestDriver"
+    "./test/Microsoft.SqlTools.ServiceLayer.TestDriver.Tests"
+    "./test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig"
+    "./test/Microsoft.SqlTools.ServiceLayer.UnitTests"
+    "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
+
+# Please update the framework vars when updating target framework for the projects
+framework7="/bin/Debug/net7.0/"
 
 requiredLocDirectories=(
     "cs"
@@ -74,7 +76,7 @@ do
    for k in "${requiredLocDirectories[@]}"
     do
         : 
-        output="mkdir -v -p $i$k"
+        output=`mkdir -v -p $i$framework7$k`
         echo $output
     done
 done
