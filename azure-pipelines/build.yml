@@ -66,9 +66,8 @@ steps:
       $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
       $props = New-Object XML
       $props.Load($projectFile)
-      $propGroup = $props.Project.PropertyGroup;
       $version = $env:$(Major) + '.' + $env:$(Minor) + '.' + $env:$(Patch) + $(Build.BuildNumber);
-      $props.Project.PropertyGroup.Version = $version;
+      $props.Project.PropertyGroup[0].Version = $version;
       $props.Save($projectFile)
 
 - task: BatchScript@1
