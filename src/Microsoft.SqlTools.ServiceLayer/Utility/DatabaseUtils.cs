@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Dmf;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.SqlCore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,13 +38,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public static string AddStringParameterForInsert(string paramValue)
         {
-            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
+            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : StringUtils.EscapeStringSQuote(paramValue);
             return $"'{value}'";
         }
 
         public static string AddStringParameterForUpdate(string columnName, string paramValue)
         {
-            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
+            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : StringUtils.EscapeStringSQuote(paramValue);
             return $"{columnName} = N'{value}'";
         }
 

@@ -5,14 +5,14 @@
 
 #nullable disable
 
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
-using Microsoft.SqlTools.Utility;
 using System;
-using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
@@ -78,6 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string serverName = null;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
+                connection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
                 if (azureAccessToken != null)
                 {
                     connection.AccessToken = azureAccessToken;

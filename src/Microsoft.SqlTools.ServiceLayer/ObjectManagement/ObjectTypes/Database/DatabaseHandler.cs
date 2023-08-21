@@ -20,6 +20,7 @@ using Microsoft.SqlTools.Utility;
 using System.Text;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -544,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // Update database file names now that we have a database name
                         if (viewParams.IsNewObject && !prototype.HideFileSettings)
                         {
-                            var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
+                            var sanitizedName = Utility.DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
                             var dataFile = prototype.Files[0];
                             if (dataFile.DatabaseFileType != FileType.Data)
