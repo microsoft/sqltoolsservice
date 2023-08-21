@@ -536,7 +536,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     textDocumentPosition.TextDocument.Uri);
                 if (scriptFile != null)
                 {
-                    // Start task asynchronously without blocking main thread - by design.
+                    // Start task asynchronously without blocking main thread - this is by design.
+                    // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
+                    // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     GetSignatureHelp(textDocumentPosition, scriptFile)
                         .ContinueWith(async task =>
@@ -545,11 +547,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (result != null)
                         {
                             await requestContext.SendResult(result);
-                            Logger.Verbose("Signature help response sent.");
+                        } else
+                        {
+                            await requestContext.SendResult(new SignatureHelp());
                         }
                     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    Logger.Verbose("Signature help request completed.");
                 }
             }
         }
@@ -674,7 +677,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             RebuildIntelliSenseParams rebuildParams,
             EventContext eventContext)
         {
-            // Start operation asynchronously without blocking main thread - by design.
+            // Start task asynchronously without blocking main thread - this is by design.
+            // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
+            // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
             Task.Factory.StartNew(async () =>
             {
                 try
@@ -986,7 +991,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         public Task StartUpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
-            // Start task asynchronously without blocking main thread - by design.
+            // Start task asynchronously without blocking main thread - this is by design.
+            // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
+            // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
             Task.Factory.StartNew(() => UpdateLanguageServiceOnConnection(info));
             return Task.CompletedTask;
         }
@@ -1838,7 +1845,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
 
-                // Start task asynchronously without blocking main thread - by design.
+                // Start task asynchronously without blocking main thread - this is by design.
+                // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
+                // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 GetSemanticMarkers(scriptFile).ContinueWith(async t =>
                 {
