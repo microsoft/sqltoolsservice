@@ -118,517 +118,517 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>Error expanding: {0}</value>
+    <value>扩展时出错: {0}</value>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>Error connecting to {0}</value>
+    <value>连接到 {0} 时出错</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>Aggregates</value>
+    <value>聚合</value>
   </data>
   <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>Server Roles</value>
+    <value>服务器角色</value>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Application Roles</value>
+    <value>应用程序角色</value>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>Assemblies</value>
+    <value>程序集</value>
   </data>
   <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>Assembly Files</value>
+    <value>程序集文件</value>
   </data>
   <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>非对称密钥</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>非对称密钥</value>
   </data>
   <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>Data Compression Options</value>
+    <value>数据压缩选项</value>
   </data>
   <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>证书</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>FileTables</value>
+    <value>FileTable</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>证书</value>
   </data>
   <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Check Constraints</value>
+    <value>检查约束</value>
   </data>
   <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>Columns</value>
+    <value>列</value>
   </data>
   <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>Constraints</value>
+    <value>约束</value>
   </data>
   <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>Contracts</value>
+    <value>协定</value>
   </data>
   <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>Credentials</value>
+    <value>凭据</value>
   </data>
   <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>Error Messages</value>
+    <value>错误消息</value>
   </data>
   <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>Server Role Membership</value>
+    <value>服务器角色成员资格</value>
   </data>
   <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>Database Options</value>
+    <value>数据库选项</value>
   </data>
   <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>Database Roles</value>
+    <value>数据库角色</value>
   </data>
   <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>Role Memberships</value>
+    <value>角色成员资格</value>
   </data>
   <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>Database Triggers</value>
+    <value>数据库触发器</value>
   </data>
   <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>Default Constraints</value>
+    <value>默认约束</value>
   </data>
   <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>Defaults</value>
+    <value>默认值</value>
   </data>
   <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>Sequences</value>
+    <value>序列</value>
   </data>
   <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>Endpoints</value>
+    <value>终结点</value>
   </data>
   <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>Event Notifications</value>
+    <value>事件通知</value>
   </data>
   <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>Server Event Notifications</value>
+    <value>服务器事件通知</value>
   </data>
   <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>Extended Properties</value>
+    <value>扩展属性</value>
   </data>
   <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>Filegroups</value>
+    <value>文件组</value>
   </data>
   <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>Foreign Keys</value>
+    <value>外键</value>
   </data>
   <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>Full-Text Catalogs</value>
+    <value>全文目录</value>
   </data>
   <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>Full-Text Indexes</value>
+    <value>全文检索</value>
   </data>
   <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>Functions</value>
+    <value>函数</value>
   </data>
   <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>Indexes</value>
+    <value>索引</value>
   </data>
   <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>Inline Functions</value>
+    <value>内联函数</value>
   </data>
   <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>Keys</value>
+    <value>键</value>
   </data>
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>Linked Servers</value>
+    <value>链接服务器</value>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Logins</value>
+    <value>登录名</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>Master Key</value>
+    <value>主密钥</value>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>Master Keys</value>
+    <value>主密钥</value>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>Message Types</value>
+    <value>消息类型</value>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Table-Valued Functions</value>
+    <value>表值函数</value>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>Parameters</value>
+    <value>参数</value>
   </data>
   <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>Partition Functions</value>
+    <value>分区函数</value>
   </data>
   <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>Partition Schemes</value>
+    <value>分区方案</value>
   </data>
   <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>Permissions</value>
+    <value>权限</value>
   </data>
   <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>Primary Keys</value>
+    <value>主键</value>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Programmability</value>
+    <value>可编程性</value>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>Queues</value>
+    <value>队列</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>Remote Service Bindings</value>
+    <value>远程服务绑定</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Returned Columns</value>
+    <value>返回列</value>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>Roles</value>
+    <value>角色</value>
   </data>
   <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>Routes</value>
+    <value>路由</value>
   </data>
   <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>Rules</value>
+    <value>规则</value>
   </data>
   <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>Schemas</value>
+    <value>架构</value>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>Security</value>
+    <value>安全</value>
   </data>
   <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>Server Objects</value>
+    <value>服务器对象</value>
   </data>
   <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>Management</value>
+    <value>管理</value>
   </data>
   <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>触发器</value>
   </data>
   <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
     <value>Service Broker</value>
   </data>
   <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>Services</value>
+    <value>服务</value>
   </data>
   <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>Signatures</value>
+    <value>签名</value>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>Log Files</value>
+    <value>日志文件</value>
   </data>
   <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>Statistics</value>
+    <value>统计信息</value>
   </data>
   <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>Storage</value>
+    <value>存储</value>
   </data>
   <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>Stored Procedures</value>
+    <value>存储过程</value>
   </data>
   <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>Symmetric Keys</value>
+    <value>对称密钥</value>
   </data>
   <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>Synonyms</value>
+    <value>同义词</value>
   </data>
   <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>Tables</value>
+    <value>表</value>
   </data>
   <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>触发器</value>
   </data>
   <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>Types</value>
+    <value>类型</value>
   </data>
   <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>Unique Keys</value>
+    <value>唯一键</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>User-Defined Data Types</value>
+    <value>用户定义的数据类型</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>User-Defined Types (CLR)</value>
+    <value>用户定义类型(CLR)</value>
   </data>
   <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>Users</value>
+    <value>用户</value>
   </data>
   <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>Views</value>
+    <value>视图</value>
   </data>
   <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML Indexes</value>
+    <value>XML 索引</value>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML Schema Collections</value>
+    <value>XML 架构集合</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>User-Defined Table Types</value>
+    <value>用户定义的表类型</value>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>Files</value>
+    <value>文件</value>
   </data>
   <data name="MissingCaption" xml:space="preserve">
-    <value>Missing Caption</value>
+    <value>缺少标题</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Broker Priorities</value>
+    <value>Broker 优先级</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>Cryptographic Providers</value>
+    <value>加密提供程序</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>Database Audit Specifications</value>
+    <value>数据库审核规范</value>
   </data>
   <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>Database Encryption Keys</value>
+    <value>数据库加密密钥</value>
   </data>
   <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>Event Sessions</value>
+    <value>事件会话</value>
   </data>
   <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>Full Text Stoplists</value>
+    <value>全文非索引字表</value>
   </data>
   <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>Resource Pools</value>
+    <value>资源池</value>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>Audits</value>
+    <value>审核</value>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>Server Audit Specifications</value>
+    <value>服务器审核规范</value>
   </data>
   <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>Spatial Indexes</value>
+    <value>空间索引</value>
   </data>
   <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>Workload Groups</value>
+    <value>工作负荷组</value>
   </data>
   <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL Files</value>
+    <value>SQL 文件</value>
   </data>
   <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>Server Functions</value>
+    <value>服务器函数</value>
   </data>
   <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL Type</value>
+    <value>SQL 类型</value>
   </data>
   <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>Server Options</value>
+    <value>服务器选项</value>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Database Diagrams</value>
+    <value>数据库关系图</value>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>System Tables</value>
+    <value>系统表</value>
   </data>
   <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>Databases</value>
+    <value>数据库</value>
   </data>
   <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>System Contracts</value>
+    <value>系统约定</value>
   </data>
   <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>System Databases</value>
+    <value>系统数据库</value>
   </data>
   <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>System Message Types</value>
+    <value>系统消息类型</value>
   </data>
   <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>System Queues</value>
+    <value>系统队列</value>
   </data>
   <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>System Services</value>
+    <value>系统服务</value>
   </data>
   <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>System Stored Procedures</value>
+    <value>系统存储过程</value>
   </data>
   <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>System Views</value>
+    <value>系统视图</value>
   </data>
   <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>Data-tier Applications</value>
+    <value>数据层应用程序</value>
   </data>
   <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>Extended Stored Procedures</value>
+    <value>扩展存储过程</value>
   </data>
   <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>聚合函数</value>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Approximate Numerics</value>
+    <value>近似数字</value>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>Binary Strings</value>
+    <value>二进制字符串</value>
   </data>
   <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>Character Strings</value>
+    <value>字符串</value>
   </data>
   <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR Data Types</value>
+    <value>CLR 数据类型</value>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Configuration Functions</value>
+    <value>配置函数</value>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>Cursor Functions</value>
+    <value>游标函数</value>
   </data>
   <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>System Data Types</value>
+    <value>系统数据类型</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>Date and Time</value>
+    <value>日期和时间</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>Date and Time Functions</value>
+    <value>日期和时间函数</value>
   </data>
   <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>Exact Numerics</value>
+    <value>精确数值</value>
   </data>
   <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>System Functions</value>
+    <value>系统函数</value>
   </data>
   <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>Hierarchy Id Functions</value>
+    <value>层次结构 ID 函数</value>
   </data>
   <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>Mathematical Functions</value>
+    <value>数学函数</value>
   </data>
   <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>Metadata Functions</value>
+    <value>元数据函数</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Other Data Types</value>
+    <value>其他数据类型</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Other Functions</value>
+    <value>其他函数</value>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Rowset Functions</value>
+    <value>行集函数</value>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>Security Functions</value>
+    <value>安全函数</value>
   </data>
   <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>Spatial Data Types</value>
+    <value>空间数据类型</value>
   </data>
   <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>String Functions</value>
+    <value>字符串函数</value>
   </data>
   <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>System Statistical Functions</value>
+    <value>系统统计函数</value>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Text and Image Functions</value>
+    <value>文本和图像函数</value>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Unicode Character Strings</value>
+    <value>Unicode 字符串</value>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>聚合函数</value>
   </data>
   <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>Scalar-valued Functions</value>
+    <value>标量值函数</value>
   </data>
   <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>Table-valued Functions</value>
+    <value>表值函数</value>
   </data>
   <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>System Extended Stored Procedures</value>
+    <value>系统扩展存储过程</value>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>Built-in Types</value>
+    <value>内置类型</value>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>Built-in Server Roles</value>
+    <value>内置服务器角色</value>
   </data>
   <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>User with Password</value>
+    <value>具有密码的用户</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>Search Property List</value>
+    <value>搜索属性列表</value>
   </data>
   <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>Security Policies</value>
+    <value>安全策略</value>
   </data>
   <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>Security Predicates</value>
+    <value>安全谓词</value>
   </data>
   <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>Server Role</value>
+    <value>服务器角色</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>Search Property Lists</value>
+    <value>搜索属性列表</value>
   </data>
   <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>列存储索引</value>
   </data>
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>Table Type Indexes</value>
+    <value>表类型索引</value>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>Selective XML Indexes</value>
+    <value>选择性 XML 索引</value>
   </data>
   <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML Namespaces</value>
+    <value>XML 命名空间</value>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML Typed Promoted Paths</value>
+    <value>XML 特型提升路径</value>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL Typed Promoted Paths</value>
+    <value>T-SQL 特型提升路径</value>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>Database Scoped Credentials</value>
+    <value>数据库范围的凭据</value>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>External Data Sources</value>
+    <value>外部数据源</value>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>External File Formats</value>
+    <value>外部文件格式</value>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>External Resources</value>
+    <value>外部资源</value>
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>External Tables</value>
+    <value>外部表</value>
   </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted Keys</value>
+    <value>Always Encrypted 密钥</value>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Column Master Keys</value>
+    <value>列主密钥</value>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>Column Encryption Keys</value>
+    <value>列加密密钥</value>
   </data>
   <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>Server</value>
+    <value>服务器</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
     <value>{0} ({1}, {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>No default</value>
+    <value>无默认值</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>Input</value>
+    <value>输入</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>Input/Output</value>
+    <value>输入/输出</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>Input/ReadOnly</value>
+    <value>输入/只读</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>Input/Output/ReadOnly</value>
+    <value>输入/输出/只读</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>Default</value>
+    <value>默认值</value>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
     <value>null</value>
   </data>
   <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>not null</value>
+    <value>非 null</value>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
     <value>{0} ({1}, {2})</value>
@@ -643,114 +643,114 @@
     <value>{0} ({1}Computed)</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (Column Set, {1})</value>
+    <value>{0} (列集，{1})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (Column Set, {1}{2}, {3})</value>
+    <value>{0} (列集，{1}{2}，{3})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (Column Set, {1}, {2}, {3})</value>
+    <value>{0} (列集，{1}，{2}，{3})</value>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>Unique</value>
+    <value>唯一</value>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>Non-Unique</value>
+    <value>非唯一</value>
   </data>
   <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Clustered</value>
+    <value>聚集</value>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Non-Clustered</value>
+    <value>非聚集</value>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
-    <value>History</value>
+    <value>历史记录</value>
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>System-Versioned</value>
+    <value>带有系统版本</value>
   </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>The database {0} is not accessible.</value>
+    <value>数据库 {0} 不可访问。</value>
   </data>
   <data name="External_LabelPart" xml:space="preserve">
-    <value>External</value>
+    <value>外部</value>
   </data>
   <data name="FileTable_LabelPart" xml:space="preserve">
-    <value>File Table</value>
+    <value>文件表</value>
   </data>
   <data name="UpdatableLedger_LabelPart" xml:space="preserve">
-    <value>Updatable Ledger</value>
+    <value>可更新账本</value>
   </data>
   <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
-    <value>Append-Only Ledger</value>
+    <value>仅追加账本</value>
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
-    <value>Ledger</value>
+    <value>账本</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
-    <value>Dropped Ledger Tables</value>
+    <value>已删除账本表</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>已删除账本视图</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
-    <value>Dropped Ledger Columns</value>
+    <value>已删除账本列</value>
   </data>
   <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
-    <value>Built-in Schemas</value>
+    <value>内置架构</value>
   </data>
   <data name="FilterName" xml:space="preserve">
-    <value>Name</value>
+    <value>名称</value>
   </data>
   <data name="FilterNameDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the name or part of a name.</value>
+    <value>根据名称或名称的一部分包含或排除对象。</value>
   </data>
   <data name="FilterSchema" xml:space="preserve">
-    <value>Schema</value>
+    <value>架构</value>
   </data>
   <data name="FilterSchemaDescription" xml:space="preserve">
-    <value> Include or exclude objects based on the schema or part of a schema name.</value>
+    <value> 根据架构名称或架构名称的一部分包含或排除对象。</value>
   </data>
   <data name="FilterOwner" xml:space="preserve">
-    <value>Owner</value>
+    <value>所有者</value>
   </data>
   <data name="FilterOwnerDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the owner or part of an owner name.</value>
+    <value>根据所有者名称或部分所有者名称包含或排除对象。</value>
   </data>
   <data name="FilterDurabilityType" xml:space="preserve">
-    <value>Durability Type</value>
+    <value>持续性类型</value>
   </data>
   <data name="FilterDurabilityTypeDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the durability type.</value>
+    <value>基于持续性类型包含或排除对象。</value>
   </data>
   <data name="FilterIsMemoryOptimized" xml:space="preserve">
-    <value>Is Memory Optimized</value>
+    <value>已经过内存优化</value>
   </data>
   <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is memory optimized.</value>
+    <value>基于对象是否已经过内存优化包含或排除对象。</value>
   </data>
   <data name="FilterCreateDate" xml:space="preserve">
-    <value>Create Date</value>
+    <value>创建日期</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Include or exclude objects based on their creation date.</value>
+    <value>根据对象的创建日期包括或排除对象。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
-    <value>Is Natively Compiled</value>
+    <value>已本机编译</value>
   </data>
   <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is natively compiled.</value>
+    <value>基于对象是否已本机编译包含或排除对象。</value>
   </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
-    <value>In Primary Key</value>
+    <value>在主键中</value>
   </data>
   <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the column is in a primary key.</value>
+    <value>根据列是否在主键中来包含或排除对象。</value>
   </data>
   <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
-    <value>Schema Only</value>
+    <value>仅限架构</value>
   </data>
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
-    <value>Schema and Data</value>
+    <value>架构和数据</value>
   </data>
 </root>

@@ -118,517 +118,517 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>Error expanding: {0}</value>
+    <value>Ошибка при расширении: {0}</value>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>Error connecting to {0}</value>
+    <value>Ошибка при подключении к {0}</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>Aggregates</value>
+    <value>Статистические выражения</value>
   </data>
   <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>Server Roles</value>
+    <value>Роли сервера</value>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Application Roles</value>
+    <value>Роли приложений</value>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>Assemblies</value>
+    <value>Сборки</value>
   </data>
   <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>Assembly Files</value>
+    <value>Файлы сборки</value>
   </data>
   <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>Асимметричные ключи</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>Асимметричные ключи</value>
   </data>
   <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>Data Compression Options</value>
+    <value>Параметры сжатия данных</value>
   </data>
   <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>Сертификаты</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
     <value>FileTables</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>Сертификаты</value>
   </data>
   <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Check Constraints</value>
+    <value>Проверочные ограничения</value>
   </data>
   <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>Columns</value>
+    <value>Столбцы</value>
   </data>
   <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>Constraints</value>
+    <value>Ограничения</value>
   </data>
   <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>Contracts</value>
+    <value>Контракты</value>
   </data>
   <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>Credentials</value>
+    <value>Учетные данные</value>
   </data>
   <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>Error Messages</value>
+    <value>Сообщения об ошибках</value>
   </data>
   <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>Server Role Membership</value>
+    <value>Участие в роли сервера</value>
   </data>
   <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>Database Options</value>
+    <value>Параметры базы данных</value>
   </data>
   <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>Database Roles</value>
+    <value>Роли базы данных</value>
   </data>
   <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>Role Memberships</value>
+    <value>Членства в роли</value>
   </data>
   <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>Database Triggers</value>
+    <value>Триггеры базы данных</value>
   </data>
   <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>Default Constraints</value>
+    <value>Ограничения по умолчанию</value>
   </data>
   <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>Defaults</value>
+    <value>Значения по умолчанию</value>
   </data>
   <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>Sequences</value>
+    <value>Последовательности</value>
   </data>
   <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>Endpoints</value>
+    <value>Конечные точки</value>
   </data>
   <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>Event Notifications</value>
+    <value>Уведомления о событиях</value>
   </data>
   <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>Server Event Notifications</value>
+    <value>Уведомления о событиях сервера</value>
   </data>
   <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>Extended Properties</value>
+    <value>Расширенные свойства</value>
   </data>
   <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>Filegroups</value>
+    <value>Файловые группы</value>
   </data>
   <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>Foreign Keys</value>
+    <value>Внешние ключи</value>
   </data>
   <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>Full-Text Catalogs</value>
+    <value>Полнотекстовые каталоги</value>
   </data>
   <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>Full-Text Indexes</value>
+    <value>Полнотекстовые индексы</value>
   </data>
   <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>Functions</value>
+    <value>Функции</value>
   </data>
   <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>Indexes</value>
+    <value>Индексы</value>
   </data>
   <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>Inline Functions</value>
+    <value>Встроенная функции</value>
   </data>
   <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>Keys</value>
+    <value>Ключи</value>
   </data>
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>Linked Servers</value>
+    <value>Связанные серверы</value>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Logins</value>
+    <value>Имена для входа</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>Master Key</value>
+    <value>Главный ключ</value>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>Master Keys</value>
+    <value>Главные ключи</value>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>Message Types</value>
+    <value>Типы сообщений</value>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Table-Valued Functions</value>
+    <value>Функции с табличным значением</value>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>Parameters</value>
+    <value>Параметры</value>
   </data>
   <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>Partition Functions</value>
+    <value>Функции секционирования</value>
   </data>
   <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>Partition Schemes</value>
+    <value>Схемы секционирования</value>
   </data>
   <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>Permissions</value>
+    <value>Разрешения</value>
   </data>
   <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>Primary Keys</value>
+    <value>Первичные ключи</value>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Programmability</value>
+    <value>Программирование</value>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>Queues</value>
+    <value>Очереди</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>Remote Service Bindings</value>
+    <value>Привязки удаленных служб</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Returned Columns</value>
+    <value>Возвращаемые столбцы</value>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>Roles</value>
+    <value>Роли</value>
   </data>
   <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>Routes</value>
+    <value>Маршруты</value>
   </data>
   <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>Rules</value>
+    <value>Правила</value>
   </data>
   <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>Schemas</value>
+    <value>Схемы</value>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>Security</value>
+    <value>Безопасность</value>
   </data>
   <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>Server Objects</value>
+    <value>Объекты сервера</value>
   </data>
   <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>Management</value>
+    <value>Управление</value>
   </data>
   <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>Триггеры</value>
   </data>
   <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
     <value>Service Broker</value>
   </data>
   <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>Services</value>
+    <value>Службы</value>
   </data>
   <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>Signatures</value>
+    <value>Подписи</value>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>Log Files</value>
+    <value>Файлы журнала</value>
   </data>
   <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>Statistics</value>
+    <value>Статистика</value>
   </data>
   <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>Storage</value>
+    <value>Хранилище</value>
   </data>
   <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>Stored Procedures</value>
+    <value>Хранимые процедуры</value>
   </data>
   <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>Symmetric Keys</value>
+    <value>Симметричные ключи</value>
   </data>
   <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>Synonyms</value>
+    <value>Синонимы</value>
   </data>
   <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>Tables</value>
+    <value>Таблицы</value>
   </data>
   <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>Триггеры</value>
   </data>
   <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>Types</value>
+    <value>Типы</value>
   </data>
   <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>Unique Keys</value>
+    <value>Уникальные ключи</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>User-Defined Data Types</value>
+    <value>Определяемые пользователем типы данных</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>User-Defined Types (CLR)</value>
+    <value>Определяемые пользователем типы (CLR)</value>
   </data>
   <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>Users</value>
+    <value>Пользователи</value>
   </data>
   <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>Views</value>
+    <value>Представления</value>
   </data>
   <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML Indexes</value>
+    <value>XML-индексы</value>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML Schema Collections</value>
+    <value>Коллекции схем XML</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>User-Defined Table Types</value>
+    <value>Определяемые пользователем табличные типы</value>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>Files</value>
+    <value>Файлы</value>
   </data>
   <data name="MissingCaption" xml:space="preserve">
-    <value>Missing Caption</value>
+    <value>Отсутствует заголовок</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Broker Priorities</value>
+    <value>Приоритеты компонента Service Broker</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>Cryptographic Providers</value>
+    <value>Поставщики служб шифрования</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>Database Audit Specifications</value>
+    <value>Спецификации аудита базы данных</value>
   </data>
   <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>Database Encryption Keys</value>
+    <value>Ключи шифрования базы данных</value>
   </data>
   <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>Event Sessions</value>
+    <value>Сеансы событий</value>
   </data>
   <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>Full Text Stoplists</value>
+    <value>Полнотекстовые списки стоп-слов</value>
   </data>
   <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>Resource Pools</value>
+    <value>Пулы ресурсов</value>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>Audits</value>
+    <value>Аудиты</value>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>Server Audit Specifications</value>
+    <value>Спецификации аудита сервера</value>
   </data>
   <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>Spatial Indexes</value>
+    <value>Пространственные индексы</value>
   </data>
   <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>Workload Groups</value>
+    <value>Группы рабочей нагрузки</value>
   </data>
   <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL Files</value>
+    <value>Файлы SQL</value>
   </data>
   <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>Server Functions</value>
+    <value>Функции сервера</value>
   </data>
   <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL Type</value>
+    <value>Тип SQL</value>
   </data>
   <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>Server Options</value>
+    <value>Параметры сервера</value>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Database Diagrams</value>
+    <value>Диаграммы баз данных</value>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>System Tables</value>
+    <value>Системные таблицы</value>
   </data>
   <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>Databases</value>
+    <value>Базы данных</value>
   </data>
   <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>System Contracts</value>
+    <value>Системные контракты</value>
   </data>
   <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>System Databases</value>
+    <value>Системные базы данных</value>
   </data>
   <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>System Message Types</value>
+    <value>Системные типы сообщений</value>
   </data>
   <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>System Queues</value>
+    <value>Системные очереди</value>
   </data>
   <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>System Services</value>
+    <value>Системные службы</value>
   </data>
   <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>System Stored Procedures</value>
+    <value>Системные хранимые процедуры</value>
   </data>
   <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>System Views</value>
+    <value>Системные представления</value>
   </data>
   <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>Data-tier Applications</value>
+    <value>Приложения уровня данных</value>
   </data>
   <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>Extended Stored Procedures</value>
+    <value>Расширенные хранимые процедуры</value>
   </data>
   <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>Агрегатные функции</value>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Approximate Numerics</value>
+    <value>Приблизительные числовые данные</value>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>Binary Strings</value>
+    <value>Двоичные строки</value>
   </data>
   <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>Character Strings</value>
+    <value>Символьные строки</value>
   </data>
   <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR Data Types</value>
+    <value>Типы данных CLR</value>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Configuration Functions</value>
+    <value>Функции настройки</value>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>Cursor Functions</value>
+    <value>Функции работы с курсорами</value>
   </data>
   <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>System Data Types</value>
+    <value>Системные типы данных</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>Date and Time</value>
+    <value>Дата и время</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>Date and Time Functions</value>
+    <value>Функции даты и времени</value>
   </data>
   <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>Exact Numerics</value>
+    <value>Точные числовые значения</value>
   </data>
   <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>System Functions</value>
+    <value>Системные функции</value>
   </data>
   <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>Hierarchy Id Functions</value>
+    <value>Функции идентификаторов иерархии</value>
   </data>
   <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>Mathematical Functions</value>
+    <value>Математические функции</value>
   </data>
   <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>Metadata Functions</value>
+    <value>Функции метаданных</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Other Data Types</value>
+    <value>Прочие типы данных</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Other Functions</value>
+    <value>Прочие функции</value>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Rowset Functions</value>
+    <value>Функции работы с наборами строк</value>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>Security Functions</value>
+    <value>Функции безопасности</value>
   </data>
   <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>Spatial Data Types</value>
+    <value>Пространственные типы данных</value>
   </data>
   <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>String Functions</value>
+    <value>Строковые функции</value>
   </data>
   <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>System Statistical Functions</value>
+    <value>Системные статистические функции</value>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Text and Image Functions</value>
+    <value>Функции обработки текста и изображений</value>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Unicode Character Strings</value>
+    <value>Строка символов Юникода</value>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>Агрегатные функции</value>
   </data>
   <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>Scalar-valued Functions</value>
+    <value>Скалярные функции</value>
   </data>
   <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>Table-valued Functions</value>
+    <value>Функции с табличным значением</value>
   </data>
   <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>System Extended Stored Procedures</value>
+    <value>Системные расширенные хранимые процедуры</value>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>Built-in Types</value>
+    <value>Встроенные типы</value>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>Built-in Server Roles</value>
+    <value>Встроенные роли сервера</value>
   </data>
   <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>User with Password</value>
+    <value>Пользователь с паролем</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>Search Property List</value>
+    <value>Список свойств поиска</value>
   </data>
   <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>Security Policies</value>
+    <value>Политики безопасности</value>
   </data>
   <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>Security Predicates</value>
+    <value>Предикаты безопасности</value>
   </data>
   <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>Server Role</value>
+    <value>Роль сервера</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>Search Property Lists</value>
+    <value>Списки свойств поиска</value>
   </data>
   <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Индексы хранилища столбцов</value>
   </data>
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>Table Type Indexes</value>
+    <value>Индексы типов таблиц</value>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>Selective XML Indexes</value>
+    <value>Селективные XML-индексы</value>
   </data>
   <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML Namespaces</value>
+    <value>Пространства имен XML</value>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML Typed Promoted Paths</value>
+    <value>Типизированные повышенные пути XML</value>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL Typed Promoted Paths</value>
+    <value>Типизированные повышенные пути T-SQL</value>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>Database Scoped Credentials</value>
+    <value>Учетные данные для базы данных</value>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>External Data Sources</value>
+    <value>Источники внешних данных</value>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>External File Formats</value>
+    <value>Форматы внешнего файла</value>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>External Resources</value>
+    <value>Внешние ресурсы</value>
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>External Tables</value>
+    <value>Внешние таблицы</value>
   </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted Keys</value>
+    <value>Ключи Always Encrypted</value>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Column Master Keys</value>
+    <value>Главные ключи столбцов</value>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>Column Encryption Keys</value>
+    <value>Ключи шифрования столбца</value>
   </data>
   <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>Server</value>
+    <value>Сервер</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
     <value>{0} ({1}, {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>No default</value>
+    <value>Нет значения по умолчанию</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>Input</value>
+    <value>Ввод</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>Input/Output</value>
+    <value>Ввод-вывод</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>Input/ReadOnly</value>
+    <value>Входной/только для чтения</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>Input/Output/ReadOnly</value>
+    <value>Входной/выходной/только для чтения</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>Default</value>
+    <value>По умолчанию</value>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>null</value>
+    <value>NULL</value>
   </data>
   <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>not null</value>
+    <value>Не NULL</value>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
     <value>{0} ({1}, {2})</value>
@@ -637,120 +637,120 @@
     <value>{0} ({1})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} ({1}Computed, {2}, {3})</value>
+    <value>{0} (вычислено {1}, {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1}Computed)</value>
+    <value>{0} (вычислено {1})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (Column Set, {1})</value>
+    <value>{0} (набор столбцов, {1})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (Column Set, {1}{2}, {3})</value>
+    <value>{0} (набор столбцов, {1}{2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (Column Set, {1}, {2}, {3})</value>
+    <value>{0} (набор столбцов, {1}, {2}, {3})</value>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>Unique</value>
+    <value>Уникальный</value>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>Non-Unique</value>
+    <value>Неуникальный</value>
   </data>
   <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Clustered</value>
+    <value>Кластеризованный</value>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Non-Clustered</value>
+    <value>Некластеризованный</value>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
-    <value>History</value>
+    <value>Журнал</value>
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>System-Versioned</value>
+    <value>Системно-версионный</value>
   </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>The database {0} is not accessible.</value>
+    <value>База данных {0} недоступна.</value>
   </data>
   <data name="External_LabelPart" xml:space="preserve">
-    <value>External</value>
+    <value>Внешний</value>
   </data>
   <data name="FileTable_LabelPart" xml:space="preserve">
-    <value>File Table</value>
+    <value>Таблица файлов</value>
   </data>
   <data name="UpdatableLedger_LabelPart" xml:space="preserve">
-    <value>Updatable Ledger</value>
+    <value>Обновляемый реестр</value>
   </data>
   <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
-    <value>Append-Only Ledger</value>
+    <value>Реестр только для добавления</value>
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
-    <value>Ledger</value>
+    <value>Реестр</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
-    <value>Dropped Ledger Tables</value>
+    <value>Удаленные таблицы реестра</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Удаленные представления реестра</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
-    <value>Dropped Ledger Columns</value>
+    <value>Удаленные столбцы реестра</value>
   </data>
   <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
-    <value>Built-in Schemas</value>
+    <value>Встроенные схемы</value>
   </data>
   <data name="FilterName" xml:space="preserve">
-    <value>Name</value>
+    <value>Имя</value>
   </data>
   <data name="FilterNameDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the name or part of a name.</value>
+    <value>Включить или исключить объекты по имени или части имени.</value>
   </data>
   <data name="FilterSchema" xml:space="preserve">
-    <value>Schema</value>
+    <value>Схема</value>
   </data>
   <data name="FilterSchemaDescription" xml:space="preserve">
-    <value> Include or exclude objects based on the schema or part of a schema name.</value>
+    <value> Включить или исключить объекты по схеме или части имени схемы.</value>
   </data>
   <data name="FilterOwner" xml:space="preserve">
-    <value>Owner</value>
+    <value>Владелец</value>
   </data>
   <data name="FilterOwnerDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the owner or part of an owner name.</value>
+    <value>Включить или исключить объекты по владельцу или части имени владельца.</value>
   </data>
   <data name="FilterDurabilityType" xml:space="preserve">
-    <value>Durability Type</value>
+    <value>Тип устойчивости</value>
   </data>
   <data name="FilterDurabilityTypeDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the durability type.</value>
+    <value>Включить или исключить объекты по типу устойчивости.</value>
   </data>
   <data name="FilterIsMemoryOptimized" xml:space="preserve">
-    <value>Is Memory Optimized</value>
+    <value>Оптимизировано для операций в памяти</value>
   </data>
   <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is memory optimized.</value>
+    <value>Включить или исключить объекты на основании того, является ли объект оптимизированным для обработки в памяти.</value>
   </data>
   <data name="FilterCreateDate" xml:space="preserve">
-    <value>Create Date</value>
+    <value>Дата создания</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Include or exclude objects based on their creation date.</value>
+    <value>Включите или исключите объекты на основе даты их создания.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
-    <value>Is Natively Compiled</value>
+    <value>Скомпилировано в собственном коде</value>
   </data>
   <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is natively compiled.</value>
+    <value>Включить или исключить объекты на основании того, скомпилированы ли они в собственном коде.</value>
   </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
-    <value>In Primary Key</value>
+    <value>В первичном ключе</value>
   </data>
   <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the column is in a primary key.</value>
+    <value>Включить или исключить объекты в зависимости от того, находится ли столбец в первичном ключе.</value>
   </data>
   <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
-    <value>Schema Only</value>
+    <value>Только схема</value>
   </data>
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
-    <value>Schema and Data</value>
+    <value>Схема и данные</value>
   </data>
 </root>
