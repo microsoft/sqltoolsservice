@@ -15,8 +15,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.Metadata;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
@@ -127,59 +127,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static Task HandleGenerateServerContextualizationNotification(GenerateServerContextualizationParams contextualizationParams,
             EventContext eventContext)
         {
-            MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
-
-            if (connectionInfo != null)
+            _ = Task.Factory.StartNew(() =>
             {
-                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
+                MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
+
+                if (connectionInfo != null)
                 {
-                    try
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                     {
                         // If scripts have been generated within the last 30 days then there isn't a need to go through the process
                         // of generating scripts again.
                         if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                         {
-                            return Task.CompletedTask;
+                            return;
                         }
 
-                        _ = Task.Factory.StartNew(() =>
+                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
+                        if (scripts != null)
                         {
                             try
                             {
-                                var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
-                                if (scripts != null)
-                                {
-                                    try
-                                    {
-                                        MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
-                                    }
-                                }
-                                else
-                                {
-                                    Logger.Error("Failed to generate server scripts");
-                                }
+                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
                             }
                             catch (Exception ex)
                             {
-                                Logger.Error($"Unable to generate scripts for server. Error: {ex.Message}");
+                                Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
                             }
-                        });
-                        
+                        }
+                        else
+                        {
+                            Logger.Error("Failed to generate server scripts");
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Error($"An error was encountered during the script generation process. Error: {ex.Message}");
-                    }
+
                 }
-            }
-            else
-            {
-                Logger.Error("Failed to find connection info about the server.");
-            }
+            },
+            System.Threading.CancellationToken.None,
+            TaskCreationOptions.None,
+            TaskScheduler.Default);
 
             return Task.CompletedTask;
         }

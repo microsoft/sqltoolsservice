@@ -183,6 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             await MetadataService.HandleGenerateServerContextualizationNotification(generateServerContextualizationParams, eventContextMock.Object);
 
+            // Waiting for background task to finish
+            Thread.Sleep(30 * 1000);
+
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 

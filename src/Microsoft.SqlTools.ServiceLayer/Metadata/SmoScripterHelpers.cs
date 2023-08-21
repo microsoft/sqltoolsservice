@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 ToFileOnly = false,
                 Triggers = false,
                 WithDependencies = false,
-                XmlIndexes = false                
+                XmlIndexes = false
             };
 
             var scripter = new Scripter(server);
@@ -202,7 +202,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     Logger.Warning($"Unable to get view URNs. Error: {ex.Message}");
                 }
             }
-
             return urnCollection;
         }
     }
