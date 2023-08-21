@@ -15,7 +15,6 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>8.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
-		<Authors>Microsoft</Authors>
 		<Version>1.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
