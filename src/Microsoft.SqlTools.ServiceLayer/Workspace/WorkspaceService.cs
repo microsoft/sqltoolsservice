@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -139,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // Register an initialization handler that sets the workspace path
             serviceHost.RegisterInitializeTask((parameters, context) =>
             {
-                Logger.Write(TraceEventType.Verbose, "Initializing workspace service");
+                Logger.Verbose("Initializing workspace service");
 
                 if (Workspace != null)
                 {
@@ -152,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // Register a shutdown request that disposes the workspace
             serviceHost.RegisterShutdownTask((parameters, context) =>
             {
-                Logger.Write(TraceEventType.Verbose, "Shutting down workspace service");
+                Logger.Verbose("Shutting down workspace service");
 
                 if (Workspace != null)
                 {
@@ -236,14 +235,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     }
                 }
 
-                Logger.Write(TraceEventType.Verbose, msg.ToString());
+                Logger.Verbose(msg.ToString());
 
                 var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
                 return Task.WhenAll(handlers);
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return Task.FromResult(true);
@@ -256,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleDidOpenTextDocumentNotification");
+                Logger.Verbose("HandleDidOpenTextDocumentNotification");
 
                 if (IsScmEvent(openParams.TextDocument.Uri))
                 {
@@ -277,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;
@@ -290,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleDidCloseTextDocumentNotification");
+                Logger.Verbose("HandleDidCloseTextDocumentNotification");
 
                 if (IsScmEvent(closeParams.TextDocument.Uri))
                 {
@@ -313,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;
@@ -329,7 +328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleDidChangeConfigurationNotification");
+                Logger.Verbose("HandleDidChangeConfigurationNotification");
 
                 this.CurrentSettings = configChangeParams.Settings;
                 // Propagate the changes to the event handlers
@@ -339,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;

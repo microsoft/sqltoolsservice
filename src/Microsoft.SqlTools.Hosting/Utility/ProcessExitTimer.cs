@@ -28,13 +28,13 @@ namespace Microsoft.SqlTools.Utility
         private static void CheckParentStatusLoop(int parentProcessId, int intervalMs)
         {
             var parent = Process.GetProcessById(parentProcessId);
-            Logger.Write(TraceEventType.Information, $"Starting thread to check status of parent process. Parent PID: {parent.Id}");
+            Logger.Information($"Starting thread to check status of parent process. Parent PID: {parent.Id}");
             while (true)
             {
                 if (parent.HasExited)
                 {
                     var processName = Process.GetCurrentProcess().ProcessName;
-                    Logger.Write(TraceEventType.Information, $"Terminating {processName} process because parent process has exited. Parent PID: {parent.Id}");
+                    Logger.Information($"Terminating {processName} process because parent process has exited. Parent PID: {parent.Id}");
                     Environment.Exit(0);
                 }
                 Thread.Sleep(intervalMs);

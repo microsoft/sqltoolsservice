@@ -429,6 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             do
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 columnSchemas.Add(reader.GetColumnSchema().ToArray());
                             } while (reader.NextResult());
                         }

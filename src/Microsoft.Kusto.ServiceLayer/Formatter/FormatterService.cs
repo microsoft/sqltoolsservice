@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Extensibility;
@@ -37,7 +36,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
 
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(TraceEventType.Verbose, "TSqlFormatter initialized");
+            Logger.Verbose("TSqlFormatter initialized");
             serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
             serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
@@ -227,7 +226,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
 
         private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
-            Logger.Write(TraceEventType.Verbose, requestType);
+            Logger.Verbose(requestType);
 
             try
             {

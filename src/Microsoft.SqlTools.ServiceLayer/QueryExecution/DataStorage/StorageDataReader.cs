@@ -12,8 +12,6 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -84,13 +82,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region DbDataReader Methods
 
         /// <summary>
-        /// Pass-through to DbDataReader.ReadAsync()
+        /// Pass-through to DbDataReader.Read()
+        /// 
+        /// ************** IMPORTANT ****************
+        /// M.D.SqlClient's ReadAsync() implementation is not as 
+        /// performant as Read() and doesn't respect Cancellation Token 
+        /// due to long existing design issues like below:
+        /// 
+        /// https://github.com/dotnet/SqlClient/issues/593
+        /// https://github.com/dotnet/SqlClient/issues/44
+        /// 
+        /// Until these issues are resolved, prefer using Sync APIs.
+        /// *****************************************
+        /// 
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token to use for cancelling a query</param>
         /// <returns></returns>
-        public Task<bool> ReadAsync(CancellationToken cancellationToken)
+        public bool Read()
         {
-            return DbDataReader.ReadAsync(cancellationToken);
+            return DbDataReader.Read();
         }
 
         /// <summary>

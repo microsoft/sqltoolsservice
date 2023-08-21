@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask for the change to be applied
             var rc = new RowCreate(rowId, rs, data.TableMetadata);
-            await rc.ApplyChanges(newRowReader);
+            rc.ApplyChanges(newRowReader);
 
             // Then: The result set should have an additional row in it
             Assert.AreEqual(2, rs.RowCount);

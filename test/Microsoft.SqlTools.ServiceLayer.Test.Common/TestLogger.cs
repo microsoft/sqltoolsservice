@@ -28,7 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public string TraceSource { get; set; } = "sqltoolsTest";
         public string LogMessage { get => logMessage ?? $"{TestName} test message"; set => logMessage = value; }
         public string LogFilePath { get => logFilePath ?? Logger.GenerateLogFilePath(Path.Combine(Directory.GetCurrentDirectory(), TraceSource)); set => logFilePath = value; }
-        public TraceEventType EventType { get; set; } = TraceEventType.Information;
         public SourceLevels TracingLevel { get; set; } = SourceLevels.Critical;
         public bool DoNotUseTraceSource { get; set; } = false;
 
@@ -75,36 +74,66 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             set => pendingVerifications = value;
         }
 
-        public void Write() => Write(LogMessage);
+        public void Write() => Write(TraceEventType.Information, LogMessage);
 
-        public void Write(string logMessage)
+        public void Information() => Information(LogMessage);
+
+        public void Information(string logMessage) => Write(TraceEventType.Information, logMessage);
+
+        public void Warning(string logMessage) => Write(TraceEventType.Warning, logMessage);
+
+        public void Warning() => Warning(LogMessage);
+
+        public void Error(string logMessage) => Write(TraceEventType.Error, logMessage);
+
+        public void Error() => Error(LogMessage);
+
+        private void Write(TraceEventType traceEventType, string logMessage)
         {
             // write test log
             if (DoNotUseTraceSource)
             {
                 TraceSource savedTraceSource = Logger.TraceSource;
                 Logger.TraceSource = null;
-                Logger.Write(EventType, logMessage);
+                WriteInternal(traceEventType, logMessage);
                 Logger.TraceSource = savedTraceSource;
             }
             else
             {
-                Logger.Write(EventType, logMessage);
+                WriteInternal(traceEventType, logMessage);
             }
         }
 
-        public void WriteWithCallstack() => WriteWithCallstack(LogMessage);
+        private void WriteInternal(TraceEventType traceEventType, string logMessage)
+        {
+            switch (traceEventType)
+            {
+                case TraceEventType.Information:
+                    Logger.Information(logMessage);
+                    break;
+                case TraceEventType.Warning:
+                    Logger.Warning(logMessage);
+                    break;
+                case TraceEventType.Error:
+                    Logger.Error(logMessage);
+                    break;
+                default:
+                    throw new Exception($"Unsupported event type {traceEventType}");
+            }
+        }
 
-        public void WriteWithCallstack(string logMessage)
+        public void WriteWithCallstack() => WriteWithCallstack(TraceEventType.Information, LogMessage);
+
+        public void WriteWithCallstack(TraceEventType traceEventType, string logMessage)
         {
             // write test log with callstack
-            Logger.WriteWithCallstack(EventType, logMessage);
+            Logger.WriteWithCallstack(traceEventType, logMessage);
             ShouldVerifyCallstack = true;
         }
 
-        public void Verify(bool expectLogMessage = true) => Verify(ShouldVerifyCallstack, expectLogMessage);
+        public void Verify(bool expectLogMessage = true) => Verify(ShouldVerifyCallstack, expectLogMessage: expectLogMessage);
 
-        public void Verify(bool shouldVerifyCallstack, bool expectLogMessage = true) => Verify(EventType, LogMessage, CallstackMessage, shouldVerifyCallstack, expectLogMessage);
+        public void Verify(bool shouldVerifyCallstack, TraceEventType traceEventType = TraceEventType.Information, bool expectLogMessage = true) => Verify(traceEventType, LogMessage, CallstackMessage, shouldVerifyCallstack, expectLogMessage);
 
         public void Verify(TraceEventType eventType, string message, string callstackMessage, bool shouldVerifyCallstack = false, bool expectLogMessage = true)
         {

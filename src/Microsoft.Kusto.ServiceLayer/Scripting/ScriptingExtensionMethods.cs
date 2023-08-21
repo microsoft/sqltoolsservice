@@ -6,7 +6,6 @@
 #nullable disable
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
@@ -59,8 +58,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
 
             IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
-            Logger.Write(
-                TraceEventType.Verbose,
+            Logger.Verbose(
                 string.Format(
                     "Loaded SMO object type count {0}, types: {1}",
                     objectTypes.Count(),
@@ -70,8 +68,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             {
                 IEnumerable<KeyValuePair<string, string>> databaseObjectsOfType = publishModel.EnumChildrenForDatabaseObjectType(objectType);
 
-                Logger.Write(
-                    TraceEventType.Verbose,
+                Logger.Verbose(
                     string.Format(
                         "Loaded SMO urn object count {0} for type {1}, urns: {2}",
                         objectType,

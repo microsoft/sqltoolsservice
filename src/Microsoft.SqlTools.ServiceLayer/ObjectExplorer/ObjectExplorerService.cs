@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,12 +23,14 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
@@ -47,7 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConnectionService connectionService;
         private IProtocolEndpoint serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
-        private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
@@ -63,7 +63,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         public ObjectExplorerService()
         {
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
-            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
         }
 
@@ -76,14 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             set
             {
                 this.bindingQueue = value;
-            }
-        }
-
-        private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories
-        {
-            get
-            {
-                return applicableNodeChildFactories.Value;
             }
         }
 
@@ -115,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, ex.Message);
+                Logger.Error(ex.Message);
             }
         }
 
@@ -125,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <param name="serviceHost">The service host instance to register with</param>
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
+            Logger.Verbose("ObjectExplorer service initialized");
             this.serviceHost = serviceHost;
 
             this.ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
@@ -170,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
+            Logger.Verbose("HandleCreateSessionRequest");
             Func<Task<CreateSessionResponse>> doCreateSession = async () =>
             {
                 Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
@@ -193,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleExpandRequest");
+            Logger.Verbose("HandleExpandRequest");
 
             Func<Task<bool>> expandNode = async () =>
             {
@@ -204,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 if (!sessionMap.TryGetValue(uri, out session))
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    Logger.Verbose($"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = expandParams.SessionId,
@@ -225,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleRefreshRequest");
+            Logger.Verbose("HandleRefreshRequest");
             Validate.IsNotNull(nameof(refreshParams), refreshParams);
             Validate.IsNotNull(nameof(context), context);
 
@@ -233,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerSession session = null;
             if (string.IsNullOrEmpty(uri) || !sessionMap.TryGetValue(uri, out session))
             {
-                Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                Logger.Verbose($"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                 await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                 {
                     SessionId = refreshParams.SessionId,
@@ -252,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
         {
 
-            Logger.Write(TraceEventType.Verbose, "HandleCloseSessionRequest");
+            Logger.Verbose("HandleCloseSessionRequest");
             Func<Task<CloseSessionResponse>> closeSession = () =>
             {
                 Validate.IsNotNull(nameof(closeSessionParams), closeSessionParams);
@@ -264,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     bool success = false;
                     if (!sessionMap.TryGetValue(uri, out session))
                     {
-                        Logger.Write(TraceEventType.Verbose, $"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
+                        Logger.Verbose($"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
                     }
 
                     if (session != null)
@@ -287,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
             foundNodes ??= new List<TreeNode>();
 
-            await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
+            await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => new NodeInfo(node)).ToList() });
         }
 
         internal void CloseSession(string uri)
@@ -312,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
-            Logger.Write(TraceEventType.Information, "Creating OE session");
+            Logger.Information("Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {
@@ -366,7 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 response = new SessionCreatedParameters
                 {
                     Success = true,
-                    RootNode = session.Root.ToNodeInfo(),
+                    RootNode = new NodeInfo(session.Root),
                     SessionId = uri,
                     ErrorNumber = session.ErrorNumber,
                     ErrorMessage = session.ErrorMessage
@@ -407,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     }
                     catch (Exception ex)
                     {
-                        Logger.Write(TraceEventType.Warning, $"Failed to start database initialization for table designer: {ex.Message}");
+                        Logger.Warning($"Failed to start database initialization for table designer: {ex.Message}");
                     }
                 });
             }
@@ -445,17 +436,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    securityToken = null;
                                }
 
+                               var filterDefinitions = node.FilterProperties;
+                               var appliedFilters = new List<INodeFilter>();
+
+                               if (filters != null)
+                               {
+                                   foreach (var f in filters)
+                                   {
+                                       NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
+                                       appliedFilters.Add(f.ToINodeFilter(filterProperty));
+                                   }
+                               }
+
+
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken, securityToken?.Token, appliedFilters).Select(x => new NodeInfo(x)).ToArray();
                                }
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
                                    try
                                    {
-                                       nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                       nodes = node.Expand(cancelToken, securityToken?.Token, appliedFilters).Select(x => new NodeInfo(x)).ToArray();
                                    }
                                    catch (ConnectionFailureException ex)
                                    {
@@ -478,7 +482,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                }
                                catch (Exception ex)
                                {
-                                   Logger.Write(TraceEventType.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
+                                   Logger.Warning($"Failed to change the database in OE connection. error: {ex.Message}");
                                    // We should just try to change the connection. If it fails, there's not much we can do
                                }
                                return response;
@@ -535,7 +539,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider, () =>
+            {
+                return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
+            });
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -586,7 +593,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async Task SendSessionFailedNotification(string uri, string errorMessage, int? errorCode)
         {
-            Logger.Write(TraceEventType.Warning, $"Failed To create OE session: {errorMessage}");
+            Logger.Warning($"Failed To create OE session: {errorMessage}");
             SessionCreatedParameters result = new SessionCreatedParameters()
             {
                 Success = false,
@@ -599,7 +606,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
         {
-            Logger.Write(TraceEventType.Information, $"OE session disconnected: {errorMessage}");
+            Logger.Information($"OE session disconnected: {errorMessage}");
             SessionDisconnectedParameters result = new SessionDisconnectedParameters()
             {
                 Success = success,
@@ -663,7 +670,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken, expandParams.Filters);
             if (cancellationToken.IsCancellationRequested)
             {
-                Logger.Write(TraceEventType.Verbose, "OE expand canceled");
+                Logger.Verbose("OE expand canceled");
             }
             else
             {
@@ -686,39 +693,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }
-
-        public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
-        {
-            if (ApplicableNodeChildFactories != null)
-            {
-                HashSet<ChildFactory> applicableFactories;
-                if (ApplicableNodeChildFactories.TryGetValue(item.NodeTypeId.ToString(), out applicableFactories))
-                {
-                    return applicableFactories;
-                }
-            }
-            return null;
-        }
-
-        internal Dictionary<string, HashSet<ChildFactory>> PopulateFactories()
-        {
-            VerifyServicesInitialized();
-
-            var childFactories = new Dictionary<string, HashSet<ChildFactory>>();
-            // Create our list of all NodeType to ChildFactory objects so we can expand appropriately
-            foreach (var factory in serviceProvider.GetServices<ChildFactory>())
-            {
-                var parents = factory.ApplicableParents();
-                if (parents != null)
-                {
-                    foreach (var parent in parents)
-                    {
-                        AddToApplicableChildFactories(childFactories, factory, parent);
-                    }
-                }
-            }
-            return childFactories;
         }
 
         private void VerifyServicesInitialized()
@@ -822,27 +796,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             return string.Empty;
         }
 
-        internal class ObjectExplorerSession
+        internal class ObjectExplorerSession : IObjectExplorerSession
         {
-            private ConnectionService connectionService;
-            private IMultiServiceProvider serviceProvider;
-
             // TODO decide whether a cache is needed to handle lookups in elements with a large # children
             //private const int Cachesize = 10000;
             //private Cache<string, NodeMapping> cache;
 
-            public ObjectExplorerSession(string uri, TreeNode root, IMultiServiceProvider serviceProvider, ConnectionService connectionService)
+            public ObjectExplorerSession(string uri, TreeNode root)
             {
                 Validate.IsNotNullOrEmptyString("uri", uri);
                 Validate.IsNotNull("root", root);
                 Uri = uri;
                 Root = root;
-                this.serviceProvider = serviceProvider;
-                this.connectionService = connectionService;
             }
 
             public string Uri { get; private set; }
-            public TreeNode Root { get; private set; }
 
             public ConnectionInfo ConnectionInfo { get; set; }
 
@@ -850,10 +818,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase, IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlagGetter)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
-                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
+                ServerNode rootNode = new ServerNode(new ObjectExplorerServerInfo()
+                {
+                    ServerName = response.ConnectionSummary.ServerName,
+                    DatabaseName = response.ConnectionSummary.DatabaseName,
+                    UserName = response.ConnectionSummary.UserName,
+                    ServerVersion = response.ServerInfo.ServerVersion,
+                    EngineEditionId = response.ServerInfo.EngineEditionId,
+                    IsCloud = response.ServerInfo.IsCloud,
+                }, serverConnection, serviceProvider, () =>
+                {
+                    return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
+                });
+                var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
                 if (!isDefaultOrSystemDatabase)
                 {
                     // Assuming the databases are in a folder under server node

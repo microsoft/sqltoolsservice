@@ -6,6 +6,7 @@
 #nullable disable
 
 using System.Data.Common;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -17,6 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        DbConnection CreateSqlConnection(string connectionString, string azureAccountToken);
+        /// <param name="retryProvider">Optional retry provider to handle errors in a special way</param>
+        DbConnection CreateSqlConnection(string connectionString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider = null);
     }
 }

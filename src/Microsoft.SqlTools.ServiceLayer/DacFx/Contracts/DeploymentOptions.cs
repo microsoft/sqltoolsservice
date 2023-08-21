@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -225,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 if (string.IsNullOrEmpty(displayName))
                 {
                     // not expecting display name for any options as empty string
-                    Logger.Write(TraceEventType.Error, string.Format($"Display name is empty for the Object type enum {0}", name));
+                    Logger.Error(string.Format($"Display name is empty for the Object type enum {0}", name));
                 }
                 else
                 {

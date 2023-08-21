@@ -8,7 +8,6 @@
 using System;
 using System.IO;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
@@ -172,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             else
             {
-                Logger.Write(TraceEventType.Information, string.Format("Operation {0} was not found", operation.OperationId));
+                Logger.Information(string.Format("Operation {0} was not found", operation.OperationId));
             }
 
             await requestContext.SendResult(new ScriptingCancelResult());
