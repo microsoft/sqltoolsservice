@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
 {
@@ -195,6 +196,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
 
             }
         }
+
+        public void InitializeAffinity(SMO.ConfigProperty affinity, SMO.ConfigProperty affinity64)
+        {
+            this.affinity.AffinityMaskCfg = affinity.ConfigValue;
+            this.affinity.AffinityMaskRun = affinity.RunValue;
+            this.affinity64.AffinityMaskCfg = affinity64.ConfigValue;
+            this.affinity64.AffinityMaskRun = affinity64.RunValue;
+        }
+
+        /// <summary>
+        /// Reset the affinities to default values.
+        /// </summary>
+        public void Clear()
+        {
+            initialIOAffinityArray = new BitArray(64, false);
+            affinity.Clear();
+            affinity64.Clear();
+        }
+
         private Affinity affinity = new Affinity(); // affinity mask for first 32 processors
         private Affinity affinity64 = new Affinity(); // affinity mask for next 32 (33-64) processors.
     };
