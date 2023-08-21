@@ -212,6 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var sqlScript = handler.Attach(requestParams);
+            await requestContext.SendResult(sqlScript);
         }
 
         internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)

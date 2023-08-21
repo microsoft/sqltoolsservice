@@ -75,6 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDataFolderRequest.Type, HandleGetDataFolderRequest, true);
+            serviceHost.SetRequestHandler(GetAssociatedFilesRequest.Type, HandleGetAssociatedFilesRequest, true);
         }
 
         /// <summary>
@@ -176,6 +177,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     ServerConnection serverConnection = new ServerConnection(sqlConn);
                     var dataFolder = CommonUtilities.GetDefaultDataFolder(serverConnection);
                     await requestContext.SendResult(dataFolder);
+                }
+            };
+
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            {
+                await requestContext.SendError(t.Exception.ToString());
+            });
+        }
+
+        /// <summary>
+        /// Handle get associated database files request
+        /// </summary>
+        internal static async Task HandleGetAssociatedFilesRequest(
+            GetAssociatedFilesParams databaseParams,
+            RequestContext<string[]> requestContext)
+        {
+            Func<Task> requestHandler = async () =>
+            {
+                ConnectionInfo connInfo;
+                AdminService.ConnectionServiceInstance.TryFindConnection(
+                        databaseParams.ConnectionUri,
+                        out connInfo);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    // Connection gets disconnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    var files = CommonUtilities.GetAssociatedFilePaths(serverConnection, databaseParams.PrimaryFilePath);
+                    await requestContext.SendResult(files);
                 }
             };
 

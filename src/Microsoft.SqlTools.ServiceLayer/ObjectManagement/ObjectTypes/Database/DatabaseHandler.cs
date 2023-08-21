@@ -401,11 +401,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true, null))
             {
                 var server = dataContainer.Server!;
+                var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
                 if (attachParams.GenerateScript)
                 {
                     server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                    server.ConnectionContext.CapturedSql.Clear();
                 }
-                server.ConnectionContext.BeginTransaction();
                 try
                 {
                     foreach (var database in attachParams.Databases)
@@ -427,19 +428,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         sqlScript = builder.ToString();
                     }
-                    server.ConnectionContext.CommitTransaction();
-                }
-                catch
-                {
-                    server.ConnectionContext.RollBackTransaction();
-                    throw;
                 }
                 finally
                 {
                     if (attachParams.GenerateScript)
                     {
-                        server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                        server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
                     }
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
