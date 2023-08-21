@@ -1007,7 +1007,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         #region properties
 
         /// <summary>
-        /// The logical name of the file, without extension
+        /// The ID of the file
         /// </summary>
         public int ID
         {

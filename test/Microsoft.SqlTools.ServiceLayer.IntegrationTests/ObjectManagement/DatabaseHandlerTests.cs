@@ -390,11 +390,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
             {
                 var server = new Server(new ServerConnection(sqlConn));
-
                 var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
                 var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
-                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
-
                 try
                 {
                     // create database

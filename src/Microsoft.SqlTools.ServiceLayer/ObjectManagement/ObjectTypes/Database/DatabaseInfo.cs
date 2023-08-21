@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool IsAutoGrowthEnabled { get; set; }
         public double AutoFileGrowth { get; set; }
         public string AutoFileGrowthType { get; set; }
-        public double MaxSizeLimit { get; set; }
+        public double MaxSizeLimitInMb { get; set; }
     }
 
 }

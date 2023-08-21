@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         FileNameWithExtension = "TestDatabaseName_File1_" + new Random().NextInt64(10000000, 90000000).ToString() +".ndf",
                         SizeInMb = 10,
                         IsAutoGrowthEnabled = true,
-                        MaxSizeLimit = -1,
+                        MaxSizeLimitInMb = -1,
                         Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA"
                     },
                 new DatabaseFile() {
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         FileNameWithExtension = "TestDatabaseName_File2_" + new Random().NextInt64(10000000, 90000000).ToString() +".ndf",
                         SizeInMb = 12,
                         IsAutoGrowthEnabled = true,
-                        MaxSizeLimit = -1,
+                        MaxSizeLimitInMb = -1,
                         Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA"
                     }};
             return databaseFiles.ToArray();

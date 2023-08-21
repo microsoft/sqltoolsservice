@@ -21,6 +21,7 @@ using System.Text;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.SqlCore.Utility;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
-        private static readonly Dictionary<FileType, string> displayFileTypes = new Dictionary<FileType, string>();
+        private static readonly ConcurrentDictionary<FileType, string> displayFileTypes = new ConcurrentDictionary<FileType, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -82,9 +83,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
-            displayFileTypes.Add(FileType.Data, SR.prototype_file_dataFile);
-            displayFileTypes.Add(FileType.Log, SR.prototype_file_logFile);
-            displayFileTypes.Add(FileType.FileStream, SR.prototype_file_filestreamFile);
+            displayFileTypes.TryAdd(FileType.Data, SR.prototype_file_dataFile);
+            displayFileTypes.TryAdd(FileType.Log, SR.prototype_file_logFile);
+            displayFileTypes.TryAdd(FileType.FileStream, SR.prototype_file_filestreamFile);
 
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
@@ -672,16 +673,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 // Edit file properties: updating the existed files with modified data
                                 else
                                 {
-                                    foreach(var existedFile in prototype.Files)
-                                    {
-                                        if(existedFile.ID == file.Id)
-                                        {
-                                            fileIdsToRemove.Remove(existedFile.ID);
-                                            existedFile.Name = file.Name;
-                                            existedFile.InitialSize = (int)file.SizeInMb;
-                                            existedFile.Autogrowth = GetAutogrowth(prototype, file);
-                                            break;
-                                        }
+                                    var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
+                                    if (existedFile != null) {
+                                        fileIdsToRemove.Remove(file.Id);
+                                        existedFile.Name = file.Name;
+                                        existedFile.InitialSize = (int)file.SizeInMb;
+                                        existedFile.Autogrowth = GetAutogrowth(prototype, file);
                                     }
                                 }
                             }
@@ -761,8 +758,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
             fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
             fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
-            fileAutogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimit) ? file.MaxSizeLimit : 0.0);
-            fileAutogrowth.IsGrowthRestricted = file.MaxSizeLimit > 0.0;
+            fileAutogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimitInMb) ? file.MaxSizeLimitInMb : 0.0);
+            fileAutogrowth.IsGrowthRestricted = file.MaxSizeLimitInMb > 0.0;
 
             return fileAutogrowth;
         }
@@ -936,7 +933,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
                         AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
                         AutoFileGrowthType = file.GrowthType.ToString(),
-                        MaxSizeLimit = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
+                        MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
                         IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None,
                     });
                 }
@@ -954,7 +951,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
                     AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
                     AutoFileGrowthType = file.GrowthType.ToString(),
-                    MaxSizeLimit = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
+                    MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
                     IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None
                 });
             }
