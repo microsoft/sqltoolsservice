@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         AutoFileGrowth = 100,
                         AutoFileGrowthType = "KB",
                         FileGroup = "Not Applicable",
-                        FileNameWithExtension = "TestDatabaseName_File1_" + new Random().NextInt64(10000000, 90000000).ToString() +".ndf",
+                        FileNameWithExtension = "TestDatabaseName_File1_" + new Random().NextInt64(10000000, 90000000).ToString() +".ldf",
                         SizeInMb = 10,
                         IsAutoGrowthEnabled = true,
                         MaxSizeLimitInMb = -1,

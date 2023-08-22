@@ -326,54 +326,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public async Task VerifyDatabaseScopedConfigurationsTest()
         {
-            // setup, drop database if exists.
-            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
-            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            using (var testDatabase = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, dbNamePrefix: "VerifyDatabaseFilesTest"))
             {
-                var server = new Server(new ServerConnection(sqlConn));
-
-                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
-                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
-                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
-
-                try
+                var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(testDatabase.DatabaseName);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
                 {
-                    // create database
-                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
-                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+                    var server = new Server(new ServerConnection(sqlConn));
+
+                    var testDatabaseInfo = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                    testDatabaseInfo.Name = testDatabase.DatabaseName;
+                    testDatabaseInfo.CollationName = "";
+                    var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.DatabaseName);
 
                     // Get database properties and verify
-                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
-                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.DatabaseName, false, SqlObjectType.Database, "", objUrn);
+                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations, Is.Not.Null, $"DatabaseScopedConfigurations is not null");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations.Count, Is.GreaterThan(0), $"DatabaseScopedConfigurations should have at least a+ few properties");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo("ON"), $"DatabaseScopedConfigurations primary value should match");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForSecondary, Is.EqualTo("ON"), $"DatabaseScopedConfigurations secondary value should match");
 
                     // Update few database scoped configurations
-                    testDatabase.DatabaseScopedConfigurations = ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations;
-                    if (testDatabase.DatabaseScopedConfigurations.Length > 0)
+                    testDatabaseInfo.DatabaseScopedConfigurations = ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations;
+                    if (testDatabaseInfo.DatabaseScopedConfigurations.Length > 0)
                     {
                         // ACCELERATED_PLAN_FORCING
-                        testDatabase.DatabaseScopedConfigurations[0].ValueForPrimary = "OFF";
-                        testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary = "OFF";
+                        testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForPrimary = "OFF";
+                        testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForSecondary = "OFF";
                     }
-                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
 
                     // verify the modified properties
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForPrimary), $"DSC updated primary value should match");
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForSecondary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary), $"DSC updated Secondary value should match");
-
-                    // cleanup
-                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
-                    Assert.That(DatabaseExists(testDatabase.Name!, server), Is.False, $"Database '{testDatabase.Name}' was not dropped succesfully");
-                }
-                finally
-                {
-                    // Cleanup using SMO if Drop didn't work
-                    DropDatabase(server, testDatabase.Name!);
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo(testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForPrimary), $"DSC updated primary value should match");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForSecondary, Is.EqualTo(testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForSecondary), $"DSC updated Secondary value should match");
                 }
             }
         }
@@ -385,23 +371,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public async Task VerifyDatabaseFilesTest()
         {
-            // setup, drop database if exists.
-            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
-            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            using (var testDatabase = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, dbNamePrefix: "VerifyDatabaseFilesTest"))
             {
-                var server = new Server(new ServerConnection(sqlConn));
-                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
-                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
-                try
+                var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(testDatabase.DatabaseName);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
                 {
-                    // create database
-                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
-                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+                    var testDatabaseInfo = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                    testDatabaseInfo.Name = testDatabase.DatabaseName;
+                    testDatabaseInfo.CollationName = "";
+                    var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.DatabaseName);
 
                     // Get database properties and verify
-                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
-                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.DatabaseName, false, SqlObjectType.Database, "", objUrn);
+                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(2), $"Create database should create two database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0].Type, Is.EqualTo("ROWS Data"), $"Database files first file should be Row type database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1].Type, Is.EqualTo("LOG"), $"Database files first file should be Log type database files");
@@ -421,40 +403,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     databaseFile.AddRange(testDatabaseFiles);
 
                     // Attaching the files to the testdatabase
-                    testDatabase.Files = databaseFile.ToArray();
+                    testDatabaseInfo.Files = databaseFile.ToArray();
 
                     // Validate the result files
-                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
 
                     // verify the modified properties
                     Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(4), $"Two files should exists, as we modified one and added two files");
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[0].SizeInMb, Is.EqualTo(15), $"Files updated value should match");
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[0].AutoFileGrowth, Is.EqualTo(74), $"Files updated value should match");
+                    var file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == databaseFile[0].Name);
+                    Assert.That(file, Is.Not.Null, $"Primary file should exists");
+                    Assert.That(file.SizeInMb, Is.EqualTo(15), $"Files updated value should match");
+                    Assert.That(file.AutoFileGrowth, Is.EqualTo(74), $"Files updated value should match");
 
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[1].Id, Is.Not.EqualTo(0), $"Newly created file should have an Id");
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[1].Name, Is.EqualTo(testDatabaseFiles[1].Name), $"Files updated value should match");
-
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[3].Id, Is.Not.EqualTo(0), $"Newly created file should have an Id");
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[3].Name, Is.EqualTo(testDatabaseFiles[0].Name), $"Files updated value should match");
+                    // Validate newly created files
+                    file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == testDatabaseFiles[0].Name);
+                    Assert.That(file, Is.Not.Null, $"New file should be created");
+                    Assert.That(file, Is.Not.EqualTo(0), $"Newly created file should have an Id");
+                    file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == testDatabaseFiles[1].Name);
+                    Assert.That(file, Is.Not.Null, $"New file should be created");
+                    Assert.That(file, Is.Not.EqualTo(0), $"Newly created file should have an Id");
 
                     // Deleting newly created file
                     databaseFile.RemoveAt(3);
-                    testDatabase.Files = databaseFile.ToArray();
-                    
-                    // Validate the result files
-                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-                    DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
-                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Files.Count, Is.EqualTo(3), $"Should have only 3 files as we removed one");
+                    testDatabaseInfo.Files = databaseFile.ToArray();
 
-                    // cleanup
-                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
-                    Assert.That(DatabaseExists(testDatabase.Name!, server), Is.False, $"Database '{testDatabase.Name}' was not dropped succesfully");
-                }
-                finally
-                {
-                    // Cleanup using SMO if Drop didn't work
-                    DropDatabase(server, testDatabase.Name!);
+                    // Validate the result files
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
+                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Files.Count, Is.EqualTo(3), $"Should have only 3 files as we removed one");
                 }
             }
         }
