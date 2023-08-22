@@ -89,16 +89,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo, RunType runType)
         {
-            if (viewParams == null)
-            {
-                
-            }
             ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
-
-            ServerPrototype prototype = new ServerPrototype(dataContainer);
-            prototype.ApplyInfoToPrototype(serverInfo);
-            return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
+ 
+            using (var dataContainer = CDataContainer.CreateDataContainer(connInfo))
+            {
+                try
+                {
+                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+                    prototype.ApplyInfoToPrototype(serverInfo);
+                    return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
+                }
+                finally
+                {
+                    dataContainer.ServerConnection.Disconnect();
+                }
+            }
         }
 
         private string ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
