@@ -58,6 +58,7 @@ requiredLocDirectories=(
     "pl"
     "pl-PL"
     "pt-br"
+    "pt-BR"
     "pt-PT"
     "ru"
     "ru-RU"
