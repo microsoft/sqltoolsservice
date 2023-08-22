@@ -87,9 +87,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     MaxServerMemory = result.MaxServerMemory
                 };
 
+                // original memory settings
+                var originalMinMemory = result.MinServerMemory.Value;
+                var originalMaxMemory = result.MaxServerMemory.Value;
+
                 // Change memory settings
-                serverInfo.MinServerMemory.Value = 10;
-                serverInfo.MaxServerMemory.Value = 500;
+                serverInfo.MinServerMemory.Value = serverInfo.MinServerMemory.MinimumValue;
+                serverInfo.MaxServerMemory.Value = serverInfo.MaxServerMemory.MaximumValue;
 
                 Assert.That(result.MinServerMemory.Value, Is.Not.EqualTo(serverInfo.MinServerMemory.Value), "Server property should not be equal after update");
                 Assert.That(result.MaxServerMemory.Value, Is.Not.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should not be equal after update");
@@ -100,6 +104,57 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result.MinServerMemory.Value, Is.EqualTo(serverInfo.MinServerMemory.Value), "Server property should be equal after update");
                 Assert.That(result.MaxServerMemory.Value, Is.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should be equal after update");
+
+                // Reset to original values
+                serverInfo.MinServerMemory.Value = originalMinMemory;
+                serverInfo.MaxServerMemory.Value = originalMaxMemory;
+                await ObjectManagementTestUtils.SaveObject(requestParams, serverInfo);
+            }
+        }
+
+        /// <summary>
+        /// Test Processors for Sql Server
+        /// </summary>
+        [Test]
+        public async Task GetProcessorsProperties()
+        {
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+                var serverHandler = new ServerHandler(ConnectionService.Instance);
+
+                var requestParams = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Server, "", "");
+                var result = (ServerInfo)(await serverHandler.InitializeObjectView(requestParams)).ViewInfo.ObjectInfo;
+                ServerInfo serverInfo = new ServerInfo()
+                {
+                    Name = result.Name,
+                    HardwareGeneration = result.HardwareGeneration,
+                    Language = result.Language,
+                    MemoryInMB = result.MemoryInMB,
+                    OperatingSystem = result.OperatingSystem,
+                    Platform = result.Platform,
+                    Processors = result.Processors,
+                    IsClustered = result.IsClustered,
+                    IsHadrEnabled = result.IsHadrEnabled,
+                    IsPolyBaseInstalled = result.IsPolyBaseInstalled,
+                    IsXTPSupported = result.IsXTPSupported,
+                    Product = result.Product,
+                    ReservedStorageSizeMB = result.ReservedStorageSizeMB,
+                    RootDirectory = result.RootDirectory,
+                    ServerCollation = result.ServerCollation,
+                    ServiceTier = result.ServiceTier,
+                    StorageSpaceUsageInMB = result.StorageSpaceUsageInMB,
+                    Version = result.Version,
+                    MinServerMemory = result.MinServerMemory,
+                    MaxServerMemory = result.MaxServerMemory,
+                    AutoProcessorAffinityMaskForAll = result.AutoProcessorAffinityMaskForAll,
+                    AutoProcessorAffinityIOMaskForAll = result.AutoProcessorAffinityIOMaskForAll
+                };
+
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.AutoProcessorAffinityIOMaskForAll,Is.True, "Auto affinity should be default");
+                Assert.That(result.AutoProcessorAffinityMaskForAll, Is.True, "Auto affinity should be default");
             }
         }
     }
