@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-# This script creates the necessary directories that are required 
-# for the the linux dotnet builds to work. This issue is caused due to a mismatch
-# in the casing for the localization directories between all the projects and the 
-# nuget packages they are using. This not an issue in the windows because the dirs 
-# are case insensitive. 
+# This script creates the necessary directories required 
+# for Linux dotnet builds to function correctly. The issue arises due to a mismatch
+# in the casing of the localization directories between different frameworks used in this repo.
+# Net 472 creates localization directories like zh-Hans, pt-BR, zh-Hant, while netcore 
+# uses zh-hans, pt-br, zh-hant. This discrepancy causes build failures on Linux since the file system is 
+# case-sensitive. Consequently, when attempting to build using the netcore framework, it tries to copy files
+# from projects using the net472 framework (e.g., zh-Hant), resulting in failures as the localization directory 
+# (present in netcore as zh-hant and not zh-Hant) cannot be found.
 
 
 # To fix the issue, we need to make sure all the projects 
