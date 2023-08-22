@@ -436,6 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
 
+
         [Test]
         public async Task DetachDatabaseTest()
         {
