@@ -63,7 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
                         Version = prototype.Version,
                         MinServerMemory = prototype.MinServerMemory,
-                        MaxServerMemory = prototype.MaxServerMemory
+                        MaxServerMemory = prototype.MaxServerMemory,
+                        AutoProcessorAffinityMaskForAll = prototype.AutoProcessorAffinityMaskForAll,
+                        AutoProcessorAffinityIOMaskForAll = prototype.AutoProcessorAffinityIOMaskForAll,
+                        NumaNodes = prototype.NumaNodes
                     };
                 }
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
