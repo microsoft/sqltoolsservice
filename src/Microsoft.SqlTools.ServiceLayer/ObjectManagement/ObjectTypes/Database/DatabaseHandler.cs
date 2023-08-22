@@ -642,7 +642,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (!viewParams.IsNewObject)
+                        if (!viewParams.IsNewObject && database.Files != null)
                         {
                             HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
                             foreach (var file in database.Files)
