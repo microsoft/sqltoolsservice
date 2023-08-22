@@ -39,8 +39,11 @@ dotnetProjectArray=(
 framework7="/bin/Debug/net7.0/"
 
 requiredLocDirectories=(
+    "pt-br"
     "pt-BR"
+    "zh-hans"
     "zh-Hans"
+    "zh-hant"
     "zh-Hant"
 )
 
