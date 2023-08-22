@@ -5,6 +5,14 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -12,16 +20,10 @@ using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.SqlCore.Metadata;
 using Moq;
-using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
-using Microsoft.SqlTools.SqlCore.Metadata;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 {
@@ -32,6 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
     {
         private string testTableSchema = "dbo";
         private string testTableName = "MetadataTestTable";
+        private string testTableName2 = "SecondMetadataTestTable";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -50,20 +53,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             return result;
         }
 
-        private void CreateTestTable(SqlConnection sqlConn)
+        private void CreateTestTable(SqlConnection sqlConn, string testTableSchema, string testTableName)
         {
             string sql = string.Format("IF OBJECT_ID('{0}.{1}', 'U') IS NULL CREATE TABLE {0}.{1}(id int)",
-                this.testTableSchema, this.testTableName);
+                testTableSchema, testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
-                sqlCommand.ExecuteNonQuery(); 
-            }            
+                sqlCommand.ExecuteNonQuery();
+            }
         }
 
-        private void DeleteTestTable(SqlConnection sqlConn)
+        private void DeleteTestTable(SqlConnection sqlConn, string testTableSchema, string testTableName)
         {
             string sql = string.Format("IF OBJECT_ID('{0}.{1}', 'U') IS NOT NULL DROP TABLE {0}.{1}",
-                this.testTableSchema, this.testTableName);
+                testTableSchema, testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
                 sqlCommand.ExecuteNonQuery();
@@ -82,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
             Assert.NotNull(sqlConn);
 
-            CreateTestTable(sqlConn);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
             var metadata = new List<ObjectMetadata>();
             MetadataService.ReadMetadata(sqlConn, metadata);
@@ -100,18 +103,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             }
             Assert.True(foundTestTable);
 
-            DeleteTestTable(sqlConn);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
         }
 
         [Test]
         public async Task GetTableInfoReturnsValidResults()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
-                   
+
             var result = GetLiveAutoCompleteTestObjects();
             var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
 
-            CreateTestTable(sqlConn);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
             var requestContext = new Mock<RequestContext<TableMetadataResult>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
@@ -125,15 +128,99 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             await MetadataService.HandleGetTableRequest(metadataParmas, requestContext.Object);
 
-            DeleteTestTable(sqlConn);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
             requestContext.VerifyAll();
         }
 
         [Test]
+        public async Task VerifyGenerateServerContextualizationNotification()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(0, 999999).ToString();
+
+            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var generateServerContextualizationParams = new GenerateServerContextualizationParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            DeleteServerContextualizationTempFile(sqlConn.DataSource);
+        }
+
+        [Test]
+        public async Task VerifyGetServerContextualizationRequest()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+
+            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var generateServerContextualizationParams = new GenerateServerContextualizationParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
+
+            var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
+            var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
+            mockGetServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerContextualizationResult>()))
+                .Callback<GetServerContextualizationResult>(actual => actualGetServerContextualizationResponse = actual)
+                .Returns(Task.CompletedTask);
+
+            var getServerContextualizationParams = new GetServerContextualizationParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+
+            Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+
+            DeleteServerContextualizationTempFile(sqlConn.DataSource);
+
+            mockGetServerContextualizationRequestContext.VerifyAll();
+        }
+
+        private void DeleteServerContextualizationTempFile(string serverName)
+        {
+            var bytes = Encoding.UTF8.GetBytes(serverName);
+            var encodedServerName = Convert.ToBase64String(bytes);
+            var tempFileName = $"{encodedServerName}.tmp";
+
+            var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+            if (File.Exists(tempFilePath))
+            {
+                File.Delete(tempFilePath);
+            }
+        }
+
+        [Test]
         public async Task GetViewInfoReturnsValidResults()
-        {           
-            var result = GetLiveAutoCompleteTestObjects();         
+        {
+            var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<TableMetadataResult>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
 
@@ -166,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                             AS
                             RETURN SELECT 1 AS AccessResult
                             GO";
-            
+
             List<ObjectMetadata> expectedMetadataList = new List<ObjectMetadata>
             {
                 new ObjectMetadata
@@ -254,7 +341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 return result.Metadata == null;
             }
 
-            if(expectedMetadataList.Count != result.Metadata.Length)
+            if (expectedMetadataList.Count != result.Metadata.Length)
             {
                 return false;
             }

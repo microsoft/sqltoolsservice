@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             using (var actions = new ServerActions(dataContainer, prototype, configAction))
             {
                 string sqlScript = string.Empty;
-                var executionHandler = new ExecutonHandler(actions);
+                var executionHandler = new ExecutionHandler(actions);
                 executionHandler.RunNow(runType, this);
                 if (executionHandler.ExecutionResult == ExecutionMode.Failure)
                 {
