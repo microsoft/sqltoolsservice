@@ -12,7 +12,6 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>SQL XPLAT</PackageTags>
 		<DebugType>portable</DebugType>
-		<Authors>Microsoft</Authors>
 		<!-- add Source Link info to package/pdbs-->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
