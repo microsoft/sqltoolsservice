@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -41,19 +42,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         public IBinder Binder { get; set; }
 
-        public ManualResetEvent BindingLock { get; set; } 
+        public ManualResetEvent BindingLock { get; set; }
 
-        public int BindingTimeout { get; set; } 
+        public int BindingTimeout { get; set; }
 
         public ParseOptions ParseOptions { get; }
 
         public ServerVersion ServerVersion { get; }
 
-        public DatabaseEngineType DatabaseEngineType {  get; }
+        public DatabaseEngineType DatabaseEngineType { get; }
 
         public TransactSqlVersion TransactSqlVersion { get; }
 
-        public DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }  
+        public DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }
     }
 
     /// <summary>
@@ -62,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     public class BindingQueueTests
     {
         private int bindCallCount = 0;
-        
+
         private int timeoutCallCount = 0;
 
         private int bindCallbackDelay = 0;
@@ -92,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// Test bind operation callback
         /// </summary>
         private object TestBindOperation(
-            IBindingContext bindContext, 
+            IBindingContext bindContext,
             CancellationToken cancelToken)
         {
             cancelToken.WaitHandle.WaitOne(this.bindCallbackDelay);
@@ -100,8 +101,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             if (!this.isCancelationRequested)
             {
                 ++this.bindCallCount;
+                return new CompletionItem[0];
             }
-            return new CompletionItem[0];
+            // Throw error if task is canceled.
+            throw new TaskCanceledException();
         }
 
         /// <summary>
@@ -125,14 +128,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             this.bindingQueue.QueueBindingOperation(
                 key: "testkey",
                 bindOperation: TestBindOperation,
-                timeoutOperation: TestTimeoutOperation);    
+                timeoutOperation: TestTimeoutOperation);
 
-            Thread.Sleep(1000);      
-            
-            this.bindingQueue.StopQueueProcessor(15000);     
+            Thread.Sleep(1000);
+
+            this.bindingQueue.StopQueueProcessor(15000);
 
             Assert.AreEqual(1, this.bindCallCount);
-            Assert.AreEqual(0, this.timeoutCallCount);  
+            Assert.AreEqual(0, this.timeoutCallCount);
             Assert.False(this.isCancelationRequested);
         }
 
@@ -149,13 +152,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 key: "testkey",
                 bindOperation: (context, CancellationToken) => { throw new Exception("Unhandled!!"); },
                 timeoutOperation: TestTimeoutOperation,
-                errorHandler: (exception) => {
+                errorHandler: (exception) =>
+                {
                     isExceptionHandled = true;
                     return defaultReturnObject;
                 });
 
             queueItem.ItemProcessed.WaitOne(10000);
-            
+
             this.bindingQueue.StopQueueProcessor(15000);
 
             Assert.True(isExceptionHandled);
@@ -179,10 +183,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                     bindOperation: TestBindOperation,
                     timeoutOperation: TestTimeoutOperation);
             }
-            
+
             Thread.Sleep(2000);
 
-            this.bindingQueue.StopQueueProcessor(15000);     
+            this.bindingQueue.StopQueueProcessor(15000);
 
             Assert.AreEqual(100, this.bindCallCount);
             Assert.AreEqual(0, this.timeoutCallCount);
@@ -205,9 +209,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 bindOperation: TestBindOperation,
                 timeoutOperation: TestTimeoutOperation);
 
-            Thread.Sleep(this.bindCallbackDelay + 100);
-            
+            // Queue Binding Operation is non-blocking,
+            // give time same as timeout to allow the task to complete before stopping queue processor.
+            Thread.Sleep(bindCallbackDelay / 2);
+
             this.bindingQueue.StopQueueProcessor(15000);
+
+            // Queue Binding Operation is non-blocking,
+            // give time same as timeout to allow the timeout operation to complete.
+            Thread.Sleep(bindCallbackDelay / 2);
 
             Assert.AreEqual(0, this.bindCallCount);
             Assert.AreEqual(1, this.timeoutCallCount);
@@ -224,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             string operationKey = "testkey";
             ManualResetEvent firstEventExecuted = new ManualResetEvent(false);
             ManualResetEvent secondEventExecuted = new ManualResetEvent(false);
-            bool firstOperationCanceled = false;
+            bool firstOperationExecuted = false;
             bool secondOperationExecuted = false;
             InitializeTestSettings();
 
@@ -237,11 +247,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 bindOperation: (bindingContext, cancellationToken) =>
                 {
                     secondEventExecuted.WaitOne();
-                    if (cancellationToken.IsCancellationRequested)
+                    if (!cancellationToken.IsCancellationRequested)
                     {
-                        firstOperationCanceled = true;
+                        firstOperationExecuted = true;
+                        firstEventExecuted.Set();
                     }
-                    firstEventExecuted.Set();
                     return null;
                 },
                 timeoutOperation: TestTimeoutOperation);
@@ -251,8 +261,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 bindingTimeout: bindCallbackDelay,
                 bindOperation: (bindingContext, cancellationToken) =>
                 {
-                    secondOperationExecuted = true;
-                    secondEventExecuted.Set();
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        secondOperationExecuted = true;
+                        secondEventExecuted.Set();
+                    }
                     return null;
                 },
                 waitForLockTimeout: totalTimeout
@@ -264,8 +277,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             this.bindingQueue.StopQueueProcessor(15000);
 
             Assert.AreEqual(1, this.timeoutCallCount);
-            Assert.False(firstOperationCanceled);
-            Assert.False(secondOperationExecuted);
+            Assert.False(firstOperationExecuted);
+            Assert.True(secondOperationExecuted);
         }
     }
 }

@@ -12,9 +12,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -363,6 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // execute the binding operation
                 object result = null;
                 CancellationTokenSource cancelToken = new CancellationTokenSource();
+                CancellationTokenSource bindOperationCTS = new CancellationTokenSource(bindTimeoutInMs);
 
                 // run the operation in a separate thread
                 var bindTask = Task.Run(() =>
@@ -370,8 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         result = queueItem.BindOperation(
-                            bindingContext,
-                            cancelToken.Token);
+                            bindingContext, cancelToken.Token);
                     }
                     catch (Exception ex)
                     {
@@ -398,28 +396,29 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             RemoveBindingContext(queueItem.Key);
                         }
                     }
-                }, new CancellationTokenSource(bindTimeoutInMs).Token);
+                }, bindOperationCTS.Token);
 
                 try
                 {
-                    await bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()))
-                        .ContinueWith(t =>
+                    await bindTask
+                        .ContinueWith(_ =>
                         {
-                            if (t.IsCanceled)
-                            {
-                                cancelToken.Cancel();
-
-                                // if the task didn't complete then call the timeout callback
-                                if (queueItem.TimeoutOperation != null)
-                                {
-                                    queueItem.Result = queueItem.TimeoutOperation(bindingContext);
-                                }
-                            }
-                            else
-                            {
-                                queueItem.Result = result;
-                            }
-                        });
+                            queueItem.Result = result;
+                        }, bindOperationCTS.Token,
+                        TaskContinuationOptions.NotOnCanceled,
+                        TaskScheduler.Default);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is TaskCanceledException)
+                    {
+                        cancelToken.Cancel();
+                        // if the task didn't complete then call the timeout callback
+                        if (queueItem.TimeoutOperation != null)
+                        {
+                            queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                        }
+                    }
                 }
                 finally
                 {
