@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -145,21 +146,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var eventContextMock = new Mock<EventContext>();
-
             var generateServerContextualizationParams = new GenerateServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateServerContextualizationNotification(generateServerContextualizationParams, eventContextMock.Object);
+            var service = new MetadataService();
+            var methodInfo = typeof(MetadataService).GetMethod("GenerateServerContextualization", BindingFlags.NonPublic | BindingFlags.Static);
+            object[] methodParams = { generateServerContextualizationParams };
+            methodInfo.Invoke(service, methodParams);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
-
-            eventContextMock.VerifyAll();
         }
 
         [Test]
@@ -174,17 +174,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var eventContextMock = new Mock<EventContext>();
-
             var generateServerContextualizationParams = new GenerateServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateServerContextualizationNotification(generateServerContextualizationParams, eventContextMock.Object);
-
-            // Waiting for background task to finish
-            Thread.Sleep(30 * 1000);
+            var service = new MetadataService();
+            var generateServerContextualizationMethod = typeof(MetadataService).GetMethod("GenerateServerContextualization", BindingFlags.NonPublic | BindingFlags.Static);
+            object[] generateServerContextMethodParams = { generateServerContextualizationParams };
+            generateServerContextualizationMethod.Invoke(service, generateServerContextMethodParams);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -203,7 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGetServerContextualizationRequest(getDatabaseServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+            var getServerContextualizationMethod = typeof(MetadataService).GetMethod("GetServerContextualization", BindingFlags.NonPublic | BindingFlags.Static);
+            object[] getServerContextMethodParams = { getDatabaseServerContextualizationParams, mockGetServerContextualizationRequestContext.Object };
+            var task = (Task)getServerContextualizationMethod.Invoke(service, getServerContextMethodParams);
+            await task;
 
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
@@ -218,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var bytes = Encoding.UTF8.GetBytes(serverName);
             var encodedServerName = Convert.ToBase64String(bytes);
             var tempFileName = $"{encodedServerName}.tmp";
-            
+
             var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
             if (File.Exists(tempFilePath))
             {
