@@ -35,9 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private ConfigProperty serverMinMemoryProperty;
         private ConfigProperty serverMaxMemoryProperty;
-        BitArray initialIOAffinityArray;
-        private const int MAX64CPU = 64;
-        private const int MAX32CPU = 32;
         #endregion
 
         #region Trace support
@@ -615,10 +612,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </remarks>
         private class ServerPrototypeData : ICloneable
         {
-            #region constants
-            private const int MAX_IO_CPU_SUPPORTED = 64;
-            #endregion
-
             #region data members
             private string serverName = string.Empty;
             private string hardwareGeneration = String.Empty;
