@@ -22,6 +22,7 @@ dotnetProjectArray=(
     "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl"
     "./src/Microsoft.SqlTools.ServiceLayer"
     "./src/Microsoft.SqlTools.Migration"
+    "./src/Microsoft.SqlTools.SqlCore"
     "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
     "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
