@@ -3,7 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#if NETSTANDARD2_0
 using System;
+#endif
 using System.Diagnostics.Tracing;
 using Microsoft.SqlTools.Utility;
 
@@ -42,7 +44,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 if (payload != null)
                 {
+#if NETSTANDARD2_0_OR_GREATER
                     Logger.Verbose($"eventTID:{Environment.CurrentManagedThreadId} {payload.ToString()}");
+#else
+                    Logger.Verbose($"eventTID:{eventData.OSThreadId} {payload.ToString()}");
+#endif
                 }
             }
 
