@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// database objects like tables and views.
         /// </summary>
         /// <param name="contextualizationParams">The contextualization parameters.</param>
-        private static void GenerateServerContextualization(GenerateServerContextualizationParams contextualizationParams)
+        internal static void GenerateServerContextualization(GenerateServerContextualizationParams contextualizationParams)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
 
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="contextualizationParams">The contextualization parameters to get context.</param>
         /// <param name="requestContext">The request context for the request.</param>
         /// <returns></returns>
-        private static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)
+        internal static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
 

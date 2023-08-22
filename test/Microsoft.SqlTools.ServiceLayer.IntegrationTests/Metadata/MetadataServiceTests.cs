@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -151,10 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var service = new MetadataService();
-            var methodInfo = typeof(MetadataService).GetMethod("GenerateServerContextualization", BindingFlags.NonPublic | BindingFlags.Static);
-            object[] methodParams = { generateServerContextualizationParams };
-            methodInfo.Invoke(service, methodParams);
+            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -179,10 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var service = new MetadataService();
-            var generateServerContextualizationMethod = typeof(MetadataService).GetMethod("GenerateServerContextualization", BindingFlags.NonPublic | BindingFlags.Static);
-            object[] generateServerContextMethodParams = { generateServerContextualizationParams };
-            generateServerContextualizationMethod.Invoke(service, generateServerContextMethodParams);
+            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -196,15 +189,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 .Callback<GetServerContextualizationResult>(actual => actualGetServerContextualizationResponse = actual)
                 .Returns(Task.CompletedTask);
 
-            var getDatabaseServerContextualizationParams = new GetServerContextualizationParams
+            var getServerContextualizationParams = new GetServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var getServerContextualizationMethod = typeof(MetadataService).GetMethod("GetServerContextualization", BindingFlags.NonPublic | BindingFlags.Static);
-            object[] getServerContextMethodParams = { getDatabaseServerContextualizationParams, mockGetServerContextualizationRequestContext.Object };
-            var task = (Task)getServerContextualizationMethod.Invoke(service, getServerContextMethodParams);
-            await task;
+            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
 
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
