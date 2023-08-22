@@ -14,7 +14,25 @@
 # The script need to run from the repo root
 
 dotnetProjectArray=(
+    "./src/Microsoft.Kusto.ServiceLayer"
+    "./src/Microsoft.SqlTools.Credentials"
+    "./src/Microsoft.SqlTools.Hosting"
+    "./src/Microsoft.SqlTools.ResourceProvider"
+    "./src/Microsoft.SqlTools.ResourceProvider.Core"
+    "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl"
+    "./src/Microsoft.SqlTools.ServiceLayer"
+    "./src/Microsoft.SqlTools.Migration"
+    "./src/Microsoft.SqlTools.SqlCore"
+    "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
+    "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
+    "./test/Microsoft.SqlTools.ServiceLayer.PerfTests"
+    "./test/Microsoft.SqlTools.ServiceLayer.Test.Common"
+    "./test/Microsoft.SqlTools.ServiceLayer.TestDriver"
+    "./test/Microsoft.SqlTools.ServiceLayer.TestDriver.Tests"
+    "./test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig"
+    "./test/Microsoft.SqlTools.ServiceLayer.UnitTests"
+    "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
 # Please update the framework vars when updating target framework for the projects
