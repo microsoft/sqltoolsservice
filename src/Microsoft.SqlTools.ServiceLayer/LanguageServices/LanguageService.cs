@@ -107,18 +107,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             compatibilityLevel: DatabaseCompatibilityLevel.Current,
             transactSqlVersion: TransactSqlVersion.Current);
 
-        private ConcurrentDictionary<string, bool> nonMssqlUriMap = new ConcurrentDictionary<string, bool>();
+        private ConcurrentDictionary<string, bool> nonMssqlUriMap = new();
 
-        private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap
-            = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
+        private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
+            = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(() => new());
 
-        private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new ConcurrentDictionary<string, ICompletionExtension>();
-        private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new ConcurrentDictionary<string, DateTime>();
+        private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new();
+        private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new();
 
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
         /// </summary>
-        internal Dictionary<string, ScriptParseInfo> ScriptParseInfoMap
+        internal ConcurrentDictionary<string, ScriptParseInfo> ScriptParseInfoMap
         {
             get
             {
@@ -547,7 +547,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (result != null)
                         {
                             await requestContext.SendResult(result);
-                        } else
+                        }
+                        else
                         {
                             await requestContext.SendResult(new SignatureHelp());
                         }
@@ -1878,7 +1879,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 else
                 {
                     Logger.Verbose($"Adding ScriptParseInfo for uri {uri}");
-                    this.ScriptParseInfoMap.Add(uri, scriptInfo);
+                    this.ScriptParseInfoMap.TryAdd(uri, scriptInfo);
                 }
 
             }
@@ -1904,7 +1905,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Logger.Verbose($"ScriptParseInfo for uri {uri} did not exist, creating new one");
                     // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
-                    this.ScriptParseInfoMap.Add(uri, scriptInfo);
+                    this.ScriptParseInfoMap.TryAdd(uri, scriptInfo);
                     return scriptInfo;
                 }
                 else
@@ -1919,15 +1920,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             lock (this.parseMapLock)
             {
-                if (this.ScriptParseInfoMap.ContainsKey(uri))
-                {
-                    Logger.Verbose($"Removing ScriptParseInfo for uri {uri}");
-                    return this.ScriptParseInfoMap.Remove(uri);
-                }
-                else
-                {
-                    return false;
-                }
+                Logger.Verbose($"Removing ScriptParseInfo for uri {uri}");
+                return this.ScriptParseInfoMap.TryRemove(uri, out _);
             }
         }
 
