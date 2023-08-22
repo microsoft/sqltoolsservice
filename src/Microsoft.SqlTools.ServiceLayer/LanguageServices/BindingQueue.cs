@@ -13,6 +13,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -324,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private async Task DispatchQueueItem(IBindingContext bindingContext, QueueItem queueItem)
+        private void DispatchQueueItem(IBindingContext bindingContext, QueueItem queueItem)
         {
             bool lockTaken = false;
             try
@@ -350,8 +351,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         queueItem.ItemProcessed.Set();
                     }
-
-                    return;
                 }
 
                 bindingContext.BindingLock.Reset();
@@ -361,7 +360,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // execute the binding operation
                 object result = null;
                 CancellationTokenSource cancelToken = new CancellationTokenSource();
-                CancellationTokenSource bindOperationCTS = new CancellationTokenSource(bindTimeoutInMs);
 
                 // run the operation in a separate thread
                 var bindTask = Task.Run(() =>
@@ -369,7 +367,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         result = queueItem.BindOperation(
-                            bindingContext, cancelToken.Token);
+                                            bindingContext,
+                                            cancelToken.Token);
                     }
                     catch (Exception ex)
                     {
@@ -385,50 +384,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 Logger.Error("Unexpected exception in binding queue error handler: " + ex2.ToString());
                             }
                         }
-
                         if (IsExceptionOfType(ex, typeof(SqlException)) || IsExceptionOfType(ex, typeof(SocketException)))
                         {
                             if (this.OnUnhandledException != null)
                             {
                                 this.OnUnhandledException(queueItem.Key, ex);
                             }
-
                             RemoveBindingContext(queueItem.Key);
                         }
                     }
-                }, bindOperationCTS.Token);
+                });
 
-                try
+                Task.Run(() =>
                 {
-                    await bindTask
-                        .ContinueWith(_ =>
+                    try
+                    {
+                        // check if the binding tasks completed within the binding timeout                           
+                        if (bindTask.Wait(bindTimeoutInMs))
                         {
                             queueItem.Result = result;
-                        }, bindOperationCTS.Token,
-                        TaskContinuationOptions.NotOnCanceled,
-                        TaskScheduler.Default);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is TaskCanceledException)
-                    {
-                        cancelToken.Cancel();
-                        // if the task didn't complete then call the timeout callback
-                        if (queueItem.TimeoutOperation != null)
+                        }
+                        else
                         {
-                            queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                            cancelToken.Cancel();
+                            // if the task didn't complete then call the timeout callback
+                            if (queueItem.TimeoutOperation != null)
+                            {
+                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                            }
+                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
+                            // Give the task a chance to complete before moving on to the next operation
+                            bindTask.Wait();
                         }
                     }
-                }
-                finally
-                {
-                    // set item processed to avoid deadlocks 
-                    if (lockTaken)
+                    catch (Exception ex)
                     {
-                        bindingContext.BindingLock.Set();
+                        Logger.Error("Binding queue task completion threw exception " + ex.ToString());
                     }
-                    queueItem.ItemProcessed.Set();
-                }
+                    finally
+                    {
+                        // set item processed to avoid deadlocks 
+                        if (lockTaken)
+                        {
+                            bindingContext.BindingLock.Set();
+                        }
+                        queueItem.ItemProcessed.Set();
+                    }
+                });
             }
             catch (Exception ex)
             {
