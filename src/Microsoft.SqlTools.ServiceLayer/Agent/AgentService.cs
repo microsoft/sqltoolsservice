@@ -846,7 +846,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal void ExecuteAction(ManagementActionBase action, RunType runType)
         {
-            var executionHandler = new ExecutonHandler(action);
+            var executionHandler = new ExecutionHandler(action);
             executionHandler.RunNow(runType, this);
             if (executionHandler.ExecutionResult == ExecutionMode.Failure)
             {
