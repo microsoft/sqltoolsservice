@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Once);
 
                 ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-                autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
+                await autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
                 scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
 
                 //Invoke auto completion with extension enabled
@@ -219,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// provide signature help.
         /// </summary>
         [Test]
-        public void GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
+        public async Task GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
         {
             // When we make a connection to a live database
             Hosting.ServiceHost.SendEventIgnoreExceptions = true;
@@ -243,14 +243,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             // If the SQL has already been parsed
             var service = CreateLanguageService(result.ScriptFile);
-            service.DoUpdateLanguageServiceOnConnection(result.ConnectionInfo);
+            await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
 
             // We should get back a non-null ScriptParseInfo
             ScriptParseInfo? parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
             Assert.That(parseInfo, Is.Not.Null, "ScriptParseInfo");
 
             // And we should get back a non-null SignatureHelp
-            SignatureHelp? signatureHelp = service.GetSignatureHelp(textDocument, result.ScriptFile);
+            SignatureHelp? signatureHelp = await service.GetSignatureHelp(textDocument, result.ScriptFile);
             Assert.That(signatureHelp, Is.Not.Null, "SignatureHelp");
         }
 
@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 testDb.RunQuery("CREATE TABLE dbo.foo(col1 int)");
 
                 // And refresh the cache
-                await langService.HandleRebuildIntelliSenseNotification(
+                await langService.DoHandleRebuildIntellisenseNotification(
                     new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());
 
@@ -446,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 testDb.RunQuery(createTableQueries);
 
                 // And refresh the cache
-                await langService.HandleRebuildIntelliSenseNotification(
+                await langService.DoHandleRebuildIntellisenseNotification(
                     new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());
 
