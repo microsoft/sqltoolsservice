@@ -182,7 +182,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
             {
-                await requestContext.SendError(t.Exception.ToString());
+                // Get innermost exception to get original error message
+                Exception ex = t.Exception;
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                };
+                await requestContext.SendError(ex.Message);
             });
         }
 
@@ -210,7 +216,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
             {
-                await requestContext.SendError(t.Exception.ToString());
+                // Get innermost exception to get original error message
+                Exception ex = t.Exception;
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                };
+                await requestContext.SendError(ex.Message);
             });
         }
 
