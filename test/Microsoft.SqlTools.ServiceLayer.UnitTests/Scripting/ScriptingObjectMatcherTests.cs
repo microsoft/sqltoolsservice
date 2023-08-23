@@ -8,7 +8,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
@@ -451,7 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         {
             for (int i = 0; i < TestObjects.Length; i++)
             {
-                Assert.AreEqual(Scripter.ScriptingUtils.QuoteObjectName(TestObjects[i]), ExpectedObjects[i]);
+                Assert.AreEqual(ScriptingHelper.QuoteObjectName(TestObjects[i]), ExpectedObjects[i]);
             }
         }
     }

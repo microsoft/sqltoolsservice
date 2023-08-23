@@ -330,18 +330,7 @@ SqlScriptFormatterScalarTypeMissingScale = Scalar column missing scale
 ############################################################################
 # Scripting Service
 
-ScriptingParams_ConnectionString_Property_Invalid = Error parsing ScriptingParams.ConnectionString property.
-
-ScriptingParams_FilePath_Property_Invalid = Invalid directory specified by the ScriptingParams.FilePath property.
-
 ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.
-
-
-StoredProcedureScriptParameterComment = -- TODO: Set parameter values here.
-
-ScriptingGeneralError = An error occurred while scripting the objects.
-ScriptingExecuteNotSupportedError = Scripting as Execute is only supported for Stored Procedures
-
 
 ############################################################################
 # Backup Service

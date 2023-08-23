@@ -10,8 +10,9 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.SqlCore.Scripting;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {

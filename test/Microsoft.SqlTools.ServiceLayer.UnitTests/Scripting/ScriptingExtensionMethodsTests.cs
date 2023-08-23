@@ -6,8 +6,8 @@
 #nullable disable
 
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
 
