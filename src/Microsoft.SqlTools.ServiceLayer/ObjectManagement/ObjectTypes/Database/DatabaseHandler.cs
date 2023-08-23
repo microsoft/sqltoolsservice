@@ -967,7 +967,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="databaseViewInfo">database view info object</param>
         private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
         {
-            var rowDataGroups = new List<string>(); ;
+            var rowDataGroups = new List<string>();
             var fileStreamDataGroups = new List<string>();
             foreach (FileGroup fileGroup in database.FileGroups)
             {
