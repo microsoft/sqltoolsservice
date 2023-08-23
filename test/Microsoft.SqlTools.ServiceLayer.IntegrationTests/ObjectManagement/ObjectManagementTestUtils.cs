@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         SizeInMb = 10,
                         IsAutoGrowthEnabled = true,
                         MaxSizeLimitInMb = -1,
-                        Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA"
+                        Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA\\"
                     },
                 new DatabaseFile() {
                         Id = 0,
@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         SizeInMb = 12,
                         IsAutoGrowthEnabled = true,
                         MaxSizeLimitInMb = -1,
-                        Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA"
+                        Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA\\"
                     }};
             return databaseFiles.ToArray();
         }
