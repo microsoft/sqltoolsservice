@@ -129,28 +129,36 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<BackupConfigInfoResponse> requestContext)
         {
-            var response = new BackupConfigInfoResponse();
-            ConnectionInfo connInfo;
-            DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                    optionsParams.OwnerUri,
-                    out connInfo);
-
-            if (connInfo != null)
+            try
             {
-                using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true))
+                var response = new BackupConfigInfoResponse();
+                ConnectionInfo connInfo;
+                DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
+                        optionsParams.OwnerUri,
+                        out connInfo);
+
+                if (connInfo != null)
                 {
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
+                    using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true))
                     {
-                        if (sqlConn != null && !connInfo.IsCloud)
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
                         {
-                            BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-                            response.BackupConfigInfo = backupConfigInfo;
+                            if (sqlConn != null && !connInfo.IsCloud)
+                            {
+                                BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                                response.BackupConfigInfo = backupConfigInfo;
+                            }
                         }
                     }
                 }
-            }
 
-            await requestContext.SendResult(response);
+                await requestContext.SendResult(response);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                await requestContext.SendError(ex);
+            }
         }
 
         /// <summary>
@@ -307,44 +315,51 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             BackupParams backupParams,
             RequestContext<BackupResponse> requestContext)
         {
-            BackupResponse response = new BackupResponse();
-            ConnectionInfo connInfo;
-            bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
-
-            if (supported && connInfo != null)
+            BackupResponse response = new BackupResponse()
             {
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                // Open a new connection to use for the backup, which will be closed when the backup task is completed
-                // (or an error occurs)
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
-                try
+                Result = false
+            };
+
+            try
+            {
+                ConnectionInfo connInfo;
+                bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
+
+                if (supported && connInfo != null)
                 {
-                    BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
-
-                    // create task metadata
-                    TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
-
-                    SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-                    sqlTask.StatusChanged += (object sender, TaskEventArgs<SqlTaskStatus> e) =>
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    // Open a new connection to use for the backup, which will be closed when the backup task is completed
+                    // (or an error occurs)
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
+                    try
                     {
-                        SqlTask sqlTask = e.SqlTask;
-                        if (sqlTask != null && sqlTask.IsCompleted)
-                        {
-                            sqlConn.Dispose();
-                        }
-                    };
-                }
-                catch
-                {
-                    // Ensure that the connection is closed if any error occurs while starting up the task
-                    sqlConn.Dispose();
-                    throw;
-                }
+                        BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
 
+                        // create task metadata
+                        TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
+
+                        SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                        sqlTask.StatusChanged += (object sender, TaskEventArgs<SqlTaskStatus> e) =>
+                        {
+                            SqlTask sqlTask = e.SqlTask;
+                            if (sqlTask != null && sqlTask.IsCompleted)
+                            {
+                                sqlConn.Dispose();
+                            }
+                        };
+                        response.Result = true;
+                    }
+                    catch
+                    {
+                        // Ensure that the connection is closed if any error occurs while starting up the task
+                        sqlConn.Dispose();
+                        throw;
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                response.Result = false;
+                Logger.Error(ex);
             }
 
             await requestContext.SendResult(response);
@@ -372,8 +387,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Error(ex);
                 if (sqlConn != null && sqlConn.State == System.Data.ConnectionState.Open)
                 {
                     sqlConn.Close();

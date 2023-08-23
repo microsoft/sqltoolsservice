@@ -89,6 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             catch (Exception e)
             {
                 // Exception related to run task will be captured here
+                Logger.Error(e);
                 await requestContext.SendError(e);
             }
         }
@@ -127,6 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             catch (Exception e)
             {
                 // Exception related to run task will be captured here
+                Logger.Error(e);
                 await requestContext.SendError(e);
             }
         }
@@ -163,6 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             catch (Exception e)
             {
                 // Exception related to run task will be captured here
+                Logger.Error(e);
                 await requestContext.SendError(e);
             }
         }
