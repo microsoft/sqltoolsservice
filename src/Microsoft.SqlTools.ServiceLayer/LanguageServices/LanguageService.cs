@@ -986,43 +986,52 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Update the autocomplete metadata provider when the user connects to a database
+        /// Starts a Task to update the autocomplete metadata provider when the user connects to a database
         /// </summary>
-        /// <param name="info"></param>
+        /// <param name="info">Connection info</param>
         public Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
             return Task.Run(() =>
             {
-                if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
-                {
-                    // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
-                    return;
-                }
-                ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
-                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
-                {
-                    try
-                    {
-                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
-                        scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Unknown error in OnConnection " + ex.ToString());
-                        scriptInfo.IsConnected = false;
-                    }
-                    finally
-                    {
-                        // Set Metadata Build event to Signal state.
-                        // (Tell Language Service that I am ready with Metadata Provider Object)
-                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
-                    }
-                }
-                PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
-
-                // Send a notification to signal that autocomplete is ready
-                ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+                DoUpdateLanguageServiceOnConnection(info);
             });
+        }
+
+        /// <summary>
+        /// Update the autocomplete metadata provider when the user connects to a database synchronously
+        /// </summary>
+        /// <param name="info">Connection info</param>
+        public void DoUpdateLanguageServiceOnConnection(ConnectionInfo info)
+        {
+            if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
+            {
+                // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
+                return;
+            }
+            ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
+            if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+            {
+                try
+                {
+                    scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
+                    scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Unknown error in OnConnection " + ex.ToString());
+                    scriptInfo.IsConnected = false;
+                }
+                finally
+                {
+                    // Set Metadata Build event to Signal state.
+                    // (Tell Language Service that I am ready with Metadata Provider Object)
+                    Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                }
+            }
+            PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
+
+            // Send a notification to signal that autocomplete is ready
+            ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
         }
 
 
