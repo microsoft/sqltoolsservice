@@ -24,10 +24,6 @@
   "Frameworks": [
     "net7.0"
   ],
-  "FxFrameworks":[
-    "net472",
-    "net7.0"
-  ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
@@ -37,7 +33,20 @@
     "Microsoft.SqlTools.Migration"
   ],
   "FxBuildProjects": [
-    "Microsoft.SqlTools.ManagedBatchParser"
+    {
+      "Name": "Microsoft.SqlTools.ManagedBatchParser",
+      "Frameworks": [
+        "net472",
+        "net7.0"
+      ]
+    },
+    {
+      "Name": "Microsoft.SqlTools.SqlCore",
+      "Frameworks": [
+        "netstandard2.0"
+      ],
+      "SkipPack": "true"
+    }
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.Hosting"
