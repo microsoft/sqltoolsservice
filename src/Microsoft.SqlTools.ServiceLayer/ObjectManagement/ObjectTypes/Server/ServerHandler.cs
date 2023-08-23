@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
@@ -75,38 +74,55 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(ServerViewContext context, ServerInfo obj)
         {
-            UpdateServerProperties(context.Parameters, obj);
+            UpdateServerProperties(context.Parameters, obj, RunType.RunNow);
             return Task.CompletedTask;
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
         {
-            throw new NotSupportedException("ServerHandler does not support Script method");
+            var script = UpdateServerProperties(
+                 context.Parameters,
+                 obj,
+                 RunType.ScriptToWindow);
+            return Task.FromResult(script);
         }
 
-        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
+        private string UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo, RunType runType)
         {
-            if (viewParams != null)
+            ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
+ 
+            using (var dataContainer = CDataContainer.CreateDataContainer(connInfo))
             {
-                ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
-
-                ServerPrototype prototype = new ServerPrototype(dataContainer);
-                prototype.ApplyInfoToPrototype(serverInfo);
-                ConfigureServer(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
+                try
+                {
+                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+                    prototype.ApplyInfoToPrototype(serverInfo);
+                    return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
+                }
+                finally
+                {
+                    dataContainer.ServerConnection.Disconnect();
+                }
             }
         }
 
-        private void ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
+        private string ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
         {
             using (var actions = new ServerActions(dataContainer, prototype, configAction))
             {
-                var executionHandler = new ExecutonHandler(actions);
+                string sqlScript = string.Empty;
+                var executionHandler = new ExecutionHandler(actions);
                 executionHandler.RunNow(runType, this);
                 if (executionHandler.ExecutionResult == ExecutionMode.Failure)
                 {
                     throw executionHandler.ExecutionFailureException;
                 }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
+                return sqlScript;
             }
         }
     }

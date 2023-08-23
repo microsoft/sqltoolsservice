@@ -659,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                         string sqlScript = string.Empty;
                         using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
-                        using (var executionHandler = new ExecutonHandler(actions))
+                        using (var executionHandler = new ExecutionHandler(actions))
                         {
                             executionHandler.RunNow(runType, this);
                             if (executionHandler.ExecutionResult == ExecutionMode.Failure)
