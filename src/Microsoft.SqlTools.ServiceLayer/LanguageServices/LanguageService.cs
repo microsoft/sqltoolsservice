@@ -1021,18 +1021,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
             {
-                await DoUpdateLanguageServiceOnConnection(info);
-            }
-        }
-
-        /// <summary>
-        /// Update the autocomplete metadata provider when the user connects to a database synchronously
-        /// </summary>
-        /// <param name="info">Connection info</param>
-        public async Task DoUpdateLanguageServiceOnConnection(ConnectionInfo info)
-        {
-            if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
-            {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
                 return;
             }

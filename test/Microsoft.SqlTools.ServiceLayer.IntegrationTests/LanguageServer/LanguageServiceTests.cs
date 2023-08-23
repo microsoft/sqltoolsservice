@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             // If the SQL has already been parsed
             var service = CreateLanguageService(result.ScriptFile);
-            await service.DoUpdateLanguageServiceOnConnection(result.ConnectionInfo);
+            await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
 
             // We should get back a non-null ScriptParseInfo
             ScriptParseInfo? parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
