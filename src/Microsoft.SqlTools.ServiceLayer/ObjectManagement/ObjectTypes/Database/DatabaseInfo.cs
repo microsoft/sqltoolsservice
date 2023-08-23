@@ -42,9 +42,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
         public bool? FullTextIndexing { get; set; }
         public DatabaseFile[] Files { get; set; }
-        public FileGroups? RowDataFilegroups { get; set; }
-        public FileGroups? FilestreamDataFilegroups { get; set; }
-        public FileGroups? AutogrowAllFiles { get; set; }
+        public FileGroups[]? RowDataFilegroups { get; set; }
+        public FileGroups[]? FilestreamDataFilegroups { get; set; }
+        public FileGroups[]? MemoryOptimizedFilegroups { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -72,11 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class FileGroups
     {
+        public int Id { get; set; }
         public string Name { get; set; }
-        public int Files { get; set; }
-        public string? ReadOnly { get; set; }
-        public string? Default { get; set; }
-        public string? AutogrowAllFiles { get; set; }
+        public int FilesCount { get; set; }
+        public bool? IsReadOnly { get; set; }
+        public bool? IsDefault { get; set; }
+        public bool? AutogrowAllFiles { get; set; }
     }
 
 }

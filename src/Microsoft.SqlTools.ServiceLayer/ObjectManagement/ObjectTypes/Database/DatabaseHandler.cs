@@ -226,6 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                 // Get file groups names
                                 GetFileGroupNames(smoDatabase, databaseViewInfo);
+                                GetFileGroups(smoDatabase, databaseViewInfo);
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -987,6 +988,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             databaseViewInfo.RowDataFileGroupsOptions = rowDataGroups.ToArray();
             databaseViewInfo.FileStreamFileGroupsOptions = fileStreamDataGroups.ToArray();
+        }
+
+        /// <summary>
+        /// Preparing the filegroups of various FileGroupTypes
+        /// </summary>
+        /// <param name="database"></param>
+        /// <param name="databaseViewInfo"></param>
+        private void GetFileGroups(Database database, DatabaseViewInfo databaseViewInfo)
+        {
+            var rowDataFilegroups = new List<FileGroups>();
+            var fileStreamDataFilegroups = new List<FileGroups>();
+            var memoryOptimizedFilegroups = new List<FileGroups>();
+            foreach (FileGroup filegroup in database.FileGroups)
+            {
+                if (filegroup.FileGroupType == FileGroupType.FileStreamDataFileGroup)
+                {
+                    fileStreamDataFilegroups.Add(new FileGroups()
+                    {
+                        Id = filegroup.ID,
+                        Name = filegroup.Name,
+                        FilesCount = filegroup.Files.Count,
+                        IsReadOnly = filegroup.ReadOnly,
+                        IsDefault = filegroup.IsDefault
+                    });
+                }
+                else if (filegroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
+                {
+                    memoryOptimizedFilegroups.Add(new FileGroups()
+                    {
+                        Id = filegroup.ID,
+                        Name = filegroup.Name,
+                        FilesCount = filegroup.Files.Count
+                    });
+                }
+                else
+                {
+                    rowDataFilegroups.Add(new FileGroups()
+                    {
+                        Id = filegroup.ID,
+                        Name = filegroup.Name,
+                        FilesCount = filegroup.Files.Count,
+                        IsReadOnly = filegroup.ReadOnly,
+                        IsDefault = filegroup.IsDefault,
+                        AutogrowAllFiles = filegroup.AutogrowAllFiles
+                    });
+                }
+            }
+            
+            ((DatabaseInfo)databaseViewInfo.ObjectInfo).RowDataFilegroups = rowDataFilegroups.ToArray();
+            ((DatabaseInfo)databaseViewInfo.ObjectInfo).FilestreamDataFilegroups = fileStreamDataFilegroups.ToArray();
+            ((DatabaseInfo)databaseViewInfo.ObjectInfo).MemoryOptimizedFilegroups = memoryOptimizedFilegroups.ToArray();
         }
 
         /// <summary>
