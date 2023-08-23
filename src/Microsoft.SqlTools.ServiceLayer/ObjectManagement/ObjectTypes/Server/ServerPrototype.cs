@@ -456,28 +456,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool UpdateSecurityValues(Server server)
         {
             bool alterServer = false;
-            bool needServerRestart = false;
 
             if (this.currentState.AuthenticationMode != this.originalState.AuthenticationMode)
             {
                 // set authentication
                 server.Settings.LoginMode = this.currentState.AuthenticationMode;
                 alterServer = true;
-                needServerRestart = true;
             }
 
             if (this.currentState.LoginAuditing != this.originalState.LoginAuditing)
             {
                 server.Settings.AuditLevel = this.currentState.LoginAuditing;
                 alterServer = true;
-            }
-
-            if (needServerRestart)
-            {
-                // user is applying the changes right now (not scripting/scheduling)
-                // and changes require server restart in order to be effective so
-                // we warn the user about the required restart action (see also SQLBU# 355718)
-                Logger.Information("Changes require server restart in order to be effective");
             }
             return alterServer;
         }
