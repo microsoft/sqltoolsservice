@@ -223,6 +223,59 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP SqlCore CodeSigning - sha256 only'
+  inputs:
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
+    Pattern: '**/*.dll'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolSign",
+         "parameters": [
+         {
+           "parameterName": "OpusName",
+           "parameterValue": "SQL Tools Service"
+         },
+         {
+           "parameterName": "OpusInfo",
+           "parameterValue": "https://github.com/microsoft/sqltoolsservice"
+         },
+         {
+           "parameterName": "PageHash",
+           "parameterValue": "/NPH"
+         },
+         {
+           "parameterName": "FileDigest",
+           "parameterValue": "/fd sha256"
+         },
+         {
+           "parameterName": "TimeStamp",
+           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+         }
+         ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       },
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolVerify",
+         "parameters": [
+         {
+           "parameterName": "VerifyAll",
+           "parameterValue": "/all"
+         }
+             ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       }
+     ]
+    SessionTimeout: 600
+    MaxConcurrency: 5
+
 - task: BatchScript@1
   displayName: 'Package nuspec projects'
   inputs:
@@ -236,6 +289,13 @@ steps:
   inputs:
     filename: build.cmd
     arguments: "-target=dotnetpackservicetools -mono"
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack sqlcore'
+  inputs:
+    command: custom
+    custom: pack
+    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --no-restore src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP Code Signing - Nuget Package'

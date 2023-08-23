@@ -63,6 +63,7 @@ public class Project
     public string[] PackageProjects { get; set; }
     public string[] TestProjects { get; set; }
     public string[] Frameworks { get; set; }
+    public bool SkipPack { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -308,6 +309,10 @@ Task("DotnetPackNuspec")
 {
     foreach (var project in buildPlan.FxBuildProjects)
     {
+        if (project.SkipPack != null && project.SkipPack)
+        {
+            continue;
+        }
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);

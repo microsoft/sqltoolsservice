@@ -44,7 +44,8 @@
       "Name": "Microsoft.SqlTools.SqlCore",
       "Frameworks": [
         "netstandard2.0"
-      ]
+      ],
+      "SkipPack": "true"
     }
   ],
   "PackageProjects": [
