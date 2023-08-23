@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// </summary>
         /// <param name="type">Type of the querier</param>
         /// <param name="validForFlag">Server Type</param>
-        public bool CanApplyFilter(Type type, ValidForFlag validForFlag) {
+        public override bool CanApplyFilter(Type type, ValidForFlag validForFlag) {
             return this.FilterList.Exists(f => f.CanApplyFilter(type, validForFlag));
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// Example of the output: ((@TableTemporalType = 1) or (@LedgerTableType = 1))
         /// </summary>
         /// <returns></returns>
-        public string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
+        public override string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
         {
             StringBuilder filter = new StringBuilder();
             foreach (var nodeFilter in FilterList)

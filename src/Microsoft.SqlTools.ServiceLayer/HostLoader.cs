@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 "microsofsqltoolscredentials.dll",
                 "microsoft.sqltools.hosting.dll",
                 "microsoftsqltoolsservicelayer.dll",
-                "microsoftsqltoolssqlcore.dll"
+                "microsoft.sqltools.sqlcore.dll"
             });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);

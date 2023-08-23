@@ -1014,10 +1014,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Update the autocomplete metadata provider when the user connects to a database
+        /// Starts a Task to update the autocomplete metadata provider when the user connects to a database
         /// </summary>
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
+        {
+            if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
+            {
+                await DoUpdateLanguageServiceOnConnection(info);
+            }
+        }
+
+        /// <summary>
+        /// Update the autocomplete metadata provider when the user connects to a database synchronously
+        /// </summary>
+        /// <param name="info">Connection info</param>
+        public async Task DoUpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
             if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
             {

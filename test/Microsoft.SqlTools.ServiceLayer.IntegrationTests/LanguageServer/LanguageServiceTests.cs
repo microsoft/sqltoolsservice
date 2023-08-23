@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -244,8 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             // If the SQL has already been parsed
             var service = CreateLanguageService(result.ScriptFile);
-            await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
-            Thread.Sleep(2000);
+            await service.DoUpdateLanguageServiceOnConnection(result.ConnectionInfo);
 
             // We should get back a non-null ScriptParseInfo
             ScriptParseInfo? parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);

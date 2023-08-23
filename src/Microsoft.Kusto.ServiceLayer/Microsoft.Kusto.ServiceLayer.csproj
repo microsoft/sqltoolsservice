@@ -12,6 +12,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
+    <TargetFramework>net7.0</TargetFramework>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
 	<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
 	<NoWarn>$(NoWarn);CS8795</NoWarn>
