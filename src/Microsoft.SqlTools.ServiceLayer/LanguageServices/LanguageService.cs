@@ -674,6 +674,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Handle the rebuild IntelliSense cache notification
         /// </summary>
+        /// <param name="rebuildParams">Rebuild params</param>
+        /// <param name="eventContext">Event context</param>
+        /// <returns>Async task</returns>
         public Task HandleRebuildIntelliSenseNotification(
             RebuildIntelliSenseParams rebuildParams,
             EventContext eventContext)
@@ -683,79 +686,90 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
             Task.Factory.StartNew(async () =>
             {
-                try
-                {
-                    Logger.Verbose("HandleRebuildIntelliSenseNotification");
-
-                    // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                    // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                    // what the document events are sent in as.
-                    var escapedOwnerUri = Uri.EscapeUriString(rebuildParams.OwnerUri);
-                    // Skip closing this file if the file doesn't exist
-                    var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
-                    if (scriptFile == null)
-                    {
-                        return;
-                    }
-
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
-
-                    // check that there is an active connection for the current editor
-                    if (connInfo != null)
-                    {
-                        // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
-                        ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
-                        if (scriptInfo != null && scriptInfo.IsConnected &&
-                            Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
-                        {
-                            try
-                            {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
-                                RemoveScriptParseInfo(rebuildParams.OwnerUri);
-                                await UpdateLanguageServiceOnConnection(connInfo);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error("Unknown error " + ex.ToString());
-                            }
-                            finally
-                            {
-                                // Set Metadata Build event to Signal state.
-                                Monitor.Exit(scriptInfo.BuildingMetadataLock);
-                            }
-
-                            // if not in the preview window and diagnostics are enabled then run diagnostics
-                            if (!IsPreviewWindow(scriptFile)
-                                && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
-                            {
-                                await RunScriptDiagnostics(
-                                                    new ScriptFile[] { scriptFile },
-                                                    eventContext);
-                            }
-
-                            // Send a notification to signal that autocomplete is ready
-                            await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
-                        }
-                        else
-                        {
-                            // Send a notification to signal that autocomplete is ready
-                            await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Unknown error " + ex.ToString());
-                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
-                }
+                await DoHandleRebuildIntellisenseNotification(rebuildParams, eventContext);
             }, CancellationToken.None,
             TaskCreationOptions.None,
             TaskScheduler.Default);
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Internal method to handle rebuild intellisense notification
+        /// </summary>
+        /// <param name="rebuildParams">Rebuild params</param>
+        /// <param name="eventContext">Event context</param>
+        /// <returns>Async task</returns>
+        public async Task DoHandleRebuildIntellisenseNotification(RebuildIntelliSenseParams rebuildParams, EventContext eventContext)
+        {
+            try
+            {
+                Logger.Verbose("HandleRebuildIntelliSenseNotification");
+
+                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                // what the document events are sent in as.
+                var escapedOwnerUri = Uri.EscapeDataString(rebuildParams.OwnerUri);
+                // Skip closing this file if the file doesn't exist
+                var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
+                if (scriptFile == null)
+                {
+                    return;
+                }
+
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    scriptFile.ClientUri,
+                    out connInfo);
+
+                // check that there is an active connection for the current editor
+                if (connInfo != null)
+                {
+                    // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
+                    ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
+                    if (scriptInfo != null && scriptInfo.IsConnected &&
+                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                    {
+                        try
+                        {
+                            this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
+                            RemoveScriptParseInfo(rebuildParams.OwnerUri);
+                            await UpdateLanguageServiceOnConnection(connInfo);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Unknown error " + ex.ToString());
+                        }
+                        finally
+                        {
+                            // Set Metadata Build event to Signal state.
+                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                        }
+
+                        // if not in the preview window and diagnostics are enabled then run diagnostics
+                        if (!IsPreviewWindow(scriptFile)
+                            && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                        {
+                            await RunScriptDiagnostics(
+                                                new ScriptFile[] { scriptFile },
+                                                eventContext);
+                        }
+
+                        // Send a notification to signal that autocomplete is ready
+                        await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
+                    }
+                    else
+                    {
+                        // Send a notification to signal that autocomplete is ready
+                        await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+            }
         }
 
         /// <summary>

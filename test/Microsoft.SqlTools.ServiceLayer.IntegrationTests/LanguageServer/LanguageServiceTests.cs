@@ -321,12 +321,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 testDb.RunQuery("CREATE TABLE dbo.foo(col1 int)");
 
                 // And refresh the cache
-                await langService.HandleRebuildIntelliSenseNotification(
+                await langService.DoHandleRebuildIntellisenseNotification(
                     new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());
-
-                // Cache refresh now happens without blocking main thread, allow 1 second for above task to complete.
-                await Task.Delay(1000);
 
                 // Now we should expect to see the item show up in the completion list
                 var afterTableCreationCompletionItems = await langService.GetCompletionItems(
@@ -451,12 +448,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 testDb.RunQuery(createTableQueries);
 
                 // And refresh the cache
-                await langService.HandleRebuildIntelliSenseNotification(
+                await langService.DoHandleRebuildIntellisenseNotification(
                     new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());
-
-                // Cache refresh now happens without blocking main thread, allow 1 second for above task to complete.
-                await Task.Delay(1000);
 
                 // Now we should expect to see the star expansion show up in the completion list
                 var starExpansionCompletionItem = await langService.GetCompletionItems(
