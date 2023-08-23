@@ -90,20 +90,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
             }
             else
             {
-                try
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
                 {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        ExternalLanguageOperations.DeleteLanguage(dbConnection, parameters.LanguageName);
-                    }
+                    ExternalLanguageOperations.DeleteLanguage(dbConnection, parameters.LanguageName);
+                }
 
-                    await requestContext.SendResult(response);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    await requestContext.SendError(ex);
-                }
+                await requestContext.SendResult(response);
             }
         }
 
@@ -130,20 +122,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
             }
             else
             {
-                try
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
                 {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        ExternalLanguageOperations.UpdateLanguage(dbConnection, parameters.Language);
-                    }
+                    ExternalLanguageOperations.UpdateLanguage(dbConnection, parameters.Language);
+                }
 
-                    await requestContext.SendResult(response);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    await requestContext.SendError(ex);
-                }
+                await requestContext.SendResult(response);
             }
         }
 
@@ -171,20 +155,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
             }
             else
             {
-                try
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
                 {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        response.Status = ExternalLanguageOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
-                    }
+                    response.Status = ExternalLanguageOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
+                }
 
-                    await requestContext.SendResult(response);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    await requestContext.SendError(ex);
-                }
+                await requestContext.SendResult(response);
             }
         }
 
@@ -211,20 +187,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
             }
             else
             {
-                try
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
                 {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        response.Languages = ExternalLanguageOperations.GetLanguages(dbConnection);
-                    }
+                    response.Languages = ExternalLanguageOperations.GetLanguages(dbConnection);
+                }
 
-                    await requestContext.SendResult(response);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    await requestContext.SendError(ex);
-                }
+                await requestContext.SendResult(response);
             }
         }
     }

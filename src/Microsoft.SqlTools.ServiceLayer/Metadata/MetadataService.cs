@@ -94,7 +94,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
             {
-                Logger.Error(t.Exception);
                 await requestContext.SendError(t.Exception.ToString());
             });
             MetadataListTask = task;
@@ -150,38 +149,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             if (connectionInfo != null)
             {
-                try
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                 {
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
+                    // If scripts have been generated within the last 30 days then there isn't a need to go through the process
+                    // of generating scripts again.
+                    if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                     {
-                        // If scripts have been generated within the last 30 days then there isn't a need to go through the process
-                        // of generating scripts again.
-                        if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
-                        {
-                            return;
-                        }
+                        return;
+                    }
 
-                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
-                        if (scripts != null)
+                    var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
+                    if (scripts != null)
+                    {
+                        try
                         {
-                            try
-                            {
-                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
-                            }
+                            MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            Logger.Error("Failed to generate server scripts");
+                            Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex.ToString());
+                    else
+                    {
+                        Logger.Error("Failed to generate server scripts");
+                    }
                 }
             }
         }
@@ -250,30 +242,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 out connInfo);
 
             ColumnMetadata[] metadata = null;
-
-            try
+            if (connInfo != null)
             {
-                if (connInfo != null)
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
                 {
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
-                    {
-                        TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
-                            sqlConn, metadataParams.Schema,
-                            metadataParams.ObjectName, objectType);
-                        metadata = table.Columns;
-                    }
+                    TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
+                        sqlConn, metadataParams.Schema,
+                        metadataParams.ObjectName, objectType);
+                    metadata = table.Columns;
                 }
+            }
 
-                await requestContext.SendResult(new TableMetadataResult
-                {
-                    Columns = metadata
-                });
-            }
-            catch (Exception ex)
+            await requestContext.SendResult(new TableMetadataResult
             {
-                Logger.Error(ex.ToString());
-                await requestContext.SendError(ex);
-            }
+                Columns = metadata
+            });
         }
 
         internal static bool IsSystemDatabase(string database)

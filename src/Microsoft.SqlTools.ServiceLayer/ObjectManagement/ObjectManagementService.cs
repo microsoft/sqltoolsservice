@@ -14,7 +14,6 @@ using System.Collections.Concurrent;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -76,216 +75,143 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
         {
-            try
-            {
-                var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-                await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
-                await requestContext.SendResult(new RenameRequestResponse());
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
+            await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
+            await requestContext.SendResult(new RenameRequestResponse());
         }
 
         internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<DropRequestResponse> requestContext)
         {
-            try
-            {
-                var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-                await handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
-                await requestContext.SendResult(new DropRequestResponse());
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
+            await handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
+            await requestContext.SendResult(new DropRequestResponse());
         }
 
         internal async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
         {
-            try
-            {
-                var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-                var result = await handler.InitializeObjectView(requestParams);
-                contextMap[requestParams.ContextId] = result.Context;
-                await requestContext.SendResult(result.ViewInfo);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
+            var result = await handler.InitializeObjectView(requestParams);
+            contextMap[requestParams.ContextId] = result.Context;
+            await requestContext.SendResult(result.ViewInfo);
         }
 
         internal async Task HandleSaveObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectRequestResponse> requestContext)
         {
-            try
-            {
-                var context = this.GetContext(requestParams.ContextId);
-                var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
-                var obj = requestParams.Object.ToObject(handler.GetObjectType());
-                await handler.Save(context, obj as SqlObject);
-                await requestContext.SendResult(new SaveObjectRequestResponse());
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var context = this.GetContext(requestParams.ContextId);
+            var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
+            var obj = requestParams.Object.ToObject(handler.GetObjectType());
+            await handler.Save(context, obj as SqlObject);
+            await requestContext.SendResult(new SaveObjectRequestResponse());
         }
 
         internal async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
         {
-            try
-            {
-                var context = this.GetContext(requestParams.ContextId);
-                var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
-                var obj = requestParams.Object.ToObject(handler.GetObjectType());
-                var script = await handler.Script(context, obj as SqlObject);
-                await requestContext.SendResult(script);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var context = this.GetContext(requestParams.ContextId);
+            var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
+            var obj = requestParams.Object.ToObject(handler.GetObjectType());
+            var script = await handler.Script(context, obj as SqlObject);
+            await requestContext.SendResult(script);
         }
 
         internal async Task HandleDisposeViewRequest(DisposeViewRequestParams requestParams, RequestContext<DisposeViewRequestResponse> requestContext)
         {
-            try
+            SqlObjectViewContext context;
+            if (contextMap.Remove(requestParams.ContextId, out context))
             {
-                SqlObjectViewContext context;
-                if (contextMap.Remove(requestParams.ContextId, out context))
-                {
-                    context.Dispose();
-                }
-                await requestContext.SendResult(new DisposeViewRequestResponse());
-
+                context.Dispose();
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            await requestContext.SendResult(new DisposeViewRequestResponse());
         }
 
         internal async Task HandleSearchRequest(SearchRequestParams requestParams, RequestContext<SearchResultItem[]> requestContext)
         {
-            try
+            var context = this.GetContext(requestParams.ContextId);
+            ConnectionInfo connInfo;
+            ConnectionService.Instance.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+            if (connInfo == null)
             {
-                var context = this.GetContext(requestParams.ContextId);
-                ConnectionInfo connInfo;
-                ConnectionService.Instance.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
-                if (connInfo == null)
+                throw new ArgumentException("Invalid ConnectionUri");
+            }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+            List<SearchResultItem> res = new List<SearchResultItem>();
+            var schemaTypes = SecurableUtils.GetSchemaTypes(dataContainer.Server).Select(Securable.GetSearchableObjectType).ToHashSet();
+
+            foreach (string type in requestParams.ObjectTypes)
+            {
+                SearchableObjectCollection result = new SearchableObjectCollection();
+                SearchableObjectType searchableObjectType = SecurableUtils.ConvertPotentialSqlObjectTypeToSearchableObjectType(type);
+
+                if (searchableObjectType == SearchableObjectType.LastType)
                 {
-                    throw new ArgumentException("Invalid ConnectionUri");
+                    continue;
                 }
 
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-
-                List<SearchResultItem> res = new List<SearchResultItem>();
-                var schemaTypes = SecurableUtils.GetSchemaTypes(dataContainer.Server).Select(Securable.GetSearchableObjectType).ToHashSet();
-
-                foreach (string type in requestParams.ObjectTypes)
+                // only schema-Scoped securableTypes support schema level search
+                if (!string.IsNullOrEmpty(requestParams.Schema) && !schemaTypes.Contains(searchableObjectType))
                 {
-                    SearchableObjectCollection result = new SearchableObjectCollection();
-                    SearchableObjectType searchableObjectType = SecurableUtils.ConvertPotentialSqlObjectTypeToSearchableObjectType(type);
+                    continue;
+                }
 
-                    if (searchableObjectType == SearchableObjectType.LastType)
+                SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
+                
+                if (desc.IsDatabaseObject)
+                {
+                    if (!string.IsNullOrEmpty(requestParams.Schema))
                     {
-                        continue;
-                    }
-
-                    // only schema-Scoped securableTypes support schema level search
-                    if (!string.IsNullOrEmpty(requestParams.Schema) && !schemaTypes.Contains(searchableObjectType))
-                    {
-                        continue;
-                    }
-
-                    SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
-
-                    if (desc.IsDatabaseObject)
-                    {
-                        if (!string.IsNullOrEmpty(requestParams.Schema))
-                        {
-                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText ?? string.Empty, false, requestParams.Schema, true, true);
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(requestParams.SearchText))
-                            {
-                                SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText, false, true);
-                            }
-                            else
-                            {
-                                SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, true);
-                            }
-                        }
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText ?? string.Empty, false, requestParams.Schema, true, true);
                     }
                     else
                     {
-                        // server object
-                        if (string.IsNullOrEmpty(requestParams.SearchText))
+                        if (!string.IsNullOrEmpty(requestParams.SearchText))
                         {
-                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, true);
+                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText, false, true);
                         }
                         else
                         {
-                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
+                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, true);
                         }
                     }
-
-                    foreach (SearchableObject obj in result)
+                }
+                else
+                {
+                    // server object
+                    if (string.IsNullOrEmpty(requestParams.SearchText))
                     {
-                        res.Add(new SearchResultItem
-                        {
-                            Name = obj.Name,
-                            Type = type,
-                            Schema = obj.Schema
-                        });
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, true);
+                    }
+                    else
+                    {
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
                     }
                 }
-                await requestContext.SendResult(res.ToArray());
+
+                foreach (SearchableObject obj in result)
+                {
+                    res.Add(new SearchResultItem
+                    {
+                        Name = obj.Name,
+                        Type = type,
+                        Schema = obj.Schema
+                    });
+                }
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            await requestContext.SendResult(res.ToArray());
         }
 
         internal async Task HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
         {
-            try
-            {
-                var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-                var sqlScript = handler.Detach(requestParams);
-                await requestContext.SendResult(sqlScript);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
+            var sqlScript = handler.Detach(requestParams);
+            await requestContext.SendResult(sqlScript);
         }
 
         internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)
         {
-            try
-            {
-                var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-                var sqlScript = handler.Drop(requestParams);
-                await requestContext.SendResult(sqlScript);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
-            }
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
+            var sqlScript = handler.Drop(requestParams);
+            await requestContext.SendResult(sqlScript);
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)

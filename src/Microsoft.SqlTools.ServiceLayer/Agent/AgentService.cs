@@ -1231,13 +1231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
-                Exception exception = e.InnerException;
-                while (exception != null)
-                {
-                    result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
-                    exception = exception.InnerException;
-                }
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1266,13 +1260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
-                Exception exception = e.InnerException;
-                while (exception != null)
-                {
-                    result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
-                    exception = exception.InnerException;
-                }
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1293,7 +1281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
+                result.ErrorMessage = GetErrorMessageFromException(e);
 
             }
             await requestContext.SendResult(result);
@@ -1315,7 +1303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
+                result.ErrorMessage = GetErrorMessageFromException(e);
 
             }
             await requestContext.SendResult(result);
@@ -1340,7 +1328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1362,7 +1350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1385,8 +1373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
-
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1411,8 +1398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
-
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1437,8 +1423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
-
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1462,8 +1447,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             catch (Exception e)
             {
                 result.Success = false;
-                result.ErrorMessage = e.ToString();
-
+                result.ErrorMessage = GetErrorMessageFromException(e);
             }
             await requestContext.SendResult(result);
         }
@@ -1548,6 +1532,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 tlog.CloseReader();
             }
             return result;
+        }
+
+        /// <summary>
+        /// Helper method to create result object from exception
+        /// </summary>
+        /// <param name="ex"></param>
+        private string GetErrorMessageFromException(Exception e)
+        {
+            string errorMessage = e.ToString();
+            Exception exception = e.InnerException;
+            while (exception != null)
+            {
+                errorMessage += Environment.NewLine + "\t" + exception.Message;
+                exception = exception.InnerException;
+            }
+            return errorMessage;
         }
 
         #endregion // "Helpers"

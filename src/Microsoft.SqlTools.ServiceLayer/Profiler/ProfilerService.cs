@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
@@ -19,7 +18,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -143,11 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                 }
-                catch (SqlException ex)
-                {
-                    Logger.Error(ex);
-                    await requestContext.SendError(ex);
-                }
                 catch { }
 
                 // create a new XEvent session and Profiler session, if it doesn't exist
@@ -179,27 +172,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 out connInfo);
             if (connInfo != null)
             {
-                try
-                {
-                    // create a new XEvent session and Profiler session
-                    var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                // create a new XEvent session and Profiler session
+                var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
 
-                    // start monitoring the profiler session
-                    monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                // start monitoring the profiler session
+                monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
-                    var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    await requestContext.SendError(ex);
-                }
+                var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
+                await requestContext.SendResult(result);
             }
             else
             {
-                Logger.Error(SR.ProfilerConnectionNotFound);
-                await requestContext.SendError(new ProfilerException(SR.ProfilerConnectionNotFound));
+                throw new ProfilerException(SR.ProfilerConnectionNotFound);
             }
         }
 
@@ -286,17 +270,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             else
             {
-                try
-                {
-                    List<string> sessions = GetXEventSessionList(connInfo);
-                    result.Sessions = sessions;
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex.ToString());
-                    await requestContext.SendError(ex);
-                }
+                List<string> sessions = GetXEventSessionList(connInfo);
+                result.Sessions = sessions;
+                await requestContext.SendResult(result);
             }
         }
 

@@ -60,24 +60,16 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
                 await requestContext.SendError(SR.NotSupportedCloudCreateSas);
                 return;
             }
-            try
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
             {
-                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
-                {
-                    // Connection gets disconnected when backup is done
-                    ServerConnection serverConnection = new ServerConnection(sqlConn);
-                    Server sqlServer = new Server(serverConnection);
+                // Connection gets disconnected when backup is done
+                ServerConnection serverConnection = new ServerConnection(sqlConn);
+                Server sqlServer = new Server(serverConnection);
 
-                    SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
-                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
-                    response.SharedAccessSignature = sharedAccessSignature;
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex);
-                return;
+                SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
+                string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
+                response.SharedAccessSignature = sharedAccessSignature;
+                await requestContext.SendResult(response);
             }
         }
     }

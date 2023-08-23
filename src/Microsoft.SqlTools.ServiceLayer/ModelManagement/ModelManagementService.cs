@@ -210,30 +210,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
             RequestContext<TResponse> requestContext,
             Func<IDbConnection, T, TResponse, TResponse> operation) where T : ModelRequestBase where TResponse : ModelResponseBase
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            if (connInfo == null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
-                }
-                else
-                {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        response = operation(dbConnection, parameters, response);
-                    }
-                    await requestContext.SendResult(response);
-                }
+                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
-            catch (Exception e)
+            else
             {
-                // Exception related to run task will be captured here
-                Logger.Error(e.ToString());
-                await requestContext.SendError(e);
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    response = operation(dbConnection, parameters, response);
+                }
+                await requestContext.SendResult(response);
             }
         }
     }

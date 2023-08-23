@@ -15,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -82,23 +81,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             RequestContext<DefaultDatabaseInfoResponse> requestContext)
         {
             var response = new DefaultDatabaseInfoResponse();
-            try
-            {
-                ConnectionInfo connInfo;
-                AdminService.ConnectionServiceInstance.TryFindConnection(
-                    optionsParams.OwnerUri,
-                    out connInfo);
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                optionsParams.OwnerUri,
+                out connInfo);
 
-                using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
-                {
-                    response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception ex)
+            using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
             {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
+                response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+                await requestContext.SendResult(response);
             }
         }
 
@@ -111,30 +102,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             var response = new DefaultDatabaseInfoResponse();
             ConnectionInfo connInfo;
-            try
-            {
-                AdminService.ConnectionServiceInstance.TryFindConnection(
-                    databaseParams.OwnerUri,
-                    out connInfo);
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                databaseParams.OwnerUri,
+                out connInfo);
 
-                using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
+            using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
+            {
+                DatabasePrototype prototype = taskHelper.Prototype;
+                DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
+
+                Database db = prototype.ApplyChanges();
+
+                await requestContext.SendResult(new CreateDatabaseResponse()
                 {
-                    DatabasePrototype prototype = taskHelper.Prototype;
-                    DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
-
-                    Database db = prototype.ApplyChanges();
-
-                    await requestContext.SendResult(new CreateDatabaseResponse()
-                    {
-                        Result = true,
-                        TaskId = 0
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                await requestContext.SendError(ex);
+                    Result = true,
+                    TaskId = 0
+                });
             }
         }
 
