@@ -42,7 +42,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     {
                         NodeTypeDictionary.Add(containedType, new HashSet<Node>());
                     }
-                    NodeTypeDictionary.GetValueOrDefault(containedType).Add(node);
+                    HashSet<Node> nodeSet;
+                    NodeTypeDictionary.TryGetValue(containedType, out nodeSet);
+                    nodeSet.Add(node);
                 }
             }
             var serverNode = TreeRoot.Nodes.FirstOrDefault(node => node.Name == "Server");
@@ -59,7 +61,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
 
             var returnSet = new HashSet<string>();
-            var matchingNodes = NodeTypeDictionary.GetValueOrDefault(typeName);
+            HashSet<Node> matchingNodes;
+            NodeTypeDictionary.TryGetValue(typeName, out matchingNodes);
             if (matchingNodes == null)
             {
                 return returnSet;

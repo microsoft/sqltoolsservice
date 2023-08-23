@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <param name="type">Type of the querier</param>
         /// <param name="validForFlag">Server Type</param>
         /// <returns></returns>
-        public bool CanApplyFilter(Type type, ValidForFlag validForFlag)
+        public override bool CanApplyFilter(Type type, ValidForFlag validForFlag)
         {
             bool canApplyFilter = false;
             canApplyFilter = TypeToReverse == null || TypeToReverse == type;
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// Example of the output: (@ IsSystemObject = 0)
         /// </summary>
         /// <returns></returns>
-        public string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
+        public override string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
         {
             // check first if the filter can be applied; if not just return empty string
             if (!CanApplyFilter(type, validForFlag))
@@ -186,7 +186,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                         var escapedString = StringUtils.EscapeStringSQuote(propertyValue.ToString());
                         if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
-                            escapedString = EscapeLikeURNRegex().Replace(escapedString, "[$0]");
+                            // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ^
+                            // we do this by wrapping them in square brackets eg: [%], [_], [[], [^]
+                            Regex escapteSqlObjectChars = new Regex(@"%|_|\[|\^");
+                            escapedString = escapteSqlObjectChars.Replace(escapedString, "[$0]");
 
                             if (this.FilterType == FilterType.STARTSWITH)
                             {
@@ -283,11 +286,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                     return false;
             }
         }
-
-        // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ^
-        // we do this by wrapping them in square brackets eg: [%], [_], [[], [^]
-        [GeneratedRegexAttribute(@"%|_|\[|\^")]
-        public static partial Regex EscapeLikeURNRegex();
     }
 
     public enum FilterType
