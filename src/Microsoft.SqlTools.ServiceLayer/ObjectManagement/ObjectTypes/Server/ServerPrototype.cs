@@ -332,6 +332,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
         }
+
+        public ServerLoginMode AuthenticationMode
+        {
+            get
+            {
+                return this.currentState.AuthenticationMode;
+            }
+            set
+            {
+                this.currentState.AuthenticationMode = value;
+            }
+
+        }
+
+        public AuditLevel LoginAuditing
+        {
+            get
+            {
+                return this.currentState.LoginAuditing;
+            }
+            set
+            {
+                this.currentState.LoginAuditing = value;
+            }
+
+        }
         #endregion
 
 
@@ -363,8 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (this.dataContainer.Server != null)
             {
-                Microsoft.SqlServer.Management.Smo.Server server = this.dataContainer.Server;
-                bool changesMade = false;
+                Server server = this.dataContainer.Server;
                 bool alterServerConfig = false;
                 bool sendCPUAffinityBeforeIO = false;
                 bool sendIOAffinityBeforeCPU = false;
@@ -397,16 +422,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.currentState.AffinityManagerProcessorMask.Clear();
                 this.currentState.AffinityManagerIOMask.Clear();
 
-                changesMade = UpdateMemoryValues(this.dataContainer.Server);
-
-                if (changesMade)
+                if (UpdateMemoryValues(this.dataContainer.Server))
                 {
                     server.Configuration.Alter(true);
+                }
+
+                if (UpdateSecurityValues(this.dataContainer.Server))
+                {
+                    server.Alter();
                 }
             }
         }
 
-        public bool UpdateMemoryValues(Microsoft.SqlServer.Management.Smo.Server server)
+        public bool UpdateMemoryValues(Server server)
         {
             bool changesMade = false;
             if (this.currentState.MinMemory.Value != this.originalState.MinMemory.Value)
@@ -423,6 +451,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 serverConfig.ConfigValue = this.currentState.MaxMemory.Value;
             }
             return changesMade;
+        }
+
+        public bool UpdateSecurityValues(Server server)
+        {
+            bool alterServer = false;
+            bool needServerRestart = false;
+
+            if (this.currentState.AuthenticationMode != this.originalState.AuthenticationMode)
+            {
+                // set authentication
+                server.Settings.LoginMode = this.currentState.AuthenticationMode;
+                alterServer = true;
+                needServerRestart = true;
+            }
+
+            if (this.currentState.LoginAuditing != this.originalState.LoginAuditing)
+            {
+                server.Settings.AuditLevel = this.currentState.LoginAuditing;
+                alterServer = true;
+            }
+
+            if (needServerRestart)
+            {
+                // user is applying the changes right now (not scripting/scheduling)
+                // and changes require server restart in order to be effective so
+                // we warn the user about the required restart action (see also SQLBU# 355718)
+                Logger.Information("Changes require server restart in order to be effective");
+            }
+            return alterServer;
         }
 
         private bool CheckCPUAffinityBeforeIO(SMO.Server smoServer)
@@ -601,6 +658,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.AutoProcessorAffinityMaskForAll = serverInfo.AutoProcessorAffinityMaskForAll;
             this.AutoProcessorAffinityIOMaskForAll = serverInfo.AutoProcessorAffinityIOMaskForAll;
             this.NumaNodes = serverInfo.NumaNodes.ToList();
+            this.AuthenticationMode = serverInfo.AuthenticationMode;
+            this.LoginAuditing = serverInfo.LoginAuditing;
         }
 
         /// <summary>
@@ -636,6 +695,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private bool autoProcessorAffinityMaskForAll = false;
             private bool autoProcessorAffinityIOMaskForAll = false;
             private List<NumaNode> numaNodes = new List<NumaNode>();
+            private ServerLoginMode authenticationMode = ServerLoginMode.Integrated;
+            private AuditLevel loginAuditing = AuditLevel.None;
 
             private bool initialized = false;
             private Server server;
@@ -651,32 +712,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConfigProperty serverMaxMemoryProperty;
             ConfigProperty serverMinMemoryProperty;
             #endregion
-
-            public AffinityManager AffinityManagerIOMask
-            {
-                get
-                { 
-                    return this.affinityManagerIOMask;
-                }
-
-                set
-                {
-                    this.affinityManagerIOMask = value;
-                }
-            }
-
-            public AffinityManager AffinityManagerProcessorMask
-            {
-                get
-                {
-                    return this.affinityManagerProcessorMask;
-                }
-
-                set
-                {
-                    this.affinityManagerProcessorMask = value;
-                }
-            }
 
             #region Properties
 
@@ -1197,6 +1232,49 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+            public ServerLoginMode AuthenticationMode
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.authenticationMode;
+                }
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("AuthenticationMode"));
+                    }
+
+                    this.authenticationMode = value;
+                }
+            }
+
+            public AuditLevel LoginAuditing
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.loginAuditing;
+                }
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("LoginAuditing"));
+                    }
+
+                    this.loginAuditing = value;
+                }
+            }
 
             public Microsoft.SqlServer.Management.Smo.Server Server
             {
@@ -1211,6 +1289,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 get
                 {
                     return this.isYukonOrLater;
+                }
+            }
+
+            public AffinityManager AffinityManagerIOMask
+            {
+                get
+                {
+                    return this.affinityManagerIOMask;
+                }
+
+                set
+                {
+                    this.affinityManagerIOMask = value;
+                }
+            }
+
+            public AffinityManager AffinityManagerProcessorMask
+            {
+                get
+                {
+                    return this.affinityManagerProcessorMask;
+                }
+
+                set
+                {
+                    this.affinityManagerProcessorMask = value;
                 }
             }
 
@@ -1278,6 +1382,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 result.autoProcessorAffinityMaskForAll = this.autoProcessorAffinityMaskForAll;
                 result.autoProcessorAffinityIOMaskForAll = this.autoProcessorAffinityIOMaskForAll;
                 result.numaNodes = this.numaNodes;
+                result.authenticationMode = this.authenticationMode;
+                result.loginAuditing = this.loginAuditing;
                 result.server = this.server;
                 return result;
             }
@@ -1317,6 +1423,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 this.numaNodes = GetNumaNodes();
                 GetAutoProcessorsAffinity();
+                this.authenticationMode = server.LoginMode;
+                this.loginAuditing = server.AuditLevel;
             }
 
             private void LoadMemoryProperties()

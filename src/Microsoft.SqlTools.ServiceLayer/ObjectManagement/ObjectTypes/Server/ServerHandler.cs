@@ -66,7 +66,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         MaxServerMemory = prototype.MaxServerMemory,
                         AutoProcessorAffinityMaskForAll = prototype.AutoProcessorAffinityMaskForAll,
                         AutoProcessorAffinityIOMaskForAll = prototype.AutoProcessorAffinityIOMaskForAll,
-                        NumaNodes = prototype.NumaNodes
+                        NumaNodes = prototype.NumaNodes,
+                        AuthenticationMode = prototype.AuthenticationMode,
+                        LoginAuditing = prototype.LoginAuditing
                     };
                 }
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
