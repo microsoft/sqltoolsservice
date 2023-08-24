@@ -63,12 +63,12 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+      $nuspecFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
       $props = New-Object XML
-      $props.Load($projectFile)
+      $props.Load($nuspecFile)
       $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
-      $props.Project.PropertyGroup.Version = $version;
-      $props.Save($projectFile)
+      $props.package.metadata.Version = $version;
+      $props.Save($nuspecFile)
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
@@ -228,7 +228,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
-    Pattern: 'Microsoft.SqlTools.SqlCore.*.dll'
+    Pattern: 'Microsoft.SqlTools.*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -276,13 +276,13 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet pack sqlcore'
+- task: NuGetCommand@2
+  displayName: 'nuget pack sqlcore'
   inputs:
-    command: custom
-    custom: pack
-    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
-
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+    packDestination: '$(Build.SourcesDirectory)\artifacts\nugetPackages'
+    includeReferencedProjects: true
 - task: BatchScript@1
   displayName: 'Package nuspec projects'
   inputs:
