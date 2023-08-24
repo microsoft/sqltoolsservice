@@ -535,6 +535,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     database.Alter(TerminationClause.RollbackTransactionsImmediately);
                     server.DetachDatabase(testDb.DatabaseName, false);
                     server.Databases.Refresh();
+                    var databaseDetached = true;
+                    foreach (Database db in server.Databases)
+                    {
+                        if (db.Name == testDb.DatabaseName)
+                        {
+                            databaseDetached = false;
+                            break;
+                        }
+                    }
+                    Assert.That(databaseDetached, "Database was not correctly detached before doing attach test.");
 
                     try
                     {
@@ -556,8 +566,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         var script = handler.Attach(attachParams);
                         Assert.That(script, Is.Empty, "Should not have generated a script for this Attach operation.");
 
-                        var databaseAttached = false;
                         server.Databases.Refresh();
+                        var databaseAttached = false;
                         foreach (Database db in server.Databases)
                         {
                             if (db.Name == testDb.DatabaseName)
