@@ -840,7 +840,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             Autogrowth fileAutogrowth = new Autogrowth(prototype);
             fileAutogrowth.IsEnabled = file.IsAutoGrowthEnabled;
-            bool isGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
+            bool isGrowthInPercent = file.AutoFileGrowthType == FileGrowthType.Percent;
             fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
             fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
             fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
@@ -1018,7 +1018,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         FileNameWithExtension = Path.GetFileName(file.FileName),
                         SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
                         AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
-                        AutoFileGrowthType = file.GrowthType.ToString(),
+                        AutoFileGrowthType = file.GrowthType,
                         MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
                         IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None,
                     });
@@ -1036,7 +1036,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     FileNameWithExtension = Path.GetFileName(file.FileName),
                     SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
                     AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
-                    AutoFileGrowthType = file.GrowthType.ToString(),
+                    AutoFileGrowthType = file.GrowthType,
                     MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
                     IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None
                 });
