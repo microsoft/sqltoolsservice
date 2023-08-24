@@ -410,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
 
                     // verify the modified properties
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(4), $"Two files should exists, as we modified one and added two files");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(3), $"Three files should exists, as we modified one and added one new files");
                     var file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == databaseFile[0].Name);
                     Assert.That(file, Is.Not.Null, $"Primary file should exists");
                     Assert.That(file.SizeInMb, Is.EqualTo(15), $"Files updated value should match");
@@ -420,21 +420,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == testDatabaseFiles[0].Name);
                     Assert.That(file, Is.Not.Null, $"New file should be created");
                     Assert.That(file, Is.Not.EqualTo(0), $"Newly created file should have an Id");
-                    file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == testDatabaseFiles[1].Name);
-                    Assert.That(file, Is.Not.Null, $"New file should be created");
-                    Assert.That(file, Is.Not.EqualTo(0), $"Newly created file should have an Id");
+                    
+                    // Deleting newly created file
+                    List<DatabaseFile> newfiles = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.ToList();
+                    var fileIndexTobeRemoved = newfiles.FindIndex(x => x.Name == testDatabaseFiles[0].Name);
+                    newfiles.RemoveAt(fileIndexTobeRemoved);
+                    testDatabaseInfo.Files = newfiles.ToArray();
 
-                    // Below code is failing on server
-                    //// Deleting newly created file
-                    //List<DatabaseFile> newfiles = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.ToList();
-                    //var fileIndexTobeRemoved = newfiles.FindIndex(x => x.Name == testDatabaseFiles[1].Name);
-                    //newfiles.RemoveAt(fileIndexTobeRemoved);
-                    //testDatabaseInfo.Files = newfiles.ToArray();
-
-                    //// Validate the result files
-                    //await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
-                    //DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
-                    //Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Files.Count, Is.EqualTo(3), $"Should have only 3 files as we removed one");
+                    // Validate the result files
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
+                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Files.Count, Is.EqualTo(2), $"Should have only 2 files as we removed one");
                 }
             }
         }
