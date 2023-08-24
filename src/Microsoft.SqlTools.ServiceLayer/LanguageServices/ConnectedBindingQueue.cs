@@ -124,9 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 && entry.Key != "groupId" && entry.Key != "password" && entry.Key != "connectionName")
                 {
                     // Boolean values are explicitly labeled true or false instead of undefined.
-                    if (entry.Value is bool)
+                    if (entry.Value is bool v)
                     {
-                        if ((bool)entry.Value)
+                        if (v)
                         {
                             key += "_" + entry.Key + ":true";
                         }

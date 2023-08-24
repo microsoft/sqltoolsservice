@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.Utility
 {
@@ -76,6 +77,23 @@ namespace Microsoft.SqlTools.Utility
             }
 
             return false;
+        }
+
+        public static string GetFullErrorMessage(this Exception e, bool includeStackTrace = false)
+        {
+            List<string> errors = new List<string>();
+
+            while (e != null)
+            {
+                errors.Add(e.Message);
+                if (includeStackTrace)
+                {
+                    errors.Add(e.StackTrace);
+                }
+                e = e.InnerException;
+            }
+
+            return errors.Count > 0 ? string.Join(includeStackTrace ? Environment.NewLine : " ---> ", errors) : string.Empty;
         }
     }
 }
