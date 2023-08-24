@@ -213,7 +213,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).FullTextIndexing = dataContainer.Server.ServerType == DatabaseEngineType.Standalone ? true : null;
+                                        // Full-text indexing is always enabled in SQL Server
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).FullTextIndexing = smoDatabase.IsFullTextEnabled;
                                     }
 
                                     if (prototype is DatabasePrototype160)
