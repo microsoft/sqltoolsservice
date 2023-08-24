@@ -15,6 +15,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             "vscode-notebook-cell"
         };
 
-        private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
+        private ConcurrentDictionary<string, ScriptFile> workspaceFiles = new ConcurrentDictionary<string, ScriptFile>();
 
         #endregion
 
@@ -121,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 {
                     scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri,streamReader);
 
-                    this.workspaceFiles.Add(keyName, scriptFile);
+                    this.workspaceFiles.TryAdd(keyName, scriptFile);
                 }
 
                 Logger.Verbose("Opened file on disk: " + resolvedFile.FilePath);
@@ -235,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             {
                 scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri, initialBuffer);
 
-                this.workspaceFiles.Add(keyName, scriptFile);
+                this.workspaceFiles.TryAdd(keyName, scriptFile);
 
                 Logger.Verbose("Opened file as in-memory buffer: " + resolvedFile.FilePath);
             }
@@ -260,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             Validate.IsNotNull("scriptFile", scriptFile);
 
-            this.workspaceFiles.Remove(scriptFile.Id);
+            this.workspaceFiles.TryRemove(scriptFile.Id, out _);
         }
 
         internal string GetBaseFilePath(string filePath)

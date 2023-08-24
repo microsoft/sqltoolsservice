@@ -1064,22 +1064,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // what the document events are sent in as.
             var escapedOwnerUri = Uri.EscapeUriString(request.OwnerUri);
             // If it is a document selection, we'll retrieve the text from the document
-            ExecuteDocumentSelectionParams docRequest = request as ExecuteDocumentSelectionParams;
-            if (docRequest != null)
+            if (request is ExecuteDocumentSelectionParams docRequest)
             {
                 return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
             }
 
             // If it is a document statement, we'll retrieve the text from the document
-            ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
-            if (stmtRequest != null)
+            if (request is ExecuteDocumentStatementParams stmtRequest)
             {
                 return GetSqlStatementAtPosition(escapedOwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
-            ExecuteStringParams stringRequest = request as ExecuteStringParams;
-            if (stringRequest != null)
+            if (request is ExecuteStringParams stringRequest)
             {
                 return stringRequest.Query;
             }

@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
     /// <summary>
 	/// manager that hooks up tree view with the individual views
 	/// </summary>
-	internal sealed class ExecutonHandler : IDisposable
+	internal sealed class ExecutionHandler : IDisposable
 	{
         /// <summary>
         /// handler that we delegate execution related tasks to
@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// using this provider whenever it has to specify an IServiceProvider to a component
         /// that will be managed by this class
         /// </param>
-        public ExecutonHandler(IExecutionAwareManagementAction managementAction)
+        public ExecutionHandler(IExecutionAwareManagementAction managementAction)
         {     
             this.managementAction = managementAction;
             this.executionHandlerDelegate = new ExecutionHandlerDelegate(managementAction);

@@ -158,27 +158,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error($"{requestType.MethodName} : {GetErrorMessage(ex, true)}");
-                        await requestContext.SendError(GetErrorMessage(ex));
+                        Logger.Error($"{requestType.MethodName} : {ex.GetFullErrorMessage(true)}");
+                        await requestContext.SendError(ex.GetFullErrorMessage());
                     }
                 });
-        }
-
-        private string GetErrorMessage(Exception e, bool includeStackTrace = false)
-        {
-            List<string> errors = new List<string>();
-
-            while (e != null)
-            {
-                errors.Add(e.Message);
-                if (includeStackTrace)
-                {
-                    errors.Add(e.StackTrace);
-                }
-                e = e.InnerException;
-            }
-
-            return errors.Count > 0 ? string.Join(includeStackTrace ? Environment.NewLine : " ---> ", errors) : string.Empty;
         }
 
         public void SetEventHandler<TParams>(

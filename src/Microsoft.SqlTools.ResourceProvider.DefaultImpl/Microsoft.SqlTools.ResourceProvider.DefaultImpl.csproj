@@ -12,6 +12,7 @@
 		<Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
 		<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
 		<NoWarn>$(NoWarn);CA1852</NoWarn>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Azure.Management.ResourceManager" />
