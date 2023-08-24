@@ -648,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             foreach (var file in database.Files)
                             {
                                 // Add a New file
-                                if(file.Id == 0)
+                                if (file.Id == 0)
                                 {
                                     DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
                                     newFile.Name = file.Name;
@@ -674,7 +674,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 else
                                 {
                                     var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
-                                    if (existedFile != null) {
+                                    if (existedFile != null)
+                                    {
                                         fileIdsToRemove.Remove(file.Id);
                                         existedFile.Name = file.Name;
                                         existedFile.InitialSize = (int)file.SizeInMb;
@@ -684,7 +685,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
 
                             // Remove the file
-                            foreach(var currentFile in prototype.Files)
+                            foreach (var currentFile in prototype.Files)
                             {
                                 if (fileIdsToRemove.Contains(currentFile.ID))
                                 {
@@ -754,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             Autogrowth fileAutogrowth = new Autogrowth(prototype);
             fileAutogrowth.IsEnabled = file.IsAutoGrowthEnabled;
-            bool isGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
+            bool isGrowthInPercent = file.AutoFileGrowthType == FileGrowthType.Percent;
             fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
             fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
             fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
@@ -932,7 +933,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         FileNameWithExtension = Path.GetFileName(file.FileName),
                         SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
                         AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
-                        AutoFileGrowthType = file.GrowthType.ToString(),
+                        AutoFileGrowthType = file.GrowthType,
                         MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
                         IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None,
                     });
@@ -950,7 +951,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     FileNameWithExtension = Path.GetFileName(file.FileName),
                     SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
                     AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
-                    AutoFileGrowthType = file.GrowthType.ToString(),
+                    AutoFileGrowthType = file.GrowthType,
                     MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
                     IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None
                 });
@@ -981,7 +982,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // If no fileStream groups available
-            if(fileStreamDataGroups.Count == 0)
+            if (fileStreamDataGroups.Count == 0)
             {
                 fileStreamDataGroups.Add(SR.prototype_file_noApplicableFileGroup);
             }

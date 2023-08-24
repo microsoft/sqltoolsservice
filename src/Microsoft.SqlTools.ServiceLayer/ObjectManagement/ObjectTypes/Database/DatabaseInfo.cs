@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.Smo;
+
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
@@ -63,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public double SizeInMb { get; set; }
         public bool IsAutoGrowthEnabled { get; set; }
         public double AutoFileGrowth { get; set; }
-        public string AutoFileGrowthType { get; set; }
+        public FileGrowthType AutoFileGrowthType { get; set; }
         public double MaxSizeLimitInMb { get; set; }
     }
 
