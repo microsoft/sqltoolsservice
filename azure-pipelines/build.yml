@@ -281,7 +281,7 @@ steps:
   inputs:
     command: pack
     packagesToPack: '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
-    packDirectory: '$(Build.SourcesDirectory)\artifacts\nugetPackages'
+    packDestination: '$(Build.SourcesDirectory)\artifacts\nugetPackages'
     includeReferencedProjects: true
     nobuild: true
 
