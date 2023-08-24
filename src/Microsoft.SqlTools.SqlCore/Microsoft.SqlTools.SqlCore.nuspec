@@ -5,7 +5,10 @@
     <version>1.0.0</version>
     <authors>Microsoft</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/Microsoft/sqltoolsservice/</projectUrl>
     <description>Provides core SQL functionality for SQL server editors like Object explorer, Query Execution and Scripting</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <dependencies>
       <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="170.12.0" />
       <dependency id="System.Configuration.ConfigurationManager" version="6.0.1" />
