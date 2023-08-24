@@ -9,6 +9,7 @@
 		<OutputType>Library</OutputType>
 		<StartupObject />
 		<Description>Provides Resource Provider and control plane services for SqlTools applications.</Description>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />

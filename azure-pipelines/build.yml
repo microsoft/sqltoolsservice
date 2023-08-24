@@ -58,6 +58,18 @@ steps:
   inputs:
     useGlobalJson: true
 
+- task: PowerShell@2
+  displayName: 'Add version number to SqlCore project for packaging'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+      $props = New-Object XML
+      $props.Load($projectFile)
+      $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
+      $props.Project.PropertyGroup.Version = $version;
+      $props.Save($projectFile)
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
@@ -104,7 +116,7 @@ steps:
     summaryFileLocation: '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
 
 - task: PowerShell@2
-  displayName: 'Generate Nuspec Version'
+  displayName: 'Generate ManagedBatchParser Nuspec Version'
   inputs:
     targetType: 'inline'
     script: |
@@ -163,7 +175,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll,MicrosoftSqlToolsMigration.exe,MicrosoftSqlToolsMigration.dll'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll,MicrosoftSqlToolsMigration.exe,MicrosoftSqlToolsMigration.dll,Microsoft.SqlTools.SqlCore.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -210,6 +222,66 @@ steps:
      ]
     SessionTimeout: 600
     MaxConcurrency: 5
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP SqlCore CodeSigning - sha256 only'
+  inputs:
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
+    Pattern: 'Microsoft.SqlTools.SqlCore.*.dll'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolSign",
+         "parameters": [
+         {
+           "parameterName": "OpusName",
+           "parameterValue": "SQL Tools Service"
+         },
+         {
+           "parameterName": "OpusInfo",
+           "parameterValue": "https://github.com/microsoft/sqltoolsservice"
+         },
+         {
+           "parameterName": "PageHash",
+           "parameterValue": "/NPH"
+         },
+         {
+           "parameterName": "FileDigest",
+           "parameterValue": "/fd sha256"
+         },
+         {
+           "parameterName": "TimeStamp",
+           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+         }
+         ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       },
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolVerify",
+         "parameters": [
+         {
+           "parameterName": "VerifyAll",
+           "parameterValue": "/all"
+         }
+             ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       }
+     ]
+    SessionTimeout: 600
+    MaxConcurrency: 5
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack sqlcore'
+  inputs:
+    command: custom
+    custom: pack
+    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - task: BatchScript@1
   displayName: 'Package nuspec projects'
@@ -288,6 +360,15 @@ steps:
     command: push
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
+    allowPackageConflicts: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet push SqlCore'
+  condition: eq(variables['RELEASE_SQLCORE'], 'true')
+  inputs:
+    command: push
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg'
+    feedPublish: 'mssqltools'
     allowPackageConflicts: true
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0

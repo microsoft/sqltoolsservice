@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                     using (CredentialActions actions = new CredentialActions(dataContainer, credential, configAction))
                     {
-                        var executionHandler = new ExecutonHandler(actions);
+                        var executionHandler = new ExecutionHandler(actions);
                         executionHandler.RunNow(runType, this);
                     }
 

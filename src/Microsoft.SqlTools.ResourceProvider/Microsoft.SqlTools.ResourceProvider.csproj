@@ -12,6 +12,7 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+    <TargetFramework>net7.0</TargetFramework>
 	<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
 	<NoWarn>$(NoWarn);CA1852</NoWarn>
   </PropertyGroup>
