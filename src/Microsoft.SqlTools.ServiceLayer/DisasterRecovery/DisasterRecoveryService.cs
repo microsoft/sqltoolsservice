@@ -372,9 +372,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Logger.Error(ex);
                 if (sqlConn != null && sqlConn.State == System.Data.ConnectionState.Open)
                 {
                     sqlConn.Close();
