@@ -75,6 +75,15 @@ steps:
   inputs:
     filename: build.cmd
     arguments: '-target=all -mono'
+
+- task: NuGetCommand@2
+  displayName: 'nuget pack sqlcore'
+  inputs:
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
+    packDirectory: '$(Build.SourcesDirectory)\artifacts\nugetPackages'
+    includeReferencedProjects: true
+    nobuild: true
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
@@ -276,13 +285,8 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
-- task: NuGetCommand@2
-  displayName: 'nuget pack sqlcore'
-  inputs:
-    command: pack
-    packagesToPack: '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
-    packDestination: '$(Build.SourcesDirectory)\artifacts\nugetPackages'
-    includeReferencedProjects: true
+
+
 - task: BatchScript@1
   displayName: 'Package nuspec projects'
   inputs:
