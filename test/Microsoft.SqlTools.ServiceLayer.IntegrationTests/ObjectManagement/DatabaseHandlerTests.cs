@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
@@ -503,7 +504,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public async Task AttachDatabaseTest()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AttachDatabaseTest(bool generateScript)
         {
             using (SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, nameof(AttachDatabaseTest)))
             {
@@ -534,17 +537,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     database.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                     database.Alter(TerminationClause.RollbackTransactionsImmediately);
                     server.DetachDatabase(testDb.DatabaseName, false);
-                    server.Databases.Refresh();
-                    var databaseDetached = true;
-                    foreach (Database db in server.Databases)
-                    {
-                        if (db.Name == testDb.DatabaseName)
-                        {
-                            databaseDetached = false;
-                            break;
-                        }
-                    }
-                    Assert.That(databaseDetached, "Database was not correctly detached before doing attach test.");
+                    var dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                    Assert.That(dbExists, Is.False, "Database was not correctly detached before doing attach test.");
 
                     try
                     {
@@ -561,36 +555,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                                     DatabaseFilePaths = originalFilePaths.ToArray()
                                 }
                             },
-                            GenerateScript = false
+                            GenerateScript = generateScript
                         };
                         var script = handler.Attach(attachParams);
-                        Assert.That(script, Is.Empty, "Should not have generated a script for this Attach operation.");
 
-                        server.Databases.Refresh();
-                        var databaseAttached = false;
-                        foreach (Database db in server.Databases)
+                        if (generateScript)
                         {
-                            if (db.Name == testDb.DatabaseName)
+                            dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                            Assert.That(dbExists, Is.False, "Should not have attached DB when only generating a script.");
+
+                            var queryBuilder = new StringBuilder(); 
+                            queryBuilder.AppendLine("USE [master]");
+                            queryBuilder.AppendLine($"CREATE DATABASE [{testDb.DatabaseName}] ON ");
+
+                            for (int i = 0; i < originalFilePaths.Count - 1; i++)
                             {
-                                databaseAttached = true;
-                                break;
+                                var file = originalFilePaths[i];
+                                queryBuilder.AppendLine($"( FILENAME = N'{file}' ),");
                             }
+                            queryBuilder.AppendLine($"( FILENAME = N'{originalFilePaths[originalFilePaths.Count - 1]}' )");
+
+                            queryBuilder.AppendLine(" FOR ATTACH");
+                            queryBuilder.AppendLine($"if exists (select name from master.sys.databases sd where name = N'{testDb.DatabaseName}' and SUSER_SNAME(sd.owner_sid) = SUSER_SNAME() ) EXEC [{testDb.DatabaseName}].dbo.sp_changedbowner @loginame=N'{originalOwner}', @map=false");
+
+                            Assert.That(script, Is.EqualTo(queryBuilder.ToString()), "Did not get expected attach database script");
                         }
-                        Assert.That(databaseAttached, "Database was not attached successfully");
+                        else
+                        {
+                            Assert.That(script, Is.Empty, "Should not have generated a script for this Attach operation.");
+
+                            server.Databases.Refresh();
+                            dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                            Assert.That(dbExists, "Database was not attached successfully");
+                        }
                     }
                     finally
                     {
-                        server.Databases.Refresh();
-                        var databaseExists = false;
-                        foreach (Database db in server.Databases)
-                        {
-                            if (db.Name == testDb.DatabaseName)
-                            {
-                                databaseExists = true;
-                                break;
-                            }
-                        }
-                        if (!databaseExists)
+                        dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                        if (!dbExists)
                         {
                             // Reattach database so it can get dropped during cleanup
                             var fileCollection = new StringCollection();
