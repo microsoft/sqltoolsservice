@@ -12,9 +12,9 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
 {
     public class AsyncScriptAsScriptingOperation
     {
-        public static async Task<string> GetScriptAsScript(ScriptingParams parameters, AccessToken accessToken)
+        public static async Task<string> GetScriptAsScript(ScriptingParams parameters, AccessToken? accessToken)
         {
-            var scriptAsOperation = new ScriptAsScriptingOperation(parameters, accessToken.Token);
+            var scriptAsOperation = new ScriptAsScriptingOperation(parameters, accessToken?.Token);
             TaskCompletionSource<string> scriptAsTask = new TaskCompletionSource<string>();
 
             scriptAsOperation.CompleteNotification += (sender, args) =>
