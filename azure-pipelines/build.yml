@@ -59,7 +59,7 @@ steps:
     useGlobalJson: true
 
 - task: PowerShell@2
-  displayName: 'Add version number to SqlCore project for packaging'
+  displayName: 'Add version number to SqlCore nuspec for packaging'
   inputs:
     targetType: 'inline'
     script: |
