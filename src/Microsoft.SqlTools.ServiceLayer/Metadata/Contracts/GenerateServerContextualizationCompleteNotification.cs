@@ -18,10 +18,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         /// </summary>
         public bool CompletedGeneratingContext { get; set; }
         /// <summary>
-        /// Holds any error messages, if errors were encountered while
+        /// Holds an error message, if errors were encountered while
         /// generating context
         /// </summary>
-        public string Messages { get; set; }
+        public string ErrorMessage { get; set; }
     }
 
     /// <summary>

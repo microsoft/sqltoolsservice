@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                                 var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                                 {
-                                    Messages = ex.Message
+                                    ErrorMessage = ex.Message
                                 };
                                 await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
                             }
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                             var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                             {
-                                Messages = "Failed to generate server scripts"
+                                ErrorMessage = "Failed to generate server scripts"
                             };
                             await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
                         }
