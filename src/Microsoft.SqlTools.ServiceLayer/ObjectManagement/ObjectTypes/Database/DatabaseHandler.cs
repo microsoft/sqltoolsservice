@@ -703,7 +703,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             // process row data filegroups
                             foreach (FileGroups fg in database.Filegroups)
                             {
-                                if (fg.Id == 0)
+                                if (fg.Id < 0)
                                 {
                                     FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
                                     newfileGroup.FileGroupType = fg.Type;
@@ -720,9 +720,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     {
                                         fileGroupToRemove.Remove(fg.Name);
                                         existedFilegroup.Name = fg.Name;
-                                        existedFilegroup.IsReadOnly = fg.IsReadOnly;
-                                        existedFilegroup.IsDefault = fg.IsDefault;
-                                        existedFilegroup.IsAutogrowAllFiles = fg.IsDefault;
+                                        if (fg.Type != FileGroupType.MemoryOptimizedDataFileGroup) {
+                                            existedFilegroup.IsReadOnly = fg.IsReadOnly;
+                                            existedFilegroup.IsDefault = fg.IsDefault;
+                                            if (fg.Type != FileGroupType.FileStreamDataFileGroup)
+                                            {
+                                                existedFilegroup.IsAutogrowAllFiles = fg.IsDefault;
+                                            }
+                                        }
                                     }
                                 }
                             }
