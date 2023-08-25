@@ -215,6 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
                                         // Full-text indexing is always enabled in SQL Server
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).FullTextIndexing = smoDatabase.IsFullTextEnabled;
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
                                     }
 
                                     if (prototype is DatabasePrototype160)
@@ -227,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                 // Get file groups names
                                 GetFileGroupNames(smoDatabase, databaseViewInfo);
-                                GetFileGroups(smoDatabase, databaseViewInfo);
+
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -696,76 +697,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (!viewParams.IsNewObject)
+                        if (!viewParams.IsNewObject && database.Filegroups != null)
                         {
                             HashSet<string> fileGroupToRemove = new HashSet<string>(prototype.Filegroups.Select(file => file.Name));
                             // process row data filegroups
-                            foreach (FileGroups rowFilegroup in database.RowDataFilegroups)
+                            foreach (FileGroups fg in database.Filegroups)
                             {
-                                if (rowFilegroup.Id == 0)
+                                if (fg.Id == 0)
                                 {
                                     FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
-                                    newfileGroup.FileGroupType = FileGroupType.RowsFileGroup;
-                                    newfileGroup.Name = rowFilegroup.Name;
-                                    newfileGroup.IsReadOnly = (bool)rowFilegroup.IsReadOnly;
-                                    newfileGroup.IsDefault = (bool)rowFilegroup.IsDefault;
-                                    newfileGroup.IsAutogrowAllFiles = (bool)rowFilegroup.IsDefault;
+                                    newfileGroup.FileGroupType = fg.Type;
+                                    newfileGroup.Name = fg.Name;
+                                    newfileGroup.IsReadOnly = fg.IsReadOnly;
+                                    newfileGroup.IsDefault = fg.IsDefault;
+                                    newfileGroup.IsAutogrowAllFiles = fg.IsDefault;
                                     prototype.Filegroups.Add(newfileGroup);
                                 }
                                 else
                                 {
-                                    var existedFilegroup = prototype.Filegroups.FirstOrDefault(x => x.Name == rowFilegroup.Name && x.FileGroupType == FileGroupType.RowsFileGroup);
+                                    var existedFilegroup = prototype.Filegroups.FirstOrDefault(x => x.Name == fg.Name);
                                     if (existedFilegroup != null)
                                     {
-                                        fileGroupToRemove.Remove(rowFilegroup.Name);
-                                        existedFilegroup.Name = rowFilegroup.Name;
-                                        existedFilegroup.IsReadOnly = (bool)rowFilegroup.IsReadOnly;
-                                        existedFilegroup.IsDefault = (bool)rowFilegroup.IsDefault;
-                                        existedFilegroup.IsAutogrowAllFiles = (bool)rowFilegroup.IsDefault;
-                                    }
-                                }
-                            }
-                            // Process filestream filegroups
-                            foreach (FileGroups filestreamFilegroup in database.FilestreamDataFilegroups)
-                            {
-                                if (filestreamFilegroup.Id == 0)
-                                {
-                                    FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
-                                    newfileGroup.FileGroupType = FileGroupType.FileStreamDataFileGroup;
-                                    newfileGroup.Name = filestreamFilegroup.Name;
-                                    newfileGroup.IsReadOnly = (bool)filestreamFilegroup.IsReadOnly;
-                                    newfileGroup.IsDefault = (bool)filestreamFilegroup.IsDefault;
-                                    prototype.Filegroups.Add(newfileGroup);
-                                }
-                                else
-                                {
-                                    var existedFilegroup = prototype.Filegroups.FirstOrDefault(x => x.Name == filestreamFilegroup.Name && x.FileGroupType == FileGroupType.FileStreamDataFileGroup);
-                                    if (existedFilegroup != null)
-                                    {
-                                        fileGroupToRemove.Remove(filestreamFilegroup.Name);
-                                        existedFilegroup.Name = filestreamFilegroup.Name;
-                                        existedFilegroup.IsReadOnly = (bool)filestreamFilegroup.IsReadOnly;
-                                        existedFilegroup.IsDefault = (bool)filestreamFilegroup.IsDefault;
-                                    }
-                                }
-                            }
-                            // Process memory optimized filegroups
-                            foreach (FileGroups memoryOptimizedFilegroup in database.RowDataFilegroups)
-                            {
-                                if (memoryOptimizedFilegroup.Id == 0)
-                                {
-                                    FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
-                                    newfileGroup.FileGroupType = FileGroupType.MemoryOptimizedDataFileGroup;
-                                    newfileGroup.Name = memoryOptimizedFilegroup.Name;
-                                    prototype.Filegroups.Add(newfileGroup);
-                                }
-                                else
-                                {
-                                    var existedFilegroup = prototype.Filegroups.FirstOrDefault(x => x.Name == memoryOptimizedFilegroup.Name && x.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup);
-                                    if (existedFilegroup != null)
-                                    {
-                                        fileGroupToRemove.Remove(memoryOptimizedFilegroup.Name);
-                                        existedFilegroup.Name = memoryOptimizedFilegroup.Name;
+                                        fileGroupToRemove.Remove(fg.Name);
+                                        existedFilegroup.Name = fg.Name;
+                                        existedFilegroup.IsReadOnly = fg.IsReadOnly;
+                                        existedFilegroup.IsDefault = fg.IsDefault;
+                                        existedFilegroup.IsAutogrowAllFiles = fg.IsDefault;
                                     }
                                 }
                             }
@@ -1081,50 +1038,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         /// <param name="database"></param>
         /// <param name="databaseViewInfo"></param>
-        private void GetFileGroups(Database database, DatabaseViewInfo databaseViewInfo)
+        private FileGroups[] GetFileGroups(Database database, DatabaseViewInfo databaseViewInfo)
         {
-            var rowDataFilegroups = new List<FileGroups>();
-            var fileStreamDataFilegroups = new List<FileGroups>();
-            var memoryOptimizedFilegroups = new List<FileGroups>();
+            var filegroups = new List<FileGroups>();
             foreach (FileGroup filegroup in database.FileGroups)
             {
-                if (filegroup.FileGroupType == FileGroupType.FileStreamDataFileGroup)
+                filegroups.Add(new FileGroups()
                 {
-                    fileStreamDataFilegroups.Add(new FileGroups()
-                    {
-                        Id = filegroup.ID,
-                        Name = filegroup.Name,
-                        FilesCount = filegroup.Files.Count,
-                        IsReadOnly = filegroup.ReadOnly,
-                        IsDefault = filegroup.IsDefault
-                    });
-                }
-                else if (filegroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
-                {
-                    memoryOptimizedFilegroups.Add(new FileGroups()
-                    {
-                        Id = filegroup.ID,
-                        Name = filegroup.Name,
-                        FilesCount = filegroup.Files.Count
-                    });
-                }
-                else
-                {
-                    rowDataFilegroups.Add(new FileGroups()
-                    {
-                        Id = filegroup.ID,
-                        Name = filegroup.Name,
-                        FilesCount = filegroup.Files.Count,
-                        IsReadOnly = filegroup.ReadOnly,
-                        IsDefault = filegroup.IsDefault,
-                        AutogrowAllFiles = filegroup.AutogrowAllFiles
-                    });
-                }
+                    Id = filegroup.ID,
+                    Name = filegroup.Name,
+                    Type = filegroup.FileGroupType,
+                    FilesCount = filegroup.Files.Count,
+                    IsReadOnly = filegroup.ReadOnly,
+                    IsDefault = filegroup.IsDefault
+                });
             }
-
-            ((DatabaseInfo)databaseViewInfo.ObjectInfo).RowDataFilegroups = rowDataFilegroups.ToArray();
-            ((DatabaseInfo)databaseViewInfo.ObjectInfo).FilestreamDataFilegroups = fileStreamDataFilegroups.ToArray();
-            ((DatabaseInfo)databaseViewInfo.ObjectInfo).MemoryOptimizedFilegroups = memoryOptimizedFilegroups.ToArray();
+            return filegroups.ToArray();
         }
 
         /// <summary>
