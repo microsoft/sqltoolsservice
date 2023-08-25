@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool EncryptionEnabled { get; set; }
         public string? RestrictAccess { get; set; }
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
-        public bool? FullTextIndexing { get; set; }
+        public bool? IsFilesTabSupported { get; set; }
         public DatabaseFile[] Files { get; set; }
         public FileGroups[]? Filegroups { get; set; }
     }
