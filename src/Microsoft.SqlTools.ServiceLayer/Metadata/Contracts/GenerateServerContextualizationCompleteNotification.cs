@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         /// Holds an error message, if errors were encountered while
         /// generating context
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 
     /// <summary>
