@@ -168,6 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                                 var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                                 {
+                                    OwnerUri = contextualizationParams.OwnerUri,
                                     ErrorMessage = ex.Message
                                 };
                                 await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
@@ -179,6 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                             var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                             {
+                                OwnerUri = contextualizationParams.OwnerUri,
                                 ErrorMessage = "Failed to generate server scripts"
                             };
                             await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
