@@ -16,6 +16,7 @@
 		<LangVersion>8.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
+		<BuildProjectReferences>false</BuildProjectReferences>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
