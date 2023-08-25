@@ -12,10 +12,11 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
 		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution and Scripting</Description>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;net472;net7.0</TargetFrameworks>
 		<LangVersion>8.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeP2POutput</TargetsForTfmSpecificBuildOutput>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -25,10 +26,7 @@
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj">
-			<PrivateAssets>all</PrivateAssets>
-			<Pack>true</Pack>
-		</ProjectReference> 
+		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" PrivateAssets="all" />			
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
@@ -43,10 +41,10 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
-	<ItemGroup>
-		<_PackageFiles Include="$(OutputPath)\**\*.dll">
-		  <BuildAction>None</BuildAction>
-		  <PackagePath>lib\netstandard2.0\</PackagePath>
-		</_PackageFiles>
-	  </ItemGroup>	  
+	<Target Name="IncludeP2POutput" DependsOnTargets="ResolveReferences">
+		<ItemGroup>
+		  <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'all'))" />
+		</ItemGroup>
+	  </Target>
+	
 </Project>

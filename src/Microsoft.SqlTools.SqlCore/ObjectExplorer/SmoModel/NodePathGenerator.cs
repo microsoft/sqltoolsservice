@@ -30,7 +30,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             NodeTypeDictionary = new Dictionary<string, HashSet<Node>>();
             using (var reader = new StreamReader(resource))
             {
-                TreeRoot = (ServerExplorerTree)serializer.Deserialize(reader);
+                #pragma warning disable CA3075
+                TreeRoot = serializer.Deserialize(reader) as ServerExplorerTree;
+                #pragma warning restore CA3075
             }
 
             foreach (var node in TreeRoot.Nodes)
