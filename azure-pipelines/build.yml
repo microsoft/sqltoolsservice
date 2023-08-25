@@ -228,7 +228,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
-    Pattern: 'Microsoft.SqlTools.*.dll'
+    Pattern: 'Microsoft.SqlTools.SqlCore.*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -276,6 +276,13 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack sqlcore'
+  inputs:
+    command: custom
+    custom: pack
+    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+
 - task: BatchScript@1
   displayName: 'Package nuspec projects'
   inputs:
@@ -289,13 +296,6 @@ steps:
   inputs:
     filename: build.cmd
     arguments: "-target=dotnetpackservicetools -mono"
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet pack sqlcore'
-  inputs:
-    command: custom
-    custom: pack
-    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --no-restore src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP Code Signing - Nuget Package'
