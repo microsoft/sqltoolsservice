@@ -150,7 +150,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+            var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
+            {
+                OwnerUri = generateServerContextualizationParams.OwnerUri,
+                CompletedGeneratingContext = true
+            };
+            var mockEventContext = new Mock<EventContext>();
+            mockEventContext.Setup(x => x.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams))
+                .Returns(Task.CompletedTask);
+
+            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockEventContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -175,7 +184,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+            var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
+            {
+                OwnerUri = generateServerContextualizationParams.OwnerUri,
+                CompletedGeneratingContext = true
+            };
+            var mockEventContext = new Mock<EventContext>();
+            mockEventContext.Setup(x => x.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams))
+                .Returns(Task.CompletedTask);
+
+            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockEventContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);

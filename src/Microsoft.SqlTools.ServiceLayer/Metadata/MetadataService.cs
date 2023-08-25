@@ -127,9 +127,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static Task HandleGenerateServerContextualizationNotification(GenerateServerContextualizationParams contextualizationParams,
             EventContext eventContext)
         {
-            _ = Task.Factory.StartNew(() =>
+            _ = Task.Factory.StartNew(async () =>
             {
-                GenerateServerContextualization(contextualizationParams);
+                await GenerateServerContextualization(contextualizationParams, eventContext);
             },
             CancellationToken.None,
             TaskCreationOptions.None,
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// database objects like tables and views.
         /// </summary>
         /// <param name="contextualizationParams">The contextualization parameters.</param>
-        internal static void GenerateServerContextualization(GenerateServerContextualizationParams contextualizationParams)
+        internal static async Task GenerateServerContextualization(GenerateServerContextualizationParams contextualizationParams, EventContext eventContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
 
@@ -153,27 +153,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     // If scripts have been generated within the last 30 days then there isn't a need to go through the process
                     // of generating scripts again.
-                    if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
+                    if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                     {
-                        return;
+                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
+                        if (scripts != null)
+                        {
+                            try
+                            {
+                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
+
+                                var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
+                                {
+                                    Messages = ex.Message
+                                };
+                                await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
+                            }
+                        }
+                        else
+                        {
+                            Logger.Error("Failed to generate server scripts");
+
+                            var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
+                            {
+                                Messages = "Failed to generate server scripts"
+                            };
+                            await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
+                        }
                     }
 
-                    var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
-                    if (scripts != null)
+                    var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
                     {
-                        try
-                        {
-                            MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
-                        }
-                    }
-                    else
-                    {
-                        Logger.Error("Failed to generate server scripts");
-                    }
+                        OwnerUri = contextualizationParams.OwnerUri,
+                        CompletedGeneratingContext = true
+                    };
+
+                    await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams);
                 }
             }
         }
