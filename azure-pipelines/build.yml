@@ -281,7 +281,7 @@ steps:
   inputs:
     command: custom
     custom: pack
-    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages  --skip-duplicate --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj' 
 
 - task: BatchScript@1
   displayName: 'Package nuspec projects'
