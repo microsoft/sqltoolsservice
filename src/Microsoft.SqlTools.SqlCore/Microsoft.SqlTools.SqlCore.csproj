@@ -16,7 +16,6 @@
 		<LangVersion>8.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
-		<BuildProjectReferences>false</BuildProjectReferences>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -28,6 +27,7 @@
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj">
 			<PrivateAssets>all</PrivateAssets>
+			<Pack>true</Pack>
 		</ProjectReference> 
 	</ItemGroup>
 	<ItemGroup>
@@ -43,12 +43,10 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
-	<PropertyGroup>
-		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
-	</PropertyGroup>
-	<Target DependsOnTargets="BuildOnlySettings;ResolveReferences" Name="CopyProjectReferencesToPackage">
-		<ItemGroup>
-			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
-		</ItemGroup>
-	</Target>
+	<ItemGroup>
+		<_PackageFiles Include="$(OutputPath)\**\Microsoft.SqlTools.Hosting.*dll">
+		  <BuildAction>None</BuildAction>
+		  <PackagePath>lib\netstandard2.0\</PackagePath>
+		</_PackageFiles>
+	  </ItemGroup>	  
 </Project>
