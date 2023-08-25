@@ -140,7 +140,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 try
                 {
                     using (var taskHelper = new DatabaseTaskHelper(dataContainer))
-                    using (var context = new DatabaseViewContext(requestParams))
                     {
                         var prototype = taskHelper.Prototype;
                         var azurePrototype = prototype as DatabasePrototypeAzure;
@@ -281,6 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
                         }
 
+                        var context = new DatabaseViewContext(requestParams);
                         return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                     }
                 }
