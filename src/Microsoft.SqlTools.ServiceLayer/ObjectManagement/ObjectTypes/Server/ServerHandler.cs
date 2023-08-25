@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     NumaNodes = prototype.NumaNodes
                 };
             }
-            var context = new ServerViewContext(requestParams, ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName));
+            var context = new ServerViewContext(requestParams);
             return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
         }
 
