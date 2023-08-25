@@ -213,8 +213,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
-                                        // Full-text indexing is always enabled in SQL Server
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).FullTextIndexing = smoDatabase.IsFullTextEnabled;
+                                        // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                     }
 
                                     if (prototype is DatabasePrototype160)
