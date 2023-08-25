@@ -67,7 +67,7 @@ steps:
       $props = New-Object XML
       $props.Load($projectFile)
       $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
-      $props.Project.PropertyGroup[0].Version = $version;
+      $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
 
 - task: BatchScript@1
