@@ -59,16 +59,16 @@ steps:
     useGlobalJson: true
 
 - task: PowerShell@2
-  displayName: 'Add version number to SqlCore nuspec for packaging'
+  displayName: 'Add version number to SqlCore project for packaging'
   inputs:
     targetType: 'inline'
     script: |
-      $nuspecFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
       $props = New-Object XML
-      $props.Load($nuspecFile)
+      $props.Load($projectFile)
       $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
-      $props.package.metadata.Version = $version;
-      $props.Save($nuspecFile)
+      $props.Project.PropertyGroup.Version = $version;
+      $props.Save($projectFile)
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
@@ -228,7 +228,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
-    Pattern: 'Microsoft.SqlTools.*.dll'
+    Pattern: 'Microsoft.SqlTools.SqlCore.*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -276,14 +276,12 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
-- task: NuGetCommand@2
-  displayName: 'nuget pack sqlcore'
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack sqlcore'
   inputs:
-    command: pack
-    packagesToPack: '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
-    packDestination: '$(Build.SourcesDirectory)\artifacts\nugetPackages'
-    includeReferencedProjects: true
-    nobuild: true
+    command: custom
+    custom: pack
+    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - task: BatchScript@1
   displayName: 'Package nuspec projects'

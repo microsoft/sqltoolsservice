@@ -46,13 +46,6 @@
         "netstandard2.0"
       ],
       "SkipPack": "true"
-    },
-    {
-      "Name": "Microsoft.SqlTools.Hosting",
-      "Frameworks": [
-        "netstandard2.0"
-      ],
-      "SkipPack": "true"
     }
   ],
   "PackageProjects": [
