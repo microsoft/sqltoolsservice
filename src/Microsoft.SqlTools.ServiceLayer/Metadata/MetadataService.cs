@@ -164,26 +164,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             }
                             catch (Exception ex)
                             {
-                                Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
+                                Logger.Error($"An error was encountered while writing server contextualization scripts to the cache. Error: {ex.Message}");
 
                                 var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                                 {
                                     OwnerUri = contextualizationParams.OwnerUri,
                                     CompletedGeneratingContext = false,
-                                    ErrorMessage = ex.Message
+                                    ErrorMessage = SR.WritingServerContextualizationToCacheError(ex.Message)
                                 };
                                 await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
                             }
                         }
                         else
                         {
-                            Logger.Error("Failed to generate server scripts");
+                            Logger.Error("Failed to generate server contextualization scripts");
 
                             var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                             {
                                 OwnerUri = contextualizationParams.OwnerUri,
                                 CompletedGeneratingContext = false,
-                                ErrorMessage = "Failed to generate server scripts"
+                                ErrorMessage = SR.FailedToGenerateServerContextualizationScripts
                             };
                             await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
                         }

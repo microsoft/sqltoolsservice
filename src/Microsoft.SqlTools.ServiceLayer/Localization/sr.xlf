@@ -7273,6 +7273,17 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - table (string) </note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="new">An error was encountered while writing server contextualization scripts to the cache. Error: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="new">Failed to generate server contextualization scripts</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
