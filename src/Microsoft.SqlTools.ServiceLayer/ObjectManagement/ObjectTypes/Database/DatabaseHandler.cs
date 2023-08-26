@@ -655,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     newFile.Name = file.Name;
                                     newFile.InitialSize = (int)file.SizeInMb;
                                     newFile.PhysicalName = file.FileNameWithExtension;
-                                    newFile.Folder = file.Path;
+                                    newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
                                     newFile.DatabaseFileType = fileTypesEnums[file.Type];
                                     newFile.Exists = false;
                                     newFile.Autogrowth = GetAutogrowth(prototype, file);
@@ -929,7 +929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         Id = file.ID,
                         Name = file.Name,
                         Type = file.Parent.FileGroupType == FileGroupType.RowsFileGroup ? displayFileTypes[FileType.Data] : displayFileTypes[FileType.FileStream],
-                        Path = Path.GetDirectoryName(file.FileName),
+                        Path = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetDirectoryName(file.FileName)),
                         FileGroup = fileGroup.Name,
                         FileNameWithExtension = Path.GetFileName(file.FileName),
                         SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
@@ -947,7 +947,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Id = file.ID,
                     Name = file.Name,
                     Type = displayFileTypes[FileType.Log],
-                    Path = Path.GetDirectoryName(file.FileName),
+                    Path = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetDirectoryName(file.FileName)),
                     FileGroup = SR.prototype_file_noFileGroup,
                     FileNameWithExtension = Path.GetFileName(file.FileName),
                     SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
