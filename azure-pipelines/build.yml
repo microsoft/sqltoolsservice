@@ -227,8 +227,8 @@ steps:
   displayName: 'ESRP SqlCore CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
-    Pattern: 'Microsoft.SqlTools.SqlCore.*.dll'
+    FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)'
+    Pattern: 'Microsoft.SqlTools.*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
