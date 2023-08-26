@@ -11,6 +11,8 @@ using System.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Extensibility
@@ -51,6 +53,7 @@ namespace Microsoft.SqlTools.Extensibility
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
             string directory = Path.GetDirectoryName(assemblyPath);
 
+            AssemblyLoadContext context = new AssemblyLoader(directory);
             var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
 
             List<Assembly> assemblies = new List<Assembly>();
@@ -74,7 +77,9 @@ namespace Microsoft.SqlTools.Extensibility
 
                 try
                 {
-                    assemblies.Add(Assembly.LoadFrom(path));
+                    assemblies.Add(
+                        context.LoadFromAssemblyName(
+                            AssemblyLoadContext.GetAssemblyName(path)));
                 }
                 catch (Exception)
                 {
@@ -188,7 +193,7 @@ namespace Microsoft.SqlTools.Extensibility
                 try
                 {
                     Logger.Verbose("Loading service assembly: " + path);
-                    assemblies.Add(Assembly.LoadFrom(path));
+                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
                     Logger.Verbose("Loaded service assembly: " + path);
                 }
                 catch (Exception ex)
@@ -276,14 +281,51 @@ namespace Microsoft.SqlTools.Extensibility
 
         public static ContainerConfiguration WithAssembliesInPath(this ContainerConfiguration configuration, string path, AttributedModelProvider conventions, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var assemblyPaths = Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly);        
-            var assemblies = assemblyPaths
-                .Select(path => Assembly.LoadFrom(path))
+            AssemblyLoadContext context = new AssemblyLoader(path);
+            var assemblyNames = Directory
+                .GetFiles(path, "*.dll", searchOption)
+                .Select(AssemblyLoadContext.GetAssemblyName);
+
+            var assemblies = assemblyNames
+                .Select(context.LoadFromAssemblyName)
                 .ToList();
 
             configuration = configuration.WithAssemblies(assemblies, conventions);
 
             return configuration;
+        }
+    }
+
+    public class AssemblyLoader : AssemblyLoadContext
+    {
+        private string folderPath;
+
+        public AssemblyLoader(string folderPath)
+        {
+            this.folderPath = folderPath;
+        }
+
+        protected override Assembly Load(AssemblyName assemblyName)
+        {
+            var deps = DependencyContext.Default;
+            var res = deps.CompileLibraries.Where(d => d.Name.Equals(assemblyName.Name)).ToList();
+            if (res.Count > 0)
+            {
+                return Assembly.Load(new AssemblyName(res.First().Name));
+            }
+            else
+            {
+                var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
+                if (File.Exists(apiApplicationFileInfo.FullName))
+                {
+                    // Creating a new AssemblyContext instance for the same folder puts us at risk
+                    // of loading the same DLL in multiple contexts, which leads to some unpredictable
+                    // behavior in the loader. See https://github.com/dotnet/coreclr/issues/19632
+
+                    return LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
+                }
+            }
+            return Assembly.Load(assemblyName);
         }
     }
 }
