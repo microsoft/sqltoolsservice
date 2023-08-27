@@ -145,12 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var generateServerContextualizationParams = new GenerateServerContextualizationParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            };
-
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+            MetadataService.GenerateServerContextualization(connectionResult.ConnectionInfo.OwnerUri);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -170,12 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var generateServerContextualizationParams = new GenerateServerContextualizationParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            };
-
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+            MetadataService.GenerateServerContextualization(connectionResult.ConnectionInfo.OwnerUri);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
