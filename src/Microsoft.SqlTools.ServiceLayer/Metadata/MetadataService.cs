@@ -144,29 +144,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// database objects like tables and views.
         /// </summary>
         /// <param name="ownerUri">The URI of the connection to generate context for.</param>
-        internal static string GenerateServerContextualization(string ownerUri)
+        /// <returns>An object containg the server name and generated scripts.</returns>
+        internal static ServerContextualization GenerateServerContextualization(string ownerUri)
         {
-            var serverName = string.Empty;
+            var serverContextualization = new ServerContextualization();
             MetadataService.ConnectionServiceInstance.TryFindConnection(ownerUri, out ConnectionInfo connectionInfo);
 
             if (connectionInfo != null)
             {
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                 {
-                    serverName = connectionInfo.ConnectionDetails.ServerName;
+                    serverContextualization.ServerName = connectionInfo.ConnectionDetails.ServerName;
                     // If scripts have been generated within the last 30 days then there isn't a need to go through the process
                     // of generating scripts again.
-                    if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(serverName))
+                    if (!MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(serverContextualization.ServerName))
                     {
-                        return serverName;
+                        return serverContextualization;
                     }
 
-                    var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
-                    if (scripts != null)
+                    var newScripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn)?.ToArray();
+                    if (newScripts != null)
                     {
+                        serverContextualization.NewlyGeneratedContext = newScripts;
+
                         try
                         {
-                            MetadataScriptTempFileStream.Write(serverName, scripts);
+                            MetadataScriptTempFileStream.Write(serverContextualization.ServerName, newScripts);
                         }
                         catch (Exception ex)
                         {
@@ -180,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 }
             }
 
-            return serverName;
+            return serverContextualization;
         }
 
         /// <summary>
@@ -204,10 +207,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             _ = Task.Factory.StartNew(async () =>
             {
-                var serverName = GenerateServerContextualization(contextualizationParams.OwnerUri);
-                if (!string.IsNullOrEmpty(serverName))
+                var serverContextualization = GenerateServerContextualization(contextualizationParams.OwnerUri);
+                if (!string.IsNullOrEmpty(serverContextualization.ServerName))
                 {
-                    await GetServerContextualization(serverName, requestContext);
+                    if (serverContextualization.NewlyGeneratedContext != null)
+                    {
+                        var generateAndSendServerContextualizationResult = new GenerateAndSendServerContextualizationResult()
+                        {
+                            Context = serverContextualization.NewlyGeneratedContext
+                        };
+                        await requestContext.SendResult(generateAndSendServerContextualizationResult);
+                    }
+                    else
+                    {
+                        await GetServerContextualization(serverContextualization.ServerName, requestContext);
+                    }
                 }
             },
             CancellationToken.None,

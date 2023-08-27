@@ -206,15 +206,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var serverName = MetadataService.GenerateServerContextualization(connectionResult.ConnectionInfo.OwnerUri);
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
-            Assert.IsTrue(sqlConn.DataSource.Equals(serverName));
+            var serverContextualization = MetadataService.GenerateServerContextualization(connectionResult.ConnectionInfo.OwnerUri);
+
+            Assert.IsTrue(sqlConn.DataSource.Equals(serverContextualization.ServerName));
+            Assert.IsNotNull(serverContextualization.NewlyGeneratedContext);
+            Assert.IsTrue(serverContextualization.NewlyGeneratedContext.Contains(firstCreateTableScript));
+            Assert.IsTrue(serverContextualization.NewlyGeneratedContext.Contains(secondCreateTableScript));
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
             var mockGenerateAndSendServerContextualizationRequestContext = new Mock<RequestContext<GenerateAndSendServerContextualizationResult>>();
             var actualGenerateAndSendServerContextualizationResponse = new GenerateAndSendServerContextualizationResult();
@@ -222,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 .Callback<GenerateAndSendServerContextualizationResult>(actual => actualGenerateAndSendServerContextualizationResponse = actual)
                 .Returns(Task.CompletedTask);
 
-            await MetadataService.GetServerContextualization(serverName, mockGenerateAndSendServerContextualizationRequestContext.Object);
+            await MetadataService.GetServerContextualization(serverContextualization.ServerName, mockGenerateAndSendServerContextualizationRequestContext.Object);
 
             Assert.IsTrue(actualGenerateAndSendServerContextualizationResponse.Context.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGenerateAndSendServerContextualizationResponse.Context.Contains(secondCreateTableScript));
