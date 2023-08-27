@@ -170,8 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
             var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
             var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
@@ -192,6 +192,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
 
             mockGetServerContextualizationRequestContext.VerifyAll();
+        }
+
+        [Test]
+        public async Task VerifyGenerateAndSendServerContextualizationRequest()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+
+            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var serverName = MetadataService.GenerateServerContextualization(connectionResult.ConnectionInfo.OwnerUri);
+
+            Assert.IsTrue(sqlConn.DataSource.Equals(serverName));
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
+
+            var mockGenerateAndSendServerContextualizationRequestContext = new Mock<RequestContext<GenerateAndSendServerContextualizationResult>>();
+            var actualGenerateAndSendServerContextualizationResponse = new GenerateAndSendServerContextualizationResult();
+            mockGenerateAndSendServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateAndSendServerContextualizationResult>()))
+                .Callback<GenerateAndSendServerContextualizationResult>(actual => actualGenerateAndSendServerContextualizationResponse = actual)
+                .Returns(Task.CompletedTask);
+
+            await MetadataService.GetServerContextualization(serverName, mockGenerateAndSendServerContextualizationRequestContext.Object);
+
+            Assert.IsTrue(actualGenerateAndSendServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGenerateAndSendServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+
+            DeleteServerContextualizationTempFile(sqlConn.DataSource);
+
+            mockGenerateAndSendServerContextualizationRequestContext.VerifyAll();
         }
 
         private void DeleteServerContextualizationTempFile(string serverName)
