@@ -26,6 +26,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" PrivateAssets="all" />
+		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" PrivateAssets="all" />
+
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
@@ -41,7 +43,7 @@
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="bin\$(Configuration)\**\Microsoft.SqlTools.Hosting*.dll">
+		<Content Include="bin\$(Configuration)\**\Microsoft.SqlTools.*.dll">
 			<Pack>true</Pack>
 			<PackagePath>lib\</PackagePath>
 		</Content>

@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -76,7 +77,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             string serverName = null;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
+                connection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
                 if (azureAccessToken != null)
                 {
                     connection.AccessToken = azureAccessToken;

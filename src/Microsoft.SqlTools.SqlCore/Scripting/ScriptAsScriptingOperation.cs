@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.SqlCore.Utility;
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
-            sqlConnection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
+            sqlConnection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
             if (azureAccountToken != null)
             {
                 sqlConnection.AccessToken = azureAccountToken;
