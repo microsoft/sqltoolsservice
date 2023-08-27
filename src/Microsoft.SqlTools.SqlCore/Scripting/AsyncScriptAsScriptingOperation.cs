@@ -28,7 +28,10 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
 
             scriptAsOperation.ProgressNotification += (sender, args) =>
             {
-                scriptAsTask.SetException(new Exception(args.ErrorMessage));
+                if(args.ErrorMessage != null)
+                {
+                    scriptAsTask.SetException(new Exception(args.ErrorMessage));
+                }
             };
 
             scriptAsOperation.Execute();
