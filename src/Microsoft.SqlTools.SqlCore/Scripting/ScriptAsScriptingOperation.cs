@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -15,12 +13,13 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.SqlCore.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.SqlCore.Scripting
 {
     /// <summary>
     /// Class to generate script as for one smo object
@@ -47,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
-            sqlConnection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
+            sqlConnection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
             if (azureAccountToken != null)
             {
                 sqlConnection.AccessToken = azureAccountToken;
@@ -176,14 +175,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // select from service broker
             if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
             {
-                script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
+                script = ScriptingHelper.SelectAllValuesFromTransmissionQueue(objectUrn);
             }
 
             // select from queues
             else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
                      string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
             {
-                script = Scripter.SelectAllValues(objectUrn);
+                script = ScriptingHelper.SelectAllValues(objectUrn);
             }
 
             // select from table or view
@@ -191,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Database db = server.Databases[databaseName];
                 bool isDw = db.IsSqlDw;
-                script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
+                script = ScriptingHelper.SelectFromTableOrView(server, objectUrn, isDw);
             }
 
             return script;
@@ -589,10 +588,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // for cloud scripting to work we also have to have Script Compat set to 105.
             // the defaults from scripting options should take care of it
-            object targetDatabaseEngineType;
-            if (Enum.TryParse(typeof(SqlScriptOptions.ScriptDatabaseEngineType), this.Parameters.ScriptOptions.TargetDatabaseEngineType, out targetDatabaseEngineType))
+            SqlScriptOptions.ScriptDatabaseEngineType targetDatabaseEngineType;
+            if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineType>(this.Parameters.ScriptOptions.TargetDatabaseEngineType, out targetDatabaseEngineType))
             {
-                switch ((SqlScriptOptions.ScriptDatabaseEngineType)targetDatabaseEngineType)
+                switch (targetDatabaseEngineType)
                 {
                     case SqlScriptOptions.ScriptDatabaseEngineType.SingleInstance:
                         scriptingOptions.TargetDatabaseEngineType = DatabaseEngineType.Standalone;
@@ -603,10 +602,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
             }
 
-            object targetDatabaseEngineEdition;
-            if (Enum.TryParse(typeof(SqlScriptOptions.ScriptDatabaseEngineEdition), this.Parameters.ScriptOptions.TargetDatabaseEngineEdition, out targetDatabaseEngineEdition))
+            SqlScriptOptions.ScriptDatabaseEngineEdition targetDatabaseEngineEdition;
+            if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineEdition>(this.Parameters.ScriptOptions.TargetDatabaseEngineEdition, out targetDatabaseEngineEdition))
             {
-                switch ((SqlScriptOptions.ScriptDatabaseEngineEdition)targetDatabaseEngineEdition)
+                switch (targetDatabaseEngineEdition)
                 {
                     case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerPersonalEdition:
                         scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Personal;
@@ -650,10 +649,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // scripting of stats is a combination of the Statistics
             // and the OptimizerData flag
-            object scriptStatistics;
-            if (Enum.TryParse(typeof(SqlScriptOptions.ScriptStatisticsOptions), this.Parameters.ScriptOptions.ScriptStatistics, out scriptStatistics))
+            SqlScriptOptions.ScriptStatisticsOptions scriptStatistics;
+            if (Enum.TryParse<SqlScriptOptions.ScriptStatisticsOptions>(this.Parameters.ScriptOptions.ScriptStatistics, out scriptStatistics))
             {
-                switch ((SqlScriptOptions.ScriptStatisticsOptions)scriptStatistics)
+                switch (scriptStatistics)
                 {
                     case SqlScriptOptions.ScriptStatisticsOptions.ScriptStatsAll:
                         scriptingOptions.Statistics = true;

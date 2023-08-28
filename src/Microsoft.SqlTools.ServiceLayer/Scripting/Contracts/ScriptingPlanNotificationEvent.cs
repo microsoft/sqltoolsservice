@@ -5,27 +5,11 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
-    /// <summary>
-    /// Parameters to indicate the script operation has resolved the objects to be scripted.
-    /// </summary>
-    public class ScriptingPlanNotificationParams : ScriptingEventParams
-    {
-        /// <summary>
-        /// Gets or sets the list of database objects whose progress has changed.
-        /// </summary>
-        public List<ScriptingObject> ScriptingObjects { get; set; }
-
-        /// <summary>
-        /// Gets or sets the count of database objects whose progress has changed.
-        /// </summary>
-        public int Count { get; set; }
-    }
-
     /// <summary>
     /// Event sent to indicate a script operation has determined which objects will be scripted.
     /// </summary>

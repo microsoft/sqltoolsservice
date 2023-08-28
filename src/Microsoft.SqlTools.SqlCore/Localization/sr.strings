@@ -430,3 +430,17 @@ FilterIsNativelyCompiledDescription = Include or exclude objects based on whethe
 FilterInPrimaryKey = In Primary Key
 FilterInPrimaryKeyDescription = Include or exclude objects based on whether the column is in a primary key.
 
+############################################################################
+# Scripting Service
+
+ScriptingParams_ConnectionString_Property_Invalid = Error parsing ScriptingParams.ConnectionString property.
+
+ScriptingParams_FilePath_Property_Invalid = Invalid directory specified by the ScriptingParams.FilePath property.
+
+ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.
+
+
+StoredProcedureScriptParameterComment = -- TODO: Set parameter values here.
+
+ScriptingGeneralError = An error occurred while scripting the objects.
+ScriptingExecuteNotSupportedError = Scripting as Execute is only supported for Stored Procedures
