@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
-                connection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
+                connection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
                 connection.Open();
                 using (SqlCommand sqlQueryCommand = new SqlCommand(sqlQuery, connection))
                 {

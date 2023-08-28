@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
+namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
 {
     /// <summary>
     /// Class to represent a database object that can be scripted.

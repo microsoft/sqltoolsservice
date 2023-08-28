@@ -3,19 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.SqlCore.Scripting
 {
     /// <summary>
     /// Base class for all SMO scripting operations
@@ -78,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string serverName = null;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
+                connection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
                 if (azureAccessToken != null)
                 {
                     connection.AccessToken = azureAccessToken;
