@@ -3,22 +3,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.SqlCore.Scripting
 {
     /// <summary>
     /// Extension methods used by the scripting service.
     /// </summary>
-    internal static class ScriptingExtensionMethods
+    public static class ScriptingExtensionMethods
     {
         /// <summary>
         /// Gets the status of a scripting operation for the passed scripting event.

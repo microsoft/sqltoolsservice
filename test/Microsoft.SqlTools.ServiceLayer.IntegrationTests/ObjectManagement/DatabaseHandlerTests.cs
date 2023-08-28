@@ -3,9 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
@@ -356,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary = "OFF";
                     }
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase); 
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
 
                     // verify the modified properties
                     Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForPrimary), $"DSC updated primary value should match");
@@ -496,6 +499,107 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 finally
                 {
                     DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AttachDatabaseTest(bool generateScript)
+        {
+            using (SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, nameof(AttachDatabaseTest)))
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+                {
+                    var serverConn = new ServerConnection(sqlConn);
+                    var server = new Server(serverConn);
+                    var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDb.DatabaseName);
+                    var database = server.GetSmoObject(objUrn) as Database;
+
+                    var originalOwner = database!.Owner;
+                    var originalFilePaths = new List<string>();
+                    foreach (FileGroup group in database.FileGroups)
+                    {
+                        foreach (DataFile file in group.Files)
+                        {
+                            originalFilePaths.Add(file.FileName);
+                        }
+                    }
+                    foreach (LogFile file in database.LogFiles)
+                    {
+                        originalFilePaths.Add(file.FileName);
+                    }
+
+                    // Detach database so that we can re-attach it with the database handler method.
+                    // Have to set database to single user mode to close active connections before detaching it.
+                    database.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                    database.Alter(TerminationClause.RollbackTransactionsImmediately);
+                    server.DetachDatabase(testDb.DatabaseName, false);
+                    var dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                    Assert.That(dbExists, Is.False, "Database was not correctly detached before doing attach test.");
+
+                    try
+                    {
+                        var handler = new DatabaseHandler(ConnectionService.Instance);
+                        var attachParams = new AttachDatabaseRequestParams()
+                        {
+                            ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                            Databases = new DatabaseFileData[]
+                            {
+                                new DatabaseFileData()
+                                {
+                                    Owner = originalOwner,
+                                    DatabaseName = testDb.DatabaseName,
+                                    DatabaseFilePaths = originalFilePaths.ToArray()
+                                }
+                            },
+                            GenerateScript = generateScript
+                        };
+                        var script = handler.Attach(attachParams);
+
+                        if (generateScript)
+                        {
+                            dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                            Assert.That(dbExists, Is.False, "Should not have attached DB when only generating a script.");
+
+                            var queryBuilder = new StringBuilder(); 
+                            queryBuilder.AppendLine("USE [master]");
+                            queryBuilder.AppendLine($"CREATE DATABASE [{testDb.DatabaseName}] ON ");
+
+                            for (int i = 0; i < originalFilePaths.Count - 1; i++)
+                            {
+                                var file = originalFilePaths[i];
+                                queryBuilder.AppendLine($"( FILENAME = N'{file}' ),");
+                            }
+                            queryBuilder.AppendLine($"( FILENAME = N'{originalFilePaths[originalFilePaths.Count - 1]}' )");
+
+                            queryBuilder.AppendLine(" FOR ATTACH");
+                            queryBuilder.AppendLine($"if exists (select name from master.sys.databases sd where name = N'{testDb.DatabaseName}' and SUSER_SNAME(sd.owner_sid) = SUSER_SNAME() ) EXEC [{testDb.DatabaseName}].dbo.sp_changedbowner @loginame=N'{originalOwner}', @map=false");
+
+                            Assert.That(script, Is.EqualTo(queryBuilder.ToString()), "Did not get expected attach database script");
+                        }
+                        else
+                        {
+                            Assert.That(script, Is.Empty, "Should not have generated a script for this Attach operation.");
+
+                            server.Databases.Refresh();
+                            dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                            Assert.That(dbExists, "Database was not attached successfully");
+                        }
+                    }
+                    finally
+                    {
+                        dbExists = this.DatabaseExists(testDb.DatabaseName, server);
+                        if (!dbExists)
+                        {
+                            // Reattach database so it can get dropped during cleanup
+                            var fileCollection = new StringCollection();
+                            originalFilePaths.ForEach(file => fileCollection.Add(file));
+                            server.AttachDatabase(testDb.DatabaseName, fileCollection);
+                        }
+                    }
                 }
             }
         }

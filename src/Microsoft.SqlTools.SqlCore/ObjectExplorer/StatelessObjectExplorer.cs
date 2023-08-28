@@ -10,11 +10,10 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.SqlCore.Connection;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 
-namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 {
     /// <summary>
     /// Stateless object explorer class can be used to handle object explorer requests without creating a session. It requires a connection string and a node path to query objects from the server.

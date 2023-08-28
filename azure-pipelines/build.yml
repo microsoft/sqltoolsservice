@@ -228,7 +228,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)/netstandard2.0'
-    Pattern: 'Microsoft.SqlTools.SqlCore.*.dll'
+    Pattern: 'Microsoft.SqlTools.*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
