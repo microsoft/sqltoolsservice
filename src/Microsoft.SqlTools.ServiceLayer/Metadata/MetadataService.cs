@@ -193,6 +193,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
                         }
                     }
+                    else
+                    {
+                        var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
+                        {
+                            OwnerUri = contextualizationParams.OwnerUri
+                        };
+                        await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
+                    }
                 }
             }
         }
