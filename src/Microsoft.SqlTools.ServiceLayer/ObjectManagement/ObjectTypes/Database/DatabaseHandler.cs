@@ -655,10 +655,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     newFile.Name = file.Name;
                                     newFile.InitialSize = (int)file.SizeInMb;
                                     newFile.PhysicalName = file.FileNameWithExtension;
-                                    newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
                                     newFile.DatabaseFileType = fileTypesEnums[file.Type];
                                     newFile.Exists = false;
-                                    newFile.Autogrowth = GetAutogrowth(prototype, file);
+                                    newFile.Autogrowth = GetAutogrowth(prototype, file); 
+                                    if (!string.IsNullOrEmpty(file.Path.Trim()))
+                                    {
+                                        newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
+                                    }
 
                                     // Log file do not support file groups
                                     if (fileTypesEnums[file.Type] != FileType.Log)
