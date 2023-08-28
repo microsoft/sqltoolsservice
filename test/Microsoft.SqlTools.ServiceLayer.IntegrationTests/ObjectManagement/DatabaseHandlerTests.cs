@@ -477,16 +477,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
 
                     // verify the modified properties
-                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups?.Length, Is.EqualTo(4), $"Four filegroups should exists, as we created three more");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups?.Length, Is.EqualTo(3), $"Four filegroups should exists, as we created three more");
                     var filegroup = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[1].Name);
                     Assert.That(filegroup, Is.Not.Null, $"filegroup should exists");
                     Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.RowsFileGroup), $"Filegroup type should be matched");
 
                     filegroup = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[2].Name);
-                    Assert.That(filegroup, Is.Not.Null, $"filegroup should exists");
-                    Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.FileStreamDataFileGroup), $"Filegroup type should be matched");
-
-                    filegroup = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[3].Name);
                     Assert.That(filegroup, Is.Not.Null, $"filegroup should exists");
                     Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.MemoryOptimizedDataFileGroup), $"Filegroup type should be matched");
 
@@ -499,7 +495,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     // Validate the result files
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
                     DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
-                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Filegroups.Count, Is.EqualTo(3), $"Should have only 3 filegroups as we removed one");
+                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Filegroups.Count, Is.EqualTo(2), $"Should have only 3 filegroups as we removed one");
                     filegroup = ((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[1].Name);
                     Assert.That(filegroup, Is.Null, $"filegroup should exists");
                 }

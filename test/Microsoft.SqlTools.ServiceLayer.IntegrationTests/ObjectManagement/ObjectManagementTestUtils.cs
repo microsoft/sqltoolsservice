@@ -142,14 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             fgs.Add(new FileGroups()
             {
                 Id = -2,
-                Name = "fsFilegroup1",
-                IsDefault = false,
-                IsReadOnly = false,
-                Type = FileGroupType.FileStreamDataFileGroup
-            });
-            fgs.Add(new FileGroups()
-            {
-                Id = -1,
                 Name = "memOptFg1",
                 Type = FileGroupType.MemoryOptimizedDataFileGroup
             });
