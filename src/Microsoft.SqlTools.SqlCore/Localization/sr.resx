@@ -965,4 +965,28 @@
     <value>Include or exclude objects based on whether the column is in a primary key.</value>
     <comment></comment>
   </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Error parsing ScriptingParams.ConnectionString property.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>Invalid directory specified by the ScriptingParams.FilePath property.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
+    <comment></comment>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>An error occurred while scripting the objects.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Scripting as Execute is only supported for Stored Procedures</value>
+    <comment></comment>
+  </data>
 </root>

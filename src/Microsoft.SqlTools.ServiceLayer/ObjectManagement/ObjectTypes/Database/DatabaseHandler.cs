@@ -20,6 +20,7 @@ using Microsoft.SqlTools.Utility;
 using System.Text;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -377,6 +378,60 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             builder.AppendLine();
             builder.AppendLine("GO");
             return builder.ToString();
+        }
+
+        public string Attach(AttachDatabaseRequestParams attachParams)
+        {
+            var sqlScript = string.Empty;
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(attachParams.ConnectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true, null))
+            {
+                var server = dataContainer.Server!;
+                var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
+                if (attachParams.GenerateScript)
+                {
+                    server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                    server.ConnectionContext.CapturedSql.Clear();
+                }
+                try
+                {
+                    foreach (var database in attachParams.Databases)
+                    {
+                        var fileCollection = new StringCollection();
+                        fileCollection.AddRange(database.DatabaseFilePaths);
+                        if (database.Owner != SR.general_default)
+                        {
+                            server.AttachDatabase(database.DatabaseName, fileCollection, database.Owner);
+                        }
+                        else
+                        {
+                            server.AttachDatabase(database.DatabaseName, fileCollection);
+                        }
+                    }
+                    if (attachParams.GenerateScript)
+                    {
+                        var builder = new StringBuilder();
+                        var capturedText = server.ConnectionContext.CapturedSql.Text;
+                        foreach (var entry in capturedText)
+                        {
+                            if (entry != null)
+                            {
+                                builder.AppendLine(entry);
+                            }
+                        }
+                        sqlScript = builder.ToString();
+                    }
+                }
+                finally
+                {
+                    if (attachParams.GenerateScript)
+                    {
+                        server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
+                    }
+                    dataContainer.ServerConnection.Disconnect();
+                }
+            }
+            return sqlScript;
         }
 
         /// <summary>
