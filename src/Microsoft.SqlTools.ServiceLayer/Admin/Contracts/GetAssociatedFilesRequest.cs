@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
     public class GetAssociatedFilesParams
     {
         /// <summary>
-        /// URI identifier for the connection to get the server folder info for
+        /// URI identifier for the connection to the target server.
         /// </summary>
         public string ConnectionUri { get; set; }
         /// <summary>
