@@ -27,8 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] DscOnOffOptions { get; set; }
         public string[] DscElevateOptions { get; set; }
         public string[] DscEnableDisableOptions { get; set; }
-        public string[] RowDataFileGroupsOptions { get; set; }
-        public string[] FileStreamFileGroupsOptions { get; set; }
         public string[] FileTypesOptions { get; set; }
     }
 

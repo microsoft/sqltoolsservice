@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using DatabaseFile = Microsoft.SqlTools.ServiceLayer.ObjectManagement.DatabaseFile;
+using FileGroup = Microsoft.SqlServer.Management.Smo.FileGroup;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -302,10 +303,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify, Is.EqualTo(testDatabase.PageVerify), $"PageVerify should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess, Is.EqualTo(testDatabase.RestrictAccess), $"RestrictAccess should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations, Is.Not.Null, $"DatabaseScopedConfigurations is not null");
-                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations.Count, Is.GreaterThan(0), $"DatabaseScopedConfigurations should have at least a+ few properties");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations?.Length, Is.GreaterThan(0), $"DatabaseScopedConfigurations should have at least a+ few properties");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(2), $"Create database should create two database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0].Type, Is.EqualTo("ROWS Data"), $"Database files first file should be Row type database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1].Type, Is.EqualTo("LOG"), $"Database files first file should be Log type database files");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups?.Length, Is.GreaterThan(0), $"Database file groups should exists");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
@@ -431,6 +433,75 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
                     DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
                     Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Files.Count, Is.EqualTo(2), $"Should have only 2 files as we removed one");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adding, modifying and deleting database filegroups
+        /// /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task VerifyDatabaseFileGroupsTest()
+        {
+            using (var testDatabase = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, dbNamePrefix: "VerifyDatabaseFilegeoupsTest"))
+            {
+                var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(testDatabase.DatabaseName);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+                {
+                    var testDatabaseInfo = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                    testDatabaseInfo.Name = testDatabase.DatabaseName;
+                    testDatabaseInfo.CollationName = "";
+                    var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.DatabaseName);
+
+                    // Get database properties and verify
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.DatabaseName, false, SqlObjectType.Database, "", objUrn);
+                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups?.Length, Is.EqualTo(1), $"Create database should create one default database filegroup");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups[0].Name, Is.EqualTo("PRIMARY"), $"Database default filegroup name should be PRIMARY");
+
+                    List<FileGroups> databaseFilegroup = new List<FileGroups>();
+
+                    // copy exisitng Row data files to the list
+                    databaseFilegroup.Add(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups[0]);
+
+                    // Add new Filegroups
+                    var testDatabaseFilegroups = ObjectManagementTestUtils.GetTestDatabaseFilegroups();
+                    databaseFilegroup.AddRange(testDatabaseFilegroups);
+
+                    // Attaching the filegroups to the testdatabase
+                    testDatabaseInfo.Filegroups = databaseFilegroup.ToArray();
+
+                    // Validate the result
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
+
+                    // verify the modified properties
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups?.Length, Is.EqualTo(4), $"Four filegroups should exists, as we created three more");
+                    var filegroup = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[1].Name);
+                    Assert.That(filegroup, Is.Not.Null, $"filegroup should exists");
+                    Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.RowsFileGroup), $"Filegroup type should be matched");
+
+                    filegroup = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[2].Name);
+                    Assert.That(filegroup, Is.Not.Null, $"filegroup should exists");
+                    Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.FileStreamDataFileGroup), $"Filegroup type should be matched");
+
+                    filegroup = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[3].Name);
+                    Assert.That(filegroup, Is.Not.Null, $"filegroup should exists");
+                    Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.MemoryOptimizedDataFileGroup), $"Filegroup type should be matched");
+
+                    // Deleting newly created file
+                    List<FileGroups> newfilegroups = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.ToList();
+                    var fileIndexTobeRemoved = newfilegroups.FindIndex(x => x.Name == databaseFilegroup[1].Name);
+                    newfilegroups.RemoveAt(fileIndexTobeRemoved);
+                    testDatabaseInfo.Filegroups = newfilegroups.ToArray();
+
+                    // Validate the result files
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
+                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Filegroups.Count, Is.EqualTo(3), $"Should have only 3 filegroups as we removed one");
+                    filegroup = ((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Filegroups.FirstOrDefault(x => x.Name == databaseFilegroup[1].Name);
+                    Assert.That(filegroup, Is.Null, $"filegroup should exists");
                 }
             }
         }

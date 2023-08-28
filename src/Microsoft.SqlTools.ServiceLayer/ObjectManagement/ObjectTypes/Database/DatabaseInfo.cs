@@ -75,7 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public int Id { get; set; }
         public string Name { get; set; }
         public FileGroupType Type { get; set; }
-        public int FilesCount { get; set; }
         public bool IsReadOnly { get; set; }
         public bool IsDefault { get; set; }
         public bool AutogrowAllFiles { get; set; }
