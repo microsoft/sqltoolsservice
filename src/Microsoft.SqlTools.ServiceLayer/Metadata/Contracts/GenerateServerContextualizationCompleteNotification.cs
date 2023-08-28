@@ -14,9 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
         /// <summary>
-        /// Indicates if generating context completed successfully
+        /// An array containing the generated server context.
         /// </summary>
-        public bool CompletedGeneratingContext { get; set; }
+        public string[]? Context { get; set; }
         /// <summary>
         /// Holds an error message, if errors were encountered while
         /// generating context

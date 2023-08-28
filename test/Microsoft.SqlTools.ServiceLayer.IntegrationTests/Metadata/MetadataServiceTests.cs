@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
@@ -150,19 +151,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
-            {
-                OwnerUri = generateServerContextualizationParams.OwnerUri,
-                CompletedGeneratingContext = true
-            };
+            var actualEventType = new EventType<GenerateServerContextualizationCompleteParams>();
+            var actualCompleteParams = new GenerateServerContextualizationCompleteParams();
             var mockEventContext = new Mock<EventContext>();
-            mockEventContext.Setup(x => x.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams))
+            mockEventContext.Setup(x => x.SendEvent(It.IsAny<EventType<GenerateServerContextualizationCompleteParams>>(), It.IsAny<GenerateServerContextualizationCompleteParams>()))
+                .Callback<EventType<GenerateServerContextualizationCompleteParams>, GenerateServerContextualizationCompleteParams>((eventType, completeParams) =>
+                {
+                    actualEventType = eventType;
+                    actualCompleteParams = completeParams;
+                })
                 .Returns(Task.CompletedTask);
-
             await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockEventContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
+
+            Assert.IsTrue(actualCompleteParams.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualCompleteParams.Context.Contains(secondCreateTableScript));
 
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
         }
@@ -184,22 +192,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
-            {
-                OwnerUri = generateServerContextualizationParams.OwnerUri,
-                CompletedGeneratingContext = true
-            };
+            var actualEventType = new EventType<GenerateServerContextualizationCompleteParams>();
+            var actualCompleteParams = new GenerateServerContextualizationCompleteParams();
             var mockEventContext = new Mock<EventContext>();
-            mockEventContext.Setup(x => x.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams))
+            mockEventContext.Setup(x => x.SendEvent(It.IsAny<EventType<GenerateServerContextualizationCompleteParams>>(), It.IsAny<GenerateServerContextualizationCompleteParams>()))
+                .Callback<EventType<GenerateServerContextualizationCompleteParams>, GenerateServerContextualizationCompleteParams>((eventType, completeParams) =>
+                {
+                    actualEventType = eventType;
+                    actualCompleteParams = completeParams;
+                })
                 .Returns(Task.CompletedTask);
-
             await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockEventContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
             var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
             var actualGetServerContextualizationResponse = new GetServerContextualizationResult();

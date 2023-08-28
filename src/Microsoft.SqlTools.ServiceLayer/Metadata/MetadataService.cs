@@ -155,12 +155,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     // of generating scripts again.
                     if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                     {
-                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
+                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn)?.ToArray();
                         if (scripts != null)
                         {
                             try
                             {
                                 MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
+
+                                var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
+                                {
+                                    OwnerUri = contextualizationParams.OwnerUri,
+                                    Context = scripts
+                                };
+                                await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams);
                             }
                             catch (Exception ex)
                             {
@@ -169,7 +176,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                                 var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                                 {
                                     OwnerUri = contextualizationParams.OwnerUri,
-                                    CompletedGeneratingContext = false,
                                     ErrorMessage = SR.WritingServerContextualizationToCacheError(ex.Message)
                                 };
                                 await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
@@ -182,20 +188,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             var contextFailedToCompleteParams = new GenerateServerContextualizationCompleteParams()
                             {
                                 OwnerUri = contextualizationParams.OwnerUri,
-                                CompletedGeneratingContext = false,
                                 ErrorMessage = SR.FailedToGenerateServerContextualizationScripts
                             };
                             await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, contextFailedToCompleteParams);
                         }
                     }
-
-                    var generateServerContextualizationCompleteParams = new GenerateServerContextualizationCompleteParams()
-                    {
-                        OwnerUri = contextualizationParams.OwnerUri,
-                        CompletedGeneratingContext = true
-                    };
-
-                    await eventContext.SendEvent(GenerateServerContextualizationCompleteNotification.Type, generateServerContextualizationCompleteParams);
                 }
             }
         }
