@@ -1060,37 +1060,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return filesList.ToArray();
         }
 
-
-        /// <summary>
-        /// Get the file group names from the database fileGroup
-        /// </summary>
-        /// <param name="database">smo database prototype</param>
-        /// <param name="databaseViewInfo">database view info object</param>
-        private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
-        {
-            var rowDataGroups = new List<string>();
-            var fileStreamDataGroups = new List<string>();
-            foreach (FileGroup fileGroup in database.FileGroups)
-            {
-                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup || fileGroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
-                {
-                    fileStreamDataGroups.Add(fileGroup.Name);
-                }
-                else
-                {
-                    rowDataGroups.Add(fileGroup.Name);
-                }
-            }
-
-            // If no fileStream groups available
-            if (fileStreamDataGroups.Count == 0)
-            {
-                fileStreamDataGroups.Add(SR.prototype_file_noApplicableFileGroup);
-            }
-            databaseViewInfo.RowDataFileGroupsOptions = rowDataGroups.ToArray();
-            databaseViewInfo.FileStreamFileGroupsOptions = fileStreamDataGroups.ToArray();
-        }
-
         /// <summary>
         /// Preparing the filegroups of various FileGroupTypes
         /// </summary>
