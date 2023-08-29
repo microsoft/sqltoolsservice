@@ -22,6 +22,7 @@ using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -39,10 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
+        private static readonly ConcurrentDictionary<FileType, string> displayFileTypes = new ConcurrentDictionary<FileType, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
+        private static readonly Dictionary<string, FileType> fileTypesEnums = new Dictionary<string, FileType>();
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
@@ -81,6 +84,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
+            displayFileTypes.TryAdd(FileType.Data, SR.prototype_file_dataFile);
+            displayFileTypes.TryAdd(FileType.Log, SR.prototype_file_logFile);
+            displayFileTypes.TryAdd(FileType.FileStream, SR.prototype_file_filestreamFile);
+
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
                 CommonConstants.DatabaseScopedConfigurations_Value_Off
@@ -110,6 +117,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             foreach (RecoveryModel key in displayRecoveryModels.Keys)
             {
                 recoveryModelEnums.Add(displayRecoveryModels[key], key);
+            }
+            foreach (FileType key in displayFileTypes.Keys)
+            {
+                fileTypesEnums.Add(displayFileTypes[key], key);
             }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
@@ -203,6 +214,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                        // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                     }
 
                                     if (prototype is DatabasePrototype160)
@@ -211,6 +224,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     }
                                 }
                                 databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
+                                databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
+
+                                // Get file groups names
+                                GetFileGroupNames(smoDatabase, databaseViewInfo);
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -263,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                                 if (smoDatabase != null)
                                 {
-                                    databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).Files = GetDatabaseFiles(smoDatabase);
                                 }
                             }
                         }
@@ -605,7 +622,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
+                        if (database.Owner != null && database.Owner != SR.general_default)
                         {
                             prototype.Owner = database.Owner;
                         }
@@ -681,6 +698,61 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
+                        if (!viewParams.IsNewObject && database.Files != null)
+                        {
+                            HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
+                            foreach (var file in database.Files)
+                            {
+                                // Add a New file
+                                if (file.Id == 0)
+                                {
+                                    DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
+                                    newFile.Name = file.Name;
+                                    newFile.InitialSize = (int)file.SizeInMb;
+                                    newFile.PhysicalName = file.FileNameWithExtension;
+                                    newFile.DatabaseFileType = fileTypesEnums[file.Type];
+                                    newFile.Exists = false;
+                                    newFile.Autogrowth = GetAutogrowth(prototype, file); 
+                                    if (!string.IsNullOrEmpty(file.Path.Trim()))
+                                    {
+                                        newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
+                                    }
+
+                                    // Log file do not support file groups
+                                    if (fileTypesEnums[file.Type] != FileType.Log)
+                                    {
+                                        FilegroupPrototype fileGroup = new FilegroupPrototype(prototype);
+                                        fileGroup.Name = file.FileGroup;
+                                        newFile.FileGroup = fileGroup;
+                                    }
+
+                                    // Add newFile to the prototype files
+                                    prototype.Files.Add(newFile);
+                                }
+                                // Edit file properties: updating the existed files with modified data
+                                else
+                                {
+                                    var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
+                                    if (existedFile != null)
+                                    {
+                                        fileIdsToRemove.Remove(file.Id);
+                                        existedFile.Name = file.Name;
+                                        existedFile.InitialSize = (int)file.SizeInMb;
+                                        existedFile.Autogrowth = GetAutogrowth(prototype, file);
+                                    }
+                                }
+                            }
+
+                            // Remove the file
+                            foreach (var currentFile in prototype.Files)
+                            {
+                                if (fileIdsToRemove.Contains(currentFile.ID))
+                                {
+                                    currentFile.Removed = true;
+                                }
+                            }
+                        }
+
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
@@ -736,6 +808,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     dataContainer.ServerConnection.Disconnect();
                 }
             }
+        }
+
+        private Autogrowth GetAutogrowth(DatabasePrototype prototype, DatabaseFile file)
+        {
+            Autogrowth fileAutogrowth = new Autogrowth(prototype);
+            fileAutogrowth.IsEnabled = file.IsAutoGrowthEnabled;
+            bool isGrowthInPercent = file.AutoFileGrowthType == FileGrowthType.Percent;
+            fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
+            fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
+            fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
+            fileAutogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimitInMb) ? file.MaxSizeLimitInMb : 0.0);
+            fileAutogrowth.IsGrowthRestricted = file.MaxSizeLimitInMb > 0.0;
+
+            return fileAutogrowth;
         }
 
         /// <summary>
@@ -898,10 +984,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     filesList.Add(new DatabaseFile()
                     {
+                        Id = file.ID,
                         Name = file.Name,
-                        Type = FileType.Data.ToString(),
-                        Path = Path.GetDirectoryName(file.FileName),
-                        FileGroup = fileGroup.Name
+                        Type = file.Parent.FileGroupType == FileGroupType.RowsFileGroup ? displayFileTypes[FileType.Data] : displayFileTypes[FileType.FileStream],
+                        Path = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetDirectoryName(file.FileName)),
+                        FileGroup = fileGroup.Name,
+                        FileNameWithExtension = Path.GetFileName(file.FileName),
+                        SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
+                        AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
+                        AutoFileGrowthType = file.GrowthType,
+                        MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
+                        IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None,
                     });
                 }
             }
@@ -909,13 +1002,51 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 filesList.Add(new DatabaseFile()
                 {
+                    Id = file.ID,
                     Name = file.Name,
-                    Type = FileType.Log.ToString(),
-                    Path = Path.GetDirectoryName(file.FileName),
-                    FileGroup = string.Empty
+                    Type = displayFileTypes[FileType.Log],
+                    Path = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetDirectoryName(file.FileName)),
+                    FileGroup = SR.prototype_file_noFileGroup,
+                    FileNameWithExtension = Path.GetFileName(file.FileName),
+                    SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
+                    AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
+                    AutoFileGrowthType = file.GrowthType,
+                    MaxSizeLimitInMb = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize),
+                    IsAutoGrowthEnabled = file.GrowthType != FileGrowthType.None
                 });
             }
             return filesList.ToArray();
+        }
+
+
+        /// <summary>
+        /// Get the file group names from the database fileGroup
+        /// </summary>
+        /// <param name="database">smo database prototype</param>
+        /// <param name="databaseViewInfo">database view info object</param>
+        private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
+        {
+            var rowDataGroups = new List<string>();
+            var fileStreamDataGroups = new List<string>();
+            foreach (FileGroup fileGroup in database.FileGroups)
+            {
+                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup || fileGroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
+                {
+                    fileStreamDataGroups.Add(fileGroup.Name);
+                }
+                else
+                {
+                    rowDataGroups.Add(fileGroup.Name);
+                }
+            }
+
+            // If no fileStream groups available
+            if (fileStreamDataGroups.Count == 0)
+            {
+                fileStreamDataGroups.Add(SR.prototype_file_noApplicableFileGroup);
+            }
+            databaseViewInfo.RowDataFileGroupsOptions = rowDataGroups.ToArray();
+            databaseViewInfo.FileStreamFileGroupsOptions = fileStreamDataGroups.ToArray();
         }
 
         /// <summary>

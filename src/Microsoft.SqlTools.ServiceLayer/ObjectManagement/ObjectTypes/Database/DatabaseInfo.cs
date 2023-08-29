@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.Smo;
+
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
@@ -40,6 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool EncryptionEnabled { get; set; }
         public string? RestrictAccess { get; set; }
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
+        public bool? IsFilesTabSupported { get; set; }
+        public DatabaseFile[] Files { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -49,4 +53,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string ValueForPrimary { get; set; }
         public string ValueForSecondary { get; set; }
     }
+
+    public class DatabaseFile
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Path { get; set; }
+        public string FileGroup { get; set; }
+        public string FileNameWithExtension { get; set; }
+        public double SizeInMb { get; set; }
+        public bool IsAutoGrowthEnabled { get; set; }
+        public double AutoFileGrowth { get; set; }
+        public FileGrowthType AutoFileGrowthType { get; set; }
+        public double MaxSizeLimitInMb { get; set; }
+    }
+
 }
