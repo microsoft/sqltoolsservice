@@ -457,21 +457,6 @@
         <target state="translated">La table ou la vue demandée pour modification est introuvable</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingParams.ConnectionString property.</source>
-        <target state="translated">Erreur d'analyse de la propriété ScriptingParams.ConnectionString.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
-        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
-        <target state="translated">Répertoire non valide spécifié pour la propriété ScriptingParams.FilePath.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
-        <target state="translated">Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="QueryServiceResultSetHasNoResults">
         <source>Query has no results to return</source>
         <target state="translated">La requête n'a aucun résultat à retourner</target>
@@ -686,21 +671,6 @@
       <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
         <source>Scalar column missing scale</source>
         <target state="translated">Colonne scalaire sans échelle</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StoredProcedureScriptParameterComment">
-        <source>-- TODO: Set parameter values here.</source>
-        <target state="new">-- TODO: Set parameter values here.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingGeneralError">
-        <source>An error occurred while scripting the objects.</source>
-        <target state="translated">Une erreur s'est produite pendant l'exécution de scripts sur les objets.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingExecuteNotSupportedError">
-        <source>Scripting as Execute is only supported for Stored Procedures</source>
-        <target state="translated">Les scripts de type Exécuter sont uniquement pris en charge pour les procédures stockées</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataMultiTableNotSupported">
@@ -7272,6 +7242,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Autorisation ALTER TABLE refusée pour la table «{0}».</target>
         <note>.
  Parameters: 0 - table (string) </note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="translated">Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

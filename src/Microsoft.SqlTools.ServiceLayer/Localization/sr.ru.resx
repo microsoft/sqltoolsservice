@@ -381,15 +381,6 @@
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Таблица или представление, запрошенные для редактирования, не найдены.</value>
   </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Ошибка при анализе свойства ScriptingParams.ConnectionString.</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>В свойстве ScriptingParams.FilePath указан недопустимый каталог.</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</value>
-  </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
     <value>Запрос не возвратил результатов</value>
   </data>
@@ -518,15 +509,6 @@
   </data>
   <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
     <value>Отсутствует шкала для скалярного столбца</value>
-  </data>
-  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>-- TODO: Set parameter values here.</value>
-  </data>
-  <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>Ошибка при выполнении скрипта с данными объектами.</value>
-  </data>
-  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
-    <value>Скрипты при выполнении поддерживаются только для хранимых процедур</value>
   </data>
   <data name="EditDataMultiTableNotSupported" xml:space="preserve">
     <value>Запросы EditData к нескольким таблицам не поддерживаются</value>
@@ -4428,5 +4410,8 @@
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>Отказано в разрешении ALTER TABLE для таблицы "{0}".</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</value>
   </data>
 </root>
