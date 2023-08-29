@@ -523,7 +523,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 // We disable pooling for these database operations so that we don't
                 // have lingering connections in the backend that would cause operations
                 // like DROP or DETACH DATABASE to hang because the database is still in use.
-                // connectionInfo.ConnectionDetails.Pooling = false;
+                connectionInfo.ConnectionDetails.Pooling = false;
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
