@@ -2,28 +2,17 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>portable</DebugType>
-    <AssemblyName>Microsoft.SqlTools.ServiceLayer.IntegrationTests</AssemblyName>
-    <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
+    <AssemblyName>Microsoft.SqlTools.SqlCore.IntegrationTests</AssemblyName>
+    <PackageId>Microsoft.SqlTools.SqlCore.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
-    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.UnitTests/Microsoft.SqlTools.ServiceLayer.UnitTests.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-      <ItemGroup>
-        <Compile Remove="Migration\*" />
-      </ItemGroup>
-    </When>
-  </Choose>
 
   <ItemGroup>
     <PackageReference Include="Moq" />
@@ -43,21 +32,4 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Integration' ">
     <DefineConstants>$(DefineConstants);WINDOWS_ONLY_BUILD</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Remove=".\Agent\NotebookResources\TestNotebook.ipynb" />
-    <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\*" />
-    <None Include="AzureFunctions\AzureFunctionTestFiles\*" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DacFx\Dacpacs\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SchemaCompare\SqlProjects\emptyTemplate.sqlproj" />
-    <None Include="SqlProjects\Inputs\SSDTProject.sqlproj">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
