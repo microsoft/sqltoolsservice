@@ -357,8 +357,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForPrimary = "OFF";
                         testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForSecondary = "OFF";
                     }
-                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabaseInfo);
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabaseInfo);
 
                     // verify the modified properties
                     Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo(testDatabaseInfo.DatabaseScopedConfigurations[0].ValueForPrimary), $"DSC updated primary value should match");
