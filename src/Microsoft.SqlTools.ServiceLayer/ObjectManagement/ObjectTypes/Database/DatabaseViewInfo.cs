@@ -30,6 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] RowDataFileGroupsOptions { get; set; }
         public string[] FileStreamFileGroupsOptions { get; set; }
         public string[] FileTypesOptions { get; set; }
+        public string[] OperationModeOptions { get; set; }
+        public string[] StatisticsCollectionIntervalOptions { get; set; }
+        public string[] QueryStoreCaptureModeOptions { get; set; }
+        public string[] SizeBasedCleanupModeOptions { get; set; }
+        public string[] StaleThresholdOptions { get; set; }
     }
 
     public class AzureEditionDetails

@@ -41,6 +41,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
         private static readonly ConcurrentDictionary<FileType, string> displayFileTypes = new ConcurrentDictionary<FileType, string>();
+        private static readonly ConcurrentDictionary<QueryStoreOperationMode, string> displayOperationModeOptions = new ConcurrentDictionary<QueryStoreOperationMode, string>();
+        private static readonly ConcurrentDictionary<QueryStoreCaptureMode, string> displayQueryStoreCaptureModeOptions = new ConcurrentDictionary<QueryStoreCaptureMode, string>();
+        private static readonly ConcurrentDictionary<int, string> displayStatisticsCollectionIntervalInMinutes = new ConcurrentDictionary<int, string>();
+        private static readonly ConcurrentDictionary<int, string> displayQueryStoreStaleThresholdInHours = new ConcurrentDictionary<int, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -87,6 +91,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayFileTypes.TryAdd(FileType.Data, SR.prototype_file_dataFile);
             displayFileTypes.TryAdd(FileType.Log, SR.prototype_file_logFile);
             displayFileTypes.TryAdd(FileType.FileStream, SR.prototype_file_filestreamFile);
+
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.Off, CommonConstants.QueryStoreOperationMode_Off);
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadOnly, CommonConstants.QueryStoreOperationMode_ReadOnly);
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadWrite, CommonConstants.QueryStoreOperationMode_ReadWrite);
+
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.All, CommonConstants.QueryStoreCaptureMode_All);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Auto, CommonConstants.QueryStoreCaptureMode_Auto);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.None, CommonConstants.QueryStoreCaptureMode_None);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, CommonConstants.QueryStoreCaptureMode_Custom);
+
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1, CommonConstants.StatisticsCollectionInterval_OneMinute);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(5, CommonConstants.StatisticsCollectionInterval_FiveMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(10, CommonConstants.StatisticsCollectionInterval_TenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(15, CommonConstants.StatisticsCollectionInterval_FifteenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(30, CommonConstants.StatisticsCollectionInterval_ThirtyMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(60, CommonConstants.StatisticsCollectionInterval_OneHour);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1440, CommonConstants.StatisticsCollectionInterval_OneDay);
+
+            displayQueryStoreStaleThresholdInHours.TryAdd(1, CommonConstants.QueryStore_stale_threshold_OneHour);
+            displayQueryStoreStaleThresholdInHours.TryAdd(4, CommonConstants.QueryStore_stale_threshold_FourHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(8, CommonConstants.QueryStore_stale_threshold_EightHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(12, CommonConstants.QueryStore_stale_threshold_TwelveHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(24, CommonConstants.QueryStore_stale_threshold_OneDay);
+            displayQueryStoreStaleThresholdInHours.TryAdd(72, CommonConstants.QueryStore_stale_threshold_ThreeDays);
+            displayQueryStoreStaleThresholdInHours.TryAdd(168, CommonConstants.QueryStore_stale_threshold_SevenDays);
 
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
@@ -194,7 +223,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null,
+                                    QueryStoreOptions = new QueryStoreOptions()
+                                    {
+                                        ActualMode = displayOperationModeOptions[smoDatabase.QueryStoreOptions.ActualState],
+                                        DataFlushIntervalInMinutes = smoDatabase.QueryStoreOptions.DataFlushIntervalInSeconds / 60,
+                                        StatisticsCollectionInterval = displayStatisticsCollectionIntervalInMinutes[(int)smoDatabase.QueryStoreOptions.StatisticsCollectionIntervalInMinutes],
+                                        MaxPlansPerQuery = smoDatabase.QueryStoreOptions.MaxPlansPerQuery,
+                                        MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
+                                        QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
+                                        SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
+                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays,
+                                        WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode == QueryStoreWaitStatsCaptureMode.On,
+                                        CapturePolicyExecutionCount = smoDatabase.QueryStoreOptions.CapturePolicyExecutionCount,
+                                        CapturePolicyStaleThreshold = displayQueryStoreStaleThresholdInHours[(int)smoDatabase.QueryStoreOptions.CapturePolicyStaleThresholdInHrs],
+                                        CapturePolicyTotalCompileCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS,
+                                        CapturePolicyTotalExecutionCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS
+                                    }
                                 };
 
                                 if (!isAzureDB)
@@ -232,6 +277,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
                             databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
+                            databaseViewInfo.OperationModeOptions = displayOperationModeOptions.Values.ToArray();
+                            databaseViewInfo.QueryStoreCaptureModeOptions = displayQueryStoreCaptureModeOptions.Values.ToArray();
+                            databaseViewInfo.StatisticsCollectionIntervalOptions = displayStatisticsCollectionIntervalInMinutes.Values.ToArray();
+                            databaseViewInfo.StaleThresholdOptions = displayQueryStoreStaleThresholdInHours.Values.ToArray();
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role
@@ -712,7 +761,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     newFile.PhysicalName = file.FileNameWithExtension;
                                     newFile.DatabaseFileType = fileTypesEnums[file.Type];
                                     newFile.Exists = false;
-                                    newFile.Autogrowth = GetAutogrowth(prototype, file); 
+                                    newFile.Autogrowth = GetAutogrowth(prototype, file);
                                     if (!string.IsNullOrEmpty(file.Path.Trim()))
                                     {
                                         newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
