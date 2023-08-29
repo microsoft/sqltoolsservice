@@ -14,7 +14,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
@@ -151,17 +150,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var actualEventType = new EventType<GenerateServerContextualizationCompleteParams>();
-            var actualCompleteParams = new GenerateServerContextualizationCompleteParams();
-            var mockEventContext = new Mock<EventContext>();
-            mockEventContext.Setup(x => x.SendEvent(It.IsAny<EventType<GenerateServerContextualizationCompleteParams>>(), It.IsAny<GenerateServerContextualizationCompleteParams>()))
-                .Callback<EventType<GenerateServerContextualizationCompleteParams>, GenerateServerContextualizationCompleteParams>((eventType, completeParams) =>
-                {
-                    actualEventType = eventType;
-                    actualCompleteParams = completeParams;
-                })
+            var actualGenerateServerContextResponse = new GenerateServerContextualizationResult();
+            var mockGenerateRequestContext = new Mock<RequestContext<GenerateServerContextualizationResult>>();
+            mockGenerateRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerContextualizationResult>()))
+                .Callback<GenerateServerContextualizationResult>(result => actualGenerateServerContextResponse = result)
                 .Returns(Task.CompletedTask);
-            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockEventContext.Object);
+            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockGenerateRequestContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -169,8 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
             var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
-            Assert.IsTrue(actualCompleteParams.Context.Contains(firstCreateTableScript));
-            Assert.IsTrue(actualCompleteParams.Context.Contains(secondCreateTableScript));
+            Assert.IsTrue(actualGenerateServerContextResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGenerateServerContextResponse.Context.Contains(secondCreateTableScript));
 
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
         }
@@ -192,17 +186,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            var actualEventType = new EventType<GenerateServerContextualizationCompleteParams>();
-            var actualCompleteParams = new GenerateServerContextualizationCompleteParams();
-            var mockEventContext = new Mock<EventContext>();
-            mockEventContext.Setup(x => x.SendEvent(It.IsAny<EventType<GenerateServerContextualizationCompleteParams>>(), It.IsAny<GenerateServerContextualizationCompleteParams>()))
-                .Callback<EventType<GenerateServerContextualizationCompleteParams>, GenerateServerContextualizationCompleteParams>((eventType, completeParams) =>
-                {
-                    actualEventType = eventType;
-                    actualCompleteParams = completeParams;
-                })
+            var actualGenerateServerContextResponse = new GenerateServerContextualizationResult();
+            var mockGenerateRequestContext = new Mock<RequestContext<GenerateServerContextualizationResult>>();
+            mockGenerateRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerContextualizationResult>()))
+                .Callback<GenerateServerContextualizationResult>(actual => actualGenerateServerContextResponse = actual)
                 .Returns(Task.CompletedTask);
-            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockEventContext.Object);
+            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockGenerateRequestContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
