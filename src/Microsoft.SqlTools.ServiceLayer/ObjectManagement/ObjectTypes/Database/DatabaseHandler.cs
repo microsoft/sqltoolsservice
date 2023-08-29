@@ -39,6 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
+        private static readonly Dictionary<QueryStoreOperationMode, string> displayOperationModeOptions = new Dictionary<QueryStoreOperationMode, string>();
+        private static readonly Dictionary<QueryStoreCaptureMode, string> displayQueryStoreCaptureModeOptions = new Dictionary<QueryStoreCaptureMode, string>();
+        private static readonly Dictionary<int, string> displayStatisticsCollectionInterval = new Dictionary<int, string>();
+        private static readonly Dictionary<int, string> displayQueryStoreStaleThreshold = new Dictionary<int, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -80,6 +84,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
+
+            displayOperationModeOptions.Add(QueryStoreOperationMode.Off, CommonConstants.QueryStoreOperationMode_Off);
+            displayOperationModeOptions.Add(QueryStoreOperationMode.ReadOnly, CommonConstants.QueryStoreOperationMode_ReadOnly);
+            displayOperationModeOptions.Add(QueryStoreOperationMode.ReadWrite, CommonConstants.QueryStoreOperationMode_ReadWrite);
+
+            displayQueryStoreCaptureModeOptions.Add(QueryStoreCaptureMode.All, SR.queryStoreCaptureMode_All);
+            displayQueryStoreCaptureModeOptions.Add(QueryStoreCaptureMode.Auto, SR.queryStoreCaptureMode_Auto);
+            displayQueryStoreCaptureModeOptions.Add(QueryStoreCaptureMode.None, SR.queryStoreCaptureMode_None);
+            displayQueryStoreCaptureModeOptions.Add(QueryStoreCaptureMode.Custom, SR.queryStoreCaptureMode_Custom);
+
+            displayStatisticsCollectionInterval.Add(1, SR.statisticsCollectionInterval_OneMinute);
+            displayStatisticsCollectionInterval.Add(5, SR.statisticsCollectionInterval_FiveMinutes);
+            displayStatisticsCollectionInterval.Add(10, SR.statisticsCollectionInterval_TenMinutes);
+            displayStatisticsCollectionInterval.Add(15, SR.statisticsCollectionInterval_FifteenMinutes);
+            displayStatisticsCollectionInterval.Add(30, SR.statisticsCollectionInterval_ThirtyMinutes);
+            displayStatisticsCollectionInterval.Add(60, SR.statisticsCollectionInterval_OneHour);
+            displayStatisticsCollectionInterval.Add(1440, SR.statisticsCollectionInterval_OneDay);
+
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_OneHour);
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_FourHours);
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_EightHours);
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_TwelveHours);
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_OneDay);
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_ThreeDays);
+            displayQueryStoreStaleThreshold.Add(1, SR.queryStore_stale_threshold_SevenDays);
 
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
@@ -183,7 +212,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null,
+                                    QueryStoreOptions = new QueryStoreOptions()
+                                    {
+                                        ActualMode = displayOperationModeOptions[smoDatabase.QueryStoreOptions.ActualState],
+                                        DataFlushIntervalInMinutes = smoDatabase.QueryStoreOptions.DataFlushIntervalInSeconds / 60,
+                                        StatisticsCollectionInterval = displayStatisticsCollectionInterval[(int)smoDatabase.QueryStoreOptions.StatisticsCollectionIntervalInMinutes],
+                                        MaxPlansPerQuery = smoDatabase.QueryStoreOptions.MaxPlansPerQuery,
+                                        MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
+                                        QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
+                                        SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
+                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays,
+                                        WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode == QueryStoreWaitStatsCaptureMode.On
+                                    }
                                 };
 
                                 if (!isAzureDB)
@@ -215,6 +256,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
                             databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
+                            databaseViewInfo.OperationModeOptions = displayOperationModeOptions.Values.ToArray();
+                            databaseViewInfo.QueryStoreCaptureModeOptions = displayQueryStoreCaptureModeOptions.Values.ToArray();
+                            databaseViewInfo.StatisticsCollectionIntervalOptions = displayStatisticsCollectionInterval.Values.ToArray();
+                            databaseViewInfo.StaleThresholdOptions = displayQueryStoreStaleThreshold.Values.ToArray();
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role

@@ -25,5 +25,8 @@ namespace Microsoft.SqlTools.SqlCore.Utility
         public const string DatabaseScopedConfigurations_Value_Fail_Unsupported = "FAIL_UNSUPPORTED";
         public const string DatabaseScopedConfigurations_Value_Enabled = "ENABLED";
         public const string DatabaseScopedConfigurations_Value_Disabled = "DISABLED";
+        public const string QueryStoreOperationMode_Off = "OFF";
+        public const string QueryStoreOperationMode_ReadOnly = "Read Only";
+        public const string QueryStoreOperationMode_ReadWrite = "Read Write";
     }
 }

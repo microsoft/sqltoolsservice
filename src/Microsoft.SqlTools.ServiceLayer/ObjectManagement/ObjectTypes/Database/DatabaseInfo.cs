@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool EncryptionEnabled { get; set; }
         public string? RestrictAccess { get; set; }
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
+        public QueryStoreOptions? QueryStoreOptions { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -48,5 +49,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Name { get; set; }
         public string ValueForPrimary { get; set; }
         public string ValueForSecondary { get; set; }
+    }
+
+    public class QueryStoreOptions
+    {
+        public string ActualMode { get; set; }
+        public long DataFlushIntervalInMinutes { get; set; }
+        public string StatisticsCollectionInterval { get; set; }
+        public long MaxPlansPerQuery { get; set; }
+        public long MaxSizeInMB { get; set; }
+        public string QueryStoreCaptureMode { get; set; }
+        public string SizeBasedCleanupMode { get; set; }
+        public long StaleQueryThresholdInDays { get; set; }
+        public bool WaitStatisticsCaptureMode { get; set; }
+
     }
 }

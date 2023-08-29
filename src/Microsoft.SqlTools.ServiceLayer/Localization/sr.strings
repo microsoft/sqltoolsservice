@@ -2381,6 +2381,24 @@ general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
 databaseBackupDate_None = None
+queryStoreCaptureMode_All = All
+queryStoreCaptureMode_Auto = Auto
+queryStoreCaptureMode_None = None
+queryStoreCaptureMode_Custom = Custom
+statisticsCollectionInterval_OneMinute = 1 Minute
+statisticsCollectionInterval_FiveMinutes = 5 Minutes
+statisticsCollectionInterval_TenMinutes = 10 Minutes
+statisticsCollectionInterval_FifteenMinutes = 15 Minutes
+statisticsCollectionInterval_ThirtyMinutes = 30 Minutes
+statisticsCollectionInterval_OneHour = 1 Hour
+statisticsCollectionInterval_OneDay = 1 Day
+queryStore_stale_threshold_OneHour = 1 Hour
+queryStore_stale_threshold_FourHours = 4 Hours
+queryStore_stale_threshold_EightHours = 8 Hours
+queryStore_stale_threshold_TwelveHours = 12 Hours
+queryStore_stale_threshold_OneDay = 1 Day
+queryStore_stale_threshold_ThreeDays = 3 Days
+queryStore_stale_threshold_SevenDays = 7 Days
 
 ############################################################################
 # Azure SQL DB

@@ -5898,6 +5898,78 @@ The Query Processor estimates that implementing the following index could improv
     <value>None</value>
     <comment></comment>
   </data>
+  <data name="queryStoreCaptureMode_All" xml:space="preserve">
+    <value>All</value>
+    <comment></comment>
+  </data>
+  <data name="queryStoreCaptureMode_Auto" xml:space="preserve">
+    <value>Auto</value>
+    <comment></comment>
+  </data>
+  <data name="queryStoreCaptureMode_None" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
+  <data name="queryStoreCaptureMode_Custom" xml:space="preserve">
+    <value>Custom</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 Minute</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 Minutes</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 Minutes</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 Minutes</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 Minutes</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 Hour</value>
+    <comment></comment>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 Day</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 Hour</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 Hours</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 Hours</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 Hours</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 Day</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 Days</value>
+    <comment></comment>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 Days</value>
+    <comment></comment>
+  </data>
   <data name="BasicAzureEdition" xml:space="preserve">
     <value>Basic</value>
     <comment></comment>

@@ -10693,6 +10693,150 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string queryStoreCaptureMode_All
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStoreCaptureMode_All);
+            }
+        }
+
+        public static string queryStoreCaptureMode_Auto
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStoreCaptureMode_Auto);
+            }
+        }
+
+        public static string queryStoreCaptureMode_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStoreCaptureMode_None);
+            }
+        }
+
+        public static string queryStoreCaptureMode_Custom
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStoreCaptureMode_Custom);
+            }
+        }
+
+        public static string statisticsCollectionInterval_OneMinute
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_OneMinute);
+            }
+        }
+
+        public static string statisticsCollectionInterval_FiveMinutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_FiveMinutes);
+            }
+        }
+
+        public static string statisticsCollectionInterval_TenMinutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_TenMinutes);
+            }
+        }
+
+        public static string statisticsCollectionInterval_FifteenMinutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_FifteenMinutes);
+            }
+        }
+
+        public static string statisticsCollectionInterval_ThirtyMinutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_ThirtyMinutes);
+            }
+        }
+
+        public static string statisticsCollectionInterval_OneHour
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_OneHour);
+            }
+        }
+
+        public static string statisticsCollectionInterval_OneDay
+        {
+            get
+            {
+                return Keys.GetString(Keys.statisticsCollectionInterval_OneDay);
+            }
+        }
+
+        public static string queryStore_stale_threshold_OneHour
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_OneHour);
+            }
+        }
+
+        public static string queryStore_stale_threshold_FourHours
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_FourHours);
+            }
+        }
+
+        public static string queryStore_stale_threshold_EightHours
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_EightHours);
+            }
+        }
+
+        public static string queryStore_stale_threshold_TwelveHours
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_TwelveHours);
+            }
+        }
+
+        public static string queryStore_stale_threshold_OneDay
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_OneDay);
+            }
+        }
+
+        public static string queryStore_stale_threshold_ThreeDays
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_ThreeDays);
+            }
+        }
+
+        public static string queryStore_stale_threshold_SevenDays
+        {
+            get
+            {
+                return Keys.GetString(Keys.queryStore_stale_threshold_SevenDays);
+            }
+        }
+
         public static string BasicAzureEdition
         {
             get
@@ -15479,6 +15623,60 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string databaseBackupDate_None = "databaseBackupDate_None";
+
+
+            public const string queryStoreCaptureMode_All = "queryStoreCaptureMode_All";
+
+
+            public const string queryStoreCaptureMode_Auto = "queryStoreCaptureMode_Auto";
+
+
+            public const string queryStoreCaptureMode_None = "queryStoreCaptureMode_None";
+
+
+            public const string queryStoreCaptureMode_Custom = "queryStoreCaptureMode_Custom";
+
+
+            public const string statisticsCollectionInterval_OneMinute = "statisticsCollectionInterval_OneMinute";
+
+
+            public const string statisticsCollectionInterval_FiveMinutes = "statisticsCollectionInterval_FiveMinutes";
+
+
+            public const string statisticsCollectionInterval_TenMinutes = "statisticsCollectionInterval_TenMinutes";
+
+
+            public const string statisticsCollectionInterval_FifteenMinutes = "statisticsCollectionInterval_FifteenMinutes";
+
+
+            public const string statisticsCollectionInterval_ThirtyMinutes = "statisticsCollectionInterval_ThirtyMinutes";
+
+
+            public const string statisticsCollectionInterval_OneHour = "statisticsCollectionInterval_OneHour";
+
+
+            public const string statisticsCollectionInterval_OneDay = "statisticsCollectionInterval_OneDay";
+
+
+            public const string queryStore_stale_threshold_OneHour = "queryStore_stale_threshold_OneHour";
+
+
+            public const string queryStore_stale_threshold_FourHours = "queryStore_stale_threshold_FourHours";
+
+
+            public const string queryStore_stale_threshold_EightHours = "queryStore_stale_threshold_EightHours";
+
+
+            public const string queryStore_stale_threshold_TwelveHours = "queryStore_stale_threshold_TwelveHours";
+
+
+            public const string queryStore_stale_threshold_OneDay = "queryStore_stale_threshold_OneDay";
+
+
+            public const string queryStore_stale_threshold_ThreeDays = "queryStore_stale_threshold_ThreeDays";
+
+
+            public const string queryStore_stale_threshold_SevenDays = "queryStore_stale_threshold_SevenDays";
 
 
             public const string BasicAzureEdition = "BasicAzureEdition";

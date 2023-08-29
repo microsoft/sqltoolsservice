@@ -28,6 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] DscOnOffOptions { get; set; }
         public string[] DscElevateOptions { get; set; }
         public string[] DscEnableDisableOptions { get; set; }
+        public string[] OperationModeOptions { get; set; }
+        public string[] StatisticsCollectionIntervalOptions { get; set; }
+        public string[] QueryStoreCaptureModeOptions { get; set; }
+        public string[] SizeBasedCleanupModeOptions { get; set; }
+        public string[] StaleThresholdOptions { get; set; }
     }
 
     public class AzureEditionDetails
