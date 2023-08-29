@@ -517,8 +517,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
+            var originalPooling = connectionInfo.ConnectionDetails.Pooling;
             try
             {
+                // We disable pooling for these database operations so that we don't
+                // have lingering connections in the backend that would cause operations
+                // like DROP or DETACH DATABASE to hang because the database is still in use.
+                // connectionInfo.ConnectionDetails.Pooling = false;
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
@@ -538,6 +543,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             finally
             {
                 connectionInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
+                connectionInfo.ConnectionDetails.Pooling = originalPooling;
             }
         }
 
@@ -559,7 +565,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     DatabasePrototype prototype = taskHelper.Prototype;
                     prototype.Name = database.Name;
-
                     // Update database file names now that we have a database name
                     if (viewParams.IsNewObject && !prototype.HideFileSettings)
                     {
