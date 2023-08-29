@@ -753,4 +753,22 @@
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>スキーマとデータ</value>
   </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.ConnectionString プロパティの解析エラーです。</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath プロパティで指定されたディレクトリが無効です。</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingListObjectsCompleteParams.ConnectionString プロパティの解析エラーです。</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: ここにパラメーター値を設定します。</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>オブジェクトのスクリプト作成中にエラーが発生しました。</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Execute としてのスクリプトはストアド プロシージャでのみサポートされます</value>
+  </data>
 </root>

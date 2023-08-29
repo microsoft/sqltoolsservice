@@ -753,4 +753,22 @@
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>架构和数据</value>
   </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>解析 ScriptingParams.ConnectionString 属性时出错</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath 属性指定的目录无效</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>解析 ScriptingListObjectsCompleteParams.ConnectionString 属性时出错</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>编写对象脚本时出错。</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>仅存储过程支持编写执行脚本</value>
+  </data>
 </root>
