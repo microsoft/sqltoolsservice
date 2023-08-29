@@ -70,6 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
             this.serviceHost.SetRequestHandler(SearchRequest.Type, HandleSearchRequest, true);
             this.serviceHost.SetRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest, true);
+            this.serviceHost.SetRequestHandler(AttachDatabaseRequest.Type, HandleAttachDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest, true);
         }
 
@@ -155,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
 
                 SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
-                
+
                 if (desc.IsDatabaseObject)
                 {
                     if (!string.IsNullOrEmpty(requestParams.Schema))
@@ -204,6 +205,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var sqlScript = handler.Detach(requestParams);
+            await requestContext.SendResult(sqlScript);
+        }
+
+        internal async Task HandleAttachDatabaseRequest(AttachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
+            var sqlScript = handler.Attach(requestParams);
             await requestContext.SendResult(sqlScript);
         }
 
