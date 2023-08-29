@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.Authentication
                     {
                         SqlToolsLogger.Pii($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Unexpected username format, email not retreived: {@params.UserName}. " +
                             $"Accepted formats are: 'johndoe@org.com' or 'John Doe - johndoe@org.com'.");
-                        throw new Exception($"Invalid email address format for user: [{username}] received for Azure Active Directory authentication.");
+                        throw new Exception($"Invalid email address format for user: [{username}] received for Microsoft Entra authentication.");
                     }
 
                     if (accounts.MoveNext())

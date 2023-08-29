@@ -19,7 +19,7 @@ using NUnit.Framework;
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 {
     /// <summary>
-    /// Tests to verify FirewallRuleService by mocking the azure authentication and resource managers
+    /// Tests to verify FirewallRuleService by mocking the Microsoft Entra authentication and resource managers
     /// </summary>
     public class FirewallRuleServiceTest
     {

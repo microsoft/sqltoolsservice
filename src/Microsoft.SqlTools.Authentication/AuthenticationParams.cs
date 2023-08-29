@@ -37,8 +37,8 @@ namespace Microsoft.SqlTools.Authentication
         public string[] Scopes { get; set; }
 
         /// <summary>
-        /// <see cref="Guid"/> Connection Id, that will be passed to Azure AD when requesting access token.
-        /// It can be used for tracking AAD request status if needed.
+        /// <see cref="Guid"/> Connection Id, that will be passed to Microsoft Entra when requesting access token.
+        /// It can be used for tracking Microsoft Entra authentication request status if needed.
         /// </summary>
         public Guid ConnectionId { get; set; }
 
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.Authentication
         /// <param name="resource">Resource for which token is requested.</param>
         /// <param name="scopes">Scopes for access token</param>
         /// <param name="userName">User hint information</param>
-        /// <param name="connectionId">Connection Id for tracing AAD request</param>
+        /// <param name="connectionId">Connection Id for tracing Microsoft Entra authentication request</param>
         public AuthenticationParams(AuthenticationMethod authMethod, string authority, string audience, 
             string resource, string[] scopes, string userName, Guid connectionId) {
             this.AuthenticationMethod = authMethod;

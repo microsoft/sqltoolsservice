@@ -9,7 +9,7 @@ namespace Microsoft.SqlTools.Authentication.Sql
 {
     /// <summary>
     /// Provides an implementation of <see cref="SqlAuthenticationProvider"/> for SQL Tools to be able to perform Federated authentication
-    /// silently with Microsoft.Data.SqlClient integration only for "ActiveDirectory" authentication modes. 
+    /// silently with Microsoft.Data.SqlClient integration only for Microsoft Entra authentication modes. 
     /// When registered, the SqlClient driver calls the <see cref="AcquireTokenAsync(SqlAuthenticationParameters)"/> API 
     /// with server-sent authority information to request access token when needed.
     /// </summary>
@@ -20,11 +20,11 @@ namespace Microsoft.SqlTools.Authentication.Sql
         private IAuthenticator authenticator;
 
         /// <summary>
-        /// Instantiates AuthenticationProvider to be used for AAD authentication with MSAL.NET and MSAL.js co-ordinated.
+        /// Instantiates AuthenticationProvider to be used for Microsoft Entra authentication with MSAL.NET and MSAL.js co-ordinated.
         /// </summary>
         /// <param name="applicationName">Application Name that identifies user folder path location for reading/writing to shared cache.</param>
         /// <param name="applicationPath">Application Path directory where application cache folder is present.</param>
-        /// <param name="authCallback">Callback that handles AAD authentication when user interaction is needed.</param>
+        /// <param name="authCallback">Callback that handles Microsoft Entra authentication when user interaction is needed.</param>
         public AuthenticationProvider(IAuthenticator authenticator)
         {
             this.authenticator = authenticator;
@@ -59,17 +59,17 @@ namespace Microsoft.SqlTools.Authentication.Sql
             cts.CancelAfter(parameters.ConnectionTimeout * 1000); // Convert to milliseconds
 
             /* We split audience from Authority URL here. Audience can be one of the following:
-             * The Azure AD authority audience enumeration
+             * The Microsoft Entra authority audience enumeration
              * The tenant ID, which can be:
-             * - A GUID (the ID of your Azure AD instance), for single-tenant applications
-             * - A domain name associated with your Azure AD instance (also for single-tenant applications)
-             * One of these placeholders as a tenant ID in place of the Azure AD authority audience enumeration:
+             * - A GUID (the ID of your Microsoft Entra instance), for single-tenant applications
+             * - A domain name associated with your Microsoft Entra instance (also for single-tenant applications)
+             * One of these placeholders as a tenant ID in place of the Microsoft Entra authority audience enumeration:
              * - `organizations` for a multitenant application
              * - `consumers` to sign in users only with their personal accounts
              * - `common` to sign in users with their work and school accounts or their personal Microsoft accounts
              * 
-             * MSAL will throw a meaningful exception if you specify both the Azure AD authority audience and the tenant ID.
-             * If you don't specify an audience, your app will target Azure AD and personal Microsoft accounts as an audience. (That is, it will behave as though `common` were specified.)
+             * MSAL will throw a meaningful exception if you specify both the Microsoft Entra authority audience and the tenant ID.
+             * If you don't specify an audience, your app will target Microsoft Entra and personal Microsoft accounts as an audience. (That is, it will behave as though `common` were specified.)
              * More information: https://docs.microsoft.com/azure/active-directory/develop/msal-client-application-configuration
             **/
 

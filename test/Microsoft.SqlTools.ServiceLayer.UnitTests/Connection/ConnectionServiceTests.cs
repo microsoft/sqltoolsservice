@@ -561,7 +561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Verify that password is ignored when using Active Directory Interactive authentication.
+        /// Verify that password is ignored when using Microsoft Entra Interactive authentication.
         /// </summary>
         [TestCase("user", "anything", AzureMFA)]
         [TestCase("user", "anything", ActiveDirectoryInteractive)]

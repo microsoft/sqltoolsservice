@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// Expands the node at the given path and returns the child nodes.
         /// </summary>
         /// <param name="connectionString"> Connection string to connect to the server </param>
-        /// <param name="accessToken"> Access token to connect to the server. To be used in case of AAD based connections </param>
+        /// <param name="accessToken"> Access token to connect to the server. To be used in case of Microsoft Entra ID based connections </param>
         /// <param name="nodePath"> Path of the node to expand </param>
         /// <param name="serverInfo"> Server information </param>
         /// <param name="options"> Object explorer options </param>
