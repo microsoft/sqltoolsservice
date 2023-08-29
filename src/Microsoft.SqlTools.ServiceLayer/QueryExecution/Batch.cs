@@ -396,8 +396,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Create a command that we'll use for executing the query
             using (DbCommand dbCommand = CreateCommand(conn))
             {
+                bool executionInProgress = true;
+
                 // Make sure that we cancel the command if the cancellation token is cancelled
-                cancellationToken.Register(() => dbCommand?.Cancel());
+                cancellationToken.Register(() =>
+                {
+                    if (executionInProgress)
+                    {
+                        dbCommand?.Cancel();
+                    }
+                });
 
                 // Setup the command for executing the batch
                 dbCommand.CommandText = BatchText;
@@ -468,6 +476,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         await resultSet.ReadResultToEnd(reader, cancellationToken);
 
                     } while (reader.NextResult());
+
+                    executionInProgress = false;
 
                     // If there were no messages, for whatever reason (NO COUNT set, messages 
                     // were emitted, records returned), output a "successful" message
