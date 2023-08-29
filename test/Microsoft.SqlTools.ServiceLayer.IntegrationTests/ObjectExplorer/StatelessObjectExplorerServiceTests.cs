@@ -4,12 +4,13 @@
 //
 
 using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {
@@ -48,9 +49,42 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             {
                 serverInfo.DatabaseName = testdbName;
                 var pathWithDb = string.Format(oePath, testdbName);
-                var nodes = StatelessObjectExplorer.Expand(connectionString, null, pathWithDb, serverInfo, options);
+                var nodes = await StatelessObjectExplorer.Expand(connectionString, null, pathWithDb, serverInfo, options);
 
                 Assert.True(nodes.Any(node => node.Label == childLabel), $"Expansion result for {pathWithDb} does not contain node {childLabel}");
+            });
+        }
+
+        [Test]
+        public async Task ProvidingNodeShouldSkipExpandingFromTop()
+        {
+            var query = @"Create table t1 (c1 int)
+                            GO
+                            Create table t2 (c1 int)
+                            GO";
+            await RunTest(databaseName, query, "testdb", async (testdbName, connectionString) =>
+            {
+                serverInfo.DatabaseName = testdbName;
+                var oePath = "";
+                var pathWithDb = string.Format(oePath, testdbName);
+
+                var nodes = await StatelessObjectExplorer.Expand(connectionString, null, pathWithDb, serverInfo, options);
+                Assert.True(nodes.Any(node => node.Label == "dbo"), $"Expansion result for {pathWithDb} does not contain node dbo");
+
+                nodes = await StatelessObjectExplorer.Expand(connectionString, null, null, serverInfo, options, null, nodes[0]);
+                Assert.True(nodes.Any(node => node.Label == "Tables"), $"Expansion result for {pathWithDb} does not contain node t1");
+
+                nodes = await StatelessObjectExplorer.Expand(connectionString, null, null, serverInfo, options, null, nodes.First(node => node.Label == "Tables"));
+                Assert.True(nodes.Any(node => node.Label == "dbo.t1"), $"Expansion result for {pathWithDb} does not contain node t1");
+
+                nodes = await StatelessObjectExplorer.Expand(connectionString, null, null, serverInfo, options, null, nodes.First(node => node.Label == "dbo.t1"));
+                Assert.True(nodes.Any(node => node.Label == "Columns"), $"Expansion result for {pathWithDb} does not contain node Columns");
+
+                nodes = await StatelessObjectExplorer.Expand(connectionString, null, null, serverInfo, options, null, nodes.First(node => node.Label == "Columns"));
+                Assert.True(nodes.Any(node => node.Label == "c1 (int, null)"), $"Expansion result for {pathWithDb} does not contain node c1");
+
+                nodes[0].Parent.GetContextAs<SmoQueryContext>().Server.ConnectionContext.Disconnect();
+                
             });
         }
 
