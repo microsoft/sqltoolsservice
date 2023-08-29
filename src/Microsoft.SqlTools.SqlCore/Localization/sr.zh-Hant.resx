@@ -753,4 +753,22 @@
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>結構描述及資料</value>
   </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>剖析屬性 ScriptingParams.ConnectionString 時發生錯誤</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath 屬性指定的路徑是無效目錄。</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: 在此處設定參數值。</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>編寫物件指令碼時發生錯誤。</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>僅預存程序支援指令碼執行</value>
+  </data>
 </root>
