@@ -24,6 +24,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         protected override void SaveProperties(Database db)
         {
             base.SaveProperties(db);
+
+            if (db.IsSupportedObject<QueryStoreOptions>())
+            {
+                if (this.currentState.queryStoreOptions.QueryCaptureMode == QueryStoreCaptureMode.Custom && this.currentState.queryStoreOptions.DesiredState != QueryStoreOperationMode.Off)
+                {
+                    if (!this.Exists || (db.QueryStoreOptions.CapturePolicyExecutionCount != this.currentState.queryStoreOptions.CapturePolicyExecutionCount))
+                    {
+                        db.QueryStoreOptions.CapturePolicyExecutionCount = this.currentState.queryStoreOptions.CapturePolicyExecutionCount;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.CapturePolicyStaleThresholdInHrs != this.currentState.queryStoreOptions.CapturePolicyStaleThresholdInHrs))
+                    {
+                        db.QueryStoreOptions.CapturePolicyStaleThresholdInHrs = this.currentState.queryStoreOptions.CapturePolicyStaleThresholdInHrs;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS != this.currentState.queryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS))
+                    {
+                        db.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS = this.currentState.queryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS != this.currentState.queryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS))
+                    {
+                        db.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS = this.currentState.queryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS;
+                    }
+                }
+            }
         }
     }
 }
