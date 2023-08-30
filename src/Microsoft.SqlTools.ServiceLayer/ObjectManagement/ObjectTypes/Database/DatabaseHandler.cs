@@ -215,6 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
                                     // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
                                 }
 
                                 if (prototype is DatabasePrototype160)
@@ -224,9 +225,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
-
-                            // Get file groups names
-                            GetFileGroupNames(smoDatabase, databaseViewInfo);
                         }
                         databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                         databaseViewInfo.DscElevateOptions = DscElevateOptions;
