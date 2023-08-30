@@ -23,6 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
 using System.Collections.Concurrent;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -149,160 +150,154 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-                try
+
+                using (var taskHelper = new DatabaseTaskHelper(dataContainer))
                 {
-                    using (var taskHelper = new DatabaseTaskHelper(dataContainer))
-                    using (var context = new DatabaseViewContext(requestParams))
+                    var prototype = taskHelper.Prototype;
+                    var azurePrototype = prototype as DatabasePrototypeAzure;
+                    bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
+                    bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
+                    bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
+                    bool isSqlOnDemand = dataContainer.Server.Information.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand;
+
+                    var databaseViewInfo = new DatabaseViewInfo()
                     {
-                        var prototype = taskHelper.Prototype;
-                        var azurePrototype = prototype as DatabasePrototypeAzure;
-                        bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
-                        bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
-                        bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
-                        bool isSqlOnDemand = dataContainer.Server.Information.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand;
+                        ObjectInfo = new DatabaseInfo(),
+                        IsAzureDB = isAzureDB,
+                        IsManagedInstance = isManagedInstance,
+                        IsSqlOnDemand = isSqlOnDemand
+                    };
 
-                        var databaseViewInfo = new DatabaseViewInfo()
+                    // Collect the Database properties information
+                    if (!requestParams.IsNewObject)
+                    {
+                        var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                        if (smoDatabase != null)
                         {
-                            ObjectInfo = new DatabaseInfo(),
-                            IsAzureDB = isAzureDB,
-                            IsManagedInstance = isManagedInstance,
-                            IsSqlOnDemand = isSqlOnDemand
-                        };
+                            databaseViewInfo.ObjectInfo = new DatabaseInfo()
+                            {
+                                Name = smoDatabase.Name,
+                                CollationName = smoDatabase.Collation,
+                                CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
+                                DateCreated = smoDatabase.CreateDate.ToString(),
+                                MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                NumberOfUsers = smoDatabase.Users.Count,
+                                Owner = smoDatabase.Owner,
+                                SizeInMb = smoDatabase.Size,
+                                SpaceAvailableInMb = ByteConverter.ConvertKbtoMb(smoDatabase.SpaceAvailable),
+                                Status = smoDatabase.Status.ToString(),
+                                AutoCreateIncrementalStatistics = smoDatabase.AutoCreateIncrementalStatisticsEnabled,
+                                AutoCreateStatistics = smoDatabase.AutoCreateStatisticsEnabled,
+                                AutoShrink = smoDatabase.AutoShrink,
+                                AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
+                                AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
+                                EncryptionEnabled = smoDatabase.EncryptionEnabled,
+                                DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
+                            };
 
-                        // Collect the Database properties information
+                            if (!isAzureDB)
+                            {
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType];
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
+                            }
+                            if (!isManagedInstance)
+                            {
+                                databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
+                                databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
+                                if (!isAzureDB)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                    // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
+                                }
+
+                                if (prototype is DatabasePrototype160)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                }
+                            }
+                            databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
+                            databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
+                        }
+                        databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
+                        databaseViewInfo.DscElevateOptions = DscElevateOptions;
+                        databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
+                    }
+
+                    // azure sql db doesn't have a sysadmin fixed role
+                    var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
+                    if (isAzureDB)
+                    {
+                        // Azure doesn't allow modifying the collation after DB creation
+                        bool collationEnabled = !prototype.Exists;
+                        if (isDw)
+                        {
+                            if (collationEnabled)
+                            {
+                                databaseViewInfo.CollationNames = GetCollationsWithPrototypeCollation(prototype);
+                            }
+                            databaseViewInfo.CompatibilityLevels = GetCompatibilityLevelsAzure(prototype);
+                        }
+                        else
+                        {
+                            if (collationEnabled)
+                            {
+                                databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
+                            }
+                            if (compatibilityLevelEnabled)
+                            {
+                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
+                            }
+                        }
+                        databaseViewInfo.AzureBackupRedundancyLevels = AzureBackupLevels;
+                        databaseViewInfo.AzureServiceLevelObjectives = AzureServiceLevels;
+                        databaseViewInfo.AzureEditions = AzureEditionNames;
+                        databaseViewInfo.AzureMaxSizes = AzureMaxSizes;
+                    }
+                    else
+                    {
+                        databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
+                        if (compatibilityLevelEnabled)
+                        {
+                            databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
+                        }
+
+                        // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
+                        databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
+                        databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
                         if (!requestParams.IsNewObject)
                         {
                             var smoDatabase = dataContainer.SqlDialogSubject as Database;
                             if (smoDatabase != null)
                             {
-                                databaseViewInfo.ObjectInfo = new DatabaseInfo()
-                                {
-                                    Name = smoDatabase.Name,
-                                    CollationName = smoDatabase.Collation,
-                                    CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
-                                    DateCreated = smoDatabase.CreateDate.ToString(),
-                                    MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
-                                    MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
-                                    NumberOfUsers = smoDatabase.Users.Count,
-                                    Owner = smoDatabase.Owner,
-                                    SizeInMb = smoDatabase.Size,
-                                    SpaceAvailableInMb = ByteConverter.ConvertKbtoMb(smoDatabase.SpaceAvailable),
-                                    Status = smoDatabase.Status.ToString(),
-                                    AutoCreateIncrementalStatistics = smoDatabase.AutoCreateIncrementalStatisticsEnabled,
-                                    AutoCreateStatistics = smoDatabase.AutoCreateStatisticsEnabled,
-                                    AutoShrink = smoDatabase.AutoShrink,
-                                    AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
-                                    AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
-                                    EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
-                                };
-
-                                if (!isAzureDB)
-                                {
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
-                                }
-                                if (!isManagedInstance)
-                                {
-                                    databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
-                                    databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
-                                    if (!isAzureDB)
-                                    {
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
-                                        // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
-                                    }
-
-                                    if (prototype is DatabasePrototype160)
-                                    {
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
-                                    }
-                                }
-                                databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
-                                databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
-                            }
-                            databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
-                            databaseViewInfo.DscElevateOptions = DscElevateOptions;
-                            databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
-                        }
-
-                        // azure sql db doesn't have a sysadmin fixed role
-                        var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
-                        if (isAzureDB)
-                        {
-                            // Azure doesn't allow modifying the collation after DB creation
-                            bool collationEnabled = !prototype.Exists;
-                            if (isDw)
-                            {
-                                if (collationEnabled)
-                                {
-                                    databaseViewInfo.CollationNames = GetCollationsWithPrototypeCollation(prototype);
-                                }
-                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevelsAzure(prototype);
-                            }
-                            else
-                            {
-                                if (collationEnabled)
-                                {
-                                    databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
-                                }
-                                if (compatibilityLevelEnabled)
-                                {
-                                    databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
-                                }
-                            }
-                            databaseViewInfo.AzureBackupRedundancyLevels = AzureBackupLevels;
-                            databaseViewInfo.AzureServiceLevelObjectives = AzureServiceLevels;
-                            databaseViewInfo.AzureEditions = AzureEditionNames;
-                            databaseViewInfo.AzureMaxSizes = AzureMaxSizes;
-                        }
-                        else
-                        {
-                            databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
-                            if (compatibilityLevelEnabled)
-                            {
-                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
-                            }
-
-                            // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
-                            databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
-                            databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
-                            if (!requestParams.IsNewObject)
-                            {
-                                var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                                if (smoDatabase != null)
-                                {
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).Files = GetDatabaseFiles(smoDatabase);
-                                }
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).Files = GetDatabaseFiles(smoDatabase);
                             }
                         }
-
-                        // Skip adding logins if running against an Azure SQL DB
-                        if (!isAzureDB)
-                        {
-                            var logins = new List<string>();
-                            foreach (Login login in dataContainer.Server.Logins)
-                            {
-                                logins.Add(login.Name);
-                            }
-                            // Add <default> to the start of the list in addition to defined logins
-                            logins.Insert(0, SR.general_default);
-
-                            databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
-                        }
-
-                        return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                     }
-                }
-                finally
-                {
-                    dataContainer.ServerConnection.Disconnect();
+
+                    // Skip adding logins if running against an Azure SQL DB
+                    if (!isAzureDB)
+                    {
+                        var logins = new List<string>();
+                        foreach (Login login in dataContainer.Server.Logins)
+                        {
+                            logins.Add(login.Name);
+                        }
+                        // Add <default> to the start of the list in addition to defined logins
+                        logins.Insert(0, SR.general_default);
+
+                        databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
+                    }
+
+                    var context = new DatabaseViewContext(requestParams);
+                    return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                 }
             }
         }
@@ -334,55 +329,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Detach(DetachDatabaseRequestParams detachParams)
         {
             var sqlScript = string.Empty;
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, detachParams.Database))
             {
-                try
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
                 {
-                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                    if (smoDatabase != null)
+                    if (detachParams.GenerateScript)
                     {
-                        if (detachParams.GenerateScript)
-                        {
-                            sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
-                        }
-                        else
-                        {
-                            DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                            try
-                            {
-                                // In order to drop all connections to the database, we switch it to single
-                                // user access mode so that only our current connection to the database stays open.
-                                // Any pending operations are terminated and rolled back.
-                                if (detachParams.DropConnections)
-                                {
-                                    smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
-                                    smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                                }
-                                smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
-                            }
-                            catch (SmoException)
-                            {
-                                // Revert to database's previous user access level if we changed it as part of dropping connections
-                                // before hitting this exception.
-                                if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
-                                {
-                                    smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                                }
-                                throw;
-                            }
-                        }
+                        sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                        try
+                        {
+                            // In order to drop all connections to the database, we switch it to single
+                            // user access mode so that only our current connection to the database stays open.
+                            // Any pending operations are terminated and rolled back.
+                            if (detachParams.DropConnections)
+                            {
+                                smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            else
+                            {
+                                // Clear any other connections in the same pool to prevent Detach from hanging
+                                // due to the database still being in use
+                                var sqlConn = dataContainer.ServerConnection.SqlConnectionObject;
+                                SqlConnection.ClearPool(sqlConn);
+                            }
+                            smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+                        }
+                        catch (SmoException)
+                        {
+                            // Revert to database's previous user access level if we changed it as part of dropping connections
+                            // before hitting this exception.
+                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            throw;
+                        }
                     }
                 }
-                finally
+                else
                 {
-                    dataContainer.ServerConnection.Disconnect();
+                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
                 }
             }
             return sqlScript;
@@ -457,7 +451,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
                     }
-                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
@@ -470,80 +463,79 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(dropParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, null))
+            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, dropParams.Database))
             {
-                try
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
                 {
-                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                    if (smoDatabase != null)
-                    {
-                        var originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                        var server = smoDatabase.Parent;
-                        var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
+                    var originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                    var server = smoDatabase.Parent;
+                    var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
 
+                    if (dropParams.GenerateScript)
+                    {
+                        server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                        server.ConnectionContext.CapturedSql.Clear();
+                    }
+
+                    try
+                    {
+                        // In order to drop all connections to the database, we switch it to single
+                        // user access mode so that only our current connection to the database stays open.
+                        // Any pending operations are terminated and rolled back.
+                        if (dropParams.DropConnections)
+                        {
+                            smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                        }
+                        else
+                        {
+                            // Clear any other connections in the same pool to prevent Drop from hanging
+                            // due to the database still being in use
+                            var sqlConn = dataContainer.ServerConnection.SqlConnectionObject;
+                            SqlConnection.ClearPool(sqlConn);
+                        }
+                        if (dropParams.DeleteBackupHistory)
+                        {
+                            server.DeleteBackupHistory(smoDatabase.Name);
+                        }
+                        smoDatabase.Drop();
                         if (dropParams.GenerateScript)
                         {
-                            server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
-                            server.ConnectionContext.CapturedSql.Clear();
-                        }
-
-                        try
-                        {
-                            // In order to drop all connections to the database, we switch it to single
-                            // user access mode so that only our current connection to the database stays open.
-                            // Any pending operations are terminated and rolled back.
-                            if (dropParams.DropConnections)
+                            var builder = new StringBuilder();
+                            foreach (var scriptEntry in server.ConnectionContext.CapturedSql.Text)
                             {
-                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            if (dropParams.DeleteBackupHistory)
-                            {
-                                server.DeleteBackupHistory(smoDatabase.Name);
-                            }
-                            smoDatabase.Drop();
-                            if (dropParams.GenerateScript)
-                            {
-                                var builder = new StringBuilder();
-                                foreach (var scriptEntry in server.ConnectionContext.CapturedSql.Text)
+                                if (scriptEntry != null)
                                 {
-                                    if (scriptEntry != null)
-                                    {
-                                        builder.AppendLine(scriptEntry);
-                                        builder.AppendLine("GO");
-                                    }
+                                    builder.AppendLine(scriptEntry);
+                                    builder.AppendLine("GO");
                                 }
-                                sqlScript = builder.ToString();
                             }
-                        }
-                        catch (SmoException)
-                        {
-                            // Revert to database's previous user access level if we changed it as part of dropping connections
-                            // before hitting this exception.
-                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
-                            {
-                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            throw;
-                        }
-                        finally
-                        {
-                            if (dropParams.GenerateScript)
-                            {
-                                server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
-                            }
+                            sqlScript = builder.ToString();
                         }
                     }
-                    else
+                    catch (SmoException)
                     {
-                        throw new InvalidOperationException($"Provided URN '{dropParams.ObjectUrn}' did not correspond to an existing database.");
+                        // Revert to database's previous user access level if we changed it as part of dropping connections
+                        // before hitting this exception.
+                        if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                        {
+                            smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                        }
+                        throw;
+                    }
+                    finally
+                    {
+                        if (dropParams.GenerateScript)
+                        {
+                            server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
+                        }
                     }
                 }
-                finally
+                else
                 {
-                    dataContainer.ServerConnection.Disconnect();
+                    throw new InvalidOperationException($"Provided URN '{dropParams.ObjectUrn}' did not correspond to an existing database.");
                 }
             }
             return sqlScript;
@@ -590,269 +582,262 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-                try
+                using (var taskHelper = new DatabaseTaskHelper(dataContainer))
                 {
-                    using (var taskHelper = new DatabaseTaskHelper(dataContainer))
+                    DatabasePrototype prototype = taskHelper.Prototype;
+                    prototype.Name = database.Name;
+
+                    // Update database file names now that we have a database name
+                    if (viewParams.IsNewObject && !prototype.HideFileSettings)
                     {
-                        DatabasePrototype prototype = taskHelper.Prototype;
-                        prototype.Name = database.Name;
+                        var sanitizedName = Utility.DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
-                        // Update database file names now that we have a database name
-                        if (viewParams.IsNewObject && !prototype.HideFileSettings)
+                        var dataFile = prototype.Files[0];
+                        if (dataFile.DatabaseFileType != FileType.Data)
                         {
-                            var sanitizedName = Utility.DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
+                            throw new InvalidOperationException("Database prototype's first file was not a Data file.");
+                        }
+                        dataFile.Name = sanitizedName;
 
-                            var dataFile = prototype.Files[0];
-                            if (dataFile.DatabaseFileType != FileType.Data)
+                        if (prototype.NumberOfLogFiles > 0)
+                        {
+                            var logFile = prototype.Files[1];
+                            if (logFile.DatabaseFileType != FileType.Log)
                             {
-                                throw new InvalidOperationException("Database prototype's first file was not a Data file.");
+                                throw new InvalidOperationException("Database prototype's second file was not a Log file.");
                             }
-                            dataFile.Name = sanitizedName;
+                            logFile.Name = $"{sanitizedName}_log";
+                        }
+                    }
 
-                            if (prototype.NumberOfLogFiles > 0)
+                    if (database.Owner != null && database.Owner != SR.general_default)
+                    {
+                        prototype.Owner = database.Owner;
+                    }
+                    if (database.CollationName != null)
+                    {
+                        prototype.Collation = database.CollationName;
+                    }
+                    if (database.RecoveryModel != null)
+                    {
+                        prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
+                    }
+                    if (database.CompatibilityLevel != null)
+                    {
+                        prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
+                    }
+                    if (prototype is DatabasePrototype80 db80)
+                    {
+                        if (database.DatabaseReadOnly != null)
+                        {
+                            db80.IsReadOnly = (bool)database.DatabaseReadOnly;
+                        }
+                    }
+
+                    if (prototype is DatabasePrototype90 db90)
+                    {
+                        db90.AutoUpdateStatisticsAsync = database.AutoUpdateStatisticsAsynchronously;
+                        db90.PageVerifyDisplay = database.PageVerify;
+                    }
+                    if (prototype is DatabasePrototype100 db100)
+                    {
+                        db100.EncryptionEnabled = database.EncryptionEnabled;
+                    }
+                    if (prototype is DatabasePrototype110 db110)
+                    {
+                        if (database.TargetRecoveryTimeInSec != null)
+                        {
+                            db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
+                        }
+
+                        if (database.ContainmentType != null)
+                        {
+                            db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                        }
+                    }
+                    if (prototype is DatabasePrototype130 db130)
+                    {
+                        if (!viewParams.IsNewObject && databaseScopedConfigurationsCollection != null && database.DatabaseScopedConfigurations != null)
+                        {
+                            foreach (DatabaseScopedConfigurationsInfo dsc in database.DatabaseScopedConfigurations)
                             {
-                                var logFile = prototype.Files[1];
-                                if (logFile.DatabaseFileType != FileType.Log)
+                                foreach (DatabaseScopedConfiguration smoDscCollection in databaseScopedConfigurationsCollection)
                                 {
-                                    throw new InvalidOperationException("Database prototype's second file was not a Log file.");
-                                }
-                                logFile.Name = $"{sanitizedName}_log";
-                            }
-                        }
-
-                        if (database.Owner != null && database.Owner != SR.general_default)
-                        {
-                            prototype.Owner = database.Owner;
-                        }
-                        if (database.CollationName != null)
-                        {
-                            prototype.Collation = database.CollationName;
-                        }
-                        if (database.RecoveryModel != null)
-                        {
-                            prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
-                        }
-                        if (database.CompatibilityLevel != null)
-                        {
-                            prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
-                        }
-                        if (prototype is DatabasePrototype80 db80)
-                        {
-                            if (database.DatabaseReadOnly != null)
-                            {
-                                db80.IsReadOnly = (bool)database.DatabaseReadOnly;
-                            }
-                        }
-
-                        if (prototype is DatabasePrototype90 db90)
-                        {
-                            db90.AutoUpdateStatisticsAsync = database.AutoUpdateStatisticsAsynchronously;
-                            db90.PageVerifyDisplay = database.PageVerify;
-                        }
-                        if (prototype is DatabasePrototype100 db100)
-                        {
-                            db100.EncryptionEnabled = database.EncryptionEnabled;
-                        }
-                        if (prototype is DatabasePrototype110 db110)
-                        {
-                            if (database.TargetRecoveryTimeInSec != null)
-                            {
-                                db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
-                            }
-
-                            if (database.ContainmentType != null)
-                            {
-                                db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
-                            }
-                        }
-                        if (prototype is DatabasePrototype130 db130)
-                        {
-                            if (!viewParams.IsNewObject && databaseScopedConfigurationsCollection != null && database.DatabaseScopedConfigurations != null)
-                            {
-                                foreach (DatabaseScopedConfigurationsInfo dsc in database.DatabaseScopedConfigurations)
-                                {
-                                    foreach (DatabaseScopedConfiguration smoDscCollection in databaseScopedConfigurationsCollection)
+                                    if (smoDscCollection.Name == dsc.Name)
                                     {
-                                        if (smoDscCollection.Name == dsc.Name)
+                                        smoDscCollection.Value = dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                            ? "1" : dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
+                                            ? "0" : dsc.ValueForPrimary;
+
+                                        // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
+                                        // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
+                                        if (!(smoDscCollection.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary &&
+                                            dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
                                         {
-                                            smoDscCollection.Value = dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
-                                                ? "1" : dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
-                                                ? "0" : dsc.ValueForPrimary;
-
-                                            // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
-                                            // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
-                                            if (!(smoDscCollection.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary &&
-                                                dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
-                                            {
-                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
-                                                            ? "1" : dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
-                                                            ? "0" : dsc.ValueForSecondary;
-                                            }
-                                            break;
+                                            smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                                        ? "1" : dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
+                                                        ? "0" : dsc.ValueForSecondary;
                                         }
+                                        break;
                                     }
                                 }
-                                db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
+                            }
+                            db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
+                        }
+                    }
+
+                    if (!viewParams.IsNewObject && database.Files != null)
+                    {
+                        Dictionary<int, DatabaseFilePrototype> fileDict = new Dictionary<int, DatabaseFilePrototype>();
+                        foreach (DatabaseFilePrototype file in prototype.Files)
+                        {
+                            fileDict[file.ID] = file;
+                        }
+                        foreach (DatabaseFile file in database.Files)
+                        {
+                            // Add a New file
+                            if (file.Id == 0)
+                            {
+                                DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
+                                newFile.Name = file.Name;
+                                newFile.InitialSize = (int)file.SizeInMb;
+                                newFile.PhysicalName = file.FileNameWithExtension;
+                                newFile.DatabaseFileType = fileTypesEnums[file.Type];
+                                newFile.Exists = false;
+                                newFile.Autogrowth = GetAutogrowth(prototype, file);
+                                if (!string.IsNullOrEmpty(file.Path.Trim()))
+                                {
+                                    newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
+                                }
+
+                                // Log file do not support file groups
+                                if (fileTypesEnums[file.Type] != FileType.Log)
+                                {
+                                    FilegroupPrototype fileGroup = new FilegroupPrototype(prototype);
+                                    fileGroup.Name = file.FileGroup;
+                                    newFile.FileGroup = fileGroup;
+                                }
+
+                                // Add newFile to the prototype files
+                                prototype.Files.Add(newFile);
+                            }
+                            // Edit file properties: updating the existed files with modified data
+                            else
+                            {
+                                DatabaseFilePrototype? existingFile;
+                                if (fileDict.TryGetValue(file.Id, out existingFile))
+                                {
+                                    existingFile.Name = file.Name;
+                                    existingFile.InitialSize = (int)file.SizeInMb;
+                                    existingFile.Autogrowth = GetAutogrowth(prototype, file);
+                                }
+                                // Once updated, remove it from the dictionary
+                                fileDict.Remove(file.Id);
                             }
                         }
 
-                        if (!viewParams.IsNewObject && database.Files != null)
+                        // Remove the file
+                        foreach (KeyValuePair<int, DatabaseFilePrototype> removedfile in fileDict)
                         {
-                            Dictionary<int, DatabaseFilePrototype> fileDict = new Dictionary<int, DatabaseFilePrototype>();
-                            foreach (DatabaseFilePrototype file in prototype.Files)
+                            removedfile.Value.Removed = true;
+                        }
+                    }
+
+                    if (!viewParams.IsNewObject && database.Filegroups != null)
+                    {
+                        Dictionary<string, FilegroupPrototype> groupNameDict = new Dictionary<string, FilegroupPrototype>();
+                        foreach (FilegroupPrototype fileGroup in prototype.Filegroups)
+                        {
+                            groupNameDict[fileGroup.Name] = fileGroup;
+                        }
+                        // process row data filegroups
+                        foreach (FileGroupSummary fg in database.Filegroups)
+                        {
+                            if (fg.Id < 0)
                             {
-                                fileDict[file.ID] = file;
+                                FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
+                                newfileGroup.FileGroupType = fg.Type;
+                                newfileGroup.Name = fg.Name;
+                                newfileGroup.IsReadOnly = fg.IsReadOnly;
+                                newfileGroup.IsDefault = fg.IsDefault;
+                                newfileGroup.IsAutogrowAllFiles = fg.IsDefault;
+                                prototype.Filegroups.Add(newfileGroup);
                             }
-                            foreach (DatabaseFile file in database.Files)
+                            else
                             {
-                                // Add a New file
-                                if (file.Id == 0)
+                                FilegroupPrototype? existingFileGroup;
+                                if (groupNameDict.TryGetValue(fg.Name, out existingFileGroup))
                                 {
-                                    DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
-                                    newFile.Name = file.Name;
-                                    newFile.InitialSize = (int)file.SizeInMb;
-                                    newFile.PhysicalName = file.FileNameWithExtension;
-                                    newFile.DatabaseFileType = fileTypesEnums[file.Type];
-                                    newFile.Exists = false;
-                                    newFile.Autogrowth = GetAutogrowth(prototype, file);
-                                    if (!string.IsNullOrEmpty(file.Path.Trim()))
+                                    if (fg.Type != FileGroupType.MemoryOptimizedDataFileGroup)
                                     {
-                                        newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
-                                    }
-
-                                    // Log file do not support file groups
-                                    if (fileTypesEnums[file.Type] != FileType.Log)
-                                    {
-                                        FilegroupPrototype fileGroup = new FilegroupPrototype(prototype);
-                                        fileGroup.Name = file.FileGroup;
-                                        newFile.FileGroup = fileGroup;
-                                    }
-
-                                    // Add newFile to the prototype files
-                                    prototype.Files.Add(newFile);
-                                }
-                                // Edit file properties: updating the existed files with modified data
-                                else
-                                {
-                                    DatabaseFilePrototype? existingFile;
-                                    if (fileDict.TryGetValue(file.Id, out existingFile))
-                                    {
-                                        existingFile.Name = file.Name;
-                                        existingFile.InitialSize = (int)file.SizeInMb;
-                                        existingFile.Autogrowth = GetAutogrowth(prototype, file);
+                                        existingFileGroup.IsReadOnly = fg.IsReadOnly;
+                                        existingFileGroup.IsDefault = fg.IsDefault;
+                                        if (fg.Type != FileGroupType.FileStreamDataFileGroup)
+                                        {
+                                            existingFileGroup.IsAutogrowAllFiles = fg.AutogrowAllFiles;
+                                        }
                                     }
                                     // Once updated, remove it from the dictionary
-                                    fileDict.Remove(file.Id);
+                                    groupNameDict.Remove(fg.Name);
                                 }
                             }
-
-                            // Remove the file
-                            foreach (KeyValuePair<int,DatabaseFilePrototype> removedfile in fileDict)
-                            {
-                                removedfile.Value.Removed = true;
-                            }
                         }
 
-                        if (!viewParams.IsNewObject && database.Filegroups != null)
+                        // Remove the filegroups
+                        foreach (KeyValuePair<string, FilegroupPrototype> removedFilegroups in groupNameDict)
                         {
-                            Dictionary<string, FilegroupPrototype> groupNameDict = new Dictionary<string, FilegroupPrototype>();
-                            foreach (FilegroupPrototype fileGroup in prototype.Filegroups)
-                            {
-                                groupNameDict[fileGroup.Name] = fileGroup;
-                            }
-                            // process row data filegroups
-                            foreach (FileGroupSummary fg in database.Filegroups)
-                            {
-                                if (fg.Id < 0)
-                                {
-                                    FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
-                                    newfileGroup.FileGroupType = fg.Type;
-                                    newfileGroup.Name = fg.Name;
-                                    newfileGroup.IsReadOnly = fg.IsReadOnly;
-                                    newfileGroup.IsDefault = fg.IsDefault;
-                                    newfileGroup.IsAutogrowAllFiles = fg.IsDefault;
-                                    prototype.Filegroups.Add(newfileGroup);
-                                }
-                                else
-                                {
-                                    FilegroupPrototype? existingFileGroup;
-                                    if (groupNameDict.TryGetValue(fg.Name, out existingFileGroup))
-                                    {
-                                        if (fg.Type != FileGroupType.MemoryOptimizedDataFileGroup)
-                                        {
-                                            existingFileGroup.IsReadOnly = fg.IsReadOnly;
-                                            existingFileGroup.IsDefault = fg.IsDefault;
-                                            if (fg.Type != FileGroupType.FileStreamDataFileGroup)
-                                            {
-                                                existingFileGroup.IsAutogrowAllFiles = fg.AutogrowAllFiles;
-                                            }
-                                        }
-                                        // Once updated, remove it from the dictionary
-                                        groupNameDict.Remove(fg.Name);
-                                    }
-                                }
-                            }
-
-                            // Remove the filegroups
-                            foreach (KeyValuePair<string, FilegroupPrototype> removedFilegroups in groupNameDict)
-                            {
-                                removedFilegroups.Value.Removed = true;
-                            }
+                            removedFilegroups.Value.Removed = true;
                         }
-
-                        // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
-                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
-                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
-                        prototype.AutoShrink = database.AutoShrink;
-                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        if (database.RestrictAccess != null)
-                        {
-                            prototype.RestrictAccess = database.RestrictAccess;
-                        }
-
-                        if (prototype is DatabasePrototypeAzure dbAz)
-                        {
-                            // Set edition first since the prototype will fill all the Azure fields with default values
-                            if (database.AzureEdition != null)
-                            {
-                                dbAz.AzureEditionDisplay = database.AzureEdition;
-                            }
-                            if (database.AzureBackupRedundancyLevel != null)
-                            {
-                                dbAz.BackupStorageRedundancy = database.AzureBackupRedundancyLevel;
-                            }
-                            if (database.AzureServiceLevelObjective != null)
-                            {
-                                dbAz.CurrentServiceLevelObjective = database.AzureServiceLevelObjective;
-                            }
-                            if (database.AzureMaxSize != null)
-                            {
-                                dbAz.MaxSize = database.AzureMaxSize;
-                            }
-                        }
-
-                        string sqlScript = string.Empty;
-                        using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
-                        using (var executionHandler = new ExecutionHandler(actions))
-                        {
-                            executionHandler.RunNow(runType, this);
-                            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
-                            {
-                                throw executionHandler.ExecutionFailureException;
-                            }
-
-                            if (runType == RunType.ScriptToWindow)
-                            {
-                                sqlScript = executionHandler.ScriptTextFromLastRun;
-                            }
-                        }
-
-                        return sqlScript;
                     }
-                }
-                finally
-                {
-                    dataContainer.ServerConnection.Disconnect();
+
+                    // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
+                    prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
+                    prototype.AutoCreateStatistics = database.AutoCreateStatistics;
+                    prototype.AutoShrink = database.AutoShrink;
+                    prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
+                    if (database.RestrictAccess != null)
+                    {
+                        prototype.RestrictAccess = database.RestrictAccess;
+                    }
+
+                    if (prototype is DatabasePrototypeAzure dbAz)
+                    {
+                        // Set edition first since the prototype will fill all the Azure fields with default values
+                        if (database.AzureEdition != null)
+                        {
+                            dbAz.AzureEditionDisplay = database.AzureEdition;
+                        }
+                        if (database.AzureBackupRedundancyLevel != null)
+                        {
+                            dbAz.BackupStorageRedundancy = database.AzureBackupRedundancyLevel;
+                        }
+                        if (database.AzureServiceLevelObjective != null)
+                        {
+                            dbAz.CurrentServiceLevelObjective = database.AzureServiceLevelObjective;
+                        }
+                        if (database.AzureMaxSize != null)
+                        {
+                            dbAz.MaxSize = database.AzureMaxSize;
+                        }
+                    }
+
+                    string sqlScript = string.Empty;
+                    using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
+                    using (var executionHandler = new ExecutionHandler(actions))
+                    {
+                        executionHandler.RunNow(runType, this);
+                        if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                        {
+                            throw executionHandler.ExecutionFailureException;
+                        }
+
+                        if (runType == RunType.ScriptToWindow)
+                        {
+                            sqlScript = executionHandler.ScriptTextFromLastRun;
+                        }
+                    }
+
+                    return sqlScript;
                 }
             }
         }
