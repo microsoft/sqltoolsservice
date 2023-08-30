@@ -181,6 +181,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
+
+            var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
+            var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
+            mockGetServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerContextualizationResult>()))
+                .Callback<GetServerContextualizationResult>(actual => actualGetServerContextualizationResponse = actual)
+                .Returns(Task.CompletedTask);
+
+            var getServerContextualizationParams = new GetServerContextualizationParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+
+            Assert.IsFalse(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsFalse(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+
             var generateServerContextualizationParams = new GenerateServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
@@ -195,20 +213,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
-
-            var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
-            var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
-            mockGetServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerContextualizationResult>()))
-                .Callback<GetServerContextualizationResult>(actual => actualGetServerContextualizationResponse = actual)
-                .Returns(Task.CompletedTask);
-
-            var getServerContextualizationParams = new GetServerContextualizationParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            };
 
             await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
 
