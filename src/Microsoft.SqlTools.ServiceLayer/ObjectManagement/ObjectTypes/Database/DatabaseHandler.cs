@@ -149,6 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
+
                 using (var taskHelper = new DatabaseTaskHelper(dataContainer))
                 {
                     var prototype = taskHelper.Prototype;
@@ -211,6 +212,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                    // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                 }
 
                                 if (prototype is DatabasePrototype160)
@@ -219,6 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 }
                             }
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
+                            databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
+
+                            // Get file groups names
+                            GetFileGroupNames(smoDatabase, databaseViewInfo);
                         }
                         databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                         databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -271,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             var smoDatabase = dataContainer.SqlDialogSubject as Database;
                             if (smoDatabase != null)
                             {
-                                databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).Files = GetDatabaseFiles(smoDatabase);
                             }
                         }
                     }
@@ -439,7 +446,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
                     }
-                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
@@ -576,6 +582,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     DatabasePrototype prototype = taskHelper.Prototype;
                     prototype.Name = database.Name;
+
                     // Update database file names now that we have a database name
                     if (viewParams.IsNewObject && !prototype.HideFileSettings)
                     {
@@ -599,7 +606,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                     }
 
-                    if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
+                    if (database.Owner != null && database.Owner != SR.general_default)
                     {
                         prototype.Owner = database.Owner;
                     }
@@ -673,110 +680,61 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                             db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
                         }
+                    }
 
-                        if (!viewParams.IsNewObject && database.Files != null)
+                    if (!viewParams.IsNewObject && database.Files != null)
+                    {
+                        HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
+                        foreach (var file in database.Files)
                         {
-                            HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
-                            foreach (var file in database.Files)
+                            // Add a New file
+                            if (file.Id == 0)
                             {
-                                // Add a New file
-                                if (file.Id == 0)
+                                DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
+                                newFile.Name = file.Name;
+                                newFile.InitialSize = (int)file.SizeInMb;
+                                newFile.PhysicalName = file.FileNameWithExtension;
+                                newFile.DatabaseFileType = fileTypesEnums[file.Type];
+                                newFile.Exists = false;
+                                newFile.Autogrowth = GetAutogrowth(prototype, file);
+                                if (!string.IsNullOrEmpty(file.Path.Trim()))
                                 {
-                                    DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
-                                    newFile.Name = file.Name;
-                                    newFile.InitialSize = (int)file.SizeInMb;
-                                    newFile.PhysicalName = file.FileNameWithExtension;
-                                    newFile.DatabaseFileType = fileTypesEnums[file.Type];
-                                    newFile.Exists = false;
-                                    newFile.Autogrowth = GetAutogrowth(prototype, file); 
-                                    if (!string.IsNullOrEmpty(file.Path.Trim()))
-                                    {
-                                        newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
-                                    }
-
-                                    // Log file do not support file groups
-                                    if (fileTypesEnums[file.Type] != FileType.Log)
-                                    {
-                                        FilegroupPrototype fileGroup = new FilegroupPrototype(prototype);
-                                        fileGroup.Name = file.FileGroup;
-                                        newFile.FileGroup = fileGroup;
-                                    }
-
-                                    // Add newFile to the prototype files
-                                    prototype.Files.Add(newFile);
+                                    newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
                                 }
-                                // Edit file properties: updating the existed files with modified data
-                                else
+
+                                // Log file do not support file groups
+                                if (fileTypesEnums[file.Type] != FileType.Log)
                                 {
-                                    var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
-                                    if (existedFile != null)
-                                    {
-                                        fileIdsToRemove.Remove(file.Id);
-                                        existedFile.Name = file.Name;
-                                        existedFile.InitialSize = (int)file.SizeInMb;
-                                        existedFile.Autogrowth = GetAutogrowth(prototype, file);
-                                    }
+                                    FilegroupPrototype fileGroup = new FilegroupPrototype(prototype);
+                                    fileGroup.Name = file.FileGroup;
+                                    newFile.FileGroup = fileGroup;
                                 }
+
+                                // Add newFile to the prototype files
+                                prototype.Files.Add(newFile);
                             }
-
-                            // Remove the file
-                            foreach (var currentFile in prototype.Files)
+                            // Edit file properties: updating the existed files with modified data
+                            else
                             {
-                                if (fileIdsToRemove.Contains(currentFile.ID))
+                                var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
+                                if (existedFile != null)
                                 {
-                                    currentFile.Removed = true;
+                                    fileIdsToRemove.Remove(file.Id);
+                                    existedFile.Name = file.Name;
+                                    existedFile.InitialSize = (int)file.SizeInMb;
+                                    existedFile.Autogrowth = GetAutogrowth(prototype, file);
                                 }
                             }
                         }
 
-                        // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
-                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
-                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
-                        prototype.AutoShrink = database.AutoShrink;
-                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        if (database.RestrictAccess != null)
+                        // Remove the file
+                        foreach (var currentFile in prototype.Files)
                         {
-                            prototype.RestrictAccess = database.RestrictAccess;
-                        }
-
-                        if (prototype is DatabasePrototypeAzure dbAz)
-                        {
-                            // Set edition first since the prototype will fill all the Azure fields with default values
-                            if (database.AzureEdition != null)
+                            if (fileIdsToRemove.Contains(currentFile.ID))
                             {
-                                dbAz.AzureEditionDisplay = database.AzureEdition;
-                            }
-                            if (database.AzureBackupRedundancyLevel != null)
-                            {
-                                dbAz.BackupStorageRedundancy = database.AzureBackupRedundancyLevel;
-                            }
-                            if (database.AzureServiceLevelObjective != null)
-                            {
-                                dbAz.CurrentServiceLevelObjective = database.AzureServiceLevelObjective;
-                            }
-                            if (database.AzureMaxSize != null)
-                            {
-                                dbAz.MaxSize = database.AzureMaxSize;
+                                currentFile.Removed = true;
                             }
                         }
-
-                        string sqlScript = string.Empty;
-                        using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
-                        using (var executionHandler = new ExecutionHandler(actions))
-                        {
-                            executionHandler.RunNow(runType, this);
-                            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
-                            {
-                                throw executionHandler.ExecutionFailureException;
-                            }
-
-                            if (runType == RunType.ScriptToWindow)
-                            {
-                                sqlScript = executionHandler.ScriptTextFromLastRun;
-                            }
-                        }
-
-                        return sqlScript;
                     }
 
                     // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
