@@ -1004,35 +1004,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return filesList.ToArray();
         }
 
-
         /// <summary>
-        /// Get the file group names from the database fileGroup
+        /// Preparing the filegroups of various FileGroupTypes
         /// </summary>
-        /// <param name="database">smo database prototype</param>
-        /// <param name="databaseViewInfo">database view info object</param>
-        private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
+        /// <param name="database"></param>
+        /// <param name="databaseViewInfo"></param>
+        private FileGroupSummary[] GetFileGroups(Database database, DatabaseViewInfo databaseViewInfo)
         {
-            var rowDataGroups = new List<string>();
-            var fileStreamDataGroups = new List<string>();
-            foreach (FileGroup fileGroup in database.FileGroups)
+            var filegroups = new List<FileGroupSummary>();
+            foreach (FileGroup filegroup in database.FileGroups)
             {
-                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup || fileGroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
+                filegroups.Add(new FileGroupSummary()
                 {
-                    fileStreamDataGroups.Add(fileGroup.Name);
-                }
-                else
-                {
-                    rowDataGroups.Add(fileGroup.Name);
-                }
+                    Id = filegroup.ID,
+                    Name = filegroup.Name,
+                    Type = filegroup.FileGroupType,
+                    IsReadOnly = filegroup.ReadOnly,
+                    IsDefault = filegroup.IsDefault
+                });
             }
-
-            // If no fileStream groups available
-            if (fileStreamDataGroups.Count == 0)
-            {
-                fileStreamDataGroups.Add(SR.prototype_file_noApplicableFileGroup);
-            }
-            databaseViewInfo.RowDataFileGroupsOptions = rowDataGroups.ToArray();
-            databaseViewInfo.FileStreamFileGroupsOptions = fileStreamDataGroups.ToArray();
+            return filegroups.ToArray();
         }
 
         /// <summary>

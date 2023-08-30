@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
         public bool? IsFilesTabSupported { get; set; }
         public DatabaseFile[] Files { get; set; }
+        public FileGroupSummary[]? Filegroups { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -67,6 +68,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public double AutoFileGrowth { get; set; }
         public FileGrowthType AutoFileGrowthType { get; set; }
         public double MaxSizeLimitInMb { get; set; }
+    }
+
+    public class FileGroupSummary
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public FileGroupType Type { get; set; }
+        public bool IsReadOnly { get; set; }
+        public bool IsDefault { get; set; }
+        public bool AutogrowAllFiles { get; set; }
     }
 
 }
