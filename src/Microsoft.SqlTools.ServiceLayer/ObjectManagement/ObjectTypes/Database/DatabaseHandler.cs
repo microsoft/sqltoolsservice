@@ -331,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Detach(DetachDatabaseRequestParams detachParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, detachParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -358,7 +358,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             {
                                 // Clear any other connections in the same pool to prevent Detach from hanging
                                 // due to the database still being in use
-                                SqlConnection.ClearPool(dataContainer.ServerConnection.SqlConnectionObject);
+                                var sqlConn = dataContainer.ServerConnection.SqlConnectionObject;
+                                SqlConnection.ClearPool(sqlConn);
                             }
                             smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
                         }
@@ -464,7 +465,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, null))
+            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, dropParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -493,7 +494,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             // Clear any other connections in the same pool to prevent Drop from hanging
                             // due to the database still being in use
-                            SqlConnection.ClearPool(dataContainer.ServerConnection.SqlConnectionObject);
+                            var sqlConn = dataContainer.ServerConnection.SqlConnectionObject;
+                            SqlConnection.ClearPool(sqlConn);
                         }
                         if (dropParams.DeleteBackupHistory)
                         {
