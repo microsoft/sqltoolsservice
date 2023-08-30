@@ -582,7 +582,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-
                 using (var taskHelper = new DatabaseTaskHelper(dataContainer))
                 {
                     DatabasePrototype prototype = taskHelper.Prototype;
@@ -689,8 +688,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                     if (!viewParams.IsNewObject && database.Files != null)
                     {
-                        HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
-                        foreach (var file in database.Files)
+                        Dictionary<int, DatabaseFilePrototype> fileDict = new Dictionary<int, DatabaseFilePrototype>();
+                        foreach (DatabaseFilePrototype file in prototype.Files)
+                        {
+                            fileDict[file.ID] = file;
+                        }
+                        foreach (DatabaseFile file in database.Files)
                         {
                             // Add a New file
                             if (file.Id == 0)
@@ -721,24 +724,69 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             // Edit file properties: updating the existed files with modified data
                             else
                             {
-                                var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
-                                if (existedFile != null)
+                                DatabaseFilePrototype? existingFile;
+                                if (fileDict.TryGetValue(file.Id, out existingFile))
                                 {
-                                    fileIdsToRemove.Remove(file.Id);
-                                    existedFile.Name = file.Name;
-                                    existedFile.InitialSize = (int)file.SizeInMb;
-                                    existedFile.Autogrowth = GetAutogrowth(prototype, file);
+                                    existingFile.Name = file.Name;
+                                    existingFile.InitialSize = (int)file.SizeInMb;
+                                    existingFile.Autogrowth = GetAutogrowth(prototype, file);
                                 }
+                                // Once updated, remove it from the dictionary
+                                fileDict.Remove(file.Id);
                             }
                         }
 
                         // Remove the file
-                        foreach (var currentFile in prototype.Files)
+                        foreach (KeyValuePair<int, DatabaseFilePrototype> removedfile in fileDict)
                         {
-                            if (fileIdsToRemove.Contains(currentFile.ID))
+                            removedfile.Value.Removed = true;
+                        }
+                    }
+
+                    if (!viewParams.IsNewObject && database.Filegroups != null)
+                    {
+                        Dictionary<string, FilegroupPrototype> groupNameDict = new Dictionary<string, FilegroupPrototype>();
+                        foreach (FilegroupPrototype fileGroup in prototype.Filegroups)
+                        {
+                            groupNameDict[fileGroup.Name] = fileGroup;
+                        }
+                        // process row data filegroups
+                        foreach (FileGroupSummary fg in database.Filegroups)
+                        {
+                            if (fg.Id < 0)
                             {
-                                currentFile.Removed = true;
+                                FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
+                                newfileGroup.FileGroupType = fg.Type;
+                                newfileGroup.Name = fg.Name;
+                                newfileGroup.IsReadOnly = fg.IsReadOnly;
+                                newfileGroup.IsDefault = fg.IsDefault;
+                                newfileGroup.IsAutogrowAllFiles = fg.IsDefault;
+                                prototype.Filegroups.Add(newfileGroup);
                             }
+                            else
+                            {
+                                FilegroupPrototype? existingFileGroup;
+                                if (groupNameDict.TryGetValue(fg.Name, out existingFileGroup))
+                                {
+                                    if (fg.Type != FileGroupType.MemoryOptimizedDataFileGroup)
+                                    {
+                                        existingFileGroup.IsReadOnly = fg.IsReadOnly;
+                                        existingFileGroup.IsDefault = fg.IsDefault;
+                                        if (fg.Type != FileGroupType.FileStreamDataFileGroup)
+                                        {
+                                            existingFileGroup.IsAutogrowAllFiles = fg.AutogrowAllFiles;
+                                        }
+                                    }
+                                    // Once updated, remove it from the dictionary
+                                    groupNameDict.Remove(fg.Name);
+                                }
+                            }
+                        }
+
+                        // Remove the filegroups
+                        foreach (KeyValuePair<string, FilegroupPrototype> removedFilegroups in groupNameDict)
+                        {
+                            removedFilegroups.Value.Removed = true;
                         }
                     }
 
