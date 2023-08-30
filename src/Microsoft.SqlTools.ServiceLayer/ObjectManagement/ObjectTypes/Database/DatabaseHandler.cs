@@ -216,6 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
                                         // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
                                     }
 
                                     if (prototype is DatabasePrototype160)
@@ -225,9 +226,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 }
                                 databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                                 databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
-
-                                // Get file groups names
-                                GetFileGroupNames(smoDatabase, databaseViewInfo);
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -700,8 +698,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                         if (!viewParams.IsNewObject && database.Files != null)
                         {
-                            HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
-                            foreach (var file in database.Files)
+                            Dictionary<int, DatabaseFilePrototype> fileDict = new Dictionary<int, DatabaseFilePrototype>();
+                            foreach (DatabaseFilePrototype file in prototype.Files)
+                            {
+                                fileDict[file.ID] = file;
+                            }
+                            foreach (DatabaseFile file in database.Files)
                             {
                                 // Add a New file
                                 if (file.Id == 0)
@@ -712,7 +714,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     newFile.PhysicalName = file.FileNameWithExtension;
                                     newFile.DatabaseFileType = fileTypesEnums[file.Type];
                                     newFile.Exists = false;
-                                    newFile.Autogrowth = GetAutogrowth(prototype, file); 
+                                    newFile.Autogrowth = GetAutogrowth(prototype, file);
                                     if (!string.IsNullOrEmpty(file.Path.Trim()))
                                     {
                                         newFile.Folder = Utility.DatabaseUtils.ConvertToLocalMachinePath(Path.GetFullPath(file.Path));
@@ -732,24 +734,69 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 // Edit file properties: updating the existed files with modified data
                                 else
                                 {
-                                    var existedFile = prototype.Files.FirstOrDefault(x => x.ID == file.Id);
-                                    if (existedFile != null)
+                                    DatabaseFilePrototype? existingFile;
+                                    if (fileDict.TryGetValue(file.Id, out existingFile))
                                     {
-                                        fileIdsToRemove.Remove(file.Id);
-                                        existedFile.Name = file.Name;
-                                        existedFile.InitialSize = (int)file.SizeInMb;
-                                        existedFile.Autogrowth = GetAutogrowth(prototype, file);
+                                        existingFile.Name = file.Name;
+                                        existingFile.InitialSize = (int)file.SizeInMb;
+                                        existingFile.Autogrowth = GetAutogrowth(prototype, file);
                                     }
+                                    // Once updated, remove it from the dictionary
+                                    fileDict.Remove(file.Id);
                                 }
                             }
 
                             // Remove the file
-                            foreach (var currentFile in prototype.Files)
+                            foreach (KeyValuePair<int,DatabaseFilePrototype> removedfile in fileDict)
                             {
-                                if (fileIdsToRemove.Contains(currentFile.ID))
+                                removedfile.Value.Removed = true;
+                            }
+                        }
+
+                        if (!viewParams.IsNewObject && database.Filegroups != null)
+                        {
+                            Dictionary<string, FilegroupPrototype> groupNameDict = new Dictionary<string, FilegroupPrototype>();
+                            foreach (FilegroupPrototype fileGroup in prototype.Filegroups)
+                            {
+                                groupNameDict[fileGroup.Name] = fileGroup;
+                            }
+                            // process row data filegroups
+                            foreach (FileGroupSummary fg in database.Filegroups)
+                            {
+                                if (fg.Id < 0)
                                 {
-                                    currentFile.Removed = true;
+                                    FilegroupPrototype newfileGroup = new FilegroupPrototype(prototype);
+                                    newfileGroup.FileGroupType = fg.Type;
+                                    newfileGroup.Name = fg.Name;
+                                    newfileGroup.IsReadOnly = fg.IsReadOnly;
+                                    newfileGroup.IsDefault = fg.IsDefault;
+                                    newfileGroup.IsAutogrowAllFiles = fg.IsDefault;
+                                    prototype.Filegroups.Add(newfileGroup);
                                 }
+                                else
+                                {
+                                    FilegroupPrototype? existingFileGroup;
+                                    if (groupNameDict.TryGetValue(fg.Name, out existingFileGroup))
+                                    {
+                                        if (fg.Type != FileGroupType.MemoryOptimizedDataFileGroup)
+                                        {
+                                            existingFileGroup.IsReadOnly = fg.IsReadOnly;
+                                            existingFileGroup.IsDefault = fg.IsDefault;
+                                            if (fg.Type != FileGroupType.FileStreamDataFileGroup)
+                                            {
+                                                existingFileGroup.IsAutogrowAllFiles = fg.AutogrowAllFiles;
+                                            }
+                                        }
+                                        // Once updated, remove it from the dictionary
+                                        groupNameDict.Remove(fg.Name);
+                                    }
+                                }
+                            }
+
+                            // Remove the filegroups
+                            foreach (KeyValuePair<string, FilegroupPrototype> removedFilegroups in groupNameDict)
+                            {
+                                removedFilegroups.Value.Removed = true;
                             }
                         }
 
@@ -1018,35 +1065,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return filesList.ToArray();
         }
 
-
         /// <summary>
-        /// Get the file group names from the database fileGroup
+        /// Preparing the filegroups of various FileGroupTypes
         /// </summary>
-        /// <param name="database">smo database prototype</param>
-        /// <param name="databaseViewInfo">database view info object</param>
-        private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
+        /// <param name="database"></param>
+        /// <param name="databaseViewInfo"></param>
+        private FileGroupSummary[] GetFileGroups(Database database, DatabaseViewInfo databaseViewInfo)
         {
-            var rowDataGroups = new List<string>();
-            var fileStreamDataGroups = new List<string>();
-            foreach (FileGroup fileGroup in database.FileGroups)
+            var filegroups = new List<FileGroupSummary>();
+            foreach (FileGroup filegroup in database.FileGroups)
             {
-                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup || fileGroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
+                filegroups.Add(new FileGroupSummary()
                 {
-                    fileStreamDataGroups.Add(fileGroup.Name);
-                }
-                else
-                {
-                    rowDataGroups.Add(fileGroup.Name);
-                }
+                    Id = filegroup.ID,
+                    Name = filegroup.Name,
+                    Type = filegroup.FileGroupType,
+                    IsReadOnly = filegroup.ReadOnly,
+                    IsDefault = filegroup.IsDefault
+                });
             }
-
-            // If no fileStream groups available
-            if (fileStreamDataGroups.Count == 0)
-            {
-                fileStreamDataGroups.Add(SR.prototype_file_noApplicableFileGroup);
-            }
-            databaseViewInfo.RowDataFileGroupsOptions = rowDataGroups.ToArray();
-            databaseViewInfo.FileStreamFileGroupsOptions = fileStreamDataGroups.ToArray();
+            return filegroups.ToArray();
         }
 
         /// <summary>
