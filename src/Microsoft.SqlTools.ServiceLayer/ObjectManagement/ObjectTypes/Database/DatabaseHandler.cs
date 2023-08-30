@@ -23,6 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
 using System.Collections.Concurrent;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -353,6 +354,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                                 smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                             }
+                            else
+                            {
+                                // Clear any other connections in the same pool to prevent Detach from hanging
+                                // due to the database still being in use
+                                SqlConnection.ClearPool(dataContainer.ServerConnection.SqlConnectionObject);
+                            }
                             smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
                         }
                         catch (SmoException)
@@ -482,6 +489,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                             smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
+                        else
+                        {
+                            // Clear any other connections in the same pool to prevent Drop from hanging
+                            // due to the database still being in use
+                            SqlConnection.ClearPool(dataContainer.ServerConnection.SqlConnectionObject);
+                        }
                         if (dropParams.DeleteBackupHistory)
                         {
                             server.DeleteBackupHistory(smoDatabase.Name);
@@ -532,13 +545,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
-            var originalPooling = connectionInfo.ConnectionDetails.Pooling;
             try
             {
-                // We disable pooling for these database operations so that we don't
-                // have lingering connections in the backend that would cause operations
-                // like DROP or DETACH DATABASE to hang because the database is still in use.
-                connectionInfo.ConnectionDetails.Pooling = false;
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
@@ -558,7 +566,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             finally
             {
                 connectionInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
-                connectionInfo.ConnectionDetails.Pooling = originalPooling;
             }
         }
 
