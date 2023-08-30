@@ -217,27 +217,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
-
-            if (connectionInfo != null)
+            // When the filed context is too old don't read it
+            if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
             {
-                try
+                await requestContext.SendResult(new GetServerContextualizationResult
                 {
-                    var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
-                    await requestContext.SendResult(new GetServerContextualizationResult
-                    {
-                        Context = string.Join('\n', scripts)
-                    });
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to read scripts from the script cache");
-                    await requestContext.SendError(ex);
-                }
+                    Context = null
+                });
             }
             else
             {
-                Logger.Error("Failed to find connection info about the server.");
-                await requestContext.SendError("Failed to find connection info about the server.");
+                if (connectionInfo != null)
+                {
+                    try
+                    {
+                        var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
+                        await requestContext.SendResult(new GetServerContextualizationResult
+                        {
+                            Context = string.Join('\n', scripts)
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Failed to read scripts from the script cache");
+                        await requestContext.SendError(ex);
+                    }
+                }
+                else
+                {
+                    Logger.Error("Failed to find connection info about the server.");
+                    await requestContext.SendError("Failed to find connection info about the server.");
+                }
             }
         }
 

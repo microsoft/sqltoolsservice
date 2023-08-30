@@ -196,8 +196,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             };
             await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
 
-            Assert.IsFalse(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
-            Assert.IsFalse(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+            Assert.IsNull(actualGetServerContextualizationResponse.Context);
+            Assert.IsNull(actualGetServerContextualizationResponse.Context);
 
             var generateServerContextualizationParams = new GenerateServerContextualizationParams
             {
