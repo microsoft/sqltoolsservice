@@ -43,8 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly ConcurrentDictionary<FileType, string> displayFileTypes = new ConcurrentDictionary<FileType, string>();
         private static readonly ConcurrentDictionary<QueryStoreOperationMode, string> displayOperationModeOptions = new ConcurrentDictionary<QueryStoreOperationMode, string>();
         private static readonly ConcurrentDictionary<QueryStoreCaptureMode, string> displayQueryStoreCaptureModeOptions = new ConcurrentDictionary<QueryStoreCaptureMode, string>();
-        private static readonly ConcurrentDictionary<int, string> displayStatisticsCollectionIntervalInMinutes = new ConcurrentDictionary<int, string>();
-        private static readonly ConcurrentDictionary<int, string> displayQueryStoreStaleThresholdInHours = new ConcurrentDictionary<int, string>();
+        private static readonly SortedDictionary<int, string> displayStatisticsCollectionIntervalInMinutes = new SortedDictionary<int, string>();
+        private static readonly SortedDictionary<int, string> displayQueryStoreStaleThresholdInHours = new SortedDictionary<int, string>();
+        private static readonly ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string> displaySizeBasedCleanupMode = new ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -116,6 +117,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayQueryStoreStaleThresholdInHours.TryAdd(24, CommonConstants.QueryStore_stale_threshold_OneDay);
             displayQueryStoreStaleThresholdInHours.TryAdd(72, CommonConstants.QueryStore_stale_threshold_ThreeDays);
             displayQueryStoreStaleThresholdInHours.TryAdd(168, CommonConstants.QueryStore_stale_threshold_SevenDays);
+
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, CommonConstants.QueryStoreSizeBasedCleanupMode_Off);
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, CommonConstants.QueryStoreSizeBasedCleanupMode_Auto);
 
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
@@ -223,23 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null,
-                                    QueryStoreOptions = new QueryStoreOptions()
-                                    {
-                                        ActualMode = displayOperationModeOptions[smoDatabase.QueryStoreOptions.ActualState],
-                                        DataFlushIntervalInMinutes = smoDatabase.QueryStoreOptions.DataFlushIntervalInSeconds / 60,
-                                        StatisticsCollectionInterval = displayStatisticsCollectionIntervalInMinutes[(int)smoDatabase.QueryStoreOptions.StatisticsCollectionIntervalInMinutes],
-                                        MaxPlansPerQuery = smoDatabase.QueryStoreOptions.MaxPlansPerQuery,
-                                        MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
-                                        QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
-                                        SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
-                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays,
-                                        WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode == QueryStoreWaitStatsCaptureMode.On,
-                                        CapturePolicyExecutionCount = smoDatabase.QueryStoreOptions.CapturePolicyExecutionCount,
-                                        CapturePolicyStaleThreshold = displayQueryStoreStaleThresholdInHours[(int)smoDatabase.QueryStoreOptions.CapturePolicyStaleThresholdInHrs],
-                                        CapturePolicyTotalCompileCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS,
-                                        CapturePolicyTotalExecutionCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS
-                                    }
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
                                 };
 
                                 if (!isAzureDB)
@@ -248,6 +236,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
+                                    if (prototype is DatabasePrototype130)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions = new QueryStoreOptions()
+                                        {
+                                            ActualMode = displayOperationModeOptions[smoDatabase.QueryStoreOptions.ActualState],
+                                            DataFlushIntervalInMinutes = smoDatabase.QueryStoreOptions.DataFlushIntervalInSeconds / 60,
+                                            StatisticsCollectionInterval = displayStatisticsCollectionIntervalInMinutes[(int)smoDatabase.QueryStoreOptions.StatisticsCollectionIntervalInMinutes],
+                                            MaxPlansPerQuery = smoDatabase.QueryStoreOptions.MaxPlansPerQuery,
+                                            MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
+                                            QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
+                                            SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
+                                            StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays
+                                        };
+                                        if (prototype is DatabasePrototype140)
+                                        {
+                                            ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode == QueryStoreWaitStatsCaptureMode.On;
+                                        };
+                                        if (prototype is DatabasePrototype150)
+                                        {
+                                            ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.CapturePolicyOptions = new QueryStoreCapturePolicyOptions()
+                                            {
+                                                CapturePolicyExecutionCount = smoDatabase.QueryStoreOptions.CapturePolicyExecutionCount,
+                                                CapturePolicyStaleThreshold = displayQueryStoreStaleThresholdInHours[(int)smoDatabase.QueryStoreOptions.CapturePolicyStaleThresholdInHrs],
+                                                CapturePolicyTotalCompileCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS,
+                                                CapturePolicyTotalExecutionCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS
+                                            };
+                                        }
+                                    }
                                 }
                                 if (!isManagedInstance)
                                 {
@@ -281,6 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseViewInfo.QueryStoreCaptureModeOptions = displayQueryStoreCaptureModeOptions.Values.ToArray();
                             databaseViewInfo.StatisticsCollectionIntervalOptions = displayStatisticsCollectionIntervalInMinutes.Values.ToArray();
                             databaseViewInfo.StaleThresholdOptions = displayQueryStoreStaleThresholdInHours.Values.ToArray();
+                            databaseViewInfo.SizeBasedCleanupModeOptions = displaySizeBasedCleanupMode.Values.ToArray();
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role
