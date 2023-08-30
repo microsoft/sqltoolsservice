@@ -127,10 +127,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return databaseFiles.ToArray();
         }
 
-        internal static List<FileGroups> GetTestDatabaseFilegroups()
+        internal static List<FileGroupSummary> GetTestDatabaseFilegroups()
         {
-            List<FileGroups> fgs = new List<FileGroups>();
-            fgs.Add(new FileGroups()
+            List<FileGroupSummary> fgs = new List<FileGroupSummary>();
+            fgs.Add(new FileGroupSummary()
             {
                 Id = -1,
                 Name = "rowFilegroup1",
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 AutogrowAllFiles = true,
                 Type = FileGroupType.RowsFileGroup
             });
-            fgs.Add(new FileGroups()
+            fgs.Add(new FileGroupSummary()
             {
                 Id = -2,
                 Name = "memOptFg1",

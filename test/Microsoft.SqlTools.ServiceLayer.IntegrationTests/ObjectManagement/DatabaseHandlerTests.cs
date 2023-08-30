@@ -463,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups?.Length, Is.EqualTo(1), $"Create database should create one default database filegroup");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups[0].Name, Is.EqualTo("PRIMARY"), $"Database default filegroup name should be PRIMARY");
 
-                    List<FileGroups> databaseFilegroup = new List<FileGroups>();
+                    List<FileGroupSummary> databaseFilegroup = new List<FileGroupSummary>();
 
                     // copy exisitng Row data files to the list
                     databaseFilegroup.Add(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups[0]);
@@ -490,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(filegroup.Type, Is.EqualTo(FileGroupType.MemoryOptimizedDataFileGroup), $"Filegroup type should be matched");
 
                     // Deleting newly created file
-                    List<FileGroups> newfilegroups = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.ToList();
+                    List<FileGroupSummary> newfilegroups = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Filegroups.ToList();
                     var fileIndexTobeRemoved = newfilegroups.FindIndex(x => x.Name == databaseFilegroup[1].Name);
                     newfilegroups.RemoveAt(fileIndexTobeRemoved);
                     testDatabaseInfo.Filegroups = newfilegroups.ToArray();

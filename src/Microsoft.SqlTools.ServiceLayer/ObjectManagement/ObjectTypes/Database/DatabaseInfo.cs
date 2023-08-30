@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
         public bool? IsFilesTabSupported { get; set; }
         public DatabaseFile[] Files { get; set; }
-        public FileGroups[]? Filegroups { get; set; }
+        public FileGroupSummary[]? Filegroups { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public double MaxSizeLimitInMb { get; set; }
     }
 
-    public class FileGroups
+    public class FileGroupSummary
     {
         public int Id { get; set; }
         public string Name { get; set; }
