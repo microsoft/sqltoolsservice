@@ -330,7 +330,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Detach(DetachDatabaseRequestParams detachParams)
         {
             var sqlScript = string.Empty;
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
@@ -458,7 +457,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(dropParams.ConnectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, null))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
