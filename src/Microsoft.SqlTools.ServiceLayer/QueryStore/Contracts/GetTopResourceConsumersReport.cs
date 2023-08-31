@@ -10,11 +10,15 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetTopResourceConsumersReportParams : QueryConfigurationParams<TopResourceConsumersConfiguration>, IOrderableQueryParams
+    /// <summary>
+    /// Parameters for getting a Top Resource Consumers report
+    /// </summary>
+    public class GetTopResourceConsumersReportParams : OrderableQueryConfigurationParams<TopResourceConsumersConfiguration>
     {
+        /// <summary>
+        /// Time interval for the report
+        /// </summary>
         public BasicTimeInterval TimeInterval { get; set; }
-        public string OrderByColumnId { get; set; }
-        public bool Descending { get; set; }
 
         public override TopResourceConsumersConfiguration Convert()
         {
@@ -23,12 +27,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
             return result;
         }
-
-        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     /// <summary>
-    /// Gets a Forced Plan Queries summary
+    /// Gets the query for a Top Resource Consumers report
     /// </summary>
     public class GetTopResourceConsumersSummaryRequest
     {
@@ -37,20 +39,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets a Forced Plan Queries detailed summary
+    /// Gets the query for a detailed Top Resource Consumers report
     /// </summary>
     public class GetTopResourceConsumersDetailedSummaryRequest
     {
         public static readonly RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult> Type
             = RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult>.Create("queryStore/getTopResourceConsumersDetailedSummary");
-    }
-
-    /// <summary>
-    /// Gets a Forced Plan Queries detailed summary with wait stats
-    /// </summary>
-    public class GetTopResourceConsumersDetailedSummaryWithWaitStatsRequest
-    {
-        public static readonly RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult> Type
-            = RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult>.Create("queryStore/getTopResourceConsumersDetailedSummaryWithWaitStats");
     }
 }

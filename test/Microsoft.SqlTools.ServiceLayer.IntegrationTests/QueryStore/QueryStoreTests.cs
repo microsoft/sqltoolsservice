@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetForcedPlanQueriesReportRequest));
-            Assert.AreEqual(QueryStoreBaselines.HandleGetForcedPlanQueriesReportRequest, request.Result.Query);
+            Assert.AreEqual(QueryStoreBaselines.HandleGetForcedPlanQueriesReportRequest.ReplaceLineEndings(), request.Result.Query.ReplaceLineEndings());
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetTrackedQueriesReportRequest));
-            Assert.AreEqual(QueryStoreBaselines.HandleGetTrackedQueriesReportRequest, request.Result.Query);
+            Assert.AreEqual(QueryStoreBaselines.HandleGetTrackedQueriesReportRequest.ReplaceLineEndings(), request.Result.Query.ReplaceLineEndings());
         }
 
         [Test]
