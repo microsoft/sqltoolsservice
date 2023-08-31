@@ -437,6 +437,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FailedToGenerateServerContextualizationScripts
+        {
+            get
+            {
+                return Keys.GetString(Keys.FailedToGenerateServerContextualizationScripts);
+            }
+        }
+
         public static string PeekDefinitionNoResultsError
         {
             get
@@ -10862,6 +10870,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ScriptTooLarge, maxChars, currentChars);
         }
 
+        public static string WritingServerContextualizationToCacheError(string message)
+        {
+            return Keys.GetString(Keys.WritingServerContextualizationToCacheError, message);
+        }
+
         public static string SerializationServiceUnsupportedFormat(string formatName)
         {
             return Keys.GetString(Keys.SerializationServiceUnsupportedFormat, formatName);
@@ -11429,6 +11442,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptTooLarge = "ScriptTooLarge";
+
+
+            public const string WritingServerContextualizationToCacheError = "WritingServerContextualizationToCacheError";
+
+
+            public const string FailedToGenerateServerContextualizationScripts = "FailedToGenerateServerContextualizationScripts";
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";
