@@ -308,9 +308,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
-
-                            // Get file groups names
-                            GetFileGroupNames(smoDatabase, databaseViewInfo);
                         }
                         databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                         databaseViewInfo.DscElevateOptions = DscElevateOptions;
