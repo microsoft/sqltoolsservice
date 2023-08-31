@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 });
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(mockConnection.Object);
 
 
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .Returns(() => Task.Run(() => { }));
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.SetupSequence(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.SetupSequence(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(mockConnection.Object)
                 .Returns(mockConnection2.Object);
 
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 });
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(mockConnection.Object);
 
 
@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             connectionMock.Setup(c => c.Database).Returns(expectedDbName);
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(connectionMock.Object);
 
             var connectionService = new ConnectionService(mockFactory.Object);
@@ -345,8 +345,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var dummySqlConnection = new TestSqlConnection(null);
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) =>
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
+            .Returns((string connString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider) =>
             {
                 dummySqlConnection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1020,7 +1020,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             // Setup mock connection factory to inject query results
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(CreateMockDbConnection(new[] { testdata }));
             var connectionService = new ConnectionService(mockFactory.Object);
 
@@ -1498,7 +1498,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
+        public void GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
         {
             // If: I have a connection service and I ask for a connection with an invalid ownerUri
             // Then: An exception should be thrown
@@ -1508,7 +1508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullConnectionType([Values(null, "")] string connType)
+        public void GetOrOpenNullConnectionType([Values(null, "")] string connType)
         {
             // If: I have a connection service and I ask for a connection with an invalid connectionType
             // Then: An exception should be thrown
@@ -1518,7 +1518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNoConnection()
+        public void GetOrOpenNoConnection()
         {
             // If: I have a connection service and I ask for a connection for an unconnected uri
             // Then: An exception should be thrown
@@ -1528,7 +1528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNoDefaultConnection()
+        public void GetOrOpenNoDefaultConnection()
         {
             // Setup: Create a connection service with an empty connection info obj
             var service = TestObjects.GetTestConnectionService();
@@ -1542,7 +1542,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenAdminDefaultConnection()
+        public void GetOrOpenAdminDefaultConnection()
         {
             // Setup: Create a connection service with an empty connection info obj
             var service = TestObjects.GetTestConnectionService();
@@ -1654,8 +1654,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connection = new TestSqlConnection(null);
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) =>
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
+            .Returns((string connString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1704,8 +1704,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connection = mockConnection.Object;
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) =>
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
+            .Returns((string connString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1757,8 +1757,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connection = mockConnection.Object;
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) =>
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
+            .Returns((string connString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1807,9 +1807,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
             Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
             Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
-            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
-            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
-            Assert.That(details.Encrypt, Is.EqualTo("True"), "Unexpected Encrypt value");
+            Assert.That(details.PersistSecurityInfo, Is.Null, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.Null, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.Encrypt, Is.EqualTo("true"), "Unexpected Encrypt value");
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
@@ -1832,8 +1832,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
             Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
             Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
-            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
-            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.PersistSecurityInfo, Is.Null, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.Null, "Unexpected Multiple Active Result Sets value");
             Assert.That(details.Encrypt, Is.EqualTo(SqlConnectionEncryptOption.Strict.ToString()), "Unexpected Encrypt value");
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
@@ -1846,7 +1846,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             // Set up mock connection factory
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(new TestSqlConnection(null));
             var connectionService = new ConnectionService(mockFactory.Object);
 
@@ -1865,7 +1865,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             });
 
             // Validate that the connection factory gets called with details NOT including an account token
-            mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken)), Times.Once());
+            mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken), It.IsAny<SqlRetryLogicBaseProvider>()), Times.Once());
         }
 
         /// <summary>
@@ -1883,7 +1883,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Verify that providing an empty password to change password will fire an error. 
         /// </summary>
         [Test]
-        public async Task ConnectionEmptyPasswordChange()
+        public void ConnectionEmptyPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
@@ -1905,7 +1905,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Verify that providing an invalid connection parameter value to change password will fire an error. 
         /// </summary>
         [Test]
-        public async Task ConnectionInvalidParamPasswordChange()
+        public void ConnectionInvalidParamPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
@@ -1927,7 +1927,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Verify that providing a non actual connection and a fake password to change password will throw an error. 
         /// </summary>
         [Test]
-        public async Task InvalidConnectionPasswordChange()
+        public void InvalidConnectionPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 

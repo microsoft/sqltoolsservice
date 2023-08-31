@@ -10,8 +10,9 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -55,8 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
                 List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
 
-                Logger.Write(
-                    TraceEventType.Verbose,
+                Logger.Verbose(
                     string.Format(
                         "Sending list object completion notification count {0}, objects: {1}",
                         databaseObjects,
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
+                Logger.Information(string.Format("Scripting operation {0} was canceled", this.OperationId));
                 if (e.IsOperationCanceledException())
                 {
                     this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    Logger.Write(TraceEventType.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
+                    Logger.Error(string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
                     this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
                     {
                         OperationId = this.OperationId,

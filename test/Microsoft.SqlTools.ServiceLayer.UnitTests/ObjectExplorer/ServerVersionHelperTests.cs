@@ -5,8 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
@@ -59,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [TestCase("16.1.2.3", SqlServerType.Sql2022)]
         public void CalculateServerTypeShouldReturnExpectedValue(string serverVersion, SqlServerType expectedServerType)
         {
-            ServerInfo serverInfo = new ServerInfo
+            ObjectExplorerServerInfo serverInfo = new ObjectExplorerServerInfo
             {
                 ServerVersion = serverVersion
             };
@@ -128,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private void VerifyCalculateServerTypeForEngineEdition(int engineEdition, SqlServerType expected)
         {
-            ServerInfo serverInfo = new ServerInfo
+            ObjectExplorerServerInfo serverInfo = new ObjectExplorerServerInfo
             {
                 EngineEditionId = engineEdition
             };

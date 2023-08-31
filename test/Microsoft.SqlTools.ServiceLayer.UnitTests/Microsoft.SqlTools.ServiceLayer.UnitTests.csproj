@@ -8,6 +8,7 @@
 		<StartupObject />
 		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
 		<NoWarn>$(NoWarn);CS8795</NoWarn>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Text.Encoding.CodePages" />
@@ -34,6 +35,7 @@
 		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.Core/Microsoft.SqlTools.ResourceProvider.Core.csproj" />
 		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.DefaultImpl/Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
 		<ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+		<ProjectReference Include="../../src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

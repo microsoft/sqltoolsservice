@@ -46,6 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public DateTime lastLogBackupDate;
             public DatabaseUserAccess restrictAccess;
             public DatabaseStatus databaseState;
+            public DatabaseScopedConfigurationCollection databaseScopedConfigurations;
             public DefaultCursor defaultCursor;
             public CompatibilityLevel databaseCompatibilityLevel;
             public ContainmentType databaseContainmentType;
@@ -556,6 +557,11 @@ WHERE do.database_id = @DbID
                     this.isLedger = db.IsLedger;
                 }
 
+                if (db.IsSupportedObject<DatabaseScopedConfiguration>())
+                {
+                    this.databaseScopedConfigurations = db.DatabaseScopedConfigurations;
+                }
+
                 //Only fill in the Azure properties when connected to an Azure server
                 if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                 {
@@ -689,6 +695,7 @@ WHERE do.database_id = @DbID
                 this.maxSize = other.maxSize == null ? null : new DbSize(other.maxSize);
                 this.backupStorageRedundancy = other.backupStorageRedundancy;
                 this.isLedger = other.isLedger;
+                this.databaseScopedConfigurations = other.databaseScopedConfigurations;
             }
 
             /// <summary>
@@ -773,7 +780,8 @@ WHERE do.database_id = @DbID
                     (this.queryStoreEnabled == other.queryStoreEnabled) &&
                     (this.maxSize == other.maxSize) &&
                     (this.backupStorageRedundancy == other.backupStorageRedundancy) &&
-                    (this.isLedger == other.isLedger);
+                    (this.isLedger == other.isLedger) &&
+                    (this.databaseScopedConfigurations == other.databaseScopedConfigurations);
 
                 return result;
             }

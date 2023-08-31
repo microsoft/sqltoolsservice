@@ -79,6 +79,9 @@ namespace Microsoft.SqlTools.Utility
                             case "-enable-sql-authentication-provider":
                                 EnableSqlAuthenticationProvider = true;
                                 break;
+                            case "-enable-connection-pooling":
+                                EnableConnectionPooling = true;
+                                break;
                             case "-parent-pid":
                                 string nextArg = args[++i];
                                 if (Int32.TryParse(nextArg, out int parsedInt))
@@ -178,6 +181,11 @@ namespace Microsoft.SqlTools.Utility
         /// Currently this option is disabled by default, it's planned to be enabled by default in future releases.
         /// </summary>
         public bool EnableSqlAuthenticationProvider { get; private set; } = false;
+
+        /// <summary>
+        /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
+        /// </summary>
+        public bool EnableConnectionPooling { get; private set; } = false;
 
         /// <summary>
         /// The ID of the process that started this service. This is used to check when the parent

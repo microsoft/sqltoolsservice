@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Dmf;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.SqlCore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,13 +38,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public static string AddStringParameterForInsert(string paramValue)
         {
-            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
+            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : StringUtils.EscapeStringSQuote(paramValue);
             return $"'{value}'";
         }
 
         public static string AddStringParameterForUpdate(string columnName, string paramValue)
         {
-            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
+            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : StringUtils.EscapeStringSQuote(paramValue);
             return $"{columnName} = N'{value}'";
         }
 
@@ -111,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                         return false;
                     }
                 }
-                return true;                        
+                return true;
             }
             finally
             {
@@ -345,5 +346,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return new string(nameChars);
         }
         private static readonly HashSet<char> illegalFilenameCharacters = new HashSet<char>(new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' });
+
+
+        /// <summary>
+        /// Converts path to local path with DirectorySeparatorChar
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns>path with local directory separator</returns>
+        public static string ConvertToLocalMachinePath(string filePath)
+        {
+            string pathSeparator = Path.DirectorySeparatorChar.ToString();
+            string localPath = filePath.Replace("/", pathSeparator);
+            localPath = localPath.Replace("\\", pathSeparator);
+            return localPath;
+        }
     }
 }

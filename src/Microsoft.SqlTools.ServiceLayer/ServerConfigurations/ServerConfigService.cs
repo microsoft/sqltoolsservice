@@ -14,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.ServerConfigurations.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
@@ -66,31 +65,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <returns></returns>
         public async Task HandleServerConfigViewRequest(ServerConfigViewRequestParams parameters, RequestContext<ServerConfigViewResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleServerConfigViewRequest");
-            try
+            Logger.Verbose("HandleServerConfigViewRequest");
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            if (connInfo == null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
-                }
-                else
-                {
-                    var serverConnection = ConnectionService.OpenServerConnection(connInfo);
-                    ServerConfigProperty serverConfig = GetConfig(serverConnection, parameters.ConfigNumber);
-                    await requestContext.SendResult(new ServerConfigViewResponseParams
-                    {
-                        ConfigProperty = serverConfig
-                    });
-                }
+                await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
             }
-            catch (Exception e)
+            else
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                var serverConnection = ConnectionService.OpenServerConnection(connInfo);
+                ServerConfigProperty serverConfig = GetConfig(serverConnection, parameters.ConfigNumber);
+                await requestContext.SendResult(new ServerConfigViewResponseParams
+                {
+                    ConfigProperty = serverConfig
+                });
             }
         }
 
@@ -102,33 +93,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <returns></returns>
         public async Task HandleServerConfigUpdateRequest(ServerConfigUpdateRequestParams parameters, RequestContext<ServerConfigUpdateResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleServerConfigUpdateRequest");
-            try
+            Logger.Verbose("HandleServerConfigUpdateRequest");
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            ServerConfigUpdateResponseParams response = new ServerConfigUpdateResponseParams
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                ServerConfigUpdateResponseParams response = new ServerConfigUpdateResponseParams
-                {
-                };
+            };
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
-                }
-                else
-                {
-                    var serverConnection = ConnectionService.OpenServerConnection(connInfo);
-                    UpdateConfig(serverConnection, parameters.ConfigNumber, parameters.ConfigValue);
-                    response.ConfigProperty = GetConfig(serverConnection, parameters.ConfigNumber);
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception e)
+            if (connInfo == null)
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+            }
+            else
+            {
+                var serverConnection = ConnectionService.OpenServerConnection(connInfo);
+                UpdateConfig(serverConnection, parameters.ConfigNumber, parameters.ConfigValue);
+                response.ConfigProperty = GetConfig(serverConnection, parameters.ConfigNumber);
+                await requestContext.SendResult(response);
             }
         }
 
@@ -139,32 +122,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <param name="requestContext">Request Context</param>
         public async Task HandleServerConfigListRequest(ServerConfigListRequestParams parameters, RequestContext<ServerConfigListResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleServerConfigListRequest");
-            try
+            Logger.Verbose("HandleServerConfigListRequest");
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            ServerConfigListResponseParams response = new ServerConfigListResponseParams
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                ServerConfigListResponseParams response = new ServerConfigListResponseParams
-                {
-                };
+            };
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
-                }
-                else
-                {
-                    var serverConnection = ConnectionService.OpenServerConnection(connInfo);
-                    response.ConfigProperties = GetConfigs(serverConnection);
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception e)
+            if (connInfo == null)
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+            }
+            else
+            {
+                var serverConnection = ConnectionService.OpenServerConnection(connInfo);
+                response.ConfigProperties = GetConfigs(serverConnection);
+                await requestContext.SendResult(response);
             }
         }
 

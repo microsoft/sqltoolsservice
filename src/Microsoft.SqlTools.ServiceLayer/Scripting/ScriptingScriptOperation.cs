@@ -8,11 +8,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.SqlCore.Scripting;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -69,8 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                Logger.Write(
-                    TraceEventType.Verbose,
+                Logger.Verbose(
                     string.Format(
                         "Sending script complete notification event for operation {0}, sequence number {1} with total count {2} and scripted count {3}",
                         this.OperationId,
@@ -89,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 if (e.IsOperationCanceledException())
                 {
-                    Logger.Write(TraceEventType.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
+                    Logger.Information(string.Format("Scripting operation {0} was canceled", this.OperationId));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     { 
                         Canceled = true,
@@ -97,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    Logger.Write(TraceEventType.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
+                    Logger.Error(string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     {
                         HasError = true,
@@ -198,8 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             //
             PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
 
-            Logger.Write(
-                TraceEventType.Information,
+            Logger.Information(
                 string.Format(
                     "Scripting object count {0}, objects: {1}",
                     selectedObjects.Count(),
@@ -219,8 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
-            Logger.Write(
-                TraceEventType.Verbose,
+            Logger.Verbose(
                 string.Format(
                     "Sending scripting error progress event, Urn={0}, OperationId={1}, Sequence={2}, Completed={3}, Error={4}",
                     e.Urn,
@@ -250,8 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             List<ScriptingObject> scriptingObjects = e.Urns.Select(urn => urn.ToScriptingObject()).ToList();
             this.totalScriptedObjectCount = scriptingObjects.Count;
 
-            Logger.Write(
-                TraceEventType.Verbose,
+            Logger.Verbose(
                 string.Format(
                     "Sending scripting plan notification event OperationId={0}, Sequence={1}, Count={2}, Objects: {3}",
                     this.OperationId,
@@ -275,8 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.scriptedObjectCount += 1;
             }
 
-            Logger.Write(
-                TraceEventType.Verbose,
+            Logger.Verbose(
                 string.Format(
                     "Sending progress event, Urn={0}, OperationId={1}, Sequence={2}, Status={3}, Error={4}",
                     e.Urn,

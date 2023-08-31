@@ -1,0 +1,1097 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="fr">
+    <body>
+      <trans-unit id="TreeNodeError">
+        <source>Error expanding: {0}</source>
+        <target state="translated">Erreur de développement : {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServerNodeConnectionError">
+        <source>Error connecting to {0}</source>
+        <target state="translated">Erreur de connexion à {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Aggregates">
+        <source>Aggregates</source>
+        <target state="translated">Agrégats</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerRoles">
+        <source>Server Roles</source>
+        <target state="translated">Rôles serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ApplicationRoles">
+        <source>Application Roles</source>
+        <target state="translated">Rôles d'application</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Assemblies">
+        <source>Assemblies</source>
+        <target state="translated">Assemblys</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AssemblyFiles">
+        <source>Assembly Files</source>
+        <target state="translated">Fichiers d'assembly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AsymmetricKeys">
+        <source>Asymmetric Keys</source>
+        <target state="translated">Clés asymétriques</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseAsymmetricKeys">
+        <source>Asymmetric Keys</source>
+        <target state="translated">Clés asymétriques</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DataCompressionOptions">
+        <source>Data Compression Options</source>
+        <target state="translated">Options de compression de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Certificates">
+        <source>Certificates</source>
+        <target state="translated">Certificats</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FileTables">
+        <source>FileTables</source>
+        <target state="translated">FileTables</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseCertificates">
+        <source>Certificates</source>
+        <target state="translated">Certificats</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_CheckConstraints">
+        <source>Check Constraints</source>
+        <target state="translated">Contraintes de validation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Columns">
+        <source>Columns</source>
+        <target state="translated">Colonnes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Constraints">
+        <source>Constraints</source>
+        <target state="translated">Contraintes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Contracts">
+        <source>Contracts</source>
+        <target state="translated">Contrats</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Credentials">
+        <source>Credentials</source>
+        <target state="translated">Informations d'identification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ErrorMessages">
+        <source>Error Messages</source>
+        <target state="translated">Messages d'erreur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerRoleMembership">
+        <source>Server Role Membership</source>
+        <target state="translated">Appartenance au rôle serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseOptions">
+        <source>Database Options</source>
+        <target state="translated">Options de base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseRoles">
+        <source>Database Roles</source>
+        <target state="translated">Rôles de base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_RoleMemberships">
+        <source>Role Memberships</source>
+        <target state="translated">Appartenances au rôle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseTriggers">
+        <source>Database Triggers</source>
+        <target state="translated">Déclencheurs de base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DefaultConstraints">
+        <source>Default Constraints</source>
+        <target state="translated">Contraintes par défaut</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Defaults">
+        <source>Defaults</source>
+        <target state="translated">Valeurs par défaut</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Sequences">
+        <source>Sequences</source>
+        <target state="translated">Séquences</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Endpoints">
+        <source>Endpoints</source>
+        <target state="translated">Points de terminaison</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_EventNotifications">
+        <source>Event Notifications</source>
+        <target state="translated">Notifications d'événements</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerEventNotifications">
+        <source>Server Event Notifications</source>
+        <target state="translated">Notifications d'événements de serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExtendedProperties">
+        <source>Extended Properties</source>
+        <target state="translated">Propriétés étendues</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FileGroups">
+        <source>Filegroups</source>
+        <target state="translated">Groupes de fichiers</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ForeignKeys">
+        <source>Foreign Keys</source>
+        <target state="translated">Clés étrangères</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FullTextCatalogs">
+        <source>Full-Text Catalogs</source>
+        <target state="translated">Catalogues de texte intégral</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FullTextIndexes">
+        <source>Full-Text Indexes</source>
+        <target state="translated">Index de recherche en texte intégral</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Functions">
+        <source>Functions</source>
+        <target state="translated">Fonctions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Indexes">
+        <source>Indexes</source>
+        <target state="translated">Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_InlineFunctions">
+        <source>Inline Functions</source>
+        <target state="translated">Fonctions inline</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Keys">
+        <source>Keys</source>
+        <target state="translated">Clés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_LinkedServers">
+        <source>Linked Servers</source>
+        <target state="translated">Serveurs liés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Logins">
+        <source>Logins</source>
+        <target state="translated">Connexions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MasterKey">
+        <source>Master Key</source>
+        <target state="translated">Clé principale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MasterKeys">
+        <source>Master Keys</source>
+        <target state="translated">Clés principales</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MessageTypes">
+        <source>Message Types</source>
+        <target state="translated">Types de message</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MultiSelectFunctions">
+        <source>Table-Valued Functions</source>
+        <target state="translated">Fonctions table</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Parameters">
+        <source>Parameters</source>
+        <target state="translated">Paramètres</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_PartitionFunctions">
+        <source>Partition Functions</source>
+        <target state="translated">Fonctions de partition</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_PartitionSchemes">
+        <source>Partition Schemes</source>
+        <target state="translated">Schémas de partition</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Permissions">
+        <source>Permissions</source>
+        <target state="translated">Autorisations</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_PrimaryKeys">
+        <source>Primary Keys</source>
+        <target state="translated">Clés primaires</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Programmability">
+        <source>Programmability</source>
+        <target state="translated">Programmabilité</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Queues">
+        <source>Queues</source>
+        <target state="translated">Files d'attente</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_RemoteServiceBindings">
+        <source>Remote Service Bindings</source>
+        <target state="translated">Liaisons de service distant</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ReturnedColumns">
+        <source>Returned Columns</source>
+        <target state="translated">Colonnes retournées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Roles">
+        <source>Roles</source>
+        <target state="translated">Rôles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Routes">
+        <source>Routes</source>
+        <target state="translated">Routes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Rules">
+        <source>Rules</source>
+        <target state="translated">Règles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Schemas">
+        <source>Schemas</source>
+        <target state="translated">Schémas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Security">
+        <source>Security</source>
+        <target state="translated">Sécurité</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerObjects">
+        <source>Server Objects</source>
+        <target state="translated">Objets serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Management">
+        <source>Management</source>
+        <target state="translated">Gestion</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerTriggers">
+        <source>Triggers</source>
+        <target state="translated">Déclencheurs</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServiceBroker">
+        <source>Service Broker</source>
+        <target state="translated">Service Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Services">
+        <source>Services</source>
+        <target state="translated">Services</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Signatures">
+        <source>Signatures</source>
+        <target state="translated">Signatures</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_LogFiles">
+        <source>Log Files</source>
+        <target state="translated">Fichiers journaux</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Statistics">
+        <source>Statistics</source>
+        <target state="translated">Statistiques</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Storage">
+        <source>Storage</source>
+        <target state="translated">Stockage</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_StoredProcedures">
+        <source>Stored Procedures</source>
+        <target state="translated">Procédures stockées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SymmetricKeys">
+        <source>Symmetric Keys</source>
+        <target state="translated">Clés symétriques</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Synonyms">
+        <source>Synonyms</source>
+        <target state="translated">Synonymes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Tables">
+        <source>Tables</source>
+        <target state="translated">Tables</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Triggers">
+        <source>Triggers</source>
+        <target state="translated">Déclencheurs</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Types">
+        <source>Types</source>
+        <target state="translated">Types</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UniqueKeys">
+        <source>Unique Keys</source>
+        <target state="translated">Clés uniques</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserDefinedDataTypes">
+        <source>User-Defined Data Types</source>
+        <target state="translated">Types de données définis par l'utilisateur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserDefinedTypes">
+        <source>User-Defined Types (CLR)</source>
+        <target state="translated">Types définis par l'utilisateur (CLR)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Users">
+        <source>Users</source>
+        <target state="translated">Utilisateurs</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Views">
+        <source>Views</source>
+        <target state="translated">Vues</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XmlIndexes">
+        <source>XML Indexes</source>
+        <target state="translated">Index XML</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XMLSchemaCollections">
+        <source>XML Schema Collections</source>
+        <target state="translated">Collections de schémas XML</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserDefinedTableTypes">
+        <source>User-Defined Table Types</source>
+        <target state="translated">Types de tables définis par l'utilisateur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FilegroupFiles">
+        <source>Files</source>
+        <target state="translated">Fichiers</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MissingCaption">
+        <source>Missing Caption</source>
+        <target state="translated">Légende manquante</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BrokerPriorities">
+        <source>Broker Priorities</source>
+        <target state="translated">Priorités de Service Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_CryptographicProviders">
+        <source>Cryptographic Providers</source>
+        <target state="translated">Fournisseurs de services de chiffrement</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseAuditSpecifications">
+        <source>Database Audit Specifications</source>
+        <target state="translated">Spécifications de l'audit de base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseEncryptionKeys">
+        <source>Database Encryption Keys</source>
+        <target state="translated">Clés de chiffrement de base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_EventSessions">
+        <source>Event Sessions</source>
+        <target state="translated">Sessions d'événements</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FullTextStopLists">
+        <source>Full Text Stoplists</source>
+        <target state="translated">Listes de mots vides en texte intégral</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ResourcePools">
+        <source>Resource Pools</source>
+        <target state="translated">Pools de ressources</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerAudits">
+        <source>Audits</source>
+        <target state="translated">Audits</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerAuditSpecifications">
+        <source>Server Audit Specifications</source>
+        <target state="translated">Spécifications de l'audit de serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SpatialIndexes">
+        <source>Spatial Indexes</source>
+        <target state="translated">Index spatiaux</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_WorkloadGroups">
+        <source>Workload Groups</source>
+        <target state="translated">Groupes de charge de travail</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SqlFiles">
+        <source>SQL Files</source>
+        <target state="translated">Fichiers SQL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerFunctions">
+        <source>Server Functions</source>
+        <target state="translated">Fonctions de serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SqlType">
+        <source>SQL Type</source>
+        <target state="translated">Type SQL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerOptions">
+        <source>Server Options</source>
+        <target state="translated">Options de serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseDiagrams">
+        <source>Database Diagrams</source>
+        <target state="translated">Diagrammes de base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemTables">
+        <source>System Tables</source>
+        <target state="translated">Tables système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Databases">
+        <source>Databases</source>
+        <target state="translated">Bases de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemContracts">
+        <source>System Contracts</source>
+        <target state="translated">Contrats système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDatabases">
+        <source>System Databases</source>
+        <target state="translated">Bases de données système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemMessageTypes">
+        <source>System Message Types</source>
+        <target state="translated">Types de message système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemQueues">
+        <source>System Queues</source>
+        <target state="translated">Files d'attente système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemServices">
+        <source>System Services</source>
+        <target state="translated">Services système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemStoredProcedures">
+        <source>System Stored Procedures</source>
+        <target state="translated">Procédures stockées système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemViews">
+        <source>System Views</source>
+        <target state="translated">Vues système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DataTierApplications">
+        <source>Data-tier Applications</source>
+        <target state="translated">Applications de la couche Données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExtendedStoredProcedures">
+        <source>Extended Stored Procedures</source>
+        <target state="translated">Procédures stockées étendues</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemAggregateFunctions">
+        <source>Aggregate Functions</source>
+        <target state="translated">Fonctions d'agrégation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemApproximateNumerics">
+        <source>Approximate Numerics</source>
+        <target state="translated">Valeurs numériques approximatives</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemBinaryStrings">
+        <source>Binary Strings</source>
+        <target state="translated">Chaînes binaires</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemCharacterStrings">
+        <source>Character Strings</source>
+        <target state="translated">Chaînes de caractères</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemCLRDataTypes">
+        <source>CLR Data Types</source>
+        <target state="translated">Types de données CLR</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemConfigurationFunctions">
+        <source>Configuration Functions</source>
+        <target state="translated">Fonctions de configuration</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemCursorFunctions">
+        <source>Cursor Functions</source>
+        <target state="translated">Fonctions de curseur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDataTypes">
+        <source>System Data Types</source>
+        <target state="translated">Types de données système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDateAndTime">
+        <source>Date and Time</source>
+        <target state="translated">Date et heure</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDateAndTimeFunctions">
+        <source>Date and Time Functions</source>
+        <target state="translated">Fonctions de date et heure</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemExactNumerics">
+        <source>Exact Numerics</source>
+        <target state="translated">Valeurs numériques exactes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemFunctions">
+        <source>System Functions</source>
+        <target state="translated">Fonctions système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemHierarchyIdFunctions">
+        <source>Hierarchy Id Functions</source>
+        <target state="translated">Fonctions d'ID de hiérarchie</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemMathematicalFunctions">
+        <source>Mathematical Functions</source>
+        <target state="translated">Fonctions mathématiques</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemMetadataFunctions">
+        <source>Metadata Functions</source>
+        <target state="translated">Fonctions de métadonnées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemOtherDataTypes">
+        <source>Other Data Types</source>
+        <target state="translated">Autres types de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemOtherFunctions">
+        <source>Other Functions</source>
+        <target state="translated">Autres fonctions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemRowsetFunctions">
+        <source>Rowset Functions</source>
+        <target state="translated">Fonctions d'ensemble de lignes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemSecurityFunctions">
+        <source>Security Functions</source>
+        <target state="translated">Fonctions de sécurité</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemSpatialDataTypes">
+        <source>Spatial Data Types</source>
+        <target state="translated">Types de données spatiales</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemStringFunctions">
+        <source>String Functions</source>
+        <target state="translated">Fonctions de chaîne</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemSystemStatisticalFunctions">
+        <source>System Statistical Functions</source>
+        <target state="translated">Fonctions de statistiques système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemTextAndImageFunctions">
+        <source>Text and Image Functions</source>
+        <target state="translated">Fonctions de texte et image</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemUnicodeCharacterStrings">
+        <source>Unicode Character Strings</source>
+        <target state="translated">Chaînes de caractères Unicode</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AggregateFunctions">
+        <source>Aggregate Functions</source>
+        <target state="translated">Fonctions d'agrégation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ScalarValuedFunctions">
+        <source>Scalar-valued Functions</source>
+        <target state="translated">Fonctions scalaires</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_TableValuedFunctions">
+        <source>Table-valued Functions</source>
+        <target state="translated">Fonctions table</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemExtendedStoredProcedures">
+        <source>System Extended Stored Procedures</source>
+        <target state="translated">Procédures stockées étendues système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInType">
+        <source>Built-in Types</source>
+        <target state="translated">Types intégrés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInServerRole">
+        <source>Built-in Server Roles</source>
+        <target state="translated">Rôles serveur intégrés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserWithPassword">
+        <source>User with Password</source>
+        <target state="translated">Utilisateur avec mot de passe</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SearchPropertyList">
+        <source>Search Property List</source>
+        <target state="translated">Liste de propriétés de recherche</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SecurityPolicies">
+        <source>Security Policies</source>
+        <target state="translated">Stratégies de sécurité</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SecurityPredicates">
+        <source>Security Predicates</source>
+        <target state="translated">Prédicats de sécurité</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerRole">
+        <source>Server Role</source>
+        <target state="translated">Rôle serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SearchPropertyLists">
+        <source>Search Property Lists</source>
+        <target state="translated">Listes de propriétés de recherche</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnStoreIndexes">
+        <source>Column Store Indexes</source>
+        <target state="translated">Index de banque de colonnes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_TableTypeIndexes">
+        <source>Table Type Indexes</source>
+        <target state="translated">Index de type de table</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
+        <source>Selective XML Indexes</source>
+        <target state="translated">Index XML sélectifs</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XmlNamespaces">
+        <source>XML Namespaces</source>
+        <target state="translated">Espaces de noms XML</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XmlTypedPromotedPaths">
+        <source>XML Typed Promoted Paths</source>
+        <target state="translated">Chemins promus typés XML</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SqlTypedPromotedPaths">
+        <source>T-SQL Typed Promoted Paths</source>
+        <target state="translated">Chemins promus typés T-SQL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseScopedCredentials">
+        <source>Database Scoped Credentials</source>
+        <target state="translated">Informations d'identification limitées à la base de données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalDataSources">
+        <source>External Data Sources</source>
+        <target state="translated">Sources de données externes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalFileFormats">
+        <source>External File Formats</source>
+        <target state="translated">Formats de fichier externes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalResources">
+        <source>External Resources</source>
+        <target state="translated">Ressources externes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalTables">
+        <source>External Tables</source>
+        <target state="translated">Tables externes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AlwaysEncryptedKeys">
+        <source>Always Encrypted Keys</source>
+        <target state="translated">Clés Always Encrypted</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnMasterKeys">
+        <source>Column Master Keys</source>
+        <target state="translated">Clés principales de colonne</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
+        <source>Column Encryption Keys</source>
+        <target state="translated">Clés de chiffrement de colonne</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Server">
+        <source>Server</source>
+        <target state="translated">Serveur</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterLabelFormatString">
+        <source>{0} ({1}, {2}, {3})</source>
+        <target state="translated">{0} ({1}, {2}, {3})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterNoDefaultLabel">
+        <source>No default</source>
+        <target state="translated">Pas de valeur par défaut</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputLabel">
+        <source>Input</source>
+        <target state="translated">Entrée</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputLabel">
+        <source>Input/Output</source>
+        <target state="translated">Entrée/sortie</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel">
+        <source>Input/ReadOnly</source>
+        <target state="translated">Entrée/ReadOnly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel">
+        <source>Input/Output/ReadOnly</source>
+        <target state="translated">Entrée/sortie/ReadOnly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterDefaultLabel">
+        <source>Default</source>
+        <target state="translated">Par défaut</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_NullColumn_Label">
+        <source>null</source>
+        <target state="translated">null</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_NotNullColumn_Label">
+        <source>not null</source>
+        <target state="translated">non null</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UDDTLabelWithType">
+        <source>{0} ({1}, {2})</source>
+        <target state="translated">{0} ({1}, {2})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UDDTLabelWithoutType">
+        <source>{0} ({1})</source>
+        <target state="translated">{0} ({1})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithType">
+        <source>{0} ({1}Computed, {2}, {3})</source>
+        <target state="translated">{0} ({1} calculé, {2}, {3})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithoutType">
+        <source>{0} ({1}Computed)</source>
+        <target state="translated">{0} ({1} calculé)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithoutType">
+        <source>{0} (Column Set, {1})</source>
+        <target state="translated">{0} (Jeu de colonnes, {1})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithType">
+        <source>{0} (Column Set, {1}{2}, {3})</source>
+        <target state="translated">{0} (Jeu de colonnes, {1}{2}, {3})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString">
+        <source>{0} (Column Set, {1}, {2}, {3})</source>
+        <target state="translated">{0} (Jeu de colonnes, {1}, {2}, {3})</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UniqueIndex_LabelPart">
+        <source>Unique</source>
+        <target state="translated">Unique</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NonUniqueIndex_LabelPart">
+        <source>Non-Unique</source>
+        <target state="translated">Non unique</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndex_LabelPart">
+        <source>Clustered</source>
+        <target state="translated">En cluster</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NonClusteredIndex_LabelPart">
+        <source>Non-Clustered</source>
+        <target state="translated">Non cluster</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="History_LabelPart">
+        <source>History</source>
+        <target state="translated">Historique</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SystemVersioned_LabelPart">
+        <source>System-Versioned</source>
+        <target state="translated">Contrôle de version par le système</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DatabaseNotAccessible">
+        <source>The database {0} is not accessible.</source>
+        <target state="translated">La base de données {0} est inaccessible.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="External_LabelPart">
+        <source>External</source>
+        <target state="translated">Externe</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FileTable_LabelPart">
+        <source>File Table</source>
+        <target state="translated">Table de fichiers</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UpdatableLedger_LabelPart">
+        <source>Updatable Ledger</source>
+        <target state="translated">Registre actualisable</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AppendOnlyLedger_LabelPart">
+        <source>Append-Only Ledger</source>
+        <target state="translated">Registre en annexe uniquement</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Ledger_LabelPart">
+        <source>Ledger</source>
+        <target state="translated">Registre</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">Tables de registre supprimées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">Affichages de registre supprimés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Colonnes de registre supprimées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">Schémas intégrés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterName">
+        <source>Name</source>
+        <target state="translated">Nom</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterNameDescription">
+        <source>Include or exclude objects based on the name or part of a name.</source>
+        <target state="translated">Inclure ou exclure des objets en fonction du nom ou d'une partie d'un nom.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchema">
+        <source>Schema</source>
+        <target state="translated">Schéma</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchemaDescription">
+        <source> Include or exclude objects based on the schema or part of a schema name.</source>
+        <target state="translated"> Inclure ou exclure des objets en fonction du nom du schéma ou d'une partie d'un nom de schéma.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwner">
+        <source>Owner</source>
+        <target state="translated">Propriétaire</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwnerDescription">
+        <source>Include or exclude objects based on the owner or part of an owner name.</source>
+        <target state="translated">Incluez ou excluez des objets en fonction du propriétaire ou d’une partie d’un nom de propriétaire.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityType">
+        <source>Durability Type</source>
+        <target state="translated">Type de durabilité</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityTypeDescription">
+        <source>Include or exclude objects based on the durability type.</source>
+        <target state="translated">Inclure ou exclure des objets en fonction du type de durabilité.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimized">
+        <source>Is Memory Optimized</source>
+        <target state="translated">Est à mémoire optimisée</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimizedDescription">
+        <source>Include or exclude objects based on whether the object is memory optimized.</source>
+        <target state="translated">Inclure ou exclure des objets selon que l'objet est optimisé ou non en mémoire.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDate">
+        <source>Create Date</source>
+        <target state="translated">Date de création</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDateDescription">
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">Incluez ou excluez des objets en fonction de leur date de création.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiled">
+        <source>Is Natively Compiled</source>
+        <target state="translated">Est compilé(e) en mode natif</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiledDescription">
+        <source>Include or exclude objects based on whether the object is natively compiled.</source>
+        <target state="translated">Inclure ou exclure des objets selon que l'objet est compilé ou non en mode natif.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKey">
+        <source>In Primary Key</source>
+        <target state="translated">Dans la clé primaire</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKeyDescription">
+        <source>Include or exclude objects based on whether the column is in a primary key.</source>
+        <target state="translated">Incluez ou excluez des objets selon que la colonne se trouve dans une clé primaire.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">Schéma seulement</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">Schéma et données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingParams.ConnectionString property.</source>
+        <target state="translated">Erreur d'analyse de la propriété ScriptingParams.ConnectionString.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
+        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
+        <target state="translated">Répertoire non valide spécifié pour la propriété ScriptingParams.FilePath.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="translated">Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StoredProcedureScriptParameterComment">
+        <source>-- TODO: Set parameter values here.</source>
+        <target state="new">-- TODO: Set parameter values here.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingGeneralError">
+        <source>An error occurred while scripting the objects.</source>
+        <target state="translated">Une erreur s'est produite pendant l'exécution de scripts sur les objets.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingExecuteNotSupportedError">
+        <source>Scripting as Execute is only supported for Stored Procedures</source>
+        <target state="translated">Les scripts de type Exécuter sont uniquement pris en charge pour les procédures stockées</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

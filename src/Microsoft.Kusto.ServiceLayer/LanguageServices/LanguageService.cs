@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -219,7 +218,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
-                Logger.Write(TraceEventType.Verbose, "Shutting down language service");
+                Logger.Verbose("Shutting down language service");
                 DeletePeekDefinitionScripts();
                 this.Dispose();
                 await Task.FromResult(0);
@@ -495,7 +494,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -521,7 +520,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -535,7 +534,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleRebuildIntelliSenseNotification");
+                Logger.Verbose("HandleRebuildIntelliSenseNotification");
 
                 // Skip closing this file if the file doesn't exist
                 var scriptFile = this.CurrentWorkspace.GetFile(rebuildParams.OwnerUri);
@@ -565,7 +564,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                             }
                             catch (Exception ex)
                             {
-                                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                                Logger.Error("Unknown error " + ex.ToString());
                             }
                             finally
                             {
@@ -595,7 +594,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
             }
         }
@@ -642,7 +641,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -684,7 +683,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
                     catch (Exception ex)
                     {
-                        Logger.Write(TraceEventType.Error, "Unknown error in OnConnection " + ex.ToString());
+                        Logger.Error("Unknown error in OnConnection " + ex.ToString());
                         scriptInfo.IsConnected = false;
                     }
                     finally
@@ -907,7 +906,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
+                Logger.Error(string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -978,7 +977,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     continue;
                 }
 
-                Logger.Write(TraceEventType.Verbose, "Analyzing script file: " + scriptFile.FilePath);
+                Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
 
                 // TODOKusto: Add file for mapping here, parity from parseAndbind function. Confirm it.
                 ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
@@ -999,7 +998,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
 
-                Logger.Write(TraceEventType.Verbose, "Analysis complete.");
+                Logger.Verbose("Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
             }

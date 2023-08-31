@@ -24,12 +24,12 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
-using System.Diagnostics;
 using Microsoft.SqlTools.Authentication.Sql;
 using Microsoft.SqlTools.Authentication;
 using System.IO;
 using Microsoft.SqlTools.Hosting.Utility;
 using Constants = Microsoft.SqlTools.Hosting.Protocol.Constants;
+using Microsoft.SqlTools.SqlCore.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -44,13 +44,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
-        public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
-
         // SQL Error Code Constants
         // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
         private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
         private const int PWCannotBeUsed = 18463; // Password cannot be used at this time.
 
+        // Default SQL constants (required to ensure connections such as serverless are able to wake up, connect, and retry properly).
+        private const int DefaultConnectTimeout = 30;
+        private const int DefaultCommandTimeout = 30;
 
         /// <summary>
         /// Singleton service instance
@@ -62,6 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Gets the singleton service instance
         /// </summary>
         public static ConnectionService Instance => instance.Value;
+
+        private static readonly SqlConnectionStringBuilder defaultBuilder = new SqlConnectionStringBuilder();
 
         /// <summary>
         /// IV and Key as received from Encryption Key Notification event.
@@ -165,12 +168,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             return response.Token;
         }
+        /// <summary>
+        /// Default Application name as received in service startup
+        /// </summary>
+        public static string ApplicationName { get; set; }
 
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used
         /// when user chooses 'Azure MFA'.
         /// </summary>
         public bool EnableSqlAuthenticationProvider { get; set; }
+
+        /// <summary>
+        /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
+        /// </summary>
+        public static bool EnableConnectionPooling { get; set; }
 
         /// <summary>
         /// Returns a connection queue for given type
@@ -375,7 +387,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             TrySetConnectionType(connectionParams);
 
-            connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
+            // Fill in any details that are necessary (timeouts and application name) to ensure connection doesn't immediately disconnect if not specified (such as for serverless). 
+            connectionParams.Connection = FillInDefaultDetailsForConnections(connectionParams.Connection, connectionParams.Purpose);
+
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
@@ -399,7 +413,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-            ConnectionCompleteParams? response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
+            ConnectionCompleteParams? response = await this.TryOpenConnection(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
@@ -422,34 +436,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return completeParams;
         }
 
-        private async Task<ConnectionCompleteParams?> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
-        {
-            int counter = 0;
-            ConnectionCompleteParams? response = null;
-            while (counter <= MaxServerlessReconnectTries)
-            {
-                // The OpenAsync function used in TryOpenConnection does not retry when a database is sleeping.
-                // SqlClient will be implemented at a later time, which will have automatic retries.
-                response = await TryOpenConnection(connectionInfo, connectionParams);
-                // If a serverless database is sleeping, it will return this error number and will need to be retried.
-                // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
-                if (response?.ErrorNumber == 40613)
-                {
-                    counter++;
-                    if (counter != MaxServerlessReconnectTries)
-                    {
-                        Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
-                    }
-                }
-                else
-                {
-                    // Every other response, we can stop.
-                    break;
-                }
-            }
-            return response;
-        }
-
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
         {
             try
@@ -467,19 +453,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, "Failed to close temporary connections. error: " + ex.Message);
+                Logger.Information("Failed to close temporary connections. error: " + ex.Message);
             }
         }
 
         internal static string GetApplicationNameWithFeature(string applicationName, string featureName)
         {
             string appNameWithFeature = applicationName;
-
-            if (!string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
+            // Connection Service will not set custom application name if connection pooling is enabled on service.
+            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
             {
-                int azdataStartIndex = applicationName.IndexOf(Constants.DefaultApplicationName);
-                string originalAppName = azdataStartIndex != -1
-                    ? applicationName.Substring(0, azdataStartIndex + Constants.DefaultApplicationName.Length)
+                int appNameStartIndex = applicationName.IndexOf(ApplicationName);
+                string originalAppName = appNameStartIndex != -1
+                    ? applicationName.Substring(0, appNameStartIndex + ApplicationName.Length)
                     : applicationName; // Reset to default if azdata not found.
                 appNameWithFeature = $"{originalAppName}-{featureName}";
             }
@@ -657,6 +643,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return serverEdition;
         }
 
+        internal static ConnectionDetails FillInDefaultDetailsForConnections(ConnectionDetails inputConnectionDetails, string featureName) { 
+            ConnectionDetails newConnectionDetails = inputConnectionDetails;
+
+            if(string.IsNullOrWhiteSpace(newConnectionDetails.ApplicationName)) 
+            {
+                newConnectionDetails.ApplicationName = ApplicationName;
+            }
+            else 
+            {
+                newConnectionDetails.ApplicationName = GetApplicationNameWithFeature(newConnectionDetails.ApplicationName, featureName);
+            }
+
+            newConnectionDetails.ConnectTimeout = Math.Max(DefaultConnectTimeout, newConnectionDetails.ConnectTimeout ?? 0);
+
+            newConnectionDetails.CommandTimeout = Math.Max(DefaultCommandTimeout, newConnectionDetails.CommandTimeout ?? 0);
+
+            return newConnectionDetails;
+        }
+
         /// <summary>
         /// Tries to create and open a connection with the given ConnectParams.
         /// </summary>
@@ -671,12 +676,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                connectionInfo.ConnectionDetails.Pooling = false;
+                if (!EnableConnectionPooling)
+                {
+                    connectionInfo.ConnectionDetails.Pooling = false;
+                }
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
-                // create a sql connection instance
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                // create a sql connection instance (with enabled serverless retry logic to handle sleeping serverless databases)
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -1086,15 +1094,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             this.ServiceHost = serviceHost;
 
-            if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
+            if (commandOptions != null)
             {
+                ApplicationName = commandOptions.ApplicationName switch
+                {
+                    "azuredatastudio" => "azdata",
+                    "code" => "vscode-mssql",
+                    _ => "sqltools" // fallback
+                };
 
-                // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-                var provider = new AuthenticationProvider(GetAuthenticator(commandOptions));
-                SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
+                if (commandOptions.EnableSqlAuthenticationProvider)
+                {
+                    // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
+                    var provider = new AuthenticationProvider(GetAuthenticator(commandOptions));
+                    SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
-                this.EnableSqlAuthenticationProvider = true;
-                Logger.Information("Registering implementation of SQL Authentication provider for 'Active Directory Interactive' authentication mode.");
+                    this.EnableSqlAuthenticationProvider = true;
+                    Logger.Information("Registering implementation of SQL Authentication provider for 'Active Directory Interactive' authentication mode.");
+                }
+                if (commandOptions.EnableConnectionPooling)
+                {
+                    ConnectionService.EnableConnectionPooling = true;
+                    Logger.Information("Connection pooling will be enabled for all SQL connections.");
+                }
             }
 
             // Register request and event handlers with the Service Host
@@ -1136,7 +1158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectParams connectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
+            Logger.Verbose("HandleConnectRequest");
 
             try
             {
@@ -1215,7 +1237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangePasswordParams changePasswordParams,
             RequestContext<PasswordChangeResponse> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
+            Logger.Verbose("HandleChangePasswordRequest");
             PasswordChangeResponse newResponse = new PasswordChangeResponse();
             try
             {
@@ -1267,7 +1289,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Change the password of the connection
-            ServerConnection serverConnection = new ServerConnection(changePasswordParams.Connection.ServerName, changePasswordParams.Connection.UserName, changePasswordParams.Connection.Password);
+            ServerConnection serverConnection = new ServerConnection();
+            serverConnection.ConnectionString = ConnectionService.BuildConnectionString(changePasswordParams.Connection);
             serverConnection.ChangePassword(changePasswordParams.NewPassword);
         }
 
@@ -1278,7 +1301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             CancelConnectParams cancelParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleCancelConnectRequest");
+            Logger.Verbose("HandleCancelConnectRequest");
             bool result = CancelConnect(cancelParams);
             await requestContext.SendResult(result);
         }
@@ -1290,7 +1313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             DisconnectParams disconnectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleDisconnectRequest");
+            Logger.Verbose("HandleDisconnectRequest");
             bool result = Instance.Disconnect(disconnectParams);
             await requestContext.SendResult(result);
 
@@ -1305,7 +1328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             Task.Run(async () =>
             {
-                Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
+                Logger.Verbose("ListDatabasesRequest");
                 try
                 {
                     ListDatabasesResponse result = ListDatabases(listDatabasesParams);
@@ -1382,31 +1405,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case SqlLogin:
-                        connectionBuilder.UserID = connectionDetails.UserName;
-                        connectionBuilder.Password = string.IsNullOrEmpty(connectionDetails.Password)
+                        // Don't erase username from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        // Don't erase password from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.Password))
+                        {
+                            connectionBuilder.Password = string.IsNullOrEmpty(connectionDetails.Password)
                             ? string.Empty // Support empty password for accounts without password
                             : connectionDetails.Password;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         break;
                     case AzureMFA:
                         if (Instance.EnableSqlAuthenticationProvider)
                         {
-                            connectionBuilder.UserID = connectionDetails.UserName;
+                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                            {
+                                connectionBuilder.UserID = connectionDetails.UserName;
+                            }
                             connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
                             connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                         }
-                        else
-                        {
-                            connectionBuilder.UserID = "";
-                        }
                         break;
                     case ActiveDirectoryInteractive:
-                        connectionBuilder.UserID = connectionDetails.UserName;
+                        // Don't erase username from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                         break;
                     case ActiveDirectoryPassword:
-                        connectionBuilder.UserID = connectionDetails.UserName;
-                        connectionBuilder.Password = connectionDetails.Password;
+                        // Don't erase username from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        // Don't erase password from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.Password))
+                        {
+                            connectionBuilder.Password = connectionDetails.Password;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
                         break;
                     default:
@@ -1586,7 +1628,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
-            if (forceDisablePooling)
+            if (!EnableConnectionPooling && forceDisablePooling)
             {
                 connectionBuilder.Pooling = false;
             }
@@ -1621,7 +1663,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // default connection string application name to always be included unless set to false
             if (connStringBuilder.ApplicationName == null && (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true))
             {
-                connStringBuilder.ApplicationName = Constants.DefaultApplicationName;
+                connStringBuilder.ApplicationName = ApplicationName;
             }
             connectionString = connStringBuilder.ConnectionString;
 
@@ -1650,41 +1692,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            // Set defaults as per MSSQL connection property defaults, not SqlClient's Connection string buider defaults
             ConnectionDetails details = new ConnectionDetails()
             {
-                ApplicationIntent = builder.ApplicationIntent.ToString(),
-                ApplicationName = builder.ApplicationName,
-                AttachDbFilename = builder.AttachDBFilename,
+                ApplicationIntent = defaultBuilder.ApplicationIntent != builder.ApplicationIntent ? builder.ApplicationIntent.ToString() : null,
+                ApplicationName = defaultBuilder.ApplicationName != builder.ApplicationName ? builder.ApplicationName : ApplicationName,
+                AttachDbFilename = defaultBuilder.AttachDBFilename != builder.AttachDBFilename ? builder.AttachDBFilename.ToString() : null,
                 AuthenticationType = builder.IntegratedSecurity ? "Integrated" :
                     (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive
-                    ? "ActiveDirectoryInteractive" : "SqlLogin"),
-                ConnectRetryCount = builder.ConnectRetryCount,
-                ConnectRetryInterval = builder.ConnectRetryInterval,
-                ConnectTimeout = builder.ConnectTimeout,
-                CommandTimeout = builder.CommandTimeout,
-                CurrentLanguage = builder.CurrentLanguage,
-                DatabaseName = builder.InitialCatalog,
-                ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
-                EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
-                EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
-                Encrypt = builder.Encrypt.ToString(),
-                FailoverPartner = builder.FailoverPartner,
-                HostNameInCertificate = builder.HostNameInCertificate,
-                LoadBalanceTimeout = builder.LoadBalanceTimeout,
-                MaxPoolSize = builder.MaxPoolSize,
-                MinPoolSize = builder.MinPoolSize,
-                MultipleActiveResultSets = builder.MultipleActiveResultSets,
-                MultiSubnetFailover = builder.MultiSubnetFailover,
-                PacketSize = builder.PacketSize,
-                Password = !builder.IntegratedSecurity ? builder.Password : string.Empty,
-                PersistSecurityInfo = builder.PersistSecurityInfo,
-                Pooling = builder.Pooling,
-                Replication = builder.Replication,
-                ServerName = builder.DataSource,
-                TrustServerCertificate = builder.TrustServerCertificate,
-                TypeSystemVersion = builder.TypeSystemVersion,
+                    ? "AzureMFA" : "SqlLogin"),
+                ConnectRetryCount = defaultBuilder.ConnectRetryCount != builder.ConnectRetryCount ? builder.ConnectRetryCount : 1,
+                ConnectRetryInterval = defaultBuilder.ConnectRetryInterval != builder.ConnectRetryInterval ? builder.ConnectRetryInterval : 10,
+                ConnectTimeout = defaultBuilder.ConnectTimeout != builder.ConnectTimeout ? builder.ConnectTimeout : 30,
+                CommandTimeout = defaultBuilder.CommandTimeout != builder.CommandTimeout ? builder.CommandTimeout : 30,
+                CurrentLanguage = defaultBuilder.CurrentLanguage != builder.CurrentLanguage ? builder.CurrentLanguage : null,
+                DatabaseName = defaultBuilder.InitialCatalog != builder.InitialCatalog ? builder.InitialCatalog : null,
+                ColumnEncryptionSetting = defaultBuilder.ColumnEncryptionSetting != builder.ColumnEncryptionSetting ? builder.ColumnEncryptionSetting.ToString() : null,
+                EnclaveAttestationProtocol = defaultBuilder.AttestationProtocol != builder.AttestationProtocol ? builder.AttestationProtocol.ToString() : null,
+                EnclaveAttestationUrl = defaultBuilder.EnclaveAttestationUrl != builder.EnclaveAttestationUrl ? builder.EnclaveAttestationUrl : null,
+                Encrypt = defaultBuilder.Encrypt != builder.Encrypt ? builder.Encrypt.ToString() : Boolean.TrueString.ToLower(CultureInfo.InvariantCulture),
+                FailoverPartner = defaultBuilder.FailoverPartner != builder.FailoverPartner ? builder.FailoverPartner : null,
+                HostNameInCertificate = defaultBuilder.HostNameInCertificate != builder.HostNameInCertificate ? builder.HostNameInCertificate : null,
+                LoadBalanceTimeout = defaultBuilder.LoadBalanceTimeout != builder.LoadBalanceTimeout ? builder.LoadBalanceTimeout : null,
+                MaxPoolSize = defaultBuilder.MaxPoolSize != builder.MaxPoolSize ? builder.MaxPoolSize : null,
+                MinPoolSize = defaultBuilder.MinPoolSize != builder.MinPoolSize ? builder.MinPoolSize : null,
+                MultipleActiveResultSets = defaultBuilder.MultipleActiveResultSets != builder.MultipleActiveResultSets ? builder.MultipleActiveResultSets : null,
+                MultiSubnetFailover = defaultBuilder.MultiSubnetFailover != builder.MultiSubnetFailover ? builder.MultiSubnetFailover : null,
+                PacketSize = defaultBuilder.PacketSize != builder.PacketSize ? builder.PacketSize : null,
+                Password = !builder.IntegratedSecurity ? builder.Password : null,
+                PersistSecurityInfo = defaultBuilder.PersistSecurityInfo != builder.PersistSecurityInfo ? builder.PersistSecurityInfo : null,
+                Pooling = defaultBuilder.Pooling != builder.Pooling ? builder.Pooling : null,
+                Replication = defaultBuilder.Replication != builder.Replication ? builder.Replication : null,
+                ServerName = defaultBuilder.DataSource != builder.DataSource ? builder.DataSource : null,
+                TrustServerCertificate = defaultBuilder.TrustServerCertificate != builder.TrustServerCertificate ? builder.TrustServerCertificate : false,
+                TypeSystemVersion = defaultBuilder.TypeSystemVersion != builder.TypeSystemVersion ? builder.TypeSystemVersion : null,
+                // !!! ALERT - DO NOT CHANGE USER !!!
+                // SSMS 19 treats "user" as mandatory, always set it to value from connection string builder, even if it's an empty string.
                 UserName = builder.UserID,
-                WorkstationId = builder.WorkstationID,
+                WorkstationId = defaultBuilder.WorkstationID != builder.WorkstationID ? builder.WorkstationID : null
             };
 
             return details;
@@ -1751,8 +1797,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(
-                        TraceEventType.Error,
+                    Logger.Error(
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}",
                             newDatabaseName,
@@ -1820,7 +1865,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 catch (Exception ex)
                 {
-                    Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                    Logger.Verbose("Could not send Connection telemetry event " + ex.ToString());
                 }
             }
         }
@@ -1833,22 +1878,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
+        /// <exception cref="Exception">When an error occurs.</exception>
         public static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
                 // capture original values
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                int? originalCommandTimeout = connInfo.ConnectionDetails.CommandTimeout;
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
-                bool shouldForceDisablePooling = featureName != Constants.LanguageServiceFeature;
+                bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
-                // increase the connection and command timeout to at least 30 seconds and and build connection string
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, originalCommandTimeout ?? 0);
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
 
@@ -1857,19 +1898,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     connInfo.ConnectionDetails.Pooling = false;
                 }
-                connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
+
+                // increase the connection and command timeout to at least 30 seconds and set application name.
+                connInfo.ConnectionDetails = FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
 
                 // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
 
                 // restore original values
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.CommandTimeout = originalCommandTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
+                sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
 
                 // Fill in Azure authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
@@ -1885,10 +1927,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string error = string.Format(CultureInfo.InvariantCulture,
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
+                Logger.Error(error);
+                throw;
             }
-
-            return null;
         }
 
         /// <summary>
@@ -1941,26 +1982,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public static bool IsDbPool(string databaseName)
         {
             return databaseName != null ? databaseName.IndexOf('@') != -1 : false;
-        }
-    }
-
-    public class AzureAccessToken : IRenewableToken
-    {
-        public DateTimeOffset TokenExpiry { get; set; }
-        public string Resource { get; set; }
-        public string Tenant { get; set; }
-        public string UserId { get; set; }
-
-        private string accessToken;
-
-        public AzureAccessToken(string accessToken)
-        {
-            this.accessToken = accessToken;
-        }
-
-        public string GetAccessToken()
-        {
-            return this.accessToken;
         }
     }
 }

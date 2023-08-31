@@ -83,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
                 "microsofsqltoolscredentials.dll",
                 "microsoft.sqltools.hosting.dll",
-                "microsoftsqltoolsservicelayer.dll"
+                "microsoftsqltoolsservicelayer.dll",
+                "microsoft.sqltools.sqlcore.dll"
             });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);

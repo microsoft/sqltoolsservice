@@ -202,7 +202,11 @@ namespace Microsoft.SqlTools.Utility
             int uniqueId;
             try
             {
+#if NETSTANDARD2_0
+                uniqueId = Process.GetCurrentProcess().Id;
+#else
                 uniqueId = Environment.ProcessId;
+#endif
             }
             catch (Exception ex)
             {
@@ -250,17 +254,31 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         /// <param name="eventType">The level at which the message will be written.</param>
         /// <param name="logMessage">The message text to be written.</param>
-        public static void Write(TraceEventType eventType, string logMessage) => Write(eventType, LogEvent.Default, logMessage);
+        private static void Write(TraceEventType eventType, string logMessage) => Write(eventType, LogEvent.Default, logMessage);
 
         /// <summary>
         /// Writes a PII message to the log file with the Verbose event level when PII flag is enabled.
         /// </summary>
         /// <param name="logMessage">The message text to be written.</param>
-        public static void Pii(string logMessage) {
-            if (IsPiiEnabled) {
+        public static void Pii(string logMessage)
+        {
+            if (IsPiiEnabled)
+            {
                 Write(TraceEventType.Verbose, logMessage);
             }
         }
+
+        /// <summary>
+        /// Writes a message to the log file with the Start event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Start(string logMessage) => Write(TraceEventType.Start, logMessage);
+
+        /// <summary>
+        /// Writes a message to the log file with the Stop event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Stop(string logMessage) => Write(TraceEventType.Stop, logMessage);
 
         /// <summary>
         /// Writes a message to the log file with the Verbose event level
@@ -334,7 +352,7 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="eventType">The level at which the message will be written.</param>
         ///  <param name="logEvent">The event id enumeration for the log event.</param>
         /// <param name="logMessage">The message text to be written.</param>
-        public static void Write(
+        private static void Write(
             TraceEventType eventType,
             LogEvent logEvent,
             string logMessage)

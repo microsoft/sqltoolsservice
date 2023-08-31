@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             };
 
 
-            ParseResult parseResult = langService.ParseAndBind(scriptFile, null);
+            ParseResult parseResult = langService.ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
             ScriptParseInfo scriptParseInfo = langService.GetScriptParseInfo(scriptFile.ClientUri, true);
 
             return new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);

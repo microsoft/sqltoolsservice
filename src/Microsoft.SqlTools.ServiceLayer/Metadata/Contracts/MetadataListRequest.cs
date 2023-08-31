@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.SqlCore.Metadata;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {

@@ -11,7 +11,6 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -97,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare save settings operation {0} failed with exception {1}", this.OperationId, e));
+                Logger.Error(string.Format("Schema compare save settings operation {0} failed with exception {1}", this.OperationId, e));
                 throw;
             }
         }

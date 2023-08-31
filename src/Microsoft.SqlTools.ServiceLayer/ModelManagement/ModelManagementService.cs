@@ -13,7 +13,6 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
@@ -80,10 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleModelImportRequest(ImportModelRequestParams parameters, RequestContext<ImportModelResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleModelImportRequest");
-                ImportModelResponseParams response = new ImportModelResponseParams
-                {
-                };
+            Logger.Verbose("HandleModelImportRequest");
+            ImportModelResponseParams response = new ImportModelResponseParams
+            {
+            };
 
             await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
             {
@@ -99,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleGetModelsRequest(GetModelsRequestParams parameters, RequestContext<GetModelsResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleGetModelsRequest");
+            Logger.Verbose("HandleGetModelsRequest");
             GetModelsResponseParams response = new GetModelsResponseParams
             {
             };
@@ -119,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleUpdateModelRequest(UpdateModelRequestParams parameters, RequestContext<UpdateModelResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleUpdateModelRequest");
+            Logger.Verbose("HandleUpdateModelRequest");
             UpdateModelResponseParams response = new UpdateModelResponseParams
             {
             };
@@ -138,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleDeleteModelRequest(DeleteModelRequestParams parameters, RequestContext<DeleteModelResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleDeleteModelRequest");
+            Logger.Verbose("HandleDeleteModelRequest");
             DeleteModelResponseParams response = new DeleteModelResponseParams
             {
             };
@@ -157,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleDownloadModelRequest(DownloadModelRequestParams parameters, RequestContext<DownloadModelResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleDownloadModelRequest");
+            Logger.Verbose("HandleDownloadModelRequest");
             DownloadModelResponseParams response = new DownloadModelResponseParams
             {
             };
@@ -176,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleVerifyModelTableRequest(VerifyModelTableRequestParams parameters, RequestContext<VerifyModelTableResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleVerifyModelTableRequest");
+            Logger.Verbose("HandleVerifyModelTableRequest");
             VerifyModelTableResponseParams response = new VerifyModelTableResponseParams
             {
             };
@@ -195,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// <param name="requestContext">Request Context</param>
         public async Task HandleConfigureModelTableRequest(ConfigureModelTableRequestParams parameters, RequestContext<ConfigureModelTableResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleConfigureModelTableRequest");
+            Logger.Verbose("HandleConfigureModelTableRequest");
             ConfigureModelTableResponseParams response = new ConfigureModelTableResponseParams();
 
             await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
@@ -206,8 +205,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         }
 
         private async Task HandleRequest<T, TResponse>(
-            T parameters, 
-            TResponse response, 
+            T parameters,
+            TResponse response,
             RequestContext<TResponse> requestContext,
             Func<IDbConnection, T, TResponse, TResponse> operation) where T : ModelRequestBase where TResponse : ModelResponseBase
         {
@@ -233,6 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
             catch (Exception e)
             {
                 // Exception related to run task will be captured here
+                Logger.Error(e);
                 await requestContext.SendError(e);
             }
         }

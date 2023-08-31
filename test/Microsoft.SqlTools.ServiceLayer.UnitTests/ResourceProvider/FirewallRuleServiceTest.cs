@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
     public class FirewallRuleServiceTest
     {
         [Test]
-        public async Task CreateShouldThrowExceptionGivenNullServerName()
+        public void CreateShouldThrowExceptionGivenNullServerName()
         {
             string serverName = null;
 
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionGivenNullStartIp()
+        public void CreateShouldThrowExceptionGivenNullStartIp()
         {
             string serverName = "serverName";
 
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionGivenInvalidEndIp()
+        public void CreateShouldThrowExceptionGivenInvalidEndIp()
         {
             string serverName = "serverName";
 
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionGivenInvalidStartIp()
+        public void CreateShouldThrowExceptionGivenInvalidStartIp()
         {
             string serverName = "serverName";
 
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionGivenNullEndIp()
+        public void CreateShouldThrowExceptionGivenNullEndIp()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.EndIpAddress = null;
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionIfUserIsNotLoggedIn()
+        public void CreateShouldThrowExceptionIfUserIsNotLoggedIn()
         {
             var applicationAuthenticationManagerMock = new Mock<IAzureAuthenticationManager>();
             applicationAuthenticationManagerMock.Setup(x => x.GetUserNeedsReauthenticationAsync()).Throws(new ApplicationException());
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionIfUserDoesNotHaveSubscriptions()
+        public void CreateShouldThrowExceptionIfUserDoesNotHaveSubscriptions()
         {
             var applicationAuthenticationManagerMock =
                 new Mock<IAzureAuthenticationManager>();
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionIfAuthenticationManagerFailsToReturnSubscription()
+        public void CreateShouldThrowExceptionIfAuthenticationManagerFailsToReturnSubscription()
         {
             var applicationAuthenticationManagerMock = new Mock<IAzureAuthenticationManager>();
             applicationAuthenticationManagerMock.Setup(x => x.GetUserNeedsReauthenticationAsync()).Returns(Task.FromResult(false));
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionGivenNoSubscriptionFound()
+        public void CreateShouldThrowExceptionGivenNoSubscriptionFound()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             testContext = CreateMocks(testContext);
@@ -242,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateThrowExceptionIfResourceNotFound()
+        public void CreateThrowExceptionIfResourceNotFound()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             var resources = new List<IAzureSqlServerResource>
@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateThrowExceptionIfResourcesIsEmpty()
+        public void CreateThrowExceptionIfResourcesIsEmpty()
         {
             ServiceTestContext testContext = new ServiceTestContext();
           
@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
-        public async Task CreateShouldThrowExceptionIfThereIsNoSubscriptionForUser()
+        public void CreateShouldThrowExceptionIfThereIsNoSubscriptionForUser()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.Subscriptions = new List<IAzureUserAccountSubscriptionContext>();
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 
 
         [Test]
-        public async Task CreateShouldThrowExceptionIfSubscriptionIsInAnotherAccount()
+        public void CreateShouldThrowExceptionIfSubscriptionIsInAnotherAccount()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.Subscriptions = new List<IAzureUserAccountSubscriptionContext>

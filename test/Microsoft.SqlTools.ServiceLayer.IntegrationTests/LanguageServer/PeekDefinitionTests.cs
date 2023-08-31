@@ -113,7 +113,6 @@ GO";
             TestLogger test = new TestLogger()
             {
                 TraceSource = System.Reflection.MethodInfo.GetCurrentMethod().Name,
-                EventType = System.Diagnostics.TraceEventType.Information,
                 TracingLevel = System.Diagnostics.SourceLevels.All,
             };
 
@@ -260,7 +259,7 @@ GO";
             scriptFile.Contents = "select * from dbo.func ()";
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            languageService.ScriptParseInfoMap.Add(scriptFile.ClientUri, scriptInfo);
+            languageService.ScriptParseInfoMap.TryAdd(scriptFile.ClientUri, scriptInfo);
 
             // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
             // before we want it to (this is testing the timeout trying to fetch the definitions after the parse)
@@ -730,9 +729,9 @@ GO";
             Thread.Sleep(2000);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            service.ParseAndBind(scriptFile, connInfo);
+            await service.ParseAndBind(scriptFile, connInfo);
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            service.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+            service.ScriptParseInfoMap.TryAdd(OwnerUri, scriptInfo);
 
             // When I call the language service
             var objectResult = service.GetDefinition(objectDocument, scriptFile, connInfo);
@@ -751,7 +750,7 @@ GO";
             Cleanup(objectResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            service.ScriptParseInfoMap.Remove(OwnerUri);
+            service.ScriptParseInfoMap.TryRemove(OwnerUri, out _);
             connInfo.RemoveAllConnections();
         }
 
@@ -787,9 +786,9 @@ GO";
             Thread.Sleep(2000);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            service.ParseAndBind(scriptFile, connInfo);
+            await service.ParseAndBind(scriptFile, connInfo);
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            service.ScriptParseInfoMap.Add(TestUri, scriptInfo);
+            service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
 
             // When I call the language service
             var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
@@ -808,7 +807,7 @@ GO";
             Cleanup(fnResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            service.ScriptParseInfoMap.Remove(TestUri);
+            service.ScriptParseInfoMap.TryRemove(TestUri, out _);
             connInfo.RemoveAllConnections();
         }
 

@@ -4,6 +4,9 @@
 //
 #nullable disable
 
+using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Smo;
+
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
@@ -26,9 +29,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string RootDirectory { get; set; }
         public string ServerCollation { get; set; }
         public string? ServiceTier { get; set; }
-        public int? StorageSpaceUsageInGB { get; set; }
+        public int? StorageSpaceUsageInMB { get; set; }
         public string Version { get; set; }
-        public int MaxServerMemory { get; set; }
-        public int MinServerMemory { get; set; }
+        public NumericServerProperty MaxServerMemory { get; set; }
+        public NumericServerProperty MinServerMemory { get; set; }
+        public bool AutoProcessorAffinityMaskForAll { get; set; }
+        public bool AutoProcessorAffinityIOMaskForAll { get; set; }
+        public List<NumaNode> NumaNodes { get; set; }
+        public ServerLoginMode AuthenticationMode { get; set; }
+        public AuditLevel LoginAuditing { get; set; }
+    }
+
+    public class NumericServerProperty
+    {
+        public int MaximumValue { get; set; }
+        public int MinimumValue { get; set; }
+        public int Value { get; set; }
+    }
+    public class NumaNode
+    {
+        public string NumaNodeId { get; set; }
+        public List<ProcessorAffinity> Processors { get; set; }
+    }
+
+    public class ProcessorAffinity
+    {
+        public string ProcessorId { get; set; }
+        public bool Affinity { get; set; }
+        public bool IOAffinity { get; set; }
     }
 }

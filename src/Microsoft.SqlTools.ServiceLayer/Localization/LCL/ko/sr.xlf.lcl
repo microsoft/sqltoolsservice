@@ -7966,6 +7966,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";PropertyNotInitialized" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Property '{0}' was set before initialization.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}' 속성이 초기화 전에 설정되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ProxyAccountNotFound" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Proxy account '{0}' does not exist on the server.]]></Val>
@@ -11845,6 +11854,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";TableDesignerAlterTablePermissionDenied" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[ALTER TABLE permission denied for table '{0}'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}' 테이블에 대한 ALTER TABLE 권한이 거부되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";TableDesignerAutoCreateHistoryTableDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the engine should automatically create the history table.]]></Val>
@@ -11937,6 +11955,15 @@
           <Val><![CDATA[I have read the summary and understand the potential risks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[요약을 읽고 잠재적인 위험을 이해했습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableDesignerCreateTablePermissionDenied" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[CREATE TABLE permission denied in database '{0}'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}' 데이터베이스에서 CREATE TABLE 권한이 거부되었습니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

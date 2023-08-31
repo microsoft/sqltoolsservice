@@ -15,7 +15,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             "vscode-notebook-cell"
         };
 
-        private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
+        private ConcurrentDictionary<string, ScriptFile> workspaceFiles = new ConcurrentDictionary<string, ScriptFile>();
 
         #endregion
 
@@ -122,10 +122,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 {
                     scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri,streamReader);
 
-                    this.workspaceFiles.Add(keyName, scriptFile);
+                    this.workspaceFiles.TryAdd(keyName, scriptFile);
                 }
 
-                Logger.Write(TraceEventType.Verbose, "Opened file on disk: " + resolvedFile.FilePath);
+                Logger.Verbose("Opened file on disk: " + resolvedFile.FilePath);
             }
 
             return scriptFile;
@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 canReadFromDisk = resolvedFile.CanReadFromDisk;
             }
 
-            Logger.Write(TraceEventType.Verbose, "Resolved path: " + clientUri);
+            Logger.Verbose("Resolved path: " + clientUri);
 
             return new ResolvedFile(filePath, clientUri, canReadFromDisk);
         }
@@ -236,9 +236,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             {
                 scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri, initialBuffer);
 
-                this.workspaceFiles.Add(keyName, scriptFile);
+                this.workspaceFiles.TryAdd(keyName, scriptFile);
 
-                Logger.Write(TraceEventType.Verbose, "Opened file as in-memory buffer: " + resolvedFile.FilePath);
+                Logger.Verbose("Opened file as in-memory buffer: " + resolvedFile.FilePath);
             }
 
             return scriptFile;
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             Validate.IsNotNull("scriptFile", scriptFile);
 
-            this.workspaceFiles.Remove(scriptFile.Id);
+            this.workspaceFiles.TryRemove(scriptFile.Id, out _);
         }
 
         internal string GetBaseFilePath(string filePath)

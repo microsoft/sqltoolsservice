@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -86,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="dataReader">
         /// Data reader from execution of the command to commit the change to the db
         /// </param>
-        public abstract Task ApplyChanges(DbDataReader dataReader);
+        public abstract void ApplyChanges(DbDataReader dataReader);
 
         /// <summary>
         /// Gets a command that will commit the change to the db

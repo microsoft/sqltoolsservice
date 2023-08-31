@@ -3,15 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -22,7 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         private ServerViewInfo serverViewInfo = new ServerViewInfo();
         private ServerConfigService configService = new ServerConfigService();
-        private Server server = null;
 
         public ServerHandler(ConnectionService connectionService) : base(connectionService)
         {
@@ -36,60 +32,97 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-            using (var context = new ServerViewContext(requestParams, serverConnection))
+            ServerPrototype prototype = new ServerPrototype(dataContainer);
+
+            if (prototype != null)
             {
-                this.server = new Server(context.Connection);
-                if (this.server != null)
+                this.serverViewInfo.ObjectInfo = new ServerInfo()
                 {
-                    this.serverViewInfo.ObjectInfo = new ServerInfo()
-                    {
-                        Name = server.Name,
-                        HardwareGeneration = server.HardwareGeneration,
-                        Language = server.Language,
-                        MemoryInMB = server.PhysicalMemory,
-                        OperatingSystem = server.HostDistribution,
-                        Platform = server.HostPlatform,
-                        Processors = server.Processors,
-                        IsClustered = server.IsClustered,
-                        IsHadrEnabled = server.IsHadrEnabled,
-                        IsPolyBaseInstalled = server.IsPolyBaseInstalled,
-                        IsXTPSupported = server.IsXTPSupported,
-                        Product = server.Product,
-                        ReservedStorageSizeMB = server.ReservedStorageSizeMB,
-                        RootDirectory = server.RootDirectory,
-                        ServerCollation = server.Collation,
-                        ServiceTier = server.ServiceTier,
-                        StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(server.UsedStorageSizeMB),
-                        Version = server.Version.ToString(),
-                        MinServerMemory = GetServerMinMemory(),
-                        MaxServerMemory = GetServerMaxMemory()
-                    };
-                }
-
-                return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
+                    Name = prototype.Name,
+                    HardwareGeneration = prototype.HardwareGeneration,
+                    Language = prototype.Language,
+                    MemoryInMB = prototype.MemoryInMB,
+                    OperatingSystem = prototype.OperatingSystem,
+                    Platform = prototype.Platform,
+                    Processors = prototype.Processors,
+                    IsClustered = prototype.IsClustered,
+                    IsHadrEnabled = prototype.IsHadrEnabled,
+                    IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
+                    IsXTPSupported = prototype.IsXTPSupported,
+                    Product = prototype.Product,
+                    ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
+                    RootDirectory = prototype.RootDirectory,
+                    ServerCollation = prototype.ServerCollation,
+                    ServiceTier = prototype.ServiceTier,
+                    StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
+                    Version = prototype.Version,
+                    MinServerMemory = prototype.MinServerMemory,
+                    MaxServerMemory = prototype.MaxServerMemory,
+                    AutoProcessorAffinityMaskForAll = prototype.AutoProcessorAffinityMaskForAll,
+                    AutoProcessorAffinityIOMaskForAll = prototype.AutoProcessorAffinityIOMaskForAll,
+                    NumaNodes = prototype.NumaNodes,
+                    AuthenticationMode = prototype.AuthenticationMode,
+                    LoginAuditing = prototype.LoginAuditing
+                };
             }
+            var context = new ServerViewContext(requestParams);
+            return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
         }
 
-        public override Task Save(ServerViewContext context, ServerInfo serverInfo)
+        public override Task Save(ServerViewContext context, ServerInfo obj)
         {
-            throw new NotSupportedException("ServerHandler does not support Save method");
+            UpdateServerProperties(context.Parameters, obj, RunType.RunNow);
+            return Task.CompletedTask;
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
         {
-            throw new NotSupportedException("ServerHandler does not support Script method");
+            var script = UpdateServerProperties(
+                 context.Parameters,
+                 obj,
+                 RunType.ScriptToWindow);
+            return Task.FromResult(script);
         }
 
-        private int GetServerMaxMemory()
+        private string UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo, RunType runType)
         {
-            return configService.GetServerSmoConfig(server, configService.MaxServerMemoryPropertyNumber).ConfigValue;
+            ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
+
+            using (var dataContainer = CDataContainer.CreateDataContainer(connInfo))
+            {
+                try
+                {
+                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+                    prototype.ApplyInfoToPrototype(serverInfo);
+                    return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
+                }
+                finally
+                {
+                    dataContainer.ServerConnection.Disconnect();
+                }
+            }
         }
 
-        private int GetServerMinMemory()
+        private string ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
         {
-            return configService.GetServerSmoConfig(server, configService.MinServerMemoryPropertyNumber).ConfigValue;
+            using (var actions = new ServerActions(dataContainer, prototype, configAction))
+            {
+                string sqlScript = string.Empty;
+                var executionHandler = new ExecutionHandler(actions);
+                executionHandler.RunNow(runType, this);
+                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                {
+                    throw executionHandler.ExecutionFailureException;
+                }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
+                return sqlScript;
+            }
         }
     }
 }

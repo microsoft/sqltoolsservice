@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -122,7 +121,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public async Task WaitForExitAsync()
         {
             this.endpointExitedTask = new TaskCompletionSource<bool>();
+#if NETSTANDARD2_0
+            await this.endpointExitedTask.Task;
+#else
             await this.endpointExitedTask.Task.WaitAsync(CancellationToken.None);
+#endif
         }
 
         public async Task Stop()
@@ -256,7 +259,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 if (SendEventIgnoreExceptions)
                 {
-                    Logger.Write(TraceEventType.Verbose, "Exception in SendEvent " + ex.ToString());
+                    Logger.Verbose("Exception in SendEvent " + ex.ToString());
                 }
                 else
                 {
