@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
     public class QueryStoreTests : TestBase
     {
         private const string TestConnectionOwnerUri = "FakeConnectionOwnerUri";
-        private static DateTimeOffset TestWindowStart = DateTimeOffset.Parse("6/10/2023 12:34:56 PM -07:00");
+        private static DateTimeOffset TestWindowStart = DateTimeOffset.Parse("6/10/2023 12:34:56 PM +0:00");
         private static DateTimeOffset TestWindowEnd = TestWindowStart.AddDays(7);
         private static DateTimeOffset TestWindowRecentStart = TestWindowEnd.AddHours(-1);
         private static BasicTimeInterval TestTimeInterval => new BasicTimeInterval()
@@ -34,6 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
             StartDateTimeInUtc = TestWindowRecentStart.ToString("O"),
             EndDateTimeInUtc = TestWindowEnd.ToString("O")
         };
+
+        [SetUp]
+        public void Setup()
+        {
+            QueryStoreCommonConfiguration.DisplayTimeKind = DateTimeKind.Utc;
+        }
 
         [Test]
         public async Task TopResourceConsumers()

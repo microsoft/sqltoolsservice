@@ -8,8 +8,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
     internal static class QueryStoreBaselines
     {
         public const string HandleGetTopResourceConsumersSummaryReportRequest =
-@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 With wait_stats AS
 (
@@ -47,8 +47,8 @@ HAVING COUNT(distinct p.plan_id) >= 1
 ORDER BY query_id DESC";
 
         public const string HandleGetTopResourceConsumersDetailedSummaryReportRequest =
-@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 With wait_stats AS
 (
@@ -185,8 +185,8 @@ FROM sys.query_store_query_text qt JOIN sys.query_store_query q ON q.query_text_
 WHERE qt.query_sql_text LIKE ('%' + @QuerySearchText + '%')";
 
         public const string HandleGetHighVariationQueriesSummaryReportRequest =
-@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 With wait_stats AS
 (
@@ -225,8 +225,8 @@ HAVING COUNT(distinct p.plan_id) >= 1 AND SUM(ws.count_executions) > 1
 ORDER BY query_id DESC";
 
         public const string HandleGetHighVariationQueriesDetailedSummaryReportRequest =
-@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 With wait_stats AS
 (
@@ -311,8 +311,8 @@ WHERE A.num_plans >= 1 AND A.count_executions > 1
 ORDER BY query_id DESC";
 
         public const string HandleGetOverallResourceConsumptionReportRequest =
-@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 WITH DateGenerator AS
 (
@@ -375,10 +375,10 @@ WHERE UnionAllResults.RowNumber = 1
 OPTION (MAXRECURSION 0)";
 
         public const string HandleGetRegressedQueriesSummaryReportRequest =
-@"DECLARE @recent_start_time DATETIMEOFFSET = '2023-06-17T11:34:56.0000000-07:00';
-DECLARE @recent_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
-DECLARE @history_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @history_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @recent_start_time DATETIMEOFFSET = '2023-06-17T11:34:56.0000000+00:00';
+DECLARE @recent_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
+DECLARE @history_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @history_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 DECLARE @min_exec_count BIGINT = 1;
 
 WITH wait_stats AS
@@ -465,10 +465,10 @@ WHERE query_wait_time_regr_perc_recent > 0
 OPTION (MERGE JOIN)";
 
         public const string HandleGetRegressedQueriesDetailedSummaryReportRequest =
-@"DECLARE @recent_start_time DATETIMEOFFSET = '2023-06-17T11:34:56.0000000-07:00';
-DECLARE @recent_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
-DECLARE @history_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @history_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+@"DECLARE @recent_start_time DATETIMEOFFSET = '2023-06-17T11:34:56.0000000+00:00';
+DECLARE @recent_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
+DECLARE @history_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @history_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 DECLARE @min_exec_count BIGINT = 1;
 
 WITH
@@ -710,8 +710,8 @@ OPTION (MERGE JOIN)";
 
         public const string HandleGetPlanSummaryChartViewRequest =
 @"DECLARE @query_id BIGINT = 97;
-DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 WITH wait_stats AS
 (
@@ -783,8 +783,8 @@ JOIN is_forced f ON f.plan_id = b.plan_id";
 
         public const string HandleGetPlanSummaryGridViewRequest =
 @"DECLARE @query_id BIGINT = 97;
-DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000-07:00';
-DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000-07:00';
+DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
+DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
 WITH wait_stats AS
 (
