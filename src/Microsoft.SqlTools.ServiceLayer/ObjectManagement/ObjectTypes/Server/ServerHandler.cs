@@ -64,7 +64,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     AutoProcessorAffinityIOMaskForAll = prototype.AutoProcessorAffinityIOMaskForAll,
                     NumaNodes = prototype.NumaNodes,
                     AuthenticationMode = prototype.AuthenticationMode,
-                    LoginAuditing = prototype.LoginAuditing
+                    LoginAuditing = prototype.LoginAuditing,
+                    CheckCompressBackup = prototype.CheckCompressBackup, 
+                    CheckBackupChecksum = prototype.CheckBackupChecksum,
+                    DataLocation = prototype.DataLocation,
+                    LogLocation = prototype.LogLocation,
+                    BackupLocation = prototype.BackupLocation
                 };
             }
             var context = new ServerViewContext(requestParams);

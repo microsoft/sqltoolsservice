@@ -38,6 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public List<NumaNode> NumaNodes { get; set; }
         public ServerLoginMode AuthenticationMode { get; set; }
         public AuditLevel LoginAuditing { get; set; }
+        public bool CheckCompressBackup { get; set; }
+        public bool CheckBackupChecksum { get; set; }
+        public string DataLocation { get; set; }
+        public string LogLocation { get; set; }
+        public string BackupLocation { get; set; }
     }
 
     public class NumericServerProperty

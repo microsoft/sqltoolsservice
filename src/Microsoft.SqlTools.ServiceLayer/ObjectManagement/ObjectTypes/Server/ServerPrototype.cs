@@ -356,7 +356,66 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 this.currentState.LoginAuditing = value;
             }
+        }
 
+        public bool CheckBackupChecksum
+        {
+            get
+            {
+                return this.currentState.CheckBackupChecksum;
+            }
+            set
+            {
+                this.currentState.CheckBackupChecksum = value;
+            }
+        }
+
+        public bool CheckCompressBackup
+        {
+            get
+            {
+                return this.currentState.CheckCompressBackup;
+            }
+            set
+            {
+                this.currentState.CheckCompressBackup = value;
+            }
+        }
+
+        public string DataLocation
+        {
+            get
+            {
+                return this.currentState.DataLocation;
+            }
+            set
+            {
+                this.currentState.DataLocation = value;
+            }
+        }
+
+        public string LogLocation
+        {
+            get
+            {
+                return this.currentState.LogLocation;
+            }
+            set
+            {
+                this.currentState.LogLocation = value;
+            }
+        }
+
+        public string BackupLocation
+        {
+            get
+            {
+                return this.currentState.BackupLocation;
+            }
+            set
+            {
+                this.currentState.BackupLocation = value;
+            }
         }
         #endregion
 
@@ -431,6 +490,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     server.Alter();
                 }
+
+                if (UpdateDBSettingsValues(this.dataContainer.Server))
+                {
+                    server.Settings.Alter();
+                }
+
+                if (UpdateBackupConfig(this.dataContainer.Server))
+                {
+                    server.Configuration.Alter();
+                }
             }
         }
 
@@ -467,6 +536,48 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (this.currentState.LoginAuditing != this.originalState.LoginAuditing)
             {
                 server.Settings.AuditLevel = this.currentState.LoginAuditing;
+                alterServer = true;
+            }
+            return alterServer;
+        }
+
+        public bool UpdateBackupConfig(Server server)
+        {
+            bool alterServer = false;
+            if (this.currentState.CheckBackupChecksum != this.originalState.CheckBackupChecksum)
+            {
+                server.Configuration.DefaultBackupChecksum.ConfigValue = this.currentState.CheckBackupChecksum ? 1 : 0;
+                alterServer = true;
+            }
+
+            if (this.currentState.CheckCompressBackup != this.originalState.CheckCompressBackup)
+            {
+                server.Configuration.DefaultBackupCompression.ConfigValue = this.currentState.CheckCompressBackup ? 1 : 0;
+                alterServer = true;
+            }
+
+            return alterServer;
+        }
+
+        public bool UpdateDBSettingsValues(Server server)
+        {
+            bool alterServer = false;
+
+            if (this.currentState.DataLocation != this.originalState.DataLocation)
+            {
+                server.Settings.DefaultFile = this.currentState.DataLocation;
+                alterServer = true;
+            }
+
+            if (this.currentState.LogLocation != this.originalState.LogLocation)
+            {
+                server.Settings.DefaultLog = this.currentState.LogLocation;
+                alterServer = true;
+            }
+
+            if (this.currentState.BackupLocation != this.originalState.BackupLocation)
+            {
+                server.Settings.BackupDirectory = this.currentState.BackupLocation;
                 alterServer = true;
             }
             return alterServer;
@@ -650,6 +761,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.NumaNodes = serverInfo.NumaNodes.ToList();
             this.AuthenticationMode = serverInfo.AuthenticationMode;
             this.LoginAuditing = serverInfo.LoginAuditing;
+            this.CheckBackupChecksum = serverInfo.CheckBackupChecksum;
+            this.CheckCompressBackup = serverInfo.CheckCompressBackup;
+            this.DataLocation = serverInfo.DataLocation;
+            this.LogLocation = serverInfo.LogLocation;
+            this.BackupLocation = serverInfo.BackupLocation;
         }
 
         /// <summary>
@@ -687,6 +803,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private List<NumaNode> numaNodes = new List<NumaNode>();
             private ServerLoginMode authenticationMode = ServerLoginMode.Integrated;
             private AuditLevel loginAuditing = AuditLevel.None;
+            private bool checkCompressBackup = false;
+            private bool checkBackupChecksum = false;
+            private string dataLocation = String.Empty;
+            private string logLocation = String.Empty;
+            private string backupLocation = String.Empty;
 
             private bool initialized = false;
             private Server server;
@@ -1307,7 +1428,114 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     this.affinityManagerProcessorMask = value;
                 }
             }
+            public bool CheckBackupChecksum
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
 
+                    return this.checkBackupChecksum;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("CheckBackupChecksum"));
+                    }
+                    this.checkBackupChecksum = value;
+                }
+            }
+            public bool CheckCompressBackup
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.checkCompressBackup;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("CheckCompressBackup"));
+                    }
+                    this.checkCompressBackup = value;
+                }
+            }
+
+            public string DataLocation
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.dataLocation;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("DataLocation"));
+                    }
+                    this.dataLocation = value;
+                }
+            }
+
+            public string LogLocation
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.logLocation;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("LogLocation"));
+                    }
+                    this.logLocation = value;
+                }
+            }
+
+            public string BackupLocation
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.backupLocation;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("BackupLocation"));
+                    }
+                    this.backupLocation = value;
+                }
+            }
             #endregion
 
             /// <summary>
@@ -1337,7 +1565,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.minMemory = new NumericServerProperty();
                 this.maxMemory = new NumericServerProperty();
                 this.NumaNodes = new List<NumaNode>();
-         
                 LoadData();
             }
 
@@ -1374,6 +1601,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 result.numaNodes = this.numaNodes;
                 result.authenticationMode = this.authenticationMode;
                 result.loginAuditing = this.loginAuditing;
+                result.checkBackupChecksum = this.checkBackupChecksum;
+                result.checkCompressBackup = this.checkCompressBackup;
+                result.dataLocation = this.dataLocation;
+                result.logLocation = this.logLocation;
+                result.backupLocation = this.backupLocation;
                 result.server = this.server;
                 return result;
             }
@@ -1415,6 +1647,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 GetAutoProcessorsAffinity();
                 this.authenticationMode = server.LoginMode;
                 this.loginAuditing = server.AuditLevel;
+                this.checkBackupChecksum = this.configService.GetServerSmoConfig(server, this.configService.BackupChecksumDefaultPropertyNumber).ConfigValue == 1;
+                this.checkCompressBackup = this.configService.GetServerSmoConfig(server, this.configService.BackupCompressionDefaultPropertyNumber).ConfigValue == 1;
+                this.dataLocation = server.Settings.DefaultFile;
+                this.logLocation = server.Settings.DefaultLog;
+                this.backupLocation = server.Settings.BackupDirectory;
             }
 
             private void LoadMemoryProperties()
