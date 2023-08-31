@@ -795,7 +795,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 db130.QueryStoreOptions.MaxPlansPerQuery = database.QueryStoreOptions.MaxPlansPerQuery;
                                 db130.QueryStoreOptions.MaxStorageSizeInMB = database.QueryStoreOptions.MaxSizeInMB;
                                 db130.QueryStoreOptions.QueryCaptureMode = captureModeEnums[database.QueryStoreOptions.QueryStoreCaptureMode];
-                                db130.QueryStoreOptions.SizeBasedCleanupMode = database.QueryStoreOptions.SizeBasedCleanupMode == CommonConstants.QueryStoreSizeBasedCleanupMode_Off ? QueryStoreSizeBasedCleanupMode.Off : QueryStoreSizeBasedCleanupMode.Auto;
+                                db130.QueryStoreOptions.SizeBasedCleanupMode = database.QueryStoreOptions.SizeBasedCleanupMode == SR.queryStoreSizeBasedCleanupMode_Off ? QueryStoreSizeBasedCleanupMode.Off : QueryStoreSizeBasedCleanupMode.Auto;
                                 db130.QueryStoreOptions.StaleQueryThresholdInDays = database.QueryStoreOptions.StaleQueryThresholdInDays;
                                 if (prototype is DatabasePrototype140 db140 && database.QueryStoreOptions.WaitStatisticsCaptureMode != null)
                                 {
