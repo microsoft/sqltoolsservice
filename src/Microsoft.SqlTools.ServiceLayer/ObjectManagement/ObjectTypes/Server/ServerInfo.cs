@@ -5,6 +5,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -35,6 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool AutoProcessorAffinityMaskForAll { get; set; }
         public bool AutoProcessorAffinityIOMaskForAll { get; set; }
         public List<NumaNode> NumaNodes { get; set; }
+        public ServerLoginMode AuthenticationMode { get; set; }
+        public AuditLevel LoginAuditing { get; set; }
     }
 
     public class NumericServerProperty
