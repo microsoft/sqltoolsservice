@@ -24,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         private static readonly Lazy<ServerConfigService> instance = new Lazy<ServerConfigService>(() => new ServerConfigService());
         public readonly int MaxServerMemoryPropertyNumber = 1544;
         public readonly int MinServerMemoryPropertyNumber = 1543;
+        public readonly int BackupCompressionDefaultPropertyNumber = 1579;
+        public readonly int BackupChecksumDefaultPropertyNumber = 1584;
 
         /// <summary>
         /// Gets the singleton instance object
