@@ -101,28 +101,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadOnly, CommonConstants.QueryStoreOperationMode_ReadOnly);
             displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadWrite, CommonConstants.QueryStoreOperationMode_ReadWrite);
 
-            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.All, CommonConstants.QueryStoreCaptureMode_All);
-            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Auto, CommonConstants.QueryStoreCaptureMode_Auto);
-            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.None, CommonConstants.QueryStoreCaptureMode_None);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.All, SR.querystorecapturemode_all);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Auto, SR.querystorecapturemode_auto);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.None, SR.querystorecapturemode_none);
 
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(1, CommonConstants.StatisticsCollectionInterval_OneMinute);
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(5, CommonConstants.StatisticsCollectionInterval_FiveMinutes);
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(10, CommonConstants.StatisticsCollectionInterval_TenMinutes);
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(15, CommonConstants.StatisticsCollectionInterval_FifteenMinutes);
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(30, CommonConstants.StatisticsCollectionInterval_ThirtyMinutes);
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(60, CommonConstants.StatisticsCollectionInterval_OneHour);
-            displayStatisticsCollectionIntervalInMinutes.TryAdd(1440, CommonConstants.StatisticsCollectionInterval_OneDay);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1, SR.statisticsCollectionInterval_OneMinute);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(5, SR.statisticsCollectionInterval_FiveMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(10,SR.statisticsCollectionInterval_TenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(15,SR.statisticsCollectionInterval_FifteenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(30,SR.statisticsCollectionInterval_ThirtyMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(60,SR.statisticsCollectionInterval_OneHour);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1440, SR.statisticsCollectionInterval_OneDay);
 
-            displayQueryStoreStaleThresholdInHours.TryAdd(1, CommonConstants.QueryStore_stale_threshold_OneHour);
-            displayQueryStoreStaleThresholdInHours.TryAdd(4, CommonConstants.QueryStore_stale_threshold_FourHours);
-            displayQueryStoreStaleThresholdInHours.TryAdd(8, CommonConstants.QueryStore_stale_threshold_EightHours);
-            displayQueryStoreStaleThresholdInHours.TryAdd(12, CommonConstants.QueryStore_stale_threshold_TwelveHours);
-            displayQueryStoreStaleThresholdInHours.TryAdd(24, CommonConstants.QueryStore_stale_threshold_OneDay);
-            displayQueryStoreStaleThresholdInHours.TryAdd(72, CommonConstants.QueryStore_stale_threshold_ThreeDays);
-            displayQueryStoreStaleThresholdInHours.TryAdd(168, CommonConstants.QueryStore_stale_threshold_SevenDays);
+            displayQueryStoreStaleThresholdInHours.TryAdd(1, SR.queryStore_stale_threshold_OneHour);
+            displayQueryStoreStaleThresholdInHours.TryAdd(4, SR.queryStore_stale_threshold_FourHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(8, SR.queryStore_stale_threshold_EightHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(12, SR.queryStore_stale_threshold_TwelveHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(24, SR.queryStore_stale_threshold_OneDay);
+            displayQueryStoreStaleThresholdInHours.TryAdd(72, SR.queryStore_stale_threshold_ThreeDays);
+            displayQueryStoreStaleThresholdInHours.TryAdd(168, SR.queryStore_stale_threshold_SevenDays);
 
-            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, CommonConstants.QueryStoreSizeBasedCleanupMode_Off);
-            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, CommonConstants.QueryStoreSizeBasedCleanupMode_Auto);
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, SR.queryStoreSizeBasedCleanupMode_Off);
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, SR.queryStoreSizeBasedCleanupMode_Auto);
 
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                             };
 
                                             // Sql Server 2019 and higher only support the custom query store capture mode
-                                            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, CommonConstants.QueryStoreCaptureMode_Custom);
+                                            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, SR.querystorecapturemode_custom);
                                         }
                                     }
                                 }
@@ -788,7 +788,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             if (!viewParams.IsNewObject && database.QueryStoreOptions != null)
                             {
                                 // Sql Server 2019 and higher supports custom query store capture mode
-                                captureModeEnums.TryAdd(CommonConstants.QueryStoreCaptureMode_Custom, QueryStoreCaptureMode.Custom);
+                                captureModeEnums.TryAdd(SR.querystorecapturemode_custom, QueryStoreCaptureMode.Custom);
                                 db130.QueryStoreOptions.DesiredState = operationModeEnums[database.QueryStoreOptions.ActualMode];
                                 db130.QueryStoreOptions.DataFlushIntervalInSeconds = database.QueryStoreOptions.DataFlushIntervalInMinutes * 60;
                                 db130.QueryStoreOptions.StatisticsCollectionIntervalInMinutes = statisticsCollectionIntervalValues[database.QueryStoreOptions.StatisticsCollectionInterval];
@@ -802,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     db140.QueryStoreOptions.WaitStatsCaptureMode = (bool)database.QueryStoreOptions.WaitStatisticsCaptureMode ? QueryStoreWaitStatsCaptureMode.On : QueryStoreWaitStatsCaptureMode.Off;
                                 }
 
-                                if (prototype is DatabasePrototype150 db150 && database.QueryStoreOptions.QueryStoreCaptureMode == CommonConstants.QueryStoreCaptureMode_Custom
+                                if (prototype is DatabasePrototype150 db150 && database.QueryStoreOptions.QueryStoreCaptureMode == SR.querystorecapturemode_custom
                                     && database.QueryStoreOptions.CapturePolicyOptions != null)
                                 {
                                     db150.QueryStoreOptions.CapturePolicyExecutionCount = database.QueryStoreOptions.CapturePolicyOptions.ExecutionCount;
