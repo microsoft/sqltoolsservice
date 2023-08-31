@@ -1878,6 +1878,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
+        /// <exception cref="Exception">When an error occurs.</exception>
         public static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
@@ -1927,9 +1928,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
                 Logger.Error(error);
+                throw;
             }
-
-            return null;
         }
 
         /// <summary>

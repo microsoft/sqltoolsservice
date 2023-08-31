@@ -26,17 +26,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void LatestSqlParserIsUsedByDefault()
         {
             // This should only parse correctly on SQL server 2016 or newer
-            const string sql2016Text = 
+            const string sql2016Text =
                 @"CREATE SECURITY POLICY [FederatedSecurityPolicy]" + "\r\n" +
-                @"ADD FILTER PREDICATE [rls].[fn_securitypredicate]([CustomerId])" + "\r\n" +   
+                @"ADD FILTER PREDICATE [rls].[fn_securitypredicate]([CustomerId])" + "\r\n" +
                 @"ON [dbo].[Customer];";
-            
+
             LanguageService service = TestObjects.GetTestLanguageService();
 
             // parse
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sql2016Text);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify that no errors are detected
             Assert.AreEqual(0, fileMarkers.Length);
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse the sql statement
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sqlWithErrors);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify there are no errors
             Assert.AreEqual(0, fileMarkers.Length);
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse sql statement
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sqlWithErrors);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify there is one error
             Assert.AreEqual(1, fileMarkers.Length);
@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void ParseMultilineSqlWithErrors()
         {
             // multiline sql with errors
-            const string sqlWithErrors = 
+            const string sqlWithErrors =
                 "SELECT *** FROM sys.objects;\n" +
                 "GO\n" +
                 "SELECT *** FROM sys.objects;\n";
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse sql
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sqlWithErrors);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify there are two errors
             Assert.AreEqual(2, fileMarkers.Length);
@@ -140,29 +140,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             scriptFile.SetFileContents(docContent);
 
             // When requesting SignatureHelp
-            SignatureHelp signatureHelp = service.GetSignatureHelp(TestObjects.GetTestDocPosition(), scriptFile);
-            
+            SignatureHelp signatureHelp = service.GetSignatureHelp(TestObjects.GetTestDocPosition(), scriptFile).GetAwaiter().GetResult();
+
             // Then null is returned as no parse info can be used to find the signature
             Assert.Null(signatureHelp);
         }
 
         [Test]
         public void EmptyCompletionListTest()
-        {           
+        {
             Assert.AreEqual(0, AutoCompleteHelper.EmptyCompletionList.Length);
         }
 
         internal sealed class TestScriptDocumentInfo : ScriptDocumentInfo
         {
-            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo, 
+            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo,
                 string tokenText = null)
-                :base(textDocumentPosition, scriptFile, scriptParseInfo)
+                : base(textDocumentPosition, scriptFile, scriptParseInfo)
             {
                 this.tokenText = string.IsNullOrEmpty(tokenText) ? "doesntmatchanythingintheintellisensedefaultlist" : tokenText;
             }
 
             private string tokenText;
-            
+
             public override string TokenText
             {
                 get
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         [Test]
         public void GetDefaultCompletionListWithNoMatchesTest()
-        {           
+        {
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents("koko wants a bananas");
 
@@ -183,10 +183,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             var scriptDocumentInfo = new TestScriptDocumentInfo(
                 new TextDocumentPosition()
                 {
-                    TextDocument = new TextDocumentIdentifier() {  Uri = TestObjects.ScriptUri  },
+                    TextDocument = new TextDocumentIdentifier() { Uri = TestObjects.ScriptUri },
                     Position = new Position() { Line = 0, Character = 0 }
                 }, scriptFile, scriptInfo);
-      
+
             AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
 
         }

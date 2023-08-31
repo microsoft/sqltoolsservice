@@ -14,7 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public OptionsCollection CompatibilityLevels { get; set; }
         public OptionsCollection ContainmentTypes { get; set; }
         public OptionsCollection RecoveryModels { get; set; }
-        public DatabaseFile[] Files { get; set; }
 
         public bool IsAzureDB { get; set; }
         public bool IsManagedInstance { get; set; }
@@ -28,20 +27,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] DscOnOffOptions { get; set; }
         public string[] DscElevateOptions { get; set; }
         public string[] DscEnableDisableOptions { get; set; }
+        public string[] FileTypesOptions { get; set; }
     }
 
     public class AzureEditionDetails
     {
         public string EditionDisplayName { get; set; }
         public OptionsCollection EditionOptions { get; set; }
-    }
-
-    public class DatabaseFile
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Path { get; set; }
-        public string FileGroup { get; set; }
     }
 
     public class OptionsCollection {

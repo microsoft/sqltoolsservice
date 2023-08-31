@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CreateUserDataContainer(serverConnection, user, configAction, databaseName);
             using (var actions = new UserActions(dataContainer, configAction, user, originalData))
             {
-                var executionHandler = new ExecutonHandler(actions);
+                var executionHandler = new ExecutionHandler(actions);
                 executionHandler.RunNow(runType, this);
                 if (executionHandler.ExecutionResult == ExecutionMode.Failure)
                 {

@@ -7,9 +7,8 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.CoreSql.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer

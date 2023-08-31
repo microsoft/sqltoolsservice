@@ -202,7 +202,11 @@ namespace Microsoft.SqlTools.Utility
             int uniqueId;
             try
             {
+#if NETSTANDARD2_0
+                uniqueId = Process.GetCurrentProcess().Id;
+#else
                 uniqueId = Environment.ProcessId;
+#endif
             }
             catch (Exception ex)
             {
@@ -256,8 +260,10 @@ namespace Microsoft.SqlTools.Utility
         /// Writes a PII message to the log file with the Verbose event level when PII flag is enabled.
         /// </summary>
         /// <param name="logMessage">The message text to be written.</param>
-        public static void Pii(string logMessage) {
-            if (IsPiiEnabled) {
+        public static void Pii(string logMessage)
+        {
+            if (IsPiiEnabled)
+            {
                 Write(TraceEventType.Verbose, logMessage);
             }
         }

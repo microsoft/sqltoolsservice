@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             string sqlScript = string.Empty;
             using (var actions = new ServerRoleActions(dataContainer, configAction, prototype))
             {
-                var executionHandler = new ExecutonHandler(actions);
+                var executionHandler = new ExecutionHandler(actions);
                 executionHandler.RunNow(runType, this);
                 if (executionHandler.ExecutionResult == ExecutionMode.Failure)
                 {

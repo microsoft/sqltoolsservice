@@ -19,6 +19,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Scripting;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 {

@@ -1062,6 +1062,36 @@
         <target state="translated">スキーマとデータ</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingParams.ConnectionString property.</source>
+        <target state="translated">ScriptingParams.ConnectionString プロパティの解析エラーです。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
+        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
+        <target state="translated">ScriptingParams.FilePath プロパティで指定されたディレクトリが無効です。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="translated">ScriptingListObjectsCompleteParams.ConnectionString プロパティの解析エラーです。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StoredProcedureScriptParameterComment">
+        <source>-- TODO: Set parameter values here.</source>
+        <target state="translated">-- TODO: ここにパラメーター値を設定します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingGeneralError">
+        <source>An error occurred while scripting the objects.</source>
+        <target state="translated">オブジェクトのスクリプト作成中にエラーが発生しました。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingExecuteNotSupportedError">
+        <source>Scripting as Execute is only supported for Stored Procedures</source>
+        <target state="translated">Execute としてのスクリプトはストアド プロシージャでのみサポートされます</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

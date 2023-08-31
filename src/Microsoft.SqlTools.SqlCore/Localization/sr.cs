@@ -1725,6 +1725,54 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
+        public static string ScriptingParams_ConnectionString_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingParams_ConnectionString_Property_Invalid);
+            }
+        }
+
+        public static string ScriptingParams_FilePath_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingParams_FilePath_Property_Invalid);
+            }
+        }
+
+        public static string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid);
+            }
+        }
+
+        public static string StoredProcedureScriptParameterComment
+        {
+            get
+            {
+                return Keys.GetString(Keys.StoredProcedureScriptParameterComment);
+            }
+        }
+
+        public static string ScriptingGeneralError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingGeneralError);
+            }
+        }
+
+        public static string ScriptingExecuteNotSupportedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingExecuteNotSupportedError);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -2367,6 +2415,24 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string FilterInPrimaryKeyDescription = "FilterInPrimaryKeyDescription";
+
+
+            public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";
+
+
+            public const string ScriptingParams_FilePath_Property_Invalid = "ScriptingParams_FilePath_Property_Invalid";
+
+
+            public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
+
+
+            public const string StoredProcedureScriptParameterComment = "StoredProcedureScriptParameterComment";
+
+
+            public const string ScriptingGeneralError = "ScriptingGeneralError";
+
+
+            public const string ScriptingExecuteNotSupportedError = "ScriptingExecuteNotSupportedError";
 
 
             private Keys()

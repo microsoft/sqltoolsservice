@@ -8,7 +8,6 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <TargetFramework>net7.0</TargetFramework>
     <RootDir>$(MSBuildThisFileDirectory)</RootDir>
 
     <!-- Defaults-->

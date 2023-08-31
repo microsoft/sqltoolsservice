@@ -6,13 +6,16 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Moq;
 using Newtonsoft.Json.Linq;
+using DatabaseFile = Microsoft.SqlTools.ServiceLayer.ObjectManagement.DatabaseFile;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -104,7 +107,48 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             };
         }
 
-        internal static UserInfo GetTestUserInfo(DatabaseUserType userType, string userName = null, string loginName = null)
+        internal static DatabaseFile[] GetTestDatabaseFiles()
+        {
+            List<DatabaseFile> databaseFiles = new List<DatabaseFile>() {
+                new DatabaseFile() {
+                        Id = 0,
+                        Name = "TestDatabaseName_File1_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                        Type = "LOG",
+                        AutoFileGrowth = 100,
+                        AutoFileGrowthType = FileGrowthType.KB,
+                        FileGroup = "Not Applicable",
+                        FileNameWithExtension = "",
+                        SizeInMb = 10,
+                        IsAutoGrowthEnabled = true,
+                        MaxSizeLimitInMb = -1,
+                        Path = ""
+                    }
+            };
+            return databaseFiles.ToArray();
+        }
+
+        internal static List<FileGroupSummary> GetTestDatabaseFilegroups()
+        {
+            List<FileGroupSummary> fgs = new List<FileGroupSummary>();
+            fgs.Add(new FileGroupSummary()
+            {
+                Id = -1,
+                Name = "rowFilegroup1",
+                IsDefault = false,
+                IsReadOnly = false,
+                AutogrowAllFiles = true,
+                Type = FileGroupType.RowsFileGroup
+            });
+            fgs.Add(new FileGroupSummary()
+            {
+                Id = -2,
+                Name = "memOptFg1",
+                Type = FileGroupType.MemoryOptimizedDataFileGroup
+            });
+            return fgs;
+        }
+
+            internal static UserInfo GetTestUserInfo(DatabaseUserType userType, string userName = null, string loginName = null)
         {
             return new UserInfo()
             {

@@ -80,9 +80,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         public async Task HandleModelImportRequest(ImportModelRequestParams parameters, RequestContext<ImportModelResponseParams> requestContext)
         {
             Logger.Verbose("HandleModelImportRequest");
-                ImportModelResponseParams response = new ImportModelResponseParams
-                {
-                };
+            ImportModelResponseParams response = new ImportModelResponseParams
+            {
+            };
 
             await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
             {
@@ -205,8 +205,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         }
 
         private async Task HandleRequest<T, TResponse>(
-            T parameters, 
-            TResponse response, 
+            T parameters,
+            TResponse response,
             RequestContext<TResponse> requestContext,
             Func<IDbConnection, T, TResponse, TResponse> operation) where T : ModelRequestBase where TResponse : ModelResponseBase
         {
@@ -232,6 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
             catch (Exception e)
             {
                 // Exception related to run task will be captured here
+                Logger.Error(e);
                 await requestContext.SendError(e);
             }
         }

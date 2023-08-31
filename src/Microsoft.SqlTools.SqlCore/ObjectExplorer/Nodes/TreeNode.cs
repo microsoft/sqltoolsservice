@@ -323,7 +323,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                     }
                 }
             }
-            ApplicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(factories);
+            ApplicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => factories);
         }
 
         public IEnumerable<ChildFactory> GetApplicableChildFactories()
