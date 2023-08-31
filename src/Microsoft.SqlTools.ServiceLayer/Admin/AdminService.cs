@@ -8,10 +8,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -71,6 +74,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest, true);
+            serviceHost.SetRequestHandler(GetDataFolderRequest.Type, HandleGetDataFolderRequest, true);
+            serviceHost.SetRequestHandler(GetAssociatedFilesRequest.Type, HandleGetAssociatedFilesRequest, true);
         }
 
         /// <summary>
@@ -150,6 +155,74 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
             {
                 await requestContext.SendError(t.Exception.ToString());
+            });
+        }
+
+        /// <summary>
+        /// Handle get database info request
+        /// </summary>
+        internal static async Task HandleGetDataFolderRequest(
+            GetDataFolderParams databaseParams,
+            RequestContext<string> requestContext)
+        {
+            Func<Task> requestHandler = async () =>
+            {
+                ConnectionInfo connInfo;
+                AdminService.ConnectionServiceInstance.TryFindConnection(
+                        databaseParams.ConnectionUri,
+                        out connInfo);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    // Connection gets disconnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    var dataFolder = CommonUtilities.GetDefaultDataFolder(serverConnection);
+                    await requestContext.SendResult(dataFolder);
+                }
+            };
+
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            {
+                // Get innermost exception to get original error message
+                Exception ex = t.Exception;
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                };
+                await requestContext.SendError(ex.Message);
+            });
+        }
+
+        /// <summary>
+        /// Handle get associated database files request
+        /// </summary>
+        internal static async Task HandleGetAssociatedFilesRequest(
+            GetAssociatedFilesParams databaseParams,
+            RequestContext<string[]> requestContext)
+        {
+            Func<Task> requestHandler = async () =>
+            {
+                ConnectionInfo connInfo;
+                AdminService.ConnectionServiceInstance.TryFindConnection(
+                        databaseParams.ConnectionUri,
+                        out connInfo);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    // Connection gets disconnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    var files = CommonUtilities.GetAssociatedFilePaths(serverConnection, databaseParams.PrimaryFilePath);
+                    await requestContext.SendResult(files);
+                }
+            };
+
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            {
+                // Get innermost exception to get original error message
+                Exception ex = t.Exception;
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                };
+                await requestContext.SendError(ex.Message);
             });
         }
 

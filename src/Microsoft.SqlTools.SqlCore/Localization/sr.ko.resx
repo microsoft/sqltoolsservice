@@ -753,4 +753,22 @@
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>스키마 및 데이터</value>
   </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.ConnectionString 속성을 분석하는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath 속성에 잘못된 디렉터리를 지정했습니다.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingListObjectsCompleteParams.ConnectionString 속성을 분석하는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: 여기에서 매개 변수 값을 설정합니다.</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>개체를 스크립팅하는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>저장 프로시저에만 실행으로 스크립팅할 수 있습니다.</value>
+  </data>
 </root>

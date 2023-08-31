@@ -3,12 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.SqlCore.Scripting
 {
     /// <summary>
     /// A wrpaper of ScriptOptions to map the option name with the oen in SMO.ScriptingOptions

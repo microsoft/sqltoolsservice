@@ -18,6 +18,8 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
 using System.Linq;
+using Microsoft.SqlTools.SqlCore.Scripting;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
