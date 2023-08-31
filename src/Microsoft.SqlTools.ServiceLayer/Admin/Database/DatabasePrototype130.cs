@@ -6,6 +6,7 @@
 
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -25,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         // GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21)
         // PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
         private static readonly HashSet<int> secondaryValUnsupportedPropsSet = new HashSet<int> { 6, 11, 12, 21, 25 };
+        public static bool areQueryStorePropertiesInitialized = true;
 
         /// <summary>
         /// Database properties for SqlServer 2016 class constructor
@@ -83,46 +85,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (db.IsSupportedObject<QueryStoreOptions>())
             {
-                if (!this.Exists || (db.QueryStoreOptions.DesiredState != this.currentState.queryStoreOptions.DesiredState))
+                try
                 {
-                    db.QueryStoreOptions.DesiredState = this.currentState.queryStoreOptions.DesiredState;
+                    // Querystore propeties do not initialized at the time of create database
+                    var desiredState = this.currentState.queryStoreOptions.DesiredState;
                 }
-
-                if (this.currentState.queryStoreOptions.DesiredState != QueryStoreOperationMode.Off)
+                catch (Exception ex)
                 {
-                    if (!this.Exists || (db.QueryStoreOptions.DataFlushIntervalInSeconds != this.currentState.queryStoreOptions.DataFlushIntervalInSeconds))
+                    areQueryStorePropertiesInitialized = false;
+                }
+                if (areQueryStorePropertiesInitialized)
+                {
+                    if (!this.Exists || (db.QueryStoreOptions.DesiredState != this.currentState.queryStoreOptions.DesiredState))
                     {
-                        db.QueryStoreOptions.DataFlushIntervalInSeconds = this.currentState.queryStoreOptions.DataFlushIntervalInSeconds;
+                        db.QueryStoreOptions.DesiredState = this.currentState.queryStoreOptions.DesiredState;
                     }
 
-                    if (!this.Exists || (db.QueryStoreOptions.StatisticsCollectionIntervalInMinutes != this.currentState.queryStoreOptions.StatisticsCollectionIntervalInMinutes))
+                    if (this.currentState.queryStoreOptions.DesiredState != QueryStoreOperationMode.Off)
                     {
-                        db.QueryStoreOptions.StatisticsCollectionIntervalInMinutes = this.currentState.queryStoreOptions.StatisticsCollectionIntervalInMinutes;
-                    }
+                        if (!this.Exists || (db.QueryStoreOptions.DataFlushIntervalInSeconds != this.currentState.queryStoreOptions.DataFlushIntervalInSeconds))
+                        {
+                            db.QueryStoreOptions.DataFlushIntervalInSeconds = this.currentState.queryStoreOptions.DataFlushIntervalInSeconds;
+                        }
 
-                    if (!this.Exists || (db.QueryStoreOptions.MaxPlansPerQuery != this.currentState.queryStoreOptions.MaxPlansPerQuery))
-                    {
-                        db.QueryStoreOptions.MaxPlansPerQuery = this.currentState.queryStoreOptions.MaxPlansPerQuery;
-                    }
+                        if (!this.Exists || (db.QueryStoreOptions.StatisticsCollectionIntervalInMinutes != this.currentState.queryStoreOptions.StatisticsCollectionIntervalInMinutes))
+                        {
+                            db.QueryStoreOptions.StatisticsCollectionIntervalInMinutes = this.currentState.queryStoreOptions.StatisticsCollectionIntervalInMinutes;
+                        }
 
-                    if (!this.Exists || (db.QueryStoreOptions.MaxStorageSizeInMB != this.currentState.queryStoreOptions.MaxStorageSizeInMB))
-                    {
-                        db.QueryStoreOptions.MaxStorageSizeInMB = this.currentState.queryStoreOptions.MaxStorageSizeInMB;
-                    }
+                        if (!this.Exists || (db.QueryStoreOptions.MaxPlansPerQuery != this.currentState.queryStoreOptions.MaxPlansPerQuery))
+                        {
+                            db.QueryStoreOptions.MaxPlansPerQuery = this.currentState.queryStoreOptions.MaxPlansPerQuery;
+                        }
 
-                    if (!this.Exists || (db.QueryStoreOptions.QueryCaptureMode != this.currentState.queryStoreOptions.QueryCaptureMode))
-                    {
-                        db.QueryStoreOptions.QueryCaptureMode = this.currentState.queryStoreOptions.QueryCaptureMode;
-                    }
+                        if (!this.Exists || (db.QueryStoreOptions.MaxStorageSizeInMB != this.currentState.queryStoreOptions.MaxStorageSizeInMB))
+                        {
+                            db.QueryStoreOptions.MaxStorageSizeInMB = this.currentState.queryStoreOptions.MaxStorageSizeInMB;
+                        }
 
-                    if (!this.Exists || (db.QueryStoreOptions.SizeBasedCleanupMode != this.currentState.queryStoreOptions.SizeBasedCleanupMode))
-                    {
-                        db.QueryStoreOptions.SizeBasedCleanupMode = this.currentState.queryStoreOptions.SizeBasedCleanupMode;
-                    }
+                        if (!this.Exists || (db.QueryStoreOptions.QueryCaptureMode != this.currentState.queryStoreOptions.QueryCaptureMode))
+                        {
+                            db.QueryStoreOptions.QueryCaptureMode = this.currentState.queryStoreOptions.QueryCaptureMode;
+                        }
 
-                    if (!this.Exists || (db.QueryStoreOptions.StaleQueryThresholdInDays != this.currentState.queryStoreOptions.StaleQueryThresholdInDays))
-                    {
-                        db.QueryStoreOptions.StaleQueryThresholdInDays = this.currentState.queryStoreOptions.StaleQueryThresholdInDays;
+                        if (!this.Exists || (db.QueryStoreOptions.SizeBasedCleanupMode != this.currentState.queryStoreOptions.SizeBasedCleanupMode))
+                        {
+                            db.QueryStoreOptions.SizeBasedCleanupMode = this.currentState.queryStoreOptions.SizeBasedCleanupMode;
+                        }
+
+                        if (!this.Exists || (db.QueryStoreOptions.StaleQueryThresholdInDays != this.currentState.queryStoreOptions.StaleQueryThresholdInDays))
+                        {
+                            db.QueryStoreOptions.StaleQueryThresholdInDays = this.currentState.queryStoreOptions.StaleQueryThresholdInDays;
+                        }
                     }
                 }
             }
