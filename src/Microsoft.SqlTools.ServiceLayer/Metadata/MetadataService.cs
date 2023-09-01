@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetRequestHandler(GetOrGenerateServerContextualizationRequest.Type, HandleGetOrGenerateServerContextualizationRequest, true);
+            serviceHost.SetRequestHandler(GetServerContextualizationRequest.Type, HandleGetServerContextualizationRequest, true);
         }
 
         /// <summary>
@@ -120,12 +120,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
         }
 
-        internal static Task HandleGetOrGenerateServerContextualizationRequest(GetOrGenerateServerContextualizationParams contextualizationParams,
-            RequestContext<GetOrGenerateServerContextualizationResult> requestContext)
+        internal static Task HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams,
+            RequestContext<GetServerContextualizationResult> requestContext)
         {
             _ = Task.Factory.StartNew(async () =>
             {
-                await GetOrGenerateServerContextualization(contextualizationParams, requestContext);
+                await GetServerContextualization(contextualizationParams, requestContext);
             },
             CancellationToken.None,
             TaskCreationOptions.None,
@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return Task.CompletedTask;
         }
 
-        internal static async Task GetOrGenerateServerContextualization(GetOrGenerateServerContextualizationParams contextualizationParams, RequestContext<GetOrGenerateServerContextualizationResult> requestContext)
+        internal static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
             if (connectionInfo == null)
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             {
                                 try
                                 {
-                                    await requestContext.SendResult(new GetOrGenerateServerContextualizationResult()
+                                    await requestContext.SendResult(new GetServerContextualizationResult()
                                     {
                                         Context = string.Join('\n', scripts)
                                     });
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         try
                         {
                             var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
-                            await requestContext.SendResult(new GetOrGenerateServerContextualizationResult
+                            await requestContext.SendResult(new GetServerContextualizationResult
                             {
                                 Context = string.Join('\n', scripts)
                             });
