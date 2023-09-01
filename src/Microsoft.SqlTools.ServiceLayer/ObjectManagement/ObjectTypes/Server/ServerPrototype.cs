@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using System.Linq;
 using System.Collections;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -417,6 +418,188 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.currentState.BackupLocation = value;
             }
         }
+
+        public bool AllowTriggerToFireOthers
+        {
+            get
+            {
+                return this.currentState.AllowTriggerToFireOthers;
+            }
+
+            set
+            {
+                this.currentState.AllowTriggerToFireOthers = value;
+            }
+        }
+
+        public NumericServerProperty BlockedProcThreshold
+        {
+            get
+            {
+                return this.currentState.BlockedProcThreshold;
+            }
+
+            set
+            {
+                this.currentState.BlockedProcThreshold = value;
+            }
+        }
+
+        public NumericServerProperty CursorThreshold
+        {
+            get
+            {
+                return this.currentState.CursorThreshold;
+            }
+
+            set
+            {
+                this.currentState.CursorThreshold = value;
+            }
+        }
+
+        public string DefaultFullTextLanguage
+        {
+            get
+            {
+                return this.currentState.DefaultFullTextLanguage;
+            }
+
+            set
+            {
+                this.currentState.DefaultFullTextLanguage = value;
+            }
+        }
+
+        public string DefaultLanguage
+        {
+            get
+            {
+                return this.currentState.DefaultLanguage;
+            }
+
+            set
+            {
+                this.currentState.DefaultLanguage = value;
+            }
+        }
+
+        public string FullTextUpgradeOption
+        {
+            get
+            {
+                return this.currentState.FullTextUpgradeOption;
+            }
+
+            set
+            {
+                this.currentState.FullTextUpgradeOption = value;
+            }
+        }
+
+        public NumericServerProperty MaxTextReplicationSize
+        {
+            get
+            {
+                return this.currentState.MaxTextReplicationSize;
+            }
+
+            set
+            {
+                this.currentState.MaxTextReplicationSize = value;
+            }
+        }
+
+        public bool OptimizeAdHocWorkloads
+        {
+            get
+            {
+                return this.currentState.OptimizeAdHocWorkloads;
+            }
+
+            set
+            {
+                this.currentState.OptimizeAdHocWorkloads = value;
+            }
+        }
+
+        public bool ScanStartupProcs
+        {
+            get
+            {
+                return this.currentState.ScanStartupProcs;
+            }
+
+            set
+            {
+                this.currentState.ScanStartupProcs = value;
+            }
+        }
+
+        public int TwoDigitYearCutoff
+        {
+            get
+            {
+                return this.currentState.TwoDigitYearCutoff;
+            }
+
+            set
+            {
+                this.currentState.TwoDigitYearCutoff = value;
+            }
+        }
+
+        public NumericServerProperty CostThresholdParallelism
+        {
+            get
+            {
+                return this.currentState.CostThresholdParallelism;
+            }
+
+            set
+            {
+                this.currentState.CostThresholdParallelism = value;
+            }
+        }
+
+        public NumericServerProperty Locks
+        {
+            get
+            {
+                return this.currentState.Locks;
+            }
+
+            set
+            {
+                this.currentState.Locks = value;
+            }
+        }
+
+        public NumericServerProperty MaxDegreeParallelism
+        {
+            get
+            {
+                return this.currentState.MaxDegreeParallelism;
+            }
+
+            set
+            {
+                this.currentState.MaxDegreeParallelism = value;
+            }
+        }
+
+        public NumericServerProperty QueryWait
+        {
+            get
+            {
+                return this.currentState.QueryWait;
+            }
+
+            set
+            {
+                this.currentState.QueryWait = value;
+            }
+        }
         #endregion
 
 
@@ -500,6 +683,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     server.Configuration.Alter();
                 }
+
+                if (UpdateAdvancedValues(this.dataContainer.Server))
+                {
+                    server.Configuration.Alter();
+                }
+
+                if(UpdateFullTextService(this.dataContainer.Server))
+                {
+                    server.FullTextService.Alter();
+                }
             }
         }
 
@@ -580,6 +773,101 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 server.Settings.BackupDirectory = this.currentState.BackupLocation;
                 alterServer = true;
             }
+            return alterServer;
+        }
+        
+        public bool UpdateFullTextService(Server server)
+        {
+            bool alterServer = false;
+            if (this.currentState.FullTextUpgradeOption != this.originalState.FullTextUpgradeOption)
+            {
+                server.FullTextService.CatalogUpgradeOption = (FullTextCatalogUpgradeOption)Enum.Parse(typeof(FullTextCatalogUpgradeOption), this.currentState.FullTextUpgradeOption);
+                alterServer = true;
+            }
+            return alterServer;
+        }
+
+        public bool UpdateAdvancedValues(Server server)
+        {
+            bool alterServer = false;
+            if (this.currentState.AllowTriggerToFireOthers != this.originalState.AllowTriggerToFireOthers)
+            {
+                server.Configuration.NestedTriggers.ConfigValue = this.currentState.AllowTriggerToFireOthers ? 1 : 0;
+                alterServer = true;
+            }
+
+            if (this.currentState.BlockedProcThreshold != this.originalState.BlockedProcThreshold)
+            {
+                server.Configuration.BlockedProcessThreshold.ConfigValue = this.currentState.BlockedProcThreshold.Value;
+                alterServer = true;
+            }
+
+            if (this.currentState.CursorThreshold != this.originalState.CursorThreshold)
+            {
+                server.Configuration.CursorThreshold.ConfigValue = this.currentState.CursorThreshold.Value;
+                alterServer = true;
+            }
+
+            if (this.currentState.DefaultFullTextLanguage != this.originalState.DefaultFullTextLanguage)
+            {
+                server.Configuration.DefaultFullTextLanguage.ConfigValue = LanguageUtils.GetLangIdFromAlias(server, this.currentState.DefaultFullTextLanguage);
+                alterServer = true;
+            }
+
+            if (this.currentState.DefaultLanguage != this.originalState.DefaultLanguage)
+            {
+                server.Configuration.DefaultLanguage.ConfigValue = LanguageUtils.GetLangIdFromAlias(server, this.currentState.DefaultLanguage);
+                alterServer = true;
+            }
+
+            if (this.currentState.MaxTextReplicationSize.Value != this.originalState.MaxTextReplicationSize.Value)
+            {
+                server.Configuration.ReplicationMaxTextSize.ConfigValue = this.currentState.MaxTextReplicationSize.Value;
+                alterServer = true;
+            }
+
+            if (this.currentState.OptimizeAdHocWorkloads != this.originalState.OptimizeAdHocWorkloads)
+            {
+                server.Configuration.OptimizeAdhocWorkloads.ConfigValue = this.currentState.OptimizeAdHocWorkloads ? 1 : 0;
+                alterServer = true;
+            }
+
+            if (this.currentState.ScanStartupProcs != this.originalState.ScanStartupProcs)
+            {
+                server.Configuration.ScanForStartupProcedures.ConfigValue = this.currentState.ScanStartupProcs ? 1 : 0;
+                alterServer = true;
+            }
+
+            if (this.currentState.TwoDigitYearCutoff != this.originalState.TwoDigitYearCutoff)
+            {
+                server.Configuration.TwoDigitYearCutoff.ConfigValue = this.currentState.TwoDigitYearCutoff;
+                alterServer = true;
+            }
+
+            if (this.currentState.CostThresholdParallelism != this.originalState.CostThresholdParallelism)
+            {
+                server.Configuration.CostThresholdForParallelism.ConfigValue = this.currentState.CostThresholdParallelism.Value;
+                alterServer = true;
+            }
+
+            if (this.currentState.Locks != this.originalState.Locks)
+            {
+                server.Configuration.Locks.ConfigValue = this.currentState.Locks.Value;
+                alterServer = true;
+            }
+
+            if (this.currentState.MaxDegreeParallelism != this.originalState.MaxDegreeParallelism)
+            {
+                server.Configuration.MaxDegreeOfParallelism.ConfigValue = this.currentState.MaxDegreeParallelism.Value;
+                alterServer = true;
+            }
+
+            if (this.currentState.QueryWait != this.originalState.QueryWait)
+            {
+                server.Configuration.QueryWait.ConfigValue = this.currentState.QueryWait.Value;
+                alterServer = true;
+            }
+
             return alterServer;
         }
 
@@ -766,6 +1054,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.DataLocation = serverInfo.DataLocation;
             this.LogLocation = serverInfo.LogLocation;
             this.BackupLocation = serverInfo.BackupLocation;
+            this.AllowTriggerToFireOthers = serverInfo.AllowTriggerToFireOthers;
+            this.BlockedProcThreshold = serverInfo.BlockedProcThreshold;
+            this.CursorThreshold = serverInfo.CursorThreshold;
+            this.DefaultFullTextLanguage = serverInfo.DefaultFullTextLanguage;
+            this.DefaultLanguage = serverInfo.DefaultLanguage;
+            this.FullTextUpgradeOption = serverInfo.FullTextUpgradeOption;
+            this.MaxTextReplicationSize = serverInfo.MaxTextReplicationSize;
+            this.OptimizeAdHocWorkloads = serverInfo.OptimizeAdHocWorkloads;
+            this.ScanStartupProcs = serverInfo.ScanStartupProcs;
+            this.TwoDigitYearCutoff = serverInfo.TwoDigitYearCutoff;
+            this.CostThresholdParallelism = serverInfo.CostThresholdParallelism;
+            this.Locks = serverInfo.Locks;
+            this.MaxDegreeParallelism = serverInfo.MaxDegreeParallelism;
+            this.QueryWait = serverInfo.QueryWait;
         }
 
         /// <summary>
@@ -808,7 +1110,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string dataLocation = String.Empty;
             private string logLocation = String.Empty;
             private string backupLocation = String.Empty;
-
+            private bool allowTriggerToFireOthers = false;
+            private NumericServerProperty blockedProcThreshold;
+            private NumericServerProperty cursorThreshold;
+            private string defaultFullTextLanguage = String.Empty;
+            private string defaultLanguage = String.Empty;
+            private string fullTextUpgradeOption = String.Empty;
+            private NumericServerProperty maxTextReplicationSize;
+            private bool optimizeAdHocWorkloads = false;
+            private bool scanStartupProcs = false;
+            private int twoDigitYearCutoff = 0;
+            private NumericServerProperty costThresholdParallelism;
+            private NumericServerProperty locks;
+            private NumericServerProperty maxDegreeParallelism;
+            private NumericServerProperty queryWait;
             private bool initialized = false;
             private Server server;
             private CDataContainer context;
@@ -1536,6 +1851,318 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     this.backupLocation = value;
                 }
             }
+
+            public bool AllowTriggerToFireOthers
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.allowTriggerToFireOthers;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("AllowTriggerToFireOthers"));
+                    }
+                    this.allowTriggerToFireOthers = value;
+                }
+            }
+
+            public NumericServerProperty BlockedProcThreshold
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.blockedProcThreshold;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("BlockedProcThreshold"));
+                    }
+
+                    this.blockedProcThreshold = value;
+                }
+            }
+
+            public NumericServerProperty CursorThreshold
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.cursorThreshold;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("CursorThreshold"));
+                    }
+
+                    this.cursorThreshold = value;
+                }
+            }
+
+            public string DefaultFullTextLanguage
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.defaultFullTextLanguage;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("DefaultFullTextLanguage"));
+                    }
+                    this.defaultFullTextLanguage = value;
+                }
+            }
+
+            public string DefaultLanguage
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.defaultLanguage;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("DefaultLanguage"));
+                    }
+                    this.defaultLanguage = value;
+                }
+            }
+
+            public string FullTextUpgradeOption
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.fullTextUpgradeOption;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("FullTextUpgradeOption"));
+                    }
+                    this.fullTextUpgradeOption = value;
+                }
+            }
+
+            public NumericServerProperty MaxTextReplicationSize
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.maxTextReplicationSize;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("MaxTextReplicationSize"));
+                    }
+
+                    this.maxTextReplicationSize = value;
+                }
+            }
+
+            public bool OptimizeAdHocWorkloads
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.optimizeAdHocWorkloads;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("OptimizeAdHocWorkloads"));
+                    }
+                    this.optimizeAdHocWorkloads = value;
+                }
+            }
+
+            public bool ScanStartupProcs
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.scanStartupProcs;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("ScanStartupProcs"));
+                    }
+                    this.scanStartupProcs = value;
+                }
+            }
+
+            public int TwoDigitYearCutoff
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.twoDigitYearCutoff;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("TwoDigitYearCutoff"));
+                    }
+                    this.twoDigitYearCutoff = value;
+                }
+            }
+
+            public NumericServerProperty CostThresholdParallelism
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.costThresholdParallelism;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("CostThresholdParallelism"));
+                    }
+                    this.costThresholdParallelism = value;
+                }
+            }
+
+            public NumericServerProperty Locks
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.locks;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("Locks"));
+                    }
+                    this.locks = value;
+                }
+            }
+
+            public NumericServerProperty MaxDegreeParallelism
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.maxDegreeParallelism;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("MaxDegreeParallelism"));
+                    }
+                    this.maxDegreeParallelism = value;
+                }
+            }
+
+            public NumericServerProperty QueryWait
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.queryWait;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("QueryWait"));
+                    }
+                    this.queryWait = value;
+                }
+            }
+
             #endregion
 
             /// <summary>
@@ -1564,6 +2191,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
                 this.minMemory = new NumericServerProperty();
                 this.maxMemory = new NumericServerProperty();
+                this.blockedProcThreshold = new NumericServerProperty();
+                this.cursorThreshold = new NumericServerProperty();
+                this.maxTextReplicationSize = new NumericServerProperty();
+                this.costThresholdParallelism = new NumericServerProperty();
+                this.locks = new NumericServerProperty();
+                this.maxDegreeParallelism = new NumericServerProperty();
+                this.queryWait = new NumericServerProperty();
                 this.NumaNodes = new List<NumaNode>();
                 LoadData();
             }
@@ -1606,6 +2240,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 result.dataLocation = this.dataLocation;
                 result.logLocation = this.logLocation;
                 result.backupLocation = this.backupLocation;
+                result.allowTriggerToFireOthers = this.allowTriggerToFireOthers;
+                result.blockedProcThreshold = this.blockedProcThreshold;
+                result.cursorThreshold = this.cursorThreshold;
+                result.defaultFullTextLanguage = this.defaultFullTextLanguage;
+                result.defaultLanguage = this.defaultLanguage;
+                result.fullTextUpgradeOption = this.fullTextUpgradeOption;
+                result.maxTextReplicationSize = this.maxTextReplicationSize;
+                result.optimizeAdHocWorkloads = this.optimizeAdHocWorkloads;
+                result.scanStartupProcs = this.scanStartupProcs;
+                result.twoDigitYearCutoff = this.twoDigitYearCutoff;
+                result.costThresholdParallelism = this.costThresholdParallelism;
+                result.locks = this.locks;
+                result.maxDegreeParallelism = this.maxDegreeParallelism;
+                result.queryWait = this.queryWait;
                 result.server = this.server;
                 return result;
             }
@@ -1613,6 +2261,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private void LoadData()
             {
                 this.initialized = true;
+                LoadGeneralProperties();
+                LoadMemoryProperties();
+                LoadProcessorsProperties();
+                LoadSecurityProperties();
+                LoadDBSettingsProperties();
+                LoadAdvancedProperties();
+            }
+
+            private void LoadGeneralProperties()
+            {
                 this.serverName = server.Name;
                 this.hardwareGeneration = server.HardwareGeneration;
                 this.language = server.Language;
@@ -1631,7 +2289,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
-                LoadMemoryProperties();
+            }
+            private void LoadMemoryProperties()
+            {
+                this.maxMemory.Value = serverMaxMemoryProperty.ConfigValue;
+                this.maxMemory.MaximumValue = serverMaxMemoryProperty.Maximum;
+                this.maxMemory.MinimumValue = serverMaxMemoryProperty.Minimum;
+
+                this.minMemory.Value = serverMinMemoryProperty.ConfigValue;
+                this.minMemory.MaximumValue = serverMinMemoryProperty.Maximum;
+                this.minMemory.MinimumValue = serverMinMemoryProperty.Minimum;
+            }
+
+            private void LoadProcessorsProperties()
+            {
                 try
                 {
                     this.affinityManagerIOMask.InitializeAffinity(this.server.Configuration.AffinityIOMask, this.server.Configuration.Affinity64IOMask);
@@ -1645,8 +2316,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 this.numaNodes = GetNumaNodes();
                 GetAutoProcessorsAffinity();
+            }
+
+            private void LoadSecurityProperties()
+            {
                 this.authenticationMode = server.LoginMode;
                 this.loginAuditing = server.AuditLevel;
+            }
+
+            private void LoadDBSettingsProperties()
+            {
                 this.checkBackupChecksum = this.configService.GetServerSmoConfig(server, this.configService.BackupChecksumDefaultPropertyNumber).ConfigValue == 1;
                 this.checkCompressBackup = this.configService.GetServerSmoConfig(server, this.configService.BackupCompressionDefaultPropertyNumber).ConfigValue == 1;
                 this.dataLocation = server.Settings.DefaultFile;
@@ -1654,15 +2333,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.backupLocation = server.Settings.BackupDirectory;
             }
 
-            private void LoadMemoryProperties()
+            private void LoadAdvancedProperties()
             {
-                this.maxMemory.Value = serverMaxMemoryProperty.ConfigValue;
-                this.maxMemory.MaximumValue = serverMaxMemoryProperty.Maximum;
-                this.maxMemory.MinimumValue = serverMaxMemoryProperty.Minimum;
-
-                this.minMemory.Value = serverMinMemoryProperty.ConfigValue;
-                this.minMemory.MaximumValue = serverMinMemoryProperty.Maximum;
-                this.minMemory.MinimumValue = serverMinMemoryProperty.Minimum;
+                this.allowTriggerToFireOthers = server.Configuration.NestedTriggers.ConfigValue == 1;
+                this.blockedProcThreshold.Value = server.Configuration.BlockedProcessThreshold.ConfigValue;
+                this.blockedProcThreshold.MinimumValue = server.Configuration.BlockedProcessThreshold.Minimum;
+                this.blockedProcThreshold.MaximumValue = server.Configuration.BlockedProcessThreshold.Maximum;
+                this.cursorThreshold.Value = server.Configuration.CursorThreshold.ConfigValue;
+                this.cursorThreshold.MinimumValue = server.Configuration.CursorThreshold.Minimum;
+                this.cursorThreshold.MaximumValue = server.Configuration.CursorThreshold.Maximum;
+                this.defaultFullTextLanguage = LanguageUtils.GetLanguageChoiceAlias(server, server.Configuration.DefaultFullTextLanguage.ConfigValue).alias;
+                var defaultLanguageLcid = LanguageUtils.GetLcidFromLangId(server, server.Configuration.DefaultLanguage.ConfigValue);
+                this.defaultLanguage = (LanguageUtils.GetLanguageChoiceAlias(server, defaultLanguageLcid)).ToString();
+                this.maxTextReplicationSize.Value = server.Configuration.ReplicationMaxTextSize.ConfigValue;
+                this.maxTextReplicationSize.MinimumValue = server.Configuration.ReplicationMaxTextSize.Minimum;
+                this.maxTextReplicationSize.MaximumValue = server.Configuration.ReplicationMaxTextSize.Maximum;
+                this.optimizeAdHocWorkloads = server.Configuration.OptimizeAdhocWorkloads.ConfigValue == 1;
+                this.scanStartupProcs = server.Configuration.ScanForStartupProcedures.ConfigValue == 1;
+                this.twoDigitYearCutoff = server.Configuration.TwoDigitYearCutoff.ConfigValue;
+                this.costThresholdParallelism.Value = server.Configuration.CostThresholdForParallelism.ConfigValue;
+                this.costThresholdParallelism.MinimumValue = server.Configuration.CostThresholdForParallelism.Minimum;
+                this.costThresholdParallelism.MaximumValue = server.Configuration.CostThresholdForParallelism.Maximum;
+                this.locks.Value = server.Configuration.Locks.ConfigValue;
+                this.locks.MinimumValue = server.Configuration.Locks.Minimum;
+                this.locks.MaximumValue = server.Configuration.Locks.Maximum;
+                this.maxDegreeParallelism.Value = server.Configuration.MaxDegreeOfParallelism.ConfigValue;
+                this.maxDegreeParallelism.MinimumValue = server.Configuration.MaxDegreeOfParallelism.Minimum;
+                this.maxDegreeParallelism.MaximumValue = server.Configuration.MaxDegreeOfParallelism.Maximum;
+                this.queryWait.Value = server.Configuration.QueryWait.ConfigValue;
+                this.queryWait.MinimumValue = server.Configuration.QueryWait.Minimum;
+                this.queryWait.MaximumValue = server.Configuration.QueryWait.Maximum;
+                try
+                {
+                    this.fullTextUpgradeOption = server.FullTextService.CatalogUpgradeOption.ToString();
+                } catch
+                {
+                    this.fullTextUpgradeOption = String.Empty;
+                }
             }
 
             /// <summary>

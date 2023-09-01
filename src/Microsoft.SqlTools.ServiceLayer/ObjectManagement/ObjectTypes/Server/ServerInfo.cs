@@ -43,6 +43,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string DataLocation { get; set; }
         public string LogLocation { get; set; }
         public string BackupLocation { get; set; }
+        public bool AllowTriggerToFireOthers { get; set; }
+        public NumericServerProperty BlockedProcThreshold { get; set; }
+        public NumericServerProperty CursorThreshold { get; set; }
+        public string DefaultFullTextLanguage { get; set; }
+        public string DefaultLanguage { get; set; }
+        public string FullTextUpgradeOption { get; set; }
+        public NumericServerProperty MaxTextReplicationSize { get; set; }
+        public bool OptimizeAdHocWorkloads { get; set; }
+        public bool ScanStartupProcs { get; set; }
+        public int TwoDigitYearCutoff { get; set; }
+        public NumericServerProperty CostThresholdParallelism { get; set; }
+        public NumericServerProperty Locks { get; set; }
+        public NumericServerProperty MaxDegreeParallelism { get; set; }
+        public NumericServerProperty QueryWait { get; set; }
     }
 
     public class NumericServerProperty
