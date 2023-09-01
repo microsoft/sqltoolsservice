@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" original="sr.resx" source-language="en">
     <body>
@@ -7246,6 +7246,17 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
         <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
         <target state="new">Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="new">An error was encountered while writing server contextualization scripts to the cache. Error: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="new">Failed to generate server contextualization scripts</target>
         <note></note>
       </trans-unit>
     </body>

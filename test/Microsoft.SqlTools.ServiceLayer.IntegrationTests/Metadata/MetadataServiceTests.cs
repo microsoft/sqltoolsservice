@@ -150,10 +150,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
+            var actualGenerateServerContextResponse = new GenerateServerContextualizationResult();
+            var mockGenerateRequestContext = new Mock<RequestContext<GenerateServerContextualizationResult>>();
+            mockGenerateRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerContextualizationResult>()))
+                .Callback<GenerateServerContextualizationResult>(result => actualGenerateServerContextResponse = result)
+                .Returns(Task.CompletedTask);
+            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockGenerateRequestContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
+
+            Assert.IsTrue(actualGenerateServerContextResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGenerateServerContextResponse.Context.Contains(secondCreateTableScript));
 
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
         }
@@ -170,18 +181,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var generateServerContextualizationParams = new GenerateServerContextualizationParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            };
-
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
-
-            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
-            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
             var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
             var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
@@ -193,6 +194,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
+            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+
+            Assert.IsNull(actualGetServerContextualizationResponse.Context);
+            Assert.IsNull(actualGetServerContextualizationResponse.Context);
+
+            var generateServerContextualizationParams = new GenerateServerContextualizationParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            var actualGenerateServerContextResponse = new GenerateServerContextualizationResult();
+            var mockGenerateRequestContext = new Mock<RequestContext<GenerateServerContextualizationResult>>();
+            mockGenerateRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerContextualizationResult>()))
+                .Callback<GenerateServerContextualizationResult>(actual => actualGenerateServerContextResponse = actual)
+                .Returns(Task.CompletedTask);
+            await MetadataService.GenerateServerContextualization(generateServerContextualizationParams, mockGenerateRequestContext.Object);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
 

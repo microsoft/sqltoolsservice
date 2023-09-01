@@ -2163,6 +2163,105 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+                    return this.checkBackupChecksum;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("CheckBackupChecksum"));
+                    }
+                    this.checkBackupChecksum = value;
+                }
+            }
+            public bool CheckCompressBackup
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.checkCompressBackup;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("CheckCompressBackup"));
+                    }
+                    this.checkCompressBackup = value;
+                }
+            }
+
+            public string DataLocation
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.dataLocation;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("DataLocation"));
+                    }
+                    this.dataLocation = value;
+                }
+            }
+
+            public string LogLocation
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.logLocation;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("LogLocation"));
+                    }
+                    this.logLocation = value;
+                }
+            }
+
+            public string BackupLocation
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.backupLocation;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("BackupLocation"));
+                    }
+                    this.backupLocation = value;
+                }
+            }
             #endregion
 
             /// <summary>
@@ -2322,6 +2421,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 this.authenticationMode = server.LoginMode;
                 this.loginAuditing = server.AuditLevel;
+                this.checkBackupChecksum = this.configService.GetServerSmoConfig(server, this.configService.BackupChecksumDefaultPropertyNumber).ConfigValue == 1;
+                this.checkCompressBackup = this.configService.GetServerSmoConfig(server, this.configService.BackupCompressionDefaultPropertyNumber).ConfigValue == 1;
+                this.dataLocation = server.Settings.DefaultFile;
+                this.logLocation = server.Settings.DefaultLog;
+                this.backupLocation = server.Settings.BackupDirectory;
             }
 
             private void LoadDBSettingsProperties()
