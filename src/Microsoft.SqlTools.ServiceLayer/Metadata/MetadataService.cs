@@ -61,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
             serviceHost.SetRequestHandler(GenerateServerContextualizationRequest.Type, HandleGenerateServerContextualizationNotification, true);
             serviceHost.SetRequestHandler(GetServerContextualizationRequest.Type, HandleGetServerContextualizationRequest, true);
+            serviceHost.SetRequestHandler(GetOrGenerateServerContextualizationRequest.Type, HandleGetOrGenerateServerContextualizationRequest, true);
         }
 
         /// <summary>
@@ -247,6 +248,81 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     Logger.Error("Failed to find connection info about the server.");
                     await requestContext.SendError("Failed to find connection info about the server.");
+                }
+            }
+        }
+
+        internal static Task HandleGetOrGenerateServerContextualizationRequest(GetOrGenerateServerContextualizationParams contextualizationParams,
+            RequestContext<GetOrGenerateServerContextualizationResult> requestContext)
+        {
+            _ = Task.Factory.StartNew(async () =>
+            {
+                await GetOrGenerateServerContextualization(contextualizationParams, requestContext);
+            },
+            CancellationToken.None,
+            TaskCreationOptions.None,
+            TaskScheduler.Default);
+
+            return Task.CompletedTask;
+        }
+
+        internal static async Task GetOrGenerateServerContextualization(GetOrGenerateServerContextualizationParams contextualizationParams, RequestContext<GetOrGenerateServerContextualizationResult> requestContext)
+        {
+            MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
+            if (connectionInfo == null)
+            {
+                Logger.Error("Failed to find connection info about the server.");
+                await requestContext.SendError("Failed to find connection info about the server.");
+            }
+            else
+            {
+                if (connectionInfo != null)
+                {
+                    if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
+                    {
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
+                        {
+                            var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn)?.ToArray();
+                            if (scripts != null)
+                            {
+                                try
+                                {
+                                    await requestContext.SendResult(new GetOrGenerateServerContextualizationResult()
+                                    {
+                                        Context = string.Join('\n', scripts)
+                                    });
+
+                                    MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Error($"An error was encountered while writing server contextualization scripts to the cache. Error: {ex.Message}");
+                                    await requestContext.SendError(ex);
+                                }
+                            }
+                            else
+                            {
+                                Logger.Error("Failed to generate server contextualization scripts");
+                                await requestContext.SendError(SR.FailedToGenerateServerContextualizationScripts);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
+                            await requestContext.SendResult(new GetOrGenerateServerContextualizationResult
+                            {
+                                Context = string.Join('\n', scripts)
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Failed to read scripts from the script cache");
+                            await requestContext.SendError(ex);
+                        }
+                    }
                 }
             }
         }

@@ -224,6 +224,50 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             mockGetServerContextualizationRequestContext.VerifyAll();
         }
 
+        [Test]
+        public async Task VerifyGetOrGenerateServerContextualizationRequest()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+
+            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
+
+            var mockGetOrGenerateServerContextualizationRequestContext = new Mock<RequestContext<GetOrGenerateServerContextualizationResult>>();
+            var actualGetOrGenerateServerContextualizationResponse = new GetOrGenerateServerContextualizationResult();
+            mockGetOrGenerateServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetOrGenerateServerContextualizationResult>()))
+                .Callback<GetOrGenerateServerContextualizationResult>(actual => actualGetOrGenerateServerContextualizationResponse = actual)
+                .Returns(Task.CompletedTask);
+
+            var getOrGenerateServerContextualizationParams = new GetOrGenerateServerContextualizationParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+            // The first time it will generate since there shouldn't be any cached scripts.
+            await MetadataService.GetOrGenerateServerContextualization(getOrGenerateServerContextualizationParams, mockGetOrGenerateServerContextualizationRequestContext.Object);
+
+            Assert.IsTrue(actualGetOrGenerateServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGetOrGenerateServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+
+            await MetadataService.GetOrGenerateServerContextualization(getOrGenerateServerContextualizationParams, mockGetOrGenerateServerContextualizationRequestContext.Object);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            Assert.IsTrue(actualGetOrGenerateServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGetOrGenerateServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+
+            DeleteServerContextualizationTempFile(sqlConn.DataSource);
+
+            mockGetOrGenerateServerContextualizationRequestContext.VerifyAll();
+        }
+
         private void DeleteServerContextualizationTempFile(string serverName)
         {
             var bytes = Encoding.UTF8.GetBytes(serverName);
