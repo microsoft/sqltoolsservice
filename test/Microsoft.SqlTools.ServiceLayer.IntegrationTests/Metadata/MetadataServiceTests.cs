@@ -249,12 +249,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
-            // The first time it will generate since there shouldn't be any cached scripts.
+
+            // First call generates context, stores it in temp file and returns the generated context
             await MetadataService.GetOrGenerateServerContextualization(getOrGenerateServerContextualizationParams, mockGetOrGenerateServerContextualizationRequestContext.Object);
 
             Assert.IsTrue(actualGetOrGenerateServerContextualizationResponse.Context.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGetOrGenerateServerContextualizationResponse.Context.Contains(secondCreateTableScript));
 
+            // Second call gets the context from the temp file and returns that read file context.
             await MetadataService.GetOrGenerateServerContextualization(getOrGenerateServerContextualizationParams, mockGetOrGenerateServerContextualizationRequestContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
