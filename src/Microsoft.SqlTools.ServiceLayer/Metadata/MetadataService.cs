@@ -120,6 +120,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
         }
 
+        /// <summary>
+        /// Generates the contextualization scripts for a server. The generated context is in the form of create scripts for
+        /// database objects like tables and views.
+        /// </summary>
+        /// <param name="contextualizationParams">The contextualization parameters.</param>
         internal static Task HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams,
             RequestContext<GetServerContextualizationResult> requestContext)
         {
@@ -144,52 +149,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
             else
             {
-                if (connectionInfo != null)
+                if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                 {
-                    if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                     {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
+                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn)?.ToArray();
+                        if (scripts != null)
                         {
-                            var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn)?.ToArray();
-                            if (scripts != null)
+                            try
                             {
-                                try
+                                await requestContext.SendResult(new GetServerContextualizationResult()
                                 {
-                                    await requestContext.SendResult(new GetServerContextualizationResult()
-                                    {
-                                        Context = string.Join('\n', scripts)
-                                    });
+                                    Context = string.Join('\n', scripts)
+                                });
 
-                                    MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error($"An error was encountered while writing server contextualization scripts to the cache. Error: {ex.Message}");
-                                    throw;
-                                }
+                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                Logger.Error("Failed to generate server contextualization scripts");
-                                await requestContext.SendError(SR.FailedToGenerateServerContextualizationScripts);
+                                Logger.Error($"An error was encountered while generating server contextualization scripts. Error: {ex.Message}");
+                                throw;
                             }
+                        }
+                        else
+                        {
+                            Logger.Error("Failed to generate server contextualization scripts");
+                            await requestContext.SendError(SR.FailedToGenerateServerContextualizationScripts);
                         }
                     }
-                    else
+                }
+                else
+                {
+                    try
                     {
-                        try
+                        var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
+                        await requestContext.SendResult(new GetServerContextualizationResult
                         {
-                            var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
-                            await requestContext.SendResult(new GetServerContextualizationResult
-                            {
-                                Context = string.Join('\n', scripts)
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error("Failed to read scripts from the script cache");
-                            throw;
-                        }
+                            Context = string.Join('\n', scripts)
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Failed to read scripts from the script cache");
+                        throw;
                     }
                 }
             }

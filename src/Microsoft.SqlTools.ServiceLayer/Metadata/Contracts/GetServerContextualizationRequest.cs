@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 
     public class GetServerContextualizationRequest
     {
-        public static RequestType<GetServerContextualizationParams, GetServerContextualizationResult> Type =
+        public static readonly RequestType<GetServerContextualizationParams, GetServerContextualizationResult> Type =
             RequestType<GetServerContextualizationParams, GetServerContextualizationResult>.Create("metadata/getServerContext");
     }
 }
