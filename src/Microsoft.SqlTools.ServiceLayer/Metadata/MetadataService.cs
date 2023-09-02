@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                                 catch (Exception ex)
                                 {
                                     Logger.Error($"An error was encountered while writing server contextualization scripts to the cache. Error: {ex.Message}");
-                                    await requestContext.SendError(ex);
+                                    throw;
                                 }
                             }
                             else
