@@ -4414,4 +4414,10 @@
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>ScriptingListObjectsCompleteParams.ConnectionString 속성을 분석하는 동안 오류가 발생했습니다.</value>
   </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>서버 컨텍스트화 스크립트를 캐시에 쓰는 동안 오류가 발생했습니다. 오류: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>서버 컨텍스트화 스크립트를 생성하지 못했습니다.</value>
+  </data>
 </root>

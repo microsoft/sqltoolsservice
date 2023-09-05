@@ -4414,4 +4414,10 @@
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>ScriptingListObjectsCompleteParams.ConnectionString プロパティの解析エラーです。</value>
   </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>サーバー コンテキスト化スクリプトをキャッシュに書き込み中にエラーが発生しました。エラー： {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>サーバー コンテキスト化スクリプトを生成できませんでした</value>
+  </data>
 </root>

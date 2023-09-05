@@ -4414,4 +4414,10 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Si è verificato un errore durante l'analisi della proprietà ScriptingListObjectsCompleteParams.ConnectionString.</value>
   </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Si è verificato un errore durante la scrittura degli script di contestualizzazione del server nella cache. Errore: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Non è stato possibile generare gli script di contestualizzazione del server</value>
+  </data>
 </root>

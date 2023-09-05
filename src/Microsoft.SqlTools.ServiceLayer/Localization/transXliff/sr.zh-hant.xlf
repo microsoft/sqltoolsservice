@@ -7248,6 +7248,17 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">將伺服器關聯式化的指令碼寫入快取時發生錯誤。錯誤: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">無法產生伺服器關聯式化的指令碼</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
