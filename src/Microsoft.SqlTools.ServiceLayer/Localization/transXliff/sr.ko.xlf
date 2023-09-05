@@ -7248,6 +7248,17 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">ScriptingListObjectsCompleteParams.ConnectionString 속성을 분석하는 동안 오류가 발생했습니다.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">서버 컨텍스트화 스크립트를 캐시에 쓰는 동안 오류가 발생했습니다. 오류: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">서버 컨텍스트화 스크립트를 생성하지 못했습니다.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

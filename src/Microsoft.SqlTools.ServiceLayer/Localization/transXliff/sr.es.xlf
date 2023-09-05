@@ -7248,6 +7248,17 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Error al analizar la propiedad ScriptingListObjectsCompleteParams.ConnectionString.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">Error al escribir scripts de contextualización del servidor en la memoria caché. Error: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">No se pudieron generar los scripts de contextualización del servidor</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

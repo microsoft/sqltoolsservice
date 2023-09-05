@@ -7248,6 +7248,17 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">Une erreur s'est produite lors de l'écriture des scripts de contextualisation du serveur dans le cache. Erreur : {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">Échec de la génération des scripts de contextualisation du serveur</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

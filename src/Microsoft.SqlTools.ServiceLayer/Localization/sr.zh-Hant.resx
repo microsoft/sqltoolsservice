@@ -4414,4 +4414,10 @@
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</value>
   </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>將伺服器關聯式化的指令碼寫入快取時發生錯誤。錯誤: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>無法產生伺服器關聯式化的指令碼</value>
+  </data>
 </root>
