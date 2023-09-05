@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             if (connectionInfo == null)
             {
                 Logger.Error("Failed to find connection info about the server.");
-                await requestContext.SendError("Failed to find connection info about the server.");
+                throw new Exception(SR.FailedToFindConnectionInfoAboutTheServer);
             }
             else
             {
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         else
                         {
                             Logger.Error("Failed to generate server contextualization scripts");
-                            await requestContext.SendError(SR.FailedToGenerateServerContextualizationScripts);
+                            throw new Exception(SR.FailedToGenerateServerContextualizationScripts);
                         }
                     }
                 }

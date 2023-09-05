@@ -445,6 +445,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FailedToFindConnectionInfoAboutTheServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.FailedToFindConnectionInfoAboutTheServer);
+            }
+        }
+
         public static string PeekDefinitionNoResultsError
         {
             get
@@ -11448,6 +11456,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string FailedToGenerateServerContextualizationScripts = "FailedToGenerateServerContextualizationScripts";
+
+
+            public const string FailedToFindConnectionInfoAboutTheServer = "FailedToFindConnectionInfoAboutTheServer";
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";

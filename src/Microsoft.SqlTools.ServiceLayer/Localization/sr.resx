@@ -435,6 +435,10 @@
     <value>Failed to generate server contextualization scripts</value>
     <comment></comment>
   </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>Failed to find connection info about the server</value>
+    <comment></comment>
+  </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>Unsupported Save Format: {0}</value>
     <comment>.
