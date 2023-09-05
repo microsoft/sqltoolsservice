@@ -195,6 +195,8 @@ WritingServerContextualizationToCacheError (string message) = An error was encou
 
 FailedToGenerateServerContextualizationScripts = Failed to generate server contextualization scripts
 
+FailedToFindConnectionInfoAboutTheServer = Failed to find connection info about the server
+
 ############################################################################
 # Serialization Service
 
