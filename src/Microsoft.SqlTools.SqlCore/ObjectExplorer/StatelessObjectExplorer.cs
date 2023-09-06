@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <exception cref="ArgumentNullException"> Thrown when the parent node is not found </exception>
         /// <exception cref="TimeoutException"> Thrown when the operation times out.</exception> <summary>
         /// </summary>     
-        public static async Task<TreeNode[]> Expand(string connectionString, SecurityToken? accessToken, string nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null, TreeNode parent = null)
+        public static async Task<TreeNode[]> Expand(string connectionString, SecurityToken? accessToken, string nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 
                 try
                 {
-                    return await Expand(connection, accessToken, nodePath, serverInfo, options, filters, parent);
+                    return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
                 }
                 finally
                 {
@@ -61,10 +61,22 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
             }
         }
 
+        /// <summary>
+        /// Expands the node at the given path and returns the child nodes. If parent is not null, it will skip expanding from the top and use the connection from the parent node.
+        /// </summary>
+        /// <param name="serverConnection"> Server connection to use for expanding the node. It will be used only if parent is null </param>
+        /// <param name="accessToken"> Access token to connect to the server. To be used in case of AAD based connections </param>
+        /// <param name="nodePath"> Path of the node to expand. Will be used only if parent is null </param>
+        /// <param name="serverInfo"> Server information </param>
+        /// <param name="options"> Object explorer expansion options </param>
+        /// <param name="filters"> Filters to be applied on the leaf nodes </param>
+        /// <param name="parent"> Optional parent node. If provided, it will skip expanding from the top and and use the connection from the parent node </param>
+        /// <returns></returns> 
+        /// </summary>
+        
+
         public static async Task<TreeNode[]> Expand(ServerConnection serverConnection, SecurityToken? accessToken, string? nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null, TreeNode parent = null)
         {
-
-
             using (var taskCancellationTokenSource = new CancellationTokenSource())
             {
 
