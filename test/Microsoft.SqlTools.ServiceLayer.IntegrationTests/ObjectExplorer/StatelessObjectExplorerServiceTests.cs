@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
@@ -82,9 +81,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                 nodes = await StatelessObjectExplorer.Expand(connectionString, null, null, serverInfo, options, null, nodes.First(node => node.Label == "Columns"));
                 Assert.True(nodes.Any(node => node.Label == "c1 (int, null)"), $"Expansion result for {pathWithDb} does not contain node c1");
-
-                nodes[0].Parent.GetContextAs<SmoQueryContext>().Server.ConnectionContext.Disconnect();
-                
             });
         }
 
