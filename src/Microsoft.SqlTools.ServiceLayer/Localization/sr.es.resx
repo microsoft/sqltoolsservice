@@ -4414,4 +4414,10 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error al analizar la propiedad ScriptingListObjectsCompleteParams.ConnectionString.</value>
   </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Error al escribir scripts de contextualización del servidor en la memoria caché. Error: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>No se pudieron generar los scripts de contextualización del servidor</value>
+  </data>
 </root>

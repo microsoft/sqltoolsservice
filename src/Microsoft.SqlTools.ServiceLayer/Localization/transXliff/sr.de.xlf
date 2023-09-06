@@ -7248,6 +7248,17 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Fehler beim Analysieren der ScriptingListObjectsCompleteParams.ConnectionString -Eigenschaft.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">Fehler beim Schreiben von Serverkontextualisierungsskripts in den Cache. Fehler: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">Fehler beim Generieren von Serverkontextualisierungsskripts.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -583,11 +583,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             var sqlConn = dataContainer.ServerConnection.SqlConnectionObject;
                             SqlConnection.ClearPool(sqlConn);
                         }
+                        smoDatabase.Drop();
                         if (dropParams.DeleteBackupHistory)
                         {
                             server.DeleteBackupHistory(smoDatabase.Name);
                         }
-                        smoDatabase.Drop();
                         if (dropParams.GenerateScript)
                         {
                             var builder = new StringBuilder();

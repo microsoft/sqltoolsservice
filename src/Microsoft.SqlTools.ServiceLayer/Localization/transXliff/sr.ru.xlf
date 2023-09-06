@@ -7248,6 +7248,17 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">Произошла ошибка при записи сценариев контекстуализации сервера в кэш. Ошибка: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">Не удалось создать сценарии контекстуализации сервера.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

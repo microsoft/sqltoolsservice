@@ -3,12 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -62,8 +66,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     MaxServerMemory = prototype.MaxServerMemory,
                     AutoProcessorAffinityMaskForAll = prototype.AutoProcessorAffinityMaskForAll,
                     AutoProcessorAffinityIOMaskForAll = prototype.AutoProcessorAffinityIOMaskForAll,
-                    NumaNodes = prototype.NumaNodes
+                    NumaNodes = prototype.NumaNodes,
+                    AuthenticationMode = prototype.AuthenticationMode,
+                    LoginAuditing = prototype.LoginAuditing,
+                    CheckCompressBackup = prototype.CheckCompressBackup,
+                    CheckBackupChecksum = prototype.CheckBackupChecksum,
+                    DataLocation = prototype.DataLocation,
+                    LogLocation = prototype.LogLocation,
+                    BackupLocation = prototype.BackupLocation,
+                    AllowTriggerToFireOthers = prototype.AllowTriggerToFireOthers,
+                    BlockedProcThreshold = prototype.BlockedProcThreshold,
+                    CursorThreshold = prototype.CursorThreshold,
+                    DefaultFullTextLanguage = prototype.DefaultFullTextLanguage,
+                    DefaultLanguage = prototype.DefaultLanguage,
+                    FullTextUpgradeOption = prototype.FullTextUpgradeOption,
+                    MaxTextReplicationSize = prototype.MaxTextReplicationSize,
+                    OptimizeAdHocWorkloads = prototype.OptimizeAdHocWorkloads,
+                    ScanStartupProcs = prototype.ScanStartupProcs,
+                    TwoDigitYearCutoff = prototype.TwoDigitYearCutoff,
+                    CostThresholdParallelism = prototype.CostThresholdParallelism,
+                    Locks = prototype.Locks,
+                    MaxDegreeParallelism = prototype.MaxDegreeParallelism,
+                    QueryWait = prototype.QueryWait
                 };
+                serverViewInfo.LanguageOptions = (LanguageUtils.GetDefaultLanguageOptions(dataContainer)).Select(element => element.Language.Alias).ToArray();
+                serverViewInfo.FullTextUpgradeOptions = Enum.GetNames(typeof(FullTextCatalogUpgradeOption)).ToArray();
             }
             var context = new ServerViewContext(requestParams);
             return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });

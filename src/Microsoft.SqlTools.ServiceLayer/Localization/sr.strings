@@ -189,6 +189,15 @@ ParsingErrorHeader (int lineNumber, int columnNumber) = Line {0}, column {1}
 ScriptTooLarge (int maxChars, int currentChars) = The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query > Query Options > Execution > Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters
 
 ############################################################################
+# Server Contextualization Service
+
+WritingServerContextualizationToCacheError (string message) = An error was encountered while writing server contextualization scripts to the cache. Error: {0}
+
+FailedToGenerateServerContextualizationScripts = Failed to generate server contextualization scripts
+
+FailedToFindConnectionInfoAboutTheServer = Failed to find connection info about the server
+
+############################################################################
 # Serialization Service
 
 SerializationServiceUnsupportedFormat (string formatName) = Unsupported Save Format: {0}

@@ -426,6 +426,19 @@
     <comment>.
  Parameters: 0 - maxChars (int), 1 - currentChars (int) </comment>
   </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Failed to generate server contextualization scripts</value>
+    <comment></comment>
+  </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>Failed to find connection info about the server</value>
+    <comment></comment>
+  </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>Unsupported Save Format: {0}</value>
     <comment>.

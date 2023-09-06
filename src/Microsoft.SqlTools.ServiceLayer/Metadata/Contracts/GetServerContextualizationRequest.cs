@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
     public class GetServerContextualizationParams
     {
         /// <summary>
-        /// The URI of the connection to generate scripts for.
+        /// The URI to generate and retrieve server contextualization for.
         /// </summary>
         public string OwnerUri { get; set; }
     }
@@ -18,9 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
     public class GetServerContextualizationResult
     {
         /// <summary>
-        /// An array containing the generated server context.
+        /// The generated context.
         /// </summary>
-        public string[] Context { get; set; }
+        public string Context { get; set; }
     }
 
     public class GetServerContextualizationRequest
