@@ -21,7 +21,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
-using Babel.ParserGenerator;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
