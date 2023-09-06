@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             base.SaveProperties(db);
 
-            if (db.IsSupportedObject<QueryStoreOptions>() &&  areQueryStorePropertiesInitialized)
+            if (db.IsSupportedObject<QueryStoreOptions>() && this.currentState.queryStoreOptions != null)
             {
                 if (this.currentState.queryStoreOptions.QueryCaptureMode == QueryStoreCaptureMode.Custom && this.currentState.queryStoreOptions.DesiredState != QueryStoreOperationMode.Off)
                 {

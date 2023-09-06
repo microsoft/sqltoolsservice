@@ -21,6 +21,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using Babel.ParserGenerator;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -173,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.queryOptimizerHotfixes = DatabaseScopedConfigurationOnOff.Off;
                 this.queryOptimizerHotfixesForSecondary = DatabaseScopedConfigurationOnOff.Primary;
                 this.isLedger = false;
-                this.queryStoreOptions = null;
+                //this.queryStoreOptions = null;
 
                 //The following properties are introduced for contained databases.
                 //In case of plain old databases, these values should reflect the server configuration values.
@@ -564,9 +565,19 @@ WHERE do.database_id = @DbID
                     this.databaseScopedConfigurations = db.DatabaseScopedConfigurations;
                 }
 
+                // Supported from Sql Server 2016 and higher
+                // QueryStore properties are not initialized at the time of database creation
                 if (db.IsSupportedObject<QueryStoreOptions>())
                 {
-                    this.queryStoreOptions = db.QueryStoreOptions;
+                    try
+                    {
+                        var queryStoreActualStateProperty = db.QueryStoreOptions.ActualState;
+                        this.queryStoreOptions = db.QueryStoreOptions;
+                    }
+                    catch (NullReferenceException)
+                    {
+                        this.queryStoreOptions = null;
+                    }
                 }
 
                 //Only fill in the Azure properties when connected to an Azure server
