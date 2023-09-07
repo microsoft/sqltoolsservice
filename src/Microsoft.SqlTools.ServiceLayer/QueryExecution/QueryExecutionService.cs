@@ -12,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TextCopy;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -798,8 +797,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     pageStartRowIndex += rowsToFetch;
                 } while (pageStartRowIndex < rowRange.End);
             }
-            await ClipboardService.SetTextAsync(builder.ToString());
-            await requestContext.SendResult(new CopyResultsRequestResult());
+            await requestContext.SendResult(new CopyResultsRequestResult() {
+                Result = builder.ToString()
+            });
         }
 
         #endregion
