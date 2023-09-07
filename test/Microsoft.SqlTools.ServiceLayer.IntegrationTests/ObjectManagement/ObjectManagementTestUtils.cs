@@ -83,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 AutoShrink = false,
                 AutoUpdateStatistics = true,
                 AutoUpdateStatisticsAsynchronously = false,
-                DatabaseScopedConfigurations = null
+                DatabaseScopedConfigurations = null,
+                QueryStoreOptions = null
             };
         }
 

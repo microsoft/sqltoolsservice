@@ -45,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool? IsFilesTabSupported { get; set; }
         public DatabaseFile[] Files { get; set; }
         public FileGroupSummary[]? Filegroups { get; set; }
+        public QueryStoreOptions? QueryStoreOptions { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -80,4 +81,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool AutogrowAllFiles { get; set; }
     }
 
+    public class QueryStoreOptions
+    {
+        public string ActualMode { get; set; }
+        public long DataFlushIntervalInMinutes { get; set; }
+        public string StatisticsCollectionInterval { get; set; }
+        public long MaxPlansPerQuery { get; set; }
+        public long MaxSizeInMB { get; set; }
+        public string QueryStoreCaptureMode { get; set; }
+        public string SizeBasedCleanupMode { get; set; }
+        public long StaleQueryThresholdInDays { get; set; }
+        public bool? WaitStatisticsCaptureMode { get; set; }
+        public QueryStoreCapturePolicyOptions? CapturePolicyOptions { get; set; }
+        public long CurrentStorageSizeInMB { get; set; }
+    }
+
+    public class QueryStoreCapturePolicyOptions
+    {
+        public int ExecutionCount { get; set; }
+        public string StaleThreshold { get; set; }
+        public long TotalCompileCPUTimeInMS { get; set; }
+        public long TotalExecutionCPUTimeInMS { get; set; }
+    }
 }

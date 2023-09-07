@@ -75,6 +75,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         protected override void SaveProperties(Database db)
         {
             base.SaveProperties(db);
+
+            if (db.IsSupportedObject<QueryStoreOptions>() && this.currentState.queryStoreOptions != null)
+            {
+                if (this.currentState.queryStoreOptions.DesiredState != QueryStoreOperationMode.Off)
+                {
+                    if (!this.Exists || (db.QueryStoreOptions.WaitStatsCaptureMode != this.currentState.queryStoreOptions.WaitStatsCaptureMode))
+                    {
+                        db.QueryStoreOptions.WaitStatsCaptureMode = this.currentState.queryStoreOptions.WaitStatsCaptureMode;
+                    }
+                }
+            }
         }
     }
 }
