@@ -93,6 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public long StaleQueryThresholdInDays { get; set; }
         public bool? WaitStatisticsCaptureMode { get; set; }
         public QueryStoreCapturePolicyOptions? CapturePolicyOptions { get; set; }
+        public long CurrentStorageSizeInMB { get; set; }
     }
 
     public class QueryStoreCapturePolicyOptions

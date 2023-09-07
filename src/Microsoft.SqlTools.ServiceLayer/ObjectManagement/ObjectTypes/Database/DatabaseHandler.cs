@@ -265,7 +265,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
                                         QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
                                         SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
-                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays
+                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays,
+                                        CurrentStorageSizeInMB = smoDatabase.QueryStoreOptions.CurrentStorageSizeInMB
                                     };
                                     if (prototype is DatabasePrototype140)
                                     {
@@ -627,6 +628,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return sqlScript;
+        }
+
+        /// <summary>
+        /// Clears all query store data from the database
+        /// </summary>
+        /// <param name="purgeParams"></param>
+        public void PurgeQueryStoreData(PurgeQueryStoreDataRequestParams purgeParams)
+        {
+            using (var dataContainer = CreateDatabaseDataContainer(purgeParams.ConnectionUri, purgeParams.ObjectUrn, false, purgeParams.Database))
+            {
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
+                {
+                    smoDatabase.QueryStoreOptions.PurgeQueryStoreData();
+                }
+            }
         }
 
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
