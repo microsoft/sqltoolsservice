@@ -797,9 +797,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     pageStartRowIndex += rowsToFetch;
                 } while (pageStartRowIndex < rowRange.End);
             }
-            await requestContext.SendResult(new CopyResultsRequestResult() {
+            CopyResultsRequestResult result = new CopyResultsRequestResult
+            {
                 Result = builder.ToString()
-            });
+            };
+            await requestContext.SendResult(result);
         }
 
         #endregion
