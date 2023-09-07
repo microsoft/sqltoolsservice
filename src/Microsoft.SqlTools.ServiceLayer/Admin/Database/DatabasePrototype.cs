@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.queryOptimizerHotfixes = DatabaseScopedConfigurationOnOff.Off;
                 this.queryOptimizerHotfixesForSecondary = DatabaseScopedConfigurationOnOff.Primary;
                 this.isLedger = false;
-                //this.queryStoreOptions = null;
+                this.queryStoreOptions = null;
 
                 //The following properties are introduced for contained databases.
                 //In case of plain old databases, these values should reflect the server configuration values.
@@ -575,6 +575,7 @@ WHERE do.database_id = @DbID
                     }
                     catch (NullReferenceException)
                     {
+                        //db.QueryStoreOptions is not null, but its properties(actualState...etc) are Not initialized and when accessing them it throws the null reference exception.
                         this.queryStoreOptions = null;
                     }
                 }
