@@ -254,16 +254,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
             // Not enabling parallel processing for LanguageService as message order might matter.
-            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
+            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest, isBackgroundTask: true);
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
-            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
+            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification, isBackgroundTask: true);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
-            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
+            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isBackgroundTask: true);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
@@ -539,8 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Start task asynchronously without blocking main thread - this is by design.
                     // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
                     // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    GetSignatureHelp(textDocumentPosition, scriptFile)
+                    await GetSignatureHelp(textDocumentPosition, scriptFile)
                         .ContinueWith(async task =>
                     {
                         var result = await task;
@@ -553,7 +552,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             await requestContext.SendResult(new SignatureHelp());
                         }
                     });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
             }
         }
@@ -1863,14 +1861,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Start task asynchronously without blocking main thread - this is by design.
                 // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
                 // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                GetSemanticMarkers(scriptFile).ContinueWith(async t =>
+                await Task.Factory.StartNew(async () => await GetSemanticMarkers(scriptFile).ContinueWith(async t =>
                 {
                     var semanticMarkers = t.GetAwaiter().GetResult();
                     Logger.Verbose("Analysis complete.");
                     await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
-                }, CancellationToken.None);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }, CancellationToken.None));
             }
         }
 

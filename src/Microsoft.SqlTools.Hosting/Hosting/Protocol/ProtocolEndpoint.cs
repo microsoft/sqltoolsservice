@@ -276,38 +276,44 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
-            bool isParallelProcessingSupported = false)
+            bool isParallelProcessingSupported = false,
+            bool isBackgroundTask = false)
         {
             this.MessageDispatcher.SetRequestHandler(
                 requestType,
                 requestHandler,
                 false,
-                isParallelProcessingSupported);
+                isParallelProcessingSupported,
+                isBackgroundTask);
         }
 
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool isParallelProcessingSupported = false)
+            bool isParallelProcessingSupported = false,
+            bool isBackgroundTask = false)
         {
             this.MessageDispatcher.SetEventHandler(
                 eventType,
                 eventHandler,
                 false,
-                isParallelProcessingSupported);
+                isParallelProcessingSupported,
+                isBackgroundTask);
         }
 
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
             bool overrideExisting,
-            bool isParallelProcessingSupported = false)
+            bool isParallelProcessingSupported = false,
+            bool isBackgroundTask = false)
         {
             this.MessageDispatcher.SetEventHandler(
                 eventType,
                 eventHandler,
                 overrideExisting,
-                isParallelProcessingSupported);
+                isParallelProcessingSupported,
+                isBackgroundTask);
         }
 
         private void HandleResponse(Message responseMessage)

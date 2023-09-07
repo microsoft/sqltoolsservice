@@ -1120,15 +1120,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
-            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, true);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, true);
-            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, true);
-            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, true);
-            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
-            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, true);
-            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
-            serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, false);
+            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, isParallelProcessingSupported: true);
+            serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, isParallelProcessingSupported: false, isBackgroundTask: true);
         }
 
         /// <summary>
