@@ -1128,6 +1128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest, isParallelProcessingSupported: true);
             serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, isParallelProcessingSupported: false, isBackgroundTask: true);
         }
 
@@ -1687,6 +1688,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // rather than an error.
                 await requestContext.SendResult(null);
             }
+        }
+
+        /// <summary>
+        /// Clears all pooled connections from SqlConnection pool, releasing open connection sockets not actively in use.
+        /// </summary>
+        /// <param name="_">Request param</param>
+        /// <param name="requestContext">Request Context</param>
+        /// <returns></returns>
+        public async Task HandleClearPooledConnectionsRequest(object _, RequestContext<bool> requestContext)
+        {
+            // Run a detached task to clear pools in backend.
+            await Task.Factory.StartNew(() => Task.Run(async () => {
+
+                SqlConnection.ClearAllPools();
+
+                Logger.Verbose("Cleared all pooled connections successfully.");
+                await requestContext.SendResult(true);
+            }));
         }
 
         public ConnectionDetails ParseConnectionString(string connectionString)
