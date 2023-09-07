@@ -8,7 +8,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
-    /// Cancel connect request mapping entry 
+    /// Clear Pooled connectins request
     /// </summary>
     public class ClearPooledConnectionsRequest
     {
