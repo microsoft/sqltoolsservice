@@ -799,7 +799,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             CopyResultsRequestResult result = new CopyResultsRequestResult
             {
-                Result = builder.ToString()
+                Results = builder.ToString()
             };
             await requestContext.SendResult(result);
         }
