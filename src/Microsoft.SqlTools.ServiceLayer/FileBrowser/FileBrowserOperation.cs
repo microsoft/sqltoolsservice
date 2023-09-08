@@ -26,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private bool fileTreeCreated;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
+        private bool showFoldersOnly;
 
         #region Constructors
 
@@ -34,11 +35,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// </summary>
         /// <param name="connection">The connection object</param>
         /// <param name="fileFilters">The file extension filters</param>
-        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null)
+        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null, bool? showFoldersOnly = null)
         {
             this.cancelSource = new CancellationTokenSource();
             this.cancelToken = cancelSource.Token;
             this.connection = connection;
+            this.showFoldersOnly = true; //showFoldersOnly ?? false;
             this.Initialize(expandPath, fileFilters);
         }
 
@@ -238,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
                 // if the node is a directory, or if we are browsing for files and the file name is allowed,
                 // add the node to the tree
-                if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters)))
+                if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters) && !this.showFoldersOnly))
                 {
                     children.Add(treeNode);
                 }

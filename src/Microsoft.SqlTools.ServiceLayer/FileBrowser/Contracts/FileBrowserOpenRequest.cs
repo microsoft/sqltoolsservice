@@ -33,6 +33,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         /// True if this is a request to change file filter
         /// </summary>
         public bool ChangeFilter;
+
+        /// <summary>
+        /// Whether to only show folders in the file browser.
+        /// </summary>
+        public bool? ShowFoldersOnly;
     }
 
     /// <summary>
