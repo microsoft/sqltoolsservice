@@ -429,7 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                     string includeColumns = string.Empty;
 
                     // populate index columns and include columns
-                    XmlNodeList columnGroups = missingIndex.SelectNodes("shp:ColumnGroup", nsMgr);
+                    XmlNodeList columnGroups = missingIndex.SelectNodes("descendant::shp:ColumnGroup", nsMgr);
                     foreach (XmlNode columnGroup in columnGroups)
                     {
                         foreach (XmlNode column in columnGroup.ChildNodes)
@@ -447,13 +447,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                                 if (includeColumns == string.Empty)
                                     includeColumns = columnName;
                                 else
-                                    includeColumns = $"{indexColumns},{columnName}";
+                                    includeColumns = $"{includeColumns},{columnName}";
                             }
                         }
                     }
 
                     // for memory optimized we just alter the existing index where as for non optimized tables we create a new one.
-                    string queryText = string.Format((memoryOptimzed) ? addIndexTemplate : createIndexTemplate, schemaName, tableName, indexColumns);
+                    var template = (memoryOptimzed) ? addIndexTemplate : createIndexTemplate;
+                    string queryText = string.Format(template, schemaName, tableName, indexColumns);
                     if (!string.IsNullOrEmpty(includeColumns))
                     {
                         queryText += string.Format(includeTemplate, includeColumns);
