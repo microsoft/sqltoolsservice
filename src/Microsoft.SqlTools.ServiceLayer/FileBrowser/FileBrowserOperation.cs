@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             this.cancelSource = new CancellationTokenSource();
             this.cancelToken = cancelSource.Token;
             this.connection = connection;
-            this.showFoldersOnly = true; //showFoldersOnly ?? false;
+            this.showFoldersOnly = showFoldersOnly ?? false;
             this.Initialize(expandPath, fileFilters);
         }
 
