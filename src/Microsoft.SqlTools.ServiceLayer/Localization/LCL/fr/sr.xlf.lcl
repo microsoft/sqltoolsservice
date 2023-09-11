@@ -13013,7 +13013,7 @@
         <Str Cat="Text">
           <Val><![CDATA[1 Day]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[1 jour]]></Val>
+            <Val><![CDATA[1 jour]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13022,7 +13022,7 @@
         <Str Cat="Text">
           <Val><![CDATA[1 Hour]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[1 heure]]></Val>
+            <Val><![CDATA[1 heure]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13040,7 +13040,7 @@
         <Str Cat="Text">
           <Val><![CDATA[3 Days]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[3 jours]]></Val>
+            <Val><![CDATA[3 jours]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13094,7 +13094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[15 Minutes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[15 Minutes]]></Val>
+            <Val><![CDATA[15 minutes]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13103,7 +13103,7 @@
         <Str Cat="Text">
           <Val><![CDATA[5 Minutes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[5 minutes]]></Val>
+            <Val><![CDATA[5 minutes]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13112,7 +13112,7 @@
         <Str Cat="Text">
           <Val><![CDATA[1 Day]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[1 jour]]></Val>
+            <Val><![CDATA[1 jour]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13121,7 +13121,7 @@
         <Str Cat="Text">
           <Val><![CDATA[1 Hour]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[1 heure]]></Val>
+            <Val><![CDATA[1 heure]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13130,7 +13130,7 @@
         <Str Cat="Text">
           <Val><![CDATA[1 Minute]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[1 minute]]></Val>
+            <Val><![CDATA[1 minute]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13139,7 +13139,7 @@
         <Str Cat="Text">
           <Val><![CDATA[10 Minutes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[10 Minutes]]></Val>
+            <Val><![CDATA[10 minutes]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
