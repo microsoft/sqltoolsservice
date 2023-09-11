@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
-        internal static readonly string[] DscOnOffOptions;
+        internal static readonly string[] PropertiesOnOffOptions;
         internal static readonly string[] DscElevateOptions;
         internal static readonly string[] DscEnableDisableOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
@@ -125,13 +125,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, SR.queryStoreSizeBasedCleanupMode_Off);
             displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, SR.queryStoreSizeBasedCleanupMode_Auto);
 
-            DscOnOffOptions = new[]{
-                CommonConstants.DatabaseScopedConfigurations_Value_On,
-                CommonConstants.DatabaseScopedConfigurations_Value_Off
+            PropertiesOnOffOptions = new[]{
+                CommonConstants.PropertiesDropdown_Value_On,
+                CommonConstants.PropertiesDropdown_Value_Off
             };
 
             DscElevateOptions = new[]{
-                CommonConstants.DatabaseScopedConfigurations_Value_Off,
+                CommonConstants.PropertiesDropdown_Value_Off,
                 CommonConstants.DatabaseScopedConfigurations_Value_When_supported,
                 CommonConstants.DatabaseScopedConfigurations_Value_Fail_Unsupported
             };
@@ -270,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     };
                                     if (prototype is DatabasePrototype140)
                                     {
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode == QueryStoreWaitStatsCaptureMode.On;
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode.ToString();
                                     };
                                     if (prototype is DatabasePrototype150)
                                     {
@@ -310,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
                         }
-                        databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
+                        databaseViewInfo.PropertiesOnOffOptions = PropertiesOnOffOptions;
                         databaseViewInfo.DscElevateOptions = DscElevateOptions;
                         databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
                         databaseViewInfo.OperationModeOptions = displayOperationModeOptions.Values.ToArray();
@@ -804,7 +804,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             db130.QueryStoreOptions.StaleQueryThresholdInDays = database.QueryStoreOptions.StaleQueryThresholdInDays;
                             if (prototype is DatabasePrototype140 db140 && database.QueryStoreOptions.WaitStatisticsCaptureMode != null)
                             {
-                                db140.QueryStoreOptions.WaitStatsCaptureMode = (bool)database.QueryStoreOptions.WaitStatisticsCaptureMode ? QueryStoreWaitStatsCaptureMode.On : QueryStoreWaitStatsCaptureMode.Off;
+                                db140.QueryStoreOptions.WaitStatsCaptureMode = database.QueryStoreOptions.WaitStatisticsCaptureMode == CommonConstants.PropertiesDropdown_Value_On ? QueryStoreWaitStatsCaptureMode.On : QueryStoreWaitStatsCaptureMode.Off;
                             }
 
                             if (prototype is DatabasePrototype150 db150 && database.QueryStoreOptions.QueryStoreCaptureMode == SR.querystorecapturemode_custom
