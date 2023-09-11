@@ -311,6 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0].Type, Is.EqualTo("ROWS Data"), $"Database files first file should be Row type database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1].Type, Is.EqualTo("LOG"), $"Database files first file should be Log type database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups?.Length, Is.GreaterThan(0), $"Database file groups should exists");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions, Is.Not.Null, $"Database Query store options are not null");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);

@@ -42,15 +42,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
         private static readonly ConcurrentDictionary<FileType, string> displayFileTypes = new ConcurrentDictionary<FileType, string>();
+        private static readonly ConcurrentDictionary<QueryStoreOperationMode, string> displayOperationModeOptions = new ConcurrentDictionary<QueryStoreOperationMode, string>();
+        private static readonly ConcurrentDictionary<QueryStoreCaptureMode, string> displayQueryStoreCaptureModeOptions = new ConcurrentDictionary<QueryStoreCaptureMode, string>();
+        private static readonly SortedDictionary<int, string> displayStatisticsCollectionIntervalInMinutes = new SortedDictionary<int, string>();
+        private static readonly SortedDictionary<int, string> displayQueryStoreStaleThresholdInHours = new SortedDictionary<int, string>();
+        private static readonly ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string> displaySizeBasedCleanupMode = new ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
         private static readonly Dictionary<string, FileType> fileTypesEnums = new Dictionary<string, FileType>();
+        private static readonly Dictionary<string, QueryStoreOperationMode> operationModeEnums = new Dictionary<string, QueryStoreOperationMode>();
+        private static readonly Dictionary<string, QueryStoreCaptureMode> captureModeEnums = new Dictionary<string, QueryStoreCaptureMode>();
+        private static readonly Dictionary<string, int> statisticsCollectionIntervalValues = new Dictionary<string, int>();
+        private static readonly Dictionary<string, int> queryStoreStaleThresholdValues = new Dictionary<string, int>();
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
-        internal static readonly string[] DscOnOffOptions;
+        internal static readonly string[] PropertiesOnOffOptions;
         internal static readonly string[] DscElevateOptions;
         internal static readonly string[] DscEnableDisableOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
@@ -89,13 +98,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayFileTypes.TryAdd(FileType.Log, SR.prototype_file_logFile);
             displayFileTypes.TryAdd(FileType.FileStream, SR.prototype_file_filestreamFile);
 
-            DscOnOffOptions = new[]{
-                CommonConstants.DatabaseScopedConfigurations_Value_On,
-                CommonConstants.DatabaseScopedConfigurations_Value_Off
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.Off, CommonConstants.QueryStoreOperationMode_Off);
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadOnly, CommonConstants.QueryStoreOperationMode_ReadOnly);
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadWrite, CommonConstants.QueryStoreOperationMode_ReadWrite);
+
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.All, SR.querystorecapturemode_all);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Auto, SR.querystorecapturemode_auto);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.None, SR.querystorecapturemode_none);
+
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1, SR.statisticsCollectionInterval_OneMinute);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(5, SR.statisticsCollectionInterval_FiveMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(10, SR.statisticsCollectionInterval_TenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(15, SR.statisticsCollectionInterval_FifteenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(30, SR.statisticsCollectionInterval_ThirtyMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(60, SR.statisticsCollectionInterval_OneHour);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1440, SR.statisticsCollectionInterval_OneDay);
+
+            displayQueryStoreStaleThresholdInHours.TryAdd(1, SR.queryStore_stale_threshold_OneHour);
+            displayQueryStoreStaleThresholdInHours.TryAdd(4, SR.queryStore_stale_threshold_FourHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(8, SR.queryStore_stale_threshold_EightHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(12, SR.queryStore_stale_threshold_TwelveHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(24, SR.queryStore_stale_threshold_OneDay);
+            displayQueryStoreStaleThresholdInHours.TryAdd(72, SR.queryStore_stale_threshold_ThreeDays);
+            displayQueryStoreStaleThresholdInHours.TryAdd(168, SR.queryStore_stale_threshold_SevenDays);
+
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, SR.queryStoreSizeBasedCleanupMode_Off);
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, SR.queryStoreSizeBasedCleanupMode_Auto);
+
+            PropertiesOnOffOptions = new[]{
+                CommonConstants.PropertiesDropdown_Value_On,
+                CommonConstants.PropertiesDropdown_Value_Off
             };
 
             DscElevateOptions = new[]{
-                CommonConstants.DatabaseScopedConfigurations_Value_Off,
+                CommonConstants.PropertiesDropdown_Value_Off,
                 CommonConstants.DatabaseScopedConfigurations_Value_When_supported,
                 CommonConstants.DatabaseScopedConfigurations_Value_Fail_Unsupported
             };
@@ -122,6 +158,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             foreach (FileType key in displayFileTypes.Keys)
             {
                 fileTypesEnums.Add(displayFileTypes[key], key);
+            }
+            foreach (QueryStoreOperationMode key in displayOperationModeOptions.Keys)
+            {
+                operationModeEnums.Add(displayOperationModeOptions[key], key);
+            }
+            foreach (QueryStoreCaptureMode key in displayQueryStoreCaptureModeOptions.Keys)
+            {
+                captureModeEnums.Add(displayQueryStoreCaptureModeOptions[key], key);
+            }
+            foreach (KeyValuePair<int, string> pair in displayStatisticsCollectionIntervalInMinutes)
+            {
+                statisticsCollectionIntervalValues.Add(pair.Value, pair.Key);
+            }
+            foreach (KeyValuePair<int, string> pair in displayQueryStoreStaleThresholdInHours)
+            {
+                queryStoreStaleThresholdValues.Add(pair.Value, pair.Key);
             }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
@@ -202,6 +254,38 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
                                 ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
                                 ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
+                                if (prototype is DatabasePrototype130)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions = new QueryStoreOptions()
+                                    {
+                                        ActualMode = displayOperationModeOptions[smoDatabase.QueryStoreOptions.ActualState],
+                                        DataFlushIntervalInMinutes = smoDatabase.QueryStoreOptions.DataFlushIntervalInSeconds / 60,
+                                        StatisticsCollectionInterval = displayStatisticsCollectionIntervalInMinutes[(int)smoDatabase.QueryStoreOptions.StatisticsCollectionIntervalInMinutes],
+                                        MaxPlansPerQuery = smoDatabase.QueryStoreOptions.MaxPlansPerQuery,
+                                        MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
+                                        QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
+                                        SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
+                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays,
+                                        CurrentStorageSizeInMB = smoDatabase.QueryStoreOptions.CurrentStorageSizeInMB
+                                    };
+                                    if (prototype is DatabasePrototype140)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode.ToString();
+                                    };
+                                    if (prototype is DatabasePrototype150)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.CapturePolicyOptions = new QueryStoreCapturePolicyOptions()
+                                        {
+                                            ExecutionCount = smoDatabase.QueryStoreOptions.CapturePolicyExecutionCount,
+                                            StaleThreshold = displayQueryStoreStaleThresholdInHours[(int)smoDatabase.QueryStoreOptions.CapturePolicyStaleThresholdInHrs],
+                                            TotalCompileCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS,
+                                            TotalExecutionCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS
+                                        };
+
+                                        // Sql Server 2019 and higher only support the custom query store capture mode
+                                        displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, SR.querystorecapturemode_custom);
+                                    }
+                                }
                             }
                             if (!isManagedInstance)
                             {
@@ -226,9 +310,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
                         }
-                        databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
+                        databaseViewInfo.PropertiesOnOffOptions = PropertiesOnOffOptions;
                         databaseViewInfo.DscElevateOptions = DscElevateOptions;
                         databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
+                        databaseViewInfo.OperationModeOptions = displayOperationModeOptions.Values.ToArray();
+                        databaseViewInfo.QueryStoreCaptureModeOptions = displayQueryStoreCaptureModeOptions.Values.ToArray();
+                        databaseViewInfo.StatisticsCollectionIntervalOptions = displayStatisticsCollectionIntervalInMinutes.Values.ToArray();
+                        databaseViewInfo.StaleThresholdOptions = displayQueryStoreStaleThresholdInHours.Values.ToArray();
+                        databaseViewInfo.SizeBasedCleanupModeOptions = displaySizeBasedCleanupMode.Values.ToArray();
                     }
 
                     // azure sql db doesn't have a sysadmin fixed role
@@ -541,6 +630,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sqlScript;
         }
 
+        /// <summary>
+        /// Clears all query store data from the database
+        /// </summary>
+        /// <param name="purgeParams"></param>
+        public void PurgeQueryStoreData(PurgeQueryStoreDataRequestParams purgeParams)
+        {
+            using (var dataContainer = CreateDatabaseDataContainer(purgeParams.ConnectionUri, purgeParams.ObjectUrn, false, purgeParams.Database))
+            {
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
+                {
+                    smoDatabase.QueryStoreOptions.PurgeQueryStoreData();
+                }
+            }
+        }
+
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
@@ -683,6 +788,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 }
                             }
                             db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
+                        }
+
+                        if (!viewParams.IsNewObject && database.QueryStoreOptions != null)
+                        {
+                            // Sql Server 2019 and higher supports custom query store capture mode
+                            captureModeEnums.TryAdd(SR.querystorecapturemode_custom, QueryStoreCaptureMode.Custom);
+                            db130.QueryStoreOptions.DesiredState = operationModeEnums[database.QueryStoreOptions.ActualMode];
+                            db130.QueryStoreOptions.DataFlushIntervalInSeconds = database.QueryStoreOptions.DataFlushIntervalInMinutes * 60;
+                            db130.QueryStoreOptions.StatisticsCollectionIntervalInMinutes = statisticsCollectionIntervalValues[database.QueryStoreOptions.StatisticsCollectionInterval];
+                            db130.QueryStoreOptions.MaxPlansPerQuery = database.QueryStoreOptions.MaxPlansPerQuery;
+                            db130.QueryStoreOptions.MaxStorageSizeInMB = database.QueryStoreOptions.MaxSizeInMB;
+                            db130.QueryStoreOptions.QueryCaptureMode = captureModeEnums[database.QueryStoreOptions.QueryStoreCaptureMode];
+                            db130.QueryStoreOptions.SizeBasedCleanupMode = database.QueryStoreOptions.SizeBasedCleanupMode == SR.queryStoreSizeBasedCleanupMode_Off ? QueryStoreSizeBasedCleanupMode.Off : QueryStoreSizeBasedCleanupMode.Auto;
+                            db130.QueryStoreOptions.StaleQueryThresholdInDays = database.QueryStoreOptions.StaleQueryThresholdInDays;
+                            if (prototype is DatabasePrototype140 db140 && database.QueryStoreOptions.WaitStatisticsCaptureMode != null)
+                            {
+                                db140.QueryStoreOptions.WaitStatsCaptureMode = database.QueryStoreOptions.WaitStatisticsCaptureMode == CommonConstants.PropertiesDropdown_Value_On ? QueryStoreWaitStatsCaptureMode.On : QueryStoreWaitStatsCaptureMode.Off;
+                            }
+
+                            if (prototype is DatabasePrototype150 db150 && database.QueryStoreOptions.QueryStoreCaptureMode == SR.querystorecapturemode_custom
+                                && database.QueryStoreOptions.CapturePolicyOptions != null)
+                            {
+                                db150.QueryStoreOptions.CapturePolicyExecutionCount = database.QueryStoreOptions.CapturePolicyOptions.ExecutionCount;
+                                db150.QueryStoreOptions.CapturePolicyStaleThresholdInHrs = queryStoreStaleThresholdValues[database.QueryStoreOptions.CapturePolicyOptions.StaleThreshold];
+                                db150.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS = database.QueryStoreOptions.CapturePolicyOptions.TotalCompileCPUTimeInMS;
+                                db150.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS = database.QueryStoreOptions.CapturePolicyOptions.TotalCompileCPUTimeInMS;
+
+                            }
                         }
                     }
 

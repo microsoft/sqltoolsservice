@@ -33,9 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private ServerPrototypeData currentState;
         private ServerPrototypeData originalState;
-
-        private ConfigProperty serverMinMemoryProperty;
-        private ConfigProperty serverMaxMemoryProperty;
         #endregion
 
         #region Trace support
@@ -615,8 +612,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.configService = new ServerConfigService();
             this.currentState = new ServerPrototypeData(context, context.Server, this.configService);
             this.originalState = (ServerPrototypeData)this.currentState.Clone();
-            this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(context.Server, this.configService.MaxServerMemoryPropertyNumber);
-            this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(context.Server, this.configService.MinServerMemoryPropertyNumber);
         }
 
         #endregion
@@ -632,11 +627,67 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (this.dataContainer.Server != null)
             {
                 Server server = this.dataContainer.Server;
-                bool alterServerConfig = false;
-                bool sendCPUAffinityBeforeIO = false;
-                bool sendIOAffinityBeforeCPU = false;
-                bool sentCpuAffinity = false;
 
+                if (UpdateMemoryValues(this.dataContainer.Server))
+                {
+                    server.Configuration.Alter(true);
+                }
+
+                UpdateProcessorsValues(this.dataContainer.Server);
+
+                if (UpdateSecurityValues(this.dataContainer.Server))
+                {
+                    server.Alter();
+                }
+
+                if (UpdateDBSettingsValues(this.dataContainer.Server))
+                {
+                    server.Settings.Alter();
+                }
+
+                if (UpdateBackupConfig(this.dataContainer.Server))
+                {
+                    server.Configuration.Alter();
+                }
+
+                if (UpdateAdvancedValues(this.dataContainer.Server))
+                {
+                    server.Configuration.Alter();
+                }
+
+                if (UpdateFullTextService(this.dataContainer.Server))
+                {
+                    server.FullTextService.Alter();
+                }
+            }
+        }
+
+        public bool UpdateMemoryValues(Server server)
+        {
+            bool changesMade = false;
+            if (this.currentState.MinMemory.Value != this.originalState.MinMemory.Value)
+            {
+                changesMade = true;
+                server.Configuration.MinServerMemory.ConfigValue = this.currentState.MinMemory.Value;
+            }
+
+            if (this.currentState.MaxMemory.Value != this.originalState.MaxMemory.Value)
+            {
+                changesMade = true;
+                server.Configuration.MaxServerMemory.ConfigValue = this.currentState.MaxMemory.Value;
+            }
+            return changesMade;
+        }
+
+        public void UpdateProcessorsValues(Server server)
+        {
+            bool alterServerConfig = false;
+            bool sendCPUAffinityBeforeIO = false;
+            bool sendIOAffinityBeforeCPU = false;
+            bool sentCpuAffinity = false;
+            if (this.currentState.AutoProcessorAffinityIOMaskForAll != this.originalState.AutoProcessorAffinityIOMaskForAll ||
+                this.currentState.AutoProcessorAffinityMaskForAll != this.originalState.AutoProcessorAffinityMaskForAll)
+            {
                 sendCPUAffinityBeforeIO = this.CheckCPUAffinityBeforeIO(server);
                 sendIOAffinityBeforeCPU = this.CheckIOAffinityBeforeCPU(server);
                 alterServerConfig = this.CheckIOAffinityTsqlGenerated(server);
@@ -663,56 +714,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 this.currentState.AffinityManagerProcessorMask.Clear();
                 this.currentState.AffinityManagerIOMask.Clear();
-
-                if (UpdateMemoryValues(this.dataContainer.Server))
-                {
-                    server.Configuration.Alter(true);
-                }
-
-                if (UpdateSecurityValues(this.dataContainer.Server))
-                {
-                    server.Alter();
-                }
-
-                if (UpdateDBSettingsValues(this.dataContainer.Server))
-                {
-                    server.Settings.Alter();
-                }
-
-                if (UpdateBackupConfig(this.dataContainer.Server))
-                {
-                    server.Configuration.Alter();
-                }
-
-                if (UpdateAdvancedValues(this.dataContainer.Server))
-                {
-                    server.Configuration.Alter();
-                }
-
-                if(UpdateFullTextService(this.dataContainer.Server))
-                {
-                    server.FullTextService.Alter();
-                }
             }
-        }
-
-        public bool UpdateMemoryValues(Server server)
-        {
-            bool changesMade = false;
-            if (this.currentState.MinMemory.Value != this.originalState.MinMemory.Value)
-            {
-                changesMade = true;
-                ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
-                serverConfig.ConfigValue = this.currentState.MinMemory.Value;
-            }
-
-            if (this.currentState.MaxMemory.Value != this.originalState.MaxMemory.Value)
-            {
-                changesMade = true;
-                ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
-                serverConfig.ConfigValue = this.currentState.MaxMemory.Value;
-            }
-            return changesMade;
         }
 
         public bool UpdateSecurityValues(Server server)
@@ -775,7 +777,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             return alterServer;
         }
-        
+
         public bool UpdateFullTextService(Server server)
         {
             bool alterServer = false;
@@ -796,13 +798,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 alterServer = true;
             }
 
-            if (this.currentState.BlockedProcThreshold != this.originalState.BlockedProcThreshold)
+            if (this.currentState.BlockedProcThreshold.Value != this.originalState.BlockedProcThreshold.Value)
             {
                 server.Configuration.BlockedProcessThreshold.ConfigValue = this.currentState.BlockedProcThreshold.Value;
                 alterServer = true;
             }
 
-            if (this.currentState.CursorThreshold != this.originalState.CursorThreshold)
+            if (this.currentState.CursorThreshold.Value != this.originalState.CursorThreshold.Value)
             {
                 server.Configuration.CursorThreshold.ConfigValue = this.currentState.CursorThreshold.Value;
                 alterServer = true;
@@ -844,25 +846,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 alterServer = true;
             }
 
-            if (this.currentState.CostThresholdParallelism != this.originalState.CostThresholdParallelism)
+            if (this.currentState.CostThresholdParallelism.Value != this.originalState.CostThresholdParallelism.Value)
             {
                 server.Configuration.CostThresholdForParallelism.ConfigValue = this.currentState.CostThresholdParallelism.Value;
                 alterServer = true;
             }
 
-            if (this.currentState.Locks != this.originalState.Locks)
+            if (this.currentState.Locks.Value != this.originalState.Locks.Value)
             {
                 server.Configuration.Locks.ConfigValue = this.currentState.Locks.Value;
                 alterServer = true;
             }
 
-            if (this.currentState.MaxDegreeParallelism != this.originalState.MaxDegreeParallelism)
+            if (this.currentState.MaxDegreeParallelism.Value != this.originalState.MaxDegreeParallelism.Value)
             {
                 server.Configuration.MaxDegreeOfParallelism.ConfigValue = this.currentState.MaxDegreeParallelism.Value;
                 alterServer = true;
             }
 
-            if (this.currentState.QueryWait != this.originalState.QueryWait)
+            if (this.currentState.QueryWait.Value != this.originalState.QueryWait.Value)
             {
                 server.Configuration.QueryWait.ConfigValue = this.currentState.QueryWait.Value;
                 alterServer = true;
@@ -948,7 +950,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         sendAffinityInfoAlter = true;
                         if (!this.AutoProcessorAffinityMaskForAll)
-                        { 
+                        {
                             cpu.AffinityMask = this.NumaNodes[i].Processors[cpuCount].Affinity;
                         }
                     }
@@ -1134,9 +1136,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private bool isYukonOrLater = false;
             private bool isSqlServer64Bit;
             private bool isIOAffinitySupported = false;
-
-            ConfigProperty serverMaxMemoryProperty;
-            ConfigProperty serverMinMemoryProperty;
             #endregion
 
             #region Properties
@@ -2187,8 +2186,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.isSqlServer64Bit = (this.server.Edition.Contains("(64 - bit)"));
                 this.affinityManagerIOMask = new AffinityManager();
                 this.affinityManagerProcessorMask = new AffinityManager();
-                this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
-                this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
                 this.minMemory = new NumericServerProperty();
                 this.maxMemory = new NumericServerProperty();
                 this.blockedProcThreshold = new NumericServerProperty();
@@ -2292,13 +2289,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             private void LoadMemoryProperties()
             {
-                this.maxMemory.Value = serverMaxMemoryProperty.ConfigValue;
-                this.maxMemory.MaximumValue = serverMaxMemoryProperty.Maximum;
-                this.maxMemory.MinimumValue = serverMaxMemoryProperty.Minimum;
+                this.maxMemory.Value = server.Configuration.MaxServerMemory.ConfigValue;
+                this.maxMemory.MaximumValue = server.Configuration.MaxServerMemory.Maximum;
+                this.maxMemory.MinimumValue = server.Configuration.MaxServerMemory.Minimum;
 
-                this.minMemory.Value = serverMinMemoryProperty.ConfigValue;
-                this.minMemory.MaximumValue = serverMinMemoryProperty.Maximum;
-                this.minMemory.MinimumValue = serverMinMemoryProperty.Minimum;
+                this.minMemory.Value = server.Configuration.MinServerMemory.ConfigValue;
+                this.minMemory.MaximumValue = server.Configuration.MinServerMemory.Maximum;
+                this.minMemory.MinimumValue = server.Configuration.MinServerMemory.Minimum;
             }
 
             private void LoadProcessorsProperties()
@@ -2326,8 +2323,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             private void LoadDBSettingsProperties()
             {
-                this.checkBackupChecksum = this.configService.GetServerSmoConfig(server, this.configService.BackupChecksumDefaultPropertyNumber).ConfigValue == 1;
-                this.checkCompressBackup = this.configService.GetServerSmoConfig(server, this.configService.BackupCompressionDefaultPropertyNumber).ConfigValue == 1;
+                this.checkBackupChecksum = server.Configuration.DefaultBackupChecksum.ConfigValue == 1;
+                this.checkCompressBackup = server.Configuration.DefaultBackupCompression.ConfigValue == 1;
                 this.dataLocation = server.Settings.DefaultFile;
                 this.logLocation = server.Settings.DefaultLog;
                 this.backupLocation = server.Settings.BackupDirectory;
@@ -2366,7 +2363,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 try
                 {
                     this.fullTextUpgradeOption = server.FullTextService.CatalogUpgradeOption.ToString();
-                } catch
+                }
+                catch
                 {
                     this.fullTextUpgradeOption = String.Empty;
                 }
@@ -2393,7 +2391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             {
                                 this.AffinityManagerIOMask.initialIOAffinityArray[cpu.ID] = true;
                             }
-                    
+
                             // get affinityIO info if group id is 0
                             processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = affinityIO });
                         }

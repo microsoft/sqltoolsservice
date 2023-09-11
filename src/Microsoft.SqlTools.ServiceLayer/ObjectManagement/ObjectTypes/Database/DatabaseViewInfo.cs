@@ -24,10 +24,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public AzureEditionDetails[] AzureMaxSizes { get; set; }
         public string[] PageVerifyOptions { get; set; }
         public string[] RestrictAccessOptions { get; set; }
-        public string[] DscOnOffOptions { get; set; }
+        public string[] PropertiesOnOffOptions { get; set; }
         public string[] DscElevateOptions { get; set; }
         public string[] DscEnableDisableOptions { get; set; }
         public string[] FileTypesOptions { get; set; }
+        public string[] OperationModeOptions { get; set; }
+        public string[] StatisticsCollectionIntervalOptions { get; set; }
+        public string[] QueryStoreCaptureModeOptions { get; set; }
+        public string[] SizeBasedCleanupModeOptions { get; set; }
+        public string[] StaleThresholdOptions { get; set; }
     }
 
     public class AzureEditionDetails
