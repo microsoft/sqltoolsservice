@@ -2326,8 +2326,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             private void LoadDBSettingsProperties()
             {
-                this.checkBackupChecksum = this.configService.GetServerSmoConfig(server, this.configService.BackupChecksumDefaultPropertyNumber).ConfigValue == 1;
-                this.checkCompressBackup = this.configService.GetServerSmoConfig(server, this.configService.BackupCompressionDefaultPropertyNumber).ConfigValue == 1;
+                this.checkBackupChecksum = server.Configuration.DefaultBackupChecksum.ConfigValue == 1;
+                this.checkCompressBackup = server.Configuration.DefaultBackupCompression.ConfigValue == 1;
                 this.dataLocation = server.Settings.DefaultFile;
                 this.logLocation = server.Settings.DefaultLog;
                 this.backupLocation = server.Settings.BackupDirectory;
