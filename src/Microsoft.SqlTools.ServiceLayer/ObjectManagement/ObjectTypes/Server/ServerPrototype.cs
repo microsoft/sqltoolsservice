@@ -655,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     server.Configuration.Alter();
                 }
 
-                if(UpdateFullTextService(this.dataContainer.Server))
+                if (UpdateFullTextService(this.dataContainer.Server))
                 {
                     server.FullTextService.Alter();
                 }
@@ -685,7 +685,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             bool sendCPUAffinityBeforeIO = false;
             bool sendIOAffinityBeforeCPU = false;
             bool sentCpuAffinity = false;
-            if(this.currentState.AutoProcessorAffinityIOMaskForAll != this.originalState.AutoProcessorAffinityIOMaskForAll ||
+            if (this.currentState.AutoProcessorAffinityIOMaskForAll != this.originalState.AutoProcessorAffinityIOMaskForAll ||
                 this.currentState.AutoProcessorAffinityMaskForAll != this.originalState.AutoProcessorAffinityMaskForAll)
             {
                 sendCPUAffinityBeforeIO = this.CheckCPUAffinityBeforeIO(server);
@@ -777,7 +777,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             return alterServer;
         }
-        
+
         public bool UpdateFullTextService(Server server)
         {
             bool alterServer = false;
@@ -950,7 +950,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         sendAffinityInfoAlter = true;
                         if (!this.AutoProcessorAffinityMaskForAll)
-                        { 
+                        {
                             cpu.AffinityMask = this.NumaNodes[i].Processors[cpuCount].Affinity;
                         }
                     }
@@ -2363,7 +2363,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 try
                 {
                     this.fullTextUpgradeOption = server.FullTextService.CatalogUpgradeOption.ToString();
-                } catch
+                }
+                catch
                 {
                     this.fullTextUpgradeOption = String.Empty;
                 }
@@ -2390,7 +2391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             {
                                 this.AffinityManagerIOMask.initialIOAffinityArray[cpu.ID] = true;
                             }
-                    
+
                             // get affinityIO info if group id is 0
                             processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = affinityIO });
                         }
