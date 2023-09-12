@@ -161,11 +161,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             var scripts = new List<string>();
             foreach (var s in generatedScripts)
             {
-                // Needed to remove '\r' and '\n' characters from script, so that an entire create script
+                // Needed to remove '\r', '\n', and '\t' characters from script, so that an entire create script
                 // can be written and read as a single line to and from a temp file. Since scripts aren't
-                // going to be read by people, and mainly sent to Copilot to generate accurate suggestions,
+                // going to be read by people, and sent to Copilot to generate accurate suggestions,
                 // a lack of formatting is fine.
-                var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty).Replace("\t", string.Empty);
                 scripts.Add(script);
             }
 

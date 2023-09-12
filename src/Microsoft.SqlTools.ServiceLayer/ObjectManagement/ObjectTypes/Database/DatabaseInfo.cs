@@ -44,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
         public bool? IsFilesTabSupported { get; set; }
         public DatabaseFile[] Files { get; set; }
+        public FileGroupSummary[]? Filegroups { get; set; }
+        public QueryStoreOptions? QueryStoreOptions { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -69,4 +71,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public double MaxSizeLimitInMb { get; set; }
     }
 
+    public class FileGroupSummary
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public FileGroupType Type { get; set; }
+        public bool IsReadOnly { get; set; }
+        public bool IsDefault { get; set; }
+        public bool AutogrowAllFiles { get; set; }
+    }
+
+    public class QueryStoreOptions
+    {
+        public string ActualMode { get; set; }
+        public long DataFlushIntervalInMinutes { get; set; }
+        public string StatisticsCollectionInterval { get; set; }
+        public long MaxPlansPerQuery { get; set; }
+        public long MaxSizeInMB { get; set; }
+        public string QueryStoreCaptureMode { get; set; }
+        public string SizeBasedCleanupMode { get; set; }
+        public long StaleQueryThresholdInDays { get; set; }
+        public string? WaitStatisticsCaptureMode { get; set; }
+        public QueryStoreCapturePolicyOptions? CapturePolicyOptions { get; set; }
+        public long CurrentStorageSizeInMB { get; set; }
+    }
+
+    public class QueryStoreCapturePolicyOptions
+    {
+        public int ExecutionCount { get; set; }
+        public string StaleThreshold { get; set; }
+        public long TotalCompileCPUTimeInMS { get; set; }
+        public long TotalExecutionCPUTimeInMS { get; set; }
+    }
 }

@@ -381,15 +381,6 @@
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Die zur Bearbeitung angeforderte Tabelle oder Sicht wurde nicht gefunden.</value>
   </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Fehler beim Analysieren der ScriptingParams.ConnectionString-Eigenschaft.</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>Durch die ScriptingParams.FilePath-Eigenschaft wurde ein ungültiges Verzeichnis angegeben.</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Fehler beim Analysieren der ScriptingListObjectsCompleteParams.ConnectionString -Eigenschaft.</value>
-  </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
     <value>Die Abfrage umfasst keine Ergebnisse, die zurückgegeben werden können.</value>
   </data>
@@ -518,15 +509,6 @@
   </data>
   <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
     <value>Dezimalstellenwert für skalare Spalte fehlt.</value>
-  </data>
-  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>--TODO: Hier Parameterwerte festlegen.</value>
-  </data>
-  <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>Fehler bei der Skripterstellung für die Objekte.</value>
-  </data>
-  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
-    <value>Eine Skripterstellung zur Ausführung wird nur für gespeicherte Prozeduren unterstützt.</value>
   </data>
   <data name="EditDataMultiTableNotSupported" xml:space="preserve">
     <value>EditData-Abfragen für mehrere Tabellenziele werden nicht unterstützt.</value>
@@ -4428,5 +4410,14 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>Die ALTER TABLE-Berechtigung wurde für die Tabelle "{0}" verweigert.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Fehler beim Analysieren der ScriptingListObjectsCompleteParams.ConnectionString -Eigenschaft.</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Fehler beim Schreiben von Serverkontextualisierungsskripts in den Cache. Fehler: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Fehler beim Generieren von Serverkontextualisierungsskripts.</value>
   </data>
 </root>

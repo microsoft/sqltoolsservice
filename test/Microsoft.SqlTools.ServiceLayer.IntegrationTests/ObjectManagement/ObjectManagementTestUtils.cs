@@ -83,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 AutoShrink = false,
                 AutoUpdateStatistics = true,
                 AutoUpdateStatisticsAsynchronously = false,
-                DatabaseScopedConfigurations = null
+                DatabaseScopedConfigurations = null,
+                QueryStoreOptions = null
             };
         }
 
@@ -127,7 +128,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return databaseFiles.ToArray();
         }
 
-        internal static UserInfo GetTestUserInfo(DatabaseUserType userType, string userName = null, string loginName = null)
+        internal static List<FileGroupSummary> GetTestDatabaseFilegroups()
+        {
+            List<FileGroupSummary> fgs = new List<FileGroupSummary>();
+            fgs.Add(new FileGroupSummary()
+            {
+                Id = -1,
+                Name = "rowFilegroup1",
+                IsDefault = false,
+                IsReadOnly = false,
+                AutogrowAllFiles = true,
+                Type = FileGroupType.RowsFileGroup
+            });
+            fgs.Add(new FileGroupSummary()
+            {
+                Id = -2,
+                Name = "memOptFg1",
+                Type = FileGroupType.MemoryOptimizedDataFileGroup
+            });
+            return fgs;
+        }
+
+            internal static UserInfo GetTestUserInfo(DatabaseUserType userType, string userName = null, string loginName = null)
         {
             return new UserInfo()
             {

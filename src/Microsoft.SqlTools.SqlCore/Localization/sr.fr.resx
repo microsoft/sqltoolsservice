@@ -753,4 +753,22 @@
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>Schéma et données</value>
   </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Erreur d'analyse de la propriété ScriptingParams.ConnectionString.</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>Répertoire non valide spécifié pour la propriété ScriptingParams.FilePath.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>Une erreur s'est produite pendant l'exécution de scripts sur les objets.</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Les scripts de type Exécuter sont uniquement pris en charge pour les procédures stockées</value>
+  </data>
 </root>

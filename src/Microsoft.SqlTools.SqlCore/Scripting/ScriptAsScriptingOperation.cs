@@ -47,13 +47,13 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
             sqlConnection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
-            if (azureAccountToken != null)
+            if (!string.IsNullOrEmpty(azureAccountToken))
             {
                 sqlConnection.AccessToken = azureAccountToken;
             }
 
             ServerConnection = new ServerConnection(sqlConnection);
-            if (azureAccountToken != null)
+            if (!string.IsNullOrEmpty(azureAccountToken))
             {
                 ServerConnection.AccessToken = new AzureAccessToken(azureAccountToken);
             }

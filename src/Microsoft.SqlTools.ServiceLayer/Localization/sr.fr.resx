@@ -381,15 +381,6 @@
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>La table ou la vue demandée pour modification est introuvable</value>
   </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Erreur d'analyse de la propriété ScriptingParams.ConnectionString.</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>Répertoire non valide spécifié pour la propriété ScriptingParams.FilePath.</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</value>
-  </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
     <value>La requête n'a aucun résultat à retourner</value>
   </data>
@@ -518,15 +509,6 @@
   </data>
   <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
     <value>Colonne scalaire sans échelle</value>
-  </data>
-  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>-- TODO: Set parameter values here.</value>
-  </data>
-  <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>Une erreur s'est produite pendant l'exécution de scripts sur les objets.</value>
-  </data>
-  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
-    <value>Les scripts de type Exécuter sont uniquement pris en charge pour les procédures stockées</value>
   </data>
   <data name="EditDataMultiTableNotSupported" xml:space="preserve">
     <value>Les requêtes EditData ciblant plusieurs tables ne sont pas prises en charge</value>
@@ -4428,5 +4410,14 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>Autorisation ALTER TABLE refusée pour la table «{0}».</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Une erreur s'est produite lors de l'écriture des scripts de contextualisation du serveur dans le cache. Erreur : {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Échec de la génération des scripts de contextualisation du serveur</value>
   </data>
 </root>

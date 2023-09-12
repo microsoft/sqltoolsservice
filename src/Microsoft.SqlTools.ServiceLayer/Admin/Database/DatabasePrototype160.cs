@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// <summary>
     /// Database properties for SqlServer 2022
     /// </summary>
-    internal class DatabasePrototype160 : DatabasePrototype140
+    internal class DatabasePrototype160 : DatabasePrototype150
     {
         /// <summary>
         /// Database properties for SqlServer 2022 class constructor

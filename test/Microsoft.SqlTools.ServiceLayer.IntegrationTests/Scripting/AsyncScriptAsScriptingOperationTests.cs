@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "ScriptingTests");
             scriptingParams.ConnectionString = testDb.ConnectionString;
 
-            var actualScript = await AsyncScriptAsScriptingOperation.GetScriptAsScript(scriptingParams, null);
+            var actualScript = await AsyncScriptAsScriptingOperation.GetScriptAsScript(scriptingParams);
 
             foreach(var expectedStr in expectedScriptContents)
             {

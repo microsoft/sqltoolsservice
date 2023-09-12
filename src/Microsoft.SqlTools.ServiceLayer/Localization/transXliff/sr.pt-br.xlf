@@ -457,21 +457,6 @@
         <target state="translated">A tabela ou exibição solicitada para edição não foi encontrada</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingParams.ConnectionString property.</source>
-        <target state="translated">Erro ao analisar a propriedade ScriptingParams.ConnectionString.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
-        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
-        <target state="translated">Diretório inválido especificado pela propriedade ScriptingParams.FilePath.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
-        <target state="translated">Erro ao analisar a propriedade ScriptingListObjectsCompleteParams.ConnectionString.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="QueryServiceResultSetHasNoResults">
         <source>Query has no results to return</source>
         <target state="translated">A consulta não tem resultados para retornar</target>
@@ -686,21 +671,6 @@
       <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
         <source>Scalar column missing scale</source>
         <target state="translated">A coluna escalar está sem escala</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StoredProcedureScriptParameterComment">
-        <source>-- TODO: Set parameter values here.</source>
-        <target state="translated">--TODO: defina os valores de parâmetro aqui.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingGeneralError">
-        <source>An error occurred while scripting the objects.</source>
-        <target state="translated">Ocorreu um erro ao gerar o script dos objetos.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingExecuteNotSupportedError">
-        <source>Scripting as Execute is only supported for Stored Procedures</source>
-        <target state="translated">A função de criação de script ao executar é compatível apenas com os procedimentos armazenados</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataMultiTableNotSupported">
@@ -7272,6 +7242,22 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Permissão ALTERAR TABLE negada na tabela '{0}'.</target>
         <note>.
  Parameters: 0 - table (string) </note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="translated">Erro ao analisar a propriedade ScriptingListObjectsCompleteParams.ConnectionString.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">Foi encontrado um erro ao gravar scripts de contextualização do servidor no cache. Erro: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">Falha ao gerar scripts de contextualização do servidor</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

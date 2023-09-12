@@ -457,21 +457,6 @@
         <target state="translated">找不到请求编辑的表或视图</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingParams.ConnectionString property.</source>
-        <target state="translated">解析 ScriptingParams.ConnectionString 属性时出错</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
-        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
-        <target state="translated">ScriptingParams.FilePath 属性指定的目录无效</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
-        <target state="translated">解析 ScriptingListObjectsCompleteParams.ConnectionString 属性时出错</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="QueryServiceResultSetHasNoResults">
         <source>Query has no results to return</source>
         <target state="translated">无查询结果</target>
@@ -686,21 +671,6 @@
       <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
         <source>Scalar column missing scale</source>
         <target state="translated">标量列缺失小数位数</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StoredProcedureScriptParameterComment">
-        <source>-- TODO: Set parameter values here.</source>
-        <target state="new">-- TODO: Set parameter values here.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingGeneralError">
-        <source>An error occurred while scripting the objects.</source>
-        <target state="translated">编写对象脚本时出错。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScriptingExecuteNotSupportedError">
-        <source>Scripting as Execute is only supported for Stored Procedures</source>
-        <target state="translated">仅存储过程支持编写执行脚本</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataMultiTableNotSupported">
@@ -7272,6 +7242,22 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">已拒绝对表 "{0}" 的 ALTER TABLE 权限。</target>
         <note>.
  Parameters: 0 - table (string) </note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="translated">解析 ScriptingListObjectsCompleteParams.ConnectionString 属性时出错</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="translated">将服务器上下文化脚本写入缓存时遇到错误。错误: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="translated">未能生成服务器上下文化脚本</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

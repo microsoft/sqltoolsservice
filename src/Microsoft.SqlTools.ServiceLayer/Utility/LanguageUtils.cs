@@ -126,6 +126,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         }
 
         /// <summary>
+        /// Gets languageId from alias.
+        /// </summary>
+        /// <param name="connectedServer"></param>
+        /// <param name="languageAlias"></param>
+        /// <returns>Throws exception in case it doesn't find a matching lcid on the server</returns>
+        public static int GetLangIdFromAlias(Server connectedServer, string alias)
+        {
+            int langId = -1; //Unacceptable LangId.            
+
+            SetLanguageDefaultInitFieldsForDefaultLanguages(connectedServer);
+
+            foreach (Language lang in connectedServer.Languages)
+            {
+                if (lang.Alias == alias)
+                {
+                    langId = lang.LangID;
+                    break;
+                }
+            }
+
+            if (langId == -1) //Ideally this will never happen.
+            {
+                throw new ArgumentOutOfRangeException("lcid", "This locale id is not present in sys.syslanguages catalog.");
+            }
+
+            return langId;
+        }
+
+
+        /// <summary>
         /// returns a language choice alias for that language
         /// </summary>
         /// <param name="langid"></param>

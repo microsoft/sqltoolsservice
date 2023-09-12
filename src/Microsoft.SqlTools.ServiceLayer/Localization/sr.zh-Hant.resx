@@ -381,15 +381,6 @@
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>找不到要編輯的資料表或檢視表</value>
   </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>剖析屬性 ScriptingParams.ConnectionString 時發生錯誤</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>ScriptingParams.FilePath 屬性指定的路徑是無效目錄。</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</value>
-  </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
     <value>沒有查詢結果可以回傳</value>
   </data>
@@ -518,15 +509,6 @@
   </data>
   <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
     <value>純量資料行缺少範圍</value>
-  </data>
-  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>-- TODO: 在此處設定參數值。</value>
-  </data>
-  <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>編寫物件指令碼時發生錯誤。</value>
-  </data>
-  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
-    <value>僅預存程序支援指令碼執行</value>
   </data>
   <data name="EditDataMultiTableNotSupported" xml:space="preserve">
     <value>EditData 不支援多個目標資料表查詢</value>
@@ -4428,5 +4410,14 @@
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>資料表 '{0}' 的 ALTER TABLE 權限遭拒。</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>將伺服器關聯式化的指令碼寫入快取時發生錯誤。錯誤: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>無法產生伺服器關聯式化的指令碼</value>
   </data>
 </root>

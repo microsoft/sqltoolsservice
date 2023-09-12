@@ -381,15 +381,6 @@
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Non è stato possibile trovare la tabella o la visualizzazione richiesta per la modifica</value>
   </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Si è verificato un errore durante l'analisi della proprietà ScriptingParams.ConnectionString.</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>La directory specificata dalla proprietà ScriptingParams.FilePath non è valida.</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Si è verificato un errore durante l'analisi della proprietà ScriptingListObjectsCompleteParams.ConnectionString.</value>
-  </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
     <value>Non ci sono risultati della query da restituire</value>
   </data>
@@ -518,15 +509,6 @@
   </data>
   <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
     <value>Nella colonna con il valore scalare manca la scala</value>
-  </data>
-  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>--TODO: impostare qui i valori dei parametri.</value>
-  </data>
-  <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>Si è verificato un errore durante lo scripting degli oggetti.</value>
-  </data>
-  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
-    <value>Lo scripting come Execute è supportato solo per le stored procedure</value>
   </data>
   <data name="EditDataMultiTableNotSupported" xml:space="preserve">
     <value>Le query EditData destinate a più tabelle non sono supportate</value>
@@ -4428,5 +4410,14 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>Autorizzazione ALTER TABLE negata per la tabella '{0}'.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Si è verificato un errore durante l'analisi della proprietà ScriptingListObjectsCompleteParams.ConnectionString.</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Si è verificato un errore durante la scrittura degli script di contestualizzazione del server nella cache. Errore: {0}</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Non è stato possibile generare gli script di contestualizzazione del server</value>
   </data>
 </root>

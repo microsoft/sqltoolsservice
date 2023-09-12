@@ -134,31 +134,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         }
 
         [Test]
-        public async Task VerifyGenerateServerContextualizationNotification()
-        {
-            this.testTableName += new Random().Next(1000000, 9999999).ToString();
-            this.testTableName2 += new Random().Next(0, 999999).ToString();
-
-            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
-            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
-
-            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
-            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            var generateServerContextualizationParams = new GenerateServerContextualizationParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            };
-
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
-
-            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
-            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            DeleteServerContextualizationTempFile(sqlConn.DataSource);
-        }
-
-        [Test]
         public async Task VerifyGetServerContextualizationRequest()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
@@ -170,18 +145,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var generateServerContextualizationParams = new GenerateServerContextualizationParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            };
-
-            MetadataService.GenerateServerContextualization(generateServerContextualizationParams);
-
-            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
-            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
             var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
             var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
@@ -194,7 +159,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
+            // First call generates context, stores it in temp file and returns the generated context
             await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+
+            Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
+
+            // Second call gets the context from the temp file and returns that read file context.
+            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));

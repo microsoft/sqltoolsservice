@@ -38,6 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class CopyResultsRequestResult
     {
+        public string Results { get; set; }
     }
 
     /// <summary>
