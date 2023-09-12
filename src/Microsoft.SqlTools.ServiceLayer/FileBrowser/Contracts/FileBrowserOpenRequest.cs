@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         public string ExpandPath;
 
         /// <summary>
-        /// File extension filter (e.g. *.bak)
+        /// File extension filter (e.g. *.bak). Ignored if <see cref="ShowFoldersOnly"/> is set to <c>true</c>.
         /// </summary>
         public string[] FileFilters;
 
