@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// </summary>
         /// <param name="connection">The connection object.</param>
         /// <param name="expandPath">The initial folder to open in the file dialog.</param>
-        /// <param name="fileFilters">The file extension filters. Ignored if <see cref="showFoldersOnly"/> is set to <c>true</c></param>
+        /// <param name="fileFilters">The file extension filters. Ignored if <see cref="showFoldersOnly"/> is set to <c>true</c>.</param>
         /// <param name="showFoldersOnly">Whether to only show folders in the file browser.</param>
         public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null, bool? showFoldersOnly = null)
         {
