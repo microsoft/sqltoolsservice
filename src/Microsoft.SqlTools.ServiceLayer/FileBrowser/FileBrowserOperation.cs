@@ -26,19 +26,23 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private bool fileTreeCreated;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
+        private bool showFoldersOnly;
 
         #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileBrowser"/> class.
         /// </summary>
-        /// <param name="connection">The connection object</param>
-        /// <param name="fileFilters">The file extension filters</param>
-        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null)
+        /// <param name="connection">The connection object.</param>
+        /// <param name="expandPath">The initial folder to open in the file dialog.</param>
+        /// <param name="fileFilters">The file extension filters. Ignored if <see cref="showFoldersOnly"/> is set to <c>true</c>.</param>
+        /// <param name="showFoldersOnly">Whether to only show folders in the file browser.</param>
+        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null, bool? showFoldersOnly = null)
         {
             this.cancelSource = new CancellationTokenSource();
             this.cancelToken = cancelSource.Token;
             this.connection = connection;
+            this.showFoldersOnly = showFoldersOnly ?? false;
             this.Initialize(expandPath, fileFilters);
         }
 
@@ -236,9 +240,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 }
                 treeNode.IsFile = isFile;
 
-                // if the node is a directory, or if we are browsing for files and the file name is allowed,
-                // add the node to the tree
-                if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters)))
+                // If the node is a directory, or if we are browsing for files and the file name is allowed,
+                // add the node to the tree. Files will be skipped instead if the dialog is only showing folders,
+                // regardless of any provided file filters. 
+                if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters) && !this.showFoldersOnly))
                 {
                     children.Add(treeNode);
                 }
