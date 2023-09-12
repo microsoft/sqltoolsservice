@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.Authentication
 {
     /// <summary>
-    /// Supported Active Directory authentication modes
+    /// Supported Microsoft Entra authentication modes
     /// </summary>
     public enum AuthenticationMethod
     {

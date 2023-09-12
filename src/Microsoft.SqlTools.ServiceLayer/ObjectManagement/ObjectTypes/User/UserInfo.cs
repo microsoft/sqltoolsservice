@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         // Authenticate with password.
         [EnumMember(Value = "SqlAuthentication")]
         SqlAuthentication,
-        // Authenticate with Azure Active Directory.
+        // Authenticate with Microsoft Entra ID.
         [EnumMember(Value = "AADAuthentication")]
         AADAuthentication,
         // User that cannot authenticate.

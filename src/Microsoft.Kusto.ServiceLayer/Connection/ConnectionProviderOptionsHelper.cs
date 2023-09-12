@@ -51,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                         CategoryValues = new CategoryValue[]
                         { new CategoryValue { DisplayName = "SQL Login", Name = "SqlLogin" },
                           new CategoryValue { DisplayName = "Windows Authentication", Name = "Integrated" },
-                          new CategoryValue { DisplayName = "Azure Active Directory - Universal with MFA support", Name = AzureMFA }
+                          new CategoryValue { DisplayName = "Microsoft Entra ID - Universal with MFA support", Name = AzureMFA }
                         },
                         IsIdentity = true,
                         IsRequired = true,

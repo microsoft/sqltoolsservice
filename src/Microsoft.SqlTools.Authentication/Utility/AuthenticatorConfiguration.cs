@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.Authentication.Utility
 {
     /// <summary>
-    /// Configuration used by <see cref="Authenticator"/> to perform AAD authentication using MSAL.NET
+    /// Configuration used by <see cref="Authenticator"/> to perform Microsoft Entra authentication using MSAL.NET
     /// </summary>
     public class AuthenticatorConfiguration
     {

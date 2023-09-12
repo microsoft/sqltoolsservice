@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
     }
 
     /// <summary>
-    /// Represents a tenant (an Azure Active Directory instance) to which a user has access
+    /// Represents a Microsoft Entra tenant to which a user has access
     /// </summary>
     public class Tenant
     {
