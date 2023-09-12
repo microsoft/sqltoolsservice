@@ -240,8 +240,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 }
                 treeNode.IsFile = isFile;
 
-                // if the node is a directory, or if we are browsing for files and the file name is allowed,
-                // add the node to the tree
+                // If the node is a directory, or if we are browsing for files and the file name is allowed,
+                // add the node to the tree. Files will be skipped instead if the dialog is only showing folders,
+                // regardless of any provided file filters. 
                 if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters) && !this.showFoldersOnly))
                 {
                     children.Add(treeNode);
