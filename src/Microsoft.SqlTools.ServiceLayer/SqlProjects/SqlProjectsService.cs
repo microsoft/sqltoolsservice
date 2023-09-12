@@ -545,13 +545,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         private SqlProject GetProject(string projectUri, bool onlyLoadProperties = false)
         {
-            if (!Projects.ContainsKey(projectUri) // if not already loaded, load according to onlyLoadProperties flag
-                || (Projects[projectUri].OnlyPropertiesLoaded && !onlyLoadProperties)) // if already loaded, check flag to see if it needs to be reopened as fully-loaded
+            if (!Projects.TryGetValue(projectUri, out SqlProject? project) // if not already loaded, load according to onlyLoadProperties flag
+                || (project.OnlyPropertiesLoaded && !onlyLoadProperties)) // if already loaded, check flag to see if it needs to be reopened as fully-loaded
             {
-                Projects[projectUri] = SqlProject.OpenProject(projectUri, onlyLoadProperties);
+                project = SqlProject.OpenProject(projectUri, onlyLoadProperties);
+                Projects.TryAdd(projectUri, project);
             }
 
-            return Projects[projectUri];
+            return project;
         }
 
         #endregion

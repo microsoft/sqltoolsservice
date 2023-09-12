@@ -120,8 +120,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
             bool overrideExisting,
-            bool isParallelProcessingSupported = false,
-            bool isBackgroundTask = false)
+            bool isParallelProcessingSupported = false)
         {
             if (overrideExisting)
             {
@@ -154,19 +153,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             }
                         }
 
-                        if (isBackgroundTask)
-                        {
-                            // Start a detached task that runs in background, unblocking dispatcher thread.
-                            await Task.Factory.StartNew(() => Task.Run(async () =>
-                            {
-                                await requestHandler(typedParams, requestContext);
-                                Logger.Verbose($"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
-                            }));
-                        } else
-                        {
-                            await requestHandler(typedParams, requestContext);
-                            Logger.Verbose($"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
-                        }
+                        await requestHandler(typedParams, requestContext);
+                        Logger.Verbose($"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     }
                     catch (Exception ex)
                     {
@@ -190,8 +178,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
             bool overrideExisting,
-            bool isParallelProcessingSupported = false,
-            bool isBackgroundTask = false)
+            bool isParallelProcessingSupported = false)
         {
             if (overrideExisting)
             {
@@ -220,19 +207,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                                 throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
                             }
                         }
-                        if (isBackgroundTask)
-                        {
-                            // Start a detached task that runs in background, unblocking dispatcher thread.
-                            await Task.Factory.StartNew(() => Task.Run(async () =>
-                            {
-                                await eventHandler(typedParams, eventContext);
-                                Logger.Verbose($"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
-                            }));
-                        } else
-                        {
-                            await eventHandler(typedParams, eventContext);
-                            Logger.Verbose($"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
-                        }
+                        await eventHandler(typedParams, eventContext);
+                        Logger.Verbose($"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     }
                     catch (Exception ex)
                     {

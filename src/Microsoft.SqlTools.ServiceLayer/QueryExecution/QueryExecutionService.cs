@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest, true);
-            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, true);
+            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest, true);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest, true);
             serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);

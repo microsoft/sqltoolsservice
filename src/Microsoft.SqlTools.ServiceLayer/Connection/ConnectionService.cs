@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
+        internal ConcurrentDictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new ConcurrentDictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -920,14 +920,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool ReplaceUri(string originalOwnerUri, string newOwnerUri)
         {
             // Lookup the ConnectionInfo owned by the URI
-            ConnectionInfo info;
-            if (!OwnerToConnectionMap.TryGetValue(originalOwnerUri, out info))
+            if(OwnerToConnectionMap.TryRemove(originalOwnerUri, out ConnectionInfo info))
             {
-                return false;
+                return OwnerToConnectionMap.TryAdd(newOwnerUri, info);
             }
-            OwnerToConnectionMap.Remove(originalOwnerUri);
-            OwnerToConnectionMap.Add(newOwnerUri, info);
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -978,7 +975,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // If the ConnectionInfo has no more connections, remove the ConnectionInfo
             if (info.CountConnections == 0)
             {
-                OwnerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                OwnerToConnectionMap.TryRemove(disconnectParams.OwnerUri, out _);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection
@@ -1120,16 +1117,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, isParallelProcessingSupported: false, isBackgroundTask: true);
+            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
+            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, true);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, true);
+            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, true);
+            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, true);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
+            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, true);
+            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
+            serviceHost.SetRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest, true);
+            serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, false);
         }
 
         /// <summary>

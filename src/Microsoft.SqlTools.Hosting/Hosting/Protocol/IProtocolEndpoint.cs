@@ -24,12 +24,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="requestType">request type</param>
         /// <param name="requestHandler">request handler</param>
         /// <param name="isParallelProcessingSupported">whether this handler supports parallel processing</param>
-        /// <param name="isBackgroundTask">Whether the <paramref name="requestHandler"/> should run as a detached background task.</param>
         void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
-            bool isParallelProcessingSupported = false,
-            bool isBackgroundTask = false);
+            bool isParallelProcessingSupported = false);
 
         /// <summary>
         /// Set an request handler
@@ -38,12 +36,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="eventType">type of event</param>
         /// <param name="eventHandler">event handler</param>
         /// <param name="isParallelProcessingSupported">whether this handler supports parallel processing</param>
-        /// <param name="isBackgroundTask">Whether the <paramref name="eventHandler"/> should run as a detached background task.</param>
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool isParallelProcessingSupported = false,
-            bool isBackgroundTask = false);
+            bool isParallelProcessingSupported = false);
 
         /// <summary>
         /// Set an request handler
@@ -53,12 +49,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="eventHandler">event handler</param>
         /// <param name="overrideExisting">whether to override the existing handler for the same event type</param>
         /// <param name="isParallelProcessingSupported">whether this handler supports parallel processing</param>
-        /// <param name="isBackgroundTask">Whether the <paramref name="eventHandler"/> should run as a detached background task.</param>
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
             bool overrideExisting,
-            bool isParallelProcessingSupported = false,
-            bool isBackgroundTask = false);
+            bool isParallelProcessingSupported = false);
     }
 }
