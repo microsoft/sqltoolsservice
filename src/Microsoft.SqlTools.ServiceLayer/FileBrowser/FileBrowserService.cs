@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         {
                             if (!fileBrowserParams.ChangeFilter)
                             {
-                                browser = new FileBrowserOperation(bindingContext.ServerConnection, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
+                                browser = new FileBrowserOperation(bindingContext.ServerConnection, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters, fileBrowserParams.ShowFoldersOnly);
                             }
                             else
                             {
