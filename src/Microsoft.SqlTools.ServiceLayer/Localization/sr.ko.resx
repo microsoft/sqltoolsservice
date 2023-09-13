@@ -4420,4 +4420,67 @@
   <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
     <value>서버 컨텍스트화 스크립트를 생성하지 못했습니다.</value>
   </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>서버에 대한 연결 정보를 찾지 못했습니다.</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>모두</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>자동</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>없음</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>사용자 지정</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>끄기</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>자동</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1분</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5분</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10분</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15분</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30분</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1시간</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1일</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1시간</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4시간</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8시간</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12시간</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1일</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3일</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7일</value>
+  </data>
 </root>

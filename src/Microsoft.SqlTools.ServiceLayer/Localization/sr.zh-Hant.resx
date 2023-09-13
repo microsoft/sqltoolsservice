@@ -4420,4 +4420,67 @@
   <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
     <value>無法產生伺服器關聯式化的指令碼</value>
   </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>找不到伺服器的連線資訊</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>自訂</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 分鐘</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 分鐘</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 分鐘</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 分鐘</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 分鐘</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 小時</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 天</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 小時</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 小時</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 小時</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 小時</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 天</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 天</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 天</value>
+  </data>
 </root>

@@ -7259,6 +7259,111 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">No se pudieron generar los scripts de contextualización del servidor</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FailedToFindConnectionInfoAboutTheServer">
+        <source>Failed to find connection info about the server</source>
+        <target state="translated">No se pudo encontrar información de conexión sobre el servidor</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_all">
+        <source>All</source>
+        <target state="translated">Todas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_auto">
+        <source>Auto</source>
+        <target state="translated">Automático</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_none">
+        <source>None</source>
+        <target state="translated">Ninguno</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_custom">
+        <source>Custom</source>
+        <target state="translated">Personalizado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStoreSizeBasedCleanupMode_Off">
+        <source>Off</source>
+        <target state="translated">Desactivado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStoreSizeBasedCleanupMode_Auto">
+        <source>Auto</source>
+        <target state="translated">Automático</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneMinute">
+        <source>1 Minute</source>
+        <target state="translated">1 minuto</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_FiveMinutes">
+        <source>5 Minutes</source>
+        <target state="translated">5 minutos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_TenMinutes">
+        <source>10 Minutes</source>
+        <target state="translated">10 minutos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_FifteenMinutes">
+        <source>15 Minutes</source>
+        <target state="translated">15 minutos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_ThirtyMinutes">
+        <source>30 Minutes</source>
+        <target state="translated">30 minutos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneHour">
+        <source>1 Hour</source>
+        <target state="translated">1 hora</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneDay">
+        <source>1 Day</source>
+        <target state="translated">1 día</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_OneHour">
+        <source>1 Hour</source>
+        <target state="translated">1 hora</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_FourHours">
+        <source>4 Hours</source>
+        <target state="translated">4 horas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_EightHours">
+        <source>8 Hours</source>
+        <target state="translated">8 horas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_TwelveHours">
+        <source>12 Hours</source>
+        <target state="translated">12 horas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_OneDay">
+        <source>1 Day</source>
+        <target state="translated">1 día</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_ThreeDays">
+        <source>3 Days</source>
+        <target state="translated">3 días</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_SevenDays">
+        <source>7 Days</source>
+        <target state="translated">7 días</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
