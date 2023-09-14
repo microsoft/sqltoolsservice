@@ -4420,4 +4420,67 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
     <value>Échec de la génération des scripts de contextualisation du serveur</value>
   </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>Nous n’avons pas pu trouver les informations de connexion sur le serveur</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>Tous</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>Aucun</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 minute</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 minutes</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 minutes</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 minutes</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 minutes</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 heure</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 jour</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 heure</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 heures</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 heures</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 heures</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 jour</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 jours</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 jours</value>
+  </data>
 </root>
