@@ -863,7 +863,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             {
                 if (db.Name == databaseName)
                 {
-                    db.DropIfExists();
+                    // Set database to single user mode to close any active connections
+                    db.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                    db.Alter(TerminationClause.RollbackTransactionsImmediately);
+                    db.Drop();
                     break;
                 }
             }
