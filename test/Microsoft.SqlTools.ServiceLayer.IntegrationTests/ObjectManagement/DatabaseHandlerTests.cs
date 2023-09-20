@@ -532,7 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var detachParams = new DetachDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = true,
                         UpdateStatistics = true,
                         GenerateScript = false
@@ -596,7 +596,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var detachParams = new DetachDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = false,
                         UpdateStatistics = false,
                         GenerateScript = true
@@ -759,7 +759,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var deleteParams = new DropDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = false,
                         DeleteBackupHistory = false,
                         GenerateScript = false
@@ -802,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var deleteParams = new DropDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = false,
                         DeleteBackupHistory = false,
                         GenerateScript = true
