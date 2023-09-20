@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
 using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -656,7 +657,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
-                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[Name='{0}']", databaseName);
+                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[Name='{0}']", Urn.EscapeString(databaseName));
                 }
                 else
                 {
