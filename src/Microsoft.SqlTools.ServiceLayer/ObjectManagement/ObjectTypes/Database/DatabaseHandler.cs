@@ -657,7 +657,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
-                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[Name='{0}']", Urn.EscapeString(databaseName));
+                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[@Name='{0}']", Urn.EscapeString(databaseName));
                 }
                 else
                 {
