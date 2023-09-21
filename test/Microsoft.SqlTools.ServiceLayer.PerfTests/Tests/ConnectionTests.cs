@@ -9,14 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class ConnectionTests
     {
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.Azure)]
         public async Task ConnectAzureTest()
         {
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task ConnectOnPremTest()
         {
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task DisconnectTest()
         {

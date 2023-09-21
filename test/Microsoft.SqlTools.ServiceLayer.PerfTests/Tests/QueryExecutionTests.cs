@@ -11,61 +11,61 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class QueryExecutionTests
     {
-        [Fact]
+        [Test]
         public async Task QueryResultSummaryOnPremTest()
         {
             await QueryResultSummaryOnPremTestCore(TestServerType.OnPrem, Scripts.MasterBasicQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryResultFirstOnPremTest()
         {
             await QueryResultFirstOnPremTestCore(TestServerType.OnPrem, Scripts.MasterBasicQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task LongQueryResultSummaryOnPremTest()
         {
             await QueryResultSummaryOnPremTestCore(TestServerType.OnPrem, Scripts.MasterLongQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task LongQueryResultFirstOnPremTest()
         {
             await QueryResultFirstOnPremTestCore(TestServerType.OnPrem, Scripts.MasterLongQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryResultSummaryOnAzureTest()
         {
             await QueryResultSummaryOnPremTestCore(TestServerType.Azure, Scripts.MasterBasicQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryResultFirstOnAzureTest()
         {
             await QueryResultFirstOnPremTestCore(TestServerType.Azure, Scripts.MasterBasicQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task LongQueryResultSummaryOnAzureTest()
         {
             await QueryResultSummaryOnPremTestCore(TestServerType.Azure, Scripts.MasterLongQuery);
         }
 
-        [Fact]
+        [Test]
         public async Task LongQueryResultFirstOnAzureTest()
         {
             await QueryResultFirstOnPremTestCore(TestServerType.Azure, Scripts.MasterLongQuery);
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task CancelQueryOnPremTest()
         {
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                     }
                     else
                     {
-                        Assert.True(false, "Failed to run the query");
+                        Assert.Fail("Failed to run the query");
 
                         await testService.Disconnect(queryTempFile.FilePath);
                     }

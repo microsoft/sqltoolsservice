@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class ObjectExplorerTests
     {
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.Azure)]
         public async Task CreateSessionAzure()
         {
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             await VerifyCreateSession(serverType);
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task CreateSessionOnPrem()
         {
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             await VerifyCreateSession(serverType);
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task ExpandDatabasesOnPrem()
         {
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             await VerifyExpand(serverType, SqlTestDb.MasterDatabaseName);
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task ExpandOneDatabaseOnPrem()
         {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             await VerifyExpand(serverType, Common.PerfTestDatabaseName);
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.Azure)]
         public async Task ExpandDatabasesAzure()
         {
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             await VerifyExpand(serverType, SqlTestDb.MasterDatabaseName);
         }
 
-        [Fact]
+        [Test]
         [CreateTestDb(TestServerType.Azure)]
         public async Task ExpandOneDatabaseAzure()
         {
