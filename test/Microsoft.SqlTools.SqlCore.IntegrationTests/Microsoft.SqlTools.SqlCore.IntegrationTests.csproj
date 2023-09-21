@@ -29,10 +29,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-		<ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
-		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider/Microsoft.SqlTools.ResourceProvider.csproj" />
-		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.Core/Microsoft.SqlTools.ResourceProvider.Core.csproj" />
-		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.DefaultImpl/Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
 		<ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
 		<ProjectReference Include="../../src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
 	</ItemGroup>
