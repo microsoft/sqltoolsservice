@@ -37,6 +37,7 @@ dotnetProjectArray=(
     "./test/Microsoft.SqlTools.ServiceLayer.UnitTests"
     "./test/Microsoft.SqlTools.SqlCore.UnitTests"
     "./test/Microsoft.SqlTools.SqlCore.IntegrationTests"
+    "./test/Microsoft.SqlTools.Migration.IntegrationTests"
     "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
