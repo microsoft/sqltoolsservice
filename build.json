@@ -22,6 +22,12 @@
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
       "net7.0"
+    ],
+    "Microsoft.SqlTools.SqlCore.UnitTests": [
+      "net7.0"
+    ],
+    "Microsoft.SqlTools.SqlCore.IntegrationTests": [
+      "net7.0"
     ]
   },
   "Frameworks": [

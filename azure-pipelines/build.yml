@@ -117,6 +117,14 @@ steps:
     projects: test/Microsoft.SqlTools.Authentication.UnitTests
     testRunTitle: SqlTools.Authentication.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
+  
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test test/Microsoft.SqlTools.SqlCore.UnitTests'
+  inputs:
+    command: test
+    projects: test/Microsoft.SqlTools.SqlCore.UnitTests
+    testRunTitle: SqlTools.SqlCore.UnitTests
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - script: |
     dotnet tool install -g dotnet-reportgenerator-globaltool
