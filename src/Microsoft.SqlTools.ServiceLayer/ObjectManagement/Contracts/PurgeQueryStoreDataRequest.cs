@@ -12,10 +12,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     public class PurgeQueryStoreDataRequestParams : GeneralRequestDetails
     {
         /// <summary>
-        /// SFC (SMO) URN identifying the object  
-        /// </summary>
-        public string ObjectUrn { get; set; }
-        /// <summary>
         /// The target database name.
         /// </summary>
         public string Database { get; set; }

@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup Label="Configuration">
+		<OutputType>Exe</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+		<IsPackable>false</IsPackable>
+		<ApplicationIcon />
+		<StartupObject />
+		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
+		<NoWarn>$(NoWarn);CS8795</NoWarn>
+		<TargetFramework>net7.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="Moq" />
+		<PackageReference Include="nunit" />
+		<PackageReference Include="nunit3testadapter" />
+		<PackageReference Include="nunit.console" />
+		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="coverlet.collector">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.msbuild">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="../../src/Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />
+	</ItemGroup>
+
+</Project>
