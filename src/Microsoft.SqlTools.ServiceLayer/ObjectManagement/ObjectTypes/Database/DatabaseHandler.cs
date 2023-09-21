@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
 using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -196,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject, requestParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.IsNewObject, requestParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
@@ -418,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Detach(DetachDatabaseRequestParams detachParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, detachParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, false, detachParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -465,7 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                    throw new InvalidOperationException($"Could not find database '{detachParams.Database}'.");
                 }
             }
             return sqlScript;
@@ -496,7 +497,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var sqlScript = string.Empty;
             ConnectionInfo connectionInfo = this.GetConnectionInfo(attachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true, null))
+            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, true, string.Empty))
             {
                 var server = dataContainer.Server!;
                 var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
@@ -552,7 +553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, dropParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, false, dropParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -624,7 +625,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Provided URN '{dropParams.ObjectUrn}' did not correspond to an existing database.");
+                    throw new InvalidOperationException($"Could not find database '{dropParams.Database}'.");
                 }
             }
             return sqlScript;
@@ -636,7 +637,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="purgeParams"></param>
         public void PurgeQueryStoreData(PurgeQueryStoreDataRequestParams purgeParams)
         {
-            using (var dataContainer = CreateDatabaseDataContainer(purgeParams.ConnectionUri, purgeParams.ObjectUrn, false, purgeParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(purgeParams.ConnectionUri, false, purgeParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -646,25 +647,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, bool isNewDatabase, string databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
             try
             {
+                string objectURN;
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[@Name='{0}']", Urn.EscapeString(databaseName));
+                }
+                else
+                {
+                    objectURN = "Server";
                 }
                 CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
                 if (dataContainer.Server == null)
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-                if (string.IsNullOrEmpty(objectURN))
-                {
-                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
-                }
+
                 dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
                 return dataContainer;
             }
@@ -681,7 +685,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject, viewParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.IsNewObject, viewParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
