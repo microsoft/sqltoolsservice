@@ -82,7 +82,7 @@ steps:
       command: test
       projects: '**/Microsoft.SqlTools.SqlCore.IntegrationTests.csproj'
       arguments: '--no-build'
-      testRunTitle: 'SqlToolsService Integration Tests'
+      testRunTitle: 'SqlCore Integration Tests'
 
     env:
       AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
