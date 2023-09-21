@@ -11,7 +11,7 @@ using Microsoft.SqlTools.SqlCore.Scripting;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
+namespace Microsoft.SqlTools.SqlCore.UnitTests.Scripting
 {
 
     public class ScriptingExtensionMethodsTests
