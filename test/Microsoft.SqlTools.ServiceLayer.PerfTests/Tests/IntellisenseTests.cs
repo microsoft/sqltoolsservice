@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using NUnit.Framework;
+using Xunit;
 using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class IntellisenseTests
     {
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task HoverTestOnPrem()
         {
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task SuggestionsTest()
         {
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task DiagnosticsTests()
         {
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheColdAzureSimpleQuery()
         {
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheColdOnPremSimpleQuery()
         {
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheWarmAzureSimpleQuery()
         {
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheWarmOnPremSimpleQuery()
         {
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheColdAzureComplexQuery()
         {
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheColdOnPremComplexQuery()
         {
@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheWarmAzureComplexQuery()
         {
@@ -221,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheWarmOnPremComplexQuery()
         {
