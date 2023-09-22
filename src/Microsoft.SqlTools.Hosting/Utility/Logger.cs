@@ -37,8 +37,9 @@ namespace Microsoft.SqlTools.Utility
         public const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
         private static string? logFileFullPath;
-
         public static TraceSource? TraceSource { get; set; }
+        public delegate void LogEmitEventHandler(LogEmitEventArgs e);
+        public static event LogEmitEventHandler LogEmitEvent;
 
         public static string LogFileFullPath
         {
@@ -394,6 +395,9 @@ namespace Microsoft.SqlTools.Utility
                         break;
                 }
             }
+
+            LogEmitEvent.Invoke(new LogEmitEventArgs(eventType, logMessage));
+
             if (AutoFlush)
             {
                 Flush();
@@ -547,5 +551,17 @@ namespace Microsoft.SqlTools.Utility
 
         private bool IsEnabled(TraceOptions opt) => TraceOutputOptions.HasFlag(opt);
 
+    }
+
+    public class LogEmitEventArgs : EventArgs
+    {
+        public LogEmitEventArgs(TraceEventType eventType, string message)
+        {
+            EventType = eventType;
+            Message = message;
+        }
+
+        public TraceEventType EventType { get; }
+        public string Message { get; }
     }
 }
