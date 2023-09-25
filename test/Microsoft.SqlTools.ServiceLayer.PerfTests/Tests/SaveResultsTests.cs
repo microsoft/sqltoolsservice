@@ -7,13 +7,13 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using NUnit.Framework;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class SaveResultsTests
     {
-        [Test]
+        [Fact]
         public async Task TestSaveResultsToCsvTest()
         {
             await TestServiceDriverProvider.RunTestIterations(async (timer) =>
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             });
         }
 
-        [Test]
+        [Fact]
         public async Task TestSaveResultsToJsonTest()
         {
             await TestServiceDriverProvider.RunTestIterations(async (timer) =>

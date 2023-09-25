@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.SqlCore.Scripting;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
-using NUnit.Framework;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class ScriptingTests
     {
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task ScripTableAzure()
         {
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             await VerifyScriptTable(serverType);
         }
 
-        [Test]
+        [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task ScripTableOnPrem()
         {
