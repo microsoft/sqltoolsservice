@@ -97,7 +97,14 @@ namespace Microsoft.SqlTools.Utility
         protected void SetOptionValue<T>(string name, T value)
         {
             Options = Options ?? new ConcurrentDictionary<string, object>();
-            Options.AddOrUpdate(name, value, (s, o) => o);
+            if (Options.ContainsKey(name))
+            {
+                Options[name] = value;
+            }
+            else
+            {
+                Options.TryAdd(name, value);
+            }
         }
 
         /// <summary>
