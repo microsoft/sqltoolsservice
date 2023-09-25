@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Globalization;
 
 namespace Microsoft.SqlTools.Utility
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.Utility
     {
         public GeneralRequestDetails()
         {
-            Options = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            Options = new ConcurrentDictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public T GetOptionValue<T>(string name, T defaultValue = default(T))
@@ -96,21 +96,14 @@ namespace Microsoft.SqlTools.Utility
 
         protected void SetOptionValue<T>(string name, T value)
         {
-            Options = Options ?? new Dictionary<string, object>();
-            if (Options.ContainsKey(name))
-            {
-                Options[name] = value;
-            }
-            else
-            {
-                Options.Add(name, value);
-            }
+            Options = Options ?? new ConcurrentDictionary<string, object>();
+            Options.AddOrUpdate(name, value, (s, o) => o);
         }
 
         /// <summary>
         /// Gets or Sets the options
         /// </summary>
-        public Dictionary<string, object> Options { get; set; }
+        public ConcurrentDictionary<string, object> Options { get; set; }
     }
 }
 
