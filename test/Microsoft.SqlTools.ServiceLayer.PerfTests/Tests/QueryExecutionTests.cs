@@ -97,6 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                     else
                     {
                         Assert.Fail("Failed to run the query");
+
                         await testService.Disconnect(queryTempFile.FilePath);
                     }
                 }
