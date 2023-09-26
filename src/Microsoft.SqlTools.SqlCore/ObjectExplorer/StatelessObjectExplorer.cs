@@ -37,6 +37,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
+                conn.AccessToken = accessToken?.Token;
+                conn.Open();
                 ServerConnection connection;
                 if (accessToken != null)
                 {
@@ -46,6 +48,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                 {
                     connection = new ServerConnection(conn);
                 }
+
+                connection.Connect();
+
+                connection.AccessToken = accessToken as IRenewableToken;
 
                 try
                 {
@@ -89,7 +95,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                         TreeNode? node;
                         if (parent == null)
                         {
-                            ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter);
+                            ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter, accessToken);
                             TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
 
                             if (nodePath == null || nodePath == string.Empty)
