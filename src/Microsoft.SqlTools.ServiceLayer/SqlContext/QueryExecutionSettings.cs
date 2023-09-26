@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// default text size
         /// </summary>
-        private const int DefaultTextSize = 2147483647;
+        private const int DefaultTextSize = int.MaxValue; // 2147483647;
 
         /// <summary>
         /// default execution timeout
