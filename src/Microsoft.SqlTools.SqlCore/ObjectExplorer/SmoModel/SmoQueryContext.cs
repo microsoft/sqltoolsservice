@@ -6,6 +6,7 @@
 using System;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
@@ -20,23 +21,26 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         private SmoObjectBase parent;
         private SmoWrapper smoWrapper;
         private ValidForFlag validFor = 0;
-        private Func<bool> groupBySchemaFlag;
 
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null)
-            : this(server, serviceProvider, null, groupBySchemaFlag)
+        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null, SecurityToken token = null)
+            : this(server, serviceProvider, null, groupBySchemaFlag, token)
         {
         }
 
-        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager, Func<bool> groupBySchemaFlag = null)
+        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager, Func<bool> groupBySchemaFlag = null, SecurityToken token = null)
         {
             this.server = server;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
-            this.groupBySchemaFlag = groupBySchemaFlag ?? new Func<bool>(() => false);
+            this.GroupBySchemaFlag = groupBySchemaFlag ?? new Func<bool>(() => false);
+            if(token != null && !string.IsNullOrEmpty(token.Token))
+            {
+                UpdateAccessToken(token.Token);
+            }
         }
 
         /// <summary>
@@ -85,9 +89,18 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
+        /// <summary>
+        /// Function that gets the group by schema 
+        /// </summary>
+        /// <value></value>
+        public Func<bool> GroupBySchemaFlag { get; set; }
+        
+        /// <summary>
+        /// Returns group by schema flag value.
+        /// </summary>
         public bool GroupBySchema
         {
-            get => groupBySchemaFlag();
+            get => GroupBySchemaFlag();
         }
 
         /// <summary>
@@ -114,7 +127,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
         public SmoQueryContext CopyWithParent(SmoObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper, this.groupBySchemaFlag)
+            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper, this.GroupBySchemaFlag)
             {
                 database = this.Database,
                 Parent = parent,
