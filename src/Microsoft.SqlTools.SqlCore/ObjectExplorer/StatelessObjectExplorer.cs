@@ -41,7 +41,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                 conn.AccessToken = accessToken?.Token;
                 conn.Open();
                 ServerConnection connection = new ServerConnection(conn);
-                connection.Connect();
                 connection.AccessToken = accessToken as IRenewableToken;
                 return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
             }
@@ -130,7 +129,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                                     var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;
                                     underlyingSqlConnection.AccessToken = securityToken.Token;
                                     await underlyingSqlConnection.OpenAsync();
-                                    nodeContext.Server.ConnectionContext.Connect();
                                 }
 
                                 return node.Expand(taskCancellationTokenSource.Token, securityToken?.Token, filters);
