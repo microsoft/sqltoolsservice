@@ -12,6 +12,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.SqlCore.Utility;
 using System.IO;
+using Microsoft.SqlTools.SqlCore.Connection;
 
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         private SqlServerType sqlServerType;
         public ServerConnection serverConnection;
 
-        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null, Func<bool> groupBySchemaFlag = null)
+        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null, Func<bool> groupBySchemaFlag = null, SecurityToken? accessToken = null)
             : base()
         {
             Validate.IsNotNull(nameof(ObjectExplorerServerInfo), serverInfo);
@@ -36,9 +37,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
             var assembly = typeof(SqlCore.ObjectExplorer.SmoModel.SmoQuerier).Assembly;
             serviceProvider ??= ExtensionServiceProvider.CreateFromAssembliesInDirectory(Path.GetDirectoryName(assembly.Location), new string[] { Path.GetFileName(assembly.Location) });
-            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider, groupBySchemaFlag));
             this.serverConnection = serverConnection;
-
+            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider, groupBySchemaFlag, accessToken));
             NodeValue = serverInfo.ServerName;
             IsAlwaysLeaf = false;
             NodeType = NodeTypes.Server.ToString();
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
        
 
-        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null)
+        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null, SecurityToken token = null)
         {
             string exceptionMessage;
    
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new SmoQueryContext(server, serviceProvider, SmoWrapper, groupBySchemaFlag)
+                    return new SmoQueryContext(server, serviceProvider, SmoWrapper, groupBySchemaFlag, token)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType

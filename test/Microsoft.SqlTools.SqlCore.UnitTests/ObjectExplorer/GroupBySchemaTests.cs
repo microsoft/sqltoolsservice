@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.SqlCore.UnitTests.ObjectExplorer
             context = new Mock<SmoQueryContext>(new Server(), ExtensionServiceProvider.CreateDefaultServiceProvider(), () =>
             {
                 return enableGroupBySchema;
-            });
+            }, null);
             context.CallBase = true;
             context.Object.ValidFor = ValidForFlag.None;
 
