@@ -3,14 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System.Collections.Generic;
-using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
-using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
-using TableDesignerIssue = Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts.TableDesignerIssue;
 using System.Linq;
-namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using TableDesignerIssue = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.TableDesignerIssue;
+using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+
+namespace Microsoft.SqlTools.SqlCore.TableDesigner
 {
     public static class TableDesignerValidator
     {
@@ -521,8 +520,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
-            var rowStart = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
-            var rowEnd = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
+            var rowStart = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == Dac.ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
+            var rowEnd = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == Dac.ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
             if (rowStart.Count() > 1 || rowEnd.Count() > 1)
             {
                 errors.Add(new TableDesignerIssue()

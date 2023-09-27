@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
-namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
+namespace Microsoft.SqlTools.SqlCore.TableDesigner
 {
     public static class TableDesignerMetadata
     {

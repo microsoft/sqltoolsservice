@@ -10,15 +10,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.Data.Tools.Sql.DesignServices;
-using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
-using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
-using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.SqlCore.TableDesigner;
+using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
+using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
+using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {

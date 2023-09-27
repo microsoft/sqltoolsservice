@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
+namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
 {
     /// <summary>
     /// Table designer's view definition, there are predefined common properties.
