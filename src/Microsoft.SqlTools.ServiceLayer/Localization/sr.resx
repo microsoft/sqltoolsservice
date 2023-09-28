@@ -6028,4 +6028,9 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - propertyName (string) </comment>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Invalid value for Database Schema Provider: &apos;{0}&apos;; expected to be in the form &apos;Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider&apos;.</value>
+    <comment>.
+ Parameters: 0 - dsp (string) </comment>
+  </data>
 </root>

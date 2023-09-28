@@ -11388,6 +11388,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.PropertyNotInitialized, propertyName);
         }
 
+        public static string InvalidDspFormatError(string dsp)
+        {
+            return Keys.GetString(Keys.InvalidDspFormatError, dsp);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -15756,6 +15761,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PropertyNotInitialized = "PropertyNotInitialized";
+
+
+            public const string InvalidDspFormatError = "InvalidDspFormatError";
 
 
             private Keys()
