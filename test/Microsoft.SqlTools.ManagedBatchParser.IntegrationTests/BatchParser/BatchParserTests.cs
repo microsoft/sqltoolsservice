@@ -394,9 +394,9 @@ SELECT '$(VAR2)'";
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Unexpected error consuming token : {e.Message}");
+                Assert.Fail($"Unexpected error consuming token : {e.Message}");
             }
-            //  we doesn't expect any exception or testCase failures
+            //  we don't expect any exception or testCase failures
 
         }
 
