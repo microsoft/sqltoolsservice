@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-            ServerPrototype prototype = new ServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
+            ServerPrototype prototype = CreateServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
 
             if (prototype != null)
             {
