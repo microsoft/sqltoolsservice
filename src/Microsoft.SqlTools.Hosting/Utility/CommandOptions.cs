@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.Utility
                             case "-http-proxy-url":
                                 HttpProxyUrl = args[++i];
                                 break;
-                            case "-http-proxyStrictSSL":
+                            case "-http-proxy-strict-ssl":
                                 HttpProxyStrictSSL = true;
                                 break;
                             case "-service-name":
