@@ -99,8 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     serverObjInfo.IsPolyBaseInstalled = s130.IsPolyBaseInstalled;
                 }
 
-                this.serverViewInfo.ObjectInfo = serverObjInfo;
-
+                serverViewInfo.ObjectInfo = serverObjInfo;
                 serverViewInfo.LanguageOptions = (LanguageUtils.GetDefaultLanguageOptions(dataContainer)).Select(element => element.Language.Alias).ToArray();
                 serverViewInfo.FullTextUpgradeOptions = Enum.GetNames(typeof(FullTextCatalogUpgradeOption)).ToArray();
             }
