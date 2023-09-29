@@ -2426,5 +2426,9 @@ HyperscaleAzureEdition = Hyperscale
 #############################################################################
 # Server Properties
 
-############################################################################
 PropertyNotInitialized(string propertyName) = Property '{0}' was set before initialization.
+
+#############################################################################
+# SqlProjects
+
+InvalidDspFormatError(string dsp) = Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.
