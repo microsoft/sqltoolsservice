@@ -6,12 +6,10 @@
 #nullable disable
 
 using System.ComponentModel;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
 {
-
-    public enum CasingOptions { None, Uppercase, Lowercase };
-
     /// <summary>
     /// The supported options to use when formatting text
     /// </summary>

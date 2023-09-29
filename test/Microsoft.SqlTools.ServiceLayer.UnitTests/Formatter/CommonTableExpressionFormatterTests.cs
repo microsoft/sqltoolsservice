@@ -7,6 +7,7 @@
 
 
 using Microsoft.SqlTools.ServiceLayer.Formatter;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter

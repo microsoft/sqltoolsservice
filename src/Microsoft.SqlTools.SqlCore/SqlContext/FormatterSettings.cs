@@ -3,14 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
-using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
+    public enum CasingOptions { None, Uppercase, Lowercase };
+
     /// <summary>
     /// Contract for receiving formatter-specific settings as part of workspace settings
     /// </summary>

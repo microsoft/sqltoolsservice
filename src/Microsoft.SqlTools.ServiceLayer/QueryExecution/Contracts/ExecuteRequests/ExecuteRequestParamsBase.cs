@@ -5,6 +5,8 @@
 
 #nullable disable
 
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>

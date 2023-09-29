@@ -5,20 +5,11 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
-    public class PublishTableChangesResponse
-    {
-        public TableInfo NewTableInfo;
-        public TableViewModel ViewModel;
-        public TableDesignerView View;
-        public Dictionary<string, string> Metadata;
-    }
-
     /// <summary>
     /// The service request to publish the changes.
     /// </summary>

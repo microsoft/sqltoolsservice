@@ -171,7 +171,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Default Application name as received in service startup
         /// </summary>
-        public static string ApplicationName { get; set; }
+        public static string ApplicationName 
+        { 
+            get
+            {
+                return ConnectionUtilities.ApplicationName;
+            }
+            set
+            {
+                ConnectionUtilities.ApplicationName = value;
+            }
+        }
 
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used
@@ -182,7 +192,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
         /// </summary>
-        public static bool EnableConnectionPooling { get; set; }
+        public static bool EnableConnectionPooling 
+        { 
+            get
+            {
+                return ConnectionUtilities.EnableConnectionPooling;
+            }
+            set
+            {
+                ConnectionUtilities.EnableConnectionPooling = value;
+            }
+        }
 
         /// <summary>
         /// Returns a connection queue for given type
@@ -459,18 +479,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         internal static string GetApplicationNameWithFeature(string applicationName, string featureName)
         {
-            string appNameWithFeature = applicationName;
-            // Connection Service will not set custom application name if connection pooling is enabled on service.
-            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
-            {
-                int appNameStartIndex = applicationName.IndexOf(ApplicationName);
-                string originalAppName = appNameStartIndex != -1
-                    ? applicationName.Substring(0, appNameStartIndex + ApplicationName.Length)
-                    : applicationName; // Reset to default if azdata not found.
-                appNameWithFeature = $"{originalAppName}-{featureName}";
-            }
-
-            return appNameWithFeature;
+            return ConnectionUtilities.GetApplicationNameWithFeature(applicationName, featureName);
         }
 
         private void TrySetConnectionType(ConnectParams connectionParams)

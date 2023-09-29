@@ -4,7 +4,6 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
 
