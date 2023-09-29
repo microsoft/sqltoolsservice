@@ -70,6 +70,12 @@ namespace Microsoft.SqlTools.Utility
                             case "-help":
                                 ShouldExit = true;
                                 return;
+                            case "-http-proxy-url":
+                                HttpProxyUrl = args[++i];
+                                break;
+                            case "-http-proxyStrictSSL":
+                                HttpProxyStrictSSL = true;
+                                break;
                             case "-service-name":
                                 ServiceName = args[++i];
                                 break;
@@ -135,6 +141,16 @@ namespace Microsoft.SqlTools.Utility
         /// The locale our we should instantiate this service in 
         /// </summary>
         public string Locale { get; private set; }
+
+        /// <summary>
+        /// Custom Http Proxy URL as specified in Azure Data Studio
+        /// </summary>
+        public string? HttpProxyUrl { get; private set; }
+
+        /// <summary>
+        /// Specifies whether the proxy server certificate should be verified against the list of supplied CAs.
+        /// </summary>
+        public bool HttpProxyStrictSSL {  get; private set; }
 
         /// <summary>
         /// Name of service that is receiving command options

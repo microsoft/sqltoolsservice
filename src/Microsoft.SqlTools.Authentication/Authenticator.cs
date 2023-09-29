@@ -162,6 +162,7 @@ namespace Microsoft.SqlTools.Authentication
         private IPublicClientApplication CreatePublicClientAppInstance(string authority, string audience) =>
             PublicClientApplicationBuilder.Create(this.configuration.AppClientId)
                 .WithAuthority(authority, audience)
+                .WithHttpClientFactory(new HttpClientProxyFactory(this.configuration.HttpProxyUrl, this.configuration.HttpProxyStrictSSL))
                 .WithClientName(this.configuration.AppName)
                 .WithLogging(Utils.MSALLogCallback)
                 .WithDefaultRedirectUri()
