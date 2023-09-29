@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                         node = rootNode.FindNodeByPath(nodePath, true, taskCancellationTokenSource.Token);
                         if (node != null)
                         {
-                            return node.Expand(taskCancellationTokenSource.Token, token, filters);
+                            return node.Refresh(taskCancellationTokenSource.Token, token, filters);
                         }
                         else
                         {
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                                     await underlyingSqlConnection.OpenAsync();
                                 }
 
-                                return node.Expand(taskCancellationTokenSource.Token, securityToken?.Token, filters);
+                                return node.Refresh(taskCancellationTokenSource.Token, securityToken?.Token, filters);
                             });
 
                 return await RunExpandTask(expandTask, taskCancellationTokenSource, options.OperationTimeoutSeconds);
