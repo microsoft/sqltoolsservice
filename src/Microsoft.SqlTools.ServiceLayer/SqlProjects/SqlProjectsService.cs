@@ -7,7 +7,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Tools.Schema.SchemaModel;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -121,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlServer.Dac.Projects.CreateSqlProjectParams createParams = new()
                 {
                     ProjectType = requestParams.SqlProjectType,
-                    TargetPlatform = requestParams.DatabaseSchemaProvider == null ? null : DspToSqlPlatform(requestParams.DatabaseSchemaProvider),
+                    TargetPlatform = requestParams.DatabaseSchemaProvider == null ? null : Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider),
                     BuildSdkVersion = requestParams.BuildSdkVersion
                 };
 
@@ -177,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = DspToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
         }
 
         #endregion
@@ -550,36 +549,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         #endregion
 
         #region Helper methods
-
-        /// <summary>
-        /// Gets the SQL platform for the specified database schema provider.  TODO: replace with SqlProjects implementation once
-        /// </summary>
-        /// <param name="databaseSchemaProvider"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        private static SqlPlatforms DspToSqlPlatform(string databaseSchemaProvider)
-        {
-            const string DspVersionPrefix = "Microsoft.Data.Tools.Schema.Sql.Sql";
-            const string DspVersionSuffix = "DatabaseSchemaProvider";
-
-            if (String.IsNullOrWhiteSpace(databaseSchemaProvider))
-            {
-                throw new ArgumentNullException(nameof(databaseSchemaProvider));
-            }
-
-            if (databaseSchemaProvider.StartsWith(DspVersionPrefix, StringComparison.InvariantCulture) // enforce casing when being set
-                && databaseSchemaProvider.EndsWith(DspVersionSuffix, StringComparison.InvariantCulture))
-            {
-
-                string version = databaseSchemaProvider[DspVersionPrefix.Length..^DspVersionSuffix.Length];
-
-                return SqlPlatformsUtil.GetSqlPlatformByName(version, throwIfNotSupported: true);
-            }
-            else
-            {
-                throw new InvalidOperationException(SR.InvalidDspFormatError(databaseSchemaProvider));
-            }
-        }
 
         private SqlProject GetProject(string projectUri, bool onlyLoadProperties = false)
         {
