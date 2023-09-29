@@ -29,18 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private ServerData originalState;
         #endregion
 
-        #region Trace support
-        private const string componentName = "Server";
-
-        public string ComponentName
-        {
-            get
-            {
-                return componentName;
-            }
-        }
-        #endregion
-
         #region Properties
         public string Name
         {
@@ -821,8 +809,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             return false;
         }
+
         /// <summary>
-        /// This will send data for KJ specific things
+        /// This will send data for Kilimanjaro specific things
         /// Also Checks if Alter needs to be generated
         /// </summary>
         private void SendDataForKJ(SMO.Server smoServer)
@@ -1041,7 +1030,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             #region Properties
 
             // General properties
-
 
             public string ServerName
             {
@@ -1601,22 +1589,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            public Microsoft.SqlServer.Management.Smo.Server Server
-            {
-                get
-                {
-                    return this.server;
-                }
-            }
-
-            public bool IsYukonOrLater
-            {
-                get
-                {
-                    return this.isYukonOrLater;
-                }
-            }
-
             public AffinityManager AffinityManagerIOMask
             {
                 get
@@ -1642,6 +1614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     this.affinityManagerProcessorMask = value;
                 }
             }
+
             public bool CheckBackupChecksum
             {
                 get
@@ -1663,6 +1636,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     this.checkBackupChecksum = value;
                 }
             }
+
             public bool CheckCompressBackup
             {
                 get
@@ -2079,7 +2053,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <param name="server">The server we are modifying</param>
             public ServerData(Server server, ServerConfigService service)
             {
-                this.server = Server;
+                this.server = server;
                 this.configService = service;
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 this.isSqlServer64Bit = (this.server.Edition.Contains("(64 - bit)"));
@@ -2186,6 +2160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
             }
+
             private void LoadMemoryProperties()
             {
                 this.maxMemory.Value = server.Configuration.MaxServerMemory.ConfigValue;
