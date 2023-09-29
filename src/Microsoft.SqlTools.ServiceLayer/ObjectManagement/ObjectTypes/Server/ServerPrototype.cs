@@ -6,7 +6,6 @@
 using System;
 using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.Utility;
@@ -22,12 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         #region Members
 
-        /// <summary>
-        /// data container member that contains data specific information like
-        /// connection infor, SMO server object or an AMO server object as well
-        /// as a hash table where one can manipulate custom data
-        /// </summary>
-        private CDataContainer dataContainer;
+        private Server server;
         private ServerConnection sqlConnection;
         private ServerConfigService configService;
 
@@ -518,16 +512,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// ServerPrototype for editing an existing server 
         /// </summary>
-        public ServerPrototype(CDataContainer context)
+        public ServerPrototype(Server server, ServerConnection connection)
         {
-            if (context.Server == null)
-            {
-                throw new InvalidOperationException("Server information not provided for prototype.");
-            }
-            this.dataContainer = context;
-            this.sqlConnection = context.ServerConnection;
+            this.server = server;
+            this.sqlConnection = connection;
             this.configService = new ServerConfigService();
-            this.currentState = new ServerData(context.Server, this.configService);
+            this.currentState = new ServerData(server, this.configService);
             this.originalState = (ServerData)this.currentState.Clone();
         }
 
@@ -541,38 +531,38 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         public void SendDataToServer()
         {
-            if (this.dataContainer.Server != null)
+            if (this.server != null)
             {
-                Server server = this.dataContainer.Server;
+                Server server = this.server;
 
-                if (UpdateMemoryValues(this.dataContainer.Server))
+                if (UpdateMemoryValues(this.server))
                 {
                     server.Configuration.Alter(true);
                 }
 
-                UpdateProcessorsValues(this.dataContainer.Server);
+                UpdateProcessorsValues(this.server);
 
-                if (UpdateSecurityValues(this.dataContainer.Server))
+                if (UpdateSecurityValues(this.server))
                 {
                     server.Alter();
                 }
 
-                if (UpdateDBSettingsValues(this.dataContainer.Server))
+                if (UpdateDBSettingsValues(this.server))
                 {
                     server.Settings.Alter();
                 }
 
-                if (UpdateBackupConfig(this.dataContainer.Server))
+                if (UpdateBackupConfig(this.server))
                 {
                     server.Configuration.Alter();
                 }
 
-                if (UpdateAdvancedValues(this.dataContainer.Server))
+                if (UpdateAdvancedValues(this.server))
                 {
                     server.Configuration.Alter();
                 }
 
-                if (UpdateFullTextService(this.dataContainer.Server))
+                if (UpdateFullTextService(this.server))
                 {
                     server.FullTextService.Alter();
                 }

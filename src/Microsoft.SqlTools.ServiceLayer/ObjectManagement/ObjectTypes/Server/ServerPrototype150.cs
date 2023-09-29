@@ -3,13 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     internal class ServerPrototype150 : ServerPrototype140
     {
-        public ServerPrototype150(CDataContainer context) : base(context) { }
+        public ServerPrototype150(Server server, ServerConnection connection) : base(server, connection) { }
 
         public string HardwareGeneration
         {

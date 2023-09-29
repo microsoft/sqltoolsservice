@@ -6,6 +6,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-            ServerPrototype prototype = new ServerPrototype(dataContainer);
+            ServerPrototype prototype = new ServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
 
             if (prototype != null)
             {
@@ -130,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 try
                 {
-                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+                    ServerPrototype prototype = new ServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
                     prototype.ApplyInfoToPrototype(serverInfo);
                     return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
                 }
@@ -159,6 +160,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 return sqlScript;
             }
+        }
+
+        private ServerPrototype CreateServerPrototype(Server server, ServerConnection connection)
+        {
+            ServerPrototype prototype;
+            if (server.VersionMajor >= 15)
+            {
+                prototype = new ServerPrototype150(server, connection);
+            }
+            else if (server.VersionMajor == 14)
+            {
+                prototype = new ServerPrototype140(server, connection);
+            }
+            else if (server.VersionMajor == 13)
+            {
+                prototype = new ServerPrototype130(server, connection);
+            }
+            else
+            {
+                prototype = new ServerPrototype(server, connection);
+            }
+            return prototype;
         }
     }
 }
