@@ -42,25 +42,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             if (prototype != null)
             {
-                this.serverViewInfo.ObjectInfo = new ServerInfo()
+                var serverObjInfo = new ServerInfo()
                 {
                     Name = prototype.Name,
-                    HardwareGeneration = prototype.HardwareGeneration,
                     Language = prototype.Language,
                     MemoryInMB = prototype.MemoryInMB,
-                    OperatingSystem = prototype.OperatingSystem,
-                    Platform = prototype.Platform,
                     Processors = prototype.Processors,
                     IsClustered = prototype.IsClustered,
                     IsHadrEnabled = prototype.IsHadrEnabled,
-                    IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
                     IsXTPSupported = prototype.IsXTPSupported,
                     Product = prototype.Product,
-                    ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
                     RootDirectory = prototype.RootDirectory,
                     ServerCollation = prototype.ServerCollation,
-                    ServiceTier = prototype.ServiceTier,
-                    StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
                     Version = prototype.Version,
                     MinServerMemory = prototype.MinServerMemory,
                     MaxServerMemory = prototype.MaxServerMemory,
@@ -89,6 +82,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     MaxDegreeParallelism = prototype.MaxDegreeParallelism,
                     QueryWait = prototype.QueryWait
                 };
+                if (prototype is ServerPrototype150 s150)
+                {
+                    serverObjInfo.HardwareGeneration = s150.HardwareGeneration;
+                    serverObjInfo.ServiceTier = s150.ServiceTier;
+                    serverObjInfo.ReservedStorageSizeMB = s150.ReservedStorageSizeMB;
+                    serverObjInfo.StorageSpaceUsageInMB = s150.StorageSpaceUsageInMB;
+                }
+                if (prototype is ServerPrototype140 s140)
+                {
+                    serverObjInfo.OperatingSystem = s140.OperatingSystem;
+                    serverObjInfo.Platform = s140.Platform;
+                }
+                if (prototype is ServerPrototype130 s130)
+                {
+                    serverObjInfo.IsPolyBaseInstalled = s130.IsPolyBaseInstalled;
+                }
+
+                this.serverViewInfo.ObjectInfo = serverObjInfo;
+
                 serverViewInfo.LanguageOptions = (LanguageUtils.GetDefaultLanguageOptions(dataContainer)).Select(element => element.Language.Alias).ToArray();
                 serverViewInfo.FullTextUpgradeOptions = Enum.GetNames(typeof(FullTextCatalogUpgradeOption)).ToArray();
             }

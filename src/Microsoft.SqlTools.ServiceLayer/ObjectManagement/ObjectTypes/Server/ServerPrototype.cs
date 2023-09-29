@@ -31,8 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private ServerConnection sqlConnection;
         private ServerConfigService configService;
 
-        private ServerPrototypeData currentState;
-        private ServerPrototypeData originalState;
+        protected ServerData currentState;
+        private ServerData originalState;
         #endregion
 
         #region Trace support
@@ -72,18 +72,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string OperatingSystem
-        {
-            get
-            {
-                return this.currentState.OperatingSystem;
-            }
-            set
-            {
-                this.currentState.OperatingSystem = value;
-            }
-        }
-
         public string Version
         {
             get
@@ -105,18 +93,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             set
             {
                 this.currentState.Language = value;
-            }
-        }
-
-        public string Platform
-        {
-            get
-            {
-                return this.currentState.Platform;
-            }
-            set
-            {
-                this.currentState.Platform = value;
             }
         }
 
@@ -203,69 +179,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.currentState.IsXTPSupported = value;
             }
         }
-
-        public bool IsPolyBaseInstalled
-        {
-            get
-            {
-                return this.currentState.IsPolyBaseInstalled;
-            }
-            set
-            {
-                this.currentState.IsPolyBaseInstalled = value;
-            }
-        }
-
-
-        public string HardwareGeneration
-        {
-            get
-            {
-                return this.currentState.HardwareGeneration;
-            }
-            set
-            {
-                this.currentState.HardwareGeneration = value;
-            }
-        }
-
-        public string ServiceTier
-        {
-            get
-            {
-                return this.currentState.ServiceTier;
-            }
-            set
-            {
-                this.currentState.ServiceTier = value;
-            }
-        }
-
-        public int StorageSpaceUsageInMB
-        {
-            get
-            {
-                return this.currentState.StorageSpaceUsageInMB;
-            }
-            set
-            {
-                this.currentState.StorageSpaceUsageInMB = value;
-            }
-        }
-
-
-        public int ReservedStorageSizeMB
-        {
-            get
-            {
-                return this.currentState.ReservedStorageSizeMB;
-            }
-            set
-            {
-                this.currentState.ReservedStorageSizeMB = value;
-            }
-        }
-
 
         public NumericServerProperty MaxServerMemory
         {
@@ -607,11 +520,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         public ServerPrototype(CDataContainer context)
         {
+            if (context.Server == null)
+            {
+                throw new InvalidOperationException("Server information not provided for prototype.");
+            }
             this.dataContainer = context;
             this.sqlConnection = context.ServerConnection;
             this.configService = new ServerConfigService();
-            this.currentState = new ServerPrototypeData(context, context.Server, this.configService);
-            this.originalState = (ServerPrototypeData)this.currentState.Clone();
+            this.currentState = new ServerData(context.Server, this.configService);
+            this.originalState = (ServerData)this.currentState.Clone();
         }
 
         #endregion
@@ -1024,26 +941,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
         #endregion
 
-        public void ApplyInfoToPrototype(ServerInfo serverInfo)
+        public virtual void ApplyInfoToPrototype(ServerInfo serverInfo)
         {
-            this.Name = serverInfo.Name;
+            this.Name = serverInfo.Name ?? string.Empty;
             this.Language = serverInfo.Language;
             this.MemoryInMB = serverInfo.MemoryInMB;
-            this.OperatingSystem = serverInfo.OperatingSystem;
-            this.Platform = serverInfo.Platform;
             this.Version = serverInfo.Version;
             this.Processors = serverInfo.Processors;
             this.Version = serverInfo.Version;
             this.IsClustered = serverInfo.IsClustered;
             this.IsHadrEnabled = serverInfo.IsHadrEnabled;
-            this.IsPolyBaseInstalled = serverInfo.IsPolyBaseInstalled;
-            this.IsXTPSupported = (bool)(serverInfo.IsXTPSupported);
+            this.IsXTPSupported = serverInfo.IsXTPSupported.GetValueOrDefault();
             this.Product = serverInfo.Product;
-            this.ReservedStorageSizeMB = (int)(serverInfo.ReservedStorageSizeMB);
             this.RootDirectory = serverInfo.RootDirectory;
             this.ServerCollation = serverInfo.ServerCollation;
-            this.ServiceTier = serverInfo.ServiceTier;
-            this.StorageSpaceUsageInMB = (int)(serverInfo.StorageSpaceUsageInMB);
             this.MaxServerMemory = serverInfo.MaxServerMemory;
             this.MinServerMemory = serverInfo.MinServerMemory;
             this.AutoProcessorAffinityMaskForAll = serverInfo.AutoProcessorAffinityMaskForAll;
@@ -1073,13 +984,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
-        /// Private class encapsulating the data that is changed by the UI.
+        /// Class encapsulating the data that is changed by the UI.
         /// </summary>
         /// <remarks>
         /// Isolating this data allows for an easy implementation of Reset() and
         /// simplifies difference detection when committing changes to the server.
         /// </remarks>
-        private class ServerPrototypeData : ICloneable
+        protected class ServerData : ICloneable
         {
             #region data members
             private string serverName = string.Empty;
@@ -1128,7 +1039,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private NumericServerProperty queryWait;
             private bool initialized = false;
             private Server server;
-            private CDataContainer context;
             private ServerConfigService configService;
             private AffinityManager affinityManagerIOMask;
             private AffinityManager affinityManagerProcessorMask;
@@ -2167,7 +2077,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <summary>
             /// private default constructor - used by Clone()
             /// </summary>
-            private ServerPrototypeData()
+            private ServerData()
             {
             }
 
@@ -2177,10 +2087,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// </summary>
             /// <param name="context">The context in which we are modifying an existing server</param>
             /// <param name="server">The server we are modifying</param>
-            public ServerPrototypeData(CDataContainer context, Server server, ServerConfigService service)
+            public ServerData(Server server, ServerConfigService service)
             {
-                this.server = context.Server;
-                this.context = context;
+                this.server = Server;
                 this.configService = service;
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 this.isSqlServer64Bit = (this.server.Edition.Contains("(64 - bit)"));
@@ -2205,7 +2114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <returns>The clone ServerRolePrototypeData object</returns>
             public object Clone()
             {
-                ServerPrototypeData result = new ServerPrototypeData();
+                ServerData result = new ServerData();
                 result.serverName = this.serverName;
                 result.initialized = this.initialized;
                 result.hardwareGeneration = this.hardwareGeneration;
