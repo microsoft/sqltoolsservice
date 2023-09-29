@@ -7,7 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    internal class ServerPrototype140 : ServerPrototype
+    internal class ServerPrototype140 : ServerPrototype130
     {
         public ServerPrototype140(CDataContainer context) : base(context) { }
 
