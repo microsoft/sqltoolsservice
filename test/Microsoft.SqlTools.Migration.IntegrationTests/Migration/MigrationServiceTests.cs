@@ -58,7 +58,8 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
                 EndTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
                 PerfQueryIntervalInSec = 30,
                 ScalingFactor = 1,
-                DatabaseAllowList = new List<string> { "test", "test1" }
+                DatabaseAllowList = new List<string> { "test", "test1" },
+                IsPremiumSSDV2Enabled = true,
             };
 
             var requestContext = RequestContextMocks.Create<GetSkuRecommendationsResult>(r => result = r).AddErrorHandling(null);
