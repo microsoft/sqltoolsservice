@@ -67,6 +67,12 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// List of databases to consider when generating recommendations
         /// </summary>
         public List<string> DatabaseAllowList { get; set; }
+
+        /// <summary>
+        /// Whether or not PremiumSSDV2 as a feature is enabled.
+        /// Defaults to false if not explicitly provided.
+        /// </summary>
+        public bool IsPremiumSSDV2Enabled { get; set; } = false;
     }
 
     public class GetSkuRecommendationsResult
