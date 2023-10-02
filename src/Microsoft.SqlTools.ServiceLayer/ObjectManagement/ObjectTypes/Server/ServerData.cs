@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private bool isClustered = false;
         private bool isHadrEnabled = false;
         private bool isPolyBaseInstalled = false;
-        private bool isXTPSupported = false;
+        private bool? isXTPSupported;
         private string product = String.Empty;
         private string rootDirectory = String.Empty;
         private string serverCollation = String.Empty;
@@ -303,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public bool IsXTPSupported
+        public bool? IsXTPSupported
         {
             get
             {
@@ -1200,7 +1200,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.isClustered = server.IsClustered;
             this.isHadrEnabled = server.IsHadrEnabled;
             this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
-            this.isXTPSupported = server.IsXTPSupported;
+            if (server.EngineEdition != Edition.SqlManagedInstance)
+            {
+                this.isXTPSupported = server.IsXTPSupported;
+            }
             this.product = server.Product;
             this.rootDirectory = server.RootDirectory;
             this.serverCollation = server.Collation;
@@ -1217,8 +1220,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.operatingSystem = server.HostDistribution;
                 this.platform = server.HostPlatform;
             }
-            if (server.VersionMajor >= 14)
+            if (server.VersionMajor >= 13)
             {
+                this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
             }
         }
 

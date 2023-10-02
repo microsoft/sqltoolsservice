@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public bool IsXTPSupported
+        public bool? IsXTPSupported
         {
             get
             {
