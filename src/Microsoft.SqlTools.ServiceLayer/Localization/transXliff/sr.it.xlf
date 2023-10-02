@@ -7364,6 +7364,12 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">7 giorni</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="InvalidDspFormatError">
+        <source>Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</source>
+        <target state="translated">Valore non valido per il provider dello schema del database: '{0}'; il formato previsto è 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</target>
+        <note>.
+ Parameters: 0 - dsp (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

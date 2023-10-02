@@ -4483,4 +4483,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 días</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Valor no válido para el proveedor de esquema de base de datos: ''{0}''; se esperaba tener el formato ''Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider''.</value>
+  </data>
 </root>
