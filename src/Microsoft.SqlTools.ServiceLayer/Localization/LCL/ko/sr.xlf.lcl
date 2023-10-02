@@ -4270,6 +4270,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";InvalidDspFormatError" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[데이터베이스 스키마 공급자의 값 '{0}'이(가) 잘못되었습니다. 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider' 형식이어야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";InvalidPathError" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Cannot access the specified path on the server: {0}]]></Val>
