@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public ServerPrototype140(Server server, ServerConnection connection) : base(server, connection) { }
 
-        public string OperatingSystem
+        public string? OperatingSystem
         {
             get
             {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string Platform
+        public string? Platform
         {
             get
             {

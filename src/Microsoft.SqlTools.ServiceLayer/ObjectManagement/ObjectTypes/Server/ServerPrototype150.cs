@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public ServerPrototype150(Server server, ServerConnection connection) : base(server, connection) { }
 
-        public string HardwareGeneration
+        public string? HardwareGeneration
         {
             get
             {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string ServiceTier
+        public string? ServiceTier
         {
             get
             {
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int StorageSpaceUsageInMB
+        public int? StorageSpaceUsageInMB
         {
             get
             {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
 
-        public int ReservedStorageSizeMB
+        public int? ReservedStorageSizeMB
         {
             get
             {

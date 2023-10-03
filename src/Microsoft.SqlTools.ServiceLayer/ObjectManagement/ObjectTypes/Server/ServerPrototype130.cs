@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public ServerPrototype130(Server server, ServerConnection connection) : base(server, connection) { }
 
-        public bool IsPolyBaseInstalled
+        public bool? IsPolyBaseInstalled
         {
             get
             {

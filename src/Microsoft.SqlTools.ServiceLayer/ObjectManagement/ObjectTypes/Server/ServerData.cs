@@ -25,23 +25,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         #region data members
         private string serverName = string.Empty;
-        private string hardwareGeneration = String.Empty;
+        private string? hardwareGeneration;
         private string language = String.Empty;
         private int memoryInMB = 0;
-        private string operatingSystem = String.Empty;
-        private string platform = String.Empty;
+        private string? operatingSystem;
+        private string? platform;
         private int processors = 0;
         private bool isClustered = false;
         private bool isHadrEnabled = false;
-        private bool isPolyBaseInstalled = false;
+        private bool? isPolyBaseInstalled;
         private bool? isXTPSupported;
         private string product = String.Empty;
         private string rootDirectory = String.Empty;
         private string serverCollation = String.Empty;
         private string version = String.Empty;
-        private string serviceTier = String.Empty;
-        private int reservedStorageSizeMB = 0;
-        private int storageSpaceUsageInMB = 0;
+        private string? serviceTier = String.Empty;
+        private int? reservedStorageSizeMB;
+        private int? storageSpaceUsageInMB;
         private NumericServerProperty minMemory;
         private NumericServerProperty maxMemory;
         private bool autoProcessorAffinityMaskForAll = false;
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string HardwareGeneration
+        public string? HardwareGeneration
         {
             get
             {
@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string OperatingSystem
+        public string? OperatingSystem
         {
             get
             {
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string Platform
+        public string? Platform
         {
             get
             {
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public bool IsPolyBaseInstalled
+        public bool? IsPolyBaseInstalled
         {
             get
             {
@@ -414,7 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string ServiceTier
+        public string? ServiceTier
         {
             get
             {
@@ -436,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int StorageSpaceUsageInMB
+        public int? StorageSpaceUsageInMB
         {
             get
             {
@@ -459,7 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
 
-        public int ReservedStorageSizeMB
+        public int? ReservedStorageSizeMB
         {
             get
             {
@@ -1210,10 +1210,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.version = server.VersionString;
             if (server.VersionMajor >= 15)
             {
-                this.hardwareGeneration = server.HardwareGeneration;
-                this.serviceTier = server.ServiceTier;
-                this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
-                this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
+                if (server.EngineEdition == Edition.SqlManagedInstance)
+                {
+                    this.hardwareGeneration = server.HardwareGeneration;
+                    this.serviceTier = server.ServiceTier;
+                    this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
+                    this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
+                }
             }
             if (server.VersionMajor >= 14)
             {

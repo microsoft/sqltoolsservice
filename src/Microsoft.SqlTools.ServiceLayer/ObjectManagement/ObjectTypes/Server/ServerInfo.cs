@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public int Processors { get; set; }
         public bool IsClustered { get; set; }
         public bool IsHadrEnabled { get; set; }
-        public bool IsPolyBaseInstalled { get; set; }
+        public bool? IsPolyBaseInstalled { get; set; }
         public bool? IsXTPSupported { get; set; }
         public string Product { get; set; }
         public int? ReservedStorageSizeMB { get; set; }
