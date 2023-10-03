@@ -38,10 +38,16 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.AccessToken = accessToken?.Token;
-                conn.Open();
+                if(accessToken != null)
+                {
+                    conn.AccessToken = accessToken.Token;
+                    await conn.OpenAsync();
+                }
                 ServerConnection connection = new ServerConnection(conn);
-                connection.AccessToken = accessToken as IRenewableToken;
+                if (accessToken != null)
+                {
+                    connection.AccessToken = accessToken as IRenewableToken;
+                }
                 return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
             }
         }
@@ -127,7 +133,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                                 if (!nodeContext.Server.ConnectionContext.IsOpen && securityToken != null)
                                 {
                                     var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;
-                                    underlyingSqlConnection.AccessToken = securityToken.Token;
                                     await underlyingSqlConnection.OpenAsync();
                                 }
 
