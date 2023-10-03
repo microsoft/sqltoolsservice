@@ -4483,4 +4483,7 @@
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 дней</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Недопустимое значение поставщика схемы базы данных: '{0}'; должно быть 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</value>
+  </data>
 </root>
