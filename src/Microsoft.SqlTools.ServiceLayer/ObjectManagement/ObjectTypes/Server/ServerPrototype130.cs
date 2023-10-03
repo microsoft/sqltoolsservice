@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.IsPolyBaseInstalled.GetValueOrDefault();
+                return this.currentState.IsPolyBaseInstalled;
             }
             set
             {

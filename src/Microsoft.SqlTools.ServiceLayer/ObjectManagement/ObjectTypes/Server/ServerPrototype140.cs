@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.OperatingSystem ?? string.Empty;
+                return this.currentState.OperatingSystem;
             }
             set
             {
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.Platform ?? string.Empty;
+                return this.currentState.Platform;
             }
             set
             {

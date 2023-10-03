@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.HardwareGeneration ?? string.Empty;
+                return this.currentState.HardwareGeneration;
             }
             set
             {
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.ServiceTier ?? string.Empty;
+                return this.currentState.ServiceTier;
             }
             set
             {
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.StorageSpaceUsageInMB.GetValueOrDefault();
+                return this.currentState.StorageSpaceUsageInMB;
             }
             set
             {
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.currentState.ReservedStorageSizeMB.GetValueOrDefault();
+                return this.currentState.ReservedStorageSizeMB;
             }
             set
             {
@@ -65,8 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             base.ApplyInfoToPrototype(serverInfo);
 
-            this.HardwareGeneration = serverInfo.HardwareGeneration ?? string.Empty;
-            this.ServiceTier = serverInfo.ServiceTier ?? string.Empty;
+            this.HardwareGeneration = serverInfo.HardwareGeneration;
+            this.ServiceTier = serverInfo.ServiceTier;
             this.ReservedStorageSizeMB = serverInfo.ReservedStorageSizeMB.GetValueOrDefault();
             this.StorageSpaceUsageInMB = serverInfo.StorageSpaceUsageInMB.GetValueOrDefault();
         }
