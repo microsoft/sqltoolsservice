@@ -8,9 +8,12 @@ using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    internal class ServerPrototype150 : ServerPrototype140
+    /// <summary>
+    /// Prototype for representing a manage instance server.
+    /// </summary>
+    internal class ServerPrototypeMI : ServerPrototype140
     {
-        public ServerPrototype150(Server server, ServerConnection connection) : base(server, connection) { }
+        public ServerPrototypeMI(Server server, ServerConnection connection) : base(server, connection) { }
 
         public string HardwareGeneration
         {

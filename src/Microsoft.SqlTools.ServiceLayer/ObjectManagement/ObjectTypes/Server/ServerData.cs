@@ -1200,23 +1200,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.isClustered = server.IsClustered;
             this.isHadrEnabled = server.IsHadrEnabled;
             this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
-            if (server.EngineEdition != Edition.SqlManagedInstance)
-            {
-                this.isXTPSupported = server.IsXTPSupported;
-            }
+
             this.product = server.Product;
             this.rootDirectory = server.RootDirectory;
             this.serverCollation = server.Collation;
             this.version = server.VersionString;
-            if (server.VersionMajor >= 15)
+            if (server.EngineEdition == Edition.SqlManagedInstance)
             {
-                if (server.EngineEdition == Edition.SqlManagedInstance)
-                {
-                    this.hardwareGeneration = server.HardwareGeneration;
-                    this.serviceTier = server.ServiceTier;
-                    this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
-                    this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
-                }
+                this.hardwareGeneration = server.HardwareGeneration;
+                this.serviceTier = server.ServiceTier;
+                this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
+                this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
+            }
+            else
+            {
+                this.isXTPSupported = server.IsXTPSupported;
             }
             if (server.VersionMajor >= 14)
             {

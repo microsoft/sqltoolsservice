@@ -83,12 +83,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     MaxDegreeParallelism = prototype.MaxDegreeParallelism,
                     QueryWait = prototype.QueryWait
                 };
-                if (prototype is ServerPrototype150 s150)
+                if (prototype is ServerPrototypeMI sMI)
                 {
-                    serverObjInfo.HardwareGeneration = s150.HardwareGeneration;
-                    serverObjInfo.ServiceTier = s150.ServiceTier;
-                    serverObjInfo.ReservedStorageSizeMB = s150.ReservedStorageSizeMB;
-                    serverObjInfo.StorageSpaceUsageInMB = s150.StorageSpaceUsageInMB;
+                    serverObjInfo.HardwareGeneration = sMI.HardwareGeneration;
+                    serverObjInfo.ServiceTier = sMI.ServiceTier;
+                    serverObjInfo.ReservedStorageSizeMB = sMI.ReservedStorageSizeMB;
+                    serverObjInfo.StorageSpaceUsageInMB = sMI.StorageSpaceUsageInMB;
                 }
                 if (prototype is ServerPrototype140 s140)
                 {
@@ -165,9 +165,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private ServerPrototype CreateServerPrototype(Server server, ServerConnection connection)
         {
             ServerPrototype prototype;
-            if (server.VersionMajor >= 15)
+            if (server.EngineEdition == Edition.SqlManagedInstance)
             {
-                prototype = new ServerPrototype150(server, connection);
+                prototype = new ServerPrototypeMI(server, connection);
             }
             else if (server.VersionMajor == 14)
             {
