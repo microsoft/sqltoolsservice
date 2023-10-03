@@ -15,7 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
-    /// Class encapsulating the data that is changed by the UI.
+    /// Represents a collection of server properties for a SQL Server instance.
     /// </summary>
     /// <remarks>
     /// Isolating this data allows for an easy implementation of Reset() and
