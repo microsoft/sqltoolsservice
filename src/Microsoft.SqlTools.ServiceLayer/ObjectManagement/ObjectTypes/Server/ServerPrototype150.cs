@@ -12,11 +12,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public ServerPrototype150(Server server, ServerConnection connection) : base(server, connection) { }
 
-        public string? HardwareGeneration
+        public string HardwareGeneration
         {
             get
             {
-                return this.currentState.HardwareGeneration;
+                return this.currentState.HardwareGeneration ?? string.Empty;
             }
             set
             {
@@ -24,11 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string? ServiceTier
+        public string ServiceTier
         {
             get
             {
-                return this.currentState.ServiceTier;
+                return this.currentState.ServiceTier ?? string.Empty;
             }
             set
             {
@@ -36,11 +36,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int? StorageSpaceUsageInMB
+        public int StorageSpaceUsageInMB
         {
             get
             {
-                return this.currentState.StorageSpaceUsageInMB;
+                return this.currentState.StorageSpaceUsageInMB.GetValueOrDefault();
             }
             set
             {
@@ -49,11 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
 
-        public int? ReservedStorageSizeMB
+        public int ReservedStorageSizeMB
         {
             get
             {
-                return this.currentState.ReservedStorageSizeMB;
+                return this.currentState.ReservedStorageSizeMB.GetValueOrDefault();
             }
             set
             {

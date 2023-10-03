@@ -12,11 +12,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public ServerPrototype140(Server server, ServerConnection connection) : base(server, connection) { }
 
-        public string? OperatingSystem
+        public string OperatingSystem
         {
             get
             {
-                return this.currentState.OperatingSystem;
+                return this.currentState.OperatingSystem ?? string.Empty;
             }
             set
             {
@@ -24,11 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public string? Platform
+        public string Platform
         {
             get
             {
-                return this.currentState.Platform;
+                return this.currentState.Platform ?? string.Empty;
             }
             set
             {

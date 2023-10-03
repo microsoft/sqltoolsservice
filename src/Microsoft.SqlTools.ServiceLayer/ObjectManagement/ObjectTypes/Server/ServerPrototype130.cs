@@ -12,11 +12,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public ServerPrototype130(Server server, ServerConnection connection) : base(server, connection) { }
 
-        public bool? IsPolyBaseInstalled
+        public bool IsPolyBaseInstalled
         {
             get
             {
-                return this.currentState.IsPolyBaseInstalled;
+                return this.currentState.IsPolyBaseInstalled.GetValueOrDefault();
             }
             set
             {
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             base.ApplyInfoToPrototype(serverInfo);
 
-            this.IsPolyBaseInstalled = serverInfo.IsPolyBaseInstalled;
+            this.IsPolyBaseInstalled = serverInfo.IsPolyBaseInstalled.GetValueOrDefault();
         }
     }
 }
