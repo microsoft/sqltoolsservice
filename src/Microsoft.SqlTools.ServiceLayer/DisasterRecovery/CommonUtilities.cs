@@ -374,12 +374,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             };
             var dataTable = (DataTable)enumerator.Process(connection, req);
 
+            // Check the target machine for the correct path separator, since it might be a different OS than the one we're currently running on
+            var pathSeparator = connection.HostPlatform == "Windows" ? '\\' : '/';
             foreach (DataRow currentRow in dataTable.Rows)
             {
                 var primaryFolder = Path.GetDirectoryName(primaryFilePath);
                 var originalPath = (string)currentRow["FileName"];
                 var originalFileName = Path.GetFileName(originalPath);
-                var filePath = Path.Join(primaryFolder, originalFileName);
+                var filePath = string.Join(pathSeparator, primaryFolder, originalFileName);
 
                 // Check if file exists with the constructed path.
                 // If it's an XI (XStore Integration) path, then assume it exists, otherwise retrieve info for the file to check if it exists.
