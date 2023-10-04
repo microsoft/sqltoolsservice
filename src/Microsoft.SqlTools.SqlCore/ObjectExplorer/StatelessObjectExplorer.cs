@@ -39,6 +39,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 // In case of MWC access token based connections, we need to open the sql connection first before creating  the server connection
+                // Not doing so will result in an exception when trying to call 'Connect' on the server connection
                 if(accessToken != null)
                 {
                     conn.AccessToken = accessToken.Token;
