@@ -133,6 +133,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                                 if (!nodeContext.Server.ConnectionContext.IsOpen && securityToken != null)
                                 {
                                     var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;
+                                    underlyingSqlConnection.AccessToken = securityToken.Token;
                                     await underlyingSqlConnection.OpenAsync();
                                 }
 
