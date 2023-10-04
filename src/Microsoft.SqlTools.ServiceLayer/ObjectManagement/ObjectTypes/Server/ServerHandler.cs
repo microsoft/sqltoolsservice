@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 try
                 {
-                    ServerPrototype prototype = new ServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
+                    ServerPrototype prototype = CreateServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
                     prototype.ApplyInfoToPrototype(serverInfo);
                     return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
                 }
