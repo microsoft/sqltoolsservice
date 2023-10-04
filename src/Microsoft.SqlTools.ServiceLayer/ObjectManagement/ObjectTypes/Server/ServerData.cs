@@ -1199,7 +1199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.processors = server.Processors;
             this.isClustered = server.IsClustered;
             this.isHadrEnabled = server.IsHadrEnabled;
-            this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
 
             this.product = server.Product;
             this.rootDirectory = server.RootDirectory;
@@ -1212,10 +1211,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
             }
-            else
-            {
-                this.isXTPSupported = server.IsXTPSupported;
-            }
             if (server.VersionMajor >= 14)
             {
                 this.operatingSystem = server.HostDistribution;
@@ -1224,6 +1219,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (server.VersionMajor >= 13)
             {
                 this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
+                if (server.EngineEdition != Edition.SqlManagedInstance)
+                {
+                    this.isXTPSupported = server.IsXTPSupported;
+                }
             }
         }
 
