@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
             {
                 // In case of MWC access token based connections, we need to open the sql connection first before creating  the server connection
                 // Not doing so will result in an exception when trying to call 'Connect' on the server connection
-                if(accessToken != null)
+                if (accessToken != null)
                 {
                     conn.AccessToken = accessToken.Token;
                     await conn.OpenAsync();
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 
             }
         }
-        
+
         /// <summary>
         /// Expands the given node and returns the child nodes.
         /// </summary>
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                             {
                                 SmoQueryContext nodeContext = node.GetContextAs<SmoQueryContext>() ?? throw new ArgumentException("Node does not have a valid context");
 
-                                if(options.GroupBySchemaFlagGetter != null)
+                                if (options.GroupBySchemaFlagGetter != null)
                                 {
                                     nodeContext.GroupBySchemaFlag = options.GroupBySchemaFlagGetter;
                                 }
