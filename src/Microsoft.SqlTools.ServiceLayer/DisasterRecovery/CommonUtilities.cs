@@ -14,7 +14,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
