@@ -38,6 +38,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
+                // In case of MWC access token based connections, we need to open the sql connection first before creating  the server connection
                 if(accessToken != null)
                 {
                     conn.AccessToken = accessToken.Token;
@@ -130,6 +131,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                                 {
                                     nodeContext.GroupBySchemaFlag = options.GroupBySchemaFlagGetter;
                                 }
+
                                 if (!nodeContext.Server.ConnectionContext.IsOpen && securityToken != null)
                                 {
                                     var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;
