@@ -1225,10 +1225,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (server.VersionMajor >= 13)
             {
                 this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
-                if (server.EngineEdition != Edition.SqlManagedInstance)
-                {
-                    this.isXTPSupported = server.IsXTPSupported;
-                }
+            }
+            if (Utils.IsXTPSupportedOnServer(server))
+            {
+                this.isXTPSupported = server.IsXTPSupported;
             }
         }
 
