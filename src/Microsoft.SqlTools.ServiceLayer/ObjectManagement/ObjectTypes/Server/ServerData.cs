@@ -1211,10 +1211,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
             }
-            if (server.VersionMajor >= 14)
+            if (server.VersionMajor < 14 || server.HostPlatform == null)
             {
-                this.operatingSystem = server.HostDistribution;
+                this.platform = server.Platform;
+                this.operatingSystem = "Microsoft Windows NT " +
+                        Convert.ToString(server.OSVersion, System.Globalization.CultureInfo.InvariantCulture);
+            }
+            else
+            {
                 this.platform = server.HostPlatform;
+                this.operatingSystem = string.Format("{0} ({1})", server.HostDistribution, server.HostRelease);
             }
             if (server.VersionMajor >= 13)
             {
