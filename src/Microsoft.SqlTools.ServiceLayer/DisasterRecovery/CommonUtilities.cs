@@ -14,7 +14,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -378,12 +377,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             var pathSeparator = connection.HostPlatform == "Windows" ? '\\' : '/';
             foreach (DataRow currentRow in dataTable.Rows)
             {
-                var primaryFolder = Path.GetDirectoryName(primaryFilePath);
-                var originalPath = (string)currentRow["FileName"];
-                var originalFileName = Path.GetFileName(originalPath);
-                var filePath = string.Join(pathSeparator, primaryFolder, originalFileName);
+                var filePath = (string)currentRow["FileName"];
 
-                // Check if file exists with the constructed path.
+                // Check if file exists with the provided path.
                 // If it's an XI (XStore Integration) path, then assume it exists, otherwise retrieve info for the file to check if it exists.
                 var exists = true;
                 var isXIPath = PathWrapper.IsXIPath(primaryFilePath);
