@@ -166,11 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 prototype = new ServerPrototypeMI(server, connection);
             }
-            else if (server.VersionMajor >= 14)
-            {
-                prototype = new ServerPrototype140(server, connection);
-            }
-            else if (server.VersionMajor == 13)
+            else if (server.VersionMajor >= 13)
             {
                 prototype = new ServerPrototype130(server, connection);
             }
