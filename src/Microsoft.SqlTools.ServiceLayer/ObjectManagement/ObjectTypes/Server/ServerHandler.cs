@@ -48,6 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Name = prototype.Name,
                     Language = prototype.Language,
                     MemoryInMB = prototype.MemoryInMB,
+                    OperatingSystem = prototype.OperatingSystem,
+                    Platform = prototype.Platform,
                     Processors = prototype.Processors,
                     IsClustered = prototype.IsClustered,
                     IsHadrEnabled = prototype.IsHadrEnabled,
@@ -89,11 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     serverObjInfo.ServiceTier = sMI.ServiceTier;
                     serverObjInfo.ReservedStorageSizeMB = sMI.ReservedStorageSizeMB;
                     serverObjInfo.StorageSpaceUsageInMB = sMI.StorageSpaceUsageInMB;
-                }
-                if (prototype is ServerPrototype140 s140)
-                {
-                    serverObjInfo.OperatingSystem = s140.OperatingSystem;
-                    serverObjInfo.Platform = s140.Platform;
                 }
                 if (prototype is ServerPrototype130 s130)
                 {
