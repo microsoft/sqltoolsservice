@@ -373,8 +373,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             };
             var dataTable = (DataTable)enumerator.Process(connection, req);
 
-            // Check the target machine for the correct path separator, since it might be a different OS than the one we're currently running on
-            var pathSeparator = connection.HostPlatform == "Windows" ? '\\' : '/';
             foreach (DataRow currentRow in dataTable.Rows)
             {
                 var filePath = (string)currentRow["FileName"];
