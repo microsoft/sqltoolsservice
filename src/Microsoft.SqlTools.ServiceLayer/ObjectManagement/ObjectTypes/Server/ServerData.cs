@@ -1220,7 +1220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             else
             {
                 this.platform = server.HostPlatform;
-                this.operatingSystem = string.Format("{0} ({1})", server.HostDistribution, server.HostRelease);
+                this.operatingSystem = $"{server.HostDistribution} ({server.HostRelease})";
             }
             if (server.VersionMajor >= 13)
             {
