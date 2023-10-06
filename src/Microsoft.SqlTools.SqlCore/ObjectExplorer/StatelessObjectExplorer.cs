@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,32 +38,24 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                ServerConnection connection;
+                // In case of access token based connections, we need to open the sql connection first before creating  the server connection
+                // Not doing so will result in an exception when trying to call 'Connect' on the server connection
                 if (accessToken != null)
                 {
-                    connection = new ServerConnection(conn, accessToken as IRenewableToken);
+                    conn.AccessToken = accessToken.Token;
+                    await conn.OpenAsync();
                 }
-                else
+                ServerConnection connection = new ServerConnection(conn);
+                if (accessToken != null)
                 {
-                    connection = new ServerConnection(conn);
+                    connection.AccessToken = accessToken as IRenewableToken;
                 }
-
-                try
-                {
-                    return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
-                }
-                finally
-                {
-                    if (connection.IsOpen)
-                    {
-                        connection.Disconnect();
-                    }
-                }
+                return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
             }
         }
 
         /// <summary>
-        /// Expands the node at the given path and returns the child nodes. If parent is not null, it will skip expanding from the top and use the connection from the parent node.
+        /// Expands the node at the given path and returns the child nodes.
         /// </summary>
         /// <param name="serverConnection"> Server connection to use for expanding the node. It will be used only if parent is null </param>
         /// <param name="accessToken"> Access token to connect to the server. To be used in case of AAD based connections </param>
@@ -70,68 +63,41 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <param name="serverInfo"> Server information </param>
         /// <param name="options"> Object explorer expansion options </param>
         /// <param name="filters"> Filters to be applied on the leaf nodes </param>
-        /// <param name="parent"> Optional parent node. If provided, it will skip expanding from the top and and use the connection from the parent node </param>
         /// <returns></returns> 
         /// </summary>
-        
-
-        public static async Task<TreeNode[]> Expand(ServerConnection serverConnection, SecurityToken? accessToken, string? nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null, TreeNode parent = null)
+        public static async Task<TreeNode[]> Expand(ServerConnection serverConnection, SecurityToken? accessToken, string? nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
         {
             using (var taskCancellationTokenSource = new CancellationTokenSource())
             {
-
                 try
                 {
                     var token = accessToken == null ? null : accessToken.Token;
-
                     var task = Task.Run(() =>
                     {
                         TreeNode? node;
-                        if (parent == null)
+                        ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter, accessToken);
+                        TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
+                        if (nodePath == null || nodePath == string.Empty)
                         {
-                            ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter);
-                            TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
-
-                            if (nodePath == null || nodePath == string.Empty)
-                            {
-                                nodePath = rootNode.GetNodePath();
-                            }
-                            node = rootNode;
-                            if (node == null)
-                            {
-                                // Return empty array if node is not found
-                                return new TreeNode[0];
-                            }
-                            node = rootNode.FindNodeByPath(nodePath, true, taskCancellationTokenSource.Token);
+                            nodePath = rootNode.GetNodePath();
                         }
-                        else
+                        node = rootNode;
+                        if (node == null)
                         {
-                            node = parent;
+                            // Return empty array if node is not found
+                            return new TreeNode[0];
                         }
-
+                        node = rootNode.FindNodeByPath(nodePath, true, taskCancellationTokenSource.Token);
                         if (node != null)
                         {
-                            return node.Expand(taskCancellationTokenSource.Token, token, filters);
+                            return node.Refresh(taskCancellationTokenSource.Token, token, filters);
                         }
                         else
                         {
                             throw new InvalidArgumentException($"Parent node not found for path {nodePath}");
                         }
                     });
-
-
-                    if (await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(options.OperationTimeoutSeconds))) == task)
-                    {
-                        if (taskCancellationTokenSource.IsCancellationRequested)
-                        {
-                            throw new TimeoutException("The operation has timed out.");
-                        }
-                        return task.Result.ToArray();
-                    }
-                    else
-                    {
-                        throw new TimeoutException("The operation has timed out.");
-                    }
+                    return await RunExpandTask(task, taskCancellationTokenSource, options.OperationTimeoutSeconds);
                 }
                 catch (Exception ex)
                 {
@@ -141,5 +107,60 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
             }
         }
 
+        /// <summary>
+        /// Expands the given node and returns the child nodes.
+        /// </summary>
+        /// <param name="node"> Node to expand </param>
+        /// <param name="options"> Object explorer expansion options </param>
+        /// <param name="filters"> Filters to be applied on the leaf nodes </param>
+        /// <param name="securityToken"> Security token to connect to the server. To be used in case of AAD based connections </param>
+        /// <returns></returns>
+        public static async Task<TreeNode[]> ExpandTreeNode(TreeNode node, ObjectExplorerOptions options, INodeFilter[]? filters = null, SecurityToken? securityToken = null)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
+            using (var taskCancellationTokenSource = new CancellationTokenSource())
+            {
+                var expandTask = Task.Run(async () =>
+                            {
+                                SmoQueryContext nodeContext = node.GetContextAs<SmoQueryContext>() ?? throw new ArgumentException("Node does not have a valid context");
+
+                                if (options.GroupBySchemaFlagGetter != null)
+                                {
+                                    nodeContext.GroupBySchemaFlag = options.GroupBySchemaFlagGetter;
+                                }
+
+                                if (!nodeContext.Server.ConnectionContext.IsOpen && securityToken != null)
+                                {
+                                    var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;
+                                    underlyingSqlConnection.AccessToken = securityToken.Token;
+                                    await underlyingSqlConnection.OpenAsync();
+                                }
+
+                                return node.Refresh(taskCancellationTokenSource.Token, securityToken?.Token, filters);
+                            });
+
+                return await RunExpandTask(expandTask, taskCancellationTokenSource, options.OperationTimeoutSeconds);
+            }
+        }
+
+        private static async Task<TreeNode[]> RunExpandTask(Task<IList<TreeNode>> expansionTask, CancellationTokenSource taskCancellationTokenSource, int operationTimeoutSeconds)
+        {
+            if (await Task.WhenAny(expansionTask, Task.Delay(TimeSpan.FromSeconds(operationTimeoutSeconds))) == expansionTask)
+            {
+                if (taskCancellationTokenSource.IsCancellationRequested)
+                {
+                    throw new TimeoutException("The operation has timed out.");
+                }
+                return expansionTask.Result.ToArray();
+            }
+            else
+            {
+                throw new TimeoutException("The operation has timed out.");
+            }
+        }
     }
 }

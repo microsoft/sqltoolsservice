@@ -526,7 +526,8 @@ namespace Microsoft.SqlTools.Migration
             {
                 EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
                 ScalingFactor = parameters.ScalingFactor / 100.0,
-                TargetEnvironment = TargetEnvironmentType.Production
+                TargetEnvironment = TargetEnvironmentType.Production,
+                IsPremiumSSDV2Enabled = parameters.IsPremiumSSDV2Enabled,
             };
 
             // generate SQL DB recommendations, if applicable

@@ -4483,4 +4483,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 Tage</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Ungültiger Wert für Datenbankschemaanbieter: "{0}"; Erwartet wurde das Format "Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider".</value>
+  </data>
 </root>

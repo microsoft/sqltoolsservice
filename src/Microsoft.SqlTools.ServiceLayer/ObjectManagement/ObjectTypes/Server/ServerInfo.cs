@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ServerInfo : SqlObject
     {
-        public string? HardwareGeneration { get; set; }
+        public string HardwareGeneration { get; set; }
         public string Language { get; set; }
         public int MemoryInMB { get; set; }
         public string OperatingSystem { get; set; }
@@ -22,13 +22,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public int Processors { get; set; }
         public bool IsClustered { get; set; }
         public bool IsHadrEnabled { get; set; }
-        public bool IsPolyBaseInstalled { get; set; }
+        public bool? IsPolyBaseInstalled { get; set; }
         public bool? IsXTPSupported { get; set; }
         public string Product { get; set; }
         public int? ReservedStorageSizeMB { get; set; }
         public string RootDirectory { get; set; }
         public string ServerCollation { get; set; }
-        public string? ServiceTier { get; set; }
+        public string ServiceTier { get; set; }
         public int? StorageSpaceUsageInMB { get; set; }
         public string Version { get; set; }
         public NumericServerProperty MaxServerMemory { get; set; }
