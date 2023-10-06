@@ -111,18 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public static bool IsXTPSupportedOnServer(SMO.Server server)
         {
-            if(server.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand)
+            if (server.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand)
             {
                 return false;
             }
-            bool isXTPSupported = false;
-
-            if (server.ConnectionContext.ExecuteScalar("SELECT SERVERPROPERTY('IsXTPSupported')") != DBNull.Value)
-            {
-                isXTPSupported = server.IsXTPSupported;
-            }
-
-            return isXTPSupported;
+            return server.IsSupportedProperty(nameof(server.IsXTPSupported)) && server.IsXTPSupported;
         }
 
         public static bool IsPolybasedInstalledOnServer(SMO.Server server)

@@ -53,6 +53,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
+
+        public string OperatingSystem
+        {
+            get
+            {
+                return this.currentState.OperatingSystem;
+            }
+            set
+            {
+                this.currentState.OperatingSystem = value;
+            }
+        }
+
         public string Version
         {
             get
@@ -74,6 +87,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             set
             {
                 this.currentState.Language = value;
+            }
+        }
+
+        public string Platform
+        {
+            get
+            {
+                return this.currentState.Platform;
+            }
+            set
+            {
+                this.currentState.Platform = value;
             }
         }
 
@@ -924,6 +949,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.Name = serverInfo.Name ?? string.Empty;
             this.Language = serverInfo.Language;
             this.MemoryInMB = serverInfo.MemoryInMB;
+            this.OperatingSystem = serverInfo.OperatingSystem;
+            this.Platform = serverInfo.Platform;
             this.Version = serverInfo.Version;
             this.Processors = serverInfo.Processors;
             this.Version = serverInfo.Version;

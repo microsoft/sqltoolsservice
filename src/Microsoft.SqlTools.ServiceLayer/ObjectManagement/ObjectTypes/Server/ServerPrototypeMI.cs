@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// Prototype for representing a manage instance server.
     /// </summary>
-    internal class ServerPrototypeMI : ServerPrototype140
+    internal class ServerPrototypeMI : ServerPrototype130
     {
         public ServerPrototypeMI(Server server, ServerConnection connection) : base(server, connection) { }
 

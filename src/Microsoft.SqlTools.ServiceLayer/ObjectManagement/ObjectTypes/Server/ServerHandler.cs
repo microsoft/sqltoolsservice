@@ -48,6 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Name = prototype.Name,
                     Language = prototype.Language,
                     MemoryInMB = prototype.MemoryInMB,
+                    OperatingSystem = prototype.OperatingSystem,
+                    Platform = prototype.Platform,
                     Processors = prototype.Processors,
                     IsClustered = prototype.IsClustered,
                     IsHadrEnabled = prototype.IsHadrEnabled,
@@ -89,11 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     serverObjInfo.ServiceTier = sMI.ServiceTier;
                     serverObjInfo.ReservedStorageSizeMB = sMI.ReservedStorageSizeMB;
                     serverObjInfo.StorageSpaceUsageInMB = sMI.StorageSpaceUsageInMB;
-                }
-                if (prototype is ServerPrototype140 s140)
-                {
-                    serverObjInfo.OperatingSystem = s140.OperatingSystem;
-                    serverObjInfo.Platform = s140.Platform;
                 }
                 if (prototype is ServerPrototype130 s130)
                 {
@@ -169,11 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 prototype = new ServerPrototypeMI(server, connection);
             }
-            else if (server.VersionMajor >= 14)
-            {
-                prototype = new ServerPrototype140(server, connection);
-            }
-            else if (server.VersionMajor == 13)
+            else if (server.VersionMajor >= 13)
             {
                 prototype = new ServerPrototype130(server, connection);
             }
