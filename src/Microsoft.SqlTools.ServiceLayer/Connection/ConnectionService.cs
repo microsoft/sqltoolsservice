@@ -925,6 +925,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return false;
             }
+            info.OwnerUri = newOwnerUri;
             OwnerToConnectionMap.Remove(originalOwnerUri);
             OwnerToConnectionMap.Add(newOwnerUri, info);
             return true;
