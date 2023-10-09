@@ -37,8 +37,8 @@ namespace Microsoft.SqlTools.Utility
         public const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
         private static string? logFileFullPath;
-
         public static TraceSource? TraceSource { get; set; }
+        private static event LogEventHandler LoggerEvent;
 
         public static string LogFileFullPath
         {
@@ -398,6 +398,7 @@ namespace Microsoft.SqlTools.Utility
             {
                 Flush();
             }
+            Logger.LoggerEvent(logMessage, eventType);
         }
     }
 
@@ -548,4 +549,6 @@ namespace Microsoft.SqlTools.Utility
         private bool IsEnabled(TraceOptions opt) => TraceOutputOptions.HasFlag(opt);
 
     }
+
+    public delegate void LogEventHandler(string message, TraceEventType eventType);
 }
