@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // get connection
             ConnectionInfo connInfo;
-             if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
+            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
             {
                 await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                 return;
