@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // get connection
             ConnectionInfo connInfo;
-            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
+             if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
             {
                 await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                 return;
@@ -363,13 +363,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
                 string NewOwnerUri = changeUriParams.NewOwnerUri;
+                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
                 // Attempt to load the query
                 Query query;
                 if (!ActiveQueries.TryRemove(OriginalOwnerUri, out query))
                 {
                     throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
                 }
-                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
                 query.ConnectionOwnerURI = NewOwnerUri;
                 ActiveQueries.TryAdd(NewOwnerUri, query);
                 return Task.FromResult(true);
