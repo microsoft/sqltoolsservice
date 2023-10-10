@@ -4483,4 +4483,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 jours</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Valeur non valide pour le fournisseur de schéma de base de données : « {0} » ; devrait être sous la forme « Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider ».</value>
+  </data>
 </root>

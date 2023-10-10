@@ -4483,4 +4483,7 @@
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7일</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>데이터베이스 스키마 공급자의 값 '{0}'이(가) 잘못되었습니다. 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider' 형식이어야 합니다.</value>
+  </data>
 </root>

@@ -6,6 +6,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
@@ -38,14 +39,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-            ServerPrototype prototype = new ServerPrototype(dataContainer);
+            ServerPrototype prototype = CreateServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
 
             if (prototype != null)
             {
-                this.serverViewInfo.ObjectInfo = new ServerInfo()
+                var serverObjInfo = new ServerInfo()
                 {
                     Name = prototype.Name,
-                    HardwareGeneration = prototype.HardwareGeneration,
                     Language = prototype.Language,
                     MemoryInMB = prototype.MemoryInMB,
                     OperatingSystem = prototype.OperatingSystem,
@@ -53,14 +53,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Processors = prototype.Processors,
                     IsClustered = prototype.IsClustered,
                     IsHadrEnabled = prototype.IsHadrEnabled,
-                    IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
                     IsXTPSupported = prototype.IsXTPSupported,
                     Product = prototype.Product,
-                    ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
                     RootDirectory = prototype.RootDirectory,
                     ServerCollation = prototype.ServerCollation,
-                    ServiceTier = prototype.ServiceTier,
-                    StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
                     Version = prototype.Version,
                     MinServerMemory = prototype.MinServerMemory,
                     MaxServerMemory = prototype.MaxServerMemory,
@@ -89,6 +85,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     MaxDegreeParallelism = prototype.MaxDegreeParallelism,
                     QueryWait = prototype.QueryWait
                 };
+                if (prototype is ServerPrototypeMI sMI)
+                {
+                    serverObjInfo.HardwareGeneration = sMI.HardwareGeneration;
+                    serverObjInfo.ServiceTier = sMI.ServiceTier;
+                    serverObjInfo.ReservedStorageSizeMB = sMI.ReservedStorageSizeMB;
+                    serverObjInfo.StorageSpaceUsageInMB = sMI.StorageSpaceUsageInMB;
+                }
+                if (prototype is ServerPrototype130 s130)
+                {
+                    serverObjInfo.IsPolyBaseInstalled = s130.IsPolyBaseInstalled;
+                }
+
+                serverViewInfo.ObjectInfo = serverObjInfo;
                 serverViewInfo.LanguageOptions = (LanguageUtils.GetDefaultLanguageOptions(dataContainer)).Select(element => element.Language.Alias).ToArray();
                 serverViewInfo.FullTextUpgradeOptions = Enum.GetNames(typeof(FullTextCatalogUpgradeOption)).ToArray();
             }
@@ -119,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 try
                 {
-                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+                    ServerPrototype prototype = CreateServerPrototype(dataContainer.Server, dataContainer.ServerConnection);
                     prototype.ApplyInfoToPrototype(serverInfo);
                     return ConfigureServer(dataContainer, ConfigAction.Update, runType, prototype);
                 }
@@ -148,6 +157,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 return sqlScript;
             }
+        }
+
+        private ServerPrototype CreateServerPrototype(Server server, ServerConnection connection)
+        {
+            ServerPrototype prototype;
+            if (server.EngineEdition == Edition.SqlManagedInstance)
+            {
+                prototype = new ServerPrototypeMI(server, connection);
+            }
+            else if (server.VersionMajor >= 13)
+            {
+                prototype = new ServerPrototype130(server, connection);
+            }
+            else
+            {
+                prototype = new ServerPrototype(server, connection);
+            }
+            return prototype;
         }
     }
 }

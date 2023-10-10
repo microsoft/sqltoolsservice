@@ -4483,4 +4483,7 @@
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 日</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>データベース スキーマ プロバイダー '{0}' の値が無効です。'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider' の形式である必要があります。</value>
+  </data>
 </root>

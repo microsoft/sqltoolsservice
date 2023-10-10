@@ -38,10 +38,18 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.AccessToken = accessToken?.Token;
-                conn.Open();
+                // In case of access token based connections, we need to open the sql connection first before creating  the server connection
+                // Not doing so will result in an exception when trying to call 'Connect' on the server connection
+                if (accessToken != null)
+                {
+                    conn.AccessToken = accessToken.Token;
+                    await conn.OpenAsync();
+                }
                 ServerConnection connection = new ServerConnection(conn);
-                connection.AccessToken = accessToken as IRenewableToken;
+                if (accessToken != null)
+                {
+                    connection.AccessToken = accessToken as IRenewableToken;
+                }
                 return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
             }
         }
@@ -98,7 +106,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 
             }
         }
-        
+
         /// <summary>
         /// Expands the given node and returns the child nodes.
         /// </summary>
@@ -120,10 +128,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                             {
                                 SmoQueryContext nodeContext = node.GetContextAs<SmoQueryContext>() ?? throw new ArgumentException("Node does not have a valid context");
 
-                                if(options.GroupBySchemaFlagGetter != null)
+                                if (options.GroupBySchemaFlagGetter != null)
                                 {
                                     nodeContext.GroupBySchemaFlag = options.GroupBySchemaFlagGetter;
                                 }
+
                                 if (!nodeContext.Server.ConnectionContext.IsOpen && securityToken != null)
                                 {
                                     var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;

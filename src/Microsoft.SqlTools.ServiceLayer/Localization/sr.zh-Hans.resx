@@ -4483,4 +4483,7 @@
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 天</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>数据库架构提供程序“{0}”的值无效; 应采用“Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider”格式。</value>
+  </data>
 </root>

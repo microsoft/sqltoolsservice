@@ -4483,4 +4483,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
     <value>7 giorni</value>
   </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Valore non valido per il provider dello schema del database: '{0}'; il formato previsto è 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</value>
+  </data>
 </root>
