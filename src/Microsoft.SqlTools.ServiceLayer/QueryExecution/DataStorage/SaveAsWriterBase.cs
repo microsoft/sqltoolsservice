@@ -86,6 +86,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
+        /// Indicates whether columns should be measured based on whether the output format supports it and if the caller wants the columns automatically sized
+        /// </summary>
+        public virtual bool ShouldMeasureRowColumns => false;
+
+        /// <summary>
+        /// Measures the columns in a row of data as part of determining automatic column widths
+        /// </summary>
+        /// <param name="row">The row of data to measure</param>
+        public virtual void MeasureRowColumns(IList<DbCellValue> row) { }
+
+        /// <summary>
         /// Writes a row of data to the output file using the format provided by the implementing class.
         /// </summary>
         /// <param name="row">The row of data to output</param>

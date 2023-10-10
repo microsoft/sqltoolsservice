@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
@@ -75,21 +76,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // new TimeSpan(24,0,0).Ticks
             private const long TicksPerDay = 864000000000L;
 
+            // Digit pixel width for 11 point Calibri
+            private const float FontPixelWidth = 7;
+
             private XmlWriter writer;
             private ReferenceManager referenceManager;
             private bool hasOpenRowTag;
+            
+            private readonly int columnCount;
+            private bool autoFilterColumns;
+            private bool hasStartedSheetData;
 
             /// <summary>
             /// Initializes a new instance of the ExcelSheet class.
             /// </summary>
             /// <param name="writer">XmlWriter to write the sheet data</param>
-            internal ExcelSheet(XmlWriter writer)
+            internal ExcelSheet(XmlWriter writer, int columnCount)
             {
                 this.writer = writer;
+                this.columnCount = columnCount;
+
                 writer.WriteStartDocument();
                 writer.WriteStartElement("worksheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
                 writer.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-                writer.WriteStartElement("sheetData");
+
                 referenceManager = new ReferenceManager(writer);
             }
 
@@ -98,6 +108,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// </summary>
             public void AddRow()
             {
+                // Write the open tag for sheetData if it hasn't been written yet
+                if (!hasStartedSheetData)
+                {
+                    writer.WriteStartElement("sheetData");
+                    hasStartedSheetData = true;
+                }
+
                 EndRowIfNeeded();
                 hasOpenRowTag = true;
 
@@ -111,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// Write a string cell
             /// </summary>
             /// <param name="value">string value to write</param>
-            public void AddCell(string value)
+            public void AddCell(string value, bool bold = false)
             {
                 // string needs <c t="inlineStr"><is><t>string</t></is></c>
                 // This class uses inlineStr instead of more common shared string table
@@ -129,6 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 writer.WriteAttributeString("t", "inlineStr");
 
+                // Write the style attribute set to the bold font if requested
+                if (bold)
+                {
+                    writer.WriteAttributeString("s", "5");
+                }
+
                 writer.WriteStartElement("is");
                 writer.WriteStartElement("t");
                 writer.WriteValue(value);
@@ -143,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// </summary>
             /// The program will try to output number/datetime, otherwise, call the ToString 
             /// <param name="o"></param>
-            public void AddCell(DbCellValue dbCellValue)
+            public void AddCell(DbCellValue dbCellValue, bool bold = false)
             {
                 object o = dbCellValue.RawObject;
                 if (dbCellValue.IsNull || o == null)
@@ -169,24 +192,99 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         AddCell((DateTime)o);
                         break;
                     case TypeCode.String:
-                        AddCell((string)o);
+                        AddCell((string)o, bold);
                         break;
                     default:
                         if (o is TimeSpan span) //TimeSpan doesn't have TypeCode
                         {
                             AddCell(span);
                         }
-                        // We need to handle SqlDecimal and SqlMoney types here because we can't convert them to .NET types due to different precisons in SQL Server and .NET.
+                        // We need to handle SqlDecimal and SqlMoney types here because we can't convert them to .NET types due to different precisions in SQL Server and .NET.
                         else if (o is SqlDecimal || o is SqlMoney)
                         {
                             AddCellBoxedNumber(dbCellValue.DisplayValue);
                         }
                         else
                         {
-                            AddCell(dbCellValue.DisplayValue);
+                            AddCell(dbCellValue.DisplayValue, bold);
                         }
                         break;
                 }
+            }
+            
+            /// <summary>
+            /// Write a sheetView that freezes the top row.  Must be called before any rows have been added.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">Thrown if called after any rows have been added.</exception>
+            public void FreezeHeaderRow()
+            {
+                if (hasStartedSheetData)
+                {
+                    throw new InvalidOperationException("Must be called before calling AddRow");
+                }
+
+                writer.WriteStartElement("sheetViews");
+
+                writer.WriteStartElement("sheetView");
+                writer.WriteAttributeString("tabSelected", "1");
+                writer.WriteAttributeString("workbookViewId", "0");
+
+                writer.WriteStartElement("pane");
+                writer.WriteAttributeString("ySplit", "1");
+                writer.WriteAttributeString("topLeftCell", "A2");
+                writer.WriteAttributeString("activePane", "bottomLeft");
+                writer.WriteAttributeString("state", "frozen");
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("selection");
+                writer.WriteAttributeString("pane", "bottomLeft");
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+            }
+
+            /// <summary>
+            /// Enable auto filtering, the XML will be written when closing the sheet later
+            /// </summary>
+            public void EnableAutoFilter()
+            {
+                autoFilterColumns = true;
+            }
+
+            /// <summary>
+            /// Write the columns widths.  Must be called before any rows have been added.
+            /// </summary>
+            /// <param name="columnWidths">Array with the widths of each column.</param>
+            /// <exception cref="InvalidOperationException">Thrown if called after any rows have been added.</exception>
+            public void WriteColumnInformation(float[] columnWidths)
+            {
+                if (hasStartedSheetData)
+                {
+                    throw new InvalidOperationException("Must be called before calling AddRow");
+                }
+
+                if (columnWidths.Length != this.columnCount)
+                {
+                    throw new InvalidOperationException("Column count mismatch");
+                }
+
+                writer.WriteStartElement("cols");
+
+                for (int columnIndex = 0; columnIndex < columnWidths.Length; columnIndex++)
+                {
+                    var columnWidth = Math.Truncate((columnWidths[columnIndex] + 15) / FontPixelWidth * 256) / 256;
+
+                    writer.WriteStartElement("col");
+                    writer.WriteAttributeString("min", (columnIndex + 1).ToString());
+                    writer.WriteAttributeString("max", (columnIndex + 1).ToString());
+                    writer.WriteAttributeString("width", columnWidth.ToString(CultureInfo.InvariantCulture));
+                    writer.WriteAttributeString("bestFit", "1");
+                    writer.WriteAttributeString("customWidth", "1");
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
             }
 
             /// <summary>
@@ -196,6 +294,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 EndRowIfNeeded();
                 writer.WriteEndElement(); // <sheetData> 
+
+                // Write the auto filter XML if requested
+                if (autoFilterColumns)
+                {
+                    writer.WriteStartElement("autoFilter");
+                    writer.WriteAttributeString("ref", $"A1:{ReferenceManager.GetColumnName(this.columnCount)}1");
+                    writer.WriteEndElement();
+                }
+
                 writer.WriteEndElement(); // <worksheet>
                 writer.Dispose();
             }
@@ -203,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a empty cell
             /// </summary>
-            /// This only increases the internal bookmark and doesn't arcturally write out anything.
+            /// This only increases the internal bookmark and doesn't actually write out anything.
             private void AddCellEmpty()
             {
                 referenceManager.IncreaseColumnReference();
@@ -338,8 +445,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     writer.WriteEndElement(); // <row>
                 }
             }
-
-
         }
 
         /// <summary>
@@ -430,6 +535,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             /// <summary>
+            /// Gets the column name (letters) from a column number
+            /// https://stackoverflow.com/questions/181596/how-to-convert-a-column-number-e-g-127-into-an-excel-column-e-g-aa
+            /// </summary>
+            /// <param name="columnNumber">The column number.</param>
+            /// <returns>The column name.</returns>
+            public static string GetColumnName(int columnNumber)
+            {
+                string columnName = "";
+
+                while (columnNumber > 0)
+                {
+                    int modulo = (columnNumber - 1) % 26;
+                    columnName = Convert.ToChar('A' + modulo) + columnName;
+                    columnNumber = (columnNumber - modulo) / 26;
+                }
+
+                return columnName;
+            }
+
+            /// <summary>
             /// Check that we have not write too many rows. (xlsx has a limit of 1048576 rows) 
             /// </summary>
             public void AssureRowReference()
@@ -511,11 +636,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="sheetName">Sheet name</param>
         /// <returns>ExcelSheet for writing the sheet content</returns>
         /// <remarks>
-        /// When the sheetName is null, sheet1,shhet2,..., will be used.
-        /// The following charactors are not allowed in the sheetName
+        /// When the sheetName is null, sheet1,sheet2,..., will be used.
+        /// The following characters are not allowed in the sheetName
         /// '\', '/','*','[',']',':','?'
         /// </remarks>
-        public ExcelSheet AddSheet(string sheetName = null)
+        public ExcelSheet AddSheet(string sheetName, int columnCount)
         {
             string sheetFileName = "sheet" + (sheetNames.Count + 1);
             sheetName ??= sheetFileName;
@@ -523,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             sheetNames.Add(sheetName);
             XmlWriter sheetWriter = AddEntry($"xl/worksheets/{sheetFileName}.xml");
-            return new ExcelSheet(sheetWriter);
+            return new ExcelSheet(sheetWriter, columnCount);
         }
 
         /// <summary>
@@ -719,7 +844,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
 
                 xw.WriteStartElement("fonts");
-                xw.WriteAttributeString("count", "1");
+                xw.WriteAttributeString("count", "2");
+
                 xw.WriteStartElement("font");
                 xw.WriteStartElement("sz");
                 xw.WriteAttributeString("val", "11");
@@ -737,6 +863,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteAttributeString("val", "minor");
                 xw.WriteEndElement();
                 xw.WriteEndElement(); // font
+
+                xw.WriteStartElement("font");
+                xw.WriteStartElement("b");
+                xw.WriteEndElement();
+                xw.WriteStartElement("sz");
+                xw.WriteAttributeString("val", "11");
+                xw.WriteEndElement();
+                xw.WriteStartElement("color");
+                xw.WriteAttributeString("theme", "1");
+                xw.WriteEndElement();
+                xw.WriteStartElement("name");
+                xw.WriteAttributeString("val", "Calibri");
+                xw.WriteEndElement();
+                xw.WriteStartElement("family");
+                xw.WriteAttributeString("val", "2");
+                xw.WriteEndElement();
+                xw.WriteStartElement("scheme");
+                xw.WriteAttributeString("val", "minor");
+                xw.WriteEndElement();
+                xw.WriteEndElement(); // font
+
                 xw.WriteEndElement(); // fonts
 
                 xw.WriteStartElement("fills");
@@ -770,7 +917,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteEndElement(); // cellStyleXfs
 
                 xw.WriteStartElement("cellXfs");
-                xw.WriteAttributeString("count", "5");
+                xw.WriteAttributeString("count", "6");
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteEndElement();
@@ -793,6 +940,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteAttributeString("numFmtId", "169");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("applyNumberFormat", "1");
+                xw.WriteEndElement();
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteAttributeString("fontId", "1");
                 xw.WriteEndElement();
                 xw.WriteEndElement(); // cellXfs
 
