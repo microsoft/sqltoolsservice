@@ -302,11 +302,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
                                 }
+                            }
 
-                                if (prototype is DatabasePrototype160)
-                                {
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
-                                }
+                            if (prototype is DatabasePrototype160)
+                            {
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                             }
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
