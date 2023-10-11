@@ -128,7 +128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a string cell
             /// </summary>
-            /// <param name="value">string value to write</param>
+            /// <param name="value">String value to write</param>
+            /// <param name="bold">Whether the cell should be bold, defaults to false</param>
             public void AddCell(string value, bool bold = false)
             {
                 // string needs <c t="inlineStr"><is><t>string</t></is></c>
@@ -166,7 +167,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// Write a object cell
             /// </summary>
             /// The program will try to output number/datetime, otherwise, call the ToString 
-            /// <param name="o"></param>
+            /// <param name="dbCellValue">DbCellValue to write based on data type</param>
+            /// <param name="bold">Whether the cell should be bold, defaults to false</param>
             public void AddCell(DbCellValue dbCellValue, bool bold = false)
             {
                 object o = dbCellValue.RawObject;
@@ -320,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a bool cell. 
             /// </summary>
-            /// <param name="time"></param>
+            /// <param name="value">Boolean value to write</param>
             private void AddCell(bool value)
             {
                 // Excel FALSE: <c r="A1" t="b"><v>0</v></c>
@@ -350,7 +352,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a TimeSpan cell. 
             /// </summary>
-            /// <param name="time"></param>
+            /// <param name="time">TimeSpan value to write</param>
             private void AddCell(TimeSpan time)
             {
                 referenceManager.AssureColumnReference();
@@ -370,7 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a DateTime cell.
             /// </summary>
-            /// <param name="dateTime">Datetime</param>
+            /// <param name="dateTime">DateTime value to write</param>
             /// <remark>
             /// If the DateTime does not have date part, it will be written as datetime and show as time only
             /// If the DateTime is before 1900-03-01, save as string because excel doesn't support them.

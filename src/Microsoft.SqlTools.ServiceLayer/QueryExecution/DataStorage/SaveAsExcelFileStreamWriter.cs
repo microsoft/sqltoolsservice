@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Measures each column of a row of data and stores updates the maximum width of the column if needed
         /// </summary>
-        /// <param name="row"></param>
+        /// <param name="row">The row of data to measure</param>
         public override void MeasureRowColumns(IList<DbCellValue> row)
         {
             // Create the paint object if not done already
