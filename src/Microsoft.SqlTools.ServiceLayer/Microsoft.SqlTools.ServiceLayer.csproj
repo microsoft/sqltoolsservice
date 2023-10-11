@@ -51,6 +51,7 @@
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
 		<PackageReference Include="SkiaSharp" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.XEvent.XELite" />

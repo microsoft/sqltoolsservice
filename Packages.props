@@ -58,6 +58,7 @@
 		<PackageReference Update="coverlet.msbuild" Version="6.0.0" />
 		<PackageReference Update="Microsoft.SqlServer.XEvent.XELite" Version="2023.1.30.3" />
 		<PackageReference Update="SkiaSharp" Version="2.88.6" />
+		<PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
 	</ItemGroup>
 
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
