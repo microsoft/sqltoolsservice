@@ -160,6 +160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 try
                 {
                     sheet.FreezeHeaderRow();
+
+                    Assert.Fail("Did not throw an exception when calling FreezeHeaderRow too late");
                 }
                 catch (Exception e)
                 {
@@ -315,6 +317,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 try
                 {
                     sheet.WriteColumnInformation(new []{ 1F, 2F, 3F, 4F, 5F, 6F, 7F });
+
+                    Assert.Fail("Did not throw an exception when calling WriteColumnInformation too late");
                 }
                 catch (Exception e)
                 {
@@ -340,6 +344,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 try
                 {
                     sheet.WriteColumnInformation(new[] { 1F, 2F, 3F, 4F, 5F });
+
+                    Assert.Fail("Did not throw an exception when calling WriteColumnInformation with the wrong number of columns");
                 }
                 catch (Exception e)
                 {

@@ -91,6 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// Initializes a new instance of the ExcelSheet class.
             /// </summary>
             /// <param name="writer">XmlWriter to write the sheet data</param>
+            /// <param name="columnCount">Number of columns in the new sheet</param>
             internal ExcelSheet(XmlWriter writer, int columnCount)
             {
                 this.writer = writer;
@@ -155,10 +156,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 writer.WriteStartElement("is");
                 writer.WriteStartElement("t");
                 writer.WriteValue(value);
-                writer.WriteEndElement();
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <t>
+                writer.WriteEndElement();   // <is>
 
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <c>
             }
 
             /// <summary>
@@ -234,14 +235,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 writer.WriteAttributeString("topLeftCell", "A2");
                 writer.WriteAttributeString("activePane", "bottomLeft");
                 writer.WriteAttributeString("state", "frozen");
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <pane>
 
                 writer.WriteStartElement("selection");
                 writer.WriteAttributeString("pane", "bottomLeft");
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <selection>
 
-                writer.WriteEndElement();
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <sheetView>
+                writer.WriteEndElement();   // <sheetViews>
             }
 
             /// <summary>
@@ -281,10 +282,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     writer.WriteAttributeString("width", columnWidth.ToString(CultureInfo.InvariantCulture));
                     writer.WriteAttributeString("bestFit", "1");
                     writer.WriteAttributeString("customWidth", "1");
-                    writer.WriteEndElement();
+                    writer.WriteEndElement();   // <col>
                 }
 
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <cols>
             }
 
             /// <summary>
@@ -300,7 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {
                     writer.WriteStartElement("autoFilter");
                     writer.WriteAttributeString("ref", $"A1:{ReferenceManager.GetColumnName(this.columnCount)}1");
-                    writer.WriteEndElement();
+                    writer.WriteEndElement();   // <autoFilter>
                 }
 
                 writer.WriteEndElement(); // <worksheet>
@@ -341,9 +342,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {
                     writer.WriteValue("0");
                 }
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <v>
 
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <c>
             }
 
             /// <summary>
@@ -414,9 +415,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 writer.WriteStartElement("v");
                 writer.WriteValue(number);
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <v>
 
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <c>
             }
 
 
@@ -433,9 +434,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 writer.WriteStartElement("v");
                 writer.WriteValue(excelDate);
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <v>
 
-                writer.WriteEndElement();
+                writer.WriteEndElement();   // <c>
             }
 
             private void EndRowIfNeeded()
@@ -693,26 +694,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("Default");
                 xw.WriteAttributeString("Extension", "rels");
                 xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-package.relationships+xml");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Default>
 
                 xw.WriteStartElement("Override");
                 xw.WriteAttributeString("PartName", "/xl/workbook.xml");
                 xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Override>
 
                 xw.WriteStartElement("Override");
                 xw.WriteAttributeString("PartName", "/xl/styles.xml");
                 xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Override>
 
                 for (int i = 1; i <= sheetNames.Count; ++i)
                 {
                     xw.WriteStartElement("Override");
                     xw.WriteAttributeString("PartName", "/xl/worksheets/sheet" + i + ".xml");
                     xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-                    xw.WriteEndElement();
+                    xw.WriteEndElement();   // <Override>
                 }
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Types>
                 xw.WriteEndDocument();
             }
         }
@@ -732,9 +733,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteAttributeString("Id", "rId1");
                 xw.WriteAttributeString("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument");
                 xw.WriteAttributeString("Target", "xl/workbook.xml");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Relationship>
 
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Relationships>
 
                 xw.WriteEndDocument();
             }
@@ -773,7 +774,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     xw.WriteAttributeString("name", sheetNames[i - 1]);
                     xw.WriteAttributeString("sheetId", i.ToString());
                     xw.WriteAttributeString("r", "id", null, "rId" + i);
-                    xw.WriteEndElement();
+                    xw.WriteEndElement();   // <sheet>
                 }
                 xw.WriteEndDocument();
             }
@@ -793,7 +794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteAttributeString("Id", "rId0");
                 xw.WriteAttributeString("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles");
                 xw.WriteAttributeString("Target", "styles.xml");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Relationship>
 
                 for (int i = 1; i <= sheetNames.Count; i++)
                 {
@@ -801,9 +802,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     xw.WriteAttributeString("Id", "rId" + i);
                     xw.WriteAttributeString("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
                     xw.WriteAttributeString("Target", "worksheets/sheet" + i + ".xml");
-                    xw.WriteEndElement();
+                    xw.WriteEndElement();   // <Relationship>
                 }
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <Relationships>
                 xw.WriteEndDocument();
             }
         }
@@ -827,20 +828,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("numFmt");
                 xw.WriteAttributeString("numFmtId", "166");
                 xw.WriteAttributeString("formatCode", "yyyy-mm-dd");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <numFmt>
                 xw.WriteStartElement("numFmt");
                 xw.WriteAttributeString("numFmtId", "167");
                 xw.WriteAttributeString("formatCode", "hh:mm:ss");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <numFmt>
                 xw.WriteStartElement("numFmt");
                 xw.WriteAttributeString("numFmtId", "168");
                 xw.WriteAttributeString("formatCode", "yyyy-mm-dd hh:mm:ss");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <numFmt>
                 xw.WriteStartElement("numFmt");
                 xw.WriteAttributeString("numFmtId", "169");
                 xw.WriteAttributeString("formatCode", "[h]:mm:ss");
-                xw.WriteEndElement();
-                xw.WriteEndElement(); //mumFmts
+                xw.WriteEndElement();   // <numFmt>
+                xw.WriteEndElement();   // <numFmts>
 
 
                 xw.WriteStartElement("fonts");
@@ -849,40 +850,40 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("font");
                 xw.WriteStartElement("sz");
                 xw.WriteAttributeString("val", "11");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <sz>
                 xw.WriteStartElement("color");
                 xw.WriteAttributeString("theme", "1");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <color>
                 xw.WriteStartElement("name");
                 xw.WriteAttributeString("val", "Calibri");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <name>
                 xw.WriteStartElement("family");
                 xw.WriteAttributeString("val", "2");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <family>
                 xw.WriteStartElement("scheme");
                 xw.WriteAttributeString("val", "minor");
-                xw.WriteEndElement();
-                xw.WriteEndElement(); // font
+                xw.WriteEndElement();   // <scheme>
+                xw.WriteEndElement();   // <font>
 
                 xw.WriteStartElement("font");
                 xw.WriteStartElement("b");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <b>
                 xw.WriteStartElement("sz");
                 xw.WriteAttributeString("val", "11");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <sz>
                 xw.WriteStartElement("color");
                 xw.WriteAttributeString("theme", "1");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <color>
                 xw.WriteStartElement("name");
                 xw.WriteAttributeString("val", "Calibri");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <name>
                 xw.WriteStartElement("family");
                 xw.WriteAttributeString("val", "2");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <family>
                 xw.WriteStartElement("scheme");
                 xw.WriteAttributeString("val", "minor");
-                xw.WriteEndElement();
-                xw.WriteEndElement(); // font
+                xw.WriteEndElement();   // <scheme>
+                xw.WriteEndElement();   // <font>
 
                 xw.WriteEndElement(); // fonts
 
@@ -891,9 +892,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("fill");
                 xw.WriteStartElement("patternFill");
                 xw.WriteAttributeString("patternType", "none");
-                xw.WriteEndElement(); // patternFill
-                xw.WriteEndElement(); // fill
-                xw.WriteEndElement(); // fills
+                xw.WriteEndElement();   // <patternFill>
+                xw.WriteEndElement();   // <fill>
+                xw.WriteEndElement();   // <fills>
 
                 xw.WriteStartElement("borders");
                 xw.WriteAttributeString("count", "1");
@@ -903,8 +904,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteElementString("top", null);
                 xw.WriteElementString("bottom", null);
                 xw.WriteElementString("diagonal", null);
-                xw.WriteEndElement(); // board
-                xw.WriteEndElement(); // borders
+                xw.WriteEndElement();   // <border>
+                xw.WriteEndElement();   // <borders>
 
                 xw.WriteStartElement("cellStyleXfs");
                 xw.WriteAttributeString("count", "1");
@@ -913,39 +914,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteAttributeString("fontId", "0");
                 xw.WriteAttributeString("fillId", "0");
                 xw.WriteAttributeString("borderId", "0");
-                xw.WriteEndElement(); // xf
-                xw.WriteEndElement(); // cellStyleXfs
+                xw.WriteEndElement();   // <xf>
+                xw.WriteEndElement();   // <cellStyleXfs>
 
                 xw.WriteStartElement("cellXfs");
                 xw.WriteAttributeString("count", "6");
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("xfId", "0");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <xf>
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("numFmtId", "166");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("applyNumberFormat", "1");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <xf>
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("numFmtId", "167");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("applyNumberFormat", "1");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <xf>
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("numFmtId", "168");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("applyNumberFormat", "1");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <xf>
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("numFmtId", "169");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("applyNumberFormat", "1");
-                xw.WriteEndElement();
+                xw.WriteEndElement();   // <xf>
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("fontId", "1");
-                xw.WriteEndElement();
-                xw.WriteEndElement(); // cellXfs
+                xw.WriteEndElement();   // <xf>
+                xw.WriteEndElement();   // <cellXfs>
 
                 xw.WriteStartElement("cellStyles");
                 xw.WriteAttributeString("count", "1");
@@ -953,8 +954,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteAttributeString("name", "Normal");
                 xw.WriteAttributeString("builtinId", "0");
                 xw.WriteAttributeString("xfId", "0");
-                xw.WriteEndElement(); // cellStyle
-                xw.WriteEndElement(); // cellStyles
+                xw.WriteEndElement();   // <cellStyle>
+                xw.WriteEndElement();   // <cellStyles>
             }
         }
     }
