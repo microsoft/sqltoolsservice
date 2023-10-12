@@ -31,11 +31,23 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// </summary>
         public string CacheFileName { get; set; }
 
-        public AuthenticatorConfiguration(string appClientId, string appName, string cacheFolderPath, string cacheFileName) {
+        /// <summary>
+        /// Proxy URL defined by end user.
+        /// </summary>
+        public string? HttpProxyUrl { get; set; }
+
+        /// <summary>
+        /// Whether the proxy server certificate must be verified against list of configured CAs.
+        /// </summary>
+        public bool HttpProxyStrictSSL { get; set; }
+
+        public AuthenticatorConfiguration(string appClientId, string appName, string cacheFolderPath, string cacheFileName, string? httpProxyUrl = null, bool httpProxyStrictSSL = true) {
             AppClientId = appClientId;
             AppName = appName;
             CacheFolderPath = cacheFolderPath;
             CacheFileName = cacheFileName;
+            HttpProxyUrl = httpProxyUrl;
+            HttpProxyStrictSSL = httpProxyStrictSSL;
         }
     }
 }

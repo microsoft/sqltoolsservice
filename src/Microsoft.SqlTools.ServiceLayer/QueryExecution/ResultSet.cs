@@ -533,8 +533,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     using (var fileReader = fileFactory.GetReader(outputFileName))
                     using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
+                        DateTime recentLogTime;
+
+                        // Some writers (like Excel) require the column widths before any of the rows have been written so we need to loop over
+                        // all the rows of data in order to calculate what the column widths should be before the rows are actually written
+                        if (fileWriter is SaveAsStreamWriter { ShouldMeasureRowColumns: true } saveAsStreamWriter)
+                        {
+                            Logger.Verbose($"Started measuring {RowCount} rows");
+                            recentLogTime = DateTime.Now;
+                            // Iterate over the rows that are in the selected row set
+                            for (long i = rowStartIndex; i < rowEndIndex; ++i)
+                            {
+                                var row = fileReader.ReadRow(fileOffsets[i], i, Columns);
+                                saveAsStreamWriter.MeasureRowColumns(row);
+                                if (DateTime.Now.Subtract(recentLogTime).TotalSeconds > 1)
+                                {
+                                    Logger.Verbose($"Measure progress: {i - rowStartIndex + 1}/{RowCount}.");
+                                    recentLogTime = DateTime.Now;
+                                }
+                            }
+                            Logger.Verbose($"Measured {RowCount} rows");
+                        }
+
                         Logger.Verbose($"Started exporting {RowCount} rows to file: {outputFileName}");
-                        var recentLogTime = DateTime.Now;
+                        recentLogTime = DateTime.Now;
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
                         {
