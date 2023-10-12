@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] QueryStoreCaptureModeOptions { get; set; }
         public string[] SizeBasedCleanupModeOptions { get; set; }
         public string[] StaleThresholdOptions { get; set; }
+        public int? ServerFilestreamAccessLevel { get; set; }
     }
 
     public class AzureEditionDetails

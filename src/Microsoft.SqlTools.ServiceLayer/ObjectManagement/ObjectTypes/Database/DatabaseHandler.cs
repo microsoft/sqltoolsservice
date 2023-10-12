@@ -301,6 +301,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
+                                    try
+                                    {
+                                        // cannot retrieve ServerFilestreamAccessLevel property for localdb instance
+                                        databaseViewInfo.ServerFilestreamAccessLevel = (int)dataContainer.Server.FilestreamLevel;
+                                    }
+                                    catch (PropertyCannotBeRetrievedException) { }
                                 }
 
                                 if (prototype is DatabasePrototype160)
