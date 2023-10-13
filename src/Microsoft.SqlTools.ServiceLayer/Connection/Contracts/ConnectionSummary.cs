@@ -46,10 +46,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the connection user name
         /// </summary>
         public virtual string UserName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the connection user name
-        /// </summary>
-        public virtual int SPID { get; set; }
     }
 }
