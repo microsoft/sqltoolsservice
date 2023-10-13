@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Security;
 using System.Xml;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -1204,6 +1205,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
             else
             {
+                var databaseNode = new XElement("database");
+                databaseNode.Value = connInfo.ConnectionDetails.DatabaseName;
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
@@ -1211,11 +1214,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
                 <servertype>sql</servertype>
                 <urn>Server[@Name='{0}']</urn>
-                <database>{2}</database>                
+                {2}                
                 </params></formdescription> ",
                 connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
                 connInfo.ConnectionDetails.UserName,
-                connInfo.ConnectionDetails.DatabaseName);
+                databaseNode);
             }
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
