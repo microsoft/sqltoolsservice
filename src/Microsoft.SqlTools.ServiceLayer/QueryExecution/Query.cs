@@ -462,7 +462,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().FireInfoMessageEventOnUserErrors = true;
                     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
-                    SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
                 }
 
 
@@ -495,6 +494,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Call the query execution callback
                 if (QueryCompleted != null)
                 {
+                    if (sqlConn != null)
+                    {
+                        // Update SPID here as it may change upon restart and only updates upon query execution.
+                        SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (SPID != 0)
+                        {
+                            Console.WriteLine(SPID);
+                        }
+                    }
                     await QueryCompleted(this);
                 }
             }
@@ -522,6 +530,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
+                    SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
                 }
 
                 // If any message notified us we had changed databases, then we must let the connection service know 
