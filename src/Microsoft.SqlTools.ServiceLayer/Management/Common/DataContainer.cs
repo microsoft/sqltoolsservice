@@ -1188,19 +1188,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
         {
             string xml = string.Empty;
+            var servernameNode = new XElement("servername");
+            servernameNode.Value = connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture);
 
             if (!databaseExists)
             {
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
-                <servername>{0}</servername>
-                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                {0}
+                <connectionmoniker>{1} (SQLServer, user = {2})</connectionmoniker>
                 <servertype>sql</servertype>
-                <urn>Server[@Name='{0}']</urn>
+                <urn>Server[@Name=&apos;{1}&apos;]</urn>
                 <itemtype>Database</itemtype>                
                 </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
+                servernameNode,
+                servernameNode.Value,
                 connInfo.ConnectionDetails.UserName);
             }
             else
@@ -1210,13 +1213,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
-                <servername>{0}</servername>
-                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                {0}
+                <connectionmoniker>{1} (SQLServer, user = {2})</connectionmoniker>
                 <servertype>sql</servertype>
-                <urn>Server[@Name='{0}']</urn>
-                {2}                
+                <urn>Server[@Name=&apos;{1}&apos;]</urn>
+                {3}                
                 </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
+                servernameNode,
+                servernameNode.Value,
                 connInfo.ConnectionDetails.UserName,
                 databaseNode);
             }
