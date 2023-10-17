@@ -1199,11 +1199,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 {0}
                 <connectionmoniker>{1} (SQLServer, user = {2})</connectionmoniker>
                 <servertype>sql</servertype>
-                <urn>Server[@Name=&apos;{1}&apos;]</urn>
+                <urn>Server[@Name='{1}']</urn>
                 <itemtype>Database</itemtype>                
                 </params></formdescription> ",
                 serverNameNode,
-                serverNameNode.Value,
+                Urn.EscapeString(serverNameNode.Value),
                 connInfo.ConnectionDetails.UserName);   
             }
             else
@@ -1216,11 +1216,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 {0}
                 <connectionmoniker>{1} (SQLServer, user = {2})</connectionmoniker>
                 <servertype>sql</servertype>
-                <urn>Server[@Name=&apos;{1}&apos;]</urn>
+                <urn>Server[@Name='{1}']</urn>
                 {3}                
                 </params></formdescription> ",
                 serverNameNode,
-                serverNameNode.Value,
+                Urn.EscapeString(serverNameNode.Value),
                 connInfo.ConnectionDetails.UserName,
                 databaseNode);
             }
