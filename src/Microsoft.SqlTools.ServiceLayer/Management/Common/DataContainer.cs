@@ -1188,8 +1188,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
         {
             string xml = string.Empty;
-            var servernameNode = new XElement("servername");
-            servernameNode.Value = connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture);
+            var serverNameNode = new XElement("servername");
+            serverNameNode.Value = connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture);
 
             if (!databaseExists)
             {
@@ -1202,9 +1202,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <urn>Server[@Name=&apos;{1}&apos;]</urn>
                 <itemtype>Database</itemtype>                
                 </params></formdescription> ",
-                servernameNode,
-                servernameNode.Value,
-                connInfo.ConnectionDetails.UserName);
+                serverNameNode,
+                serverNameNode.Value,
+                connInfo.ConnectionDetails.UserName);   
             }
             else
             {
@@ -1219,8 +1219,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <urn>Server[@Name=&apos;{1}&apos;]</urn>
                 {3}                
                 </params></formdescription> ",
-                servernameNode,
-                servernameNode.Value,
+                serverNameNode,
+                serverNameNode.Value,
                 connInfo.ConnectionDetails.UserName,
                 databaseNode);
             }
