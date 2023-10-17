@@ -303,10 +303,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
                                     try
                                     {
-                                        // cannot retrieve ServerFilestreamAccessLevel property for localdb instance
-                                        databaseViewInfo.ServerFilestreamAccessLevel = (int)dataContainer.Server.FilestreamLevel;
+                                        // Cannot retrieve ServerFilestreamAccessLevel property for localdb instance as filestream level comes from the registry
+                                        databaseViewInfo.ServerFilestreamAccessLevel = dataContainer.Server.FilestreamLevel;
                                     }
-                                    catch (PropertyCannotBeRetrievedException) { }
+                                    catch (PropertyCannotBeRetrievedException ex) {
+                                        Logger.Error(ex.Message);
+                                    }
                                 }
 
                                 if (prototype is DatabasePrototype160)
