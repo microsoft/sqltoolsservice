@@ -1191,20 +1191,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             var serverNameNode = new XElement("servername");
             serverNameNode.Value = connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture);
 
+            var connectionMonikerNode = new XElement("connectionmoniker");
+            connectionMonikerNode.Value = string.Format("{0} (SQLServer, user = {1})", serverNameNode.Value, connInfo.ConnectionDetails.UserName);
+
+            var urnNode = new XElement("urn");
+            urnNode.Value = string.Format("Server[@Name = '{0}']", serverNameNode.Value);
+
             if (!databaseExists)
             {
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
                 {0}
-                <connectionmoniker>{1} (SQLServer, user = {2})</connectionmoniker>
+                {1}
                 <servertype>sql</servertype>
-                <urn>Server[@Name='{1}']</urn>
+                {2}
                 <itemtype>Database</itemtype>                
                 </params></formdescription> ",
                 serverNameNode,
-                Urn.EscapeString(serverNameNode.Value),
-                connInfo.ConnectionDetails.UserName);   
+                connectionMonikerNode,
+                urnNode);   
             }
             else
             {
@@ -1214,14 +1220,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
                 {0}
-                <connectionmoniker>{1} (SQLServer, user = {2})</connectionmoniker>
+                {1}
                 <servertype>sql</servertype>
-                <urn>Server[@Name='{1}']</urn>
+                {2}
                 {3}                
                 </params></formdescription> ",
                 serverNameNode,
-                Urn.EscapeString(serverNameNode.Value),
-                connInfo.ConnectionDetails.UserName,
+                connectionMonikerNode,
+                urnNode,
                 databaseNode);
             }
             var xmlDoc = new XmlDocument();
