@@ -289,6 +289,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasErrored { get; private set; }
 
         /// <summary>
+        /// The SPID of the query when connected.
+        /// </summary>
+        public int SPID { get; private set; }
+
+        /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; }
@@ -457,6 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().FireInfoMessageEventOnUserErrors = true;
                     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+                    SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
                 }
 
 
