@@ -303,10 +303,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
                                     try
                                     {
-                                        // Cannot retrieve ServerFilestreamAccessLevel property for localdb instance as filestream level comes from the registry
+                                        // ServerFilestreamAccessLevel uses xp_instance_regread so will throw if that isn't available. In that case we just default to Disabled to ensure the UI reflects that
                                         databaseViewInfo.ServerFilestreamAccessLevel = dataContainer.Server.FilestreamLevel;
                                     }
                                     catch (PropertyCannotBeRetrievedException ex) {
+                                        // Setting filestream access level to disabled
+                                        databaseViewInfo.ServerFilestreamAccessLevel = FileStreamEffectiveLevel.Disabled;
                                         Logger.Error(ex.Message);
                                     }
                                 }
