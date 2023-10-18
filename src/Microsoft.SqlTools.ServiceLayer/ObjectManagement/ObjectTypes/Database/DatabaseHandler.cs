@@ -306,11 +306,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         // ServerFilestreamAccessLevel uses xp_instance_regread so will throw if that isn't available. In that case we just default to Disabled to ensure the UI reflects that
                                         databaseViewInfo.ServerFilestreamAccessLevel = dataContainer.Server.FilestreamLevel;
                                     }
-                                    catch (PropertyCannotBeRetrievedException ex) {
+                                    catch (PropertyCannotBeRetrievedException ex)
+                                    {
                                         // Cannot retrieve FilestreamLevel, defaulting to disabled level
-                                        // Error: {"Property FilestreamLevel is not available for Server '[SampleServer]'. This property may not exist for this object, or may not be retrievable due to insufficient access rights."}
                                         databaseViewInfo.ServerFilestreamAccessLevel = FileStreamEffectiveLevel.Disabled;
-                                        Logger.Error(ex.Message);
+                                        Logger.Error($"Cannot retrieve FilestreamLevel, defaulting to disabled level. Error: '{ex.Message}'");
                                     }
                                 }
                             }
