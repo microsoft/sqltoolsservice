@@ -308,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     }
                                     catch (PropertyCannotBeRetrievedException ex) {
                                         // Cannot retrieve FilestreamLevel, defaulting to disabled level
-                                        // Error: {"Property FilestreamLevel is not available for Server '[SqmpleServer]'. This property may not exist for this object, or may not be retrievable due to insufficient access rights."}
+                                        // Error: {"Property FilestreamLevel is not available for Server '[SampleServer]'. This property may not exist for this object, or may not be retrievable due to insufficient access rights."}
                                         databaseViewInfo.ServerFilestreamAccessLevel = FileStreamEffectiveLevel.Disabled;
                                         Logger.Error(ex.Message);
                                     }
