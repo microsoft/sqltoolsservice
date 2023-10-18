@@ -1195,7 +1195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             connectionMonikerNode.Value = string.Format("{0} (SQLServer, user = {1})", serverNameNode.Value, connInfo.ConnectionDetails.UserName);
 
             var urnNode = new XElement("urn");
-            urnNode.Value = string.Format("Server[@Name = '{0}']", serverNameNode.Value);
+            urnNode.Value = string.Format("Server[@Name = '{0}']", Urn.EscapeString(serverNameNode.Value));
 
             if (!databaseExists)
             {
