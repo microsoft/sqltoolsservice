@@ -1846,7 +1846,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var td = GetTableDesigner(tableInfo);
             tableInfo.Title = td.TableViewModel.FullName;
-            var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
+            var tooltipName = string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
+            if(!tableInfo.Tooltip.StartsWith(tooltipName)) {
+                tooltipName = tableInfo.Tooltip.Substring(0, tableInfo.Tooltip.LastIndexOf('-') - 1);
+            }
+            var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : tooltipName;
             tableInfo.Tooltip = string.Format("{0} - {1}", tableParent, tableInfo.Title);
         }
 

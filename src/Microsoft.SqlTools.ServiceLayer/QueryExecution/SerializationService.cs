@@ -290,7 +290,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 FilePath = this.requestParams.FilePath,
                 BatchIndex = 0,
                 ResultSetIndex = 0,
-                IncludeHeaders = this.requestParams.IncludeHeaders
+                IncludeHeaders = this.requestParams.IncludeHeaders,
+                FreezeHeaderRow = this.requestParams.FreezeHeaderRow,
+                BoldHeaderRow = this.requestParams.BoldHeaderRow,
+                AutoFilterHeaderRow = this.requestParams.AutoFilterHeaderRow,
+                AutoSizeColumns = this.requestParams.AutoSizeColumns
             };
         }
         private SaveResultsAsCsvRequestParams CreateCsvRequestParams()
