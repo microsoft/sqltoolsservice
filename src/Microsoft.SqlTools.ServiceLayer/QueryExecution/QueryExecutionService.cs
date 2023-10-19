@@ -888,11 +888,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query.QueryAsyncEventHandler completeCallback = async q =>
             {
                 // Send back the results
+                let completeUri = ownerUri + ' - SPID : ' + q.SPID;
                 QueryCompleteParams eventParams = new QueryCompleteParams
                 {
-                    OwnerUri = ownerUri,
+                    OwnerUri = completeUri,
                     BatchSummaries = q.BatchSummaries,
-                    SPID = q.SPID
                 };
 
                 Logger.Information($"Query:'{ownerUri}' completed");
@@ -907,7 +907,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     OwnerUri = ownerUri,
                     BatchSummaries = q.BatchSummaries,
-                    SPID = q.SPID
                 };
 
                 Logger.Error($"Query:'{ownerUri}' failed");
