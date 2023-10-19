@@ -888,7 +888,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query.QueryAsyncEventHandler completeCallback = async q =>
             {
                 // Send back the results
-                let completeUri = ownerUri + ' - SPID : ' + q.SPID;
+                string completeUri = ownerUri + " - SPID : "  + q.SPID;
                 QueryCompleteParams eventParams = new QueryCompleteParams
                 {
                     OwnerUri = completeUri,
