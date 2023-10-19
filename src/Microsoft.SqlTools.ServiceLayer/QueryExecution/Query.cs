@@ -498,10 +498,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         // Update SPID here as it may change upon restart and only updates upon query execution.
                         SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-                        if (SPID != 0)
-                        {
-                            Console.WriteLine(SPID);
-                        }
                     }
                     await QueryCompleted(this);
                 }
