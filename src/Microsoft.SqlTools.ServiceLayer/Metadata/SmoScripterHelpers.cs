@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterHelpers
     {
-        public static IEnumerable<string>? GenerateAllServerTableScripts(DbConnection connection)
+        public static IEnumerable<string>? GenerateDatabaseScripts(DbConnection connection, string databaseName)
         {
             var serverConnection = SmoScripterHelpers.GetServerConnection(connection);
             if (serverConnection == null)
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
 
             Server server = new Server(serverConnection);
-            var scripts = SmoScripterHelpers.GenerateTableScripts(server);
+            var scripts = SmoScripterHelpers.GenerateDatabaseCreateTableAndViewScripts(server, databaseName);
 
             return scripts;
         }
@@ -67,9 +67,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static IEnumerable<string> GenerateTableScripts(Server server)
+        private static IEnumerable<string> GenerateDatabaseCreateTableAndViewScripts(Server server, string databaseName)
         {
-            var urns = SmoScripterHelpers.GetAllServerTableAndViewUrns(server);
+            var urns = SmoScripterHelpers.GetDatabaseTableAndViewUrns(server, databaseName);
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -172,12 +172,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return scripts;
         }
 
-        private static UrnCollection GetAllServerTableAndViewUrns(Server server)
+        private static UrnCollection GetDatabaseTableAndViewUrns(Server server, string databaseName)
         {
             UrnCollection urnCollection = new UrnCollection();
 
             foreach (Database db in server.Databases)
             {
+                if (db.Name != databaseName)
+                {
+                    continue;
+                }
+
                 try
                 {
                     foreach (SqlServer.Management.Smo.Table t in db.Tables)
