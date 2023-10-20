@@ -313,11 +313,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         Logger.Error($"Cannot retrieve FilestreamLevel, defaulting to disabled level. Error: '{ex.Message}'");
                                     }
                                 }
+                            }
 
-                                if (prototype is DatabasePrototype160)
-                                {
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
-                                }
+                            if (prototype is DatabasePrototype160)
+                            {
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                             }
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
