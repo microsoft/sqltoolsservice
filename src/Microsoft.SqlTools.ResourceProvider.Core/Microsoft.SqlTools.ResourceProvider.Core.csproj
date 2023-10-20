@@ -12,11 +12,12 @@
 		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
-		<PackageReference Include="Microsoft.Extensions.DependencyModel"/>
-		<PackageReference Include="System.Runtime.Loader"/>
-		<PackageReference Include="System.Composition"/>
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
+		<PackageReference Include="System.Runtime.Loader" />
+		<PackageReference Include="System.Composition" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
