@@ -301,12 +301,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
+                                    try
+                                    {
+                                        // ServerFilestreamAccessLevel uses xp_instance_regread so will throw if that isn't available. In that case we just default to Disabled to ensure the UI reflects that
+                                        databaseViewInfo.ServerFilestreamAccessLevel = dataContainer.Server.FilestreamLevel;
+                                    }
+                                    catch (PropertyCannotBeRetrievedException ex)
+                                    {
+                                        // Cannot retrieve FilestreamLevel, defaulting to disabled level
+                                        databaseViewInfo.ServerFilestreamAccessLevel = FileStreamEffectiveLevel.Disabled;
+                                        Logger.Error($"Cannot retrieve FilestreamLevel, defaulting to disabled level. Error: '{ex.Message}'");
+                                    }
                                 }
-                            }
 
-                            if (prototype is DatabasePrototype160)
-                            {
-                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                if (prototype is DatabasePrototype160)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                }
                             }
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();

@@ -5,6 +5,8 @@
 //
 #nullable disable
 
+using Microsoft.SqlServer.Management.Smo;
+
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabaseViewInfo : SqlObjectViewInfo
@@ -33,6 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] QueryStoreCaptureModeOptions { get; set; }
         public string[] SizeBasedCleanupModeOptions { get; set; }
         public string[] StaleThresholdOptions { get; set; }
+        public FileStreamEffectiveLevel? ServerFilestreamAccessLevel { get; set; }
     }
 
     public class AzureEditionDetails

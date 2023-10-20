@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Security;
 using System.Xml;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -1187,35 +1188,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
         {
             string xml = string.Empty;
+            var serverNameNode = new XElement("servername");
+            serverNameNode.Value = connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture);
+
+            var connectionMonikerNode = new XElement("connectionmoniker");
+            connectionMonikerNode.Value = string.Format("{0} (SQLServer, user = {1})", serverNameNode.Value, connInfo.ConnectionDetails.UserName);
+
+            var urnNode = new XElement("urn");
+            urnNode.Value = string.Format("Server[@Name = '{0}']", Urn.EscapeString(serverNameNode.Value));
 
             if (!databaseExists)
             {
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
-                <servername>{0}</servername>
-                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                {0}
+                {1}
                 <servertype>sql</servertype>
-                <urn>Server[@Name='{0}']</urn>
+                {2}
                 <itemtype>Database</itemtype>                
                 </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
-                connInfo.ConnectionDetails.UserName);
+                serverNameNode,
+                connectionMonikerNode,
+                urnNode);   
             }
             else
             {
+                var databaseNode = new XElement("database");
+                databaseNode.Value = connInfo.ConnectionDetails.DatabaseName;
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
-                <servername>{0}</servername>
-                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                {0}
+                {1}
                 <servertype>sql</servertype>
-                <urn>Server[@Name='{0}']</urn>
-                <database>{2}</database>                
+                {2}
+                {3}                
                 </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
-                connInfo.ConnectionDetails.UserName,
-                connInfo.ConnectionDetails.DatabaseName);
+                serverNameNode,
+                connectionMonikerNode,
+                urnNode,
+                databaseNode);
             }
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
