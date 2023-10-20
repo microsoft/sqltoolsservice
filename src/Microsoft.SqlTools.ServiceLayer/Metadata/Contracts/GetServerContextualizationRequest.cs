@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
         /// <summary>
-        /// The database to generate the context for.
+        /// The database to generate context for.
         /// </summary>
         public string DatabaseName { get; set; }
     }
