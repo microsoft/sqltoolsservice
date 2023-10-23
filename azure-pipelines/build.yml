@@ -70,6 +70,10 @@ steps:
       $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
 
+- task: CodeQL3000Init@0
+  displayName: 'CodeQL Initialize'
+  condition: eq(variables['Codeql.enabled'], 'True')
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
@@ -384,6 +388,10 @@ steps:
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg'
     feedPublish: 'mssqltools'
     allowPackageConflicts: true
+
+- task: CodeQL3000Finalize@0
+  displayName: 'CodeQL Finalize'
+  condition: eq(variables['Codeql.enabled'], 'True')
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
