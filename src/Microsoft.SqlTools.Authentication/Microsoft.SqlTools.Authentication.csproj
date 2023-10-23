@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.Identity.Client" />
 		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
@@ -14,6 +15,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
+		<ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
 	</ItemGroup>
 </Project>
