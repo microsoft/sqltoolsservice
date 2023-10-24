@@ -36,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] SizeBasedCleanupModeOptions { get; set; }
         public string[] StaleThresholdOptions { get; set; }
         public FileStreamEffectiveLevel? ServerFilestreamAccessLevel { get; set; }
+        public RestoreDatabaseInfo RestoreDatabaseInfo {  get; set; }
     }
 
     public class AzureEditionDetails
@@ -47,5 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public class OptionsCollection {
         public string[] Options { get; set; }
         public int DefaultValueIndex { get; set; }
+    }
+
+    public class RestoreDatabaseInfo
+    {
+        public string[] SourceDatabaseNames { get; set; }
+        public string[] TargetDatabaseNames { get; set; }
     }
 }

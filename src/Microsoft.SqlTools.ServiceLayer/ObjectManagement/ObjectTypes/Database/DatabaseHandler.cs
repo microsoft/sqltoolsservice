@@ -15,6 +15,7 @@ using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Text;
@@ -286,6 +287,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         // Sql Server 2019 and higher only support the custom query store capture mode
                                         displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, SR.querystorecapturemode_custom);
                                     }
+
+                                    // Get source and target database list for restore database
+                                    RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
+                                    databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restoreUtil.GetSourceDbNames().ToArray();
+                                    databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = restoreUtil.GetTargetDbNames().ToArray();
                                 }
                             }
                             if (!isManagedInstance)
