@@ -1,0 +1,24 @@
+{
+	"codebaseName": "SQL Tools Service",
+	"ppe": false,
+	"notificationAliases": [
+		"kvhdir@microsoft.com",
+		"sakshis@microsoft.com"
+	],
+	"codebaseAdmins": [
+		"REDMOND\\karlb",
+		"REDMOND\\chgagnon",
+		"REDMOND\\kisantia",
+		"REDMOND\\sakshis"
+	],
+	"instanceUrl": "https://msdata.visualstudio.com",
+	"projectName": "SQL Tools Service",
+	"areaPath": "Database Systems\\SQL Tools\\SQL Tools Service",
+	"notifyAlways": true,
+	"template": "TFSDEVDIV",
+	"tools": [
+			"BinSkim",
+			"CredScan",
+			"CodeQL"
+	]
+}
