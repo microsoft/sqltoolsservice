@@ -75,6 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDataFolderRequest.Type, HandleGetDataFolderRequest, true);
+            serviceHost.SetRequestHandler(GetBackupFolderRequest.Type, HandleGetBackupFolderRequest, true);
             serviceHost.SetRequestHandler(GetAssociatedFilesRequest.Type, HandleGetAssociatedFilesRequest, true);
         }
 
@@ -159,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
-        /// Handle get database info request
+        /// Handle get database data folder info request
         /// </summary>
         internal static async Task HandleGetDataFolderRequest(
             GetDataFolderParams databaseParams,
@@ -177,6 +178,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     ServerConnection serverConnection = new ServerConnection(sqlConn);
                     var dataFolder = CommonUtilities.GetDefaultDataFolder(serverConnection);
                     await requestContext.SendResult(dataFolder);
+                }
+            };
+
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            {
+                // Get innermost exception to get original error message
+                Exception ex = t.Exception;
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                };
+                await requestContext.SendError(ex.Message);
+            });
+        }
+
+        /// <summary>
+        /// Handle get database backup folder info request
+        /// </summary>
+        internal static async Task HandleGetBackupFolderRequest(
+            GetBackupFolderParams databaseParams,
+            RequestContext<string> requestContext)
+        {
+            Func<Task> requestHandler = async () =>
+            {
+                ConnectionInfo connInfo;
+                AdminService.ConnectionServiceInstance.TryFindConnection(
+                        databaseParams.ConnectionUri,
+                        out connInfo);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    // Connection gets disconnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    var backupFolder = CommonUtilities.GetDefaultBackupFolder(serverConnection);
+                    await requestContext.SendResult(backupFolder);
                 }
             };
 
