@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -46,6 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseFile[] Files { get; set; }
         public FileGroupSummary[]? Filegroups { get; set; }
         public QueryStoreOptions? QueryStoreOptions { get; set; }
+
+        public RestoreOptions restoreOptions { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -102,5 +105,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string StaleThreshold { get; set; }
         public long TotalCompileCPUTimeInMS { get; set; }
         public long TotalExecutionCPUTimeInMS { get; set; }
+    }
+
+    public class RestoreOptions
+    {
+        public string defaultDataFileFolderPath { get; set; }
+        public string defaultLogFileFolderPath { get; set; }
+        public string defaultBackupFileFolderPath { get; set; }
+        public RestorePlanDetailInfo restorePlanDetailInfo { get; set; }
+
     }
 }

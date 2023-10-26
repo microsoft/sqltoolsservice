@@ -290,8 +290,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                     // Get source and target database list for restore database
                                     RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
+                                    databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
                                     databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restoreUtil.GetSourceDbNames().ToArray();
                                     databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = restoreUtil.GetTargetDbNames().ToArray();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.defaultDataFileFolderPath = restoreUtil.GetDefaultDataFileFolder();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.defaultLogFileFolderPath = restoreUtil.GetDefaultLogFileFolder();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.defaultBackupFileFolderPath = restoreUtil.GetDefaultBackupFolder();
                                 }
                             }
                             if (!isManagedInstance)
