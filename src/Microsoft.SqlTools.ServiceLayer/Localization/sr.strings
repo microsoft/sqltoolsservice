@@ -2390,6 +2390,26 @@ general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
 databaseBackupDate_None = None
+querystorecapturemode_all = All
+querystorecapturemode_auto = Auto
+querystorecapturemode_none = None
+querystorecapturemode_custom = Custom
+queryStoreSizeBasedCleanupMode_Off = Off
+queryStoreSizeBasedCleanupMode_Auto = Auto
+statisticsCollectionInterval_OneMinute = 1 Minute
+statisticsCollectionInterval_FiveMinutes = 5 Minutes
+statisticsCollectionInterval_TenMinutes = 10 Minutes
+statisticsCollectionInterval_FifteenMinutes = 15 Minutes
+statisticsCollectionInterval_ThirtyMinutes = 30 Minutes
+statisticsCollectionInterval_OneHour = 1 Hour
+statisticsCollectionInterval_OneDay = 1 Day
+queryStore_stale_threshold_OneHour = 1 Hour
+queryStore_stale_threshold_FourHours = 4 Hours
+queryStore_stale_threshold_EightHours = 8 Hours
+queryStore_stale_threshold_TwelveHours = 12 Hours
+queryStore_stale_threshold_OneDay = 1 Day
+queryStore_stale_threshold_ThreeDays = 3 Days
+queryStore_stale_threshold_SevenDays = 7 Days
 
 ############################################################################
 # Azure SQL DB
@@ -2406,5 +2426,9 @@ HyperscaleAzureEdition = Hyperscale
 #############################################################################
 # Server Properties
 
-############################################################################
 PropertyNotInitialized(string propertyName) = Property '{0}' was set before initialization.
+
+#############################################################################
+# SqlProjects
+
+InvalidDspFormatError(string dsp) = Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.

@@ -7259,6 +7259,117 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">無法產生伺服器關聯式化的指令碼</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FailedToFindConnectionInfoAboutTheServer">
+        <source>Failed to find connection info about the server</source>
+        <target state="translated">找不到伺服器的連線資訊</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_all">
+        <source>All</source>
+        <target state="translated">全部</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_auto">
+        <source>Auto</source>
+        <target state="translated">自動</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_none">
+        <source>None</source>
+        <target state="translated">無</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_custom">
+        <source>Custom</source>
+        <target state="translated">自訂</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStoreSizeBasedCleanupMode_Off">
+        <source>Off</source>
+        <target state="translated">關閉</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStoreSizeBasedCleanupMode_Auto">
+        <source>Auto</source>
+        <target state="translated">自動</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneMinute">
+        <source>1 Minute</source>
+        <target state="translated">1 分鐘</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_FiveMinutes">
+        <source>5 Minutes</source>
+        <target state="translated">5 分鐘</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_TenMinutes">
+        <source>10 Minutes</source>
+        <target state="translated">10 分鐘</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_FifteenMinutes">
+        <source>15 Minutes</source>
+        <target state="translated">15 分鐘</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_ThirtyMinutes">
+        <source>30 Minutes</source>
+        <target state="translated">30 分鐘</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneHour">
+        <source>1 Hour</source>
+        <target state="translated">1 小時</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneDay">
+        <source>1 Day</source>
+        <target state="translated">1 天</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_OneHour">
+        <source>1 Hour</source>
+        <target state="translated">1 小時</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_FourHours">
+        <source>4 Hours</source>
+        <target state="translated">4 小時</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_EightHours">
+        <source>8 Hours</source>
+        <target state="translated">8 小時</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_TwelveHours">
+        <source>12 Hours</source>
+        <target state="translated">12 小時</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_OneDay">
+        <source>1 Day</source>
+        <target state="translated">1 天</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_ThreeDays">
+        <source>3 Days</source>
+        <target state="translated">3 天</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_SevenDays">
+        <source>7 Days</source>
+        <target state="translated">7 天</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidDspFormatError">
+        <source>Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</source>
+        <target state="translated">資料庫架構提供者的值無效: '{0}';格式必須是 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'。</target>
+        <note>.
+ Parameters: 0 - dsp (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

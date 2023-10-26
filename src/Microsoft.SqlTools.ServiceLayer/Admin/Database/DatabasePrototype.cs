@@ -56,6 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public string currentServiceLevelObjective;
             public DbSize maxSize;
             public string backupStorageRedundancy;
+            public QueryStoreOptions queryStoreOptions;
 
             public bool closeCursorOnCommit;
             public bool isReadOnly;
@@ -172,6 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.queryOptimizerHotfixes = DatabaseScopedConfigurationOnOff.Off;
                 this.queryOptimizerHotfixesForSecondary = DatabaseScopedConfigurationOnOff.Primary;
                 this.isLedger = false;
+                this.queryStoreOptions = null;
 
                 //The following properties are introduced for contained databases.
                 //In case of plain old databases, these values should reflect the server configuration values.
@@ -562,6 +564,22 @@ WHERE do.database_id = @DbID
                     this.databaseScopedConfigurations = db.DatabaseScopedConfigurations;
                 }
 
+                // Supported from Sql Server 2016 and higher
+                // QueryStore properties are not initialized at the time of database creation
+                if (db.IsSupportedObject<QueryStoreOptions>())
+                {
+                    try
+                    {
+                        var queryStoreActualStateProperty = db.QueryStoreOptions.ActualState;
+                        this.queryStoreOptions = db.QueryStoreOptions;
+                    }
+                    catch (NullReferenceException)
+                    {
+                        //db.QueryStoreOptions is not null, but its properties(actualState...etc) are Not initialized and when accessing them it throws the null reference exception.
+                        this.queryStoreOptions = null;
+                    }
+                }
+
                 //Only fill in the Azure properties when connected to an Azure server
                 if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                 {
@@ -696,6 +714,7 @@ WHERE do.database_id = @DbID
                 this.backupStorageRedundancy = other.backupStorageRedundancy;
                 this.isLedger = other.isLedger;
                 this.databaseScopedConfigurations = other.databaseScopedConfigurations;
+                this.queryStoreOptions = other.queryStoreOptions;
             }
 
             /// <summary>
@@ -781,7 +800,8 @@ WHERE do.database_id = @DbID
                     (this.maxSize == other.maxSize) &&
                     (this.backupStorageRedundancy == other.backupStorageRedundancy) &&
                     (this.isLedger == other.isLedger) &&
-                    (this.databaseScopedConfigurations == other.databaseScopedConfigurations);
+                    (this.databaseScopedConfigurations == other.databaseScopedConfigurations) &&
+                    (this.queryStoreOptions == other.queryStoreOptions);
 
                 return result;
             }

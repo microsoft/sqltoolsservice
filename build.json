@@ -14,6 +14,9 @@
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
       "net7.0"
     ],
+    "Microsoft.SQlTools.Authentication.UnitTests": [
+      "net7.0"
+    ],
     "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
       "net7.0"
     ],

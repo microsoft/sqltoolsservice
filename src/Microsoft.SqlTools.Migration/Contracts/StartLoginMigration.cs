@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public List<string> LoginList { get; set; }
 
         /// <summary>
-        /// Azure active directory domain name (required for Windows Auth)
+        /// Microsoft Entra domain name (required for Windows Auth)
         /// </summary>
         public string AADDomainName{ get; set; }
     }

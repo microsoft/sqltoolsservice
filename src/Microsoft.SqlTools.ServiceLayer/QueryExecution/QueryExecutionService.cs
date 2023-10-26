@@ -12,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TextCopy;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -364,13 +363,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
                 string NewOwnerUri = changeUriParams.NewOwnerUri;
+                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
                 // Attempt to load the query
                 Query query;
                 if (!ActiveQueries.TryRemove(OriginalOwnerUri, out query))
                 {
                     throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
                 }
-                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
                 query.ConnectionOwnerURI = NewOwnerUri;
                 ActiveQueries.TryAdd(NewOwnerUri, query);
                 return Task.FromResult(true);
@@ -798,8 +797,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     pageStartRowIndex += rowsToFetch;
                 } while (pageStartRowIndex < rowRange.End);
             }
-            await ClipboardService.SetTextAsync(builder.ToString());
-            await requestContext.SendResult(new CopyResultsRequestResult());
+            CopyResultsRequestResult result = new CopyResultsRequestResult
+            {
+                Results = builder.ToString()
+            };
+            await requestContext.SendResult(result);
         }
 
         #endregion

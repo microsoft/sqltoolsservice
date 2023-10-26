@@ -65,11 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 try
                 {
                     // create and update
-                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, true, SqlObjectType.Database, "", "");
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
                     Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
 
-                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
 
                     // cleanup
@@ -311,6 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0].Type, Is.EqualTo("ROWS Data"), $"Database files first file should be Row type database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1].Type, Is.EqualTo("LOG"), $"Database files first file should be Log type database files");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups?.Length, Is.GreaterThan(0), $"Database file groups should exists");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions, Is.Not.Null, $"Database Query store options are not null");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
@@ -531,7 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var detachParams = new DetachDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = true,
                         UpdateStatistics = true,
                         GenerateScript = false
@@ -595,7 +596,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var detachParams = new DetachDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = false,
                         UpdateStatistics = false,
                         GenerateScript = true
@@ -758,7 +759,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var deleteParams = new DropDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = false,
                         DeleteBackupHistory = false,
                         GenerateScript = false
@@ -801,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var deleteParams = new DropDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
-                        ObjectUrn = objUrn,
+                        Database = testDatabase.Name,
                         DropConnections = false,
                         DeleteBackupHistory = false,
                         GenerateScript = true
@@ -862,7 +863,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             {
                 if (db.Name == databaseName)
                 {
-                    db.DropIfExists();
+                    // Set database to single user mode to close any active connections
+                    db.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                    db.Alter(TerminationClause.RollbackTransactionsImmediately);
+                    db.Drop();
                     break;
                 }
             }

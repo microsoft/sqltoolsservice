@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using Microsoft.SqlTools.SqlCore.Utility;
 using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -42,15 +43,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
         private static readonly ConcurrentDictionary<FileType, string> displayFileTypes = new ConcurrentDictionary<FileType, string>();
+        private static readonly ConcurrentDictionary<QueryStoreOperationMode, string> displayOperationModeOptions = new ConcurrentDictionary<QueryStoreOperationMode, string>();
+        private static readonly ConcurrentDictionary<QueryStoreCaptureMode, string> displayQueryStoreCaptureModeOptions = new ConcurrentDictionary<QueryStoreCaptureMode, string>();
+        private static readonly SortedDictionary<int, string> displayStatisticsCollectionIntervalInMinutes = new SortedDictionary<int, string>();
+        private static readonly SortedDictionary<int, string> displayQueryStoreStaleThresholdInHours = new SortedDictionary<int, string>();
+        private static readonly ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string> displaySizeBasedCleanupMode = new ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
         private static readonly Dictionary<string, FileType> fileTypesEnums = new Dictionary<string, FileType>();
+        private static readonly Dictionary<string, QueryStoreOperationMode> operationModeEnums = new Dictionary<string, QueryStoreOperationMode>();
+        private static readonly Dictionary<string, QueryStoreCaptureMode> captureModeEnums = new Dictionary<string, QueryStoreCaptureMode>();
+        private static readonly Dictionary<string, int> statisticsCollectionIntervalValues = new Dictionary<string, int>();
+        private static readonly Dictionary<string, int> queryStoreStaleThresholdValues = new Dictionary<string, int>();
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
-        internal static readonly string[] DscOnOffOptions;
+        internal static readonly string[] PropertiesOnOffOptions;
         internal static readonly string[] DscElevateOptions;
         internal static readonly string[] DscEnableDisableOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
@@ -89,13 +99,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayFileTypes.TryAdd(FileType.Log, SR.prototype_file_logFile);
             displayFileTypes.TryAdd(FileType.FileStream, SR.prototype_file_filestreamFile);
 
-            DscOnOffOptions = new[]{
-                CommonConstants.DatabaseScopedConfigurations_Value_On,
-                CommonConstants.DatabaseScopedConfigurations_Value_Off
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.Off, CommonConstants.QueryStoreOperationMode_Off);
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadOnly, CommonConstants.QueryStoreOperationMode_ReadOnly);
+            displayOperationModeOptions.TryAdd(QueryStoreOperationMode.ReadWrite, CommonConstants.QueryStoreOperationMode_ReadWrite);
+
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.All, SR.querystorecapturemode_all);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Auto, SR.querystorecapturemode_auto);
+            displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.None, SR.querystorecapturemode_none);
+
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1, SR.statisticsCollectionInterval_OneMinute);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(5, SR.statisticsCollectionInterval_FiveMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(10, SR.statisticsCollectionInterval_TenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(15, SR.statisticsCollectionInterval_FifteenMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(30, SR.statisticsCollectionInterval_ThirtyMinutes);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(60, SR.statisticsCollectionInterval_OneHour);
+            displayStatisticsCollectionIntervalInMinutes.TryAdd(1440, SR.statisticsCollectionInterval_OneDay);
+
+            displayQueryStoreStaleThresholdInHours.TryAdd(1, SR.queryStore_stale_threshold_OneHour);
+            displayQueryStoreStaleThresholdInHours.TryAdd(4, SR.queryStore_stale_threshold_FourHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(8, SR.queryStore_stale_threshold_EightHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(12, SR.queryStore_stale_threshold_TwelveHours);
+            displayQueryStoreStaleThresholdInHours.TryAdd(24, SR.queryStore_stale_threshold_OneDay);
+            displayQueryStoreStaleThresholdInHours.TryAdd(72, SR.queryStore_stale_threshold_ThreeDays);
+            displayQueryStoreStaleThresholdInHours.TryAdd(168, SR.queryStore_stale_threshold_SevenDays);
+
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, SR.queryStoreSizeBasedCleanupMode_Off);
+            displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, SR.queryStoreSizeBasedCleanupMode_Auto);
+
+            PropertiesOnOffOptions = new[]{
+                CommonConstants.PropertiesDropdown_Value_On,
+                CommonConstants.PropertiesDropdown_Value_Off
             };
 
             DscElevateOptions = new[]{
-                CommonConstants.DatabaseScopedConfigurations_Value_Off,
+                CommonConstants.PropertiesDropdown_Value_Off,
                 CommonConstants.DatabaseScopedConfigurations_Value_When_supported,
                 CommonConstants.DatabaseScopedConfigurations_Value_Fail_Unsupported
             };
@@ -123,6 +160,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 fileTypesEnums.Add(displayFileTypes[key], key);
             }
+            foreach (QueryStoreOperationMode key in displayOperationModeOptions.Keys)
+            {
+                operationModeEnums.Add(displayOperationModeOptions[key], key);
+            }
+            foreach (QueryStoreCaptureMode key in displayQueryStoreCaptureModeOptions.Keys)
+            {
+                captureModeEnums.Add(displayQueryStoreCaptureModeOptions[key], key);
+            }
+            foreach (KeyValuePair<int, string> pair in displayStatisticsCollectionIntervalInMinutes)
+            {
+                statisticsCollectionIntervalValues.Add(pair.Value, pair.Key);
+            }
+            foreach (KeyValuePair<int, string> pair in displayQueryStoreStaleThresholdInHours)
+            {
+                queryStoreStaleThresholdValues.Add(pair.Value, pair.Key);
+            }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
             var editions = AzureSqlDbHelper.GetValidAzureEditionOptions();
@@ -144,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject, requestParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.IsNewObject, requestParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
@@ -202,6 +255,38 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
                                 ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
                                 ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
+                                if (prototype is DatabasePrototype130)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions = new QueryStoreOptions()
+                                    {
+                                        ActualMode = displayOperationModeOptions[smoDatabase.QueryStoreOptions.ActualState],
+                                        DataFlushIntervalInMinutes = smoDatabase.QueryStoreOptions.DataFlushIntervalInSeconds / 60,
+                                        StatisticsCollectionInterval = displayStatisticsCollectionIntervalInMinutes[(int)smoDatabase.QueryStoreOptions.StatisticsCollectionIntervalInMinutes],
+                                        MaxPlansPerQuery = smoDatabase.QueryStoreOptions.MaxPlansPerQuery,
+                                        MaxSizeInMB = smoDatabase.QueryStoreOptions.MaxStorageSizeInMB,
+                                        QueryStoreCaptureMode = smoDatabase.QueryStoreOptions.QueryCaptureMode.ToString(),
+                                        SizeBasedCleanupMode = smoDatabase.QueryStoreOptions.SizeBasedCleanupMode.ToString(),
+                                        StaleQueryThresholdInDays = smoDatabase.QueryStoreOptions.StaleQueryThresholdInDays,
+                                        CurrentStorageSizeInMB = smoDatabase.QueryStoreOptions.CurrentStorageSizeInMB
+                                    };
+                                    if (prototype is DatabasePrototype140)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.WaitStatisticsCaptureMode = smoDatabase.QueryStoreOptions.WaitStatsCaptureMode.ToString();
+                                    };
+                                    if (prototype is DatabasePrototype150)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).QueryStoreOptions!.CapturePolicyOptions = new QueryStoreCapturePolicyOptions()
+                                        {
+                                            ExecutionCount = smoDatabase.QueryStoreOptions.CapturePolicyExecutionCount,
+                                            StaleThreshold = displayQueryStoreStaleThresholdInHours[(int)smoDatabase.QueryStoreOptions.CapturePolicyStaleThresholdInHrs],
+                                            TotalCompileCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS,
+                                            TotalExecutionCPUTimeInMS = smoDatabase.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS
+                                        };
+
+                                        // Sql Server 2019 and higher only support the custom query store capture mode
+                                        displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, SR.querystorecapturemode_custom);
+                                    }
+                                }
                             }
                             if (!isManagedInstance)
                             {
@@ -216,6 +301,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     // Files tab is only supported in SQL Server, but files exists for all servers and used in detach database, cannot depend on files property to check the supportability
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsFilesTabSupported = true;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).Filegroups = GetFileGroups(smoDatabase, databaseViewInfo);
+                                    try
+                                    {
+                                        // ServerFilestreamAccessLevel uses xp_instance_regread so will throw if that isn't available. In that case we just default to Disabled to ensure the UI reflects that
+                                        databaseViewInfo.ServerFilestreamAccessLevel = dataContainer.Server.FilestreamLevel;
+                                    }
+                                    catch (PropertyCannotBeRetrievedException ex)
+                                    {
+                                        // Cannot retrieve FilestreamLevel, defaulting to disabled level
+                                        databaseViewInfo.ServerFilestreamAccessLevel = FileStreamEffectiveLevel.Disabled;
+                                        Logger.Error($"Cannot retrieve FilestreamLevel, defaulting to disabled level. Error: '{ex.Message}'");
+                                    }
                                 }
 
                                 if (prototype is DatabasePrototype160)
@@ -226,9 +322,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
                         }
-                        databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
+                        databaseViewInfo.PropertiesOnOffOptions = PropertiesOnOffOptions;
                         databaseViewInfo.DscElevateOptions = DscElevateOptions;
                         databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
+                        databaseViewInfo.OperationModeOptions = displayOperationModeOptions.Values.ToArray();
+                        databaseViewInfo.QueryStoreCaptureModeOptions = displayQueryStoreCaptureModeOptions.Values.ToArray();
+                        databaseViewInfo.StatisticsCollectionIntervalOptions = displayStatisticsCollectionIntervalInMinutes.Values.ToArray();
+                        databaseViewInfo.StaleThresholdOptions = displayQueryStoreStaleThresholdInHours.Values.ToArray();
+                        databaseViewInfo.SizeBasedCleanupModeOptions = displaySizeBasedCleanupMode.Values.ToArray();
                     }
 
                     // azure sql db doesn't have a sysadmin fixed role
@@ -329,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Detach(DetachDatabaseRequestParams detachParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, detachParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, false, detachParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -376,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                    throw new InvalidOperationException($"Could not find database '{detachParams.Database}'.");
                 }
             }
             return sqlScript;
@@ -407,7 +508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var sqlScript = string.Empty;
             ConnectionInfo connectionInfo = this.GetConnectionInfo(attachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true, null))
+            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, true, string.Empty))
             {
                 var server = dataContainer.Server!;
                 var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
@@ -463,7 +564,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, dropParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, false, dropParams.Database))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -535,31 +636,50 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Provided URN '{dropParams.ObjectUrn}' did not correspond to an existing database.");
+                    throw new InvalidOperationException($"Could not find database '{dropParams.Database}'.");
                 }
             }
             return sqlScript;
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
+        /// <summary>
+        /// Clears all query store data from the database
+        /// </summary>
+        /// <param name="purgeParams"></param>
+        public void PurgeQueryStoreData(PurgeQueryStoreDataRequestParams purgeParams)
+        {
+            using (var dataContainer = CreateDatabaseDataContainer(purgeParams.ConnectionUri, false, purgeParams.Database))
+            {
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
+                {
+                    smoDatabase.QueryStoreOptions.PurgeQueryStoreData();
+                }
+            }
+        }
+
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, bool isNewDatabase, string databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
             try
             {
+                string objectURN;
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[@Name='{0}']", Urn.EscapeString(databaseName));
+                }
+                else
+                {
+                    objectURN = "Server";
                 }
                 CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
                 if (dataContainer.Server == null)
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-                if (string.IsNullOrEmpty(objectURN))
-                {
-                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
-                }
+
                 dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
                 return dataContainer;
             }
@@ -576,7 +696,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject, viewParams.Database))
+            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.IsNewObject, viewParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
@@ -683,6 +803,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 }
                             }
                             db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
+                        }
+
+                        if (!viewParams.IsNewObject && database.QueryStoreOptions != null)
+                        {
+                            // Sql Server 2019 and higher supports custom query store capture mode
+                            captureModeEnums.TryAdd(SR.querystorecapturemode_custom, QueryStoreCaptureMode.Custom);
+                            db130.QueryStoreOptions.DesiredState = operationModeEnums[database.QueryStoreOptions.ActualMode];
+                            db130.QueryStoreOptions.DataFlushIntervalInSeconds = database.QueryStoreOptions.DataFlushIntervalInMinutes * 60;
+                            db130.QueryStoreOptions.StatisticsCollectionIntervalInMinutes = statisticsCollectionIntervalValues[database.QueryStoreOptions.StatisticsCollectionInterval];
+                            db130.QueryStoreOptions.MaxPlansPerQuery = database.QueryStoreOptions.MaxPlansPerQuery;
+                            db130.QueryStoreOptions.MaxStorageSizeInMB = database.QueryStoreOptions.MaxSizeInMB;
+                            db130.QueryStoreOptions.QueryCaptureMode = captureModeEnums[database.QueryStoreOptions.QueryStoreCaptureMode];
+                            db130.QueryStoreOptions.SizeBasedCleanupMode = database.QueryStoreOptions.SizeBasedCleanupMode == SR.queryStoreSizeBasedCleanupMode_Off ? QueryStoreSizeBasedCleanupMode.Off : QueryStoreSizeBasedCleanupMode.Auto;
+                            db130.QueryStoreOptions.StaleQueryThresholdInDays = database.QueryStoreOptions.StaleQueryThresholdInDays;
+                            if (prototype is DatabasePrototype140 db140 && database.QueryStoreOptions.WaitStatisticsCaptureMode != null)
+                            {
+                                db140.QueryStoreOptions.WaitStatsCaptureMode = database.QueryStoreOptions.WaitStatisticsCaptureMode == CommonConstants.PropertiesDropdown_Value_On ? QueryStoreWaitStatsCaptureMode.On : QueryStoreWaitStatsCaptureMode.Off;
+                            }
+
+                            if (prototype is DatabasePrototype150 db150 && database.QueryStoreOptions.QueryStoreCaptureMode == SR.querystorecapturemode_custom
+                                && database.QueryStoreOptions.CapturePolicyOptions != null)
+                            {
+                                db150.QueryStoreOptions.CapturePolicyExecutionCount = database.QueryStoreOptions.CapturePolicyOptions.ExecutionCount;
+                                db150.QueryStoreOptions.CapturePolicyStaleThresholdInHrs = queryStoreStaleThresholdValues[database.QueryStoreOptions.CapturePolicyOptions.StaleThreshold];
+                                db150.QueryStoreOptions.CapturePolicyTotalCompileCpuTimeInMS = database.QueryStoreOptions.CapturePolicyOptions.TotalCompileCPUTimeInMS;
+                                db150.QueryStoreOptions.CapturePolicyTotalExecutionCpuTimeInMS = database.QueryStoreOptions.CapturePolicyOptions.TotalCompileCPUTimeInMS;
+
+                            }
                         }
                     }
 

@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     {
                         if (!request.Options.ContainsKey(item.Key))
                         {
-                            request.Options.Add(item.Key, item.Value);
+                            request.Options.TryAdd(item.Key, item.Value);
                         }
                     }
                 }

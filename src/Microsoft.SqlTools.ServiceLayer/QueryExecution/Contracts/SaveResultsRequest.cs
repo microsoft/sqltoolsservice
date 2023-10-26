@@ -115,6 +115,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Include headers of columns in Excel 
         /// </summary>
         public bool IncludeHeaders { get; set; }
+
+        /// <summary>
+        /// Freeze header row in Excel 
+        /// </summary>
+        public bool FreezeHeaderRow { get; set; }
+
+        /// <summary>
+        /// Bold header row in Excel 
+        /// </summary>
+        public bool BoldHeaderRow { get; set; }
+
+        /// <summary>
+        /// Enable auto filter on header row in Excel 
+        /// </summary>
+        public bool AutoFilterHeaderRow { get; set; }
+
+        /// <summary>
+        /// Auto size columns in Excel 
+        /// </summary>
+        public bool AutoSizeColumns { get; set; }
     }
 
     /// <summary>

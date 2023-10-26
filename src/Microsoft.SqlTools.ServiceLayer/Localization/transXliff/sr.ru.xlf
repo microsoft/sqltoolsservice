@@ -7259,6 +7259,117 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Не удалось создать сценарии контекстуализации сервера.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FailedToFindConnectionInfoAboutTheServer">
+        <source>Failed to find connection info about the server</source>
+        <target state="translated">Не удалось найти информацию о подключении к серверу</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_all">
+        <source>All</source>
+        <target state="translated">Все</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_auto">
+        <source>Auto</source>
+        <target state="translated">Автоматически</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_none">
+        <source>None</source>
+        <target state="translated">Нет</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="querystorecapturemode_custom">
+        <source>Custom</source>
+        <target state="translated">Настраиваемое</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStoreSizeBasedCleanupMode_Off">
+        <source>Off</source>
+        <target state="translated">Откл.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStoreSizeBasedCleanupMode_Auto">
+        <source>Auto</source>
+        <target state="translated">Автоматически</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneMinute">
+        <source>1 Minute</source>
+        <target state="translated">1 минута</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_FiveMinutes">
+        <source>5 Minutes</source>
+        <target state="translated">5 минут</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_TenMinutes">
+        <source>10 Minutes</source>
+        <target state="translated">10 минут</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_FifteenMinutes">
+        <source>15 Minutes</source>
+        <target state="translated">15 минут</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_ThirtyMinutes">
+        <source>30 Minutes</source>
+        <target state="translated">30 минут</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneHour">
+        <source>1 Hour</source>
+        <target state="translated">1 час</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="statisticsCollectionInterval_OneDay">
+        <source>1 Day</source>
+        <target state="translated">1 день</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_OneHour">
+        <source>1 Hour</source>
+        <target state="translated">1 час</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_FourHours">
+        <source>4 Hours</source>
+        <target state="translated">4 часа</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_EightHours">
+        <source>8 Hours</source>
+        <target state="translated">8 часов</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_TwelveHours">
+        <source>12 Hours</source>
+        <target state="translated">12 часов</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_OneDay">
+        <source>1 Day</source>
+        <target state="translated">1 день</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_ThreeDays">
+        <source>3 Days</source>
+        <target state="translated">3 дня</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="queryStore_stale_threshold_SevenDays">
+        <source>7 Days</source>
+        <target state="translated">7 дней</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidDspFormatError">
+        <source>Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</source>
+        <target state="translated">Недопустимое значение поставщика схемы базы данных: '{0}'; должно быть 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</target>
+        <note>.
+ Parameters: 0 - dsp (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

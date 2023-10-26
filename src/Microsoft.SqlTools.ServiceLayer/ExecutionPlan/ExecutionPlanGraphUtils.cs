@@ -442,12 +442,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
         private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph g, string fileName)
         {
-            return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
+            var recommendations =  g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
             {
                 DisplayString = mi.MissingIndexCaption,
                 Query = mi.MissingIndexQueryText,
                 QueryWithDescription = ParseMissingIndexQueryText(fileName, mi.MissingIndexImpact, mi.MissingIndexDatabase, mi.MissingIndexQueryText)
             }).ToList();
+
+            return recommendations;
         }
 
         /// <summary>
@@ -460,7 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         /// <returns></returns>
         private static string ParseMissingIndexQueryText(string fileName, string impact, string database, string query)
         {
-            return $@"{SR.MissingIndexDetailsTitle(fileName, impact)}
+            var missingIndexQueryText = $@"{SR.MissingIndexDetailsTitle(fileName, impact)}
 
 /*
 {string.Format("USE {0}", database)}
@@ -469,6 +471,8 @@ GO
 GO
 */
 ";
+
+            return missingIndexQueryText;
         }
 
         private static string GetPropertyDisplayValue(PropertyValue? property)

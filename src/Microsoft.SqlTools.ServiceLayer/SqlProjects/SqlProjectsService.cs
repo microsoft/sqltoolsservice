@@ -117,7 +117,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(async () =>
             {
-                await SqlProject.CreateProjectAsync(requestParams.ProjectUri, new SqlServer.Dac.Projects.CreateSqlProjectParams() { ProjectType = requestParams.SqlProjectType, DspVersion = requestParams.DatabaseSchemaProvider });
+                SqlServer.Dac.Projects.CreateSqlProjectParams createParams = new()
+                {
+                    ProjectType = requestParams.SqlProjectType,
+                    TargetPlatform = requestParams.DatabaseSchemaProvider == null ? null : Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider),
+                    BuildSdkVersion = requestParams.BuildSdkVersion
+                };
+
+                await SqlProject.CreateProjectAsync(requestParams.ProjectUri, createParams);
                 this.GetProject(requestParams.ProjectUri); // load into the cache
             }, requestContext);
         }
@@ -169,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.DatabaseSchemaProvider = requestParams.DatabaseSchemaProvider, requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
         }
 
         #endregion

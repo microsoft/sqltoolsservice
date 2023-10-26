@@ -70,6 +70,10 @@ steps:
       $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
 
+- task: CodeQL3000Init@0
+  displayName: 'CodeQL Initialize'
+  condition: eq(variables['Codeql.enabled'], 'True')
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
@@ -89,6 +93,12 @@ steps:
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet restore test/Microsoft.SqlTools.Authentication.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.SqlTools.Authentication.UnitTests
+
+- task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
@@ -102,6 +112,14 @@ steps:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test test/Microsoft.SqlTools.Authentication.UnitTests'
+  inputs:
+    command: test
+    projects: test/Microsoft.SqlTools.Authentication.UnitTests
+    testRunTitle: SqlTools.Authentication.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - script: |
@@ -370,6 +388,10 @@ steps:
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg'
     feedPublish: 'mssqltools'
     allowPackageConflicts: true
+
+- task: CodeQL3000Finalize@0
+  displayName: 'CodeQL Finalize'
+  condition: eq(variables['Codeql.enabled'], 'True')
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'

@@ -5,8 +5,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Azure.Core;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.SqlCore.Scripting
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         /// <param name="parameters">scripting parameters that contains the object to script and the scripting options</param>
         /// <param name="accessToken">access token to connect to the server. To be used in case of AAD based connections</param>
         /// <returns>script as script</returns>
-        public static async Task<string> GetScriptAsScript(ScriptingParams parameters, ServerConnection? serverConnection, AccessToken? accessToken)
+        public static async Task<string> GetScriptAsScript(ScriptingParams parameters, ServerConnection? serverConnection, SecurityToken? accessToken)
         {
             var scriptAsOperation = new ScriptAsScriptingOperation(parameters, accessToken?.Token);
             return await ExecuteScriptAs(scriptAsOperation);

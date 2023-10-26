@@ -47,6 +47,7 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
 using Microsoft.SqlServer.Migration.Tde;
 using Microsoft.SqlServer.Migration.Tde.Common;
+using Microsoft.SqlServer.Migration.Tde.Validations;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Migration.Contracts;
@@ -114,9 +115,10 @@ namespace Microsoft.SqlTools.Migration
             this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
             this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
             this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
+            this.ServiceHost.SetRequestHandler(TdeValidationRequest.Type, HandleTdeValidationRequest);
+            this.ServiceHost.SetRequestHandler(TdeValidationTitlesRequest.Type, HandleTdeValidationTitlesRequest);
             Logger.Verbose("Migration Service initialized");
         }
-
 
         /// <summary>
         /// Handle request to start a migration session
@@ -524,7 +526,8 @@ namespace Microsoft.SqlTools.Migration
             {
                 EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
                 ScalingFactor = parameters.ScalingFactor / 100.0,
-                TargetEnvironment = TargetEnvironmentType.Production
+                TargetEnvironment = TargetEnvironmentType.Production,
+                IsPremiumSSDV2Enabled = parameters.IsPremiumSSDV2Enabled,
             };
 
             // generate SQL DB recommendations, if applicable
@@ -975,6 +978,24 @@ namespace Microsoft.SqlTools.Migration
             }
 
             await requestContext.SendResult(result);
+        }
+
+        internal async Task HandleTdeValidationRequest(
+            TdeValidationParams parameters,
+            RequestContext<TdeValidationResult[]> requestContext)
+        {
+            TdeValidationResult[] result = 
+                await TdeMigration.RunTdeValidation(
+                   parameters.SourceSqlConnectionString,
+                   parameters.NetworkSharePath);
+            await requestContext.SendResult(result);
+        }
+
+        internal async Task HandleTdeValidationTitlesRequest(
+            TdeValidationTitlesParams parameters,
+            RequestContext<string[]> requestContext)
+        {
+            await requestContext.SendResult(TdeMigration.TdeValidationTitles);
         }
 
         /// <summary>

@@ -48,6 +48,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
         }
 
+        [Category("Category_QueryStoreOptions")]
+        public QueryStoreOptions QueryStoreOptions
+        {
+            get
+            {
+                return this.currentState.queryStoreOptions;
+            }
+            set
+            {
+                this.currentState.queryStoreOptions = value;
+                this.NotifyObservers();
+            }
+        }
+
         protected override void SaveProperties(Database db)
         {
             base.SaveProperties(db);
@@ -64,6 +78,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     && !secondaryValUnsupportedPropsSet.Contains(db.DatabaseScopedConfigurations[i].Id))
                 {
                     db.DatabaseScopedConfigurations[i].ValueForSecondary = this.currentState.databaseScopedConfigurations[i].ValueForSecondary;
+                }
+            }
+
+            if (db.IsSupportedObject<QueryStoreOptions>() && this.currentState.queryStoreOptions != null)
+            {
+                if (!this.Exists || (db.QueryStoreOptions.DesiredState != this.currentState.queryStoreOptions.DesiredState))
+                {
+                    db.QueryStoreOptions.DesiredState = this.currentState.queryStoreOptions.DesiredState;
+                }
+
+                if (this.currentState.queryStoreOptions.DesiredState != QueryStoreOperationMode.Off)
+                {
+                    if (!this.Exists || (db.QueryStoreOptions.DataFlushIntervalInSeconds != this.currentState.queryStoreOptions.DataFlushIntervalInSeconds))
+                    {
+                        db.QueryStoreOptions.DataFlushIntervalInSeconds = this.currentState.queryStoreOptions.DataFlushIntervalInSeconds;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.StatisticsCollectionIntervalInMinutes != this.currentState.queryStoreOptions.StatisticsCollectionIntervalInMinutes))
+                    {
+                        db.QueryStoreOptions.StatisticsCollectionIntervalInMinutes = this.currentState.queryStoreOptions.StatisticsCollectionIntervalInMinutes;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.MaxPlansPerQuery != this.currentState.queryStoreOptions.MaxPlansPerQuery))
+                    {
+                        db.QueryStoreOptions.MaxPlansPerQuery = this.currentState.queryStoreOptions.MaxPlansPerQuery;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.MaxStorageSizeInMB != this.currentState.queryStoreOptions.MaxStorageSizeInMB))
+                    {
+                        db.QueryStoreOptions.MaxStorageSizeInMB = this.currentState.queryStoreOptions.MaxStorageSizeInMB;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.QueryCaptureMode != this.currentState.queryStoreOptions.QueryCaptureMode))
+                    {
+                        db.QueryStoreOptions.QueryCaptureMode = this.currentState.queryStoreOptions.QueryCaptureMode;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.SizeBasedCleanupMode != this.currentState.queryStoreOptions.SizeBasedCleanupMode))
+                    {
+                        db.QueryStoreOptions.SizeBasedCleanupMode = this.currentState.queryStoreOptions.SizeBasedCleanupMode;
+                    }
+
+                    if (!this.Exists || (db.QueryStoreOptions.StaleQueryThresholdInDays != this.currentState.queryStoreOptions.StaleQueryThresholdInDays))
+                    {
+                        db.QueryStoreOptions.StaleQueryThresholdInDays = this.currentState.queryStoreOptions.StaleQueryThresholdInDays;
+                    }
                 }
             }
         }

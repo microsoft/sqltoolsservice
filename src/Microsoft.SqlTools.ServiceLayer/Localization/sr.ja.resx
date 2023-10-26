@@ -4420,4 +4420,70 @@
   <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
     <value>サーバー コンテキスト化スクリプトを生成できませんでした</value>
   </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>サーバーに関する接続情報が見つかりませんでした</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>カスタム</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 分</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 分</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 分</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 分</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 分</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 時間</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 日</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 時間</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 時間</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 時間</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 時間</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 日</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 日</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 日</value>
+  </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>データベース スキーマ プロバイダー '{0}' の値が無効です。'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider' の形式である必要があります。</value>
+  </data>
 </root>

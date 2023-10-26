@@ -157,6 +157,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             get { return this.GetOptionValue<int>(SerializationOptionsHelper.MaxCharsToStore); }
             set { this.SetOptionValue<int>(SerializationOptionsHelper.Formatted, value); }
         }
+
+        public bool FreezeHeaderRow
+        {
+            get { return this.GetOptionValue<bool>(SerializationOptionsHelper.FreezeHeaderRow); }
+            set { this.SetOptionValue<bool>(SerializationOptionsHelper.FreezeHeaderRow, value); }
+        }
+
+        public bool BoldHeaderRow
+        {
+            get { return this.GetOptionValue<bool>(SerializationOptionsHelper.BoldHeaderRow); }
+            set { this.SetOptionValue<bool>(SerializationOptionsHelper.BoldHeaderRow, value); }
+        }
+
+        public bool AutoFilterHeaderRow
+        {
+            get { return this.GetOptionValue<bool>(SerializationOptionsHelper.AutoFilterHeaderRow); }
+            set { this.SetOptionValue<bool>(SerializationOptionsHelper.AutoFilterHeaderRow, value); }
+        }
+
+        public bool AutoSizeColumns
+        {
+            get { return this.GetOptionValue<bool>(SerializationOptionsHelper.AutoSizeColumns); }
+            set { this.SetOptionValue<bool>(SerializationOptionsHelper.AutoSizeColumns, value); }
+        }
     }
 
     public class SerializeDataResult
@@ -184,5 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         internal const string Encoding = "encoding";
         internal const string Formatted = "formatted";
         internal const string MaxCharsToStore = "maxchars";
+        internal const string FreezeHeaderRow = "freezeHeaderRow";
+        internal const string BoldHeaderRow = "boldHeaderRow";
+        internal const string AutoFilterHeaderRow = "autoFilterHeaderRow";
+        internal const string AutoSizeColumns = "autoSizeColumns";
     }
 }

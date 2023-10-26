@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
 
-        public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
+        public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for Microsoft Entra tokens
 
         // SQL Error Code Constants
         // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
@@ -329,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Requests an update of the azure auth token
+        /// Requests an update of the Microsoft Entra auth token
         /// </summary>
         /// <param name="refreshToken">The token to update</param>
         /// <returns>true upon successful update, false if it failed to find
@@ -952,7 +952,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
-            // open editors that have requested a refreshed AAD token.
+            // open editors that have requested a refreshed Microsoft Entra token.
             this.TokenUpdateUris.Remove(disconnectParams.OwnerUri, out bool result);
 
             // Call Close() on the connections we want to disconnect
@@ -1102,7 +1102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 if (commandOptions.EnableSqlAuthenticationProvider)
                 {
-                    // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
+                    // Register SqlAuthenticationProvider with SqlConnection for Microsoft Entra Interactive (MFA) authentication.
                     var provider = new AuthenticationProvider(GetAuthenticator(commandOptions));
                     SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
@@ -1187,7 +1187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
-            return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName), () => this.encryptionKeys);
+            return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName, commandOptions.HttpProxyUrl, commandOptions.HttpProxyStrictSSL), () => this.encryptionKeys);
         }
 
         private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
@@ -1936,7 +1936,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
 
-                // Fill in Azure authentication token if needed
+                // Fill in Microsoft Entra authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                 {
                     sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
