@@ -922,6 +922,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Lookup the ConnectionInfo owned by the URI
             if(OwnerToConnectionMap.TryRemove(originalOwnerUri, out ConnectionInfo info))
             {
+                info.OwnerUri = newOwnerUri;
                 return OwnerToConnectionMap.TryAdd(newOwnerUri, info);
             }
             return false;
