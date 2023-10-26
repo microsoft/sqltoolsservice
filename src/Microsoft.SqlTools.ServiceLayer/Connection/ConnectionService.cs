@@ -577,8 +577,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 DbConnection underlyingConnection = reliableConnection != null
                     ? reliableConnection.GetUnderlyingConnection()
                     : connection;
-
-                response.SPID = (underlyingConnection as SqlConnection).ServerProcessId;
+                
+                var pid = (underlyingConnection as SqlConnection).ServerProcessId;
+                if (pid != 0) {
+                    response.PID = pid.ToString();
+                }
 
                 ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(underlyingConnection);
                 response.ServerInfo = new ServerInfo

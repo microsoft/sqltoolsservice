@@ -66,9 +66,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string? UnsupportedVersionMessage { get; set; }
 
         /// <summary>
-        /// Server Process ID for the connection, if the connection was successful.
+        /// Process ID for the connection, if the connection was successful.
         /// </summary>
-        public int? SPID { get; set; }
+        public string? PID { get; set; }
     }
 
     /// <summary>

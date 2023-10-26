@@ -289,9 +289,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasErrored { get; private set; }
 
         /// <summary>
-        /// The SPID of the query when connected.
+        /// The Process ID of the query when connected.
         /// </summary>
-        public int SPID { get; private set; }
+        public string PID { get; private set; }
 
         /// <summary>
         /// The text of the query to execute
@@ -496,8 +496,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (sqlConn != null)
                     {
-                        // Update SPID here as it may change upon restart and only updates upon query execution.
-                        SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        // Update PID here as it may change upon restart and only updates upon query execution.
+                        var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (intPID != 0) {
+                            PID = intPID.ToString();
+                        }
                     }
                     await QueryCompleted(this);
                 }
@@ -526,7 +529,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
-                    SPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                    var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                    if (intPID != 0) {
+                        PID = intPID.ToString();
+                    }
                 }
 
                 // If any message notified us we had changed databases, then we must let the connection service know 
