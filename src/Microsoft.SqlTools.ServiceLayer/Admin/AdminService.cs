@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
-        /// Handle get database info request
+        /// Handle get database data folder info request
         /// </summary>
         internal static async Task HandleGetDataFolderRequest(
             GetDataFolderParams databaseParams,
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
-        /// Handle get database info request
+        /// Handle get database backup folder info request
         /// </summary>
         internal static async Task HandleGetBackupFolderRequest(
             GetBackupFolderParams databaseParams,
