@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private CancellationTokenSource messageLoopCancellationToken =
             new CancellationTokenSource();
 
+        private SemaphoreSlim semaphore;
         #endregion
 
         #region Properties
@@ -61,13 +62,17 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         protected MessageWriter MessageWriter { get; private set; }
 
-
         /// <summary>
         /// Whether the message should be handled without blocking the main thread.
         /// </summary>
         public bool ParallelMessageProcessing { get; set; }
 
-
+        /// <summary>
+        /// The maximum number of parallel operations that can be queued without blocking the main thread.
+        /// Defaults to 100. This should be optimal to maintain a healthy application runtime state.
+        /// If users need more parallel operations depending on if their systems support the same, they can always increase the limit.
+        /// </summary>
+        public int ParallelMessageProcessingLimit { get; set; } = 100;
         #endregion
 
         #region Constructors
@@ -85,6 +90,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void Start()
         {
+            // Initialize semaphore for Parallel message processing using 10 initial requests.
+            var initialSemaphoreLimit = ParallelMessageProcessingLimit <= 10 ? ParallelMessageProcessingLimit : 10;
+            semaphore = new SemaphoreSlim(initialSemaphoreLimit, ParallelMessageProcessingLimit);
+
             // Start the main message loop thread.  The Task is
             // not explicitly awaited because it is running on
             // an independent background thread.
