@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
@@ -44,16 +45,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Map from context keys to binding context instances
         /// Internal for testing purposes only
         /// </summary>
-        internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
+        internal ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
 
-        internal Dictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new Dictionary<IBindingContext, Task>();
+        internal ConcurrentDictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new();
 
         /// <summary>
         /// Constructor for a binding queue instance
         /// </summary>
         public BindingQueue()
         {
-            this.BindingContextMap = new Dictionary<string, IBindingContext>();
+            this.BindingContextMap = new();
             this.StartQueueProcessor();
         }
 
@@ -149,8 +150,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!this.BindingContextMap.ContainsKey(key))
                 {
                     var bindingContext = new T();
-                    this.BindingContextMap.Add(key, bindingContext);
-                    this.BindingContextTasks.Add(bindingContext, Task.Run(() => null));
+                    this.BindingContextMap.TryAdd(key, bindingContext);
+                    this.BindingContextTasks.TryAdd(bindingContext, Task.Run(() => null));
                 }
 
                 return this.BindingContextMap[key];
@@ -203,8 +204,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
 
                     // remove key from the map
-                    this.BindingContextMap.Remove(key);
-                    this.BindingContextTasks.Remove(bindingContext);
+                    this.BindingContextMap.TryRemove(key, out _);
+                    this.BindingContextTasks.TryRemove(bindingContext, out _);
                 }
             }
         }

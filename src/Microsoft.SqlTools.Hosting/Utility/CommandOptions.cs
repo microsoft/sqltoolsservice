@@ -82,6 +82,13 @@ namespace Microsoft.SqlTools.Utility
                             case "-parallel-message-processing":
                                 ParallelMessageProcessing = true;
                                 break;
+                            case "-parallel-message-processing-limit":
+                                string limit = args[++i];
+                                if (Int32.TryParse(limit, out int limitValue))
+                                {
+                                    ParallelMessageProcessingLimit = limitValue;
+                                }
+                                break;
                             case "-enable-sql-authentication-provider":
                                 EnableSqlAuthenticationProvider = true;
                                 break;
@@ -89,10 +96,10 @@ namespace Microsoft.SqlTools.Utility
                                 EnableConnectionPooling = true;
                                 break;
                             case "-parent-pid":
-                                string nextArg = args[++i];
-                                if (Int32.TryParse(nextArg, out int parsedInt))
+                                string pid = args[++i];
+                                if (Int32.TryParse(pid, out int pidValue))
                                 {
-                                    ParentProcessId = parsedInt;
+                                    ParentProcessId = pidValue;
                                 }
                                 break;
                             default:
@@ -150,7 +157,7 @@ namespace Microsoft.SqlTools.Utility
         /// <summary>
         /// Specifies whether the proxy server certificate should be verified against the list of supplied CAs.
         /// </summary>
-        public bool HttpProxyStrictSSL {  get; private set; }
+        public bool HttpProxyStrictSSL { get; private set; }
 
         /// <summary>
         /// Name of service that is receiving command options
@@ -186,22 +193,28 @@ namespace Microsoft.SqlTools.Utility
         public bool AutoFlushLog { get; private set; } = false;
 
         /// <summary>
-        /// A temporary flag to decide whether the message handling should block the main thread.
-        /// Eventually we will fix the issues and make this the default behavior.
+        /// Enables parallel message processing when queueing tasks from dispatcher.
         /// </summary>
-        public bool ParallelMessageProcessing { get; private set; } = false;
+        public bool ParallelMessageProcessing { get; private set; } = true;
+
+        /// <summary>
+        /// The maximum number of parallel operations that can be queued without blocking the main thread.
+        /// Defaults to 100. This should be optimal to maintain a healthy application runtime state.
+        /// If users need more parallel operations depending on if their systems support the same, they can always increase the limit.
+        /// </summary>
+        public int ParallelMessageProcessingLimit { get; private set; } = 100;
 
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
         /// when user chooses 'Azure MFA'. This setting enables MSAL.NET to acquire token with SqlClient integration.
-        /// Currently this option is disabled by default, it's planned to be enabled by default in future releases.
+        /// This option is enabled by default.
         /// </summary>
-        public bool EnableSqlAuthenticationProvider { get; private set; } = false;
+        public bool EnableSqlAuthenticationProvider { get; private set; } = true;
 
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
         /// </summary>
-        public bool EnableConnectionPooling { get; private set; } = false;
+        public bool EnableConnectionPooling { get; private set; } = true;
 
         /// <summary>
         /// The ID of the process that started this service. This is used to check when the parent
