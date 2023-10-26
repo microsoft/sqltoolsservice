@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             langService.WorkspaceServiceInstance = workspaceService.Object;
             langService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            langService.ConnectionServiceInstance.OwnerToConnectionMap.Add(this.testScriptUri, connectionInfo);
+            langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(this.testScriptUri, connectionInfo);
             langService.BindingQueue = bindingQueue.Object;
 
             // setup the mock for SendResult
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ConnectedBindingContext bindingContext = new ConnectedBindingContext();
             bindingContext.Binder = binder.Object;
             bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-            langService.BindingQueue.BindingContextMap.Add(scriptParseInfo.ConnectionKey, bindingContext);
+            langService.BindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
         }
     }
 }

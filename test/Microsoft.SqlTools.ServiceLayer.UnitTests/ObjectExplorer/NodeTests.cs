@@ -351,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 defaultOwnerUri, defaultConnectionDetails);
             connectionInfo.AddConnection("Default", new SqlConnection());
 
-            connService.OwnerToConnectionMap.Add(defaultOwnerUri, connectionInfo);
+            connService.OwnerToConnectionMap.TryAdd(defaultOwnerUri, connectionInfo);
             ServiceProvider.RegisterSingleService(connService);
             return connService;
         }

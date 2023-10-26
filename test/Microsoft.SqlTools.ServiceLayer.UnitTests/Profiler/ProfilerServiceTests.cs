@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var profilerService = new ProfilerService();
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(testUri, connectionInfo);
             profilerService.XEventSessionFactory = new TestXEventSessionFactory();
 
             var requestParams = new StartProfilingParams
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.SessionMonitor.AddSessionListener(sessionListener);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(testUri, connectionInfo);
             profilerService.XEventSessionFactory = new TestXEventSessionFactory();
 
             var requestParams = new StopProfilingParams();
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(testUri, connectionInfo);
 
             var requestParams = new PauseProfilingParams();
             requestParams.OwnerUri = testUri;
@@ -240,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(testUri, connectionInfo);
 
             // start monitoring test session
             profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
@@ -352,7 +352,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             var connectionInfo = TestObjects.GetTestConnectionInfo();
-            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add("someUri", connectionInfo);
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd("someUri", connectionInfo);
 
             var listener = new TestSessionListener();
             profilerService.SessionMonitor.AddSessionListener(listener);

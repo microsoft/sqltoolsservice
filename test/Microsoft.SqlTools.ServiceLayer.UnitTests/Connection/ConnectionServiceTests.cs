@@ -17,13 +17,13 @@ using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
@@ -1372,7 +1372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a request to connect to a database, there should be no initial connections in the map
             var service = TestObjects.GetTestConnectionService();
-            Dictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
+            ConcurrentDictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
             Assert.AreEqual(0, ownerToConnectionMap.Count);
 
             // If we connect to the service, there should be 1 connection

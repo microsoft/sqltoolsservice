@@ -123,11 +123,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             // Not enabling parallel processing for OEService as it might cause OE to hang.
             // Register handlers for requests
-            serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
-            serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
-            serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
-            serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
-            serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest);
+            serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest, true);
+            serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest, true);
+            serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest, true);
+            serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest, true);
+            serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest, true);
             WorkspaceService<SqlToolsSettings> workspaceService = WorkspaceService;
             if (workspaceService != null)
             {
