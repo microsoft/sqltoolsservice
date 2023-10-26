@@ -176,7 +176,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest, true);
-            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
+            // Parallel Message processing must be disabled for Subset Request, as the requests must be adhered to in order of when they arrive.
+            // Executing in parallel can lead to randomly ordered results, for this reason we should keep it false.
+            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, false);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest, true);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest, true);
             serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
