@@ -309,6 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             BackupResponse response = new BackupResponse();
             ConnectionInfo connInfo;
+            SqlConnection sqlConn = null;
             try
             {
                 bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
@@ -318,23 +319,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     // Open a new connection to use for the backup, which will be closed when the backup task is completed
                     // (or an error occurs)
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
+                    sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
+                    BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+
+                    // create task metadata
+                    TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
+
+                    SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                    sqlTask.StatusChanged += (object sender, TaskEventArgs<SqlTaskStatus> e) =>
                     {
-                        BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
-
-                        // create task metadata
-                        TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
-
-                        SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-                        sqlTask.StatusChanged += (object sender, TaskEventArgs<SqlTaskStatus> e) =>
+                        SqlTask sqlTask = e.SqlTask;
+                        if (sqlTask != null && sqlTask.IsCompleted)
                         {
-                            SqlTask sqlTask = e.SqlTask;
-                            if (sqlTask != null && sqlTask.IsCompleted)
-                            {
-                                sqlConn.Dispose();
-                            }
-                        };
-                    }
+                            sqlConn.Dispose();
+                        }
+                    };
                 }
                 else
                 {
@@ -346,6 +345,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+                if (sqlConn != null)
+                {
+                    sqlConn.Dispose();
+                }
             }
         }
 
