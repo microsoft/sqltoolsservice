@@ -64,6 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions);
                 serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
+                serviceHost.MessageDispatcher.ParallelMessageProcessingLimit = commandOptions.ParallelMessageProcessingLimit;
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)

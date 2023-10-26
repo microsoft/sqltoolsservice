@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
+        internal ConcurrentDictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new ConcurrentDictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -925,15 +925,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool ReplaceUri(string originalOwnerUri, string newOwnerUri)
         {
             // Lookup the ConnectionInfo owned by the URI
-            ConnectionInfo info;
-            if (!OwnerToConnectionMap.TryGetValue(originalOwnerUri, out info))
+            if(OwnerToConnectionMap.TryRemove(originalOwnerUri, out ConnectionInfo info))
             {
-                return false;
+                info.OwnerUri = newOwnerUri;
+                return OwnerToConnectionMap.TryAdd(newOwnerUri, info);
             }
-            info.OwnerUri = newOwnerUri;
-            OwnerToConnectionMap.Remove(originalOwnerUri);
-            OwnerToConnectionMap.Add(newOwnerUri, info);
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -984,7 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // If the ConnectionInfo has no more connections, remove the ConnectionInfo
             if (info.CountConnections == 0)
             {
-                OwnerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                OwnerToConnectionMap.TryRemove(disconnectParams.OwnerUri, out _);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection
@@ -1165,15 +1162,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectParams connectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Verbose("HandleConnectRequest");
+            Logger.Verbose("ConnectionRequest");
 
             try
             {
                 RunConnectRequestHandlerTask(connectParams);
                 await requestContext.SendResult(true);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Error($"ConnectionRequest failed with exception: {ex}");
                 await requestContext.SendResult(false);
             }
         }
@@ -1200,6 +1198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
         {
+            Logger.Verbose("EncryptionKeysNotificationEvent");
             this.encryptionKeys = (@params.Key, @params.Iv);
             return Task.FromResult(true);
         }
@@ -1244,7 +1243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangePasswordParams changePasswordParams,
             RequestContext<PasswordChangeResponse> requestContext)
         {
-            Logger.Verbose("HandleChangePasswordRequest");
+            Logger.Verbose("ChangePasswordRequest");
             PasswordChangeResponse newResponse = new PasswordChangeResponse();
             try
             {
@@ -1308,7 +1307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             CancelConnectParams cancelParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Verbose("HandleCancelConnectRequest");
+            Logger.Verbose("CancelConnectRequest");
             bool result = CancelConnect(cancelParams);
             await requestContext.SendResult(result);
         }
@@ -1320,7 +1319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             DisconnectParams disconnectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Verbose("HandleDisconnectRequest");
+            Logger.Verbose("DisconnectRequest");
             bool result = Instance.Disconnect(disconnectParams);
             await requestContext.SendResult(result);
 
@@ -1650,6 +1649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             GetConnectionStringParams connStringParams,
             RequestContext<string> requestContext)
         {
+            Logger.Verbose("GetConnectionStringRequest");
             string connectionString = string.Empty;
             ConnectionInfo info;
             SqlConnectionStringBuilder connStringBuilder;
@@ -1684,14 +1684,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string connectionString,
             RequestContext<ConnectionDetails> requestContext)
         {
+            Logger.Verbose("BuildConnectionInfoRequest");
             try
             {
                 await requestContext.SendResult(ParseConnectionString(connectionString));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // If theres an error in the parse, it means we just can't parse, so we return undefined
                 // rather than an error.
+                Logger.Error($"BuildConnectionInfoRequest failed with exception: {ex}");
                 await requestContext.SendResult(null);
             }
         }
@@ -1704,6 +1706,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns></returns>
         public async Task HandleClearPooledConnectionsRequest(object _, RequestContext<bool> requestContext)
         {
+            Logger.Verbose("ClearPooledConnectionsRequest");
             // Run a detached task to clear pools in backend.
             await Task.Factory.StartNew(() => Task.Run(async () => {
 
@@ -1768,6 +1771,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangeDatabaseParams changeDatabaseParams,
             RequestContext<bool> requestContext)
         {
+            Logger.Verbose("ChangeDatabaseRequest");
             await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
         }
 
