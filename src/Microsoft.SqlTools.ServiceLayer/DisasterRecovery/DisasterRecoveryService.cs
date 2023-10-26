@@ -334,6 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             sqlConn.Dispose();
                         }
                     };
+                    response.Result = true;
                 }
                 else
                 {
