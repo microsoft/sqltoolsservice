@@ -16,6 +16,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -193,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// </summary>
             private class SystemPrincipalDirectory
             {
-                private Dictionary<PrincipalType, List<string>> systemPrincipalsMap;
+                private ConcurrentDictionary<PrincipalType, List<string>> systemPrincipalsMap;
                 private object connectionInfo;
                 private string databaseName;
 
@@ -201,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     this.connectionInfo = connectionInfo;
                     this.databaseName = databaseName;
-                    this.systemPrincipalsMap = new Dictionary<PrincipalType, List<string>>();
+                    this.systemPrincipalsMap = new();
                 }
 
                 /// <summary>
@@ -1198,8 +1199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 if (this.Exists)
                 {
-                    // STrace.Assert(systemPrincipals != null, "systemPrincipals is null");
-
                     string permissionsUrn = String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}/Permission", this.urn.ToString());
                     string[] fields = new string[] { "Grantee", "GranteeType" };
                     Request request = new Request(new Urn(permissionsUrn), fields);
@@ -1207,9 +1206,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     DataTable grantees = enumerator.Process(this.connectionInfo, request);
                     string databaseName = this.DatabaseName;
                     bool isDatabasePrincipal = (databaseName.Length != 0);
-
-                    // map from principal type to a list of system principals of that type
-                    Dictionary<PrincipalType, List<string>> systemPrincipalsMap = new Dictionary<PrincipalType, List<string>>();
 
                     for (int rowIndex = 0; rowIndex < grantees.Rows.Count; ++rowIndex)
                     {
