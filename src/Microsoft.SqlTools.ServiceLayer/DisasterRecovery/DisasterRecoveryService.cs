@@ -346,6 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+                Logger.Error(e);
                 if (sqlConn != null)
                 {
                     sqlConn.Dispose();
