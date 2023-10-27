@@ -496,7 +496,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (sqlConn != null)
                     {
-                        // Update PID here as it may change upon restart and only updates upon query execution.
+                        // Update PID here as it may change upon reconnect and only updates upon query execution.
                         var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
                         if (intPID != 0) {
                             PID = intPID.ToString();
@@ -519,6 +519,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Call the query failure callback
                 if (QueryFailed != null)
                 {
+                    if (sqlConn != null)
+                    {
+                        // Update PID here as it may change upon reconnect and only updates upon query execution.
+                        var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (intPID != 0) {
+                            PID = intPID.ToString();
+                        }
+                    }
                     await QueryFailed(this, e);
                 }
             }
@@ -529,10 +537,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
-                    var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-                    if (intPID != 0) {
-                        PID = intPID.ToString();
-                    }
                 }
 
                 // If any message notified us we had changed databases, then we must let the connection service know 
