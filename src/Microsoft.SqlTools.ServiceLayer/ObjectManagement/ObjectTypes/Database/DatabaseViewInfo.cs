@@ -54,5 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public string[] SourceDatabaseNames { get; set; }
         public string[] TargetDatabaseNames { get; set; }
+        public string[] RecoveryStateOptions { get; set; }
+        public string LastBackupTaken { get; set; }
     }
 }

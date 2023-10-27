@@ -381,6 +381,9 @@ RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
 NoBackupsetsToRestore = No backupset selected to be restored
 UnsupportedDeviceType(String deviceType, String engineEdition) = Unsupported device type {0} for engine edition {1}.
+RestoreWithRecovery = RESTORE WITH RECOVERY
+RestoreWithNoRecovery = RESTORE WITH NORECOVERY
+RestoreWithStandby = RESTORE WITH STANDBY
 
 ############################################################################
 # Generate Script

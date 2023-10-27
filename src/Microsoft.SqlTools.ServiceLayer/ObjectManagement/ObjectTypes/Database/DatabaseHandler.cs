@@ -288,15 +288,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, SR.querystorecapturemode_custom);
                                     }
 
-                                    // Get source and target database list for restore database
+                                    // Get info for restore database
                                     RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
                                     databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
                                     databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restoreUtil.GetSourceDbNames().ToArray();
                                     databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = restoreUtil.GetTargetDbNames().ToArray();
+                                    databaseViewInfo.RestoreDatabaseInfo.RecoveryStateOptions = new string[]{
+                                        SR.RestoreWithRecovery,
+                                        SR.RestoreWithNoRecovery,
+                                        SR.RestoreWithStandby
+                                    };
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.defaultDataFileFolderPath = restoreUtil.GetDefaultDataFileFolder();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.defaultLogFileFolderPath = restoreUtil.GetDefaultLogFileFolder();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.defaultBackupFileFolderPath = restoreUtil.GetDefaultBackupFolder();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.DataFileFolder = restoreUtil.GetDefaultDataFileFolder();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.LogFileFolder = restoreUtil.GetDefaultLogFileFolder();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.StandbyFile = restoreUtil.GetDefaultStandbyFile(smoDatabase.Name);
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.TailLogBackupFile = restoreUtil.GetDefaultTailLogbackupFile(smoDatabase.Name);
+
+                                    RestoreDatabaseTaskDataObject restoreDatabaseTaskDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, smoDatabase.Name);
+                                    databaseViewInfo.RestoreDatabaseInfo.LastBackupTaken = restoreDatabaseTaskDataObject.GetLastBackupTaken();
+
                                 }
                             }
                             if (!isManagedInstance)

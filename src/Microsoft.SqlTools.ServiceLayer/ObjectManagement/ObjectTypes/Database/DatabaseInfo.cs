@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -47,7 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseFile[] Files { get; set; }
         public FileGroupSummary[]? Filegroups { get; set; }
         public QueryStoreOptions? QueryStoreOptions { get; set; }
-
         public RestoreOptions restoreOptions { get; set; }
     }
 
@@ -109,10 +107,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class RestoreOptions
     {
-        public string defaultDataFileFolderPath { get; set; }
-        public string defaultLogFileFolderPath { get; set; }
-        public string defaultBackupFileFolderPath { get; set; }
-        public RestorePlanDetailInfo restorePlanDetailInfo { get; set; }
-
-    }
+        public bool KeepReplication{ get; set; }
+        public bool ReplaceDatabase { get; set; }
+        public bool SetRestrictedUser {get; set; }
+        public string? RecoveryState { get; set; }
+        public bool BackupTailLog { get; set; }
+        public string? TailLogBackupFile { get; set; }
+        public bool TailLogWithNoRecovery { get; set; }
+        public bool CloseExistingConnections { get; set; }
+        public bool RelocateDbFiles{ get; set; }
+        public string? DataFileFolder { get; set; }
+        public string? LogFileFolder { get; set; }
+        public string? StandbyFile { get; set; }
+    }   
 }
