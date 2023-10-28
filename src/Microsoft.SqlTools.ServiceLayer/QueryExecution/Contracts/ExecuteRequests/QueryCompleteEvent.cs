@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// <summary>
         /// Process ID assigned to the query editor.
         /// </summary>
-        public string? PID { get; set; }
+        public string? ServerConnectionId { get; set; }
     }
 
     public class QueryCompleteEvent

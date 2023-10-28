@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Process ID for the connection, if the connection was successful.
         /// </summary>
-        public string? PID { get; set; }
+        public string? ServerConnectionId { get; set; }
     }
 
     /// <summary>
