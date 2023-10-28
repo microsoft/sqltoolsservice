@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -46,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseFile[] Files { get; set; }
         public FileGroupSummary[]? Filegroups { get; set; }
         public QueryStoreOptions? QueryStoreOptions { get; set; }
+        public BackupEncryptor[]? BackupEncryptors { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
