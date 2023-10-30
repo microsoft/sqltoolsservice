@@ -298,6 +298,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         SR.RestoreWithNoRecovery,
                                         SR.RestoreWithStandby
                                     };
+
+                                    var sourceDBExists = databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames.Contains(smoDatabase.Name);
+
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.DataFileFolder = restoreUtil.GetDefaultDataFileFolder();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.LogFileFolder = restoreUtil.GetDefaultLogFileFolder();
@@ -306,6 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                     RestoreDatabaseTaskDataObject restoreDatabaseTaskDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, smoDatabase.Name);
                                     databaseViewInfo.RestoreDatabaseInfo.LastBackupTaken = restoreDatabaseTaskDataObject.GetLastBackupTaken();
+                                    var BackupPlan = restoreDatabaseTaskDataObject.GetBackupSetInfo();
 
                                 }
                             }
