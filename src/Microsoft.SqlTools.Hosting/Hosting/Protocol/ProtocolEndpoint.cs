@@ -273,6 +273,16 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Message Handling
 
+        /// <summary>
+        /// Sets request handler for request type and specify whether the handler should be called without blocking dispatcher thread.
+        /// </summary>
+        /// <typeparam name="TParams"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="requestType">Type corresponding to request</param>
+        /// <param name="requestHandler">Callback method that handles request.</param>
+        /// <param name="isParallelProcessingSupported">Whether the handler callback should be executed in background thread, detached from the dispatcher thread.
+        /// When enabling parallel message processing, ensure this callback is able to access resources concurrently and responses are not required to be ordered.
+        /// </param>
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,

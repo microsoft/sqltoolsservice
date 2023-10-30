@@ -309,16 +309,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             BackupResponse response = new BackupResponse();
             ConnectionInfo connInfo;
-            bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
-
-            if (supported && connInfo != null)
+            SqlConnection sqlConn = null;
+            try
             {
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                // Open a new connection to use for the backup, which will be closed when the backup task is completed
-                // (or an error occurs)
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
-                try
+                bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
+
+                if (supported && connInfo != null)
                 {
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    // Open a new connection to use for the backup, which will be closed when the backup task is completed
+                    // (or an error occurs)
+                    sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
 
                     // create task metadata
@@ -333,21 +334,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             sqlConn.Dispose();
                         }
                     };
+                    response.Result = true;
                 }
-                catch
+                else
                 {
-                    // Ensure that the connection is closed if any error occurs while starting up the task
-                    sqlConn.Dispose();
-                    throw;
+                    response.Result = false;
                 }
 
+                await requestContext.SendResult(response);
             }
-            else
+            catch (Exception e)
             {
-                response.Result = false;
+                await requestContext.SendError(e);
+                Logger.Error(e);
+                if (sqlConn != null)
+                {
+                    sqlConn.Dispose();
+                }
             }
-
-            await requestContext.SendResult(response);
         }
 
         private bool IsBackupRestoreOperationSupported(string ownerUri, out ConnectionInfo connectionInfo)

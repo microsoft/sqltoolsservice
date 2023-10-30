@@ -26,6 +26,7 @@ using Microsoft.SqlTools.SqlCore.Utility;
 using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -247,7 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                 AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                 EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
+                                DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null,
+                                BackupEncryptors = BackupOperation.GetBackupEncryptors(dataContainer.Server!).ToArray()
                             };
 
                             if (!isAzureDB)
