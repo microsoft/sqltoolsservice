@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             BackupConfigInfo configInfo = new BackupConfigInfo();
             configInfo.RecoveryModel = GetRecoveryModel(databaseName);
             configInfo.DefaultBackupFolder = CommonUtilities.GetDefaultBackupFolder(this.serverConnection);
-            configInfo.BackupEncryptors = GetBackupEncryptors();
+            configInfo.BackupEncryptors = GetBackupEncryptors(this.dataContainer.Server);
             return configInfo;
         }
 
@@ -369,12 +369,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Returns the certificates and asymmetric keys from master for encryption
         /// </summary>
-        public List<BackupEncryptor> GetBackupEncryptors()
+        public static List<BackupEncryptor> GetBackupEncryptors(Server server)
         {
             List<BackupEncryptor> encryptors = new List<BackupEncryptor>();
-            if (this.dataContainer.Server.Databases.Contains("master"))
+            if (server.Databases.Contains("master"))
             {
-                CertificateCollection certificates = this.dataContainer.Server.Databases["master"].Certificates;
+                CertificateCollection certificates = server.Databases["master"].Certificates;
                 DateTime currentUtcDateTime = DateTime.UtcNow;
                 foreach (Certificate item in certificates)
                 {
@@ -385,7 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     }
                     encryptors.Add(new BackupEncryptor((int)BackupEncryptorType.ServerCertificate, item.Name));
                 }
-                AsymmetricKeyCollection keys = this.dataContainer.Server.Databases["master"].AsymmetricKeys;
+                AsymmetricKeyCollection keys = server.Databases["master"].AsymmetricKeys;
                 foreach (AsymmetricKey item in keys)
                 {
                     if (item.KeyEncryptionAlgorithm == AsymmetricKeyEncryptionAlgorithm.CryptographicProviderDefined)
