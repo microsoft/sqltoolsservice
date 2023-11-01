@@ -580,7 +580,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 
                 var pid = (underlyingConnection as SqlConnection).ServerProcessId;
                 if (pid != 0) {
-                    response.PID = pid.ToString();
+                    response.ServerConnectionId = pid.ToString();
                 }
 
                 ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(underlyingConnection);

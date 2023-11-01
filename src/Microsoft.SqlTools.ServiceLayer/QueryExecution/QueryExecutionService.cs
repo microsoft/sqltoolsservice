@@ -894,7 +894,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     OwnerUri = ownerUri,
                     BatchSummaries = q.BatchSummaries,
-                    PID = q.PID,
+                    ServerConnectionId = q.PID,
                 };
 
                 Logger.Information($"Query:'{ownerUri}' completed");
@@ -909,7 +909,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     OwnerUri = ownerUri,
                     BatchSummaries = q.BatchSummaries,
-                    PID = q.PID,
+                    ServerConnectionId = q.PID,
                 };
 
                 Logger.Error($"Query:'{ownerUri}' failed");
