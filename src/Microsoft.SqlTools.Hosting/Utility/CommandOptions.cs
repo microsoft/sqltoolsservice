@@ -194,8 +194,10 @@ namespace Microsoft.SqlTools.Utility
 
         /// <summary>
         /// Enables parallel message processing when queueing tasks from dispatcher.
+        /// This option is enabled by default during initialization.
+        /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
         /// </summary>
-        public bool ParallelMessageProcessing { get; private set; } = true;
+        public bool ParallelMessageProcessing { get; private set; } = false;
 
         /// <summary>
         /// The maximum number of parallel operations that can be queued without blocking the main thread.
@@ -207,14 +209,17 @@ namespace Microsoft.SqlTools.Utility
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
         /// when user chooses 'Azure MFA'. This setting enables MSAL.NET to acquire token with SqlClient integration.
-        /// This option is enabled by default.
+        /// This option is enabled by default during initialization.
+        /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
         /// </summary>
-        public bool EnableSqlAuthenticationProvider { get; private set; } = true;
+        public bool EnableSqlAuthenticationProvider { get; private set; } = false;
 
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
+        /// This option is enabled by default during initialization.
+        /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
         /// </summary>
-        public bool EnableConnectionPooling { get; private set; } = true;
+        public bool EnableConnectionPooling { get; private set; } = false;
 
         /// <summary>
         /// The ID of the process that started this service. This is used to check when the parent
