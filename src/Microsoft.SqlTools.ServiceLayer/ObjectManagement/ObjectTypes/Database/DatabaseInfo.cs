@@ -5,6 +5,7 @@
 
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -109,17 +110,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class RestoreOptions
     {
-        public bool KeepReplication{ get; set; }
-        public bool ReplaceDatabase { get; set; }
-        public bool SetRestrictedUser {get; set; }
-        public string? RecoveryState { get; set; }
-        public bool BackupTailLog { get; set; }
-        public string? TailLogBackupFile { get; set; }
-        public bool TailLogWithNoRecovery { get; set; }
-        public bool CloseExistingConnections { get; set; }
-        public bool RelocateDbFiles{ get; set; }
-        public string? DataFileFolder { get; set; }
-        public string? LogFileFolder { get; set; }
-        public string? StandbyFile { get; set; }
+        public RestorePlanResponse RestorePlanResponse { get; set; }
     }   
 }

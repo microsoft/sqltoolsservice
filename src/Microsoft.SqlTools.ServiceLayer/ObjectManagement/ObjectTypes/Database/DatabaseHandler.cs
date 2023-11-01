@@ -27,6 +27,7 @@ using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -304,15 +305,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     var sourceDBExists = databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames.Contains(smoDatabase.Name);
 
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.DataFileFolder = restoreUtil.GetDefaultDataFileFolder();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.LogFileFolder = restoreUtil.GetDefaultLogFileFolder();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.StandbyFile = restoreUtil.GetDefaultStandbyFile(smoDatabase.Name);
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.TailLogBackupFile = restoreUtil.GetDefaultTailLogbackupFile(smoDatabase.Name);
+                                    //((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.DataFileFolder = restoreUtil.GetDefaultDataFileFolder();
+                                    //((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.LogFileFolder = restoreUtil.GetDefaultLogFileFolder();
+                                    //((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.StandbyFile = restoreUtil.GetDefaultStandbyFile(smoDatabase.Name);
+                                    //((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.TailLogBackupFile = restoreUtil.GetDefaultTailLogbackupFile(smoDatabase.Name);
 
                                     RestoreDatabaseTaskDataObject restoreDatabaseTaskDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, smoDatabase.Name);
-                                    databaseViewInfo.RestoreDatabaseInfo.LastBackupTaken = restoreDatabaseTaskDataObject.GetLastBackupTaken();
-                                    var BackupPlan = restoreDatabaseTaskDataObject.GetBackupSetInfo();
 
+                                    RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
+                                    RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, smoDatabase.Name);
+                                    restoreDataObject.RestoreParams = new RestoreParams();
+                                    restoreDataObject.RestoreParams.SourceDatabaseName = smoDatabase.Name;
+                                    restoreDataObject.RestoreParams.ReadHeaderFromMedia = false;
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.RestorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
                                 }
                             }
                             if (!isManagedInstance)
