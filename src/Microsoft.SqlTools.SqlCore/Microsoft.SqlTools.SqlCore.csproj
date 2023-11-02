@@ -13,7 +13,6 @@
 		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
 		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution and Scripting</Description>
 		<TargetFramework>net6.0</TargetFramework>
-		<LangVersion>8.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
 	</PropertyGroup>
