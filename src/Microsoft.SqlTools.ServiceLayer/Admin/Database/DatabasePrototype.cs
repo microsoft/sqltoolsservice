@@ -1772,6 +1772,11 @@ WHERE do.database_id = @DbID
                     // Azure instances don't have a model database we can query, so just use the defaults
                     this.originalState = new DatabaseData(context);
                 }
+                else if (context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance)
+                {
+                    // SQl Managed Instance don't have a model database we can query, so just use the defaults to master
+                    this.originalState = new DatabaseData(context, "master");
+                }
                 else
                 {
                     try
