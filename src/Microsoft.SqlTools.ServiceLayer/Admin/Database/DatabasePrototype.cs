@@ -1767,15 +1767,10 @@ WHERE do.database_id = @DbID
             }
             else
             {
-                if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+                if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase || context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance)
                 {
-                    // Azure instances don't have a model database we can query, so just use the defaults
+                    // Azure instances and SQL Managed Instances don't have a model database we can query, so just use the defaults
                     this.originalState = new DatabaseData(context);
-                }
-                else if (context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance)
-                {
-                    // SQl Managed Instance don't have a model database we can query, so just use the defaults to master
-                    this.originalState = new DatabaseData(context, "master");
                 }
                 else
                 {
