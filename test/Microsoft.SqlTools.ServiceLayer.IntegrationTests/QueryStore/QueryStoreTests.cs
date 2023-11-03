@@ -6,11 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.QueryStoreModel.Common;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.SqlCore.Performance;
 using Moq;
 using NUnit.Framework;
 using static Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary.PlanSummaryConfiguration;
@@ -39,12 +41,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         public void Setup()
         {
             QueryStoreCommonConfiguration.DisplayTimeKind = DateTimeKind.Utc;
+            QueryStoreQueryGenerator.MetricFetcher = GetMockMetricFetcher();
         }
 
         [Test]
         public async Task TopResourceConsumers()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetTopResourceConsumersSummaryReportRequest(new GetTopResourceConsumersReportParams()
@@ -84,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         [Test]
         public async Task ForcedPlanQueries()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetForcedPlanQueriesReportRequest(new GetForcedPlanQueriesReportParams()
@@ -107,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         [Test]
         public async Task TrackedQueries()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetTrackedQueriesReportRequest(new GetTrackedQueriesReportParams()
@@ -122,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         [Test]
         public async Task HighVariationQueries()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetHighVariationQueriesSummaryReportRequest(new GetHighVariationQueriesReportParams()
@@ -162,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         [Test]
         public async Task OverallResourceConsumption()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetOverallResourceConsumptionReportRequest(new GetOverallResourceConsumptionReportParams()
@@ -184,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         [Test]
         public async Task RegressedQueries()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetRegressedQueriesSummaryReportRequest(new GetRegressedQueriesReportParams()
@@ -224,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         [Test]
         public async Task PlanSummary()
         {
-            QueryStoreService service = GetMock();
+            QueryStoreService service = GetMockService();
 
             MockRequest<QueryStoreQueryResult> request = new();
             await service.HandleGetPlanSummaryChartViewRequest(new GetPlanSummaryParams()
@@ -257,10 +260,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
             Assert.AreEqual(QueryStoreBaselines.HandleGetPlanSummaryGridViewRequest.ReplaceLineEndings(), request.Result.Query.ReplaceLineEndings());
         }
 
-        private QueryStoreService GetMock()
+        private QueryStoreService GetMockService()
         {
             Mock<QueryStoreService> mock = new Mock<QueryStoreService>();
-            mock.Setup(s => s.GetAvailableMetrics(It.IsAny<QueryStoreReportParams>()))
+
+            mock.Setup(s => s.GetSqlConnection(It.IsAny<QueryStoreReportParams>()))
+                .Returns(new SqlConnection());
+
+            return mock.Object;
+        }
+
+        private QueryStoreMetricFetcher GetMockMetricFetcher()
+        {
+            Mock<QueryStoreMetricFetcher> mock = new Mock<QueryStoreMetricFetcher>();
+
+            mock.Setup(s => s.GetAvailableMetrics(It.IsAny<SqlConnection>()))
                 .Returns(new List<Metric>()
                 {
                     Metric.ClrTime,

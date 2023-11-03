@@ -3,10 +3,30 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries;
+using Microsoft.SqlServer.Management.QueryStoreModel.HighVariation;
+using Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption;
+using Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary;
+using Microsoft.SqlServer.Management.QueryStoreModel.RegressedQueries;
+using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
+using Microsoft.SqlServer.Management.QueryStoreModel.TrackedQueries;
+
+#nullable enable
+
 namespace Microsoft.SqlTools.SqlCore.Performance
 {
     public static class QueryStoreQueryGenerator
     {
+        internal static QueryStoreMetricFetcher MetricFetcher = new QueryStoreMetricFetcher();
+
         /* 
          * General process is to:
          * 1. Call the unordered query generator to get the list of columns
@@ -18,13 +38,12 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Top Resource Consumers report
 
-        public string HandleGetTopResourceConsumersSummaryReportRequest(TopResourceConsumersConfiguration config)
+        public static string GetTopResourceConsumersSummaryReportQuery(TopResourceConsumersConfiguration config, string? orderByColumnId = null, bool descending = true)
         {
-            TopResourceConsumersConfiguration config = requestParams.Convert();
             TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, out IList<ColumnInfo> columns);
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+            ColumnInfo orderByColumn = GetOrderByColumn(orderByColumnId, columns);
 
-            string query = TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, orderByColumn, requestParams.Descending, out _);
+            string query = TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, orderByColumn, descending, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -42,14 +61,12 @@ namespace Microsoft.SqlTools.SqlCore.Performance
             return query;
         }
 
-        public string HandleGetTopResourceConsumersDetailedSummaryReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetTopResourceConsumersDetailedSummaryReportQuery(TopResourceConsumersConfiguration config, SqlConnection connection, string? orderByColumnId = null, bool descending = true)
         {
+            TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(MetricFetcher.GetAvailableMetrics(connection), config, out IList<ColumnInfo> columns);
+            ColumnInfo orderByColumn = GetOrderByColumn(orderByColumnId, columns);
 
-            TopResourceConsumersConfiguration config = requestParams.Convert();
-            TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
-
-            string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
+            string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(MetricFetcher.GetAvailableMetrics(connection), config, orderByColumn, descending, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -71,14 +88,12 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Forced Plans report
 
-        public string HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetForcedPlanQueriesReportQuery(ForcedPlanQueriesConfiguration config, string? orderByColumnId = null, bool descending = true)
         {
-
-            ForcedPlanQueriesConfiguration config = requestParams.Convert();
             ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, out IList<ColumnInfo> columns);
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+            ColumnInfo orderByColumn = GetOrderByColumn(orderByColumnId, columns);
 
-            string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, requestParams.Descending, out IList<ColumnInfo> _);
+            string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, descending, out IList<ColumnInfo> _);
 
             if (!config.ReturnAllQueries)
             {
@@ -92,28 +107,25 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Tracked Queries report
 
-        public string HandleGetTrackedQueriesReportRequest(GetTrackedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetTrackedQueriesReportQuery(string querySearchText)
         {
-
             string query = QueryIDSearchQueryGenerator.GetQuery();
 
-            query = PrependSqlParameters(query, new() { [QueryIDSearchQueryGenerator.QuerySearchTextParameter] = requestParams.QuerySearchText });
+            query = PrependSqlParameters(query, new() { [QueryIDSearchQueryGenerator.QuerySearchTextParameter] = querySearchText });
 
-            return query
+            return query;
         }
 
         #endregion
 
         #region High Variation Queries report
 
-        public string HandleGetHighVariationQueriesSummaryReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetHighVariationQueriesSummaryReportQuery(HighVariationConfiguration config, string? orderByColumnId = null, bool descending = true)
         {
-
-            HighVariationConfiguration config = requestParams.Convert();
             HighVariationQueryGenerator.HighVariationSummary(config, out IList<ColumnInfo> columns);
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+            ColumnInfo orderByColumn = GetOrderByColumn(orderByColumnId, columns);
 
-            string query = HighVariationQueryGenerator.HighVariationSummary(config, orderByColumn, requestParams.Descending, out _);
+            string query = HighVariationQueryGenerator.HighVariationSummary(config, orderByColumn, descending, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -131,15 +143,13 @@ namespace Microsoft.SqlTools.SqlCore.Performance
             return query;
         }
 
-        public string HandleGetHighVariationQueriesDetailedSummaryReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetHighVariationQueriesDetailedSummaryReportQuery(HighVariationConfiguration config, SqlConnection connection, string? orderByColumnId = null, bool descending = true)
         {
-
-            HighVariationConfiguration config = requestParams.Convert();
-            IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
+            IList<Metric> availableMetrics = MetricFetcher.GetAvailableMetrics(connection);
             HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, out IList<ColumnInfo> columns);
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+            ColumnInfo orderByColumn = GetOrderByColumn(orderByColumnId, columns);
 
-            string query = HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
+            string query = HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, orderByColumn, descending, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -161,11 +171,9 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Overall Resource Consumption report
 
-        public string HandleGetOverallResourceConsumptionReportRequest(GetOverallResourceConsumptionReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetOverallResourceConsumptionReportQuery(OverallResourceConsumptionConfiguration config, SqlConnection connection)
         {
-
-            OverallResourceConsumptionConfiguration config = requestParams.Convert();
-            string query = OverallResourceConsumptionQueryGenerator.GenerateQuery(GetAvailableMetrics(requestParams), config, out _);
+            string query = OverallResourceConsumptionQueryGenerator.GenerateQuery(MetricFetcher.GetAvailableMetrics(connection), config, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -182,10 +190,8 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Regressed Queries report
 
-        public string HandleGetRegressedQueriesSummaryReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetRegressedQueriesSummaryReportQuery(RegressedQueriesConfiguration config)
         {
-
-            RegressedQueriesConfiguration config = requestParams.Convert();
             string query = RegressedQueriesQueryGenerator.RegressedQuerySummary(config, out _);
 
             Dictionary<string, object> sqlParams = new()
@@ -208,11 +214,9 @@ namespace Microsoft.SqlTools.SqlCore.Performance
             return query;
         }
 
-        public string HandleGetRegressedQueriesDetailedSummaryReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetRegressedQueriesDetailedSummaryReportQuery(RegressedQueriesConfiguration config, SqlConnection connection)
         {
-
-            RegressedQueriesConfiguration config = requestParams.Convert();
-            string query = RegressedQueriesQueryGenerator.RegressedQueryDetailedSummary(GetAvailableMetrics(requestParams), config, out _);
+            string query = RegressedQueriesQueryGenerator.RegressedQueryDetailedSummary(MetricFetcher.GetAvailableMetrics(connection), config, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -237,11 +241,8 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Plan Summary report
 
-        public string HandleGetPlanSummaryChartViewRequest(GetPlanSummaryParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetPlanSummaryChartViewQuery(PlanSummaryConfiguration config)
         {
-
-            PlanSummaryConfiguration config = requestParams.Convert();
-
             BucketInterval bucketInterval = BucketInterval.Hour;
 
             // if interval is specified then select a 'good' interval
@@ -269,15 +270,12 @@ namespace Microsoft.SqlTools.SqlCore.Performance
             return query;
         }
 
-        public string HandleGetPlanSummaryGridViewRequest(GetPlanSummaryGridViewParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetPlanSummaryGridViewQuery(PlanSummaryConfiguration config, string? orderByColumnId = null, bool descending = true)
         {
-
-            PlanSummaryConfiguration config = requestParams.Convert();
-
             PlanSummaryQueryGenerator.PlanSummaryGridView(config, out IList<ColumnInfo> columns);
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+            ColumnInfo orderByColumn = GetOrderByColumn(orderByColumnId, columns);
 
-            string query = PlanSummaryQueryGenerator.PlanSummaryGridView(config, orderByColumn, requestParams.Descending, out _);
+            string query = PlanSummaryQueryGenerator.PlanSummaryGridView(config, orderByColumn, descending, out _);
 
             Dictionary<string, object> sqlParams = new()
             {
@@ -295,14 +293,14 @@ namespace Microsoft.SqlTools.SqlCore.Performance
             return query;
         }
 
-        public string HandleGetForcedPlanRequest(GetForcedPlanParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        public static string GetForcedPlanQuery(long queryId, long planId)
         {
 
             string query = PlanSummaryQueryGenerator.GetForcedPlanQuery();
             Dictionary<string, object> sqlParams = new()
             {
-                [QueryGeneratorUtils.ParameterQueryId] = requestParams.QueryId,
-                [QueryGeneratorUtils.ParameterPlanId] = requestParams.PlanId,
+                [QueryGeneratorUtils.ParameterQueryId] = queryId,
+                [QueryGeneratorUtils.ParameterPlanId] = planId,
             };
 
             query = PrependSqlParameters(query, sqlParams);
@@ -314,27 +312,8 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         #region Helpers
 
-        private ColumnInfo GetOrderByColumn(IOrderableQueryParams requestParams, IList<ColumnInfo> columnInfoList)
-        {
-            return requestParams.GetOrderByColumnId() != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.GetOrderByColumnId()) : columnInfoList[0];
-        }
-
-        public virtual IList<Metric> GetAvailableMetrics(QueryStoreReportParams requestParams)
-        {
-            ConnectionService.TryFindConnection(requestParams.ConnectionOwnerUri, out ConnectionInfo connectionInfo);
-
-            if (connectionInfo != null)
-            {
-                using (SqlConnection connection = ConnectionService.OpenSqlConnection(connectionInfo, "QueryStoreService available metrics"))
-                {
-                    return QdsMetadataMapper.GetAvailableMetrics(connection);
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException($"Unable to find connection for '{requestParams.ConnectionOwnerUri}'");
-            }
-        }
+        private static ColumnInfo GetOrderByColumn(string? orderByColumnId, IList<ColumnInfo> columnInfoList)
+            => orderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == orderByColumnId) : columnInfoList[0];
 
         /// <summary>
         /// Prepends declarations and definitions of <paramref name="sqlParams"/> to <paramref name="query"/>
@@ -359,7 +338,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance
 
         /// <summary>
         /// Converts an object (that would otherwise be set as a SqlParameter value) to an entirely TSQL representation.
-        /// Only handles the same subset of object types that Query Store query generators use:
+        /// Only s the same subset of object types that Query Store query generators use:
         /// int, long, string, and DateTimeOffset
         /// </summary>
         /// <param name="paramValue"></param>
@@ -383,5 +362,10 @@ namespace Microsoft.SqlTools.SqlCore.Performance
         }
 
         #endregion
+    }
+
+    public class QueryStoreMetricFetcher
+    {
+        public virtual IList<Metric> GetAvailableMetrics(SqlConnection connection) => QdsMetadataMapper.GetAvailableMetrics(connection);
     }
 }
