@@ -8,5 +8,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public abstract class SecurityPrincipalObject : SqlObject
     {
         public SecurablePermissions[]? SecurablePermissions { get; set; }
+        public bool HidePermissions { get; set; }
     }
 }

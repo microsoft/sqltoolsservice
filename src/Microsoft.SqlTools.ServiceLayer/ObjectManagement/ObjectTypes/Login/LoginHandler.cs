@@ -82,9 +82,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
                 IsLockedOut = prototype.IsLockedOut,
-                UserMapping = new ServerLoginDatabaseUserMapping[0],
-                SecurablePermissions = prototype.SecurablePermissions
+                UserMapping = new ServerLoginDatabaseUserMapping[0]
             };
+
+            // show permissions for new logins and existing non-system logins
+            if (!prototype.HidePermissions && (dataContainer.IsNewObject || !((dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login).IsSystemObject)))
+            {
+                loginInfo.SecurablePermissions = prototype.SecurablePermissions;
+            }
+            else
+            {
+                loginInfo.HidePermissions = true;
+            }
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
             supportedAuthTypes.Add(LoginAuthenticationType.Sql);
