@@ -54,9 +54,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
             }
             string[] languages = languageOptionsList.ToArray();
-            LoginPrototype prototype = parameters.IsNewObject
-            ? new LoginPrototype(dataContainer)
-            : new LoginPrototype(dataContainer, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login);
+
+            Login login = null;
+            LoginPrototype prototype;
+            if (parameters.IsNewObject)
+            {
+                prototype = new LoginPrototype(dataContainer);
+            }
+            else
+            {
+                login = dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login;
+                prototype = new LoginPrototype(dataContainer, login);
+            }
 
             List<string> loginServerRoles = new List<string>();
             foreach (string role in prototype.ServerRoles.ServerRoleNames)
@@ -86,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             };
 
             // show permissions for new logins and existing non-system logins
-            if (!prototype.HidePermissions && (dataContainer.IsNewObject || !((dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login).IsSystemObject)))
+            if (!prototype.HidePermissions && (dataContainer.IsNewObject || !login.IsSystemObject))
             {
                 loginInfo.SecurablePermissions = prototype.SecurablePermissions;
             }
