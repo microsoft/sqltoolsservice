@@ -102,6 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             else
             {
                 loginInfo.HidePermissions = true;
+                loginInfo.SecurablePermissions = new SecurablePermissions[0];
             }
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
