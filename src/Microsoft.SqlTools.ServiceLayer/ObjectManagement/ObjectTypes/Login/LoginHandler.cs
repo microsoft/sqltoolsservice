@@ -94,15 +94,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 UserMapping = new ServerLoginDatabaseUserMapping[0]
             };
 
-            // show permissions for new logins and existing non-system logins
-            if (!prototype.HidePermissions && (dataContainer.IsNewObject || !login.IsSystemObject))
-            {
-                loginInfo.SecurablePermissions = prototype.SecurablePermissions;
-            }
-            else
+            // hide permissions for system logins or if the login doesn't support querying permissions
+            if (prototype.HidePermissions || (!dataContainer.IsNewObject && login.IsSystemObject))
             {
                 loginInfo.HidePermissions = true;
                 loginInfo.SecurablePermissions = new SecurablePermissions[0];
+            }
+            else
+            {
+                loginInfo.SecurablePermissions = prototype.SecurablePermissions;
             }
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
