@@ -1556,7 +1556,6 @@ INNER JOIN sys.sql_logins AS sql_logins
         private bool mapToCredential;
         private SecurablePermissions[] securablePermissions = null;
         private Principal principal = null;
-        private bool hidePermissions;
         public bool MapToCredential
         {
             set
@@ -1922,18 +1921,6 @@ INNER JOIN sys.sql_logins AS sql_logins
             }
         }
 
-        public bool HidePermissions
-        {
-            get
-            {
-                return hidePermissions;
-            }
-            set
-            {
-                hidePermissions = value;
-            }
-        }
-
         /// <summary>
         /// Get the database roles collection for the user in a particular database
         /// </summary>
@@ -2094,7 +2081,6 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.currentState   = new LoginPrototypeData(server);
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
-            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
@@ -2118,8 +2104,7 @@ INNER JOIN sys.sql_logins AS sql_logins
             catch (Exception ex)
             {
                 Logger.Error($"Exception thrown while trying to get securables for login '{this.LoginName}'. Error message: '{ex.Message}'");
-                this.securablePermissions = new SecurablePermissions[0];
-                this.hidePermissions = true;
+                this.securablePermissions = null;
             }
             this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.Login, login, null, context);
             if (context.Server.DatabaseEngineType != DatabaseEngineType.SqlAzureDatabase)

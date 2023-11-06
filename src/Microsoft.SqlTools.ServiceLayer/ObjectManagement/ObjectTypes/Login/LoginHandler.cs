@@ -94,8 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 UserMapping = new ServerLoginDatabaseUserMapping[0]
             };
 
-            // hide permissions for system logins or if the login doesn't support querying permissions
-            if (prototype.HidePermissions || (!parameters.IsNewObject && login.IsSystemObject))
+            // hide permissions for system logins
+            if (!parameters.IsNewObject && login.IsSystemObject)
             {
                 loginInfo.SecurablePermissions = null;
             }
