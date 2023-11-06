@@ -1767,9 +1767,9 @@ WHERE do.database_id = @DbID
             }
             else
             {
-                if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+                if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase || context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance)
                 {
-                    // Azure instances don't have a model database we can query, so just use the defaults
+                    // Azure instances and SQL Managed Instances don't have a model database we can query, so just use the defaults
                     this.originalState = new DatabaseData(context);
                 }
                 else
