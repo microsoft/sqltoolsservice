@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             };
 
             // hide permissions for system logins or if the login doesn't support querying permissions
-            if (prototype.HidePermissions || (!dataContainer.IsNewObject && login.IsSystemObject))
+            if (prototype.HidePermissions || (!parameters.IsNewObject && login.IsSystemObject))
             {
                 loginInfo.SecurablePermissions = null;
             }
