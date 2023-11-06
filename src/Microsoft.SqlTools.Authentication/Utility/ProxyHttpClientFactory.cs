@@ -26,13 +26,36 @@ namespace Microsoft.SqlTools.Authentication.Utility
         {
             if (proxyUrl != null)
             {
-                var webProxy = new WebProxy(
-                    new Uri(proxyUrl),
-                    BypassOnLocal: false);
+                WebProxy webProxy;
+                var url = new Uri(proxyUrl);
+
+                if (url.UserInfo != null)
+                {
+                    // Extract username, password from userInfo.
+                    // Expected format of userInfo = username:password.
+                    var creds = url.UserInfo.Split(':');
+                    if (creds.Length != 2)
+                    {
+                        throw new Exception("User credentials received in invalid format.");
+                    }
+
+                    var cleanProxyUrl = ClearCredentials(url);
+                    // TODO: Support caching credentials when ADS supports the same.
+                    // TODO: Support no_proxy bypass list in future.
+                    webProxy = new WebProxy(
+                        cleanProxyUrl, false, null, new NetworkCredential(creds[0], creds[1]));
+                    SqlToolsLogger.Information($"Network Credentials extracted from proxy Url: {cleanProxyUrl}");
+                }
+                else
+                {
+                    webProxy = new WebProxy(proxyUrl, false);
+                    SqlToolsLogger.Information($"Web Proxy instantiated with Proxy Url: {proxyUrl}");
+                }
 
                 var proxyHttpClientHandler = new HttpClientHandler
                 {
                     Proxy = webProxy,
+                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13,
                     UseProxy = true,
                     ServerCertificateCustomValidationCallback = (request, certs, chain, policyErrors) =>
                     {
@@ -43,7 +66,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
 
                         if (proxyStrictSSL)
                         {
-                            return policyErrors != SslPolicyErrors.None;
+                            return policyErrors == SslPolicyErrors.None;
                         }
                         // Bypass Proxy server certificate validation.
                         else
@@ -70,6 +93,19 @@ namespace Microsoft.SqlTools.Authentication.Utility
         public HttpClient GetHttpClient()
         {
             return s_httpClient;
+        }
+
+        /// <summary>
+        /// Creates and returns a credential-free URL for web proxy use.
+        /// </summary>
+        /// <param name="url">URI instance.</param>
+        /// <returns></returns>
+        private string ClearCredentials(Uri url)
+        {
+            return string.Concat(
+                url.Scheme, "://",
+                url.Host, ":",
+                url.Port);
         }
     }
 }
