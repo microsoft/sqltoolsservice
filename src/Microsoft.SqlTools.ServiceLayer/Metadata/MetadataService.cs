@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                     {
-                        var scripts = SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn)?.ToArray();
+                        var scripts = SmoScripterHelpers.GenerateDatabaseScripts(sqlConn, contextualizationParams.DatabaseName)?.ToArray();
                         if (scripts != null)
                         {
                             try
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                                     Context = string.Join('\n', scripts)
                                 });
 
-                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
+                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, contextualizationParams.DatabaseName, scripts);
                             }
                             catch (Exception ex)
                             {

@@ -156,7 +156,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             var getServerContextualizationParams = new GetServerContextualizationParams
             {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                DatabaseName = "master"
             };
 
             // First call generates context, stores it in temp file and returns the generated context
