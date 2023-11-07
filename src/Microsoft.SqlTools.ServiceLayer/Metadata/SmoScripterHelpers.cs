@@ -176,37 +176,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             UrnCollection urnCollection = new UrnCollection();
 
-            foreach (Database db in server.Databases)
+            var db = server.Databases[databaseName];
+            if (db == null)
             {
-                if (db.Name != databaseName)
-                {
-                    continue;
-                }
+                return urnCollection;
+            }
 
-                try
+            try
+            {
+                foreach (SqlServer.Management.Smo.Table t in db.Tables)
                 {
-                    foreach (SqlServer.Management.Smo.Table t in db.Tables)
-                    {
-                        urnCollection.Add(t.Urn);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warning($"Unable to get table URNs. Error: {ex.Message}");
-                }
-
-                try
-                {
-                    foreach (SqlServer.Management.Smo.View v in db.Views)
-                    {
-                        urnCollection.Add(v.Urn);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warning($"Unable to get view URNs. Error: {ex.Message}");
+                    urnCollection.Add(t.Urn);
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Unable to get table URNs. Error: {ex.Message}");
+            }
+
+            try
+            {
+                foreach (SqlServer.Management.Smo.View v in db.Views)
+                {
+                    urnCollection.Add(v.Urn);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Unable to get view URNs. Error: {ex.Message}");
+            }
+
             return urnCollection;
         }
     }
