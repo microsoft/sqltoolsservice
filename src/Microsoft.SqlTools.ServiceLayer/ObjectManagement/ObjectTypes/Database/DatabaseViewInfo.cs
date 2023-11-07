@@ -5,6 +5,7 @@
 //
 #nullable disable
 
+using System.Collections.Concurrent;
 using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -54,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public string[] SourceDatabaseNames { get; set; }
         public string[] TargetDatabaseNames { get; set; }
-        public string[] RecoveryStateOptions { get; set; }
+        public ConcurrentDictionary<string, string> RecoveryStateOptions { get; set; }
         public string LastBackupTaken { get; set; }
     }
 }
