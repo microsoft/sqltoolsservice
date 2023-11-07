@@ -11,7 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -2081,7 +2081,6 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.currentState   = new LoginPrototypeData(server);
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
-            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
@@ -2098,7 +2097,15 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.currentState   = new LoginPrototypeData(server, login);
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
-            this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.Login, login, context);
+            try
+            {
+                this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.Login, login, context);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Exception thrown while trying to get securables for login '{this.LoginName}'. Error message: '{ex.Message}'");
+                this.securablePermissions = null;
+            }
             this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.Login, login, null, context);
             if (context.Server.DatabaseEngineType != DatabaseEngineType.SqlAzureDatabase)
             {

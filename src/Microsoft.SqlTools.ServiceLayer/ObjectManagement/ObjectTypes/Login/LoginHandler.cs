@@ -54,9 +54,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
             }
             string[] languages = languageOptionsList.ToArray();
-            LoginPrototype prototype = parameters.IsNewObject
-            ? new LoginPrototype(dataContainer)
-            : new LoginPrototype(dataContainer, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login);
+
+            Login login = null;
+            LoginPrototype prototype;
+            if (parameters.IsNewObject)
+            {
+                prototype = new LoginPrototype(dataContainer);
+            }
+            else
+            {
+                login = dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login;
+                prototype = new LoginPrototype(dataContainer, login);
+            }
 
             List<string> loginServerRoles = new List<string>();
             foreach (string role in prototype.ServerRoles.ServerRoleNames)
@@ -82,9 +91,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
                 IsLockedOut = prototype.IsLockedOut,
-                UserMapping = new ServerLoginDatabaseUserMapping[0],
-                SecurablePermissions = prototype.SecurablePermissions
+                UserMapping = new ServerLoginDatabaseUserMapping[0]
             };
+
+            // hide permissions for system logins
+            if (!parameters.IsNewObject && login.IsSystemObject)
+            {
+                loginInfo.SecurablePermissions = null;
+            }
+            else
+            {
+                loginInfo.SecurablePermissions = prototype.SecurablePermissions;
+            }
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
             supportedAuthTypes.Add(LoginAuthenticationType.Sql);
