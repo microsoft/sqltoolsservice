@@ -32,19 +32,26 @@ namespace Microsoft.SqlTools.Authentication.Utility
                 if (url.UserInfo != null)
                 {
                     // Extract username, password from userInfo.
-                    // Expected format of userInfo = username:password.
-                    var creds = url.UserInfo.Split(':');
-                    if (creds.Length != 2)
+                    // Expected format of userInfo = user@fqdn:password
+                    // We do not expect username to contain colon (:) based on regex used by VS Code to validate Http.Proxy URL:
+                    // (https?|socks|socks4a?|socks5h?)://([^:]*(:[^@]*)?@)?([^:]+|\\[[:0-9a-fA-F]+\\])(:\\d+)?/?$|^$
+                    var separator = url.UserInfo.IndexOf(':');
+                    if (separator != -1)
                     {
-                        throw new Exception("User credentials received in invalid format.");
-                    }
+                        var username = url.UserInfo.Substring(0, separator);
+                        var password = url.UserInfo.Substring(++separator);
+                        var cleanProxyUrl = ClearCredentials(url);
 
-                    var cleanProxyUrl = ClearCredentials(url);
-                    // TODO: Support caching credentials when ADS supports the same.
-                    // TODO: Support no_proxy bypass list in future.
-                    webProxy = new WebProxy(
-                        cleanProxyUrl, false, null, new NetworkCredential(creds[0], creds[1]));
-                    SqlToolsLogger.Information($"Network Credentials extracted from proxy Url: {cleanProxyUrl}");
+                        // TODO: Support caching credentials when ADS supports the same.
+                        // TODO: Support no_proxy bypass list in future.
+                        webProxy = new WebProxy(
+                            cleanProxyUrl, false, null, new NetworkCredential(username, password));
+                        SqlToolsLogger.Information($"Network Credentials extracted from proxy Url: {cleanProxyUrl}");
+                    }
+                    else
+                    {
+                        throw new Exception("User credentials received in invalid format in Proxy URL, expected Proxy URL format: http(s)://user@fqdn:password@proxyhost:port");
+                    }
                 }
                 else
                 {
@@ -104,8 +111,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         {
             return string.Concat(
                 url.Scheme, "://",
-                url.Host, ":",
-                url.Port);
+                url.Host, (url.IsDefaultPort ? "" : ":" + url.Port));
         }
     }
 }
