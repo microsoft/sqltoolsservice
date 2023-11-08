@@ -51,7 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly SortedDictionary<int, string> displayStatisticsCollectionIntervalInMinutes = new SortedDictionary<int, string>();
         private static readonly SortedDictionary<int, string> displayQueryStoreStaleThresholdInHours = new SortedDictionary<int, string>();
         private static readonly ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string> displaySizeBasedCleanupMode = new ConcurrentDictionary<QueryStoreSizeBasedCleanupMode, string>();
-        private static readonly ConcurrentDictionary<string, string> displayRecoveryStateOptions = new ConcurrentDictionary<string, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -67,6 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal static readonly string[] PropertiesOnOffOptions;
         internal static readonly string[] DscElevateOptions;
         internal static readonly string[] DscEnableDisableOptions;
+        internal static readonly CategoryValue[] displayRecoveryStateOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
         internal DatabaseScopedConfigurationCollection? databaseScopedConfigurationsCollection = null;
@@ -129,10 +129,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, SR.queryStoreSizeBasedCleanupMode_Off);
             displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, SR.queryStoreSizeBasedCleanupMode_Auto);
-
-            displayRecoveryStateOptions.TryAdd("WithRecovery", SR.RestoreWithRecovery);
-            displayRecoveryStateOptions.TryAdd("WithNoRecovery", SR.RestoreWithNoRecovery);
-            displayRecoveryStateOptions.TryAdd("WithStandBy", SR.RestoreWithStandby);
+            displayRecoveryStateOptions = new CategoryValue[]{
+                new CategoryValue
+                {
+                    Name = "WithRecovery",
+                    DisplayName = SR.RestoreWithRecovery
+                },
+                new CategoryValue
+                {
+                    Name = "WithNoRecovery",
+                    DisplayName = SR.RestoreWithNoRecovery
+                },
+                new CategoryValue
+                {
+                    Name = "WithStandBy",
+                    DisplayName = SR.RestoreWithStandby
+                }
+            };
 
             PropertiesOnOffOptions = new[]{
                 CommonConstants.PropertiesDropdown_Value_On,
@@ -295,22 +308,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         // Sql Server 2019 and higher only support the custom query store capture mode
                                         displayQueryStoreCaptureModeOptions.TryAdd(QueryStoreCaptureMode.Custom, SR.querystorecapturemode_custom);
                                     }
-
-                                    // Get info for restore database
-                                    RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, smoDatabase.Name);
-                                    restoreDataObject.RestoreParams = new RestoreParams();
-                                    restoreDataObject.RestoreParams.SourceDatabaseName = smoDatabase.Name;
-                                    restoreDataObject.RestoreParams.ReadHeaderFromMedia = false;
-
-                                    RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
-                                    RestorePlanResponse restorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.RestorePlanResponse = restorePlanResponse;
-                                    RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
-                                    databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
-                                    databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = restoreUtil.GetTargetDbNames().ToArray();
-                                    databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restorePlanResponse.DatabaseNamesFromBackupSets;
-                                    databaseViewInfo.RestoreDatabaseInfo.RecoveryStateOptions = displayRecoveryStateOptions;
                                 }
                             }
                             if (!isManagedInstance)
@@ -420,6 +417,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         logins.Insert(0, SR.general_default);
 
                         databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
+                    }
+
+                    // Restore Database
+                    if (!isAzureDB)
+                    {
+                        RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, requestParams.Database);
+                        restoreDataObject.RestoreParams = new RestoreParams();
+                        restoreDataObject.RestoreParams.SourceDatabaseName = requestParams.Database;
+                        restoreDataObject.RestoreParams.ReadHeaderFromMedia = false;
+
+                        RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
+                        RestorePlanResponse restorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
+                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
+                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.RestorePlanResponse = restorePlanResponse;
+                        RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
+
+                        databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
+                        databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = restoreUtil.GetTargetDbNames().ToArray();
+                        databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restorePlanResponse.DatabaseNamesFromBackupSets;
+                        databaseViewInfo.RestoreDatabaseInfo.RecoveryStateOptions = displayRecoveryStateOptions;
                     }
 
                     var context = new DatabaseViewContext(requestParams);
