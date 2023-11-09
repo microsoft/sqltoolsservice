@@ -578,9 +578,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     ? reliableConnection.GetUnderlyingConnection()
                     : connection;
                 
-                var pid = (underlyingConnection as SqlConnection).ServerProcessId;
-                if (pid != 0) {
-                    response.ServerConnectionId = pid.ToString();
+                var serverConnId = (underlyingConnection as SqlConnection).ServerProcessId;
+                if (serverConnId != 0) {
+                    // If 0, that would mean the connection is inactive, so there's no 
+                    // need to return the connection id.
+                    response.ServerConnectionId = serverConnId.ToString();
                 }
 
                 ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(underlyingConnection);

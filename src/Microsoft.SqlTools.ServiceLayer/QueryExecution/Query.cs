@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The Process ID of the query when connected.
         /// </summary>
-        public string PID { get; private set; }
+        public string ServerConnectionId { get; private set; }
 
         /// <summary>
         /// The text of the query to execute
@@ -496,10 +496,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (sqlConn != null)
                     {
-                        // Update PID here as it may change upon reconnect and only updates upon query execution.
-                        var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-                        if (intPID != 0) {
-                            PID = intPID.ToString();
+                        // Update Server Connection ID here as it may change upon reconnect and only updates upon query execution.
+                        var ServerConnID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (ServerConnID != 0) {
+                            // If 0, that would mean the connection is inactive, so there's no 
+                            // need to return the connection id.
+                            ServerConnectionId = ServerConnID.ToString();
                         }
                     }
                     await QueryCompleted(this);
@@ -521,10 +523,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (sqlConn != null)
                     {
-                        // Update PID here as it may change upon reconnect and only updates upon query execution.
-                        var intPID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-                        if (intPID != 0) {
-                            PID = intPID.ToString();
+                        // Update Server Connection ID here as it may change upon reconnect and only updates upon query execution.
+                        var ServerConnID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (ServerConnID != 0) {
+                            // If 0, that would mean the connection is inactive, so there's no 
+                            // need to return the connection id.
+                            ServerConnectionId = ServerConnID.ToString();
                         }
                     }
                     await QueryFailed(this, e);

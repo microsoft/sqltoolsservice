@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         public BatchSummary[] BatchSummaries { get; set; }
 
         /// <summary>
-        /// Process ID assigned to the query editor.
+        /// Process ID of the query that was executed
         /// </summary>
         public string? ServerConnectionId { get; set; }
     }
