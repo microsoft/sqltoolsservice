@@ -425,6 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, requestParams.Database);
                         restoreDataObject.RestoreParams = new RestoreParams();
                         restoreDataObject.RestoreParams.SourceDatabaseName = requestParams.Database;
+                        restoreDataObject.RestoreParams.TargetDatabaseName = requestParams.Database;
                         restoreDataObject.RestoreParams.ReadHeaderFromMedia = false;
 
                         RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
