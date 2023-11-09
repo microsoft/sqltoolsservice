@@ -13,6 +13,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         /// The URI to generate and retrieve server contextualization for.
         /// </summary>
         public string OwnerUri { get; set; }
+        /// <summary>
+        /// The database to generate context for.
+        /// </summary>
+        public string DatabaseName { get; set; }
     }
 
     public class GetServerContextualizationResult

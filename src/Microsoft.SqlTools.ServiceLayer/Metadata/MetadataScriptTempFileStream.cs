@@ -17,17 +17,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
     /// </summary>
     public static class MetadataScriptTempFileStream
     {
-        private const short ScriptFileExpirationInDays = 30;
+        private const short ScriptFileExpirationInDays = 10;
 
         /// <summary>
         /// This method writes the passed in scripts to a temporary file.
         /// </summary>
         /// <param name="serverName">The name of the server which will go on to become the name of the file.</param>
+        /// <param name="databaseName">The name of the database context was generated for which will become part of the filename.</param>
         /// <param name="scripts">The generated scripts that will be written to the temporary file.</param>
-        public static void Write(string serverName, IEnumerable<string> scripts)
+        public static void Write(string serverName, string databaseName, IEnumerable<string> scripts)
         {
-            var encodedServerName = Base64Encode(serverName);
-            var tempFileName = $"{encodedServerName}.tmp";
+            var encodedServerAndDatabaseName = Base64Encode($"{serverName}_{databaseName}");
+            var tempFileName = $"{encodedServerAndDatabaseName}.tmp";
             var generatedScripts = scripts.ToList();
 
             try

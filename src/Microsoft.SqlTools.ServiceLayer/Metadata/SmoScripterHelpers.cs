@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterHelpers
     {
-        public static IEnumerable<string>? GenerateAllServerTableScripts(DbConnection connection)
+        public static IEnumerable<string>? GenerateDatabaseScripts(DbConnection connection, string databaseName)
         {
             var serverConnection = SmoScripterHelpers.GetServerConnection(connection);
             if (serverConnection == null)
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
 
             Server server = new Server(serverConnection);
-            var scripts = SmoScripterHelpers.GenerateTableScripts(server);
+            var scripts = SmoScripterHelpers.GenerateDatabaseCreateTableAndViewScripts(server, databaseName);
 
             return scripts;
         }
@@ -67,9 +67,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static IEnumerable<string> GenerateTableScripts(Server server)
+        private static IEnumerable<string> GenerateDatabaseCreateTableAndViewScripts(Server server, string databaseName)
         {
-            var urns = SmoScripterHelpers.GetAllServerTableAndViewUrns(server);
+            var urns = SmoScripterHelpers.GetDatabaseTableAndViewUrns(server, databaseName);
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -172,36 +172,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return scripts;
         }
 
-        private static UrnCollection GetAllServerTableAndViewUrns(Server server)
+        private static UrnCollection GetDatabaseTableAndViewUrns(Server server, string databaseName)
         {
             UrnCollection urnCollection = new UrnCollection();
 
-            foreach (Database db in server.Databases)
+            var db = server.Databases[databaseName];
+            if (db == null)
             {
-                try
-                {
-                    foreach (SqlServer.Management.Smo.Table t in db.Tables)
-                    {
-                        urnCollection.Add(t.Urn);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warning($"Unable to get table URNs. Error: {ex.Message}");
-                }
+                return urnCollection;
+            }
 
-                try
+            try
+            {
+                foreach (SqlServer.Management.Smo.Table t in db.Tables)
                 {
-                    foreach (SqlServer.Management.Smo.View v in db.Views)
-                    {
-                        urnCollection.Add(v.Urn);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warning($"Unable to get view URNs. Error: {ex.Message}");
+                    urnCollection.Add(t.Urn);
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Unable to get table URNs. Error: {ex.Message}");
+            }
+
+            try
+            {
+                foreach (SqlServer.Management.Smo.View v in db.Views)
+                {
+                    urnCollection.Add(v.Urn);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Unable to get view URNs. Error: {ex.Message}");
+            }
+
             return urnCollection;
         }
     }
