@@ -893,7 +893,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryCompleteParams eventParams = new QueryCompleteParams
                 {
                     OwnerUri = ownerUri,
-                    BatchSummaries = q.BatchSummaries
+                    BatchSummaries = q.BatchSummaries,
+                    ServerConnectionId = q.ServerConnectionId,
                 };
 
                 Logger.Information($"Query:'{ownerUri}' completed");
@@ -907,7 +908,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryCompleteParams eventParams = new QueryCompleteParams
                 {
                     OwnerUri = ownerUri,
-                    BatchSummaries = q.BatchSummaries
+                    BatchSummaries = q.BatchSummaries,
+                    ServerConnectionId = q.ServerConnectionId,
                 };
 
                 Logger.Error($"Query:'{ownerUri}' failed");

@@ -289,6 +289,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasErrored { get; private set; }
 
         /// <summary>
+        /// The Process ID of the query when connected.
+        /// </summary>
+        public string ServerConnectionId { get; private set; }
+
+        /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; }
@@ -489,6 +494,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Call the query execution callback
                 if (QueryCompleted != null)
                 {
+                    if (sqlConn != null)
+                    {
+                        // Update Server Connection ID here as it may change upon reconnect and only updates upon query execution.
+                        var ServerConnID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (ServerConnID != 0) {
+                            // If 0, that would mean the connection is inactive, so there's no 
+                            // need to return the connection id.
+                            ServerConnectionId = ServerConnID.ToString();
+                        }
+                    }
                     await QueryCompleted(this);
                 }
             }
@@ -506,6 +521,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Call the query failure callback
                 if (QueryFailed != null)
                 {
+                    if (sqlConn != null)
+                    {
+                        // Update Server Connection ID here as it may change upon reconnect and only updates upon query execution.
+                        var ServerConnID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+                        if (ServerConnID != 0) {
+                            // If 0, that would mean the connection is inactive, so there's no 
+                            // need to return the connection id.
+                            ServerConnectionId = ServerConnID.ToString();
+                        }
+                    }
                     await QueryFailed(this, e);
                 }
             }

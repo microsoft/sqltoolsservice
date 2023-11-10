@@ -23,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// Summaries of the result sets that were returned with the query
         /// </summary>
         public BatchSummary[] BatchSummaries { get; set; }
+
+        /// <summary>
+        /// Process ID of the query that was executed
+        /// </summary>
+        public string? ServerConnectionId { get; set; }
     }
 
     public class QueryCompleteEvent
