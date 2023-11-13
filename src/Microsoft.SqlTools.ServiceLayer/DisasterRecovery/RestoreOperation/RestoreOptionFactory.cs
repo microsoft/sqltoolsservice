@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
 
-        public RestoreOptionFactory()
+        private RestoreOptionFactory()
         {
             Register(RestoreOptionsHelper.RelocateDbFiles,
                 new OptionBuilder
