@@ -430,8 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                         RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
                         RestorePlanResponse restorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
-                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions = new RestoreOptions();
-                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).restoreOptions.RestorePlanResponse = restorePlanResponse;
+                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).restorePlanResponse = restorePlanResponse;
                         RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
 
                         databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();

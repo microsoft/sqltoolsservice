@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public FileGroupSummary[]? Filegroups { get; set; }
         public QueryStoreOptions? QueryStoreOptions { get; set; }
         public BackupEncryptor[]? BackupEncryptors { get; set; }
-        public RestoreOptions restoreOptions { get; set; }
+        public RestorePlanResponse restorePlanResponse { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -107,9 +107,4 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public long TotalCompileCPUTimeInMS { get; set; }
         public long TotalExecutionCPUTimeInMS { get; set; }
     }
-
-    public class RestoreOptions
-    {
-        public RestorePlanResponse RestorePlanResponse { get; set; }
-    }   
 }
