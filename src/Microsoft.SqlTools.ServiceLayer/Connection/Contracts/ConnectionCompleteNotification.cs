@@ -64,6 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Additional optional message with details about why the version isn't supported.
         /// </summary>
         public string? UnsupportedVersionMessage { get; set; }
+
+        /// <summary>
+        /// Process ID for the connection, if the connection was successful.
+        /// </summary>
+        public string? ServerConnectionId { get; set; }
     }
 
     /// <summary>
