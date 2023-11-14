@@ -6,7 +6,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.SqlCore.Scripting
@@ -19,19 +18,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             return await ExecuteScriptAs(scriptAsOperation);
         }
 
-         /// <summary>
-        /// Gets the script as script like select, insert, update, drop and create for the given scripting parameters. 
-        /// </summary>
-        /// <param name="parameters">scripting parameters that contains the object to script and the scripting options</param>
-        /// <param name="accessToken">access token to connect to the server. To be used in case of AAD based connections</param>
-        /// <returns>script as script</returns>
-        public static async Task<string> GetScriptAsScript(ScriptingParams parameters, ServerConnection? serverConnection, SecurityToken? accessToken)
-        {
-            var scriptAsOperation = new ScriptAsScriptingOperation(parameters, accessToken?.Token);
-            return await ExecuteScriptAs(scriptAsOperation);
-        }
-
-         /// <summary>
+        /// <summary>
         /// Gets the script as script like select, insert, update, drop and create for the given scripting parameters.
         /// </summary>
         /// <param name="parameters">scripting parameters that contains the object to script and the scripting options</param>
