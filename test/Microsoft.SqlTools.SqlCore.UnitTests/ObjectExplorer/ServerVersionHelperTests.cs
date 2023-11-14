@@ -8,7 +8,7 @@
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.UnitTests.ObjectExplorer
 {
     public class ServerVersionHelperTests
     {

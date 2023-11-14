@@ -11,7 +11,7 @@ using System.Linq;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.SqlCore.Scripting
 {
     /// <summary>
     /// Implements matching logic to filter scripting objects based on an 

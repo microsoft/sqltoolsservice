@@ -39,6 +39,8 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.SqlCore.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.SqlCore.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>

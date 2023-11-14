@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.IntegrationTests.ObjectExplorer
 {
     public class StatelessObjectExplorerServiceTests
     {

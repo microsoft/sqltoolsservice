@@ -7,12 +7,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.SqlCore.Scripting;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
+namespace Microsoft.SqlTools.SqlCore.UnitTests.Scripting
 {
     public class ScriptingMatcherTests
     {

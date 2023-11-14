@@ -9,7 +9,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.UnitTests.ObjectExplorer
 {
     public class UsersChildFactoryTests
     {

@@ -10,14 +10,13 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+
 
 using Moq;
 
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.UnitTests.ObjectExplorer
 {
     internal sealed class GroupBySchemaTests
     {
@@ -66,7 +65,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void SchemaBasedFoldersIncludedWhenGroupBySchemaIsDisabled()
         {
             enableGroupBySchema = false;
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
             var children = factory.Object.Expand(node.Object, true, "TestDB", true, new System.Threading.CancellationToken());
             Assert.True(children.Any(c => c.Label == "Tables"), "Tables subfolder in database should be included when group by schema is disabled");
             Assert.True(children.Any(c => c.Label == "Views"), "Views subfolder in database should be included when group by schema is disabled");
