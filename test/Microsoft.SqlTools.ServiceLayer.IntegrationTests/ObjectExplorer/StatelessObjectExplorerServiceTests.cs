@@ -6,6 +6,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
@@ -44,12 +46,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                             GO
                             Create table t2 (c1 int)
                             GO";
-            await RunTest(databaseName, query, "testdb", async (testdbName, connectionString) =>
+            await RunTest(databaseName, query, "testdb", async (testdbName, connection) =>
             {
+                ServerConnection serverConnection = new ServerConnection(connection);
                 serverInfo.DatabaseName = testdbName;
                 var pathWithDb = string.Format(oePath, testdbName);
-                var nodes = await StatelessObjectExplorer.Expand(connectionString, null, pathWithDb, serverInfo, options);
-
+                var nodes = await StatelessObjectExplorer.Expand(serverConnection, pathWithDb, serverInfo, options);
                 Assert.True(nodes.Any(node => node.Label == childLabel), $"Expansion result for {pathWithDb} does not contain node {childLabel}");
             });
         }
@@ -61,30 +63,31 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                             GO
                             Create table t2 (c1 int)
                             GO";
-            await RunTest(databaseName, query, "testdb", async (testdbName, connectionString) =>
+            await RunTest(databaseName, query, "testdb", async (testdbName, connection) =>
             {
+                ServerConnection serverConnection = new ServerConnection(connection);
                 serverInfo.DatabaseName = testdbName;
                 var oePath = "";
                 var pathWithDb = string.Format(oePath, testdbName);
 
-                var nodes = await StatelessObjectExplorer.Expand(connectionString, null, pathWithDb, serverInfo, options);
+                var nodes = await StatelessObjectExplorer.Expand(serverConnection, pathWithDb, serverInfo, options);
                 Assert.True(nodes.Any(node => node.Label == "dbo"), $"Expansion result for {pathWithDb} does not contain node dbo");
 
-                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes[0], options, null, null);
+                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes[0], options, null);
                 Assert.True(nodes.Any(node => node.Label == "Tables"), $"Expansion result for {pathWithDb} does not contain node t1");
 
-                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes.First(node => node.Label == "Tables"), options, null, null);
+                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes.First(node => node.Label == "Tables"), options, null);
                 Assert.True(nodes.Any(node => node.Label == "dbo.t1"), $"Expansion result for {pathWithDb} does not contain node t1");
 
-                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes.First(node => node.Label == "dbo.t1"), options, null, null);
+                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes.First(node => node.Label == "dbo.t1"), options, null);
                 Assert.True(nodes.Any(node => node.Label == "Columns"), $"Expansion result for {pathWithDb} does not contain node Columns");
 
-                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes.First(node => node.Label == "Columns"), options, null, null);
+                nodes = await StatelessObjectExplorer.ExpandTreeNode(nodes.First(node => node.Label == "Columns"), options, null);
                 Assert.True(nodes.Any(node => node.Label == "c1 (int, null)"), $"Expansion result for {pathWithDb} does not contain node c1");
             });
         }
 
-        private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, string, Task> test)
+        private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, SqlConnection, Task> test)
         {
             SqlTestDb? testDb = null;
             try
@@ -94,7 +97,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 {
                     databaseName = testDb.DatabaseName;
                 }
-                await test(testDb.DatabaseName, testDb.ConnectionString);
+                using (SqlConnection connection = new SqlConnection(testDb.ConnectionString))
+                {
+                    await connection.OpenAsync();
+                    await test(testDb.DatabaseName, connection);
+                }
             }
             catch (Exception ex)
             {

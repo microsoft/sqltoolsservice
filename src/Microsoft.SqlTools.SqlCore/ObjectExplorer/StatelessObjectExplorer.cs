@@ -7,10 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 
@@ -24,39 +21,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <summary>
         /// Expands the node at the given path and returns the child nodes.
         /// </summary>
-        /// <param name="connectionString"> Connection string to connect to the server </param>
-        /// <param name="accessToken"> Access token to connect to the server. To be used in case of Microsoft Entra ID based connections </param>
-        /// <param name="nodePath"> Path of the node to expand </param>
-        /// <param name="serverInfo"> Server information </param>
-        /// <param name="options"> Object explorer options </param>
-        /// <param name="filters"> Filters to be applied on the leaf nodes </param>
-        /// <returns> Array of child nodes </returns>
-        /// <exception cref="ArgumentNullException"> Thrown when the parent node is not found </exception>
-        /// <exception cref="TimeoutException"> Thrown when the operation times out.</exception> <summary>
-        /// </summary>     
-        public static async Task<TreeNode[]> Expand(string connectionString, SecurityToken? accessToken, string nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                // In case of access token based connections, we need to open the sql connection first before creating  the server connection
-                // Not doing so will result in an exception when trying to call 'Connect' on the server connection
-                if (accessToken != null)
-                {
-                    conn.AccessToken = accessToken.Token;
-                    await conn.OpenAsync();
-                }
-                ServerConnection connection = new ServerConnection(conn);
-                if (accessToken != null)
-                {
-                    connection.AccessToken = accessToken as IRenewableToken;
-                }
-                return await Expand(connection, accessToken, nodePath, serverInfo, options, filters);
-            }
-        }
-
-        /// <summary>
-        /// Expands the node at the given path and returns the child nodes.
-        /// </summary>
         /// <param name="serverConnection"> Server connection to use for expanding the node. It will be used only if parent is null </param>
         /// <param name="accessToken"> Access token to connect to the server. To be used in case of AAD based connections </param>
         /// <param name="nodePath"> Path of the node to expand. Will be used only if parent is null </param>
@@ -65,17 +29,16 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <param name="filters"> Filters to be applied on the leaf nodes </param>
         /// <returns></returns> 
         /// </summary>
-        public static async Task<TreeNode[]> Expand(ServerConnection serverConnection, SecurityToken? accessToken, string? nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
+        public static async Task<TreeNode[]> Expand(ServerConnection serverConnection, string? nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
         {
             using (var taskCancellationTokenSource = new CancellationTokenSource())
             {
                 try
                 {
-                    var token = accessToken == null ? null : accessToken.Token;
                     var task = Task.Run(() =>
                     {
                         TreeNode? node;
-                        ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter, accessToken);
+                        ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter);
                         TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
                         if (nodePath == null || nodePath == string.Empty)
                         {
@@ -90,7 +53,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                         node = rootNode.FindNodeByPath(nodePath, true, taskCancellationTokenSource.Token);
                         if (node != null)
                         {
-                            return node.Refresh(taskCancellationTokenSource.Token, token, filters);
+                            return node.Refresh(taskCancellationTokenSource.Token, null, filters);
                         }
                         else
                         {
@@ -115,7 +78,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <param name="filters"> Filters to be applied on the leaf nodes </param>
         /// <param name="securityToken"> Security token to connect to the server. To be used in case of AAD based connections </param>
         /// <returns></returns>
-        public static async Task<TreeNode[]> ExpandTreeNode(TreeNode node, ObjectExplorerOptions options, INodeFilter[]? filters = null, SecurityToken? securityToken = null)
+        public static async Task<TreeNode[]> ExpandTreeNode(TreeNode node, ObjectExplorerOptions options, INodeFilter[]? filters = null)
         {
             if (node == null)
             {
@@ -124,7 +87,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 
             using (var taskCancellationTokenSource = new CancellationTokenSource())
             {
-                var expandTask = Task.Run(async () =>
+                var expandTask = Task.Run(() =>
                             {
                                 SmoQueryContext nodeContext = node.GetContextAs<SmoQueryContext>() ?? throw new ArgumentException("Node does not have a valid context");
 
@@ -132,15 +95,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                                 {
                                     nodeContext.GroupBySchemaFlag = options.GroupBySchemaFlagGetter;
                                 }
-
-                                if (!nodeContext.Server.ConnectionContext.IsOpen && securityToken != null)
-                                {
-                                    var underlyingSqlConnection = nodeContext.Server.ConnectionContext.SqlConnectionObject;
-                                    underlyingSqlConnection.AccessToken = securityToken.Token;
-                                    await underlyingSqlConnection.OpenAsync();
-                                }
-
-                                return node.Refresh(taskCancellationTokenSource.Token, securityToken?.Token, filters);
+                                return node.Refresh(taskCancellationTokenSource.Token, null, filters);
                             });
 
                 return await RunExpandTask(expandTask, taskCancellationTokenSource, options.OperationTimeoutSeconds);
