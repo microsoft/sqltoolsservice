@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+# if NET
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -369,3 +371,5 @@ namespace Microsoft.SqlTools.SqlCore.Performance
         public virtual IList<Metric> GetAvailableMetrics(SqlConnection connection) => QdsMetadataMapper.GetAvailableMetrics(connection);
     }
 }
+
+#endif

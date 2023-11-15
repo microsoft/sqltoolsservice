@@ -23,7 +23,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
-		<PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
+		<PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" PrivateAssets="all" />
