@@ -54,13 +54,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 AzureBlobConnectionSetting settings = new AzureBlobConnectionSetting();
                 settings.AccountKey = Environment.GetEnvironmentVariable(Constants.AzureStorageAccountKey);
                 settings.AccountName = Environment.GetEnvironmentVariable(Constants.AzureStorageAccountName);
-                settings.BlobContainerUri = Environment.GetEnvironmentVariable(Constants.AzureBlobContainerUri); 
-                Console.WriteLine("Azure Blob Connection Settings loaded successfully");
+                settings.BlobContainerUri = Environment.GetEnvironmentVariable(Constants.AzureBlobContainerUri);
+
+                if (String.IsNullOrWhiteSpace(settings.AccountName) || String.IsNullOrWhiteSpace(settings.AccountKey) || String.IsNullOrWhiteSpace(settings.BlobContainerUri))
+                {
+                    throw new InvalidOperationException($"Azure Blob connection settings are not set, but are required for this test.");
+                }
+
+                Console.WriteLine("Azure Blob connection settings loaded successfully");
                 return settings;
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to load the azure blob connection settings.", ex);
+                throw new Exception("Failed to load the Azure Blob connection settings.", ex);
             }
         }
     }
