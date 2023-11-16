@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
                 if (String.IsNullOrWhiteSpace(settings.AccountName) || String.IsNullOrWhiteSpace(settings.AccountKey) || String.IsNullOrWhiteSpace(settings.BlobContainerUri))
                 {
-                    throw new InvalidOperationException("Azure Blob connection settings are not set, but are required for this test.");
+                    throw new InvalidOperationException("Azure Blob connection settings are not set, but are required for this test.  https://github.com/microsoft/sqltoolsservice/blob/main/test/README.md#test-storage-account-setup");
                 }
 
                 Console.WriteLine("Azure Blob connection settings loaded successfully");
