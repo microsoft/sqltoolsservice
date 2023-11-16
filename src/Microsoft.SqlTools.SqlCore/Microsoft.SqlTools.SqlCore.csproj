@@ -11,9 +11,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
-		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution and Scripting</Description>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<LangVersion>8.0</LangVersion>
+		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution, and Scripting</Description>
+		<TargetFramework>net6.0</TargetFramework>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
 	</PropertyGroup>
@@ -23,6 +22,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
+		<PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" PrivateAssets="all" />
