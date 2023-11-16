@@ -816,18 +816,6 @@
     <comment>.
  Parameters: 0 - deviceType (String), 1 - engineEdition (String) </comment>
   </data>
-  <data name="RestoreWithRecovery" xml:space="preserve">
-    <value>RESTORE WITH RECOVERY</value>
-    <comment></comment>
-  </data>
-  <data name="RestoreWithNoRecovery" xml:space="preserve">
-    <value>RESTORE WITH NORECOVERY</value>
-    <comment></comment>
-  </data>
-  <data name="RestoreWithStandby" xml:space="preserve">
-    <value>RESTORE WITH STANDBY</value>
-    <comment></comment>
-  </data>
   <data name="ScriptTaskName" xml:space="preserve">
     <value>scripting</value>
     <comment></comment>

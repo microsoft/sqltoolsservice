@@ -7370,21 +7370,6 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - dsp (string) </note>
       </trans-unit>
-      <trans-unit id="RestoreWithRecovery">
-        <source>RESTORE WITH RECOVERY</source>
-        <target state="new">RESTORE WITH RECOVERY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="RestoreWithNoRecovery">
-        <source>RESTORE WITH NORECOVERY</source>
-        <target state="new">RESTORE WITH NORECOVERY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="RestoreWithStandby">
-        <source>RESTORE WITH STANDBY</source>
-        <target state="new">RESTORE WITH STANDBY</target>
-        <note></note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

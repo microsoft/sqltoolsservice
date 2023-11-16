@@ -133,17 +133,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 new CategoryValue
                 {
                     Name = "WithRecovery",
-                    DisplayName = SR.RestoreWithRecovery
+                    DisplayName = "RESTORE WITH RECOVERY"
                 },
                 new CategoryValue
                 {
                     Name = "WithNoRecovery",
-                    DisplayName = SR.RestoreWithNoRecovery
+                    DisplayName = "RESTORE WITH NORECOVERY"
                 },
                 new CategoryValue
                 {
                     Name = "WithStandBy",
-                    DisplayName = SR.RestoreWithStandby
+                    DisplayName = "RESTORE WITH STANDBY"
                 }
             };
 

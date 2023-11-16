@@ -1077,30 +1077,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string RestoreWithRecovery
-        {
-            get
-            {
-                return Keys.GetString(Keys.RestoreWithRecovery);
-            }
-        }
-
-        public static string RestoreWithNoRecovery
-        {
-            get
-            {
-                return Keys.GetString(Keys.RestoreWithNoRecovery);
-            }
-        }
-
-        public static string RestoreWithStandby
-        {
-            get
-            {
-                return Keys.GetString(Keys.RestoreWithStandby);
-            }
-        }
-
         public static string ScriptTaskName
         {
             get
@@ -11921,15 +11897,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string UnsupportedDeviceType = "UnsupportedDeviceType";
-
-
-            public const string RestoreWithRecovery = "RestoreWithRecovery";
-
-
-            public const string RestoreWithNoRecovery = "RestoreWithNoRecovery";
-
-
-            public const string RestoreWithStandby = "RestoreWithStandby";
 
 
             public const string ScriptTaskName = "ScriptTaskName";
