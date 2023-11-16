@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-# if NET
+# if NET // TODO: remove; tracked in SqlToolsCore as Task #1254787
 
 using System;
 using System.Collections.Generic;
