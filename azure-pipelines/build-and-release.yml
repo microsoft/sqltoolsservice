@@ -32,7 +32,7 @@ stages:
       - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
-    timeoutInMinutes: 90
+    timeoutInMinutes: 150
 
   # In order to run on arm64 macOS the executables must be at least self-signed, but dotnet publish step only does it when publishing on macOS.
   # More information: https://github.com/dotnet/runtime/issues/49091
