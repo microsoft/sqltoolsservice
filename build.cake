@@ -469,7 +469,7 @@ void PublishProject(string packageName, string[] projects)
                 Run(dotnetcli, publishArguments)
                     .ExceptionOnError($"Failed to publish {project} / {framework}");
                 var publishEnd = DateTime.Now;
-                Information($"=~= [{(publishEnd - overallStart)} @ {(publishEnd - publishStart).TotalMilliseconds} ms] Finished publishing {project} / {framework}");
+                Information($"=~= [{(publishEnd - overallStart)} @ {(publishEnd - publishStart).TotalMilliseconds} ms] Finished publishing {project} / {framework} / {runtime}");
                 //Setting the rpath for System.Security.Cryptography.Native.dylib library
                 //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
                 //If that's not the case user has to run the command manually
@@ -490,7 +490,7 @@ void PublishProject(string packageName, string[] projects)
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
                 publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
                 var publishStart = DateTime.Now;
-                Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework} / {runtime}");
+                Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework}");
                 Run(dotnetcli, publishArguments)
                     .ExceptionOnError($"Failed to publish {project} / {framework}");
                 var publishEnd = DateTime.Now;
