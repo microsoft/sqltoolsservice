@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "SqlToolsService_TestBackupToUrl_" + new Random().Next(10000000, 99999999);
+            AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Instance.Settings;
 
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
             {
@@ -50,7 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     ServerConnection serverConn = new ServerConnection(sqlConn);
                     Server server = new Server(serverConn);
                     SharedAccessSignatureCreator sasCreator = new SharedAccessSignatureCreator(server);
-                    AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Instance.Settings;
                     sasCreator.CreateSqlSASCredential(azureBlobConnection.AccountName, azureBlobConnection.AccountKey, azureBlobConnection.BlobContainerUri, "");
                     string backupPath = GetAzureBlobBackupPath(databaseName);
 
