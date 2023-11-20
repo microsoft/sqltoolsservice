@@ -129,6 +129,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Off, SR.queryStoreSizeBasedCleanupMode_Off);
             displaySizeBasedCleanupMode.TryAdd(QueryStoreSizeBasedCleanupMode.Auto, SR.queryStoreSizeBasedCleanupMode_Auto);
+
+            // These are T-SQL keywords and they should not be localized.
             displayRecoveryStateOptions = new CategoryValue[]{
                 new CategoryValue
                 {
@@ -423,6 +425,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     if (!isAzureDB)
                     {
                         RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, requestParams.Database);
+
+                        // Restore params to get the plan
                         restoreDataObject.RestoreParams = new RestoreParams();
                         restoreDataObject.RestoreParams.SourceDatabaseName = requestParams.Database;
                         restoreDataObject.RestoreParams.TargetDatabaseName = requestParams.Database;
@@ -431,10 +435,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
                         RestorePlanResponse restorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).restorePlanResponse = restorePlanResponse;
-                        RestoreUtil restoreUtil = new RestoreUtil(dataContainer.Server);
 
+                        List<string> targetDatabasenames = GetTargetDatabaseNames(requestParams.ConnectionUri);
+                        targetDatabasenames.RemoveAll(db => db == "master" || db == "tempdb");
+
+                        // Restore database view info
                         databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
-                        databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = restoreUtil.GetTargetDbNames().ToArray();
+                        databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = targetDatabasenames.ToArray();
                         databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restorePlanResponse.DatabaseNamesFromBackupSets;
                         databaseViewInfo.RestoreDatabaseInfo.RecoveryStateOptions = displayRecoveryStateOptions;
                     }
@@ -443,6 +450,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                 }
             }
+        }
+
+        /// <summary>
+        /// Get target database names list
+        /// </summary>
+        /// <param name="connectionUri"></param>
+        /// <returns>Returns the list of database names</returns>
+        public List<string> GetTargetDatabaseNames(string connectionUri)
+        {
+            List<string> databaseNames = new List<string>();
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo))
+            {
+                if (sqlConn != null)
+                {
+                    using (var cmd = new SqlCommand { Connection = sqlConn })
+                    {
+                        cmd.CommandText = "SELECT [NAME] FROM sys.databases";
+                        cmd.ExecuteNonQuery();
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                databaseNames.Add(reader.GetString(0));
+                            }
+                        }
+                    }
+                }
+            }
+            return databaseNames;
         }
 
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
