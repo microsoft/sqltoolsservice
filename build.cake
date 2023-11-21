@@ -447,6 +447,8 @@ Task("PublishExternalProjects")
 
 void PublishProject(string packageName, string[] projects)
 {
+    var overallStart = DateTime.Now;
+
     foreach (var project in projects)
     {
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
@@ -462,8 +464,12 @@ void PublishProject(string packageName, string[] projects)
                 }
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
                 publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                var publishStart = DateTime.Now;
+                Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework} / {runtime}");
                 Run(dotnetcli, publishArguments)
                     .ExceptionOnError($"Failed to publish {project} / {framework}");
+                var publishEnd = DateTime.Now;
+                Information($"=~= [{(publishEnd - overallStart)} @ {(publishEnd - publishStart).TotalMilliseconds} ms] Finished publishing {project} / {framework} / {runtime}");
                 //Setting the rpath for System.Security.Cryptography.Native.dylib library
                 //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
                 //If that's not the case user has to run the command manually
@@ -483,8 +489,12 @@ void PublishProject(string packageName, string[] projects)
                 var publishArguments = "publish";
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
                 publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                var publishStart = DateTime.Now;
+                Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework}");
                 Run(dotnetcli, publishArguments)
                     .ExceptionOnError($"Failed to publish {project} / {framework}");
+                var publishEnd = DateTime.Now;
+                Information($"=~= [{(publishEnd - overallStart)} @ {(publishEnd - publishStart).TotalMilliseconds} ms] Finished publishing {project} / {framework}");
             }
         }
         
