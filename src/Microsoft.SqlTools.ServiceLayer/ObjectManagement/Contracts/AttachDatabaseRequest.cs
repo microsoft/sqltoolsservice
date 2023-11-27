@@ -26,4 +26,4 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     {
         public static readonly RequestType<AttachDatabaseRequestParams, string> Type = RequestType<AttachDatabaseRequestParams, string>.Create("objectManagement/attachDatabase");
     }
-}   
+}

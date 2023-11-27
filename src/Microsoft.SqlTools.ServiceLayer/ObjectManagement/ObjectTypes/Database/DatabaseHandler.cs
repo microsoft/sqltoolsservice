@@ -455,7 +455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get target database names list
         /// </summary>
-        /// <param name="connectionUri"></param>
+        /// <param name="connectionUri">The connection uri</param>
         /// <returns>Returns the list of database names</returns>
         public List<string> GetTargetDatabaseNames(string connectionUri)
         {
