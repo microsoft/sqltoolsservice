@@ -5,6 +5,7 @@
 
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -48,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public FileGroupSummary[]? Filegroups { get; set; }
         public QueryStoreOptions? QueryStoreOptions { get; set; }
         public BackupEncryptor[]? BackupEncryptors { get; set; }
+        public RestorePlanResponse restorePlanResponse { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
