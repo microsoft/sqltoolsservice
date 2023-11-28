@@ -37,22 +37,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
             // Skip EventCounters as they can come from any event source and will pollute traces captured.
-            if (!eventData.EventName.Equals(nameof(EventCounter)))
+            if (eventData.Payload == null || eventData.EventName.Equals(nameof(EventCounter)))
             {
-                if (eventData.Payload == null)
+                return;
+            }
+
+            foreach (object payload in eventData.Payload)
+            {
+                if (payload != null)
                 {
-                    return;
-                }
-                foreach (object payload in eventData.Payload)
-                {
-                    if (payload != null)
-                    {
 #if NETSTANDARD2_0_OR_GREATER
-                        Logger.Verbose($"eventTID:{Environment.CurrentManagedThreadId} {payload.ToString()}");
+                    Logger.Verbose($"eventTID:{Environment.CurrentManagedThreadId} {payload.ToString()}");
 #else
-                        Logger.Verbose($"eventTID:{eventData.OSThreadId} {payload.ToString()}");
+                    Logger.Verbose($"eventTID:{eventData.OSThreadId} {payload.ToString()}");
 #endif
-                    }
                 }
             }
         }
