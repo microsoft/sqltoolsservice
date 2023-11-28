@@ -36,10 +36,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="eventData">The data for the event</param>
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            if (eventData.Payload == null)
+            // Skip EventCounters as they can come from any event source and will pollute traces captured.
+            if (eventData.Payload == null || eventData.EventName.Equals(nameof(EventCounter)))
             {
                 return;
             }
+
             foreach (object payload in eventData.Payload)
             {
                 if (payload != null)
@@ -51,7 +53,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 #endif
                 }
             }
-
         }
     }
 }
