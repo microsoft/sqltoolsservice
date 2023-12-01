@@ -426,13 +426,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         List<string> targetDatabasenames = GetTargetDatabaseNames(requestParams.ConnectionUri);
                         targetDatabasenames.RemoveAll(db => db == "master" || db == "tempdb");
+                        databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
+                        databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = targetDatabasenames.ToArray();
 
-                        if (isManagedInstance)
-                        {
-                            databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
-                            databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = targetDatabasenames.ToArray();
-                        }
-                        else
+                        if (!isManagedInstance)
                         {
                             RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, requestParams.Database);
 
