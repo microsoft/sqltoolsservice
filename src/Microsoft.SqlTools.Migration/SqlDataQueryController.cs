@@ -71,7 +71,10 @@ namespace Microsoft.SqlTools.Migration
             this.messages = new List<KeyValuePair<string, DateTime>>();
             this.errors = new List<KeyValuePair<string, DateTime>>();
             perfDataCache = new SqlPerfDataPointsCache(this.outputFolder, _logger);
-            dataCollector = new DataPointsCollector(new string[] { connectionString }, _logger);
+            dataCollector = new DataPointsCollector(
+                                new string[] { connectionString },
+                                _logger,
+                                new DataPointsCollectorOptions(true));
 
             // set up timers to run perf/static collection at specified intervals
             System.Timers.Timer perfDataCollectionTimer = new System.Timers.Timer();
