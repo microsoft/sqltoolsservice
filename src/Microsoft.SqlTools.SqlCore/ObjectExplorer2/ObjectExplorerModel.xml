@@ -1,0 +1,175 @@
+﻿<ObjectExplorerModel>
+  <Node Name="Database" Type="Database" Icon="Database" isLeaf="false">
+    <ChildQuerier Type="Schema" />
+  </Node>
+
+  <!-- Schema Query -->
+  <Querier Name="Schema" Node="Schema" Query="
+SELECT
+    S.name AS schemaName,
+    S.name AS objectName,
+    NULL AS parentName,
+    S.name AS displayName,
+    'Schema' AS type
+From
+    sys.schemas AS S
+" />
+
+  <!-- Schema Node -->
+  <Node Name="Schema" Type="Schema" Icon="Schema" isLeaf="false">
+    <ChildFolder Name="Tables" />
+    <ChildFolder Name="Views" />
+  </Node>
+
+  <!-- Tables folder definition-->
+  <Folder Name="Tables" Label="SR.SchemaHierarchy_Tables">
+    <ChildQuerier Type="Table" />
+  </Folder>
+
+  <!-- Table Query -->
+  <Querier Name="Table" Node="Table" Query="
+  SELECT
+      S.name AS schemaName,
+      T.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', T.name) AS displayName,
+      'Table' AS ObjectType
+  FROM
+      sys.schemas AS S
+      JOIN sys.tables AS T ON S.schema_id = T.schema_id
+  where
+      t.temporal_type_desc = 'SYSTEM_VERSIONED_TEMPORAL_TABLE'
+      or t.temporal_type_desc = 'NON_TEMPORAL_TABLE'
+  order by
+      displayName
+  " />
+
+  <!-- Table Node -->
+  <Node Name="Table" Type="Table" Icon="Table" isLeaf="false">
+    <ChildFolder Name="TableColumns" />
+  </Node>
+
+  <!-- Columns folder definition-->
+  <Folder Name="TableColumns" Label="SR.SchemaHierarchy_Columns">
+    <ChildQuerier Type="TableColumn" />
+  </Folder>
+
+  <!-- Column Query -->
+  <Querier 
+    Name="TableColumn" 
+    Node="Column" 
+    Query="
+    select 
+    s.name as schemaName,
+    c.name as objectName,
+    t.name as parentName,
+    c.name + 
+    ' (' +
+    tp.name +
+    -- logic for length printing
+    CASE  
+        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        CASE 
+            when c.max_length = -1 THEN '(max)'
+            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
+        END 
+        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
+        ELSE  ''
+    END +
+    -- logic for null/notnull
+    CASE
+        when c.is_nullable = 1 then ', null'
+        ELSE ', not null'
+    END +
+     ')' 
+     as displayName,
+    'COLUMN' as type
+FROM 
+    sys.columns c
+INNER JOIN 
+    sys.tables t ON c.object_id = t.object_id
+INNER JOIN
+    sys.types tp ON c.user_type_id = tp.user_type_id
+INNER JOIN
+    sys.schemas s ON s.schema_id = t.schema_id
+ORDER BY
+    s.name, t.name
+    "
+  />
+
+  <!-- Column Node -->
+  <Node Name="Column" Type="Column" Icon="Column" isLeaf="true" />
+
+  <!-- Views folder definition-->
+  <Folder Name="Views" Label="SR.SchemaHierarchy_Views">
+    <ChildQuerier Type="View" />
+  </Folder>
+
+  <!-- View Query -->
+  <Querier Name="View" Node="View" Query="
+  SELECT
+      S.name AS schemaName,
+      V.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', V.name) AS displayName,
+      'View' AS ObjectType
+  FROM
+      sys.schemas AS S
+      JOIN sys.views AS V ON S.schema_id = V.schema_id
+  order by
+      displayName
+  " />
+
+  <!-- View Node -->
+  <Node Name="View" Type="View" Icon="View" isLeaf="false">
+    <ChildFolder Name="ViewColumns" />
+  </Node>
+
+  <!-- Columns folder definition-->
+  <Folder Name="ViewColumns" Label="SR.SchemaHierarchy_Columns">
+    <ChildQuerier Type="ViewColumn" />
+  </Folder>
+  
+  <!-- Column Query -->
+  <Querier 
+    Name="ViewColumn" 
+    Node="Column" 
+    Query="
+    select 
+    s.name as schemaName,
+    c.name as objectName,
+    t.name as parentName,
+    c.name + 
+    ' (' +
+    tp.name +
+    -- logic for length printing
+    CASE  
+        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        CASE 
+            when c.max_length = -1 THEN '(max)'
+            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
+        END 
+        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
+        ELSE  ''
+    END +
+    -- logic for null/notnull
+    CASE
+        when c.is_nullable = 1 then ', null'
+        ELSE ', not null'
+    END +
+     ')' 
+     as displayName,
+    'COLUMN' as type
+FROM
+    sys.columns c
+INNER JOIN
+    sys.views t ON c.object_id = t.object_id
+INNER JOIN
+    sys.types tp ON c.user_type_id = tp.user_type_id
+INNER JOIN
+    sys.schemas s ON s.schema_id = t.schema_id
+ORDER BY
+s.name, t.name
+"  />
+
+</ObjectExplorerModel>
