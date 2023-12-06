@@ -424,26 +424,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     // Restore Database
                     if (!isAzureDB)
                     {
-                        RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, requestParams.Database);
-
-                        // Restore params to get the plan
-                        restoreDataObject.RestoreParams = new RestoreParams();
-                        restoreDataObject.RestoreParams.SourceDatabaseName = requestParams.Database;
-                        restoreDataObject.RestoreParams.TargetDatabaseName = requestParams.Database;
-                        restoreDataObject.RestoreParams.ReadHeaderFromMedia = false;
-
-                        RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
-                        RestorePlanResponse restorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
-                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).restorePlanResponse = restorePlanResponse;
-
                         List<string> targetDatabasenames = GetTargetDatabaseNames(requestParams.ConnectionUri);
                         targetDatabasenames.RemoveAll(db => db == "master" || db == "tempdb");
+                        databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo()
+                        {
+                            TargetDatabaseNames = targetDatabasenames.ToArray()
+                        };
 
-                        // Restore database view info
-                        databaseViewInfo.RestoreDatabaseInfo = new RestoreDatabaseInfo();
-                        databaseViewInfo.RestoreDatabaseInfo.TargetDatabaseNames = targetDatabasenames.ToArray();
-                        databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restorePlanResponse.DatabaseNamesFromBackupSets;
-                        databaseViewInfo.RestoreDatabaseInfo.RecoveryStateOptions = displayRecoveryStateOptions;
+                        // MI supports restore database by URL only, below properties do not required while initializing the object management dialog UI
+                        if (!isManagedInstance)
+                        {
+                            RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(dataContainer.Server, requestParams.Database);
+
+                            // Restore params to get the plan
+                            restoreDataObject.RestoreParams = new RestoreParams()
+                            {
+                                SourceDatabaseName = requestParams.Database,
+                                TargetDatabaseName = requestParams.Database,
+                                ReadHeaderFromMedia = false
+                            };
+
+                            RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
+                            RestorePlanResponse restorePlanResponse = restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
+                            ((DatabaseInfo)databaseViewInfo.ObjectInfo).restorePlanResponse = restorePlanResponse;
+
+                            // Restore database view info
+                            databaseViewInfo.RestoreDatabaseInfo.SourceDatabaseNames = restorePlanResponse.DatabaseNamesFromBackupSets;
+                            databaseViewInfo.RestoreDatabaseInfo.RecoveryStateOptions = displayRecoveryStateOptions;
+                        }
                     }
 
                     var context = new DatabaseViewContext(requestParams);
