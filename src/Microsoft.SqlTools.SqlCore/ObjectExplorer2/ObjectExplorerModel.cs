@@ -7,6 +7,8 @@
 // and re-run the T4 template. This can be done in Visual Studio by right-click in and choosing "Run Custom Tool",
 // or from the command-line on any platform by running "build.cmd -Target=CodeGen" or "build.sh -Target=CodeGen".
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 {
 	/// <summary>
@@ -14,15 +16,22 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class DatabaseNode : TreeNode
 	{
-		public DatabaseNode() : base()
+		public DatabaseNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "Database";
 			Type = "Database";
+			IsLeaf = false;
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "Schema" && child.parentName == this.Name)
+				{
+					Children.Add(new SchemaNode(this, child));
+				}
+			}
 		}
 	}
 	/// <summary>
@@ -30,15 +39,18 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class SchemaNode : TreeNode
 	{
-		public SchemaNode() : base()
+		public SchemaNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "Schema";
 			Type = "Schema";
+			IsLeaf = false;
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			Children.Add(new TablesFolder(this));		
+			Children.Add(new ViewsFolder(this));		
+			Children.Add(new StoredProceduresFolder(this));		
 		}
 	}
 	/// <summary>
@@ -46,31 +58,32 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class TableNode : TreeNode
 	{
-		public TableNode() : base()
+		public TableNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "Table";
 			Type = "Table";
+			IsLeaf = false;
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			Children.Add(new TableColumnsFolder(this));		
 		}
 	}
 	/// <summary>
-	/// Column Node
+	/// TableColumn Node
 	/// </summary>
-	public class ColumnNode : TreeNode
+	public class TableColumnNode : TreeNode
 	{
-		public ColumnNode() : base()
+		public TableColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "Column";
 			Type = "Column";
+			IsLeaf = true;
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
 		}
 	}
 	/// <summary>
@@ -78,134 +91,378 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class ViewNode : TreeNode
 	{
-		public ViewNode() : base()
+		public ViewNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "View";
 			Type = "View";
+			IsLeaf = false;
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			Children.Add(new ViewColumnsFolder(this));		
 		}
 	}
 	/// <summary>
-	/// Tables Folder
+	/// ViewColumn Node
 	/// </summary>
-	public class TablesFolder : TreeNode
+	public class ViewColumnNode : TreeNode
 	{
-		public TablesFolder() : base()
+		public ViewColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
+			Icon = "Column";
+			Type = "Column";
+			IsLeaf = true;
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+		}
+	}
+	/// <summary>
+	/// StoredProcedure Node
+	/// </summary>
+	public class StoredProcedureNode : TreeNode
+	{
+		public StoredProcedureNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		{
+			Icon = "StoredProcedure";
+			Type = "StoredProcedure";
+			IsLeaf = false;
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			Children.Add(new StoredProcedureParametersFolder(this));		
+		}
+	}
+	/// <summary>
+	/// StoredProcedureParameter Node
+	/// </summary>
+	public class StoredProcedureParameterNode : TreeNode
+	{
+		public StoredProcedureParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		{
+			Icon = "Parameter";
+			Type = "Parameter";
+			IsLeaf = true;
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+		}
+	}
+	public class TablesFolder : FolderNode
+	{
+		public TablesFolder(TreeNode parent) : base(parent)
+		{
+			Icon = "Folder";
+			Name = "Tables";
+			Type = "Tables";
+			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Tables;
-			Type = "Folder";
-			Icon = "Folder";
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "Table" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new TableNode(this, child));
+				}
+			}
 		}
 	}
-	/// <summary>
-	/// TableColumns Folder
-	/// </summary>
-	public class TableColumnsFolder : TreeNode
+	public class TableColumnsFolder : FolderNode
 	{
-		public TableColumnsFolder() : base()
+		public TableColumnsFolder(TreeNode parent) : base(parent)
 		{
+			Icon = "Folder";
+			Name = "TableColumns";
+			Type = "TableColumns";
+			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Columns;
-			Type = "Folder";
-			Icon = "Folder";
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "TableColumn" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new TableColumnNode(this, child));
+				}
+			}
 		}
 	}
-	/// <summary>
-	/// Views Folder
-	/// </summary>
-	public class ViewsFolder : TreeNode
+	public class ViewsFolder : FolderNode
 	{
-		public ViewsFolder() : base()
+		public ViewsFolder(TreeNode parent) : base(parent)
 		{
+			Icon = "Folder";
+			Name = "Views";
+			Type = "Views";
+			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Views;
-			Type = "Folder";
-			Icon = "Folder";
 		}
-
-		public override TreeNode[] GetChildren()
+		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
-			return new TreeNode[] { };
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "View" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new ViewNode(this, child));
+				}
+			}
 		}
 	}
-	/// <summary>
-	/// ViewColumns Folder
-	/// </summary>
-	public class ViewColumnsFolder : TreeNode
+	public class ViewColumnsFolder : FolderNode
 	{
-		public ViewColumnsFolder() : base()
+		public ViewColumnsFolder(TreeNode parent) : base(parent)
 		{
+			Icon = "Folder";
+			Name = "ViewColumns";
+			Type = "ViewColumns";
+			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Columns;
-			Type = "Folder";
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "ViewColumn" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new ViewColumnNode(this, child));
+				}
+			}
+		}
+	}
+	public class StoredProceduresFolder : FolderNode
+	{
+		public StoredProceduresFolder(TreeNode parent) : base(parent)
+		{
 			Icon = "Folder";
+			Name = "StoredProcedures";
+			Type = "StoredProcedures";
+			IsLeaf = false;
+			Label = SR.SchemaHierarchy_StoredProcedures;
 		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "StoredProcedure" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new StoredProcedureNode(this, child));
+				}
+			}
+		}
+	}
+	public class StoredProcedureParametersFolder : FolderNode
+	{
+		public StoredProcedureParametersFolder(TreeNode parent) : base(parent)
+		{
+			Icon = "Folder";
+			Name = "StoredProcedureParameters";
+			Type = "StoredProcedureParameters";
+			IsLeaf = false;
+			Label = SR.SchemaHierarchy_Parameters;
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "StoredProcedureParameter" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new StoredProcedureParameterNode(this, child));
+				}
+			}
+		}
+	}
 
-		public override TreeNode[] GetChildren()
-		{
-			return new TreeNode[] { };
-		}
-	}
-	/// <summary>
-	/// Schema Querier
-	/// </summary>
-	public class SchemaQuerier 
+	public static class ObjectExplorerModelQueries
 	{
-		public querier
-		public SchemaQuerier()
+		public static Dictionary<string, string> Queries = new Dictionary<string, string>()
 		{
-		}
-	}
-	/// <summary>
-	/// Table Querier
-	/// </summary>
-	public class TableQuerier 
-	{
-		public querier
-		public TableQuerier()
-		{
-		}
-	}
-	/// <summary>
-	/// TableColumn Querier
-	/// </summary>
-	public class TableColumnQuerier 
-	{
-		public querier
-		public TableColumnQuerier()
-		{
-		}
-	}
-	/// <summary>
-	/// View Querier
-	/// </summary>
-	public class ViewQuerier 
-	{
-		public querier
-		public ViewQuerier()
-		{
-		}
-	}
-	/// <summary>
-	/// ViewColumn Querier
-	/// </summary>
-	public class ViewColumnQuerier 
-	{
-		public querier
-		public ViewColumnQuerier()
-		{
-		}
+			{ 
+				"Schema", 
+				@"
+SELECT
+    S.name AS schemaName,
+    S.name AS objectName,
+    DB_NAME() AS parentName,
+    S.name AS displayName,
+    'Schema' AS type
+From
+    sys.schemas AS S
+" 
+			},
+			{ 
+				"Table", 
+				@"
+  SELECT
+      S.name AS schemaName,
+      T.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', T.name) AS displayName,
+      'Table' AS ObjectType
+  FROM
+      sys.schemas AS S
+      JOIN sys.tables AS T ON S.schema_id = T.schema_id
+  where
+      t.temporal_type_desc = 'SYSTEM_VERSIONED_TEMPORAL_TABLE'
+      or t.temporal_type_desc = 'NON_TEMPORAL_TABLE'
+  " 
+			},
+			{ 
+				"TableColumn", 
+				@"
+    select 
+    s.name as schemaName,
+    c.name as objectName,
+    t.name as parentName,
+    c.name + 
+    ' (' +
+    tp.name +
+    -- logic for length printing
+    CASE  
+        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        CASE 
+            when c.max_length = -1 THEN '(max)'
+            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
+        END 
+        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
+        ELSE  ''
+    END +
+    -- logic for null/notnull
+    CASE
+        when c.is_nullable = 1 then ', null'
+        ELSE ', not null'
+    END +
+     ')' 
+     as displayName,
+    'TableColumn' as type
+FROM 
+    sys.columns c
+INNER JOIN 
+    sys.tables t ON c.object_id = t.object_id
+INNER JOIN
+    sys.types tp ON c.user_type_id = tp.user_type_id
+INNER JOIN
+    sys.schemas s ON s.schema_id = t.schema_id
+    " 
+			},
+			{ 
+				"View", 
+				@"
+  SELECT
+      S.name AS schemaName,
+      V.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', V.name) AS displayName,
+      'View' AS ObjectType
+  FROM
+      sys.schemas AS S
+      JOIN sys.views AS V ON S.schema_id = V.schema_id
+  " 
+			},
+			{ 
+				"ViewColumn", 
+				@"
+    select 
+    s.name as schemaName,
+    c.name as objectName,
+    t.name as parentName,
+    c.name + 
+    ' (' +
+    tp.name +
+    -- logic for length printing
+    CASE  
+        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        CASE 
+            when c.max_length = -1 THEN '(max)'
+            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
+        END 
+        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
+        ELSE  ''
+    END +
+    -- logic for null/notnull
+    CASE
+        when c.is_nullable = 1 then ', null'
+        ELSE ', not null'
+    END +
+     ')' 
+     as displayName,
+    'ViewColumn' as type
+FROM
+    sys.columns c
+INNER JOIN
+    sys.views t ON c.object_id = t.object_id
+INNER JOIN
+    sys.types tp ON c.user_type_id = tp.user_type_id
+INNER JOIN
+    sys.schemas s ON s.schema_id = t.schema_id
+" 
+			},
+			{ 
+				"StoredProcedure", 
+				@"
+  SELECT
+      S.name AS schemaName,
+      P.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', P.name) AS displayName,
+      'StoredProcedure' AS ObjectType
+  FROM
+      sys.schemas AS S
+      JOIN sys.procedures AS P ON S.schema_id = P.schema_id
+  " 
+			},
+			{ 
+				"StoredProcedureParameter", 
+				@"
+    select 
+    s.name as schemaName,
+    p.name as objectName,
+    t.name as parentName,
+    p.name + 
+    ' (' +
+    tp.name +
+    -- logic for length printing
+    CASE  
+        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        CASE 
+            when p.max_length = -1 THEN '(max)'
+            ELSE '(' +  CAST(p.max_length AS NVARCHAR) + ')'
+        END 
+        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(p.scale AS NVARCHAR) + ')'
+        ELSE  ''
+    END +
+    -- logic for null/notnull
+    CASE
+        when p.is_nullable = 1 then ', null'
+        ELSE ', not null'
+    END +
+     ')' 
+     as displayName,
+    'StoredProcedureParameter' as type 
+FROM
+    sys.parameters p
+INNER JOIN
+    sys.procedures t ON p.object_id = t.object_id
+INNER JOIN
+    sys.types tp ON p.user_type_id = tp.user_type_id
+INNER JOIN
+    sys.schemas s ON s.schema_id = t.schema_id
+" 
+			},
+		};
 	}
 	
 }
+

@@ -8,7 +8,7 @@
 SELECT
     S.name AS schemaName,
     S.name AS objectName,
-    NULL AS parentName,
+    DB_NAME() AS parentName,
     S.name AS displayName,
     'Schema' AS type
 From
@@ -19,10 +19,11 @@ From
   <Node Name="Schema" Type="Schema" Icon="Schema" isLeaf="false">
     <ChildFolder Name="Tables" />
     <ChildFolder Name="Views" />
+    <ChildFolder Name="StoredProcedures" />
   </Node>
 
   <!-- Tables folder definition-->
-  <Folder Name="Tables" Label="SR.SchemaHierarchy_Tables">
+  <Folder Name="Tables" Label="SR.SchemaHierarchy_Tables" ParentName = "Parent.Name">
     <ChildQuerier Type="Table" />
   </Folder>
 
@@ -40,8 +41,6 @@ From
   where
       t.temporal_type_desc = 'SYSTEM_VERSIONED_TEMPORAL_TABLE'
       or t.temporal_type_desc = 'NON_TEMPORAL_TABLE'
-  order by
-      displayName
   " />
 
   <!-- Table Node -->
@@ -50,11 +49,11 @@ From
   </Node>
 
   <!-- Columns folder definition-->
-  <Folder Name="TableColumns" Label="SR.SchemaHierarchy_Columns">
+  <Folder Name="TableColumns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
     <ChildQuerier Type="TableColumn" />
   </Folder>
 
-  <!-- Column Query -->
+  <!-- Table Columns Query -->
   <Querier 
     Name="TableColumn" 
     Node="Column" 
@@ -83,7 +82,7 @@ From
     END +
      ')' 
      as displayName,
-    'COLUMN' as type
+    'TableColumn' as type
 FROM 
     sys.columns c
 INNER JOIN 
@@ -92,16 +91,15 @@ INNER JOIN
     sys.types tp ON c.user_type_id = tp.user_type_id
 INNER JOIN
     sys.schemas s ON s.schema_id = t.schema_id
-ORDER BY
-    s.name, t.name
     "
   />
 
   <!-- Column Node -->
-  <Node Name="Column" Type="Column" Icon="Column" isLeaf="true" />
+  <Node Name="TableColumn" Type="Column" Icon="Column" isLeaf="true" />
+
 
   <!-- Views folder definition-->
-  <Folder Name="Views" Label="SR.SchemaHierarchy_Views">
+  <Folder Name="Views" Label="SR.SchemaHierarchy_Views" ParentName = "Parent.Name">
     <ChildQuerier Type="View" />
   </Folder>
 
@@ -116,8 +114,6 @@ ORDER BY
   FROM
       sys.schemas AS S
       JOIN sys.views AS V ON S.schema_id = V.schema_id
-  order by
-      displayName
   " />
 
   <!-- View Node -->
@@ -126,7 +122,7 @@ ORDER BY
   </Node>
 
   <!-- Columns folder definition-->
-  <Folder Name="ViewColumns" Label="SR.SchemaHierarchy_Columns">
+  <Folder Name="ViewColumns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
     <ChildQuerier Type="ViewColumn" />
   </Folder>
   
@@ -159,7 +155,7 @@ ORDER BY
     END +
      ')' 
      as displayName,
-    'COLUMN' as type
+    'ViewColumn' as type
 FROM
     sys.columns c
 INNER JOIN
@@ -168,8 +164,84 @@ INNER JOIN
     sys.types tp ON c.user_type_id = tp.user_type_id
 INNER JOIN
     sys.schemas s ON s.schema_id = t.schema_id
-ORDER BY
-s.name, t.name
 "  />
+
+  <!-- Column Node -->
+  <Node Name="ViewColumn" Type="Column" Icon="Column" isLeaf="true" />
+
+  <!-- Stored Procedures folder definition-->
+  <Folder Name="StoredProcedures" Label="SR.SchemaHierarchy_StoredProcedures" ParentName = "Parent.Name">
+    <ChildQuerier Type="StoredProcedure" />
+  </Folder>
+
+  <!-- Stored Procedure Query -->
+  <Querier Name="StoredProcedure" Node="StoredProcedure" Query="
+  SELECT
+      S.name AS schemaName,
+      P.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', P.name) AS displayName,
+      'StoredProcedure' AS ObjectType
+  FROM
+      sys.schemas AS S
+      JOIN sys.procedures AS P ON S.schema_id = P.schema_id
+  " />
+
+  <!-- Stored Procedure Node -->
+  <Node Name="StoredProcedure" Type="StoredProcedure" Icon="StoredProcedure" isLeaf="false" >
+    <ChildFolder Name="StoredProcedureParameters" />
+  </Node>
+
+  <!-- Parameters folder definition-->
+  <Folder Name="StoredProcedureParameters" Label="SR.SchemaHierarchy_Parameters" ParentName = "Parent.Name">
+    <ChildQuerier Type="StoredProcedureParameter" />
+  </Folder>
+
+  <!-- Parameter Query -->
+  <Querier 
+    Name="StoredProcedureParameter" 
+    Node="Parameter" 
+    Query="
+    select 
+    s.name as schemaName,
+    p.name as objectName,
+    t.name as parentName,
+    p.name + 
+    ' (' +
+    tp.name +
+    -- logic for length printing
+    CASE  
+        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        CASE 
+            when p.max_length = -1 THEN '(max)'
+            ELSE '(' +  CAST(p.max_length AS NVARCHAR) + ')'
+        END 
+        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(p.scale AS NVARCHAR) + ')'
+        ELSE  ''
+    END +
+    -- logic for null/notnull
+    CASE
+        when p.is_nullable = 1 then ', null'
+        ELSE ', not null'
+    END +
+     ')' 
+     as displayName,
+    'StoredProcedureParameter' as type 
+FROM
+    sys.parameters p
+INNER JOIN
+    sys.procedures t ON p.object_id = t.object_id
+INNER JOIN
+    sys.types tp ON p.user_type_id = tp.user_type_id
+INNER JOIN
+    sys.schemas s ON s.schema_id = t.schema_id
+"  />
+  
+    <!-- Parameter Node -->
+    <Node Name="StoredProcedureParameter" Type="Parameter" Icon="Parameter" isLeaf="true" />
+
+
+
+  
 
 </ObjectExplorerModel>

@@ -16,6 +16,8 @@
 // and re-run the T4 template. This can be done in Visual Studio by right-click in and choosing "Run Custom Tool",
 // or from the command-line on any platform by running "build.cmd -Target=CodeGen" or "build.sh -Target=CodeGen".
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 {
 <#
@@ -26,11 +28,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 
 	XmlNodeList nodes = doc.SelectNodes("//Node");
 
-	foreach (var node in nodes)
+	foreach (XmlNode node in nodes)
 	{
-		var nodeName = ((XmlNode)node).Attributes["Name"].Value;
-		var nodeType = ((XmlNode)node).Attributes["Type"].Value;
-		var nodeIcon = ((XmlNode)node).Attributes["Icon"].Value;
+		var nodeName = node.Attributes["Name"].Value;
+		var nodeType = node.Attributes["Type"].Value;
+		var nodeIcon = node.Attributes["Icon"].Value;
+		var isLeaf = node.Attributes["isLeaf"].Value;
 
 #>
 	/// <summary>
@@ -38,67 +41,141 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class <#= nodeName #>Node : TreeNode
 	{
-		public <#= nodeName #>Node() : base()
+		public <#= nodeName #>Node(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "<#= nodeIcon #>";
 			Type = "<#= nodeType #>";
+			IsLeaf = <#= isLeaf #>;
 		}
-
-		public override TreeNode[] GetChildren()
-		{
-			return new TreeNode[] { };
-		}
+<#
+		LoadChildren(node);
+#>
 	}
 <#
 	}
 
 	XmlNodeList folders = doc.SelectNodes("//Folder");
 
-	foreach (var folder in folders)
+	foreach (XmlNode folder in folders)
 	{
-		var folderName = ((XmlNode)folder).Attributes["Name"].Value;
-		var folderIcon = ((XmlNode)folder).Attributes["Label"].Value;
+		var folderName = folder.Attributes["Name"].Value;
+		var folderLabel = folder.Attributes["Label"].Value;
+		
 #>
-	/// <summary>
-	/// <#= folderName #> Folder
-	/// </summary>
-	public class <#= folderName #>Folder : TreeNode
+	public class <#= folderName #>Folder : FolderNode
 	{
-		public <#= folderName #>Folder() : base()
+		public <#= folderName #>Folder(TreeNode parent) : base(parent)
 		{
-			Label = <#= folderIcon #>;
-			Type = "Folder";
 			Icon = "Folder";
+			Name = "<#= folderName #>";
+			Type = "<#= folderName #>";
+			IsLeaf = false;
+			Label = <#= folderLabel #>;
 		}
-
-		public override TreeNode[] GetChildren()
-		{
-			return new TreeNode[] { };
-		}
+<#	
+		LoadFolderChildren(folder);
+#>
 	}
 <#
 	}
+#>
 
-	XmlNodeList queriers = doc.SelectNodes("//Querier");
+	public static class ObjectExplorerModelQueries
+	{
+		public static Dictionary<string, string> Queries = new Dictionary<string, string>()
+		{
+<#
+    XmlNodeList queriers = doc.SelectNodes("//Querier");
 
 	foreach (var querier in queriers)
 	{
-		var querierName = ((XmlNode)querier).Attributes["Name"].Value;
-		var querierNodeName = ((XmlNode)querier).Attributes["Node"].Value;
-
+		var querierNode = querier as XmlNode;
+        var querierQuery = querierNode.Attributes["Query"].Value;
 #>
-	/// <summary>
-	/// <#= querierName #> Querier
-	/// </summary>
-	public class <#= querierName #>Querier 
-	{
-		public querier
-		public <#= querierName #>Querier()
-		{
-		}
+			{ 
+				"<#= querierNode.Attributes["Name"].Value #>", 
+				@"<#= querierQuery #>" 
+			},
+<#  
+    }
+#>
+		};
 	}
-<#
-	}	
-#>
 	
 }
+
+<#
+	void LoadChildren(XmlNode node)
+	{
+#>
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+<#
+		var childQueriers = node.SelectNodes("ChildQuerier");
+
+		foreach (XmlNode querier in childQueriers)
+		{
+			var Type = querier.Attributes["Type"].Value;
+#>
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "<#= Type #>" && child.parentName == this.Name)
+				{
+					Children.Add(new <#= Type #>Node(this, child));
+				}
+			}
+<#
+		}
+
+		var childFolder = node.SelectNodes("ChildFolder");
+
+		foreach (XmlNode folder in childFolder)
+		{
+			var name = folder.Attributes["Name"].Value;
+#>
+			Children.Add(new <#= name#>Folder(this));		
+<#
+		}
+#>
+		}
+<#
+	}
+
+	void LoadFolderChildren(XmlNode node)
+	{
+#>
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+<#
+		var ParentName = node.Attributes["ParentName"].Value;
+		var childQueriers = node.SelectNodes("ChildQuerier");
+		foreach (XmlNode querier in childQueriers)
+		{
+			var Type = querier.Attributes["Type"].Value;
+			
+#>
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "<#= Type #>" && child.parentName == this.<#= ParentName #>)
+				{
+					Children.Add(new <#= Type #>Node(this, child));
+				}
+			}
+<#
+		}
+		var childFolder = node.SelectNodes("ChildFolder");
+
+		foreach (XmlNode folder in childFolder)
+		{
+			var name = folder.Attributes["Name"].Value;
+#>
+			Children.Add(new <#= name#>Folder(this));		
+<#
+		}
+#>
+		}
+<#
+	}
+#>
