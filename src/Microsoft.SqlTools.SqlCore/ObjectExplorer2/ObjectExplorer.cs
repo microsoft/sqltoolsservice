@@ -70,7 +70,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                             Type = reader.IsDBNull(reader.GetOrdinal("Type")) ? "" : reader.GetString(reader.GetOrdinal("Type")),
                             DisplayName = reader.IsDBNull(reader.GetOrdinal("displayName")) ? "" : reader.GetString(reader.GetOrdinal("displayName")),
                             SchemaName = reader.IsDBNull(reader.GetOrdinal("schemaName")) ? "" : reader.GetString(reader.GetOrdinal("schemaName")),
-                            parentName = reader.IsDBNull(reader.GetOrdinal("parentName")) ? "" : reader.GetString(reader.GetOrdinal("parentName"))
+                            parentName = reader.IsDBNull(reader.GetOrdinal("parentName")) ? "" : reader.GetString(reader.GetOrdinal("parentName")),
+                            Subtype = reader.IsDBNull(reader.GetOrdinal("subType")) ? "" : reader.GetString(reader.GetOrdinal("subType"))
                         };
                         metadata.Add(objectMetadata);
                     }
@@ -90,5 +91,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         public string DisplayName { get; set; }
         public string SchemaName { get; set; }
         public string parentName { get; set; }
+        public string Subtype { get; set; }
     }
 }

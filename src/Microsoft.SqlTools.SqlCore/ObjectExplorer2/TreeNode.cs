@@ -41,6 +41,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                 this.Type = metadata.Type;
                 this.Name = metadata.Name;
                 this.SchemaName = metadata.SchemaName;
+                this.SubType = metadata.Subtype;
             }
         }
         abstract public void LoadChildren(ObjectMetadata[] metadata);

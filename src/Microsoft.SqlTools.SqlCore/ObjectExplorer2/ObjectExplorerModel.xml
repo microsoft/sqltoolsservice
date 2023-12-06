@@ -5,14 +5,29 @@
 
   <!-- Schema Query -->
   <Querier Name="Schema" Node="Schema" Query="
-SELECT
-    S.name AS schemaName,
-    S.name AS objectName,
-    DB_NAME() AS parentName,
-    S.name AS displayName,
-    'Schema' AS type
+  SELECT
+  S.name AS schemaName,
+  S.name AS objectName,
+  DB_NAME() AS parentName,
+  S.name AS displayName,
+  'Schema' AS type,
+  NULL AS subType
 From
-    sys.schemas AS S
+  sys.schemas AS S
+where s.name not in (
+  'sys',
+  'db_owner',
+  'db_accessadmin',
+  'db_securityadmin',
+  'db_ddladmin',
+  'db_backupoperator',
+  'db_datareader',
+  'db_datawriter',
+  'db_denydatareader',
+  'db_denydatawriter',
+  'INFORMATION_SCHEMA',
+  'guest'
+)
 " />
 
   <!-- Schema Node -->
@@ -20,6 +35,7 @@ From
     <ChildFolder Name="Tables" />
     <ChildFolder Name="Views" />
     <ChildFolder Name="StoredProcedures" />
+    <ChildFolder Name="Functions"/>
   </Node>
 
   <!-- Tables folder definition-->
@@ -34,7 +50,8 @@ From
       T.name AS objectName,
       S.name AS parentName,
       CONCAT (S.name, '.', T.name) AS displayName,
-      'Table' AS ObjectType
+      'Table' AS ObjectType,
+      NULL AS subType
   FROM
       sys.schemas AS S
       JOIN sys.tables AS T ON S.schema_id = T.schema_id
@@ -82,7 +99,8 @@ From
     END +
      ')' 
      as displayName,
-    'TableColumn' as type
+    'TableColumn' as type,
+    NULL AS subType
 FROM 
     sys.columns c
 INNER JOIN 
@@ -110,7 +128,8 @@ INNER JOIN
       V.name AS objectName,
       S.name AS parentName,
       CONCAT (S.name, '.', V.name) AS displayName,
-      'View' AS ObjectType
+      'View' AS ObjectType,
+      NULL AS subType
   FROM
       sys.schemas AS S
       JOIN sys.views AS V ON S.schema_id = V.schema_id
@@ -155,7 +174,8 @@ INNER JOIN
     END +
      ')' 
      as displayName,
-    'ViewColumn' as type
+    'ViewColumn' as type,
+    NULL AS subType
 FROM
     sys.columns c
 INNER JOIN
@@ -181,7 +201,8 @@ INNER JOIN
       P.name AS objectName,
       S.name AS parentName,
       CONCAT (S.name, '.', P.name) AS displayName,
-      'StoredProcedure' AS ObjectType
+      'StoredProcedure' AS ObjectType,
+      NULL AS subType
   FROM
       sys.schemas AS S
       JOIN sys.procedures AS P ON S.schema_id = P.schema_id
@@ -200,48 +221,143 @@ INNER JOIN
   <!-- Parameter Query -->
   <Querier 
     Name="StoredProcedureParameter" 
-    Node="Parameter" 
+    Node="StoredProcedureParameter" 
     Query="
-    select 
-    s.name as schemaName,
-    p.name as objectName,
-    t.name as parentName,
-    p.name + 
-    ' (' +
-    tp.name +
-    -- logic for length printing
-    CASE  
-        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
-        CASE 
-            when p.max_length = -1 THEN '(max)'
-            ELSE '(' +  CAST(p.max_length AS NVARCHAR) + ')'
-        END 
-        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(p.scale AS NVARCHAR) + ')'
-        ELSE  ''
-    END +
-    -- logic for null/notnull
-    CASE
-        when p.is_nullable = 1 then ', null'
-        ELSE ', not null'
-    END +
-     ')' 
-     as displayName,
-    'StoredProcedureParameter' as type 
-FROM
-    sys.parameters p
-INNER JOIN
-    sys.procedures t ON p.object_id = t.object_id
-INNER JOIN
-    sys.types tp ON p.user_type_id = tp.user_type_id
-INNER JOIN
-    sys.schemas s ON s.schema_id = t.schema_id
+    SELECT 
+    S.name AS schemaName,
+    p.name AS objectName,
+    SP.name AS parentName,
+    p.name +  ' (' +  TP.name + ', ' +
+    CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
+    CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
+    AS displayName, 
+    'StoredProcedureParameter' AS type,
+    CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
+FROM sys.schemas AS S
+JOIN sys.procedures AS SP ON S.schema_id = SP.schema_id
+JOIN sys.parameters AS P ON SP.object_id = P.object_id
+JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
 "  />
   
     <!-- Parameter Node -->
     <Node Name="StoredProcedureParameter" Type="Parameter" Icon="Parameter" isLeaf="true" />
 
+  <!-- Functions folder definition-->
+  <Folder Name="Functions" Label="SR.SchemaHierarchy_Functions" ParentName = "Parent.Name">
+    <ChildFolder Name="ScalarFunctions" />
+    <ChildFolder Name="TableValuedFunctions" />
+  </Folder>
 
+  <!-- Scalar Functions folder definition-->
+  <Folder Name="ScalarFunctions" Label="SR.SchemaHierarchy_ScalarValuedFunctions" ParentName = "Parent.Parent.Name">
+    <ChildQuerier Type="ScalarFunction" />
+  </Folder>
+
+  <!-- Scalar Function Query -->
+  <Querier Name="ScalarFunction" Node="ScalarFunction" Query="
+  SELECT
+      S.name AS schemaName,
+      P.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', P.name) AS displayName,
+      'ScalarFunction' AS ObjectType,
+      NULL AS subType
+  FROM
+      sys.schemas AS S
+      JOIN sys.objects AS P ON S.schema_id = P.schema_id
+  WHERE
+      P.type = 'FN'
+  " />
+
+  <!-- Scalar Function Node -->
+  <Node Name="ScalarFunction" Type="ScalarFunction" Icon="ScalarFunction" isLeaf="false" >
+    <ChildFolder Name="ScalarFunctionParameters" />
+  </Node>
+
+  <Folder Name="ScalarFunctionParameters" Label="SR.SchemaHierarchy_Parameters" ParentName = "Parent.Name">
+    <ChildQuerier Type="ScalarFunctionParameter" />
+  </Folder>
+
+  <!-- Scalar Function Parameter Query -->
+  <Querier 
+    Name="ScalarFunctionParameter" 
+    Node="ScalarFunctionParameter" 
+    Query="
+    SELECT 
+    S.name AS schemaName,
+    p.name AS objectName,
+    SP.name AS parentName,
+    p.name +  ' (' +  TP.name + ', ' +
+    CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
+    CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
+    AS displayName, 
+    'ScalarFunctionParameter' AS type,
+    CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
+FROM sys.schemas AS S
+INNER JOIN sys.objects AS SP ON S.schema_id = SP.schema_id
+INNER JOIN sys.parameters AS P ON SP.object_id = P.object_id
+JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
+WHERE SP.type = 'FN' AND (p.name != NULL OR p.name != '')
+"  />
+  
+    <!-- Scalar Function Parameter Node -->
+    <Node Name="ScalarFunctionParameter" Type="Parameter" Icon="Parameter" isLeaf="true" />
+
+
+  <!-- Table Valued Functions folder definition-->
+  <Folder Name="TableValuedFunctions" Label="SR.SchemaHierarchy_TableValuedFunctions" ParentName = "Parent.Parent.Name">
+    <ChildQuerier Type="TableValuedFunction" />
+  </Folder>
+
+  <!-- Table Valued Function Query -->
+  <Querier Name="TableValuedFunction" Node="TableValuedFunction" Query="
+  SELECT
+      S.name AS schemaName,
+      P.name AS objectName,
+      S.name AS parentName,
+      CONCAT (S.name, '.', P.name) AS displayName,
+      'TableValuedFunction' AS ObjectType,
+      NULL AS subType
+  FROM
+      sys.schemas AS S
+      JOIN sys.objects AS P ON S.schema_id = P.schema_id
+  WHERE
+      P.type = 'IF' OR P.type = 'TF'
+  " />
+
+  <!-- Table Valued Function Node -->
+  <Node Name="TableValuedFunction" Type="TableValuedFunction" Icon="TableValuedFunction" isLeaf="false" >
+    <ChildFolder Name="TableValuedFunctionParameters" />
+  </Node>
+
+  <Folder Name="TableValuedFunctionParameters" Label="SR.SchemaHierarchy_Parameters" ParentName = "Parent.Name">
+    <ChildQuerier Type="TableValuedFunctionParameter" />
+  </Folder>
+
+  <!-- Table Valued Function Parameter Query -->
+  <Querier 
+    Name="TableValuedFunctionParameter" 
+    Node="TableValuedFunctionParameter" 
+    Query="
+    SELECT 
+    S.name AS schemaName,
+    p.name AS objectName,
+    SP.name AS parentName,
+    p.name +  ' (' +  TP.name + ', ' +
+    CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
+    CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
+    AS displayName, 
+    'TableValuedFunctionParameter' AS type,
+    CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
+FROM sys.schemas AS S
+INNER JOIN sys.objects AS SP ON S.schema_id = SP.schema_id
+INNER JOIN sys.parameters AS P ON SP.object_id = P.object_id
+JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
+WHERE SP.type = 'IF' OR SP.type = 'TF' AND (p.name != NULL OR p.name != '')
+"  />
+  
+    <!-- Table Valued Function Parameter Node -->
+    <Node Name="TableValuedFunctionParameter" Type="Parameter" Icon="Parameter" isLeaf="true" />
 
   
-
 </ObjectExplorerModel>
