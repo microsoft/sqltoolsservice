@@ -9,7 +9,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
+namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 {
 	/// <summary>
 	/// Database Node
@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public DatabaseNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "Database";
+			Type = NodeTypes.Database;
 			IsLeaf = false;
 			ScriptingObject.Type = "Database";
 		}
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public SchemaNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "Schema";
+			Type = NodeTypes.Schema;
 			IsLeaf = false;
 			ScriptingObject.Type = "Schema";
 		}
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public TableNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "Table";
+			Type = NodeTypes.Table;
 			IsLeaf = false;
 			ScriptingObject.Type = "Table";
 		}
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "Column";
+			Type = NodeTypes.Column;
 			IsLeaf = true;
 			ScriptingObject.Type = "Column";
 		}
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public IndexNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, true)
 		{
-			Type = "Index";
+			Type = NodeTypes.Index;
 			IsLeaf = true;
 			ScriptingObject.Type = "Index";
 		}
@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ViewNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "View";
+			Type = NodeTypes.View;
 			IsLeaf = false;
 			ScriptingObject.Type = "View";
 		}
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public StoredProcedureNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "StoredProcedure";
+			Type = NodeTypes.StoredProcedure;
 			IsLeaf = false;
 			ScriptingObject.Type = "StoredProcedure";
 		}
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ParamNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "Param";
+			Type = NodeTypes.Param;
 			IsLeaf = true;
 			ScriptingObject.Type = "Param";
 		}
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ScalarFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "ScalarFunction";
+			Type = NodeTypes.ScalarFunction;
 			IsLeaf = false;
 			ScriptingObject.Type = "UserDefinedFunction";
 		}
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public TableValuedFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "TableValuedFunction";
+			Type = NodeTypes.TableValuedFunction;
 			IsLeaf = false;
 			ScriptingObject.Type = "UserDefinedFunction";
 		}
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public TablesFolder(TreeNode parent) : base(parent)
 		{
 			Name = "Tables";
-			Type = "Tables";
+			Type = NodeTypes.Tables;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Tables;
 		}
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public ColumnsFolder(TreeNode parent) : base(parent)
 		{
 			Name = "Columns";
-			Type = "Columns";
+			Type = NodeTypes.Columns;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Columns;
 		}
@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public IndexesFolder(TreeNode parent) : base(parent)
 		{
 			Name = "Indexes";
-			Type = "Indexes";
+			Type = NodeTypes.Indexes;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Indexes;
 		}
@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public ViewsFolder(TreeNode parent) : base(parent)
 		{
 			Name = "Views";
-			Type = "Views";
+			Type = NodeTypes.Views;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Views;
 		}
@@ -278,7 +278,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public StoredProceduresFolder(TreeNode parent) : base(parent)
 		{
 			Name = "StoredProcedures";
-			Type = "StoredProcedures";
+			Type = NodeTypes.StoredProcedures;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_StoredProcedures;
 		}
@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public ParametersFolder(TreeNode parent) : base(parent)
 		{
 			Name = "Parameters";
-			Type = "Parameters";
+			Type = NodeTypes.Parameters;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Parameters;
 		}
@@ -320,7 +320,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public FunctionsFolder(TreeNode parent) : base(parent)
 		{
 			Name = "Functions";
-			Type = "Functions";
+			Type = NodeTypes.Functions;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Functions;
 		}
@@ -336,7 +336,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public ScalarFunctionsFolder(TreeNode parent) : base(parent)
 		{
 			Name = "ScalarFunctions";
-			Type = "ScalarFunctions";
+			Type = NodeTypes.ScalarFunctions;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_ScalarValuedFunctions;
 		}
@@ -357,7 +357,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public TableValuedFunctionsFolder(TreeNode parent) : base(parent)
 		{
 			Name = "TableValuedFunctions";
-			Type = "TableValuedFunctions";
+			Type = NodeTypes.TableValuedFunctions;
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_TableValuedFunctions;
 		}
@@ -587,6 +587,29 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
   " 
 			},
 		};
+	}
+
+	public enum NodeTypes
+	{
+		Database,
+		Schema,
+		Table,
+		Column,
+		Index,
+		View,
+		StoredProcedure,
+		Param,
+		ScalarFunction,
+		TableValuedFunction,
+		Tables,
+		Columns,
+		Indexes,
+		Views,
+		StoredProcedures,
+		Parameters,
+		Functions,
+		ScalarFunctions,
+		TableValuedFunctions,
 	}
 	
 }

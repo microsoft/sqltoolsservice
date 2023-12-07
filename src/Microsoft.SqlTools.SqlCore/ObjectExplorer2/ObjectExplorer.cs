@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
-namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
+namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 {
     public static class ObjectExplorer
     {

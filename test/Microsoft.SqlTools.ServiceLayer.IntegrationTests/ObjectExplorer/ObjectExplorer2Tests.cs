@@ -9,7 +9,7 @@ using Castle.Core.Internal;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
-using OE = Microsoft.SqlTools.SqlCore.ObjectExplorer2.ObjectExplorer;
+using OE = Microsoft.SqlTools.SqlCore.SimpleObjectExplorer.ObjectExplorer;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {

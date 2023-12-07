@@ -18,7 +18,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
+namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 {
 <#
 	var directory = Path.GetDirectoryName(Host.TemplateFile);
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public <#= nodeName #>Node(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, <#= addParentInfoToScriptingObject #>)
 		{
-			Type = "<#= nodeType #>";
+			Type = NodeTypes.<#= nodeType #>;
 			IsLeaf = <#= isLeaf #>;
 			ScriptingObject.Type = "<#= scriptingObjectType #>";
 		}
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public <#= folderName #>Folder(TreeNode parent) : base(parent)
 		{
 			Name = "<#= folderName #>";
-			Type = "<#= folderName #>";
+			Type = NodeTypes.<#= folderName #>;
 			IsLeaf = false;
 			Label = <#= folderLabel #>;
 		}
@@ -113,6 +113,26 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
     }
 #>
 		};
+	}
+
+	public enum NodeTypes
+	{
+<#
+	foreach (XmlNode node in nodes)
+	{
+		var nodeName = node.Attributes["Name"].Value;
+#>
+		<#= nodeName #>,
+<#
+	}
+	foreach (XmlNode folder in folders)
+	{
+		var folderName = folder.Attributes["Name"].Value;
+#>
+		<#= folderName #>,
+<#
+	}
+#>
 	}
 	
 }

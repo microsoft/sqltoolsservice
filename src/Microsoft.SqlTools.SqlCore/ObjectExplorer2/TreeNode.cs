@@ -6,14 +6,14 @@
 using System.Collections.Generic;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
-namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
+namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 {
     public abstract class TreeNode
     {
         public string SchemaName { get; set; }
         public string Label { get; set; }
         public bool IsLeaf { get; set; }
-        public string Type { get; set; }
+        public NodeTypes Type { get; set; }
         public string SubType { get; set; }
         public string Name { get; set; }
         public TreeNode Parent { get; set; }
