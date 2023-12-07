@@ -6,15 +6,15 @@
   <!-- Schema Query -->
   <Querier Name="Schema" Node="Schema" Query="
   SELECT
-  SCHEMA_NAME AS schemaName,
-  SCHEMA_NAME AS objectName,
-  CATALOG_NAME AS parentName,
-  SCHEMA_NAME AS displayName,
-  'Schema' AS type,
-  NULL AS subType
-FROM
-  INFORMATION_SCHEMA.SCHEMATA
-WHERE
+    SCHEMA_NAME AS schema_name,
+    SCHEMA_NAME AS object_name,
+    CATALOG_NAME AS parent_name,
+    SCHEMA_NAME AS display_name,
+    'Schema' AS object_type,
+    NULL AS object_sub_type
+  FROM
+    INFORMATION_SCHEMA.SCHEMATA
+  WHERE
   SCHEMA_NAME NOT IN (
     'sys',
     'db_owner',
@@ -47,12 +47,12 @@ WHERE
   <!-- Table Query -->
   <Querier Name="Table" Node="Table" Query="
   SELECT
-    TABLE_SCHEMA AS schemaName,
-    TABLE_NAME AS objectName,
-    TABLE_SCHEMA AS parentName,
-    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS displayName,
-    'Table' AS ObjectType,
-    NULL AS subType
+    TABLE_SCHEMA AS schema_name,
+    TABLE_NAME AS object_name,
+    TABLE_SCHEMA AS parent_name,
+    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS display_name,
+    'Table' AS object_type,
+    NULL AS object_sub_type
   FROM
     INFORMATION_SCHEMA.TABLES
   WHERE
@@ -75,49 +75,49 @@ WHERE
     Name="Column" 
     Node="Column" 
     Query="
-    select 
-    c.TABLE_SCHEMA as schemaName,
-    c.COLUMN_NAME as objectName,    
-    c.TABLE_NAME as parentName,
-    c.COLUMN_NAME + 
-    ' (' +
-    CASE 
-        when kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PK, '
-        ELSE ''
-    END +
-    CASE
-        when kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'FK, '
-        ELSE ''
-    END + 
-    c.DATA_TYPE +
-    CASE  
-        when c.DATA_TYPE IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+    SELECT
+        c.TABLE_SCHEMA AS schema_name,
+        c.COLUMN_NAME AS object_name,
+        c.TABLE_NAME AS parent_name,
+        c.COLUMN_NAME + 
+        ' (' +
         CASE 
-            when c.CHARACTER_MAXIMUM_LENGTH = -1 THEN '(max)'
-            ELSE '(' +  CAST(c.CHARACTER_MAXIMUM_LENGTH AS NVARCHAR) + ')'
-        END 
-        when c.DATA_TYPE IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.NUMERIC_SCALE AS NVARCHAR) + ')'
-        ELSE  ''
-    END +
-    -- logic for null/notnull
-    CASE
-        when c.is_nullable = 'NO' then ', null'
-        ELSE ', not null'
-    END +
-     ')' 
-     as displayName,
-     'Column' as type,
-     CASE
-        when kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PrimaryKey'
-        when kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'ForeignKey'  
-        else NULL
-    END
-     as subType
-from INFORMATION_SCHEMA.COLUMNS as c
-LEFT JOIN
-information_schema.KEY_COLUMN_USAGE as kcu ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.TABLE_NAME = kcu.TABLE_NAME AND c.COLUMN_NAME = kcu.COLUMN_NAME AND kcu.CONSTRAINT_NAME LIKE 'PK%'
-LEFT JOIN
-information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEMA AND c.TABLE_NAME = kcu2.TABLE_NAME AND c.COLUMN_NAME = kcu2.COLUMN_NAME AND kcu2.CONSTRAINT_NAME LIKE 'FK%'
+            WHEN kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PK, '
+            ELSE ''
+        END +
+        CASE
+            WHEN kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'FK, '
+            ELSE ''
+        END + 
+        c.DATA_TYPE +
+        CASE  
+            WHEN c.DATA_TYPE IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+            CASE 
+                WHEN c.CHARACTER_MAXIMUM_LENGTH = -1 THEN '(max)'
+                ELSE '(' +  CAST(c.CHARACTER_MAXIMUM_LENGTH AS NVARCHAR) + ')'
+            END 
+            WHEN c.DATA_TYPE IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.NUMERIC_SCALE AS NVARCHAR) + ')'
+            ELSE  ''
+        END +
+        -- logic for null/notnull
+        CASE
+            WHEN c.is_nullable = 'NO' THEN ', null'
+            ELSE ', not null'
+        END +
+        ')' 
+        AS display_name,
+        'Column' AS object_type,
+        CASE
+            WHEN kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PrimaryKey'
+            WHEN kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'ForeignKey'  
+            ELSE NULL
+        END
+        AS object_sub_type
+    FROM INFORMATION_SCHEMA.COLUMNS AS c
+        LEFT JOIN
+        information_schema.KEY_COLUMN_USAGE AS kcu ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.TABLE_NAME = kcu.TABLE_NAME AND c.COLUMN_NAME = kcu.COLUMN_NAME AND kcu.CONSTRAINT_NAME LIKE 'PK%'
+        LEFT JOIN
+        information_schema.KEY_COLUMN_USAGE AS kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEMA AND c.TABLE_NAME = kcu2.TABLE_NAME AND c.COLUMN_NAME = kcu2.COLUMN_NAME AND kcu2.CONSTRAINT_NAME LIKE 'FK%'
     "
   />
 
@@ -132,21 +132,27 @@ information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEM
   <!-- Index Query -->
   <Querier Name="Index" Node="Index" Query="
   SELECT
-      S.name AS schemaName,
-      I.name AS objectName,
-      O.name AS parentName,
-      I.name + ' (' +
-      CASE when I.is_unique = 1 THEN 'Unique' ELSE 'Non-Unique' END + 
+    S.name AS schema_name,
+    I.name AS object_name,
+    O.name AS parent_name,
+    I.name + ' (' +
+      CASE WHEN I.is_unique = 1 THEN 'Unique' ELSE 'Non-Unique' END + 
       ', ' +
-      CASE when I.index_id = 1 THEN 'Clustered' ELSE 'Non-Clustered' END +
+      CASE WHEN I.index_id = 1 THEN 'Clustered' ELSE 'Non-Clustered' END +
       ')'
-      AS displayName,
-      'Index' AS ObjectType,
-      CASE when I.is_primary_key = 1 THEN 'PKINDEX' ELSE 'INDEX' END subType
+      AS display_name,
+      'Index' AS object_type,
+    CASE WHEN I.is_primary_key = 1 THEN 'PKINDEX' ELSE 'INDEX' END object_sub_type
   FROM
-      sys.schemas AS S
-      JOIN (select object_id, name, schema_id FROM sys.tables UNION ALL select object_id, name, schema_id from sys.views) AS O ON O.schema_id = S.schema_id
-      JOIN sys.indexes AS I ON I.object_id = O.object_id
+    sys.schemas AS S
+    JOIN (        
+            select object_id, name, schema_id
+            FROM sys.tables
+            UNION ALL
+            select object_id, name, schema_id
+            from sys.views
+        ) AS O ON O.schema_id = S.schema_id
+    JOIN sys.indexes AS I ON I.object_id = O.object_id
   Where I.name IS NOT NULL
   " />
 
@@ -162,12 +168,12 @@ information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEM
   <!-- View Query -->
   <Querier Name="View" Node="View" Query="
   SELECT
-    TABLE_SCHEMA AS schemaName,
-    TABLE_NAME AS objectName,
-    TABLE_SCHEMA AS parentName,
-    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS displayName,
-    'View' AS ObjectType,
-    NULL AS subType
+    TABLE_SCHEMA AS schema_name,
+    TABLE_NAME AS object_name,
+    TABLE_SCHEMA AS parent_name,
+    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS display_name,
+    'View' AS object_type,
+    NULL AS object_sub_type
   FROM
     INFORMATION_SCHEMA.TABLES
   WHERE
@@ -188,12 +194,12 @@ information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEM
   <!-- Stored Procedure Query -->
   <Querier Name="StoredProcedure" Node="StoredProcedure" Query="
   SELECT
-    SPECIFIC_SCHEMA AS schemaName,
-    SPECIFIC_NAME AS objectName,
-    SPECIFIC_SCHEMA AS parentName,
-    CONCAT(SPECIFIC_SCHEMA, '.', SPECIFIC_NAME) AS displayName,
-    'StoredProcedure' AS ObjectType,
-    NULL AS subType
+    SPECIFIC_SCHEMA AS schema_name,
+    SPECIFIC_NAME AS object_name,
+    SPECIFIC_SCHEMA AS parent_name,
+    CONCAT(SPECIFIC_SCHEMA, '.', SPECIFIC_NAME) AS display_name,
+    'StoredProcedure' AS object_type,
+    NULL AS object_sub_type
   FROM
     INFORMATION_SCHEMA.ROUTINES
   WHERE
@@ -215,22 +221,22 @@ information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEM
     Name="Parameter" 
     Node="Parameter" 
     Query="
-    SELECT 
-    S.name AS schemaName,
-    p.name AS objectName,
-    o.name AS parentName,
-    p.name +  ' (' +  TP.name + ', ' +
-    CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
-    CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
-    AS displayName, 
-    'Parameter' AS type,
-    CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
-FROM 
-sys.parameters AS p
-JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
-JOIN sys.objects AS o ON o.object_id = p.object_id
-JOIN sys.schemas AS S ON O.schema_id = S.schema_id
-WHERE p.name != NULL OR p.name != ''
+    SELECT
+        S.name AS schema_name,
+        P.name AS object_name,
+        O.name AS parent_name,
+        P.name +  ' (' +  TP.name + ', ' +
+        CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
+        CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
+        AS display_name,
+        'Parameter' AS object_type,
+        CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS object_sub_type
+    FROM
+        sys.parameters AS P
+        JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
+        JOIN sys.objects AS O ON O.object_id = P.object_id
+        JOIN sys.schemas AS S ON O.schema_id = S.schema_id
+    WHERE P.name != NULL OR P.name != ''
 "  />
   
     <!-- Parameter Node -->
@@ -250,12 +256,12 @@ WHERE p.name != NULL OR p.name != ''
   <!-- Scalar Function Query -->
   <Querier Name="ScalarFunction" Node="ScalarFunction" Query="
   SELECT
-      S.name AS schemaName,
-      P.name AS objectName,
-      S.name AS parentName,
-      CONCAT (S.name, '.', P.name) AS displayName,
-      'ScalarFunction' AS ObjectType,
-      NULL AS subType
+      S.name AS schema_name,
+      P.name AS object_name,
+      S.name AS parent_name,
+      CONCAT (S.name, '.', P.name) AS display_name,
+      'ScalarFunction' AS object_type,
+      NULL AS object_sub_type
   FROM
       sys.schemas AS S
       JOIN sys.objects AS P ON S.schema_id = P.schema_id
@@ -278,12 +284,12 @@ WHERE p.name != NULL OR p.name != ''
   <!-- Table Valued Function Query -->
   <Querier Name="TableValuedFunction" Node="TableValuedFunction" Query="
   SELECT
-      S.name AS schemaName,
-      P.name AS objectName,
-      S.name AS parentName,
-      CONCAT (S.name, '.', P.name) AS displayName,
-      'TableValuedFunction' AS ObjectType,
-      NULL AS subType
+      S.name AS schema_name,
+      P.name AS object_name,
+      S.name AS parent_name,
+      CONCAT (S.name, '.', P.name) AS display_name,
+      'TableValuedFunction' AS object_type,
+      NULL AS object_sub_type
   FROM
       sys.schemas AS S
       JOIN sys.objects AS P ON S.schema_id = P.schema_id

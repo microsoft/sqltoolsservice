@@ -66,12 +66,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                     {
                         ObjectMetadata objectMetadata = new ObjectMetadata()
                         {
-                            Name = reader.IsDBNull(reader.GetOrdinal("objectName")) ? "" : reader.GetString(reader.GetOrdinal("objectName")),
-                            Type = reader.IsDBNull(reader.GetOrdinal("Type")) ? "" : reader.GetString(reader.GetOrdinal("Type")),
-                            DisplayName = reader.IsDBNull(reader.GetOrdinal("displayName")) ? "" : reader.GetString(reader.GetOrdinal("displayName")),
-                            SchemaName = reader.IsDBNull(reader.GetOrdinal("schemaName")) ? "" : reader.GetString(reader.GetOrdinal("schemaName")),
-                            parentName = reader.IsDBNull(reader.GetOrdinal("parentName")) ? "" : reader.GetString(reader.GetOrdinal("parentName")),
-                            Subtype = reader.IsDBNull(reader.GetOrdinal("subType")) ? "" : reader.GetString(reader.GetOrdinal("subType"))
+                            Name = reader.IsDBNull(reader.GetOrdinal("object_name")) ? "" : reader.GetString(reader.GetOrdinal("object_name")),
+                            Type = reader.IsDBNull(reader.GetOrdinal("object_type")) ? "" : reader.GetString(reader.GetOrdinal("object_type")),
+                            DisplayName = reader.IsDBNull(reader.GetOrdinal("display_name")) ? "" : reader.GetString(reader.GetOrdinal("display_name")),
+                            SchemaName = reader.IsDBNull(reader.GetOrdinal("schema_name")) ? "" : reader.GetString(reader.GetOrdinal("schema_name")),
+                            parentName = reader.IsDBNull(reader.GetOrdinal("parent_name")) ? "" : reader.GetString(reader.GetOrdinal("parent_name")),
+                            Subtype = reader.IsDBNull(reader.GetOrdinal("object_sub_type")) ? "" : reader.GetString(reader.GetOrdinal("object_sub_type"))
                         };
                         metadata.Add(objectMetadata);
                     }

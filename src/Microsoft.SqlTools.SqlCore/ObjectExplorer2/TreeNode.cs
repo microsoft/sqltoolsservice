@@ -41,7 +41,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
             if (metadata != null)
             {
                 this.Label = metadata.DisplayName;
-                this.Type = metadata.Type;
                 this.Name = metadata.Name;
                 this.SchemaName = metadata.SchemaName;
                 this.SubType = metadata.Subtype;
