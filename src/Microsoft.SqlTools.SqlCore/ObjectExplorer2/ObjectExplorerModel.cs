@@ -137,15 +137,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new StoredProcedureParametersFolder(this));		
+			Children.Add(new ParametersFolder(this));		
 		}
 	}
 	/// <summary>
-	/// StoredProcedureParameter Node
+	/// Parameter Node
 	/// </summary>
-	public class StoredProcedureParameterNode : TreeNode
+	public class ParameterNode : TreeNode
 	{
-		public StoredProcedureParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public ParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "Parameter";
 			Type = "Parameter";
@@ -170,23 +170,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ScalarFunctionParametersFolder(this));		
-		}
-	}
-	/// <summary>
-	/// ScalarFunctionParameter Node
-	/// </summary>
-	public class ScalarFunctionParameterNode : TreeNode
-	{
-		public ScalarFunctionParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
-		{
-			Icon = "Parameter";
-			Type = "Parameter";
-			IsLeaf = true;
-		}
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
+			Children.Add(new ParametersFolder(this));		
 		}
 	}
 	/// <summary>
@@ -203,23 +187,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new TableValuedFunctionParametersFolder(this));		
-		}
-	}
-	/// <summary>
-	/// TableValuedFunctionParameter Node
-	/// </summary>
-	public class TableValuedFunctionParameterNode : TreeNode
-	{
-		public TableValuedFunctionParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
-		{
-			Icon = "Parameter";
-			Type = "Parameter";
-			IsLeaf = true;
-		}
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
+			Children.Add(new ParametersFolder(this));		
 		}
 	}
 	public class TablesFolder : FolderNode
@@ -332,13 +300,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			}
 		}
 	}
-	public class StoredProcedureParametersFolder : FolderNode
+	public class ParametersFolder : FolderNode
 	{
-		public StoredProcedureParametersFolder(TreeNode parent) : base(parent)
+		public ParametersFolder(TreeNode parent) : base(parent)
 		{
 			Icon = "Folder";
-			Name = "StoredProcedureParameters";
-			Type = "StoredProcedureParameters";
+			Name = "Parameters";
+			Type = "Parameters";
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Parameters;
 		}
@@ -347,9 +315,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "StoredProcedureParameter" && child.parentName == this.Parent.Name)
+				if (child.Type == "Parameter" && child.parentName == this.Parent.Name)
 				{
-					Children.Add(new StoredProcedureParameterNode(this, child));
+					Children.Add(new ParameterNode(this, child));
 				}
 			}
 		}
@@ -393,28 +361,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			}
 		}
 	}
-	public class ScalarFunctionParametersFolder : FolderNode
-	{
-		public ScalarFunctionParametersFolder(TreeNode parent) : base(parent)
-		{
-			Icon = "Folder";
-			Name = "ScalarFunctionParameters";
-			Type = "ScalarFunctionParameters";
-			IsLeaf = false;
-			Label = SR.SchemaHierarchy_Parameters;
-		}
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
-			foreach(ObjectMetadata child in metadata)
-			{
-				if (child.Type == "ScalarFunctionParameter" && child.parentName == this.Parent.Name)
-				{
-					Children.Add(new ScalarFunctionParameterNode(this, child));
-				}
-			}
-		}
-	}
 	public class TableValuedFunctionsFolder : FolderNode
 	{
 		public TableValuedFunctionsFolder(TreeNode parent) : base(parent)
@@ -437,28 +383,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			}
 		}
 	}
-	public class TableValuedFunctionParametersFolder : FolderNode
-	{
-		public TableValuedFunctionParametersFolder(TreeNode parent) : base(parent)
-		{
-			Icon = "Folder";
-			Name = "TableValuedFunctionParameters";
-			Type = "TableValuedFunctionParameters";
-			IsLeaf = false;
-			Label = SR.SchemaHierarchy_Parameters;
-		}
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
-			foreach(ObjectMetadata child in metadata)
-			{
-				if (child.Type == "TableValuedFunctionParameter" && child.parentName == this.Parent.Name)
-				{
-					Children.Add(new TableValuedFunctionParameterNode(this, child));
-				}
-			}
-		}
-	}
 
 	public static class ObjectExplorerModelQueries
 	{
@@ -468,46 +392,45 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 				"Schema", 
 				@"
   SELECT
-  S.name AS schemaName,
-  S.name AS objectName,
-  DB_NAME() AS parentName,
-  S.name AS displayName,
+  SCHEMA_NAME AS schemaName,
+  SCHEMA_NAME AS objectName,
+  CATALOG_NAME AS parentName,
+  SCHEMA_NAME AS displayName,
   'Schema' AS type,
   NULL AS subType
-From
-  sys.schemas AS S
-where s.name not in (
-  'sys',
-  'db_owner',
-  'db_accessadmin',
-  'db_securityadmin',
-  'db_ddladmin',
-  'db_backupoperator',
-  'db_datareader',
-  'db_datawriter',
-  'db_denydatareader',
-  'db_denydatawriter',
-  'INFORMATION_SCHEMA',
-  'guest'
-)
+FROM
+  INFORMATION_SCHEMA.SCHEMATA
+WHERE
+  SCHEMA_NAME NOT IN (
+    'sys',
+    'db_owner',
+    'db_accessadmin',
+    'db_securityadmin',
+    'db_ddladmin',
+    'db_backupoperator',
+    'db_datareader',
+    'db_datawriter',
+    'db_denydatareader',
+    'db_denydatawriter',
+    'INFORMATION_SCHEMA',
+    'guest'
+  )
 " 
 			},
 			{ 
 				"Table", 
 				@"
   SELECT
-      S.name AS schemaName,
-      T.name AS objectName,
-      S.name AS parentName,
-      CONCAT (S.name, '.', T.name) AS displayName,
-      'Table' AS ObjectType,
-      NULL AS subType
+    TABLE_SCHEMA AS schemaName,
+    TABLE_NAME AS objectName,
+    TABLE_SCHEMA AS parentName,
+    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS displayName,
+    'Table' AS ObjectType,
+    NULL AS subType
   FROM
-      sys.schemas AS S
-      JOIN sys.tables AS T ON S.schema_id = T.schema_id
-  where
-      t.temporal_type_desc = 'SYSTEM_VERSIONED_TEMPORAL_TABLE'
-      or t.temporal_type_desc = 'NON_TEMPORAL_TABLE'
+    INFORMATION_SCHEMA.TABLES
+  WHERE
+    TABLE_TYPE = 'BASE TABLE'
   " 
 			},
 			{ 
@@ -584,49 +507,53 @@ information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEM
 				"View", 
 				@"
   SELECT
-      S.name AS schemaName,
-      V.name AS objectName,
-      S.name AS parentName,
-      CONCAT (S.name, '.', V.name) AS displayName,
-      'View' AS ObjectType,
-      NULL AS subType
+    TABLE_SCHEMA AS schemaName,
+    TABLE_NAME AS objectName,
+    TABLE_SCHEMA AS parentName,
+    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS displayName,
+    'View' AS ObjectType,
+    NULL AS subType
   FROM
-      sys.schemas AS S
-      JOIN sys.views AS V ON S.schema_id = V.schema_id
+    INFORMATION_SCHEMA.TABLES
+  WHERE
+    TABLE_TYPE = 'VIEW'
   " 
 			},
 			{ 
 				"StoredProcedure", 
 				@"
   SELECT
-      S.name AS schemaName,
-      P.name AS objectName,
-      S.name AS parentName,
-      CONCAT (S.name, '.', P.name) AS displayName,
-      'StoredProcedure' AS ObjectType,
-      NULL AS subType
+    SPECIFIC_SCHEMA AS schemaName,
+    SPECIFIC_NAME AS objectName,
+    SPECIFIC_SCHEMA AS parentName,
+    CONCAT(SPECIFIC_SCHEMA, '.', SPECIFIC_NAME) AS displayName,
+    'StoredProcedure' AS ObjectType,
+    NULL AS subType
   FROM
-      sys.schemas AS S
-      JOIN sys.procedures AS P ON S.schema_id = P.schema_id
+    INFORMATION_SCHEMA.ROUTINES
+  WHERE
+    ROUTINE_TYPE = 'PROCEDURE'
   " 
 			},
 			{ 
-				"StoredProcedureParameter", 
+				"Parameter", 
 				@"
     SELECT 
     S.name AS schemaName,
     p.name AS objectName,
-    SP.name AS parentName,
+    o.name AS parentName,
     p.name +  ' (' +  TP.name + ', ' +
     CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
     CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
     AS displayName, 
-    'StoredProcedureParameter' AS type,
+    'Parameter' AS type,
     CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
-FROM sys.schemas AS S
-JOIN sys.procedures AS SP ON S.schema_id = SP.schema_id
-JOIN sys.parameters AS P ON SP.object_id = P.object_id
+FROM 
+sys.parameters AS p
 JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
+JOIN sys.objects AS o ON o.object_id = p.object_id
+JOIN sys.schemas AS S ON O.schema_id = S.schema_id
+WHERE p.name != NULL OR p.name != ''
 " 
 			},
 			{ 
@@ -647,26 +574,6 @@ JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
   " 
 			},
 			{ 
-				"ScalarFunctionParameter", 
-				@"
-    SELECT 
-    S.name AS schemaName,
-    p.name AS objectName,
-    SP.name AS parentName,
-    p.name +  ' (' +  TP.name + ', ' +
-    CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
-    CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
-    AS displayName, 
-    'ScalarFunctionParameter' AS type,
-    CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
-FROM sys.schemas AS S
-INNER JOIN sys.objects AS SP ON S.schema_id = SP.schema_id
-INNER JOIN sys.parameters AS P ON SP.object_id = P.object_id
-JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
-WHERE SP.type = 'FN' AND (p.name != NULL OR p.name != '')
-" 
-			},
-			{ 
 				"TableValuedFunction", 
 				@"
   SELECT
@@ -682,26 +589,6 @@ WHERE SP.type = 'FN' AND (p.name != NULL OR p.name != '')
   WHERE
       P.type = 'IF' OR P.type = 'TF'
   " 
-			},
-			{ 
-				"TableValuedFunctionParameter", 
-				@"
-    SELECT 
-    S.name AS schemaName,
-    p.name AS objectName,
-    SP.name AS parentName,
-    p.name +  ' (' +  TP.name + ', ' +
-    CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
-    CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
-    AS displayName, 
-    'TableValuedFunctionParameter' AS type,
-    CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS subtype
-FROM sys.schemas AS S
-INNER JOIN sys.objects AS SP ON S.schema_id = SP.schema_id
-INNER JOIN sys.parameters AS P ON SP.object_id = P.object_id
-JOIN sys.types AS TP ON P.user_type_id = TP.user_type_id
-WHERE SP.type = 'IF' OR SP.type = 'TF' AND (p.name != NULL OR p.name != '')
-" 
 			},
 		};
 	}

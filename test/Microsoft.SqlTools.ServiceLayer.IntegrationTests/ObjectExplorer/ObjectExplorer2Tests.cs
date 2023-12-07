@@ -143,10 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 // Expand sp1 stored procedure
                 nodes = objectExplorer.getNodeByPath("/dbo/StoredProcedures/sp1/", connection);
                 Assert.AreEqual(1, nodes.Length, "sp1 stored procedure should one folder");
-                Assert.IsNotNull(nodes.Find(node => node.Name == "StoredProcedureParameters"), "sp1 stored procedure should have Parameters folder");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Parameters"), "sp1 stored procedure should have Parameters folder");
 
                 // Expand Parameters folder
-                nodes = objectExplorer.getNodeByPath("/dbo/StoredProcedures/sp1/StoredProcedureParameters/", connection);
+                nodes = objectExplorer.getNodeByPath("/dbo/StoredProcedures/sp1/Parameters/", connection);
                 Assert.AreEqual(3, nodes.Length, "Parameters folder should have 3 parameters");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "@p1" && node.SubType == "InputParameter"), "Parameters folder should have @p1 parameter");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "@p2" && node.SubType == "OutputParameter"), "Parameters folder should have @p2 parameter");
@@ -163,10 +163,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 // Expand f1 function
                 nodes = objectExplorer.getNodeByPath("/dbo/Functions/ScalarFunctions/f1/", connection);
                 Assert.AreEqual(1, nodes.Length, "f1 function should one folder");
-                Assert.IsNotNull(nodes.Find(node => node.Name == "ScalarFunctionParameters"), "f1 function should have Parameters folder");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Parameters"), "f1 function should have Parameters folder");
 
                 // Expand Parameters folder
-                nodes = objectExplorer.getNodeByPath("/dbo/Functions/ScalarFunctions/f1/ScalarFunctionParameters/", connection);
+                nodes = objectExplorer.getNodeByPath("/dbo/Functions/ScalarFunctions/f1/Parameters/", connection);
                 Assert.AreEqual(2, nodes.Length, "Parameters folder should have 2 parameters");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "@Input1" && node.SubType == "InputParameter"), "Parameters folder should have @Input1 parameter");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "@Input2" && node.SubType == "InputParameter"), "Parameters folder should have @Input2 parameter");
@@ -178,10 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 // Expand f2 function
                 nodes = objectExplorer.getNodeByPath("/dbo/Functions/TableValuedFunctions/f2/", connection);
                 Assert.AreEqual(1, nodes.Length, "f2 function should one folder");
-                Assert.IsNotNull(nodes.Find(node => node.Name == "TableValuedFunctionParameters"), "f2 function should have Parameters folder");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Parameters"), "f2 function should have Parameters folder");
                 
                 // Expand Parameters folder
-                nodes = objectExplorer.getNodeByPath("/dbo/Functions/TableValuedFunctions/f2/TableValuedFunctionParameters/", connection);
+                nodes = objectExplorer.getNodeByPath("/dbo/Functions/TableValuedFunctions/f2/Parameters/", connection);
                 Assert.AreEqual(1, nodes.Length, "Parameters folder should have 1 parameter");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "@p1" && node.SubType == "InputParameter" ), "Parameters folder should have @p1 parameter");
             });
