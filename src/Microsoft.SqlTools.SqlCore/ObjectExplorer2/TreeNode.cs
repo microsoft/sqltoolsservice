@@ -11,7 +11,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
     public abstract class TreeNode
     {
         public string SchemaName { get; set; }
-        public string Icon { get; set; }
         public string Label { get; set; }
         public bool IsLeaf { get; set; }
         public string Type { get; set; }
@@ -19,7 +18,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         public string Name { get; set; }
         public TreeNode Parent { get; set; }
         public List<TreeNode> Children { get; set; }
-        public ScriptingObject scriptingObject { get; set; }
+        public ScriptingObject ScriptingObject { get; set; }
         public bool AddParentInScriptingObject { get; set; } = false;
         public string Path
         {
@@ -42,10 +41,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
             {
                 this.Label = metadata.DisplayName;
                 this.Name = metadata.Name;
-                this.SchemaName = metadata.SchemaName;
-                this.SubType = metadata.Subtype;
+                this.SchemaName = metadata.Schema;
+                this.SubType = metadata.SubType;
             }
-            this.scriptingObject = new ScriptingObject()
+            this.ScriptingObject = new ScriptingObject()
             {
                 Name = this.Name,
                 Schema = this.SchemaName,
@@ -61,8 +60,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                 }
                 if(currentParent != null)
                 {
-                    this.scriptingObject.ParentName = currentParent.Name;
-                    this.scriptingObject.ParentTypeName = currentParent.Type;
+                    this.ScriptingObject.ParentName = currentParent.Name;
+                    this.ScriptingObject.ParentTypeName = currentParent.Type;
                 }
             }
         }
@@ -75,7 +74,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         {
             IsLeaf = false;
             Type = "Folder";
-            Icon = "Folder";
         }
 
     }

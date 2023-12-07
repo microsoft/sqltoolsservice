@@ -6,60 +6,46 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-
 
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 {
-    public class ObjectExplorer
+    public static class ObjectExplorer
     {
-        public ObjectMetadata[] metadata { get; set; }
-
-        public TreeNode root { get; set; }
-
-        public ObjectExplorer()
+        public static async Task<TreeNode> GetObjectExplorerModel(SqlConnection connection)
         {
-        }
-
-        public TreeNode[] getNodeByPath(string path, SqlConnection connection, bool refresh = false)
-        {
-            if (refresh || metadata == null)
+            ObjectMetadata[] metdata = await FetchObjectExplorerMetadataTable(connection);
+            TreeNode root = new DatabaseNode(null, new ObjectMetadata() { Name = connection.Database, Type = "Database", DisplayName = connection.Database });
+            // Load all the children
+            Stack<TreeNode> stack = new Stack<TreeNode>();
+            stack.Push(root);
+            while (stack.Count > 0)
             {
-                LoadMetaData(connection);
-            }
-
-            
-            TreeNode currentNode = root;
-
-            while(currentNode.Path != path)
-            {
-                if (currentNode.Children == null)
+                TreeNode currentNode = stack.Pop();
+                if (currentNode.IsLeaf)
                 {
-                    currentNode.LoadChildren(metadata);
+                    continue;
                 }
-
-                currentNode = currentNode.Children.FirstOrDefault(node => path.StartsWith(node.Path));
-                if (currentNode == null)
+                currentNode.LoadChildren(metdata);
+                if (currentNode.Children != null)
                 {
-                    return null;
+                    foreach (TreeNode child in currentNode.Children)
+                    {
+                        stack.Push(child);
+                    }
                 }
             }
-
-            if(currentNode.IsLeaf)
-            {
-                throw new Exception("leaf node cannot be expanded");
-            }
-            currentNode.LoadChildren(this.metadata);
-            return currentNode.Children.ToArray();
+            return root;
         }
 
-        public void LoadMetaData(SqlConnection connection)
+        private static async Task<ObjectMetadata[]> FetchObjectExplorerMetadataTable(SqlConnection connection)
         {
-            string[] ObjectExplorerQueries = ObjectExplorerModelQueries.Queries.Values.ToArray();
-            string combinedQuery = string.Join(Environment.NewLine + "UNION ALL" + Environment.NewLine, ObjectExplorerQueries);
+            string[] metadataQueries = ObjectExplorerModelQueries.Queries.Values.ToArray();
+            string combinedQuery = string.Join(Environment.NewLine + "UNION ALL" + Environment.NewLine, metadataQueries);
             using (SqlCommand command = new SqlCommand(combinedQuery, connection))
             {
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
                 {
                     List<ObjectMetadata> metadata = new List<ObjectMetadata>();
                     while (reader.Read())
@@ -69,18 +55,45 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                             Name = reader.IsDBNull(reader.GetOrdinal("object_name")) ? "" : reader.GetString(reader.GetOrdinal("object_name")),
                             Type = reader.IsDBNull(reader.GetOrdinal("object_type")) ? "" : reader.GetString(reader.GetOrdinal("object_type")),
                             DisplayName = reader.IsDBNull(reader.GetOrdinal("display_name")) ? "" : reader.GetString(reader.GetOrdinal("display_name")),
-                            SchemaName = reader.IsDBNull(reader.GetOrdinal("schema_name")) ? "" : reader.GetString(reader.GetOrdinal("schema_name")),
-                            parentName = reader.IsDBNull(reader.GetOrdinal("parent_name")) ? "" : reader.GetString(reader.GetOrdinal("parent_name")),
-                            Subtype = reader.IsDBNull(reader.GetOrdinal("object_sub_type")) ? "" : reader.GetString(reader.GetOrdinal("object_sub_type"))
+                            Schema = reader.IsDBNull(reader.GetOrdinal("schema_name")) ? "" : reader.GetString(reader.GetOrdinal("schema_name")),
+                            Parent = reader.IsDBNull(reader.GetOrdinal("parent_name")) ? "" : reader.GetString(reader.GetOrdinal("parent_name")),
+                            SubType = reader.IsDBNull(reader.GetOrdinal("object_sub_type")) ? "" : reader.GetString(reader.GetOrdinal("object_sub_type"))
                         };
                         metadata.Add(objectMetadata);
                     }
-
-                    this.metadata = metadata.ToArray();
+                    return metadata.ToArray();
                 }
             }
+        }
 
-            root = new DatabaseNode(null, new ObjectMetadata() { Name = connection.Database, Type = "Database", DisplayName = connection.Database });
+        public static TreeNode[] GetNodeChildrenFromPath(TreeNode root, string path)
+        {
+            if (root == null)
+            {
+                return null;
+            }
+            if (path == "/")
+            {
+                return root.Children.ToArray();
+            }
+            TreeNode currentNode = root;
+            while (currentNode.Path != path)
+            {
+                if (currentNode.Children == null)
+                {
+                    throw new Exception("Given path does not exist");
+                }
+                currentNode = currentNode.Children.FirstOrDefault(node => path.StartsWith(node.Path));
+                if (currentNode == null)
+                {
+                    throw new Exception("Given path does not exist");
+                }
+            }
+            if (currentNode.IsLeaf)
+            {
+                throw new Exception("leaf node cannot be expanded");
+            }
+            return currentNode.Children.ToArray();
         }
     }
 
@@ -89,8 +102,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         public string Name { get; set; }
         public string Type { get; set; }
         public string DisplayName { get; set; }
-        public string SchemaName { get; set; }
-        public string parentName { get; set; }
-        public string Subtype { get; set; }
+        public string Schema { get; set; }
+        public string Parent { get; set; }
+        public string SubType { get; set; }
     }
 }

@@ -32,7 +32,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		var nodeName = node.Attributes["Name"].Value;
 		var nodeType = node.Attributes["Type"].Value;
-		var nodeIcon = node.Attributes["Icon"].Value;
 		var isLeaf = node.Attributes["isLeaf"].Value;
 		
 
@@ -44,7 +43,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public <#= nodeName #>Node(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "<#= nodeIcon #>";
 			Type = "<#= nodeType #>";
 			IsLeaf = <#= isLeaf #>;
 		<#
@@ -77,14 +75,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public <#= folderName #>Folder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "<#= folderName #>";
 			Type = "<#= folderName #>";
 			IsLeaf = false;
 			Label = <#= folderLabel #>;
 		}
 <#	
-		LoadFolderChildren(folder);
+		LoadFolderChildren(folder, doc);
 #>
 	}
 <#
@@ -127,13 +124,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 
 		foreach (XmlNode querier in childQueriers)
 		{
-			var Type = querier.Attributes["Type"].Value;
+			var name = querier.Attributes["Name"].Value;
 #>
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "<#= Type #>" && child.parentName == this.Name)
+				if (child.Type == "<#= name #>" && child.Parent == this.Name)
 				{
-					Children.Add(new <#= Type #>Node(this, child));
+					Children.Add(new <#= name #>Node(this, child));
 				}
 			}
 <#
@@ -153,7 +150,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 <#
 	}
 
-	void LoadFolderChildren(XmlNode node)
+	void LoadFolderChildren(XmlNode node, XmlDocument doc)
 	{
 #>
 		public override void  LoadChildren(ObjectMetadata[] metadata)
@@ -164,14 +161,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		var childQueriers = node.SelectNodes("ChildQuerier");
 		foreach (XmlNode querier in childQueriers)
 		{
-			var Type = querier.Attributes["Type"].Value;
-			
+			var name = querier.Attributes["Name"].Value;
 #>
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "<#= Type #>" && child.parentName == this.<#= ParentName #>)
+				if (child.Type == "<#= name #>" && child.Parent == this.<#= ParentName #>)
 				{
-					Children.Add(new <#= Type #>Node(this, child));
+					Children.Add(new <#= name #>Node(this, child));
 				}
 			}
 <#

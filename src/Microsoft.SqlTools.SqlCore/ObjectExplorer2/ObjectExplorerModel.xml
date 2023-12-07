@@ -1,6 +1,6 @@
 ﻿<ObjectExplorerModel>
-  <Node Name="Database" Type="Database" Icon="Database" isLeaf="false">
-    <ChildQuerier Type="Schema" />
+  <Node Name="Database" Type="Database" isLeaf="false">
+    <ChildQuerier Name="Schema" />
   </Node>
 
   <!-- Schema Query -->
@@ -32,7 +32,7 @@
 " />
 
   <!-- Schema Node -->
-  <Node Name="Schema" Type="Schema" Icon="Schema" isLeaf="false">
+  <Node Name="Schema" Type="Schema" isLeaf="false">
     <ChildFolder Name="Tables" />
     <ChildFolder Name="Views" />
     <ChildFolder Name="StoredProcedures" />
@@ -41,7 +41,7 @@
 
   <!-- Tables folder definition-->
   <Folder Name="Tables" Label="SR.SchemaHierarchy_Tables" ParentName = "Parent.Name">
-    <ChildQuerier Type="Table" />
+    <ChildQuerier Name="Table" />
   </Folder>
 
   <!-- Table Query -->
@@ -60,14 +60,14 @@
   " />
 
   <!-- Table Node -->
-  <Node Name="Table" Type="Table" Icon="Table" isLeaf="false">
+  <Node Name="Table" Type="Table" isLeaf="false">
     <ChildFolder Name="Columns" />
     <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Columns folder definition-->
   <Folder Name="Columns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
-    <ChildQuerier Type="Column" />
+    <ChildQuerier Name="Column" />
   </Folder>
 
   <!-- Table Columns Query -->
@@ -122,11 +122,11 @@
   />
 
   <!-- Column Node -->
-  <Node Name="Column" Type="Column" Icon="Column" isLeaf="true" />
+  <Node Name="Column" Type="Column" isLeaf="true" />
 
   <!-- Indexes folder definition-->
   <Folder Name="Indexes" Label="SR.SchemaHierarchy_Indexes" ParentName = "Parent.Name">
-    <ChildQuerier Type="Index" />
+    <ChildQuerier Name="Index" />
   </Folder>
 
   <!-- Index Query -->
@@ -157,12 +157,12 @@
   " />
 
   <!-- Index Node -->
-  <Node Name="Index" Type="Index" Icon="Index" isLeaf="true" AddParentInfoToScriptingObject="true" />
+  <Node Name="Index" Type="Index" isLeaf="true" AddParentInfoToScriptingObject="true" />
 
 
   <!-- Views folder definition-->
   <Folder Name="Views" Label="SR.SchemaHierarchy_Views" ParentName = "Parent.Name">
-    <ChildQuerier Type="View" />
+    <ChildQuerier Name="View" />
   </Folder>
 
   <!-- View Query -->
@@ -181,14 +181,14 @@
   " />
 
   <!-- View Node -->
-  <Node Name="View" Type="View" Icon="View" isLeaf="false">
+  <Node Name="View" Type="View" isLeaf="false">
     <ChildFolder Name="Columns" />
     <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Stored Procedures folder definition-->
   <Folder Name="StoredProcedures" Label="SR.SchemaHierarchy_StoredProcedures" ParentName = "Parent.Name">
-    <ChildQuerier Type="StoredProcedure" />
+    <ChildQuerier Name="StoredProcedure" />
   </Folder>
 
   <!-- Stored Procedure Query -->
@@ -207,13 +207,13 @@
   " />
 
   <!-- Stored Procedure Node -->
-  <Node Name="StoredProcedure" Type="StoredProcedure" Icon="StoredProcedure" isLeaf="false" >
+  <Node Name="StoredProcedure" Type="StoredProcedure" isLeaf="false" >
     <ChildFolder Name="Parameters" />
   </Node>
 
   <!-- Parameters folder definition-->
   <Folder Name="Parameters" Label="SR.SchemaHierarchy_Parameters" ParentName = "Parent.Name">
-    <ChildQuerier Type="Parameter" />
+    <ChildQuerier Name="Parameter" />
   </Folder>
 
   <!-- Parameter Query -->
@@ -240,7 +240,7 @@
 "  />
   
     <!-- Parameter Node -->
-    <Node Name="Parameter" Type="Parameter" Icon="Parameter" isLeaf="true" />
+    <Node Name="Parameter" Type="Parameter" isLeaf="true" />
 
   <!-- Functions folder definition-->
   <Folder Name="Functions" Label="SR.SchemaHierarchy_Functions" ParentName = "Parent.Name">
@@ -250,7 +250,7 @@
 
   <!-- Scalar Functions folder definition-->
   <Folder Name="ScalarFunctions" Label="SR.SchemaHierarchy_ScalarValuedFunctions" ParentName = "Parent.Parent.Name">
-    <ChildQuerier Type="ScalarFunction" />
+    <ChildQuerier Name="ScalarFunction" />
   </Folder>
 
   <!-- Scalar Function Query -->
@@ -270,7 +270,7 @@
   " />
 
   <!-- Scalar Function Node -->
-  <Node Name="ScalarFunction" Type="ScalarFunction" Icon="ScalarFunction" isLeaf="false" >
+  <Node Name="ScalarFunction" Type="ScalarFunction" isLeaf="false" >
     <ChildFolder Name="Parameters" />
   </Node>
 
@@ -278,7 +278,7 @@
 
   <!-- Table Valued Functions folder definition-->
   <Folder Name="TableValuedFunctions" Label="SR.SchemaHierarchy_TableValuedFunctions" ParentName = "Parent.Parent.Name">
-    <ChildQuerier Type="TableValuedFunction" />
+    <ChildQuerier Name="TableValuedFunction" />
   </Folder>
 
   <!-- Table Valued Function Query -->
@@ -298,7 +298,7 @@
   " />
 
   <!-- Table Valued Function Node -->
-  <Node Name="TableValuedFunction" Type="TableValuedFunction" Icon="TableValuedFunction" isLeaf="false" >
+  <Node Name="TableValuedFunction" Type="TableValuedFunction" isLeaf="false" >
     <ChildFolder Name="Parameters" />
   </Node>
 </ObjectExplorerModel>

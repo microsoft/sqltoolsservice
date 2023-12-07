@@ -18,7 +18,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public DatabaseNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "Database";
 			Type = "Database";
 			IsLeaf = false;
 		}
@@ -27,7 +26,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Schema" && child.parentName == this.Name)
+				if (child.Type == "Schema" && child.Parent == this.Name)
 				{
 					Children.Add(new SchemaNode(this, child));
 				}
@@ -41,7 +40,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public SchemaNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "Schema";
 			Type = "Schema";
 			IsLeaf = false;
 		}
@@ -61,7 +59,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public TableNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "Table";
 			Type = "Table";
 			IsLeaf = false;
 		}
@@ -79,7 +76,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "Column";
 			Type = "Column";
 			IsLeaf = true;
 		}
@@ -95,7 +91,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public IndexNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "Index";
 			Type = "Index";
 			IsLeaf = true;
 			AddParentInScriptingObject = true;
@@ -112,7 +107,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ViewNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "View";
 			Type = "View";
 			IsLeaf = false;
 		}
@@ -130,7 +124,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public StoredProcedureNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "StoredProcedure";
 			Type = "StoredProcedure";
 			IsLeaf = false;
 		}
@@ -147,7 +140,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "Parameter";
 			Type = "Parameter";
 			IsLeaf = true;
 		}
@@ -163,7 +155,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ScalarFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "ScalarFunction";
 			Type = "ScalarFunction";
 			IsLeaf = false;
 		}
@@ -180,7 +171,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public TableValuedFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
-			Icon = "TableValuedFunction";
 			Type = "TableValuedFunction";
 			IsLeaf = false;
 		}
@@ -194,7 +184,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public TablesFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "Tables";
 			Type = "Tables";
 			IsLeaf = false;
@@ -205,7 +194,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Table" && child.parentName == this.Parent.Name)
+				if (child.Type == "Table" && child.Parent == this.Parent.Name)
 				{
 					Children.Add(new TableNode(this, child));
 				}
@@ -216,7 +205,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ColumnsFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "Columns";
 			Type = "Columns";
 			IsLeaf = false;
@@ -227,7 +215,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Column" && child.parentName == this.Parent.Name)
+				if (child.Type == "Column" && child.Parent == this.Parent.Name)
 				{
 					Children.Add(new ColumnNode(this, child));
 				}
@@ -238,7 +226,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public IndexesFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "Indexes";
 			Type = "Indexes";
 			IsLeaf = false;
@@ -249,7 +236,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Index" && child.parentName == this.Parent.Name)
+				if (child.Type == "Index" && child.Parent == this.Parent.Name)
 				{
 					Children.Add(new IndexNode(this, child));
 				}
@@ -260,7 +247,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ViewsFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "Views";
 			Type = "Views";
 			IsLeaf = false;
@@ -271,7 +257,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "View" && child.parentName == this.Parent.Name)
+				if (child.Type == "View" && child.Parent == this.Parent.Name)
 				{
 					Children.Add(new ViewNode(this, child));
 				}
@@ -282,7 +268,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public StoredProceduresFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "StoredProcedures";
 			Type = "StoredProcedures";
 			IsLeaf = false;
@@ -293,7 +278,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "StoredProcedure" && child.parentName == this.Parent.Name)
+				if (child.Type == "StoredProcedure" && child.Parent == this.Parent.Name)
 				{
 					Children.Add(new StoredProcedureNode(this, child));
 				}
@@ -304,7 +289,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ParametersFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "Parameters";
 			Type = "Parameters";
 			IsLeaf = false;
@@ -315,7 +299,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Parameter" && child.parentName == this.Parent.Name)
+				if (child.Type == "Parameter" && child.Parent == this.Parent.Name)
 				{
 					Children.Add(new ParameterNode(this, child));
 				}
@@ -326,7 +310,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public FunctionsFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "Functions";
 			Type = "Functions";
 			IsLeaf = false;
@@ -343,7 +326,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public ScalarFunctionsFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "ScalarFunctions";
 			Type = "ScalarFunctions";
 			IsLeaf = false;
@@ -354,7 +336,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "ScalarFunction" && child.parentName == this.Parent.Parent.Name)
+				if (child.Type == "ScalarFunction" && child.Parent == this.Parent.Parent.Name)
 				{
 					Children.Add(new ScalarFunctionNode(this, child));
 				}
@@ -365,7 +347,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		public TableValuedFunctionsFolder(TreeNode parent) : base(parent)
 		{
-			Icon = "Folder";
 			Name = "TableValuedFunctions";
 			Type = "TableValuedFunctions";
 			IsLeaf = false;
@@ -376,7 +357,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "TableValuedFunction" && child.parentName == this.Parent.Parent.Name)
+				if (child.Type == "TableValuedFunction" && child.Parent == this.Parent.Parent.Name)
 				{
 					Children.Add(new TableValuedFunctionNode(this, child));
 				}
