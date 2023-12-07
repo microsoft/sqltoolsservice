@@ -610,6 +610,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		Functions,
 		ScalarFunctions,
 		TableValuedFunctions,
+		Folder,
 	}
 	
 }

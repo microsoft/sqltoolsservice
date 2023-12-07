@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
         public FolderNode(TreeNode parent) : base(parent, null)
         {
             IsLeaf = false;
-            Type = "Folder";
+            Type = NodeTypes.Folder;
         }
 
     }

@@ -133,6 +133,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 <#
 	}
 #>
+		Folder,
 	}
 	
 }
