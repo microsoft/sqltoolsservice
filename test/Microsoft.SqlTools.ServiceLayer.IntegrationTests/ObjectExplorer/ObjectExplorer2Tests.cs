@@ -19,11 +19,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         [Test]
         public async Task ExpandingPathShouldReturnCorrectNodes()
         {
-            var query = @"Create table t1 (c1 int)
+            var query = @"Create table t1 (c1 int PRIMARY KEY)
                             GO
                             Create table t2 (c1 int)
                             GO
-                            create view v1 as select * from t1
+                            CREATE INDEX t2_idx ON t2 (c1)
+                            GO
+                            create view v1 WITH SCHEMABINDING as select c1 from dbo.t2
+                            GO
+                            CREATE UNIQUE CLUSTERED INDEX v2_idx ON dbo.v1(c1)
                             GO
                             -- Create a stored procedure with input and output parameters
                             CREATE PROCEDURE sp1
@@ -82,23 +86,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                 // Expand t1 table
                 nodes = objectExplorer.getNodeByPath("/dbo/Tables/t1/", connection);
-                Assert.AreEqual(1, nodes.Length, "t1 table should one folder");
+                Assert.AreEqual(2, nodes.Length, "t1 table should have two folder");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "TableColumns"), "t1 table should have Columns folder");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Indexes"), "t1 table should have Indexes folder");
 
                 // Expand Columns folder
                 nodes = objectExplorer.getNodeByPath("/dbo/Tables/t1/TableColumns/", connection);
                 Assert.AreEqual(1, nodes.Length, "Columns folder should have 1 column");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "c1"), "Columns folder should have c1 column");
 
-                // Expand Views folder
+                // Expand Indexes folder
+                nodes = objectExplorer.getNodeByPath("/dbo/Tables/t1/Indexes/", connection);
+                Assert.AreEqual(1, nodes.Length, "Indexes folder should have 1 index");
+
+                // Expand t2 table
                 nodes = objectExplorer.getNodeByPath("/dbo/Tables/t2/", connection);
-                Assert.AreEqual(1, nodes.Length, "t2 table should one folder");
+                Assert.AreEqual(2, nodes.Length, "t2 table should have two folder");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "TableColumns"), "t2 table should have Columns folder");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Indexes"), "t2 table should have Indexes folder");
 
                 // Expand Columns folder
                 nodes = objectExplorer.getNodeByPath("/dbo/Tables/t2/TableColumns/", connection);
                 Assert.AreEqual(1, nodes.Length, "Columns folder should have 1 column");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "c1"), "Columns folder should have c1 column");
+
+                // Expand Indexes folder
+                nodes = objectExplorer.getNodeByPath("/dbo/Tables/t2/Indexes/", connection);
+                Assert.AreEqual(1, nodes.Length, "Indexes folder should have 1 index");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "t2_idx"), "Indexes folder should have t2_idx index");
 
                 // Expand Views folder
                 nodes = objectExplorer.getNodeByPath("/dbo/Views/", connection);
@@ -107,13 +122,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                 // Expand v1 view
                 nodes = objectExplorer.getNodeByPath("/dbo/Views/v1/", connection);
-                Assert.AreEqual(1, nodes.Length, "v1 view should one folder");
+                Assert.AreEqual(2, nodes.Length, "v1 view should two folder");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "ViewColumns"), "v1 view should have Columns folder");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Indexes"), "v1 view should have Indexes folder");
 
                 // Expand Columns folder
                 nodes = objectExplorer.getNodeByPath("/dbo/Views/v1/ViewColumns/", connection);
                 Assert.AreEqual(1, nodes.Length, "Columns folder should have 1 column");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "c1"), "Columns folder should have c1 column");
+
+                // Expand Indexes folder
+                nodes = objectExplorer.getNodeByPath("/dbo/Views/v1/Indexes/", connection);
+                Assert.AreEqual(1, nodes.Length, "Indexes folder should have 1 index");
 
                 // Expand Stored Procedures folder
                 nodes = objectExplorer.getNodeByPath("/dbo/StoredProcedures/", connection);

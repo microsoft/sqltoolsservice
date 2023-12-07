@@ -63,6 +63,7 @@ where s.name not in (
   <!-- Table Node -->
   <Node Name="Table" Type="Table" Icon="Table" isLeaf="false">
     <ChildFolder Name="TableColumns" />
+    <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Columns folder definition-->
@@ -115,6 +116,35 @@ INNER JOIN
   <!-- Column Node -->
   <Node Name="TableColumn" Type="Column" Icon="Column" isLeaf="true" />
 
+  <!-- Indexes folder definition-->
+  <Folder Name="Indexes" Label="SR.SchemaHierarchy_Indexes" ParentName = "Parent.Name">
+    <ChildQuerier Type="Index" />
+  </Folder>
+
+  <!-- Index Query -->
+  <Querier Name="Index" Node="Index" Query="
+  SELECT
+      S.name AS schemaName,
+      I.name AS objectName,
+      O.name AS parentName,
+      I.name + ' (' +
+      CASE when I.is_unique = 1 THEN 'Unique' ELSE 'Non-Unique' END + 
+      ', ' +
+      CASE when I.index_id = 1 THEN 'Clustered' ELSE 'Non-Clustered' END +
+      ')'
+      AS displayName,
+      'Index' AS ObjectType,
+      CASE when I.is_primary_key = 1 THEN 'PKINDEX' ELSE 'INDEX' END subType
+  FROM
+      sys.schemas AS S
+      JOIN (select object_id, name, schema_id FROM sys.tables UNION ALL select object_id, name, schema_id from sys.views) AS O ON O.schema_id = S.schema_id
+      JOIN sys.indexes AS I ON I.object_id = O.object_id
+  Where I.name IS NOT NULL
+  " />
+
+  <!-- Index Node -->
+  <Node Name="Index" Type="Index" Icon="Index" isLeaf="true" AddParentInfoToScriptingObject="true" />
+
 
   <!-- Views folder definition-->
   <Folder Name="Views" Label="SR.SchemaHierarchy_Views" ParentName = "Parent.Name">
@@ -138,6 +168,7 @@ INNER JOIN
   <!-- View Node -->
   <Node Name="View" Type="View" Icon="View" isLeaf="false">
     <ChildFolder Name="ViewColumns" />
+    <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Columns folder definition-->

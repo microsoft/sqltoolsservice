@@ -34,6 +34,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		var nodeType = node.Attributes["Type"].Value;
 		var nodeIcon = node.Attributes["Icon"].Value;
 		var isLeaf = node.Attributes["isLeaf"].Value;
+		
 
 #>
 	/// <summary>
@@ -46,7 +47,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			Icon = "<#= nodeIcon #>";
 			Type = "<#= nodeType #>";
 			IsLeaf = <#= isLeaf #>;
+		<#
+		if (node.Attributes["AddParentInfoToScriptingObject"] != null)
+  		{
+			var AddParentInfoToScriptingObject = node.Attributes["AddParentInfoToScriptingObject"].Value;
+		
+		#>
+	AddParentInScriptingObject = <#= AddParentInfoToScriptingObject #>;
+		<#
 		}
+		#>
+}
 <#
 		LoadChildren(node);
 #>

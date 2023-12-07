@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 {
@@ -18,6 +19,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         public string Name { get; set; }
         public TreeNode Parent { get; set; }
         public List<TreeNode> Children { get; set; }
+        public ScriptingObject scriptingObject { get; set; }
+        public bool AddParentInScriptingObject { get; set; } = false;
         public string Path
         {
             get
@@ -42,6 +45,26 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                 this.Name = metadata.Name;
                 this.SchemaName = metadata.SchemaName;
                 this.SubType = metadata.Subtype;
+            }
+            this.scriptingObject = new ScriptingObject()
+            {
+                Name = this.Name,
+                Schema = this.SchemaName,
+                Type = this.Type,
+            };
+            if(AddParentInScriptingObject)
+            {
+                // Find first non folder parent
+                TreeNode currentParent = this.Parent;
+                while(currentParent != null && currentParent.Type == "Folder")
+                {
+                    currentParent = currentParent.Parent;
+                }
+                if(currentParent != null)
+                {
+                    this.scriptingObject.ParentName = currentParent.Name;
+                    this.scriptingObject.ParentTypeName = currentParent.Type;
+                }
             }
         }
         abstract public void LoadChildren(ObjectMetadata[] metadata);

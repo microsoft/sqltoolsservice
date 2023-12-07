@@ -69,6 +69,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		{
 			this.Children = new List<TreeNode>();
 			Children.Add(new TableColumnsFolder(this));		
+			Children.Add(new IndexesFolder(this));		
 		}
 	}
 	/// <summary>
@@ -81,6 +82,23 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			Icon = "Column";
 			Type = "Column";
 			IsLeaf = true;
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+		}
+	}
+	/// <summary>
+	/// Index Node
+	/// </summary>
+	public class IndexNode : TreeNode
+	{
+		public IndexNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		{
+			Icon = "Index";
+			Type = "Index";
+			IsLeaf = true;
+			AddParentInScriptingObject = true;
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -102,6 +120,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		{
 			this.Children = new List<TreeNode>();
 			Children.Add(new ViewColumnsFolder(this));		
+			Children.Add(new IndexesFolder(this));		
 		}
 	}
 	/// <summary>
@@ -259,6 +278,28 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 				if (child.Type == "TableColumn" && child.parentName == this.Parent.Name)
 				{
 					Children.Add(new TableColumnNode(this, child));
+				}
+			}
+		}
+	}
+	public class IndexesFolder : FolderNode
+	{
+		public IndexesFolder(TreeNode parent) : base(parent)
+		{
+			Icon = "Folder";
+			Name = "Indexes";
+			Type = "Indexes";
+			IsLeaf = false;
+			Label = SR.SchemaHierarchy_Indexes;
+		}
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "Index" && child.parentName == this.Parent.Name)
+				{
+					Children.Add(new IndexNode(this, child));
 				}
 			}
 		}
@@ -545,6 +586,28 @@ INNER JOIN
 INNER JOIN
     sys.schemas s ON s.schema_id = t.schema_id
     " 
+			},
+			{ 
+				"Index", 
+				@"
+  SELECT
+      S.name AS schemaName,
+      I.name AS objectName,
+      O.name AS parentName,
+      I.name + ' (' +
+      CASE when I.is_unique = 1 THEN 'Unique' ELSE 'Non-Unique' END + 
+      ', ' +
+      CASE when I.index_id = 1 THEN 'Clustered' ELSE 'Non-Clustered' END +
+      ')'
+      AS displayName,
+      'Index' AS ObjectType,
+      CASE when I.is_primary_key = 1 THEN 'PKINDEX' ELSE 'INDEX' END subType
+  FROM
+      sys.schemas AS S
+      JOIN (select object_id, name, schema_id FROM sys.tables UNION ALL select object_id, name, schema_id from sys.views) AS O ON O.schema_id = S.schema_id
+      JOIN sys.indexes AS I ON I.object_id = O.object_id
+  Where I.name IS NOT NULL
+  " 
 			},
 			{ 
 				"View", 
