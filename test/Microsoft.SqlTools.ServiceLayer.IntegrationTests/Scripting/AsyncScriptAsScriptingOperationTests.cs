@@ -31,7 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                                 Name = "testTable1",
                                 Schema = "dbo",
                                 Type = "Table",
-
+                                ParentName = "dbo",
+                                ParentTypeName = "Schema"
                             }
                         },
                         Operation = ScriptingOperationType.Select,
@@ -43,7 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                     new List<string>() { "SELECT TOP (1000) [c1]" });
 
                 yield return new TestCaseData(
-                    "CREATE TABLE testTable1 (c1 int)",
+                    @"
+                    CREATE TABLE testTable1 (c1 int)
+                    ",
                     new ScriptingParams()
                     {
                         ScriptDestination = "ToEditor",
@@ -94,6 +97,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                             },
                             new List<string> { "CREATE TABLE [dbo].[testTable1]", "CREATE CLUSTERED INDEX [ClusteredIndex-1] ON [dbo].[testTable1]" }
                     );
+                
+                yield return new TestCaseData(
+                    @"
+                    CREATE TABLE testTable1 (c1 int)
+                    GO
+                    CREATE INDEX idx ON testTable1 (c1)
+                    ",
+                    new ScriptingParams()
+                    {
+                        ScriptDestination = "ToEditor",
+                        ScriptingObjects = new List<ScriptingObject>()
+                        {
+                            new ScriptingObject()
+                            {
+                                Name = "idx",
+                                Schema = "dbo",
+                                Type = "Index",
+                                ParentName = "testTable1",
+                                ParentTypeName = "Table",
+                            }
+                        },
+                        Operation = ScriptingOperationType.Create,
+                        ScriptOptions = new ScriptOptions()
+                        {
+                            ScriptCreateDrop = "ScriptCreate"
+                        }
+                    },
+                    new List<string> { "CREATE INDEX [idx] ON [dbo].[testTable1]" }
+                );
             }
         }
 

@@ -16,6 +16,8 @@
 // and re-run the T4 template (ObjectExplorerModel.tt). This can be done in Visual Studio by right-click in and choosing "Run Custom Tool",
 // or from the command-line on any platform by running "build.cmd -Target=CodeGen" or "build.sh -Target=CodeGen".
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 {
 <#
@@ -26,11 +28,26 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 
 	XmlNodeList nodes = doc.SelectNodes("//Node");
 
-	foreach (var node in nodes)
+	foreach (XmlNode node in nodes)
 	{
-		var nodeName = ((XmlNode)node).Attributes["Name"].Value;
-		var nodeType = ((XmlNode)node).Attributes["Type"].Value;
-		var nodeIcon = ((XmlNode)node).Attributes["Icon"].Value;
+		var nodeName = node.Attributes["Name"].Value;
+		var nodeType = node.Attributes["Type"].Value;
+		var isLeaf = node.Attributes["IsLeaf"].Value;
+		string scriptingObjectType;
+		if(node.Attributes["ScriptingObjectType"] != null)
+		{
+			scriptingObjectType = node.Attributes["ScriptingObjectType"].Value;
+		}
+		else
+		{
+			scriptingObjectType = nodeType;
+		}
+		var addParentInfoToScriptingObject = "false";
+		if (node.Attributes["AddParentInfoToScriptingObject"] != null)
+  		{
+			addParentInfoToScriptingObject = node.Attributes["AddParentInfoToScriptingObject"].Value;
+		}
+		
 
 #>
 	/// <summary>
@@ -38,67 +55,161 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class <#= nodeName #>Node : TreeNode
 	{
-		public <#= nodeName #>Node() : base()
+		public <#= nodeName #>Node(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, <#= addParentInfoToScriptingObject #>)
 		{
-			Icon = "<#= nodeIcon #>";
 			Type = "<#= nodeType #>";
+			IsLeaf = <#= isLeaf #>;
+			ScriptingObject.Type = "<#= scriptingObjectType #>";
 		}
-
-		public override TreeNode[] GetChildren()
-		{
-			return new TreeNode[] { };
-		}
+<#
+		LoadChildren(doc, node);
+#>
 	}
 <#
 	}
 
 	XmlNodeList folders = doc.SelectNodes("//Folder");
 
-	foreach (var folder in folders)
+	foreach (XmlNode folder in folders)
 	{
-		var folderName = ((XmlNode)folder).Attributes["Name"].Value;
-		var folderIcon = ((XmlNode)folder).Attributes["Label"].Value;
+		var folderName = folder.Attributes["Name"].Value;
+		var folderLabel = folder.Attributes["Label"].Value;
+		
 #>
-	/// <summary>
-	/// <#= folderName #> Folder
-	/// </summary>
-	public class <#= folderName #>Folder : TreeNode
+	public class <#= folderName #>Folder : FolderNode
 	{
-		public <#= folderName #>Folder() : base()
+		public <#= folderName #>Folder(TreeNode parent) : base(parent)
 		{
-			Label = <#= folderIcon #>;
-			Type = "Folder";
-			Icon = "Folder";
+			Name = "<#= folderName #>";
+			Type = "<#= folderName #>";
+			IsLeaf = false;
+			Label = <#= folderLabel #>;
 		}
-
-		public override TreeNode[] GetChildren()
-		{
-			return new TreeNode[] { };
-		}
+<#	
+		LoadFolderChildren(doc, folder);
+#>
 	}
 <#
 	}
+#>
 
-	XmlNodeList queriers = doc.SelectNodes("//Querier");
+	public static class ObjectExplorerModelQueries
+	{
+		public static Dictionary<string, string> Queries = new Dictionary<string, string>()
+		{
+<#
+    XmlNodeList queriers = doc.SelectNodes("//Querier");
 
 	foreach (var querier in queriers)
 	{
-		var querierName = ((XmlNode)querier).Attributes["Name"].Value;
-		var querierNodeName = ((XmlNode)querier).Attributes["Node"].Value;
-
+		var querierNode = querier as XmlNode;
+        var querierQuery = querierNode.Attributes["Query"].Value;
 #>
-	/// <summary>
-	/// <#= querierName #> Querier
-	/// </summary>
-	public class <#= querierName #>Querier 
-	{
-		public querier
-		public <#= querierName #>Querier()
-		{
-		}
+			{ 
+				"<#= querierNode.Attributes["NodeType"].Value #>", 
+				@"<#= querierQuery #>" 
+			},
+<#  
+    }
+#>
+		};
 	}
-<#
-	}	
-#>
 	
 }
+
+<#
+	void LoadChildren(XmlDocument doc, XmlNode node)
+	{
+#>
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+<#
+		var childQueriers = node.SelectNodes("ChildQuerier");
+
+		foreach (XmlNode querier in childQueriers)
+		{
+			var nodeType = querier.Attributes["NodeType"].Value;
+			verifyQuerier(doc, nodeType);
+#>
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "<#= nodeType #>" && child.Parent == this.Name)
+				{
+					Children.Add(new <#= nodeType #>Node(this, child));
+				}
+			}
+<#
+		}
+
+		var childFolder = node.SelectNodes("ChildFolder");
+
+		foreach (XmlNode folder in childFolder)
+		{
+			var name = folder.Attributes["Name"].Value;
+			verifyFolder(doc, name);
+#>
+			Children.Add(new <#= name#>Folder(this));		
+<#
+		}
+#>
+		}
+<#
+	}
+
+	void LoadFolderChildren( XmlDocument doc, XmlNode node)
+	{
+#>
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+<#
+		var ParentName = node.Attributes["ParentName"].Value;
+		var childQueriers = node.SelectNodes("ChildQuerier");
+		foreach (XmlNode querier in childQueriers)
+		{
+			var nodeType = querier.Attributes["NodeType"].Value;
+			verifyQuerier(doc, nodeType);
+#>
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "<#= nodeType #>" && child.Parent == this.<#= ParentName #>)
+				{
+					Children.Add(new <#= nodeType #>Node(this, child));
+				}
+			}
+<#
+		}
+		var childFolder = node.SelectNodes("ChildFolder");
+
+		foreach (XmlNode folder in childFolder)
+		{
+			var name = folder.Attributes["Name"].Value;
+			verifyFolder(doc, name);
+#>
+			Children.Add(new <#= name#>Folder(this));		
+<#
+		}
+#>
+		}
+<#
+	}
+
+	void verifyQuerier(XmlDocument doc, string nodeType)
+	{
+		var querier = doc.SelectSingleNode("//Querier[@NodeType='" + nodeType + "']");
+		if (querier == null)
+		{
+			throw new Exception($"Querier for node type `{nodeType}` not found");
+		}
+	}
+
+	void verifyFolder(XmlDocument doc, string folderName)
+	{
+		var folder = doc.SelectSingleNode("//Folder[@Name='" + folderName + "']");
+		if (folder == null)
+		{
+			throw new Exception($"Folder for node type `{folderName}` not found");
+		}
+	}
+#>
