@@ -16,10 +16,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class DatabaseNode : TreeNode
 	{
-		public DatabaseNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public DatabaseNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "Database";
 			IsLeaf = false;
+			ScriptingObject.Type = "Database";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -38,10 +39,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class SchemaNode : TreeNode
 	{
-		public SchemaNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public SchemaNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "Schema";
 			IsLeaf = false;
+			ScriptingObject.Type = "Schema";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -57,10 +59,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class TableNode : TreeNode
 	{
-		public TableNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public TableNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "Table";
 			IsLeaf = false;
+			ScriptingObject.Type = "Table";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -74,10 +77,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class ColumnNode : TreeNode
 	{
-		public ColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public ColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "Column";
 			IsLeaf = true;
+			ScriptingObject.Type = "Column";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -89,11 +93,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class IndexNode : TreeNode
 	{
-		public IndexNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public IndexNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, true)
 		{
 			Type = "Index";
 			IsLeaf = true;
-			AddParentInScriptingObject = true;
+			ScriptingObject.Type = "Index";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -105,10 +109,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class ViewNode : TreeNode
 	{
-		public ViewNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public ViewNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "View";
 			IsLeaf = false;
+			ScriptingObject.Type = "View";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -122,10 +127,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class StoredProcedureNode : TreeNode
 	{
-		public StoredProcedureNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public StoredProcedureNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "StoredProcedure";
 			IsLeaf = false;
+			ScriptingObject.Type = "StoredProcedure";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -134,14 +140,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		}
 	}
 	/// <summary>
-	/// Parameter Node
+	/// Param Node
 	/// </summary>
-	public class ParameterNode : TreeNode
+	public class ParamNode : TreeNode
 	{
-		public ParameterNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public ParamNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
-			Type = "Parameter";
+			Type = "Param";
 			IsLeaf = true;
+			ScriptingObject.Type = "Param";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -153,10 +160,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class ScalarFunctionNode : TreeNode
 	{
-		public ScalarFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public ScalarFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "ScalarFunction";
 			IsLeaf = false;
+			ScriptingObject.Type = "UserDefinedFunction";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -169,10 +177,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class TableValuedFunctionNode : TreeNode
 	{
-		public TableValuedFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public TableValuedFunctionNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
 		{
 			Type = "TableValuedFunction";
 			IsLeaf = false;
+			ScriptingObject.Type = "UserDefinedFunction";
 		}
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
@@ -299,9 +308,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Parameter" && child.Parent == this.Parent.Name)
+				if (child.Type == "Param" && child.Parent == this.Parent.Name)
 				{
-					Children.Add(new ParameterNode(this, child));
+					Children.Add(new ParamNode(this, child));
 				}
 			}
 		}
@@ -523,7 +532,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
   " 
 			},
 			{ 
-				"Parameter", 
+				"Param", 
 				@"
     SELECT
         S.name AS schema_name,
@@ -533,7 +542,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
         CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
         AS display_name,
-        'Parameter' AS object_type,
+        'Param' AS object_type,
         CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS object_sub_type
     FROM
         sys.parameters AS P

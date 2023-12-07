@@ -32,7 +32,21 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	{
 		var nodeName = node.Attributes["Name"].Value;
 		var nodeType = node.Attributes["Type"].Value;
-		var isLeaf = node.Attributes["isLeaf"].Value;
+		var isLeaf = node.Attributes["IsLeaf"].Value;
+		string scriptingObjectType;
+		if(node.Attributes["ScriptingObjectType"] != null)
+		{
+			scriptingObjectType = node.Attributes["ScriptingObjectType"].Value;
+		}
+		else
+		{
+			scriptingObjectType = nodeType;
+		}
+		var addParentInfoToScriptingObject = "false";
+		if (node.Attributes["AddParentInfoToScriptingObject"] != null)
+  		{
+			addParentInfoToScriptingObject = node.Attributes["AddParentInfoToScriptingObject"].Value;
+		}
 		
 
 #>
@@ -41,23 +55,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 	/// </summary>
 	public class <#= nodeName #>Node : TreeNode
 	{
-		public <#= nodeName #>Node(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public <#= nodeName #>Node(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, <#= addParentInfoToScriptingObject #>)
 		{
 			Type = "<#= nodeType #>";
 			IsLeaf = <#= isLeaf #>;
-		<#
-		if (node.Attributes["AddParentInfoToScriptingObject"] != null)
-  		{
-			var AddParentInfoToScriptingObject = node.Attributes["AddParentInfoToScriptingObject"].Value;
-		
-		#>
-	AddParentInScriptingObject = <#= AddParentInfoToScriptingObject #>;
-		<#
+			ScriptingObject.Type = "<#= scriptingObjectType #>";
 		}
-		#>
-}
 <#
-		LoadChildren(node);
+		LoadChildren(doc, node);
 #>
 	}
 <#
@@ -81,7 +86,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			Label = <#= folderLabel #>;
 		}
 <#	
-		LoadFolderChildren(folder, doc);
+		LoadFolderChildren(doc, folder);
 #>
 	}
 <#
@@ -101,7 +106,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         var querierQuery = querierNode.Attributes["Query"].Value;
 #>
 			{ 
-				"<#= querierNode.Attributes["Name"].Value #>", 
+				"<#= querierNode.Attributes["NodeType"].Value #>", 
 				@"<#= querierQuery #>" 
 			},
 <#  
@@ -113,7 +118,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 }
 
 <#
-	void LoadChildren(XmlNode node)
+	void LoadChildren(XmlDocument doc, XmlNode node)
 	{
 #>
 		public override void  LoadChildren(ObjectMetadata[] metadata)
@@ -124,13 +129,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 
 		foreach (XmlNode querier in childQueriers)
 		{
-			var name = querier.Attributes["Name"].Value;
+			var nodeType = querier.Attributes["NodeType"].Value;
+			verifyQuerier(doc, nodeType);
 #>
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "<#= name #>" && child.Parent == this.Name)
+				if (child.Type == "<#= nodeType #>" && child.Parent == this.Name)
 				{
-					Children.Add(new <#= name #>Node(this, child));
+					Children.Add(new <#= nodeType #>Node(this, child));
 				}
 			}
 <#
@@ -141,6 +147,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		foreach (XmlNode folder in childFolder)
 		{
 			var name = folder.Attributes["Name"].Value;
+			verifyFolder(doc, name);
 #>
 			Children.Add(new <#= name#>Folder(this));		
 <#
@@ -150,7 +157,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 <#
 	}
 
-	void LoadFolderChildren(XmlNode node, XmlDocument doc)
+	void LoadFolderChildren( XmlDocument doc, XmlNode node)
 	{
 #>
 		public override void  LoadChildren(ObjectMetadata[] metadata)
@@ -161,13 +168,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		var childQueriers = node.SelectNodes("ChildQuerier");
 		foreach (XmlNode querier in childQueriers)
 		{
-			var name = querier.Attributes["Name"].Value;
+			var nodeType = querier.Attributes["NodeType"].Value;
+			verifyQuerier(doc, nodeType);
 #>
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "<#= name #>" && child.Parent == this.<#= ParentName #>)
+				if (child.Type == "<#= nodeType #>" && child.Parent == this.<#= ParentName #>)
 				{
-					Children.Add(new <#= name #>Node(this, child));
+					Children.Add(new <#= nodeType #>Node(this, child));
 				}
 			}
 <#
@@ -177,6 +185,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		foreach (XmlNode folder in childFolder)
 		{
 			var name = folder.Attributes["Name"].Value;
+			verifyFolder(doc, name);
 #>
 			Children.Add(new <#= name#>Folder(this));		
 <#
@@ -184,5 +193,23 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 #>
 		}
 <#
+	}
+
+	void verifyQuerier(XmlDocument doc, string nodeType)
+	{
+		var querier = doc.SelectSingleNode("//Querier[@NodeType='" + nodeType + "']");
+		if (querier == null)
+		{
+			throw new Exception($"Querier for node type `{nodeType}` not found");
+		}
+	}
+
+	void verifyFolder(XmlDocument doc, string folderName)
+	{
+		var folder = doc.SelectSingleNode("//Folder[@Name='" + folderName + "']");
+		if (folder == null)
+		{
+			throw new Exception($"Folder for node type `{folderName}` not found");
+		}
 	}
 #>

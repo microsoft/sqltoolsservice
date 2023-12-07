@@ -19,7 +19,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
         public TreeNode Parent { get; set; }
         public List<TreeNode> Children { get; set; }
         public ScriptingObject ScriptingObject { get; set; }
-        public bool AddParentInScriptingObject { get; set; } = false;
         public string Path
         {
             get
@@ -34,7 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
                 }
             }
         }
-        public TreeNode(TreeNode parent, ObjectMetadata metadata)
+        public TreeNode(TreeNode parent, ObjectMetadata metadata, bool addParentInScriptingObject = false)
         {
             this.Parent = parent;
             if (metadata != null)
@@ -48,20 +47,20 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
             {
                 Name = this.Name,
                 Schema = this.SchemaName,
-                Type = this.Type,
             };
-            if(AddParentInScriptingObject)
+            if(addParentInScriptingObject)
             {
                 // Find first non folder parent
-                TreeNode currentParent = this.Parent;
-                while(currentParent != null && currentParent.Type == "Folder")
+                TreeNode nodFolderParent = this.Parent;
+                while( nodFolderParent as FolderNode != null)
                 {
-                    currentParent = currentParent.Parent;
+                    nodFolderParent = nodFolderParent.Parent;
                 }
-                if(currentParent != null)
+
+                if(nodFolderParent != null)
                 {
-                    this.ScriptingObject.ParentName = currentParent.Name;
-                    this.ScriptingObject.ParentTypeName = currentParent.Type;
+                    this.ScriptingObject.ParentName = nodFolderParent.ScriptingObject.Name;
+                    this.ScriptingObject.ParentTypeName = nodFolderParent.ScriptingObject.Type;
                 }
             }
         }

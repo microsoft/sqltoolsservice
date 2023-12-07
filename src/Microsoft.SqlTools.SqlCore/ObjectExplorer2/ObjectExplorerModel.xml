@@ -1,10 +1,52 @@
-﻿<ObjectExplorerModel>
-  <Node Name="Database" Type="Database" isLeaf="false">
-    <ChildQuerier Name="Schema" />
+﻿<!-- 
+  This xml schema defined the object explorer model.
+
+  Node: A node is a container of childFolder or childQuerier. 
+    Attributes:
+      Name: (Required) The name of the node. 
+      Type: (Required) The type of the node.
+      IsLeaf: (Required) Whether the node is a leaf node.
+      AddParentInfoToScriptingObject: (Optional) Whether to add parent info to the scripting object. Default is false.
+                                      Some scripting object (e.g. Index) needs to add parent info to the scripting object.
+      ScriptingObjectType: (Optional) The scripting object type. Default is the same as the node type.
+                            Some scripting object can be different from the node type (e.g. ScalarFunction and TableValuedFunction).
+    Children:
+      ChildFolder: (Optional) The child folder of the node.
+        Attributes:
+          Name: (Required) The name of the child folder.
+      ChildQuerier: (Optional) The child querier of the node. 
+        Attributes:
+          NodeType: (Required) The node type of the child querier. A querier node of the same node type must be present in the model.
+    
+  Folder: A folder is a node of type folder. It used to organize child objects within parent node.
+    Attributes:
+      Name: (Required) The name of the folder.
+      Label: (Required) The localized label of the folder. Strings must be defined in SR.strings.
+      ParentName: (Required) The parent name of the folder. It can be a node name or a folder name.
+    Children:
+      ChildFolder: (Optional) The child folder of the folder.
+        Attributes:
+          Name: (Required) The name of the child folder.
+      ChildQuerier: (Optional) The child querier of the folder.
+        Attributes:
+          NodeType: (Required) The node type of the child querier. A querier node of the same node type must be present in the model.
+
+  Querier: A querier contains a query to fetch nodes of a specific type.
+    Attributes:
+      NodeType: (Required) The node type of the querier.
+      Query: (Required) The query to fetch nodes of the node type. The query should return columns in 
+              schema_name, object_name, parent_name, display_name, object_type, object_sub_type order. This order cannot be changed.
+              For columns that are not applicable, return NULL.
+  
+  The root of the model is Database node.
+-->
+<ObjectExplorerModel>
+  <Node Name="Database" Type="Database" IsLeaf="false">
+    <ChildQuerier NodeType="Schema" />
   </Node>
 
   <!-- Schema Query -->
-  <Querier Name="Schema" Node="Schema" Query="
+  <Querier NodeType="Schema" Query="
   SELECT
     SCHEMA_NAME AS schema_name,
     SCHEMA_NAME AS object_name,
@@ -32,7 +74,7 @@
 " />
 
   <!-- Schema Node -->
-  <Node Name="Schema" Type="Schema" isLeaf="false">
+  <Node Name="Schema" Type="Schema" IsLeaf="false">
     <ChildFolder Name="Tables" />
     <ChildFolder Name="Views" />
     <ChildFolder Name="StoredProcedures" />
@@ -41,11 +83,11 @@
 
   <!-- Tables folder definition-->
   <Folder Name="Tables" Label="SR.SchemaHierarchy_Tables" ParentName = "Parent.Name">
-    <ChildQuerier Name="Table" />
+    <ChildQuerier NodeType="Table" />
   </Folder>
 
   <!-- Table Query -->
-  <Querier Name="Table" Node="Table" Query="
+  <Querier NodeType="Table" Query="
   SELECT
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
@@ -60,21 +102,18 @@
   " />
 
   <!-- Table Node -->
-  <Node Name="Table" Type="Table" isLeaf="false">
+  <Node Name="Table" Type="Table" IsLeaf="false">
     <ChildFolder Name="Columns" />
     <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Columns folder definition-->
   <Folder Name="Columns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
-    <ChildQuerier Name="Column" />
+    <ChildQuerier NodeType="Column" />
   </Folder>
 
   <!-- Table Columns Query -->
-  <Querier 
-    Name="Column" 
-    Node="Column" 
-    Query="
+  <Querier NodeType="Column" Query="
     SELECT
         c.TABLE_SCHEMA AS schema_name,
         c.COLUMN_NAME AS object_name,
@@ -122,15 +161,15 @@
   />
 
   <!-- Column Node -->
-  <Node Name="Column" Type="Column" isLeaf="true" />
+  <Node Name="Column" Type="Column" IsLeaf="true" />
 
   <!-- Indexes folder definition-->
   <Folder Name="Indexes" Label="SR.SchemaHierarchy_Indexes" ParentName = "Parent.Name">
-    <ChildQuerier Name="Index" />
+    <ChildQuerier NodeType="Index" />
   </Folder>
 
   <!-- Index Query -->
-  <Querier Name="Index" Node="Index" Query="
+  <Querier NodeType="Index" Query="
   SELECT
     S.name AS schema_name,
     I.name AS object_name,
@@ -157,16 +196,15 @@
   " />
 
   <!-- Index Node -->
-  <Node Name="Index" Type="Index" isLeaf="true" AddParentInfoToScriptingObject="true" />
-
+  <Node Name="Index" Type="Index" IsLeaf="true" AddParentInfoToScriptingObject="true" />
 
   <!-- Views folder definition-->
   <Folder Name="Views" Label="SR.SchemaHierarchy_Views" ParentName = "Parent.Name">
-    <ChildQuerier Name="View" />
+    <ChildQuerier NodeType="View" />
   </Folder>
 
   <!-- View Query -->
-  <Querier Name="View" Node="View" Query="
+  <Querier NodeType="View" Query="
   SELECT
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
@@ -181,18 +219,18 @@
   " />
 
   <!-- View Node -->
-  <Node Name="View" Type="View" isLeaf="false">
+  <Node Name="View" Type="View" IsLeaf="false">
     <ChildFolder Name="Columns" />
     <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Stored Procedures folder definition-->
   <Folder Name="StoredProcedures" Label="SR.SchemaHierarchy_StoredProcedures" ParentName = "Parent.Name">
-    <ChildQuerier Name="StoredProcedure" />
+    <ChildQuerier NodeType="StoredProcedure" />
   </Folder>
 
   <!-- Stored Procedure Query -->
-  <Querier Name="StoredProcedure" Node="StoredProcedure" Query="
+  <Querier NodeType="StoredProcedure" Query="
   SELECT
     SPECIFIC_SCHEMA AS schema_name,
     SPECIFIC_NAME AS object_name,
@@ -207,20 +245,17 @@
   " />
 
   <!-- Stored Procedure Node -->
-  <Node Name="StoredProcedure" Type="StoredProcedure" isLeaf="false" >
+  <Node Name="StoredProcedure" Type="StoredProcedure" IsLeaf="false" >
     <ChildFolder Name="Parameters" />
   </Node>
 
   <!-- Parameters folder definition-->
   <Folder Name="Parameters" Label="SR.SchemaHierarchy_Parameters" ParentName = "Parent.Name">
-    <ChildQuerier Name="Parameter" />
+    <ChildQuerier NodeType="Param" />
   </Folder>
 
   <!-- Parameter Query -->
-  <Querier 
-    Name="Parameter" 
-    Node="Parameter" 
-    Query="
+  <Querier NodeType="Param" Query="
     SELECT
         S.name AS schema_name,
         P.name AS object_name,
@@ -229,7 +264,7 @@
         CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
         CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
         AS display_name,
-        'Parameter' AS object_type,
+        'Param' AS object_type,
         CASE WHEN P.is_output = 1 THEN 'OutputParameter' ELSE 'InputParameter' END AS object_sub_type
     FROM
         sys.parameters AS P
@@ -240,7 +275,7 @@
 "  />
   
     <!-- Parameter Node -->
-    <Node Name="Parameter" Type="Parameter" isLeaf="true" />
+    <Node Name="Param" Type="Param" IsLeaf="true" />
 
   <!-- Functions folder definition-->
   <Folder Name="Functions" Label="SR.SchemaHierarchy_Functions" ParentName = "Parent.Name">
@@ -250,11 +285,11 @@
 
   <!-- Scalar Functions folder definition-->
   <Folder Name="ScalarFunctions" Label="SR.SchemaHierarchy_ScalarValuedFunctions" ParentName = "Parent.Parent.Name">
-    <ChildQuerier Name="ScalarFunction" />
+    <ChildQuerier NodeType="ScalarFunction" />
   </Folder>
 
   <!-- Scalar Function Query -->
-  <Querier Name="ScalarFunction" Node="ScalarFunction" Query="
+  <Querier NodeType="ScalarFunction" Query="
   SELECT
       S.name AS schema_name,
       P.name AS object_name,
@@ -270,7 +305,7 @@
   " />
 
   <!-- Scalar Function Node -->
-  <Node Name="ScalarFunction" Type="ScalarFunction" isLeaf="false" >
+  <Node Name="ScalarFunction" Type="ScalarFunction" IsLeaf="false" ScriptingObjectType="UserDefinedFunction">
     <ChildFolder Name="Parameters" />
   </Node>
 
@@ -278,11 +313,11 @@
 
   <!-- Table Valued Functions folder definition-->
   <Folder Name="TableValuedFunctions" Label="SR.SchemaHierarchy_TableValuedFunctions" ParentName = "Parent.Parent.Name">
-    <ChildQuerier Name="TableValuedFunction" />
+    <ChildQuerier NodeType="TableValuedFunction" />
   </Folder>
 
   <!-- Table Valued Function Query -->
-  <Querier Name="TableValuedFunction" Node="TableValuedFunction" Query="
+  <Querier NodeType="TableValuedFunction" Query="
   SELECT
       S.name AS schema_name,
       P.name AS object_name,
@@ -298,7 +333,7 @@
   " />
 
   <!-- Table Valued Function Node -->
-  <Node Name="TableValuedFunction" Type="TableValuedFunction" isLeaf="false" >
+  <Node Name="TableValuedFunction" Type="TableValuedFunction" IsLeaf="false" ScriptingObjectType="UserDefinedFunction">
     <ChildFolder Name="Parameters" />
   </Node>
 </ObjectExplorerModel>
