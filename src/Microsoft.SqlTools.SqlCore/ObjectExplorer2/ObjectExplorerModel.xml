@@ -62,59 +62,68 @@ where s.name not in (
 
   <!-- Table Node -->
   <Node Name="Table" Type="Table" Icon="Table" isLeaf="false">
-    <ChildFolder Name="TableColumns" />
+    <ChildFolder Name="Columns" />
     <ChildFolder Name="Indexes" />
   </Node>
 
   <!-- Columns folder definition-->
-  <Folder Name="TableColumns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
-    <ChildQuerier Type="TableColumn" />
+  <Folder Name="Columns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
+    <ChildQuerier Type="Column" />
   </Folder>
 
   <!-- Table Columns Query -->
   <Querier 
-    Name="TableColumn" 
+    Name="Column" 
     Node="Column" 
     Query="
     select 
-    s.name as schemaName,
-    c.name as objectName,
-    t.name as parentName,
-    c.name + 
+    c.TABLE_SCHEMA as schemaName,
+    c.COLUMN_NAME as objectName,    
+    c.TABLE_NAME as parentName,
+    c.COLUMN_NAME + 
     ' (' +
-    tp.name +
-    -- logic for length printing
+    CASE 
+        when kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PK, '
+        ELSE ''
+    END +
+    CASE
+        when kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'FK, '
+        ELSE ''
+    END + 
+    c.DATA_TYPE +
     CASE  
-        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        when c.DATA_TYPE IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
         CASE 
-            when c.max_length = -1 THEN '(max)'
-            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
+            when c.CHARACTER_MAXIMUM_LENGTH = -1 THEN '(max)'
+            ELSE '(' +  CAST(c.CHARACTER_MAXIMUM_LENGTH AS NVARCHAR) + ')'
         END 
-        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
+        when c.DATA_TYPE IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.NUMERIC_SCALE AS NVARCHAR) + ')'
         ELSE  ''
     END +
     -- logic for null/notnull
     CASE
-        when c.is_nullable = 1 then ', null'
+        when c.is_nullable = 'NO' then ', null'
         ELSE ', not null'
     END +
      ')' 
      as displayName,
-    'TableColumn' as type,
-    NULL AS subType
-FROM 
-    sys.columns c
-INNER JOIN 
-    sys.tables t ON c.object_id = t.object_id
-INNER JOIN
-    sys.types tp ON c.user_type_id = tp.user_type_id
-INNER JOIN
-    sys.schemas s ON s.schema_id = t.schema_id
+     'Column' as type,
+     CASE
+        when kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PrimaryKey'
+        when kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'ForeignKey'  
+        else NULL
+    END
+     as subType
+from INFORMATION_SCHEMA.COLUMNS as c
+LEFT JOIN
+information_schema.KEY_COLUMN_USAGE as kcu ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.TABLE_NAME = kcu.TABLE_NAME AND c.COLUMN_NAME = kcu.COLUMN_NAME AND kcu.CONSTRAINT_NAME LIKE 'PK%'
+LEFT JOIN
+information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEMA AND c.TABLE_NAME = kcu2.TABLE_NAME AND c.COLUMN_NAME = kcu2.COLUMN_NAME AND kcu2.CONSTRAINT_NAME LIKE 'FK%'
     "
   />
 
   <!-- Column Node -->
-  <Node Name="TableColumn" Type="Column" Icon="Column" isLeaf="true" />
+  <Node Name="Column" Type="Column" Icon="Column" isLeaf="true" />
 
   <!-- Indexes folder definition-->
   <Folder Name="Indexes" Label="SR.SchemaHierarchy_Indexes" ParentName = "Parent.Name">
@@ -167,58 +176,9 @@ INNER JOIN
 
   <!-- View Node -->
   <Node Name="View" Type="View" Icon="View" isLeaf="false">
-    <ChildFolder Name="ViewColumns" />
+    <ChildFolder Name="Columns" />
     <ChildFolder Name="Indexes" />
   </Node>
-
-  <!-- Columns folder definition-->
-  <Folder Name="ViewColumns" Label="SR.SchemaHierarchy_Columns" ParentName = "Parent.Name">
-    <ChildQuerier Type="ViewColumn" />
-  </Folder>
-  
-  <!-- Column Query -->
-  <Querier 
-    Name="ViewColumn" 
-    Node="Column" 
-    Query="
-    select 
-    s.name as schemaName,
-    c.name as objectName,
-    t.name as parentName,
-    c.name + 
-    ' (' +
-    tp.name +
-    -- logic for length printing
-    CASE  
-        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
-        CASE 
-            when c.max_length = -1 THEN '(max)'
-            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
-        END 
-        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
-        ELSE  ''
-    END +
-    -- logic for null/notnull
-    CASE
-        when c.is_nullable = 1 then ', null'
-        ELSE ', not null'
-    END +
-     ')' 
-     as displayName,
-    'ViewColumn' as type,
-    NULL AS subType
-FROM
-    sys.columns c
-INNER JOIN
-    sys.views t ON c.object_id = t.object_id
-INNER JOIN
-    sys.types tp ON c.user_type_id = tp.user_type_id
-INNER JOIN
-    sys.schemas s ON s.schema_id = t.schema_id
-"  />
-
-  <!-- Column Node -->
-  <Node Name="ViewColumn" Type="Column" Icon="Column" isLeaf="true" />
 
   <!-- Stored Procedures folder definition-->
   <Folder Name="StoredProcedures" Label="SR.SchemaHierarchy_StoredProcedures" ParentName = "Parent.Name">

@@ -68,16 +68,16 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new TableColumnsFolder(this));		
+			Children.Add(new ColumnsFolder(this));		
 			Children.Add(new IndexesFolder(this));		
 		}
 	}
 	/// <summary>
-	/// TableColumn Node
+	/// Column Node
 	/// </summary>
-	public class TableColumnNode : TreeNode
+	public class ColumnNode : TreeNode
 	{
-		public TableColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
+		public ColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
 		{
 			Icon = "Column";
 			Type = "Column";
@@ -119,24 +119,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ViewColumnsFolder(this));		
+			Children.Add(new ColumnsFolder(this));		
 			Children.Add(new IndexesFolder(this));		
-		}
-	}
-	/// <summary>
-	/// ViewColumn Node
-	/// </summary>
-	public class ViewColumnNode : TreeNode
-	{
-		public ViewColumnNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata)
-		{
-			Icon = "Column";
-			Type = "Column";
-			IsLeaf = true;
-		}
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
 		}
 	}
 	/// <summary>
@@ -260,13 +244,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			}
 		}
 	}
-	public class TableColumnsFolder : FolderNode
+	public class ColumnsFolder : FolderNode
 	{
-		public TableColumnsFolder(TreeNode parent) : base(parent)
+		public ColumnsFolder(TreeNode parent) : base(parent)
 		{
 			Icon = "Folder";
-			Name = "TableColumns";
-			Type = "TableColumns";
+			Name = "Columns";
+			Type = "Columns";
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Columns;
 		}
@@ -275,9 +259,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "TableColumn" && child.parentName == this.Parent.Name)
+				if (child.Type == "Column" && child.parentName == this.Parent.Name)
 				{
-					Children.Add(new TableColumnNode(this, child));
+					Children.Add(new ColumnNode(this, child));
 				}
 			}
 		}
@@ -322,28 +306,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer2
 				if (child.Type == "View" && child.parentName == this.Parent.Name)
 				{
 					Children.Add(new ViewNode(this, child));
-				}
-			}
-		}
-	}
-	public class ViewColumnsFolder : FolderNode
-	{
-		public ViewColumnsFolder(TreeNode parent) : base(parent)
-		{
-			Icon = "Folder";
-			Name = "ViewColumns";
-			Type = "ViewColumns";
-			IsLeaf = false;
-			Label = SR.SchemaHierarchy_Columns;
-		}
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
-			foreach(ObjectMetadata child in metadata)
-			{
-				if (child.Type == "ViewColumn" && child.parentName == this.Parent.Name)
-				{
-					Children.Add(new ViewColumnNode(this, child));
 				}
 			}
 		}
@@ -549,42 +511,51 @@ where s.name not in (
   " 
 			},
 			{ 
-				"TableColumn", 
+				"Column", 
 				@"
     select 
-    s.name as schemaName,
-    c.name as objectName,
-    t.name as parentName,
-    c.name + 
+    c.TABLE_SCHEMA as schemaName,
+    c.COLUMN_NAME as objectName,    
+    c.TABLE_NAME as parentName,
+    c.COLUMN_NAME + 
     ' (' +
-    tp.name +
-    -- logic for length printing
+    CASE 
+        when kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PK, '
+        ELSE ''
+    END +
+    CASE
+        when kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'FK, '
+        ELSE ''
+    END + 
+    c.DATA_TYPE +
     CASE  
-        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
+        when c.DATA_TYPE IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
         CASE 
-            when c.max_length = -1 THEN '(max)'
-            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
+            when c.CHARACTER_MAXIMUM_LENGTH = -1 THEN '(max)'
+            ELSE '(' +  CAST(c.CHARACTER_MAXIMUM_LENGTH AS NVARCHAR) + ')'
         END 
-        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
+        when c.DATA_TYPE IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.NUMERIC_SCALE AS NVARCHAR) + ')'
         ELSE  ''
     END +
     -- logic for null/notnull
     CASE
-        when c.is_nullable = 1 then ', null'
+        when c.is_nullable = 'NO' then ', null'
         ELSE ', not null'
     END +
      ')' 
      as displayName,
-    'TableColumn' as type,
-    NULL AS subType
-FROM 
-    sys.columns c
-INNER JOIN 
-    sys.tables t ON c.object_id = t.object_id
-INNER JOIN
-    sys.types tp ON c.user_type_id = tp.user_type_id
-INNER JOIN
-    sys.schemas s ON s.schema_id = t.schema_id
+     'Column' as type,
+     CASE
+        when kcu.CONSTRAINT_NAME LIKE 'PK%' THEN 'PrimaryKey'
+        when kcu2.CONSTRAINT_NAME LIKE 'FK%' THEN 'ForeignKey'  
+        else NULL
+    END
+     as subType
+from INFORMATION_SCHEMA.COLUMNS as c
+LEFT JOIN
+information_schema.KEY_COLUMN_USAGE as kcu ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.TABLE_NAME = kcu.TABLE_NAME AND c.COLUMN_NAME = kcu.COLUMN_NAME AND kcu.CONSTRAINT_NAME LIKE 'PK%'
+LEFT JOIN
+information_schema.KEY_COLUMN_USAGE as kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEMA AND c.TABLE_NAME = kcu2.TABLE_NAME AND c.COLUMN_NAME = kcu2.COLUMN_NAME AND kcu2.CONSTRAINT_NAME LIKE 'FK%'
     " 
 			},
 			{ 
@@ -623,45 +594,6 @@ INNER JOIN
       sys.schemas AS S
       JOIN sys.views AS V ON S.schema_id = V.schema_id
   " 
-			},
-			{ 
-				"ViewColumn", 
-				@"
-    select 
-    s.name as schemaName,
-    c.name as objectName,
-    t.name as parentName,
-    c.name + 
-    ' (' +
-    tp.name +
-    -- logic for length printing
-    CASE  
-        when tp.name IN ('char', 'nchar', 'binary', 'varchar', 'nvarchar', 'varbinary') THEN
-        CASE 
-            when c.max_length = -1 THEN '(max)'
-            ELSE '(' +  CAST(c.max_length AS NVARCHAR) + ')'
-        END 
-        when tp.name IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.scale AS NVARCHAR) + ')'
-        ELSE  ''
-    END +
-    -- logic for null/notnull
-    CASE
-        when c.is_nullable = 1 then ', null'
-        ELSE ', not null'
-    END +
-     ')' 
-     as displayName,
-    'ViewColumn' as type,
-    NULL AS subType
-FROM
-    sys.columns c
-INNER JOIN
-    sys.views t ON c.object_id = t.object_id
-INNER JOIN
-    sys.types tp ON c.user_type_id = tp.user_type_id
-INNER JOIN
-    sys.schemas s ON s.schema_id = t.schema_id
-" 
 			},
 			{ 
 				"StoredProcedure", 
