@@ -1,6 +1,6 @@
 # Simple Object Explorer
 
-The Simple Object Explorer is a lightweight implementation of SQL server object explorer. It takes in a simple SqlConnection and runs a single query to fetch the object tree. It is designed to be used in scenarios where the entire schema tree is needed in one go.
+The Simple Object Explorer is a lightweight implementation of the SQL Server Object Explorer. It accepts a SqlConnection and executes a single query to retrieve the entire object tree. It is designed for performance-critical scenarios where the traditional SMO-based object explorer is too slow. Additionally, it is intended for use in scenarios where the entire schema tree is required in one go. Furthermore, it is designed to be employed in situations where not all the sys tables are accessible or present, which are required by SMO to function correctly.
 
 ## Features
 - Uses `Micrsosoft.Data.SqlClient` only
@@ -9,7 +9,7 @@ The Simple Object Explorer is a lightweight implementation of SQL server object 
 - Supports SQL Server 2008 and above
 
 ## Architecture
-The object explorer model is defined in [ObjectExplorerModel.cs](./ObjectExplorerModel.xml) Read the up-to-date documentation there to support new object types.
+The object explorer model is defined in [ObjectExplorerModel.cs](./ObjectExplorerModel.xml). Read the up-to-date documentation there to support new object types.
 
 ## Usage
 
