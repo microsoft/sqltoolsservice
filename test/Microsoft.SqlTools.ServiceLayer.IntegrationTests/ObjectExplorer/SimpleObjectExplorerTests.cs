@@ -13,7 +13,7 @@ using OE = Microsoft.SqlTools.SqlCore.SimpleObjectExplorer.ObjectExplorer;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {
-    public class ObjectExplorer2Tests
+    public class SimpleObjectExplorerTests
     {
         string databaseName = "tempdb";
 
