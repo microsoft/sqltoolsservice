@@ -1,12 +1,14 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
-<#@ output  extension=".cs" #>
+<#@ output extension=".cs" #>
 <#@ assembly name="System.Xml.dll" #>
+<#@ assembly name="System.Core.dll" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Xml" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq"#>
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -27,7 +29,6 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 	doc.Load(xmlFile);
 
 	XmlNodeList nodes = doc.SelectNodes("//Node");
-
 	foreach (XmlNode node in nodes)
 	{
 		var nodeName = node.Attributes["Name"].Value;
@@ -47,8 +48,6 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   		{
 			addParentInfoToScriptingObject = node.Attributes["AddParentInfoToScriptingObject"].Value;
 		}
-		
-
 #>
 	/// <summary>
 	/// <#= nodeName #> Node
@@ -61,15 +60,19 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = <#= isLeaf #>;
 			ScriptingObject.Type = "<#= scriptingObjectType #>";
 		}
+
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
 <#
 		LoadChildren(doc, node);
 #>
+		}
 	}
 <#
 	}
 
 	XmlNodeList folders = doc.SelectNodes("//Folder");
-
 	foreach (XmlNode folder in folders)
 	{
 		var folderName = folder.Attributes["Name"].Value;
@@ -85,9 +88,14 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = <#= folderLabel #>;
 		}
+
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
 <#	
 		LoadFolderChildren(doc, folder);
 #>
+		}
 	}
 <#
 	}
@@ -98,8 +106,8 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		public static Dictionary<string, string> Queries = new Dictionary<string, string>()
 		{
 <#
-    XmlNodeList queriers = doc.SelectNodes("//Querier");
 
+    XmlNodeList queriers = doc.SelectNodes("//Querier");
 	foreach (var querier in queriers)
 	{
 		var querierNode = querier as XmlNode;
@@ -125,6 +133,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		<#= nodeName #>,
 <#
 	}
+
 	foreach (XmlNode folder in folders)
 	{
 		var folderName = folder.Attributes["Name"].Value;
@@ -135,102 +144,75 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 #>
 		Folder,
 	}
-	
 }
+<#+
 
-<#
-	void LoadChildren(XmlDocument doc, XmlNode node)
+	public void LoadChildren(XmlDocument doc, XmlNode node)
 	{
-#>
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
-<#
-		var childQueriers = node.SelectNodes("ChildQuerier");
-
-		foreach (XmlNode querier in childQueriers)
-		{
-			var nodeType = querier.Attributes["NodeType"].Value;
-			verifyQuerier(doc, nodeType);
-#>
-			foreach(ObjectMetadata child in metadata)
-			{
-				if (child.Type == "<#= nodeType #>" && child.Parent == this.Name)
-				{
-					Children.Add(new <#= nodeType #>Node(this, child));
-				}
-			}
-<#
-		}
-
-		var childFolder = node.SelectNodes("ChildFolder");
-
-		foreach (XmlNode folder in childFolder)
-		{
-			var name = folder.Attributes["Name"].Value;
-			verifyFolder(doc, name);
-#>
-			Children.Add(new <#= name#>Folder(this));		
-<#
-		}
-#>
-		}
-<#
-	}
-
-	void LoadFolderChildren( XmlDocument doc, XmlNode node)
-	{
-#>
-		public override void  LoadChildren(ObjectMetadata[] metadata)
-		{
-			this.Children = new List<TreeNode>();
-<#
-		var ParentName = node.Attributes["ParentName"].Value;
 		var childQueriers = node.SelectNodes("ChildQuerier");
 		foreach (XmlNode querier in childQueriers)
 		{
 			var nodeType = querier.Attributes["NodeType"].Value;
 			verifyQuerier(doc, nodeType);
-#>
-			foreach(ObjectMetadata child in metadata)
-			{
-				if (child.Type == "<#= nodeType #>" && child.Parent == this.<#= ParentName #>)
-				{
-					Children.Add(new <#= nodeType #>Node(this, child));
-				}
-			}
-<#
+			WriteLine("			foreach(ObjectMetadata child in metadata)");
+			WriteLine("			{");
+			WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.Name)", nodeType);
+			WriteLine("				{");
+			WriteLine("					Children.Add(new {0}Node(this, child));", nodeType);
+			WriteLine("				}");
+			WriteLine("			}");
 		}
-		var childFolder = node.SelectNodes("ChildFolder");
 
+		var childFolder = node.SelectNodes("ChildFolder");
 		foreach (XmlNode folder in childFolder)
 		{
 			var name = folder.Attributes["Name"].Value;
 			verifyFolder(doc, name);
-#>
-			Children.Add(new <#= name#>Folder(this));		
-<#
+			WriteLine("			Children.Add(new {0}Folder(this));", name);
 		}
-#>
-		}
-<#
 	}
 
-	void verifyQuerier(XmlDocument doc, string nodeType)
+	public void LoadFolderChildren( XmlDocument doc, XmlNode node)
+	{
+		var parentName = node.Attributes["ParentName"].Value;
+		var childQueriers = node.SelectNodes("ChildQuerier");
+		foreach (XmlNode querier in childQueriers)
+		{
+			var nodeType = querier.Attributes["NodeType"].Value;
+			verifyQuerier(doc, nodeType);
+			WriteLine("			foreach(ObjectMetadata child in metadata)");
+			WriteLine("			{");
+			WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.{1})", nodeType, parentName);
+			WriteLine("				{");
+			WriteLine("					Children.Add(new {0}Node(this, child));", nodeType);
+			WriteLine("				}");
+			WriteLine("			}");
+		}
+
+		var childFolder = node.SelectNodes("ChildFolder");
+		foreach (XmlNode folder in childFolder)
+		{
+			var name = folder.Attributes["Name"].Value;
+			verifyFolder(doc, name);
+			WriteLine("			Children.Add(new {0}Folder(this));", name);
+		}
+	}
+
+	public void verifyQuerier(XmlDocument doc, string nodeType)
 	{
 		var querier = doc.SelectSingleNode("//Querier[@NodeType='" + nodeType + "']");
 		if (querier == null)
 		{
-			throw new Exception($"Querier for node type `{nodeType}` not found");
+			throw new Exception("Querier for node type `" + nodeType + "` not found");
 		}
 	}
 
-	void verifyFolder(XmlDocument doc, string folderName)
+	public void verifyFolder(XmlDocument doc, string folderName)
 	{
 		var folder = doc.SelectSingleNode("//Folder[@Name='" + folderName + "']");
 		if (folder == null)
 		{
-			throw new Exception($"Folder for node type `{folderName}` not found");
+			throw new Exception("Folder for node type `" + folderName  + "` not found");
 		}
 	}
 #>

@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "Database";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -45,13 +46,14 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "Schema";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new TablesFolder(this));		
-			Children.Add(new ViewsFolder(this));		
-			Children.Add(new StoredProceduresFolder(this));		
-			Children.Add(new FunctionsFolder(this));		
+			Children.Add(new TablesFolder(this));
+			Children.Add(new ViewsFolder(this));
+			Children.Add(new StoredProceduresFolder(this));
+			Children.Add(new FunctionsFolder(this));
 		}
 	}
 	/// <summary>
@@ -65,11 +67,12 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "Table";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ColumnsFolder(this));		
-			Children.Add(new IndexesFolder(this));		
+			Children.Add(new ColumnsFolder(this));
+			Children.Add(new IndexesFolder(this));
 		}
 	}
 	/// <summary>
@@ -83,6 +86,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = true;
 			ScriptingObject.Type = "Column";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -99,6 +103,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = true;
 			ScriptingObject.Type = "Index";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -115,11 +120,12 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "View";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ColumnsFolder(this));		
-			Children.Add(new IndexesFolder(this));		
+			Children.Add(new ColumnsFolder(this));
+			Children.Add(new IndexesFolder(this));
 		}
 	}
 	/// <summary>
@@ -133,10 +139,11 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "StoredProcedure";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ParametersFolder(this));		
+			Children.Add(new ParametersFolder(this));
 		}
 	}
 	/// <summary>
@@ -150,6 +157,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = true;
 			ScriptingObject.Type = "Param";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -166,10 +174,11 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "UserDefinedFunction";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ParametersFolder(this));		
+			Children.Add(new ParametersFolder(this));
 		}
 	}
 	/// <summary>
@@ -183,10 +192,11 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			ScriptingObject.Type = "UserDefinedFunction";
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ParametersFolder(this));		
+			Children.Add(new ParametersFolder(this));
 		}
 	}
 	public class TablesFolder : FolderNode
@@ -198,6 +208,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Tables;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -219,6 +230,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Columns;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -240,6 +252,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Indexes;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -261,6 +274,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Views;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -282,6 +296,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_StoredProcedures;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -303,6 +318,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Parameters;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -324,11 +340,12 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_Functions;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
-			Children.Add(new ScalarFunctionsFolder(this));		
-			Children.Add(new TableValuedFunctionsFolder(this));		
+			Children.Add(new ScalarFunctionsFolder(this));
+			Children.Add(new TableValuedFunctionsFolder(this));
 		}
 	}
 	public class ScalarFunctionsFolder : FolderNode
@@ -340,6 +357,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_ScalarValuedFunctions;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -361,6 +379,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			IsLeaf = false;
 			Label = SR.SchemaHierarchy_TableValuedFunctions;
 		}
+
 		public override void  LoadChildren(ObjectMetadata[] metadata)
 		{
 			this.Children = new List<TreeNode>();
@@ -612,6 +631,4 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		TableValuedFunctions,
 		Folder,
 	}
-	
 }
-
