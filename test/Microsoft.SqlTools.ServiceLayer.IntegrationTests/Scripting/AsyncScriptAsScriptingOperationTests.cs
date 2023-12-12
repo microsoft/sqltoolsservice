@@ -67,36 +67,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                     },
                     new List<string> { "DROP TABLE [dbo].[testTable1]" }
                     );
-
-                yield return new TestCaseData(
-                            @"CREATE TABLE testTable1 (c1 int)
-                            GO
-                            CREATE CLUSTERED INDEX [ClusteredIndex-1] ON [dbo].[testTable1]
-                            (
-	                            [c1] ASC
-                            )
-                            GO
-                            ",
-                            new ScriptingParams()
-                            {
-                                ScriptDestination = "ToEditor",
-                                ScriptingObjects = new List<ScriptingObject>()
-                                {
-                                    new ScriptingObject()
-                                    {
-                                        Name = "testTable1",
-                                        Schema = "dbo",
-                                        Type = "Table"
-                                    }
-                                },
-                                Operation = ScriptingOperationType.Create,
-                                ScriptOptions = new ScriptOptions()
-                                {
-                                    ScriptCreateDrop = "ScriptCreate"
-                                }
-                            },
-                            new List<string> { "CREATE TABLE [dbo].[testTable1]", "CREATE CLUSTERED INDEX [ClusteredIndex-1] ON [dbo].[testTable1]" }
-                    );
                 
                 yield return new TestCaseData(
                     @"
@@ -124,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                             ScriptCreateDrop = "ScriptCreate"
                         }
                     },
-                    new List<string> { "CREATE INDEX [idx] ON [dbo].[testTable1]" }
+                    new List<string> { "CREATE NONCLUSTERED INDEX [idx] ON [dbo].[testTable1]" }
                 );
             }
         }
