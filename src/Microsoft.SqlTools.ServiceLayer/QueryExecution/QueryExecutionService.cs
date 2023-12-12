@@ -1170,13 +1170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             public int Start { get; set; }
             public int End { get; set; }
 
-            public override string ToString()
-            {
-                return nameof(Range) + " {"
-                    + nameof(Start) + $"{Start}, "
-                    + nameof(End) + $"{End}" 
-                    + "}";
-            }
+            public override string ToString() 
+                => $"{nameof(Range)} ({nameof(Start)}: {Start}, {nameof(End)}: {End})";
         }
 
         internal List<Range> MergeRanges(List<Range> ranges)
