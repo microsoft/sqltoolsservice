@@ -20,7 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             get
             {
                 yield return new TestCaseData(
-                    "CREATE TABLE testTable1 (c1 int)",
+                   @"
+                        CREATE TABLE selectTable (c1 int)
+                   ",
                     new ScriptingParams()
                     {
                         ScriptDestination = "ToEditor",
@@ -28,11 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                         {
                             new ScriptingObject()
                             {
-                                Name = "testTable1",
+                                Name = "selectTable",
                                 Schema = "dbo",
                                 Type = "Table",
-                                ParentName = "dbo",
-                                ParentTypeName = "Schema"
                             }
                         },
                         Operation = ScriptingOperationType.Select,
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
                 yield return new TestCaseData(
                     @"
-                    CREATE TABLE testTable1 (c1 int)
+                    CREATE TABLE dropTable (c1 int)
                     ",
                     new ScriptingParams()
                     {
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                         {
                             new ScriptingObject()
                             {
-                                Name = "testTable1",
+                                Name = "dropTable",
                                 Schema = "dbo",
                                 Type = "Table"
                             }
@@ -65,14 +65,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                             ScriptCreateDrop = "ScriptDrop"
                         }
                     },
-                    new List<string> { "DROP TABLE [dbo].[testTable1]" }
+                    new List<string> { "DROP TABLE [dbo].[dropTable]" }
                     );
+
+                yield return new TestCaseData(
+                    "CREATE TABLE createTable (c1 int)",
+                    new ScriptingParams()
+                    {
+                        ScriptDestination = "ToEditor",
+                        ScriptingObjects = new List<ScriptingObject>()
+                        {
+                            new ScriptingObject()
+                            {
+                                Name = "createTable",
+                                Schema = "dbo",
+                                Type = "Table"
+                            }
+                        },
+                        Operation = ScriptingOperationType.Create,
+                        ScriptOptions = new ScriptOptions()
+                        {
+                            ScriptCreateDrop = "ScriptCreate"
+                        }
+                    },
+                    new List<string> { "CREATE TABLE [dbo].[createTable]" }
+                );
                 
                 yield return new TestCaseData(
                     @"
                     CREATE TABLE testTable1 (c1 int)
                     GO
                     CREATE INDEX idx ON testTable1 (c1)
+                    GO
                     ",
                     new ScriptingParams()
                     {
