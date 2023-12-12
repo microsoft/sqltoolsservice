@@ -782,7 +782,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 selection.FromColumn <= columnIndex &&
                                 selection.ToColumn >= columnIndex))
                                 {
-                                    builder.Append(Settings.QueryEditorSettings.Results.CopyRemoveNewLine ? row[columnIndex].DisplayValue.ReplaceLineEndings(" ") : row[columnIndex].DisplayValue);
+                                    if (row != null)
+                                    {
+                                        if (row[columnIndex] != null && row[columnIndex].DisplayValue != null)
+                                        {
+                                            builder.Append(Settings?.QueryEditorSettings?.Results?.CopyRemoveNewLine ?? true ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
+                                        }
+                                        else
+                                        {
+                                            // Temporary logging to investigate NRE, can be removed in future.
+                                            Logger.Verbose($"Value at row: {rowIndex} and column: {columnIndex} found null.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Temporary logging to investigate NRE, can be removed in future.
+                                        Logger.Verbose($"Row not found at rowIndex: {rowIndex}, rowRange: {rowRange}, rowRangeIndex {rowRangeIndex}");
+                                    }
                                 }
                                 if (columnIndex != lastColumnIndex)
                                 {
@@ -791,7 +807,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || !Settings.QueryEditorSettings.Results.SkipNewLineAfterTrailingLineBreak))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
                         {
                             builder.Append(Environment.NewLine);
                         }
@@ -1153,6 +1169,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             public int Start { get; set; }
             public int End { get; set; }
+
+            public override string ToString()
+            {
+                return nameof(Range) + " {"
+                    + nameof(Start) + $"{Start}, "
+                    + nameof(End) + $"{End}" 
+                    + "}";
+            }
         }
 
         internal List<Range> MergeRanges(List<Range> ranges)
