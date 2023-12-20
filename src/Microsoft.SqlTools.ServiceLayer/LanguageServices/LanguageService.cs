@@ -543,6 +543,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     GetSignatureHelp(textDocumentPosition, scriptFile)
                         .ContinueWith(async task =>
                     {
+                        if (task.IsFaulted)
+                        {
+                            Logger.Error($"Error getting signature help for script file {scriptFile}: {task.Exception}");
+                            await requestContext.SendError(task.Exception);
+                            return;
+                        }
                         var result = await task;
                         if (result != null)
                         {
@@ -1723,7 +1729,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
-
             var parseResult = await ParseAndBind(scriptFile, connInfo);
 
             // build a list of SQL script file markers from the errors
@@ -1847,30 +1852,45 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Get the requested files
             foreach (ScriptFile scriptFile in filesToAnalyze)
             {
-                if (IsPreviewWindow(scriptFile))
+                try
                 {
-                    continue;
-                }
-                else if (ShouldSkipNonMssqlFile(scriptFile.ClientUri))
-                {
-                    // Clear out any existing markers in case file type was changed
-                    await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
-                    continue;
-                }
+                    if (IsPreviewWindow(scriptFile))
+                    {
+                        continue;
+                    }
+                    else if (ShouldSkipNonMssqlFile(scriptFile.ClientUri))
+                    {
+                        // Clear out any existing markers in case file type was changed
+                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
+                        continue;
+                    }
 
-                Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
+                    Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
 
-                // Start task asynchronously without blocking main thread - this is by design.
-                // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
-                // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
+                    // Start task asynchronously without blocking main thread - this is by design.
+                    // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
+                    // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                GetSemanticMarkers(scriptFile).ContinueWith(async t =>
-                {
-                    var semanticMarkers = t.GetAwaiter().GetResult();
-                    Logger.Verbose("Analysis complete.");
-                    await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
-                }, CancellationToken.None);
+                    GetSemanticMarkers(scriptFile).ContinueWith(async t =>
+                    {
+                        if (t.IsFaulted)
+                        {
+                            Logger.Error($"Error analyzing script file {scriptFile.FilePath}: {t.Exception}");
+                            return;
+                        }
+                        var semanticMarkers = t.GetAwaiter().GetResult();
+                        Logger.Verbose($"Analysis complete for script file: {scriptFile.FilePath}");
+                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
+                    }, CancellationToken.None);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }
+                catch (Exception e)
+                {
+                    // If any errors occur while starting up the analyze task for a script file then just log it and move on so
+                    // we at least try to analyze the other files
+                    Logger.Error($"Error while starting to analyze script file {scriptFile.FilePath}: {e}");
+                }
+
             }
         }
 
