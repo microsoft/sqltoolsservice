@@ -12,6 +12,32 @@ using System.Collections.Generic;
 namespace Microsoft.SqlTools.Migration.Contracts
 {
     /// <summary>
+    /// Represents the steps in pre validation.
+    /// </summary>
+    public enum LoginMigrationPreValidationStep
+    {
+        /// <summary>
+        /// Run Sys Admin validations
+        /// </summary>
+        SysAdminValidation,
+
+        /// <summary>
+        /// Run User Mapping validations
+        /// </summary>
+        UserMappingValidation,
+
+        /// <summary>
+        /// Run Login Eligibility validations
+        /// </summary>
+        LoginEligibilityValidation,
+
+        /// <summary>
+        /// Run AAD Domain name validations
+        /// </summary>
+        AADDomainNameValidation,
+    }
+
+    /// <summary>
     /// Represents the steps in login migration.
     /// </summary>
     public enum LoginMigrationStep
@@ -30,7 +56,6 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// Step to establish users and logins from source to target
         /// </summary>
         EstablishUserMapping,
-
 
         /// <summary>
         /// Step to migrate server roles
@@ -94,6 +119,24 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public string ElapsedTime{ get; set; }
     }
 
+    public class LoginMigrationPreValidationResult
+    {
+        /// <summary>
+        /// Exceptions per logins
+        /// </summary>
+        public IDictionary<string, IEnumerable<LoginMigrationException>> ExceptionMap { get; set; }
+
+        /// <summary>
+        /// The login migration pre validation step that just completed
+        /// </summary>
+        public LoginMigrationPreValidationStep CompletedStep { get; set; }
+
+        /// <summary>
+        /// How long this step took
+        /// </summary>
+        public string ElapsedTime{ get; set; }
+    }
+
     public class StartLoginMigrationRequest
     {
         public static readonly
@@ -106,6 +149,34 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public static readonly
             RequestType<StartLoginMigrationParams, LoginMigrationResult> Type =
                 RequestType<StartLoginMigrationParams, LoginMigrationResult>.Create("migration/validateloginmigration");
+    }
+
+    public class ValidateSysAdminPermissionRequest
+    {
+        public static readonly
+            RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult> Type =
+                RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validatesysadminpermission");
+    }
+
+    public class ValidateUserMappingRequest
+    {
+        public static readonly
+            RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult> Type =
+                RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validateusermapping");
+    }
+
+    public class ValidateAADDomainNameRequest
+    {
+        public static readonly
+            RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult> Type =
+                RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validateaaddomainname");
+    }
+
+    public class ValidateLoginEligibilityRequest
+    {
+        public static readonly
+            RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult> Type =
+                RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validatelogineligibility");
     }
 
     public class MigrateLoginsRequest
