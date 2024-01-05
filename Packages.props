@@ -49,6 +49,7 @@
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
 	<ItemGroup>
+		<PackageReference Update="Azure.Identity" Version="1.10.2" />
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.1" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.12.0" />
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />

@@ -45,6 +45,7 @@
 	</Choose>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Azure.Storage.Blobs" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
