@@ -39,12 +39,16 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 {
                     scriptAsTask.SetException(new Exception(args.ErrorMessage));
                 }
-                scriptAsTask.SetResult(scriptAsOperation.ScriptText);
+                else
+                {
+                    scriptAsTask.SetResult(scriptAsOperation.ScriptText);
+
+                }
             };
 
             scriptAsOperation.ProgressNotification += (sender, args) =>
             {
-                if(args.ErrorMessage != null)
+                if (args.ErrorMessage != null)
                 {
                     scriptAsTask.SetException(new Exception(args.ErrorMessage));
                 }
