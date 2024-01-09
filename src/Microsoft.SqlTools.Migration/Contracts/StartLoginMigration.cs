@@ -22,6 +22,11 @@ namespace Microsoft.SqlTools.Migration.Contracts
         SysAdminValidation,
 
         /// <summary>
+        /// Run AAD Domain name validations
+        /// </summary>
+        AADDomainNameValidation,
+
+        /// <summary>
         /// Run User Mapping validations
         /// </summary>
         UserMappingValidation,
@@ -30,11 +35,6 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// Run Login Eligibility validations
         /// </summary>
         LoginEligibilityValidation,
-
-        /// <summary>
-        /// Run AAD Domain name validations
-        /// </summary>
-        AADDomainNameValidation,
     }
 
     /// <summary>
