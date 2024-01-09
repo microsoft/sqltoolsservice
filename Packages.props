@@ -50,7 +50,7 @@
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
 	<ItemGroup>
 		<PackageReference Update="Azure.Identity" Version="1.10.2" />
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.1" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.3" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.12.0" />
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
