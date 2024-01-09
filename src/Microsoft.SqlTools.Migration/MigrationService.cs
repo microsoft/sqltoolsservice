@@ -111,6 +111,10 @@ namespace Microsoft.SqlTools.Migration
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest, true);
             this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration, true);
             this.ServiceHost.SetRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration, true);
+            this.ServiceHost.SetRequestHandler(ValidateSysAdminPermissionRequest.Type, HandleSysAdminPermissionValidation, true);
+            this.ServiceHost.SetRequestHandler(ValidateAADDomainNameRequest.Type, HandleAADDomainNameValidation, true);
+            this.ServiceHost.SetRequestHandler(ValidateLoginEligibilityRequest.Type, HandleLoginEligibilityValidation, true);
+            this.ServiceHost.SetRequestHandler(ValidateUserMappingRequest.Type, HandleUserMappingValidation, true);
             this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
             this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
             this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
@@ -287,6 +291,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to start login migration.
+        /// </summary>
         internal async Task HandleStartLoginMigration(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -320,6 +327,153 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to validate sysadmin permissions.
+        /// </summary>
+        internal async Task HandleSysAdminPermissionValidation(
+            StartLoginMigrationParams parameters,
+            RequestContext<LoginMigrationPreValidationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName, logger);
+
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions(await loginMigration.ValidateSysAdminPermissions(CancellationToken.None));
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationPreValidationResult results = new LoginMigrationPreValidationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationPreValidationStep.SysAdminValidation,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle request to validate user mapping.
+        /// </summary>
+        internal async Task HandleUserMappingValidation(
+            StartLoginMigrationParams parameters,
+            RequestContext<LoginMigrationPreValidationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName, logger);
+
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions(loginMigration.ValidateUserMapping(CancellationToken.None));
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationPreValidationResult results = new LoginMigrationPreValidationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationPreValidationStep.UserMappingValidation,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle request to validate login eligibility.
+        /// </summary>
+        internal async Task HandleLoginEligibilityValidation(
+        StartLoginMigrationParams parameters,
+        RequestContext<LoginMigrationPreValidationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName, logger);
+
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions(await loginMigration.ValidateLoginEligibility(CancellationToken.None));
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationPreValidationResult results = new LoginMigrationPreValidationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationPreValidationStep.LoginEligibilityValidation,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle request to validate AAD domain name.
+        /// </summary>
+        internal async Task HandleAADDomainNameValidation(
+        StartLoginMigrationParams parameters,
+        RequestContext<LoginMigrationPreValidationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName, logger);
+
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions(loginMigration.ValidateAADDomainName(parameters.AADDomainName));
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationPreValidationResult results = new LoginMigrationPreValidationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationPreValidationStep.AADDomainNameValidation,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle request to validate login migration.
+        /// </summary>
         internal async Task HandleValidateLoginMigration(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -353,6 +507,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to migrate logins.
+        /// </summary>
         internal async Task HandleMigrateLogins(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -386,6 +543,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to establish user mapping.
+        /// </summary>
         internal async Task HandleEstablishUserMapping(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -420,6 +580,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to migrate server roles and set permissions.
+        /// </summary>
         internal async Task HandleMigrateServerRolesAndSetPermissions(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
