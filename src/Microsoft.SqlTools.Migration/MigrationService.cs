@@ -291,6 +291,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to start login migration.
+        /// </summary>
         internal async Task HandleStartLoginMigration(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -324,6 +327,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to validate sysadmin permissions.
+        /// </summary>
         internal async Task HandleSysAdminPermissionValidation(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationPreValidationResult> requestContext)
@@ -357,6 +363,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to validate user mapping.
+        /// </summary>
         internal async Task HandleUserMappingValidation(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationPreValidationResult> requestContext)
@@ -390,6 +399,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to validate login eligibility.
+        /// </summary>
         internal async Task HandleLoginEligibilityValidation(
         StartLoginMigrationParams parameters,
         RequestContext<LoginMigrationPreValidationResult> requestContext)
@@ -423,6 +435,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to validate AAD domain name.
+        /// </summary>
         internal async Task HandleAADDomainNameValidation(
         StartLoginMigrationParams parameters,
         RequestContext<LoginMigrationPreValidationResult> requestContext)
@@ -456,6 +471,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to validate login migration.
+        /// </summary>
         internal async Task HandleValidateLoginMigration(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -489,6 +507,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to migrate logins.
+        /// </summary>
         internal async Task HandleMigrateLogins(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -522,6 +543,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to establish user mapping.
+        /// </summary>
         internal async Task HandleEstablishUserMapping(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
@@ -556,6 +580,9 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request to migrate server roles and set permissions.
+        /// </summary>
         internal async Task HandleMigrateServerRolesAndSetPermissions(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)

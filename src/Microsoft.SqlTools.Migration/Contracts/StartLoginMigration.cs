@@ -78,6 +78,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
         SetServerRolePermissions
     }
 
+    /// <summary>
+    /// Represents the parameters for start login migration.
+    /// </summary>
     public class StartLoginMigrationParams
     {
         /// <summary>
@@ -101,6 +104,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public string AADDomainName{ get; set; }
     }
 
+    /// <summary>
+    /// Represents the contents of the Login migration result.
+    /// </summary>
     public class LoginMigrationResult
     {
         /// <summary>
@@ -119,6 +125,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public string ElapsedTime{ get; set; }
     }
 
+    /// <summary>
+    /// Represents the contents of the Login migration pre validation result.
+    /// </summary>
     public class LoginMigrationPreValidationResult
     {
         /// <summary>
@@ -137,6 +146,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public string ElapsedTime{ get; set; }
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to start login migration.
+    /// </summary>
     public class StartLoginMigrationRequest
     {
         public static readonly
@@ -144,6 +156,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationResult>.Create("migration/startloginmigration");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to validate login migration.
+    /// </summary>
     public class ValidateLoginMigrationRequest
     {
         public static readonly
@@ -151,6 +166,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationResult>.Create("migration/validateloginmigration");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to validate Sys Admin Permission.
+    /// </summary>
     public class ValidateSysAdminPermissionRequest
     {
         public static readonly
@@ -158,6 +176,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validatesysadminpermission");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to validate user mapping.
+    /// </summary>
     public class ValidateUserMappingRequest
     {
         public static readonly
@@ -165,6 +186,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validateusermapping");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to validate AAD domain name.
+    /// </summary>
     public class ValidateAADDomainNameRequest
     {
         public static readonly
@@ -172,6 +196,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validateaaddomainname");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to validate Login Eligibility.
+    /// </summary>
     public class ValidateLoginEligibilityRequest
     {
         public static readonly
@@ -179,6 +206,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationPreValidationResult>.Create("migration/validatelogineligibility");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to migrate logins.
+    /// </summary>
     public class MigrateLoginsRequest
     {
         public static readonly
@@ -186,12 +216,19 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationResult>.Create("migration/migratelogins");
     }
 
+    /// <summary>
+    /// Defines a request sent from the client to establish user mapping.
+    /// </summary>
     public class EstablishUserMappingRequest
     {
         public static readonly
             RequestType<StartLoginMigrationParams, LoginMigrationResult> Type =
                 RequestType<StartLoginMigrationParams, LoginMigrationResult>.Create("migration/establishusermapping");
     }
+
+    /// <summary>
+    /// Defines a request sent from the client to migrate server roles and set permissions.
+    /// </summary>
     public class MigrateServerRolesAndSetPermissionsRequest
     {
         public static readonly
@@ -199,6 +236,9 @@ namespace Microsoft.SqlTools.Migration.Contracts
                 RequestType<StartLoginMigrationParams, LoginMigrationResult>.Create("migration/migrateserverrolesandsetpermissions");
     }
 
+    /// <summary>
+    /// Defines a notification sent to the client to provide progress notification of the login migration.
+    /// </summary>
     public class LoginMigrationNotification
     {
         public static readonly
