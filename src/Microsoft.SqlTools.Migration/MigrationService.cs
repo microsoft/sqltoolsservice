@@ -595,7 +595,7 @@ namespace Microsoft.SqlTools.Migration
                         CompletedStep = LoginMigrationStep.MigrateServerRoles,
                         ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
                     });
- 
+
                 stopWatch.Restart();
                 exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
                 stopWatch.Stop();
