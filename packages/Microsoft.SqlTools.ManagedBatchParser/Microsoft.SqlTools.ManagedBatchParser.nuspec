@@ -14,17 +14,17 @@
         <dependencies>
             <group targetFramework="net472">
                 <dependency id="Azure.Identity" version="1.10.2" />
-                <dependency id="Microsoft.Data.SqlClient" version="5.0.1" />
+                <dependency id="Microsoft.Data.SqlClient" version="5.1.3" />
                 <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="170.12.0" />
                 <dependency id="Newtonsoft.Json" version="13.0.2" />
-                <dependency id="System.Configuration.ConfigurationManager" version="6.0.0" />
+                <dependency id="System.Configuration.ConfigurationManager" version="6.0.1" />
             </group>
             <group targetFramework="net6.0">
                 <dependency id="Azure.Identity" version="1.10.2" />
-                <dependency id="Microsoft.Data.SqlClient" version="5.0.1" />
+                <dependency id="Microsoft.Data.SqlClient" version="5.1.3" />
                 <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="170.12.0" />
                 <dependency id="Newtonsoft.Json" version="13.0.2" />
-                <dependency id="System.Configuration.ConfigurationManager" version="6.0.0" />
+                <dependency id="System.Configuration.ConfigurationManager" version="6.0.1" />
             </group>
         </dependencies>
     </metadata>
