@@ -693,7 +693,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             var builder = new StringBuilder();
                             foreach (var scriptEntry in server.ConnectionContext.CapturedSql.Text)
                             {
-                                if (scriptEntry != null)
+                                if (!string.IsNullOrWhiteSpace(scriptEntry))
                                 {
                                     builder.AppendLine(scriptEntry);
                                     builder.AppendLine("GO");
