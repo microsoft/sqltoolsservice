@@ -28,6 +28,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using System.Security;
+using Microsoft.SqlServer.Management.HadrModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -1530,6 +1532,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 default:
                     return value;
             }
+        }
+
+        public void CreateNewCredential(NewS3CredentialRequestParams obj)
+        {
+            using (var dataContainer = CreateDatabaseDataContainer(obj.ConnectionUri, true, String.Empty))
+            {
+                SecureString secret = $"{obj.Secret}".StringToSecureString();
+                secret.MakeReadOnly();
+                string identity = "S3 Access Key";
+                Credential credential = new Credential(dataContainer.Server, obj.S3Url)
+                {
+                    Identity = identity
+                };
+                credential.Create(identity, secret);
+            }
+        }
+
+        /// <summary>
+        /// Get S3 credentials in the current connection
+        /// </summary>
+        /// <param name="connectionUri">The connection uri</param>
+        /// <returns>Returns the list of credentials names</returns>
+        public List<string> GetS3Credentials(string connectionUri)
+        {
+            List<string> credentials = new List<string>();
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo))
+            {
+                if (sqlConn != null)
+                {
+                    using (var cmd = new SqlCommand { Connection = sqlConn })
+                    {
+                        cmd.CommandText = "SELECT [NAME] FROM sys.credentials";
+                        cmd.ExecuteNonQuery();
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                if(reader.GetString(0).StartsWith("s3"))
+                                {
+                                    credentials.Add(reader.GetString(0));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return credentials;
         }
     }
 }
