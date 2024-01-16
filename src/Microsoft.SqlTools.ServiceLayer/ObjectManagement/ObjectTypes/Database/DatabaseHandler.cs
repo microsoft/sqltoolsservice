@@ -1533,20 +1533,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     return value;
             }
         }
-
-        public void CreateNewCredential(NewS3CredentialRequestParams obj)
-        {
-            using (var dataContainer = CreateDatabaseDataContainer(obj.ConnectionUri, true, String.Empty))
-            {
-                SecureString secret = $"{obj.Secret}".StringToSecureString();
-                secret.MakeReadOnly();
-                string identity = "S3 Access Key";
-                Credential credential = new Credential(dataContainer.Server, obj.S3Url)
-                {
-                    Identity = identity
-                };
-                credential.Create(identity, secret);
-            }
-        }
     }
 }

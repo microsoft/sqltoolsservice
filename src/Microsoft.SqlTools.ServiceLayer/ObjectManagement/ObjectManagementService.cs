@@ -75,7 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(AttachDatabaseRequest.Type, HandleAttachDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(PurgeQueryStoreDataRequest.Type, HandlePurgeQueryStoreDataRequest, true);
-            this.serviceHost.SetRequestHandler(NewS3CredentialRequest.Type, HandleCreateS3CredentialRequest, true);
         }
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
@@ -245,13 +244,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             handler.PurgeQueryStoreData(requestParams);
             await requestContext.SendResult(new PurgeQueryStoreDataRequestResponse());
-        }
-
-        internal async Task HandleCreateS3CredentialRequest(NewS3CredentialRequestParams requestParams, RequestContext<NewS3CredentialRequestResponse> requestContext)
-        {
-            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            handler.CreateNewCredential(requestParams);
-            await requestContext.SendResult(new NewS3CredentialRequestResponse());
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)
