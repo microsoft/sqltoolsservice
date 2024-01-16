@@ -10,17 +10,17 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class GetCredentialsRequestParams : GeneralRequestDetails
+    public class GetCredentialNamesRequestParams : GeneralRequestDetails
     {
         /// <summary>
-        /// Target database
+        /// Connection uri to database
         /// </summary>
         public string ConnectionUri { get; set; }
     }
 
 
-    public class GetCredentialsRequest
+    public class GetCredentialNamesRequest
     {
-        public static readonly RequestType<GetCredentialsRequestParams, List<string>> Type = RequestType<GetCredentialsRequestParams, List<string>>.Create("objectManagement/getCredentialsRequest");
+        public static readonly RequestType<GetCredentialNamesRequestParams, List<string>> Type = RequestType<GetCredentialNamesRequestParams, List<string>>.Create("objectManagement/getCredentialNamesRequest");
     }
 }

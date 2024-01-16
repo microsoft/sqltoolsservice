@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
             this.serviceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest, true);
-            this.serviceHost.SetRequestHandler(GetCredentialsRequest.Type, HandleGetCredentialsRequest, true);
+            this.serviceHost.SetRequestHandler(GetCredentialNamesRequest.Type, HandleGetCredentialNamesRequest, true);
             this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
             this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest, true);
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
@@ -98,10 +98,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(new CreateCredentialRequestResponse());
         }
 
-        internal async Task HandleGetCredentialsRequest(GetCredentialsRequestParams requestParams, RequestContext<List<string>> requestContext)
+        internal async Task HandleGetCredentialNamesRequest(GetCredentialNamesRequestParams requestParams, RequestContext<List<string>> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
-            var credentials = handler.GetCredentials(requestParams);
+            var credentials = handler.GetCredentialNames(requestParams);
             await requestContext.SendResult(credentials);
         }
 

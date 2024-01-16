@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await ConfigureCredential(parameters.ConnectionUri, parameters.CredentialInfo, ConfigAction.Create, RunType.RunNow);
         }
 
-        public List<string> GetCredentials(Contracts.GetCredentialsRequestParams parameters)
+        public List<string> GetCredentialNames(Contracts.GetCredentialNamesRequestParams parameters)
         {
             List<string> credentials = new List<string>();
             ConnectionInfo connectionInfo = this.GetConnectionInfo(parameters.ConnectionUri);
