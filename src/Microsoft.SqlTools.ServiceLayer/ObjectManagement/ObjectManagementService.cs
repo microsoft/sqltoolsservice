@@ -64,6 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost = serviceHost;
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
+            this.serviceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest, true);
+            this.serviceHost.SetRequestHandler(GetCredentialNamesRequest.Type, HandleGetCredentialNamesRequest, true);
             this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
             this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest, true);
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
@@ -87,6 +89,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             await handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
             await requestContext.SendResult(new DropRequestResponse());
+        }
+
+        internal async Task HandleCreateCredentialRequest(CreateCredentialRequestParams requestParams, RequestContext<CreateCredentialRequestResponse> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
+            await handler.Create(requestParams);
+            await requestContext.SendResult(new CreateCredentialRequestResponse());
+        }
+
+        internal async Task HandleGetCredentialNamesRequest(GetCredentialNamesRequestParams requestParams, RequestContext<List<string>> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
+            var credentials = handler.GetCredentialNames(requestParams);
+            await requestContext.SendResult(credentials);
         }
 
         internal async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
