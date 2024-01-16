@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         Type GetObjectType();
         Task Rename(string connectionUri, string objectUrn, string newName);
         Task Drop(string connectionUri, string objectUrn, bool throwIfNotExist);
-        Task CreateCredential(string connectionUri, string objectUrn, bool throwIfNotExist);
     }
 
     public abstract class ObjectTypeHandler<ObjectType, ContextType> : IObjectTypeHandler
@@ -92,27 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
                     DatabaseUtils.DoDropObject(dataContainer);
-                }
-                catch (FailedOperationException ex)
-                {
-                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
-                    {
-                        throw;
-                    }
-                }
-            }
-            return Task.CompletedTask;
-        }
-
-        public virtual Task CreateCredential(string connectionUri, string objectUrn, bool throwIfNotExist)
-        {
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            using (CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true))
-            {
-                try
-                {
-                    dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
-                    
                 }
                 catch (FailedOperationException ex)
                 {
