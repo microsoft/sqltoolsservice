@@ -19,5 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DateTime DateLastModified { get; set; }
         public DateTime CreateDate { get; set; }
         public string ProviderName { get; set; }
+        public string? Secret { get; set; }
+        public string? Url { get; set; }
     }
 }

@@ -64,6 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost = serviceHost;
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
+            this.serviceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest, true);
+            this.serviceHost.SetRequestHandler(GetCredentialsRequest.Type, HandleGetCredentialsRequest, true);
             this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
             this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest, true);
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
@@ -74,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(PurgeQueryStoreDataRequest.Type, HandlePurgeQueryStoreDataRequest, true);
             this.serviceHost.SetRequestHandler(NewS3CredentialRequest.Type, HandleCreateS3CredentialRequest, true);
-            this.serviceHost.SetRequestHandler(GetS3CredentialsRequest.Type, HandleGetS3CredentialsRequest, true);
         }
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
@@ -89,6 +90,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             await handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
             await requestContext.SendResult(new DropRequestResponse());
+        }
+
+        internal async Task HandleCreateCredentialRequest(CreateCredentialRequestParams requestParams, RequestContext<CreateCredentialRequestResponse> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
+            await handler.Create(requestParams);
+            await requestContext.SendResult(new CreateCredentialRequestResponse());
+        }
+
+        internal async Task HandleGetCredentialsRequest(GetCredentialsRequestParams requestParams, RequestContext<List<string>> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
+            var credentials = handler.GetCredentials(requestParams);
+            await requestContext.SendResult(credentials);
         }
 
         internal async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
@@ -237,13 +252,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             handler.CreateNewCredential(requestParams);
             await requestContext.SendResult(new NewS3CredentialRequestResponse());
-        }
-
-        internal async Task HandleGetS3CredentialsRequest(GetS3CredentialsRequestParams requestParams, RequestContext<List<string>> requestContext)
-        {
-            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            var credentials = handler.GetS3Credentials(requestParams.connectionUri);
-            await requestContext.SendResult(credentials);
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)

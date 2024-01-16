@@ -10,7 +10,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class GetS3CredentialsRequestParams : GeneralRequestDetails
+    public class GetCredentialsRequestParams : GeneralRequestDetails
     {
         /// <summary>
         /// Target database
@@ -19,8 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     }
 
 
-    public class GetS3CredentialsRequest
+    public class GetCredentialsRequest
     {
-        public static readonly RequestType<GetS3CredentialsRequestParams, List<string>> Type = RequestType<GetS3CredentialsRequestParams, List<string>>.Create("objectManagement/getS3CredentialsRequest");
+        public static readonly RequestType<GetCredentialsRequestParams, List<string>> Type = RequestType<GetCredentialsRequestParams, List<string>>.Create("objectManagement/getCredentialsRequest");
     }
 }

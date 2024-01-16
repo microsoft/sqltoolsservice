@@ -7,6 +7,7 @@
 
 using System;
 using System.Security;
+using Microsoft.SqlServer.Management.HadrModel;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
@@ -213,7 +214,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 smoCredential.MappedClassType = MappedClassType.CryptographicProvider;
                 smoCredential.ProviderName = this.providerName;
             }
-            smoCredential.Create(this.CredentialIdentity, this.SecurePassword.ToString());
+            SecureString secret = this.securePassword.SecureStringToString() == String.Empty ? $"{this.credential.Secret}".StringToSecureString() : this.securePassword;
+            smoCredential.Create(this.CredentialIdentity, secret);
             GC.Collect(); // this.SecurePassword.ToString() just created an immutable string that lives in memory
         }
 

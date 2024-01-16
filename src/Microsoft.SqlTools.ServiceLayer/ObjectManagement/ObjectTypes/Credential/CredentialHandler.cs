@@ -5,7 +5,10 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
@@ -58,6 +61,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<string> Script(CredentialViewContext context, CredentialInfo obj)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task Create(Contracts.CreateCredentialRequestParams parameters)
+        {
+            await ConfigureCredential(parameters.ConnectionUri, parameters.CredentialInfo, ConfigAction.Create, RunType.RunNow);
+        }
+
+        public List<string> GetCredentials(Contracts.GetCredentialsRequestParams parameters)
+        {
+            List<string> credentials = new List<string>();
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(parameters.connectionUri);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo))
+            {
+                if (sqlConn != null)
+                {
+                    using (var cmd = new SqlCommand { Connection = sqlConn })
+                    {
+                        cmd.CommandText = "SELECT [NAME] FROM sys.credentials";
+                        cmd.ExecuteNonQuery();
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                credentials.Add(reader.GetString(0));  
+                            }
+                        }
+                    }
+                }
+            }
+            return credentials;
         }
 
         private Task<Tuple<bool, string>> ConfigureCredential(string ownerUri, CredentialInfo credential, ConfigAction configAction, RunType runType)
