@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public List<string> GetCredentials(Contracts.GetCredentialsRequestParams parameters)
         {
             List<string> credentials = new List<string>();
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(parameters.connectionUri);
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(parameters.ConnectionUri);
             using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo))
             {
                 if (sqlConn != null)

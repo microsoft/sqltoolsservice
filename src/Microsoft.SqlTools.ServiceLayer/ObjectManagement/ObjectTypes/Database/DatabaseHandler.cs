@@ -28,8 +28,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using System.Security;
-using Microsoft.SqlServer.Management.HadrModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {

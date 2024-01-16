@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// <summary>
         /// Target database
         /// </summary>
-        public string connectionUri { get; set; }
+        public string ConnectionUri { get; set; }
     }
 
 
