@@ -244,9 +244,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         IsSqlOnDemand = isSqlOnDemand
                     };
 
-                    // Collect the Database properties information
-                    if (!requestParams.IsNewObject)
+                    if (requestParams.IsNewObject)
                     {
+                        if (prototype is DatabasePrototype160 && !isManagedInstance)
+                        {
+                            // Initialize IsLedger to false, since leaving it as null indicates it's not supported
+                            ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = false;
+                        }
+                    }
+                    else
+                    {
+                        // Collect the Database properties information
                         var smoDatabase = dataContainer.SqlDialogSubject as Database;
                         if (smoDatabase != null)
                         {
@@ -919,6 +927,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                             }
                         }
+                    }
+
+                    // Changing the IsLedger property is only supported when first creating the database, so this only applies for new objects
+                    if (prototype is DatabasePrototype160 db160 && viewParams.IsNewObject && database.IsLedgerDatabase != null)
+                    {
+                        db160.IsLedger = database.IsLedgerDatabase.Value;
                     }
 
                     if (!viewParams.IsNewObject && database.Files != null)

@@ -426,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     file = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.FirstOrDefault(x => x.Name == testDatabaseFiles[0].Name);
                     Assert.That(file, Is.Not.Null, $"New file should be created");
                     Assert.That(file, Is.Not.EqualTo(0), $"Newly created file should have an Id");
-                    
+
                     // Deleting newly created file
                     List<DatabaseFile> newfiles = ((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.ToList();
                     var fileIndexTobeRemoved = newfiles.FindIndex(x => x.Name == testDatabaseFiles[0].Name);
@@ -694,7 +694,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                             dbExists = this.DatabaseExists(testDb.DatabaseName, server);
                             Assert.That(dbExists, Is.False, "Should not have attached DB when only generating a script.");
 
-                            var queryBuilder = new StringBuilder(); 
+                            var queryBuilder = new StringBuilder();
                             queryBuilder.AppendLine("USE [master]");
                             queryBuilder.AppendLine($"CREATE DATABASE [{testDb.DatabaseName}] ON ");
 
@@ -837,6 +837,43 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 finally
                 {
                     DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests for database properties only present in SQL 2022 and above.
+        /// </summary>
+        [Test]
+        public async Task Sql2022PropertiesTest()
+        {
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+                var minimumServerVersion = 16;
+                if (server.VersionMajor < minimumServerVersion)
+                {
+                    Assert.Ignore($"Test server's version {server.VersionMajor} was lower than the minimum required server version {minimumServerVersion} for this test.");
+                }
+                else
+                {
+                    var handler = new DatabaseHandler(ConnectionService.Instance);
+                    var requestParams = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "", true, SqlObjectType.Database, "", "");
+                    var result = await handler.InitializeObjectView(requestParams);
+                    var dbInfo = result.ViewInfo.ObjectInfo as DatabaseInfo;
+
+                    Assert.That(dbInfo.IsLedgerDatabase, Is.Not.Null, "No value was provided for IsLedgerDatabase for a new database");
+
+                    var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                    using (var testDB = SqlTestDb.CreateNew(TestServerType.OnPrem, false, testDatabase.Name))
+                    {
+                        requestParams = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", "");
+                        result = await handler.InitializeObjectView(requestParams);
+                        dbInfo = result.ViewInfo.ObjectInfo as DatabaseInfo;
+
+                        Assert.That(dbInfo.IsLedgerDatabase, Is.Not.Null, "No value was provided for IsLedgerDatabase for an existing database");
+                    }
                 }
             }
         }
