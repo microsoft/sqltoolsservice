@@ -5,7 +5,7 @@
 		<PackageReference Update="System.IO.Packaging" Version="7.0.0" />
 		<PackageReference Update="System.Composition" Version="7.0.0" />
 		<PackageReference Update="System.Security.Permissions" Version="7.0.0" />
-		<PackageReference Update="System.Data.SqlClient" Version="4.8.5" />
+		<PackageReference Update="System.Data.SqlClient" Version="4.8.6" />
 		<PackageReference Update="System.Text.Encoding.CodePages" Version="7.0.0" />
 		<PackageReference Update="System.Text.Encodings.Web" Version="7.0.0" />
 		<PackageReference Update="System.Reactive.Core" Version="6.0.0" />
