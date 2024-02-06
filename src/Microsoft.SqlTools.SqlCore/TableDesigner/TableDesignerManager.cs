@@ -7,7 +7,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Tools.Sql.DesignServices;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
@@ -15,10 +19,11 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
 {
     public class TableDesignerManager
     {
+        public const string TableDesignerApplicationNameSuffix = "TableDesigner";
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
         private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
-
+        public bool AllowDisableAndReenableDdlTriggers { get; set; } = true;
         public TableDesignerInfo InitializeTableDesigner(TableInfo tableInfo)
         {
             var tableDesigner = this.CreateTableDesigner(tableInfo);
@@ -84,7 +89,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             string oldId = tableInfo.Id;
             if (tableInfo.ProjectFilePath == null)
             {
-                string newId = string.Format("{0}|{1}|{2}|{3}|{4}", STSHost.ProviderName, tableInfo.Server, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
+                string newId = string.Format("{0}|{1}|{2}|{3}|{4}", "MSSQL", tableInfo.Server, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
                 if (newId != oldId)
                 {
                     tableInfo.Name = tableDesigner.TableViewModel.Name;
@@ -1690,9 +1695,9 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
-                connectionStringBuilder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(connectionStringBuilder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
+                connectionStringBuilder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
                 var connectionString = connectionStringBuilder.ToString();
-                var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: Settings.AllowDisableAndReenableDdlTriggers);
+                var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: this.AllowDisableAndReenableDdlTriggers);
 
                 // Set Access Token only when authentication mode is not specified.
                 var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified

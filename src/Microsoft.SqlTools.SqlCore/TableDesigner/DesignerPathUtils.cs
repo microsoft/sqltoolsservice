@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
 
             if (!isValid)
             {
-                throw new ArgumentException(SR.InvalidTableEditPathException(string.Join(',', path), editType.ToString()));
+                throw new ArgumentException(SR.InvalidTableEditPathException(string.Join(",", path), editType.ToString()));
             }
         }
     }

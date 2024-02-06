@@ -21,7 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public sealed class TableDesignerService : IDisposable
     {
         private TableDesignerManager tableDesignerManager = new TableDesignerManager();
-        public const string TableDesignerApplicationNameSuffix = "TableDesigner";
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -67,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
         {
             Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel : false;
-            Settings.AllowDisableAndReenableDdlTriggers = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.AllowDisableAndReenableDdlTriggers : true;
+            this.tableDesignerManager.AllowDisableAndReenableDdlTriggers = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.AllowDisableAndReenableDdlTriggers : true;
             return Task.FromResult(0);
         }
 
@@ -137,10 +136,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 await requestContext.SendResult(new DisposeTableDesignerResponse());
             });
         }
-
-
-
-
 
         /// <summary>
         /// Disposes the table designer Service
