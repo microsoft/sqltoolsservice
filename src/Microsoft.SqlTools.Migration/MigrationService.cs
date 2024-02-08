@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.Migration
                         connectionStrings.Add(connStringBuilder.ConnectionString);
                     }
                     string[] assessmentConnectionStrings = connectionStrings.ToArray();
-                    var results = await GetAssessmentItems(assessmentConnectionStrings, parameters.XEventsFilesFolderPath);
+                    var results = await GetAssessmentItems(assessmentConnectionStrings, parameters.XEventsFilesFolderPath, parameters.collectAdhocQueries);
                     await requestContext.SendResult(results);
                 }
             }
@@ -859,14 +859,18 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
-        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string xEventsFilesFolderPath)
+        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string xEventsFilesFolderPath, bool collectAdhocQueries)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
             SqlConnectionLocator locator = new SqlConnectionLocator();
+            AdHocQueriesCollectionParameters parameters = new()
+            {
+                CollectAdHocQueries = collectAdhocQueries,
+                XEventsFilesFolderPath = xEventsFilesFolderPath,
+            };
             locator.ConnectionStrings.AddRange(connectionStrings);
-            locator.XeventsFilesFolderPath = xEventsFilesFolderPath;
             DmaEngine engine = new DmaEngine(locator);
 
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
