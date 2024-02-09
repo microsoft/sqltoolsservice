@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// Folder path to XEvents files to be assessed, if applicable. Empty string to disable XEvents assessment.
         /// </summary>
         public string XEventsFilesFolderPath { get; set; }
+
+        /// <summary>
+        /// Bool to enable ad-hoc query collection and extraction through QDS. False if not set.
+        /// </summary>
+        public bool collectAdhocQueries { get; set; } = false;
     }
 
     public class MigrationAssessmentResult
