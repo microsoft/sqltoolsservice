@@ -731,7 +731,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             return refreshView;
         }
 
-        public void MoveItem(ProcessTableDesignerEditRequestParams requestParams)
+        private void MoveItem(ProcessTableDesignerEditRequestParams requestParams)
         {
             var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
