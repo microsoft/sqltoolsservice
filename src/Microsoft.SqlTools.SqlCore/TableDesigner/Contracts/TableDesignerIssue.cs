@@ -23,26 +23,31 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
     /// <summary>
     /// Table Designer Issue
     /// </summary>
+    [DataContract]
     public class TableDesignerIssue
     {
         /// <summary>
         /// The description.
         /// </summary>
+        [DataMember(Name = "description")]
         public string Description { get; set; }
 
         /// <summary>
         /// The property path associated with the message
         /// </summary>
+        [DataMember(Name = "propertyPath")]
         public object[] PropertyPath { get; set; }
 
         /// <summary>
         /// The severity of the message. Default value is Error.
         /// </summary>
+        [DataMember(Name = "severity")]
         public IssueSeverity Severity { get; set; } = IssueSeverity.Error;
 
         /// <summary>
         /// Any link to docs associated with error for more information
         /// </summary>
+        [DataMember(Name = "moreInfoLink")]
         public string MoreInfoLink { get; set; }
     }
 }

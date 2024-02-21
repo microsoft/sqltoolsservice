@@ -4,16 +4,19 @@
 //
 
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
 {
     /// <summary>
     /// Dropdown properties
     /// </summary>
+    [DataContract]
     public class DropdownProperties : ComponentPropertiesBase
     {
+        [DataMember(Name = "value")]
         public string Value { get; set; }
-
+        [DataMember(Name = "values")]
         public List<string> Values { get; set; }
     }
 }

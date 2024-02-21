@@ -20,10 +20,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
     /// <summary>
     /// Inputbox properties
     /// </summary>
+    [DataContract]
     public class InputBoxProperties : ComponentPropertiesBase
     {
+        [DataMember(Name = "value")]
         public string Value { get; set; }
-
+        [DataMember(Name = "inputType")]
         public InputType InputType { get; set; } = InputType.Text;
     }
 }

@@ -4,15 +4,21 @@
 //
 
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
 {
+    [DataContract]
     public class PublishTableChangesResponse
     {
+        [DataMember(Name = "newTableInfo")]
         public TableInfo NewTableInfo;
+        [DataMember(Name = "viewModel")]
         public TableViewModel ViewModel;
+        [DataMember(Name = "view")]
         public TableDesignerView View;
+        [DataMember(Name = "metadata")]
         public Dictionary<string, string> Metadata;
     }
 

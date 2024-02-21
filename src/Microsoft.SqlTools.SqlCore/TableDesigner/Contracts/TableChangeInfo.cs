@@ -25,12 +25,14 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
     /// <summary>
     /// The information about a change made inside the table designer.
     /// </summary>
+    [DataContract]
     public class TableDesignerChangeInfo
     {
+        [DataMember(Name = "type")]
         public DesignerEditType Type { get; set; }
-
+        [DataMember(Name = "path")]
         public object[] Path { get; set; }
-
+        [DataMember(Name = "value")]
         public object Value { get; set; }
     }
 }
