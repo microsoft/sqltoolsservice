@@ -30,6 +30,7 @@ using Microsoft.SqlServer.Migration.Logins.Contracts.ErrorHandling;
 using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
 using Microsoft.SqlServer.Migration.Logins.ErrorHandling;
 using Microsoft.SqlServer.Migration.Logins.Helpers;
+using Microsoft.SqlServer.Migration.Logins.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Aggregation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
@@ -303,6 +304,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+                loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
                 IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
 
@@ -320,6 +322,7 @@ namespace Microsoft.SqlTools.Migration
                 };
 
                 await requestContext.SendResult(results);
+                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
             }
             catch (Exception e)
             {
@@ -508,6 +511,27 @@ namespace Microsoft.SqlTools.Migration
         }
 
         /// <summary>
+        /// Send progress notifications to the client when a login migration event occurs. 
+        /// </summary>
+        private async void HandleLoginMigrationProgressNotification(object sender, LoginMigrationNotificationEventArgs e)
+        {
+            try
+            {
+                await this.ServiceHost.SendEvent(
+                    LoginMigrationProgressNotificationEvent.Type,
+                    e.Notification);
+            }
+            catch
+            {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>> {
+                    { e.Notification.Login, e.Notification.Exceptions }
+                };
+                logger.Log(exceptionMap);
+            }
+        }
+
+        /// <summary>
         /// Handle request to migrate logins.
         /// </summary>
         internal async Task HandleMigrateLogins(
@@ -519,6 +543,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+                loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
                 IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
                 Stopwatch stopWatch = new Stopwatch();
@@ -536,6 +561,7 @@ namespace Microsoft.SqlTools.Migration
                 };
 
                 await requestContext.SendResult(results);
+                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
             }
             catch (Exception e)
             {
@@ -555,6 +581,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+                loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
                 IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
 
@@ -573,6 +600,7 @@ namespace Microsoft.SqlTools.Migration
                 };
 
                 await requestContext.SendResult(results);
+                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
             }
             catch (Exception e)
             {
@@ -592,6 +620,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+                loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
                 IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
                 Stopwatch stopWatch = new Stopwatch();
@@ -673,6 +702,7 @@ namespace Microsoft.SqlTools.Migration
                 };
 
                 await requestContext.SendResult(results);
+                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
             }
             catch (Exception e)
             {
@@ -1050,20 +1080,20 @@ namespace Microsoft.SqlTools.Migration
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
 
-                        // Premium Memory Optimized BC/GP
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.BusinessCritical,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    // Premium Memory Optimized BC/GP
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
 
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
                     break;
 
                 case "AzureSqlVirtualMachine":
@@ -1131,7 +1161,7 @@ namespace Microsoft.SqlTools.Migration
             foreach (var dbName in parameters.EncryptedDatabases)
             {
                 var migrationResult = await MigrateCertificate(tdeMigrationClient, dbName);
-                
+
                 var eventData = new CertificateMigrationProgressParams
                 {
                     Name = dbName,
@@ -1151,7 +1181,7 @@ namespace Microsoft.SqlTools.Migration
             TdeValidationParams parameters,
             RequestContext<TdeValidationResult[]> requestContext)
         {
-            TdeValidationResult[] result = 
+            TdeValidationResult[] result =
                 await TdeMigration.RunTdeValidation(
                    parameters.SourceSqlConnectionString,
                    parameters.NetworkSharePath);
@@ -1181,7 +1211,7 @@ namespace Microsoft.SqlTools.Migration
                 {
                     return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message, StatusCode = tdeExceptionResult.StatusCode };
                 }
-                else 
+                else
                 {
                     return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage, StatusCode = result.StatusCode };
                 }

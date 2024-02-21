@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
+using Microsoft.SqlServer.Migration.Logins.Helpers;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Collections.Generic;
 
@@ -244,5 +245,15 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public static readonly
             EventType<LoginMigrationResult> Type =
             EventType<LoginMigrationResult>.Create("migration/loginmigrationnotification");
+    }
+
+    /// <summary>
+    /// Defines an progress notification (for individual login) sent to the client.
+    /// </summary>
+    public class LoginMigrationProgressNotificationEvent
+    {
+        public static readonly
+            EventType<LoginMigrationProgressNotification> Type =
+            EventType<LoginMigrationProgressNotification>.Create("migration/loginmigrationprogressnotification");
     }
 }
