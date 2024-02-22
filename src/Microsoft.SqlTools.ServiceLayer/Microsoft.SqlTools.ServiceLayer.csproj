@@ -55,6 +55,7 @@
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="System.Runtime.Caching" />
 		<PackageReference Include="Microsoft.SqlServer.XEvent.XELite" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
 			<Aliases>ASAScriptDom</Aliases>
