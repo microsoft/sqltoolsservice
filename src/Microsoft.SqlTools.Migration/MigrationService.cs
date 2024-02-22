@@ -60,7 +60,7 @@ using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.Migration
 {
-    internal class MigrationService: IHostedService
+    internal class MigrationService : IHostedService
     {
         private static readonly Lazy<MigrationService> instance = new Lazy<MigrationService>(() => new MigrationService());
 
@@ -177,7 +177,9 @@ namespace Microsoft.SqlTools.Migration
 
                 // TO-DO: what should be returned?
                 await requestContext.SendResult(new StartPerfDataCollectionResult() { DateTimeStarted = DateTime.UtcNow });
-            } catch (Exception e){
+            }
+            catch (Exception e)
+            {
                 Logger.Error(e);
                 await requestContext.SendError(e.ToString());
             }
@@ -511,27 +513,6 @@ namespace Microsoft.SqlTools.Migration
         }
 
         /// <summary>
-        /// Send progress notifications to the client when a login migration event occurs. 
-        /// </summary>
-        private async void HandleLoginMigrationProgressNotification(object sender, LoginMigrationNotificationEventArgs e)
-        {
-            try
-            {
-                await this.ServiceHost.SendEvent(
-                    LoginMigrationProgressNotificationEvent.Type,
-                    e.Notification);
-            }
-            catch
-            {
-                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
-                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>> {
-                    { e.Notification.Login, e.Notification.Exceptions }
-                };
-                logger.Log(exceptionMap);
-            }
-        }
-
-        /// <summary>
         /// Handle request to migrate logins.
         /// </summary>
         internal async Task HandleMigrateLogins(
@@ -543,22 +524,27 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
-                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
-                exceptionMap.AddExceptions(await loginMigration.MigrateLogins(CancellationToken.None));
-                stopWatch.Stop();
-                TimeSpan elapsedTime = stopWatch.Elapsed;
-
-                LoginMigrationResult results = new LoginMigrationResult()
+                // Run the blocking parts on a separate thread
+                LoginMigrationResult results = await Task.Run(async () =>
                 {
-                    ExceptionMap = exceptionMap,
-                    CompletedStep = LoginMigrationStep.MigrateLogins,
-                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                };
+                    IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+                    Stopwatch stopWatch = new Stopwatch();
+                    stopWatch.Start();
+                    exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                    exceptionMap.AddExceptions(await loginMigration.MigrateLogins(CancellationToken.None));
+                    stopWatch.Stop();
+                    TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                    return new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.MigrateLogins,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                    };
+                });
 
                 await requestContext.SendResult(results);
                 loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
@@ -581,23 +567,28 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
-                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
-
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
-                exceptionMap.AddExceptions(loginMigration.EstablishUserMapping(CancellationToken.None));
-                stopWatch.Stop();
-                TimeSpan elapsedTime = stopWatch.Elapsed;
-
-                LoginMigrationResult results = new LoginMigrationResult()
+                // Run the blocking parts on a separate thread
+                LoginMigrationResult results = await Task.Run(async () =>
                 {
-                    ExceptionMap = exceptionMap,
-                    CompletedStep = LoginMigrationStep.EstablishUserMapping,
-                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                };
+                    IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+
+                    Stopwatch stopWatch = new Stopwatch();
+                    stopWatch.Start();
+                    exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                    exceptionMap.AddExceptions(loginMigration.EstablishUserMapping(CancellationToken.None));
+                    stopWatch.Stop();
+                    TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                    return new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.EstablishUserMapping,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                    };
+                });
 
                 await requestContext.SendResult(results);
                 loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
@@ -620,86 +611,91 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
+
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
-                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
-                stopWatch.Stop();
-                TimeSpan elapsedTime = stopWatch.Elapsed;
+                // Run the blocking parts on a separate thread
+                LoginMigrationResult results = await Task.Run(async () =>
+                {
+                    IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+                    Stopwatch stopWatch = new Stopwatch();
+                    stopWatch.Start();
+                    exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                    stopWatch.Stop();
+                    TimeSpan elapsedTime = stopWatch.Elapsed;
 
-                await this.ServiceHost.SendEvent(
-                    LoginMigrationNotification.Type,
-                    new LoginMigrationResult()
-                    {
-                        ExceptionMap = exceptionMap,
-                        CompletedStep = LoginMigrationStep.StartValidations,
-                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                    });
+                    await this.ServiceHost.SendEvent(
+                        LoginMigrationNotification.Type,
+                        new LoginMigrationResult()
+                        {
+                            ExceptionMap = exceptionMap,
+                            CompletedStep = LoginMigrationStep.StartValidations,
+                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                        });
 
-                stopWatch.Restart();
-                exceptionMap.AddExceptions(loginMigration.MigrateServerRoles(CancellationToken.None));
-                stopWatch.Stop();
-                elapsedTime = stopWatch.Elapsed;
+                    stopWatch.Restart();
+                    exceptionMap.AddExceptions(loginMigration.MigrateServerRoles(CancellationToken.None));
+                    stopWatch.Stop();
+                    elapsedTime = stopWatch.Elapsed;
 
-                await this.ServiceHost.SendEvent(
-                    LoginMigrationNotification.Type,
-                    new LoginMigrationResult()
-                    {
-                        ExceptionMap = exceptionMap,
-                        CompletedStep = LoginMigrationStep.MigrateServerRoles,
-                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                    });
+                    await this.ServiceHost.SendEvent(
+                        LoginMigrationNotification.Type,
+                        new LoginMigrationResult()
+                        {
+                            ExceptionMap = exceptionMap,
+                            CompletedStep = LoginMigrationStep.MigrateServerRoles,
+                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                        });
 
-                stopWatch.Restart();
-                exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
-                stopWatch.Stop();
-                elapsedTime = stopWatch.Elapsed;
+                    stopWatch.Restart();
+                    exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
+                    stopWatch.Stop();
+                    elapsedTime = stopWatch.Elapsed;
 
-                await this.ServiceHost.SendEvent(
-                    LoginMigrationNotification.Type,
-                    new LoginMigrationResult()
-                    {
-                        ExceptionMap = exceptionMap,
-                        CompletedStep = LoginMigrationStep.EstablishServerRoleMapping,
-                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                    });
+                    await this.ServiceHost.SendEvent(
+                        LoginMigrationNotification.Type,
+                        new LoginMigrationResult()
+                        {
+                            ExceptionMap = exceptionMap,
+                            CompletedStep = LoginMigrationStep.EstablishServerRoleMapping,
+                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                        });
 
-                stopWatch.Restart();
-                exceptionMap.AddExceptions(loginMigration.SetLoginPermissions(CancellationToken.None));
-                stopWatch.Stop();
-                elapsedTime = stopWatch.Elapsed;
+                    stopWatch.Restart();
+                    exceptionMap.AddExceptions(loginMigration.SetLoginPermissions(CancellationToken.None));
+                    stopWatch.Stop();
+                    elapsedTime = stopWatch.Elapsed;
 
-                await this.ServiceHost.SendEvent(
-                    LoginMigrationNotification.Type,
-                    new LoginMigrationResult()
-                    {
-                        ExceptionMap = exceptionMap,
-                        CompletedStep = LoginMigrationStep.SetLoginPermissions,
-                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                    });
+                    await this.ServiceHost.SendEvent(
+                        LoginMigrationNotification.Type,
+                        new LoginMigrationResult()
+                        {
+                            ExceptionMap = exceptionMap,
+                            CompletedStep = LoginMigrationStep.SetLoginPermissions,
+                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                        });
 
-                stopWatch.Restart();
-                exceptionMap.AddExceptions(loginMigration.SetServerRolePermissions(CancellationToken.None));
-                stopWatch.Stop();
-                elapsedTime = stopWatch.Elapsed;
+                    stopWatch.Restart();
+                    exceptionMap.AddExceptions(loginMigration.SetServerRolePermissions(CancellationToken.None));
+                    stopWatch.Stop();
+                    elapsedTime = stopWatch.Elapsed;
 
-                await this.ServiceHost.SendEvent(
-                    LoginMigrationNotification.Type,
-                    new LoginMigrationResult()
+                    await this.ServiceHost.SendEvent(
+                        LoginMigrationNotification.Type,
+                        new LoginMigrationResult()
+                        {
+                            ExceptionMap = exceptionMap,
+                            CompletedStep = LoginMigrationStep.SetServerRolePermissions,
+                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                        });
+
+                    return new LoginMigrationResult()
                     {
                         ExceptionMap = exceptionMap,
                         CompletedStep = LoginMigrationStep.SetServerRolePermissions,
                         ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                    });
-
-                LoginMigrationResult results = new LoginMigrationResult()
-                {
-                    ExceptionMap = exceptionMap,
-                    CompletedStep = LoginMigrationStep.SetServerRolePermissions,
-                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                };
+                    };
+                });
 
                 await requestContext.SendResult(results);
                 loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
@@ -787,6 +783,16 @@ namespace Microsoft.SqlTools.Migration
             }
 
             return resultSet;
+        }
+
+        /// <summary>
+        /// Handles the login migration progress notification event.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A LoginMigrationNotificationEventArgs that contains the event data.</param>
+        private async void HandleLoginMigrationProgressNotification(object sender, LoginMigrationNotificationEventArgs e)
+        {
+            await this.ServiceHost.SendEvent(LoginMigrationProgressEvent.Type, e.Notification);
         }
 
         internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
