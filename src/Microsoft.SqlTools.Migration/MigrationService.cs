@@ -871,6 +871,7 @@ namespace Microsoft.SqlTools.Migration
                 XEventsFilesFolderPath = xEventsFilesFolderPath,
             };
             locator.ConnectionStrings.AddRange(connectionStrings);
+            locator.AdHocQueriesParameters = parameters;
             DmaEngine engine = new DmaEngine(locator);
 
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
