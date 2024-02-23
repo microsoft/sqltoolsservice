@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
+using Microsoft.SqlServer.Migration.Logins.Helpers;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Collections.Generic;
 
@@ -101,7 +102,7 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// <summary>
         /// Microsoft Entra domain name (required for Windows Auth)
         /// </summary>
-        public string AADDomainName{ get; set; }
+        public string AADDomainName { get; set; }
     }
 
     /// <summary>
@@ -122,7 +123,7 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// <summary>
         /// How long this step took
         /// </summary>
-        public string ElapsedTime{ get; set; }
+        public string ElapsedTime { get; set; }
     }
 
     /// <summary>
@@ -143,7 +144,7 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// <summary>
         /// How long this step took
         /// </summary>
-        public string ElapsedTime{ get; set; }
+        public string ElapsedTime { get; set; }
     }
 
     /// <summary>
@@ -244,5 +245,16 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public static readonly
             EventType<LoginMigrationResult> Type =
             EventType<LoginMigrationResult>.Create("migration/loginmigrationnotification");
+    }
+
+    /// <summary>
+    /// Represents a status update that is triggered during the progress of a login migration.
+    /// This status update is specific to individual logins and is sent to the client to provide updates on the migration process.
+    /// </summary>
+    public class LoginMigrationProgressEvent
+    {
+        public static readonly
+            EventType<LoginMigrationProgressNotification> Type =
+            EventType<LoginMigrationProgressNotification>.Create("migration/loginmigrationprogress");
     }
 }
