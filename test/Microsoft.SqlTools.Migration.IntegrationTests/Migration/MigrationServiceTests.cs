@@ -16,7 +16,7 @@ using Microsoft.SqlTools.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
-using Assert = NUnit.Framework.Assert;
+using NUnit.Framework;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
 using Assert_ = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
         };
         private static IProvisioningScriptServiceProvider provisioningScriptserviceProvider = new ProvisioningScriptServiceProvider();
 
-        [NUnit.Framework.Test]
+        [Test]
         public async Task TestHandleMigrationAssessmentRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             }
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         [NUnit.Framework.Ignore("Disable failing test")]
         public async Task TestHandleMigrationGetSkuRecommendationsRequest()
         {
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Sum(db => db.FileLevelRequirements.Count), 4);
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public async Task TestHandleStartStopPerfDataCollectionRequest()
         {
             StartPerfDataCollectionResult result = null;
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             }
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public void GenerateProvisioningScript_DatabaseRecommendation_ReturnsDBArmTemplate()
         {
             // Arrange
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             Assert.AreEqual(result.parameters.Count, 9);
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public void GenerateProvisioningScript_ManagedInstanceRecommendation_ReturnsMIArmTemplate()
         {
             // Arrange
@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             Assert.AreEqual(result.parameters.Count, 11);
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public void GenerateProvisioningScript_VirtualMachineRecommendation_ReturnsVMArmTemplate()
         {
             // Arrange
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             // Add additional assertions based on the expected outcome for the virtual machine case
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public void GenerateProvisioningScript_InvalidTargetPlatform_ThrowsArgumentException()
         {
             // Arrange

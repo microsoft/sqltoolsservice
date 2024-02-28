@@ -583,23 +583,33 @@ namespace Microsoft.SqlTools.Migration
             }
         }
 
+        /// <summary>
+        /// Handle request generate the ARM template.
+        /// </summary>
         internal async Task HandleGetArmTemplateRequest(
     string targetType,
     RequestContext<string> requestContext)
         {
-            ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
+            try
+            {
+                ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
+                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(GetReportFilePath(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, targetType));
+                SqlArmTemplate template = provider.GenerateProvisioningScript(recommendations);
 
-            List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(GetReportFilePath(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, targetType));
-
-            SqlArmTemplate template = provider.GenerateProvisioningScript(recommendations);
-
-            string jsonOutput = JsonConvert.SerializeObject(
+                string jsonOutput = JsonConvert.SerializeObject(
                 template,
                 Formatting.Indented,
                 new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
-            );
+                );
 
-            await requestContext.SendResult(jsonOutput);
+                await requestContext.SendResult(jsonOutput);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+
+
 
         }
 
