@@ -153,10 +153,18 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		foreach (XmlNode querier in childQueriers)
 		{
 			var nodeType = querier.Attributes["NodeType"].Value;
+			var schemaMatching = querier.Attributes["SchemaMatching"] == null ? "true" : querier.Attributes["SchemaMatching"].Value;
 			verifyQuerier(doc, nodeType);
 			WriteLine("			foreach(ObjectMetadata child in metadata)");
 			WriteLine("			{");
-			WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.Name)", nodeType);
+			if(schemaMatching == "true")
+			{
+				WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.Name && child.Schema == this.SchemaName)", nodeType);
+			}
+			else
+			{
+				WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.Name)", nodeType);
+			}
 			WriteLine("				{");
 			WriteLine("					Children.Add(new {0}Node(this, child));", nodeType);
 			WriteLine("				}");
@@ -179,10 +187,18 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		foreach (XmlNode querier in childQueriers)
 		{
 			var nodeType = querier.Attributes["NodeType"].Value;
+			var schemaMatching = querier.Attributes["SchemaMatching"] == null ? "true" : querier.Attributes["SchemaMatching"].Value;
 			verifyQuerier(doc, nodeType);
 			WriteLine("			foreach(ObjectMetadata child in metadata)");
 			WriteLine("			{");
-			WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.{1})", nodeType, parentName);
+			if(schemaMatching == "true")
+			{
+				WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.{1} && child.Schema == this.SchemaName)", nodeType, parentName);
+			}
+			else
+			{
+				WriteLine("				if (child.Type == \"{0}\" && child.Parent == this.{1})", nodeType, parentName);
+			}
 			WriteLine("				{");
 			WriteLine("					Children.Add(new {0}Node(this, child));", nodeType);
 			WriteLine("				}");

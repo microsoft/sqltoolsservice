@@ -42,7 +42,7 @@
 -->
 <ObjectExplorerModel>
   <Node Name="Database" Type="Database" IsLeaf="false">
-    <ChildQuerier NodeType="Schema" />
+    <ChildQuerier NodeType="Schema" SchemaMatching="false" /> // Since database is above schema, we don't need to match schema
   </Node>
 
   <!-- Schema Query -->

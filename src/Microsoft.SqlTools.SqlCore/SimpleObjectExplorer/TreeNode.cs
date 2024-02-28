@@ -73,6 +73,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
         {
             IsLeaf = false;
             Type = NodeTypes.Folder;
+            SchemaName = parent.SchemaName;
         }
 
     }
