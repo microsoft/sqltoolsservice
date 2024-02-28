@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Table" && child.Parent == this.Parent.Name)
+				if (child.Type == "Table" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new TableNode(this, child));
 				}
@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Column" && child.Parent == this.Parent.Name)
+				if (child.Type == "Column" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ColumnNode(this, child));
 				}
@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Index" && child.Parent == this.Parent.Name)
+				if (child.Type == "Index" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new IndexNode(this, child));
 				}
@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "View" && child.Parent == this.Parent.Name)
+				if (child.Type == "View" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ViewNode(this, child));
 				}
@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "StoredProcedure" && child.Parent == this.Parent.Name)
+				if (child.Type == "StoredProcedure" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new StoredProcedureNode(this, child));
 				}
@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Param" && child.Parent == this.Parent.Name)
+				if (child.Type == "Param" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ParamNode(this, child));
 				}
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "ScalarFunction" && child.Parent == this.Parent.Parent.Name)
+				if (child.Type == "ScalarFunction" && child.Parent == this.Parent.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ScalarFunctionNode(this, child));
 				}
@@ -385,7 +385,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "TableValuedFunction" && child.Parent == this.Parent.Parent.Name)
+				if (child.Type == "TableValuedFunction" && child.Parent == this.Parent.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new TableValuedFunctionNode(this, child));
 				}
