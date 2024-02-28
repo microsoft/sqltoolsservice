@@ -587,13 +587,13 @@ namespace Microsoft.SqlTools.Migration
         /// Handle request generate the ARM template.
         /// </summary>
         internal async Task HandleGetArmTemplateRequest(
-    string targetType,
+    string skuRecommendationReportFilePath,
     RequestContext<string> requestContext)
         {
             try
             {
                 ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
-                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(GetReportFilePath(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, targetType));
+                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
                 SqlArmTemplate template = provider.GenerateProvisioningScript(recommendations);
 
                 string jsonOutput = JsonConvert.SerializeObject(
@@ -607,45 +607,6 @@ namespace Microsoft.SqlTools.Migration
             catch (Exception e)
             {
                 await requestContext.SendError(e.ToString());
-            }
-
-
-
-        }
-
-        /// <summary>
-        /// Scans the specified output folder for a SkuRecommendationReport*.json file, used when no report file path is specified 
-        /// </summary>
-        /// <param name="outputFolder"></param>
-        /// <returns>The file path to the SKU recommendation report, if it exists</returns>
-        public static string GetReportFilePath(string outputFolder, string targetType)
-        {
-            string skuRecommendationJsonRegex = "SkuRecommendationReport-";
-            switch (targetType)
-            {
-                case "AzureSqlDatabase":
-                    skuRecommendationJsonRegex += "AzureSqlDatabase-Baseline*.json";
-                    break;
-                case "AzureSqlManagedInstance":
-                    skuRecommendationJsonRegex += "AzureSqlManagedInstance-Baseline*.json";
-                    break;
-                case "AzureSqlVirtualMachine":
-                    skuRecommendationJsonRegex += "AzureSqlVirtualMachine-Baseline*.json";
-                    break;
-
-            }
-
-            string filePath = Directory.GetFiles(outputFolder, skuRecommendationJsonRegex).FirstOrDefault();
-
-
-            if (string.IsNullOrEmpty(filePath))
-            {
-                // No SKU recommendation report found in default output folder
-                throw new ArgumentException(string.Format("No SKU recommendation report was found at {0}. Please ensure that a SKU recommendation report was properly generated.", outputFolder));
-            }
-            else
-            {
-                return filePath;
             }
         }
 
