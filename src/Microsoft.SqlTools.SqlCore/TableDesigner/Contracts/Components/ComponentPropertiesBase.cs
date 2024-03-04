@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
     [KnownType(typeof(CheckBoxProperties))]
     [KnownType(typeof(DropdownProperties))]
     [KnownType(typeof(InputBoxProperties))]
-    public abstract class ComponentPropertiesBase
+    public class ComponentPropertiesBase
     {
         [DataMember(Name = "title")]
         public string Title { get; set; }
