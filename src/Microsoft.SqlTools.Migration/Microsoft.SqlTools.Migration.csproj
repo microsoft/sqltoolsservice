@@ -37,12 +37,12 @@
     <Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
   </ItemGroup>
 	<ItemGroup>
-		<Compile Remove="..\..\..\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\GeneralErrorModelResources.resx" />
-		<Compile Remove="..\..\..\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\ErrorModelResources.resx" />
+		<Compile Remove="C:\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\GeneralErrorModelResources.resx" />
+		<Compile Remove="C:\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\ErrorModelResources.resx" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="..\..\..\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\GeneralErrorModelResources.resx" />
-		<EmbeddedResource Include="..\..\..\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\ErrorModelResources.resx" />
+		<EmbeddedResource Include="C:\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\GeneralErrorModelResources.resx" />
+		<EmbeddedResource Include="C:\Users\**\microsoft.sqlserver.sqltargetprovisioning\**\ErrorModelResources.resx" />
 	</ItemGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="Microsoft.SqlTools.Migration.IntegrationTests" />
