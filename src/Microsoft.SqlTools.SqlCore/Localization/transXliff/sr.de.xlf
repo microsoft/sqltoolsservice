@@ -1092,6 +1092,775 @@
         <target state="translated">Eine Skripterstellung zur Ausführung wird nur für gespeicherte Prozeduren unterstützt.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableNotInitializedException">
+        <source>Initialization is not properly done for table with id '{0}'</source>
+        <target state="translated">Die Initialisierung für die Tabelle mit der ID "{0}" wurde nicht ordnungsgemäß ausgeführt.</target>
+        <note>.
+ Parameters: 0 - tableId (string) </note>
+      </trans-unit>
+      <trans-unit id="TableEditPathNotProvidedException">
+        <source>The path in the table change information cannot be empty</source>
+        <target state="translated">Der Pfad in den Tabellenänderungsinformationen darf nicht leer sein.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidTableEditPathException">
+        <source>The path '{0}' in the table change information is not valid for edit type: '{1}'</source>
+        <target state="translated">Der Pfad "{0}" in den Tabellenänderungsinformationen ist für den Bearbeitungstyp "{1}" ungültig.</target>
+        <note>.
+ Parameters: 0 - path (string), 1 - editType (string) </note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentityGroupName">
+        <source>Identity Specification</source>
+        <target state="translated">Identitätsspezifikation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsIdentityPropertyTitle">
+        <source>Is Identity</source>
+        <target state="translated">Ist Identity</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsIdentityPropertyDescription">
+        <source>Specifies whether the column is the identity column for the table.</source>
+        <target state="translated">Gibt an, ob die Spalte die Identitätsspalte für die Tabelle ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentityIncrementPropertyTitle">
+        <source>Identity Increment</source>
+        <target state="translated">Identitätsinkrement</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentityIncrementPropertyDescription">
+        <source>Displays the value added to the maximum existing row identity value when generating the next identity value.</source>
+        <target state="translated">Zeigt den Wert an, der beim Generieren des nächsten Identitätswerts dem Maximalwert des vorhandenen Zeilenidentitätswerts hinzugefügt wird.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentitySeedPropertyTitle">
+        <source>Identity Seed</source>
+        <target state="translated">Identitätsseeding</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentitySeedPropertyDescription">
+        <source>Displays the initial row value for an identity column.</source>
+        <target state="translated">Zeigt den anfänglichen Zeilenwert für eine Identitätsspalte an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsEnabledPropertyTitle">
+        <source>Is Enabled</source>
+        <target state="translated">Ist aktiviert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyIsEnabledDescription">
+        <source>Specifies whether the foreign key is Enabled</source>
+        <target state="translated">Gibt an, ob der Fremdschlüssel Aktiviert ist</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyIsNotForReplicationTitle">
+        <source>Not For Replication</source>
+        <target state="translated">Nicht für Replikation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyIsNotForReplicationDescription">
+        <source>Enables or disables the constraint for data inserted by a replication process.</source>
+        <target state="translated">Aktiviert oder deaktiviert die Einschränkung für Daten, die durch einen Replikationsvorgang eingefügt werden.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_NoAction">
+        <source>No Action</source>
+        <target state="translated">Keine Aktion</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_Cascade">
+        <source>Cascade</source>
+        <target state="translated">Überlappend</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_SetNull">
+        <source>Set Null</source>
+        <target state="translated">NULL festlegen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_SetDefault">
+        <source>Set Default</source>
+        <target state="translated">Standard festlegen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnknownEnumString">
+        <source>Unknown enum value: {0}.</source>
+        <target state="translated">Unbekannter Enumerationswert: {0}.</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="CheckConstraintIsEnabledDescription">
+        <source>Specifies whether the check constraint is Enabled</source>
+        <target state="translated">Gibt an, ob die CHECK-Einschränkung aktiviert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsEnabledPropertyDescription">
+        <source>Specifies whether the index is enabled</source>
+        <target state="translated">Gibt an, ob der Index aktiviert ist</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsClusteredPropertyDescription">
+        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
+        <target state="translated">Unabhängig davon, ob der Index gruppiert ist, ist nur ein gruppierter Index in einer Tabelle zulässig.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="translated">Ist Gruppiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsUniquePropertyDescription">
+        <source>Whether the data entered into this index must be unique.</source>
+        <target state="translated">Ob die in diesen Index eingegebenen Daten einzigartig sein müssen.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsUniquePropertyTitle">
+        <source>Is Unique</source>
+        <target state="translated">Ist eindeutig</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
+        <source>Specifies the sort order of the column.</source>
+        <target state="translated">Gibt die Sortierreihenfolge der Spalte an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
+        <source>Is Ascending</source>
+        <target state="translated">Ist aufsteigend</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsGroupTitle">
+        <source>Included Columns</source>
+        <target state="translated">Eingeschlossene Spalten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsPropertyDescription">
+        <source>The included columns of the index</source>
+        <target state="translated">Die eingeschlossenen Spalten des Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsAddColumn">
+        <source>Add Column</source>
+        <target state="translated">Spalte hinzufügen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsColumnPropertyName">
+        <source>Column</source>
+        <target state="translated">Spalte</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the index</source>
+        <target state="translated">Filterprädikat des Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="translated">Filterprädikat</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsHashPropertyDescription">
+        <source>Whether the index is a hash index</source>
+        <target state="translated">Gibt an, ob der Index ein Hashindex ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsHashPropertyTitle">
+        <source>Is Hash</source>
+        <target state="translated">Ist Hash</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexBucketCountPropertyDescription">
+        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</source>
+        <target state="translated">Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexBucketCountPropertyTitle">
+        <source>Bucket Count</source>
+        <target state="translated">Bucketanzahl</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
+        <source>Columns</source>
+        <target state="translated">Spalten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexNamePropertyTitle">
+        <source>Name</source>
+        <target state="translated">Name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexNamePropertyDescription">
+        <source>Name of the columnstore index</source>
+        <target state="translated">Name des Columnstore-Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
+        <source>Description</source>
+        <target state="translated">Beschreibung</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
+        <source>Description of the columnstore index</source>
+        <target state="translated">Beschreibung des Columnstore-Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexIsClusteredPropertyDescription">
+        <source>Whether the columnstore index is clustered.</source>
+        <target state="translated">Gibt an, ob der Columnstore-Index gruppiert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="translated">Ist Gruppiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the columnstore index</source>
+        <target state="translated">Filterprädikat des Columnstore-Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="translated">Filterprädikat</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
+        <source>Columns in this columnstore index</source>
+        <target state="translated">Spalten in diesem Columnstore-Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
+        <source>Columns</source>
+        <target state="translated">Spalten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexAddColumn">
+        <source>Add Column</source>
+        <target state="translated">Spalte hinzufügen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnPropertyName">
+        <source>Column</source>
+        <target state="translated">Spalte</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">Wenn Sie eine Spalte entfernen, wird sie auch aus den Indizes und Fremdschlüsseln entfernt. Möchten Sie den Vorgang wirklich fortsetzen?</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableGroupTitle">
+        <source>Graph Table</source>
+        <target state="translated">Graph-Tabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeTitle">
+        <source>Type</source>
+        <target state="translated">Typ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeDescription">
+        <source>Specifies the table type.</source>
+        <target state="translated">Gibt den Tabellentyp an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeEdge">
+        <source>Edge</source>
+        <target state="translated">Edge</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNode">
+        <source>Node</source>
+        <target state="translated">Knoten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNone">
+        <source>None</source>
+        <target state="translated">Keine</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
+        <source>Columnstore Indexes</source>
+        <target state="translated">Columnstore-Indizes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnStoreIndexObjectType">
+        <source>Columnstore Index</source>
+        <target state="translated">Columnstore-Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewColumnStoreIndexLabel">
+        <source>New Columnstore Index</source>
+        <target state="translated">Neuer Columnstore-Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintsTabTitle">
+        <source>Edge Constraints</source>
+        <target state="translated">Edge-Einschränkungen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintObjectType">
+        <source>Edge Constraint</source>
+        <target state="translated">Edge-Einschränkung</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintNamePropertyDescription">
+        <source>Name of the constraint.</source>
+        <target state="translated">Name der Einschränkung.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintNamePropertyTitle">
+        <source>Name</source>
+        <target state="translated">Name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintIsEnabledPropertyDescription">
+        <source>Specifies whether the constraint is enabled.</source>
+        <target state="translated">Gibt an, ob die Einschränkung aktiviert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintIsEnabledPropertyTitle">
+        <source>Is Enabled</source>
+        <target state="translated">Ist aktiviert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription">
+        <source>The behavior when a user tries to delete a row with data that is involved in an edge constraint.</source>
+        <target state="translated">Das Verhalten, wenn ein Benutzer versucht, eine Zeile mit Daten zu löschen, die an einer Edge-Einschränkung beteiligt sind.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle">
+        <source>On Delete Action</source>
+        <target state="translated">Bei Löschvorgang</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClausesPropertyDescription">
+        <source>Edge constraint clauses.</source>
+        <target state="translated">Edge-Einschränkungsklauseln.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClausesPropertyTitle">
+        <source>Clauses</source>
+        <target state="translated">Anweisungen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseObjectType">
+        <source>Clause</source>
+        <target state="translated">Klausel</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseFromTablePropertyName">
+        <source>From Table</source>
+        <target state="translated">Von Tabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseToTablePropertyName">
+        <source>To Table</source>
+        <target state="translated">Zur Tabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlTableDurability_SchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">Schema und Daten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlTableDurability_SchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">Nur Schema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_None">
+        <source>None</source>
+        <target state="translated">Keine</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_RowStart">
+        <source>Row Start</source>
+        <target state="translated">Zeilenanfang</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_RowEnd">
+        <source>Row End</source>
+        <target state="translated">Zeilenende</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">Transaktions-ID Start</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">Transaktions-ID Ende</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">Sequenznummern Start</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">Sequenznummern Ende</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningEnabledTitle">
+        <source>System Versioning Enabled</source>
+        <target state="translated">Systemversionsverwaltung aktiviert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningEnabledDescription">
+        <source>Specifies whether the table is system versioning enabled.</source>
+        <target state="translated">Gibt an, ob die Systemversionsverwaltung für die Tabelle aktiviert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerSystemVersioningGroupTitle">
+        <source>System Versioning</source>
+        <target state="translated">Systemversionsverwaltung</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerHistoryTableDescription">
+        <source>History table of the current table.</source>
+        <target state="translated">Verlaufstabelle der aktuellen Tabelle.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerHistoryTableTitle">
+        <source>History Table</source>
+        <target state="translated">Verlaufstabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsMemoryOptimizedDescription">
+        <source>Specifies whether the table is memory optimized.</source>
+        <target state="translated">Gibt an, ob die Tabelle arbeitsspeicheroptimiert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerMemoryOptimizedGroupTitle">
+        <source>Memory Optimized</source>
+        <target state="translated">Arbeitsspeicheroptimiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsMemoryOptimizedTitle">
+        <source>Memory Optimized</source>
+        <target state="translated">Arbeitsspeicheroptimiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDurabilityDescription">
+        <source>Specifies the durability setting of the table.</source>
+        <target state="translated">Gibt die Einstellung für die Dauerhaftigkeit der Tabelle an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDurabilityTitle">
+        <source>Durability</source>
+        <target state="translated">Dauerhaftigkeit</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnGeneratedAlwaysAsDescription">
+        <source>Specifies the start or end of the system versioning table's period setting.</source>
+        <target state="translated">Gibt den Anfang oder das Ende der Periodeneinstellung der Systemversionsverwaltungstabelle an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnGeneratedAlwaysAsTitle">
+        <source>Generated Always As</source>
+        <target state="translated">„Immer als“ generiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnIsHiddenTitle">
+        <source>Is Hidden</source>
+        <target state="translated">Ist verborgen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnIsHiddenDescription">
+        <source>Specifies whether the column will be returned by select statement.</source>
+        <target state="translated">Gibt an, ob die Spalte von der „select“-Anweisung zurückgegeben wird.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAutoCreateHistoryTableDescription">
+        <source>Specifies whether the engine should automatically create the history table.</source>
+        <target state="translated">Gibt an, ob das Modul die Verlaufstabelle automatisch erstellen soll.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAutoCreateHistoryTableTitle">
+        <source>Auto Create History Table</source>
+        <target state="translated">Verlaufstabelle automatisch erstellen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerNewHistoryTableDescription">
+        <source>Specifies the name of the new history table.</source>
+        <target state="translated">Gibt den Namen der neuen Verlaufstabelle an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerNewHistoryTableTitle">
+        <source>New History Table Name</source>
+        <target state="translated">Neuer Verlaufstabellenname</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyDescription">
+        <source>Specifies the default constraint name.</source>
+        <target state="translated">Gibt den Standardeinschränkungsnamen an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyTitle">
+        <source>Default Constraint Name</source>
+        <target state="translated">Standardeinschränkungsname</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">Neue Edge-Einschränkung...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">Neue Klausel</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedGroupTitle">
+        <source>Computed Column Specifications</source>
+        <target state="translated">Spezifikationen für berechnete Spalten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedTitle">
+        <source>Is Computed</source>
+        <target state="translated">Ist berechnet</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedDescription">
+        <source>Specifies whether the column is a computed column</source>
+        <target state="translated">Gibt an, ob die Spalte eine berechnete Spalte ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaTitle">
+        <source>Formula</source>
+        <target state="translated">Formel</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaDescription">
+        <source>An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</source>
+        <target state="translated">Ein Ausdruck, der den Wert einer berechneten Spalte definiert. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedTitle">
+        <source>Is Persisted</source>
+        <target state="translated">Ist beständig</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedDescription">
+        <source>Whether the computed column is saved with the data source</source>
+        <target state="translated">Gibt an, ob die berechnete Spalte mit der Datenquelle gespeichert wird.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
+        <source>Is Persisted Nullable</source>
+        <target state="translated">Nullwerte zulassend wenn beständig</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
+        <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
+        <target state="translated">Gibt an, ob die berechnete Spalte einen NULL-Wert aufweisen darf (NOT NULL kann nur angegeben werden, wenn die Spalte beständig ist).</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexMustHaveColumnsRuleDescription">
+        <source>Index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">Dem Index „{0}“ sind keine Spalten zugeordnet.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyMustHaveColumnsRuleDescription">
+        <source>Foreign key '{0}' does not have any columns specified.</source>
+        <target state="translated">Für den Fremdschlüssel „{0}“ wurden keine Spalten angegeben.</target>
+        <note>.
+ Parameters: 0 - foreignKeyName (string) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInIndexRuleDescription">
+        <source>Column with name '{0}' has already been added to the index '{1}'. Row number: {2}.</source>
+        <target state="translated">Die Spalte mit dem Namen „{0}“ wurde dem Index „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription">
+        <source>Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.</source>
+        <target state="translated">Die Spalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription">
+        <source>Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.</source>
+        <target state="translated">Die Fremdspalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateConstraintNameRuleDescription">
+        <source>The name '{0}' is already used by another constraint. Row number: {1}.</source>
+        <target state="translated">Der Name „{0}“ wird bereits von einer anderen Einschränkung verwendet. Zeilennummer: {1}.</target>
+        <note>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateColumnNameRuleDescription">
+        <source>The name '{0}' is already used by another column. Row number: {1}.</source>
+        <target state="translated">Der Name „{0}“ wird bereits von einer anderen Spalte verwendet. Zeilennummer: {1}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateIndexNameRuleDescription">
+        <source>The name '{0}' is already used by another index. Row number: {1}.</source>
+        <target state="translated">Der Name „{0}“ wird bereits von einem anderen Index verwendet. Zeilennummer: {1}.</target>
+        <note>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="EdgeConstraintMustHaveClausesRuleDescription">
+        <source>Edge constraint '{0}' does not have any clauses specified.</source>
+        <target state="translated">Für die Edge-Einschränkung „{0}“ wurden keine Klauseln angegeben.</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="EdgeConstraintNoRepeatingClausesRuleDescription">
+        <source>The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.</source>
+        <target state="translated">Das Paar „{0}“ ist bereits durch eine andere Klausel in der Edge-Einschränkung definiert. Zeilennummer: {1}.</target>
+        <note>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription">
+        <source>Memory-optimized table must have non-clustered primary key.</source>
+        <target state="translated">Die speicheroptimierte Tabelle muss über einen nicht gruppierten Primärschlüssel verfügen.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TemporalTableMustHavePrimaryKeyRuleDescription">
+        <source>System versioned table must have primary key.</source>
+        <target state="translated">Die vom System versionierte Tabelle muss über einen Primärschlüssel verfügen.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TemporalTableMustHavePeriodColumnsRuleDescription">
+        <source>System versioned table must have the period columns defined.</source>
+        <target state="translated">Für die vom System versionierte Tabelle müssen die Zeitraumspalten definiert sein.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeriodColumnsRuleMoreThanOneIssueDescription">
+        <source>Period columns (Generated Always As Row Start/End) can only be defined once.</source>
+        <target state="translated">Zeitraumspalten (immer als Zeilenanfang/-ende generiert) können nur einmal definiert werden.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeriodColumnsRuleNotMatchIssueDescription">
+        <source>Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined.</source>
+        <target state="translated">Zeitraumspalten (immer als Zeilenanfang/-ende generiert) müssen als Paar definiert werden. Wenn eine definiert ist, muss auch die andere definiert werden.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnsInPrimaryKeyCannotBeNullableRuleDescription">
+        <source>Columns in primary key cannot be nullable.</source>
+        <target state="translated">Spalten im Primärschlüssel dürfen keine NULL-Werte zulassen.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription">
+        <source>Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned.</source>
+        <target state="translated">Nur dauerhafte (DURABILITY = SCHEMA_AND_DATA) speicheroptimierte Tabellen können vom System versioniert sein.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableMustHaveAtLeastOneColumnRuleDescription">
+        <source>A table must have at least one non-computed column defined.</source>
+        <target state="translated">Für eine Tabelle muss mindestens eine nicht berechnete Spalte definiert sein.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedTableIdentityColumnRuleDescription">
+        <source>The use of seed and increment values other than 1 is not supported with memory optimized tables.</source>
+        <target state="translated">Die Verwendung eines anderen Start- und Inkrementwerts als 1 wird bei speicheroptimierten Tabellen nicht unterstützt.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription">
+        <source>The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.</source>
+        <target state="translated">Die Tabelle weist mehr als eine Edge-Einschränkung auf. Dies ist nur als temporärer Zustand beim Ändern vorhandener Edge-Einschränkungen nützlich, und sollte in anderen Fällen nicht verwendet werden.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription">
+        <source>Cannot use duplicate column names in primary key, column name: {0}</source>
+        <target state="translated">Doppelte Spaltennamen können im Primärschlüssel nicht verwendet werden. Spaltenname: {0}</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription">
+        <source>Memory-optimized table is not supported for this database.</source>
+        <target state="translated">Die speicheroptimierte Tabelle wird für diese Datenbank nicht unterstützt.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MutipleCreateTableStatementsInScriptRuleDescription">
+        <source>There are multiple table definitions in the script, only the first table can be edited in the designer.</source>
+        <target state="translated">Das Skript enthält mehrere Tabellendefinitionen, nur die erste Tabelle kann im Designer bearbeitet werden.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexCannotHaveIncludedColumnsRuleDescription">
+        <source>Included columns are not supported for a clustered index.</source>
+        <target state="translated">Eingeschlossene Spalten werden für einen gruppierten Index nicht unterstützt.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexCannotHaveFilterPredicateRuleDescription">
+        <source>Filter predicate is not supported for a clustered index.</source>
+        <target state="translated">Das Filterprädikat wird für einen gruppierten Index nicht unterstützt.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription">
+        <source>Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.</source>
+        <target state="translated">Die Spalte mit dem Namen "{0}" wurde bereits in den Index "{1}" eingeschlossen. Zeilennummer: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription">
+        <source>Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</source>
+        <target state="translated">Die eingeschlossene Spalte mit dem Namen "{0}" war bereits Teil des Indexes "{1}" und kann nicht eingeschlossen werden. Zeilennummer: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</source>
+        <target state="translated">Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden und darf nicht Nullwerte zulassen, um Teil eines Primärschlüssels zu sein.</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.</source>
+        <target state="translated">Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden, um Teil des Fremdschlüssels „{1}“ zu sein.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
+      </trans-unit>
+      <trans-unit id="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription">
+        <source>Hash index with name '{0}' is not supported on a non memory-optimized table.</source>
+        <target state="translated">Der Hashindex mit dem Namen "{0}" wird für eine nicht speicheroptimierte Tabelle nicht unterstützt.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="HashIndexMustHaveBucketCountRuleDescription">
+        <source>Hash index '{0}' does not have a bucket count.</source>
+        <target state="translated">Der Hashindex "{0}" weist keine Bucketanzahl auf.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
+        <source>Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.</source>
+        <target state="translated">Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index "{1}" bereits hinzugefügt. Zeilennummer: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription">
+        <source>Non-clustered columnstore index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerConfirmationText">
+        <source>I have read the summary and understand the potential risks.</source>
+        <target state="translated">Ich habe die Zusammenfassung gelesen und bin mir der potenziellen Risiken bewusst.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">Die CREATE TABLE-Berechtigung wurde in der {0}-Datenbank verweigert.</target>
+        <note>.
+ Parameters: 0 - db (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">Die ALTER TABLE-Berechtigung wurde für die Tabelle "{0}" verweigert.</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

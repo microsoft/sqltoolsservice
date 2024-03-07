@@ -2853,36 +2853,6 @@
   <data name="SizeInTeraBytesFormat" xml:space="preserve">
     <value>{0}TB</value>
   </data>
-  <data name="TableNotInitializedException" xml:space="preserve">
-    <value>ID가 '{0}'인 테이블에 대해 초기화가 제대로 수행되지 않았습니다.</value>
-  </data>
-  <data name="TableColumnIdentityGroupName" xml:space="preserve">
-    <value>ID 사양</value>
-  </data>
-  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
-    <value>ID</value>
-  </data>
-  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
-    <value>열이 테이블의 ID 열인지 여부를 지정합니다.</value>
-  </data>
-  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
-    <value>ID 증분</value>
-  </data>
-  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
-    <value>다음 ID 값을 생성할 때 최대 기존 행 ID 값에 추가되는 값을 표시합니다.</value>
-  </data>
-  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
-    <value>ID 시드</value>
-  </data>
-  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
-    <value>ID 열의 초기 행 값을 표시합니다.</value>
-  </data>
-  <data name="TableEditPathNotProvidedException" xml:space="preserve">
-    <value>테이블 변경 정보의 경로는 비워 둘 수 없습니다.</value>
-  </data>
-  <data name="InvalidTableEditPathException" xml:space="preserve">
-    <value>테이블 변경 정보의 '{0}' 경로가 편집 형식에 적합하지 않습니다. '{1}'</value>
-  </data>
   <data name="OperatorDisplayCost" xml:space="preserve">
     <value>{0:0.#######}({1}%)</value>
   </data>
@@ -2890,62 +2860,8 @@
     <value>{0}/
 {1}({2}%)</value>
   </data>
-  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
-    <value>사용됨</value>
-  </data>
-  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
-    <value>외래 키를 사용할지 여부를 지정합니다.</value>
-  </data>
-  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
-    <value>복제용 아님</value>
-  </data>
-  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>복제 프로세스에서 삽입한 데이터에 대한 제약 조건을 사용하거나 사용하지 않도록 설정합니다.</value>
-  </data>
-  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
-    <value>조치 없음</value>
-  </data>
-  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
-    <value>계단식 배열</value>
-  </data>
-  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
-    <value>Null 설정</value>
-  </data>
-  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
-    <value>기본값 설정</value>
-  </data>
-  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
-    <value>CHECK 제약 조건을 사용할지 여부를 지정합니다.</value>
-  </data>
   <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
     <value>SQL 변형 열 "{1}"의 기본 유형 "{0}"을(를) 확인할 수 없습니다.</value>
-  </data>
-  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
-    <value>인덱스를 사용할지 여부를 지정합니다.</value>
-  </data>
-  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>인덱스가 클러스터되는지 여부를 지정합니다. 테이블에서 클러스터된 인덱스는 하나만 허용됩니다.</value>
-  </data>
-  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>클러스터형 여부</value>
-  </data>
-  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
-    <value>이 인덱스로 입력한 데이터가 고유해야 하는지 여부입니다.</value>
-  </data>
-  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
-    <value>고유함</value>
-  </data>
-  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
-    <value>열의 정렬 순서를 지정합니다.</value>
-  </data>
-  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
-    <value>오름차순</value>
-  </data>
-  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
-    <value>열</value>
-  </data>
-  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
-    <value>열을 제거하면 인덱스 및 외장 키에서도 제거됩니다. 계속하시겠습니까?</value>
   </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>인덱스 없음(영향 {0}): {1}</value>
@@ -2968,248 +2884,11 @@
   <data name="NotSupportedCloudCreateSas" xml:space="preserve">
     <value>공유 액세스 서명 만들기는 클라우드 인스턴스에 대해 지원되지 않습니다.</value>
   </data>
-  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
-    <value>형식</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
-    <value>Edge</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
-    <value>노드</value>
-  </data>
-  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
-    <value>그래프 테이블</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
-    <value>에지 제약 조건</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
-    <value>새 에지 제약 조건</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
-    <value>제약 조건의 이름입니다.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
-    <value>이름</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
-    <value>인덱스를 사용할지 여부를 지정합니다.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
-    <value>사용됨</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
-    <value>사용자가 외래 키 관계에 포함된 데이터가 있는 행을 삭제하려고 할 때 수행할 동작입니다.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
-    <value>삭제 시 작업</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
-    <value>Edge 제약 조건 절입니다.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
-    <value>절</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
-    <value>절</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
-    <value>테이블에서</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
-    <value>대상 테이블</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
-    <value>없음</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
-    <value>테이블 형식을 지정합니다.</value>
-  </data>
-  <data name="UnknownEnumString" xml:space="preserve">
-    <value>알 수 없는 열거형 값: {0}.</value>
-  </data>
-  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
-    <value>스키마 및 데이터</value>
-  </data>
-  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
-    <value>스키마만</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
-    <value>없음</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
-    <value>행 시작</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
-    <value>행 끝</value>
-  </data>
-  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
-    <value>시스템 버전 관리 사용</value>
-  </data>
-  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
-    <value>테이블이 시스템 버전 관리를 사용할 수 있는지 여부를 지정합니다.</value>
-  </data>
-  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
-    <value>시스템 버전 관리</value>
-  </data>
-  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
-    <value>현재 테이블의 기록 테이블입니다.</value>
-  </data>
-  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
-    <value>기록 테이블</value>
-  </data>
-  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>테이블이 메모리 액세스에 최적화되어 있는지 여부를 나타냅니다.</value>
-  </data>
-  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
-    <value>메모리에 최적화</value>
-  </data>
-  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
-    <value>메모리에 최적화</value>
-  </data>
-  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
-    <value>테이블의 내구성 설정을 지정합니다.</value>
-  </data>
-  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
-    <value>내구성</value>
-  </data>
-  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
-    <value>시스템 버전 관리 테이블의 기간 설정의 시작 또는 끝을 지정합니다.</value>
-  </data>
-  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
-    <value>항상 생성됨</value>
-  </data>
-  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
-    <value>숨김</value>
-  </data>
-  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
-    <value>select 문으로 열을 반환할지 여부를 지정합니다.</value>
-  </data>
-  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
-    <value>엔진에서 기록 테이블을 자동으로 만들지 여부를 지정합니다.</value>
-  </data>
-  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
-    <value>기록 테이블 자동 만들기</value>
-  </data>
-  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
-    <value>새 기록 테이블의 이름을 지정합니다.</value>
-  </data>
-  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
-    <value>기록 테이블 이름</value>
-  </data>
-  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
-    <value>기본 제약 조건 이름을 지정합니다.</value>
-  </data>
-  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
-    <value>기본 제약 조건 이름</value>
-  </data>
-  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
-    <value>새 Edge 제약 조건</value>
-  </data>
-  <data name="AddNewClauseLabel" xml:space="preserve">
-    <value>새 절</value>
-  </data>
   <data name="WarningOverlayTooltip" xml:space="preserve">
     <value>경고</value>
   </data>
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>병렬 실행</value>
-  </data>
-  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
-    <value>계산 열 사양</value>
-  </data>
-  <data name="TableColumnIsComputedTitle" xml:space="preserve">
-    <value>계산 여부</value>
-  </data>
-  <data name="TableColumnIsComputedDescription" xml:space="preserve">
-    <value>열이 계산 열인지 여부를 지정합니다.</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
-    <value>지속형 여부</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
-    <value>계산 열이 데이터 원본과 함께 저장되는지 여부</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
-    <value>지속형 Null 허용 여부</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
-    <value>계산 열에 NULL 값을 사용할 수 있는지 여부를 지정합니다(지속형 열인 경우에만 NOT NULL을 지정할 수 있습니다).</value>
-  </data>
-  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>계산 열의 값을 정의하는 식입니다. [자세한 정보](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
-  </data>
-  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
-    <value>수식</value>
-  </data>
-  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>인덱스 '{0}'에는 연결된 열이 없습니다.</value>
-  </data>
-  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>외래 키 '{0}'에 지정된 열이 없습니다.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 열이 이미 인덱스 '{1}'에 추가되었습니다. 행 번호: {2}.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 열이 이미 외래 키 '{1}'에 추가되었습니다. 행 번호: {2}.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 외부 열이 이미 외부 키 '{1}'에 추가되었습니다. 행 번호: {2}.</value>
-  </data>
-  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
-    <value>다른 제약 조건에서 이미 이름 '{0}'을(를) 사용하고 있습니다. 행 번호: {1}.</value>
-  </data>
-  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
-    <value>다른 열에서 이미 이름 '{0}'을(를) 사용하고 있습니다. 행 번호: {1}.</value>
-  </data>
-  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
-    <value>다른 인덱스에서 이미 이름 '{0}'을(를) 사용하고 있습니다. 행 번호: {1}.</value>
-  </data>
-  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
-    <value>에지 제약 조건 '{0}'에 지정된 절이 없습니다.</value>
-  </data>
-  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
-    <value>'{0}' 쌍은 edge 제약 조건의 다른 절에 의해 이미 정의되어 있습니다. 행 번호: {1}.</value>
-  </data>
-  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>메모리 최적화 테이블에는 클러스터되지 않은 기본 키가 있어야 합니다.</value>
-  </data>
-  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
-    <value>시스템 버전이 지정된 테이블에는 기본 키가 있어야 합니다.</value>
-  </data>
-  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
-    <value>시스템 버전 테이블에는 기간 열이 정의되어 있어야 합니다.</value>
-  </data>
-  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
-    <value>기간 열(항상 행 시작/끝으로 생성됨)은 한 번만 정의할 수 있습니다.</value>
-  </data>
-  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
-    <value>기간 열(항상 행 시작/끝으로 생성됨)은 쌍으로 정의되어야 합니다. 하나가 정의되면 다른 것도 정의해야 합니다.</value>
-  </data>
-  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
-    <value>기본 키의 열은 Null을 허용할 수 없습니다.</value>
-  </data>
-  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
-    <value>내구성(DURABILITY = SCHEMA_AND_DATA) 메모리 최적화 테이블만 시스템 버전 관리가 가능합니다.</value>
-  </data>
-  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
-    <value>테이블에는 계산되지 않은 열이 하나 이상 정의되어 있어야 합니다.</value>
-  </data>
-  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
-    <value>1 이외의 시드 및 증분 값 사용은 메모리 최적화 테이블에서 지원되지 않습니다.</value>
-  </data>
-  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
-    <value>테이블에 둘 이상의 에지 제약 조건이 있습니다. 이는 기존 에지 제약 조건을 수정할 때 임시 상태로만 유용하며 다른 경우에는 사용하지 않아야 합니다.</value>
-  </data>
-  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>기본 키에 중복된 열 이름을 사용할 수 없습니다. 열 이름: {0}</value>
-  </data>
-  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
-    <value>이 데이터베이스에는 메모리 최적화 테이블이 지원되지 않습니다.</value>
-  </data>
-  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
-    <value>스크립트에는 여러 테이블 정의가 있으며 디자이너에서 첫 번째 테이블만 편집할 수 있습니다.</value>
   </data>
   <data name="Operation" xml:space="preserve">
     <value>작업</value>
@@ -3247,36 +2926,6 @@
   <data name="AverageRowSize" xml:space="preserve">
     <value>평균 행 크기</value>
   </data>
-  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
-    <value>포함된 열</value>
-  </data>
-  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
-    <value>인덱스의 포함된 열</value>
-  </data>
-  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
-    <value>열 추가</value>
-  </data>
-  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
-    <value>열</value>
-  </data>
-  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>인덱스의 필터 조건자</value>
-  </data>
-  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>필터 조건자</value>
-  </data>
-  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
-    <value>포함된 열은 클러스터형 인덱스에 대해 지원되지 않습니다.</value>
-  </data>
-  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
-    <value>필터 조건자는 클러스터형 조건자에 대해 지원되지 않습니다.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 열이 이미 인덱스 '{1}'에 포함되어 있습니다. 행 번호: {2}.</value>
-  </data>
-  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 포함된 열은 이미 인덱스 '{1}'의 일부이므로 포함할 수 없습니다. 행 번호: {2}.</value>
-  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>프로젝트에서 SQL 모델을 찾을 수 없습니다. {0}.</value>
   </data>
@@ -3285,84 +2934,6 @@
   </data>
   <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
     <value>모델에서 사용자 정의 개체를 가져오지 못했습니다.</value>
-  </data>
-  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 계산 열은 유지되어야 하며 기본 키의 일부가 되도록 null을 허용하지 않습니다.</value>
-  </data>
-  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 계산 열은 외래 키 '{1}'의 일부여야 합니다.</value>
-  </data>
-  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 해시 인덱스가 메모리 최적화 테이블이 아닌 테이블에서 지원되지 않습니다.</value>
-  </data>
-  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>'{0}' 해시 인덱스에 버킷 수가 없습니다.</value>
-  </data>
-  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>인덱스가 해시 인덱스인지 여부입니다.</value>
-  </data>
-  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>해시 여부</value>
-  </data>
-  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>해시 인덱스의 버킷 수입니다. 값은 항상 다음 2의 거듭제곱으로 자동으로 반올림됩니다.</value>
-  </data>
-  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>버킷 수</value>
-  </data>
-  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>이름</value>
-  </data>
-  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>columnstore 인덱스의 이름</value>
-  </data>
-  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>설명</value>
-  </data>
-  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>columnstore 인덱스 설명</value>
-  </data>
-  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>columnstore 인덱스가 클러스터되는지 여부입니다.</value>
-  </data>
-  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>클러스터형 여부</value>
-  </data>
-  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>columnstore 인덱스의 조건자 필터링</value>
-  </data>
-  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>필터 조건자</value>
-  </data>
-  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>이 columnstore 인덱스에 있는 열</value>
-  </data>
-  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>열</value>
-  </data>
-  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>열 추가</value>
-  </data>
-  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>열</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 열이 클러스터되지 않은 columnstore 인덱스 '{1}'에 이미 추가되었습니다. 행 번호: {2}.</value>
-  </data>
-  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Columnstore 인덱스</value>
-  </data>
-  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>ColumnStore 인덱스</value>
-  </data>
-  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>새 Columnstore 인덱스</value>
-  </data>
-  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>비클러스터형 columnstore 인덱스 '{0}'에 연결된 열이 없습니다.</value>
-  </data>
-  <data name="TableDesignerConfirmationText" xml:space="preserve">
-    <value>요약을 읽고 잠재적인 위험을 이해했습니다.</value>
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>연결을 찾을 수 없습니다.</value>
@@ -3381,18 +2952,6 @@
   </data>
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>다른 암호를 입력하려면 [확인]을 누르세요.</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
-    <value>트랜잭션 ID 시작</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
-    <value>트랜잭션 ID 끝</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
-    <value>시퀀스 번호 시작</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
-    <value>시퀀스 번호 끝</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
     <value>증명 URL은 증명 프로토콜의 선택된 값으로 비워 둘 수 없습니다.</value>
@@ -4404,12 +3963,6 @@
   </data>
   <data name="PropertyNotInitialized" xml:space="preserve">
     <value>'{0}' 속성이 초기화 전에 설정되었습니다.</value>
-  </data>
-  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
-    <value>'{0}' 데이터베이스에서 CREATE TABLE 권한이 거부되었습니다.</value>
-  </data>
-  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
-    <value>'{0}' 테이블에 대한 ALTER TABLE 권한이 거부되었습니다.</value>
   </data>
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>ScriptingListObjectsCompleteParams.ConnectionString 속성을 분석하는 동안 오류가 발생했습니다.</value>

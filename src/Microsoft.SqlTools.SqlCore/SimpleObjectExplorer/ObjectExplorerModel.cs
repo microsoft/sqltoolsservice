@@ -433,7 +433,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
     TABLE_SCHEMA AS parent_name,
-    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS display_name,
+    TABLE_NAME AS display_name,
     'Table' AS object_type,
     NULL AS object_sub_type
   FROM
@@ -525,7 +525,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
     TABLE_SCHEMA AS parent_name,
-    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS display_name,
+    TABLE_NAME AS display_name,
     'View' AS object_type,
     NULL AS object_sub_type
   FROM
@@ -541,7 +541,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     SPECIFIC_SCHEMA AS schema_name,
     SPECIFIC_NAME AS object_name,
     SPECIFIC_SCHEMA AS parent_name,
-    CONCAT(SPECIFIC_SCHEMA, '.', SPECIFIC_NAME) AS display_name,
+    SPECIFIC_NAME AS display_name,
     'StoredProcedure' AS object_type,
     NULL AS object_sub_type
   FROM
@@ -578,7 +578,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       S.name AS schema_name,
       P.name AS object_name,
       S.name AS parent_name,
-      CONCAT (S.name, '.', P.name) AS display_name,
+      P.name AS display_name,
       'ScalarFunction' AS object_type,
       NULL AS object_sub_type
   FROM
@@ -595,7 +595,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       S.name AS schema_name,
       P.name AS object_name,
       S.name AS parent_name,
-      CONCAT (S.name, '.', P.name) AS display_name,
+      P.name AS display_name,
       'TableValuedFunction' AS object_type,
       NULL AS object_sub_type
   FROM

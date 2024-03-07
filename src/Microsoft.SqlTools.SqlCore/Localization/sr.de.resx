@@ -771,4 +771,451 @@
   <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
     <value>Eine Skripterstellung zur Ausführung wird nur für gespeicherte Prozeduren unterstützt.</value>
   </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>Die Initialisierung für die Tabelle mit der ID "{0}" wurde nicht ordnungsgemäß ausgeführt.</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>Der Pfad in den Tabellenänderungsinformationen darf nicht leer sein.</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>Der Pfad "{0}" in den Tabellenänderungsinformationen ist für den Bearbeitungstyp "{1}" ungültig.</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>Identitätsspezifikation</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>Ist Identity</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>Gibt an, ob die Spalte die Identitätsspalte für die Tabelle ist.</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>Identitätsinkrement</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>Zeigt den Wert an, der beim Generieren des nächsten Identitätswerts dem Maximalwert des vorhandenen Zeilenidentitätswerts hinzugefügt wird.</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>Identitätsseeding</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>Zeigt den anfänglichen Zeilenwert für eine Identitätsspalte an.</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>Ist aktiviert</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>Gibt an, ob der Fremdschlüssel Aktiviert ist</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>Nicht für Replikation</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>Aktiviert oder deaktiviert die Einschränkung für Daten, die durch einen Replikationsvorgang eingefügt werden.</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>Keine Aktion</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>Überlappend</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>NULL festlegen</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>Standard festlegen</value>
+  </data>
+  <data name="UnknownEnumString" xml:space="preserve">
+    <value>Unbekannter Enumerationswert: {0}.</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>Gibt an, ob die CHECK-Einschränkung aktiviert ist.</value>
+  </data>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Gibt an, ob der Index aktiviert ist</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Unabhängig davon, ob der Index gruppiert ist, ist nur ein gruppierter Index in einer Tabelle zulässig.</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Ist Gruppiert</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Ob die in diesen Index eingegebenen Daten einzigartig sein müssen.</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>Ist eindeutig</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Gibt die Sortierreihenfolge der Spalte an.</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>Ist aufsteigend</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Eingeschlossene Spalten</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>Die eingeschlossenen Spalten des Indexes</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Spalte hinzufügen</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Spalte</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filterprädikat des Indexes</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filterprädikat</value>
+  </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>Gibt an, ob der Index ein Hashindex ist.</value>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>Ist Hash</value>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird.</value>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>Bucketanzahl</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Spalten</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>Name des Columnstore-Indexes</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>Beschreibung des Columnstore-Indexes</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Gibt an, ob der Columnstore-Index gruppiert ist.</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Ist Gruppiert</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filterprädikat des Columnstore-Indexes</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filterprädikat</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>Spalten in diesem Columnstore-Index</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>Spalten</value>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>Spalte hinzufügen</value>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>Spalte</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Wenn Sie eine Spalte entfernen, wird sie auch aus den Indizes und Fremdschlüsseln entfernt. Möchten Sie den Vorgang wirklich fortsetzen?</value>
+  </data>
+  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
+    <value>Graph-Tabelle</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
+    <value>Gibt den Tabellentyp an.</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
+    <value>Edge</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
+    <value>Knoten</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>Columnstore-Indizes</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>Columnstore-Index</value>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>Neuer Columnstore-Index</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
+    <value>Edge-Einschränkungen</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
+    <value>Edge-Einschränkung</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Name der Einschränkung.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Gibt an, ob die Einschränkung aktiviert ist.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
+    <value>Ist aktiviert</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
+    <value>Das Verhalten, wenn ein Benutzer versucht, eine Zeile mit Daten zu löschen, die an einer Edge-Einschränkung beteiligt sind.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
+    <value>Bei Löschvorgang</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
+    <value>Edge-Einschränkungsklauseln.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
+    <value>Anweisungen</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
+    <value>Klausel</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
+    <value>Von Tabelle</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
+    <value>Zur Tabelle</value>
+  </data>
+  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
+    <value>Schema und Daten</value>
+  </data>
+  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
+    <value>Nur Schema</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
+    <value>Zeilenanfang</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
+    <value>Zeilenende</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Transaktions-ID Start</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Transaktions-ID Ende</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Sequenznummern Start</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Sequenznummern Ende</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
+    <value>Systemversionsverwaltung aktiviert</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
+    <value>Gibt an, ob die Systemversionsverwaltung für die Tabelle aktiviert ist.</value>
+  </data>
+  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
+    <value>Systemversionsverwaltung</value>
+  </data>
+  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
+    <value>Verlaufstabelle der aktuellen Tabelle.</value>
+  </data>
+  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
+    <value>Verlaufstabelle</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Gibt an, ob die Tabelle arbeitsspeicheroptimiert ist.</value>
+  </data>
+  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
+    <value>Arbeitsspeicheroptimiert</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
+    <value>Arbeitsspeicheroptimiert</value>
+  </data>
+  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
+    <value>Gibt die Einstellung für die Dauerhaftigkeit der Tabelle an.</value>
+  </data>
+  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
+    <value>Dauerhaftigkeit</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
+    <value>Gibt den Anfang oder das Ende der Periodeneinstellung der Systemversionsverwaltungstabelle an.</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
+    <value>„Immer als“ generiert</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
+    <value>Ist verborgen</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
+    <value>Gibt an, ob die Spalte von der „select“-Anweisung zurückgegeben wird.</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
+    <value>Gibt an, ob das Modul die Verlaufstabelle automatisch erstellen soll.</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
+    <value>Verlaufstabelle automatisch erstellen</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
+    <value>Gibt den Namen der neuen Verlaufstabelle an.</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
+    <value>Neuer Verlaufstabellenname</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Gibt den Standardeinschränkungsnamen an.</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Standardeinschränkungsname</value>
+  </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Neue Edge-Einschränkung...</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Neue Klausel</value>
+  </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>Spezifikationen für berechnete Spalten</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>Ist berechnet</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Gibt an, ob die Spalte eine berechnete Spalte ist.</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>Formel</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>Ein Ausdruck, der den Wert einer berechneten Spalte definiert. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>Ist beständig</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Gibt an, ob die berechnete Spalte mit der Datenquelle gespeichert wird.</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>Nullwerte zulassend wenn beständig</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Gibt an, ob die berechnete Spalte einen NULL-Wert aufweisen darf (NOT NULL kann nur angegeben werden, wenn die Spalte beständig ist).</value>
+  </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Dem Index „{0}“ sind keine Spalten zugeordnet.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Für den Fremdschlüssel „{0}“ wurden keine Spalten angegeben.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen „{0}“ wurde dem Index „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>Die Fremdspalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>Der Name „{0}“ wird bereits von einer anderen Einschränkung verwendet. Zeilennummer: {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>Der Name „{0}“ wird bereits von einer anderen Spalte verwendet. Zeilennummer: {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>Der Name „{0}“ wird bereits von einem anderen Index verwendet. Zeilennummer: {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>Für die Edge-Einschränkung „{0}“ wurden keine Klauseln angegeben.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>Das Paar „{0}“ ist bereits durch eine andere Klausel in der Edge-Einschränkung definiert. Zeilennummer: {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Die speicheroptimierte Tabelle muss über einen nicht gruppierten Primärschlüssel verfügen.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Die vom System versionierte Tabelle muss über einen Primärschlüssel verfügen.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>Für die vom System versionierte Tabelle müssen die Zeitraumspalten definiert sein.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Zeitraumspalten (immer als Zeilenanfang/-ende generiert) können nur einmal definiert werden.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Zeitraumspalten (immer als Zeilenanfang/-ende generiert) müssen als Paar definiert werden. Wenn eine definiert ist, muss auch die andere definiert werden.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Spalten im Primärschlüssel dürfen keine NULL-Werte zulassen.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Nur dauerhafte (DURABILITY = SCHEMA_AND_DATA) speicheroptimierte Tabellen können vom System versioniert sein.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>Für eine Tabelle muss mindestens eine nicht berechnete Spalte definiert sein.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>Die Verwendung eines anderen Start- und Inkrementwerts als 1 wird bei speicheroptimierten Tabellen nicht unterstützt.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>Die Tabelle weist mehr als eine Edge-Einschränkung auf. Dies ist nur als temporärer Zustand beim Ändern vorhandener Edge-Einschränkungen nützlich, und sollte in anderen Fällen nicht verwendet werden.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Doppelte Spaltennamen können im Primärschlüssel nicht verwendet werden. Spaltenname: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>Die speicheroptimierte Tabelle wird für diese Datenbank nicht unterstützt.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>Das Skript enthält mehrere Tabellendefinitionen, nur die erste Tabelle kann im Designer bearbeitet werden.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Eingeschlossene Spalten werden für einen gruppierten Index nicht unterstützt.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Das Filterprädikat wird für einen gruppierten Index nicht unterstützt.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen "{0}" wurde bereits in den Index "{1}" eingeschlossen. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>Die eingeschlossene Spalte mit dem Namen "{0}" war bereits Teil des Indexes "{1}" und kann nicht eingeschlossen werden. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden und darf nicht Nullwerte zulassen, um Teil eines Primärschlüssels zu sein.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden, um Teil des Fremdschlüssels „{1}“ zu sein.</value>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>Der Hashindex mit dem Namen "{0}" wird für eine nicht speicheroptimierte Tabelle nicht unterstützt.</value>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>Der Hashindex "{0}" weist keine Bucketanzahl auf.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index "{1}" bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.</value>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>Ich habe die Zusammenfassung gelesen und bin mir der potenziellen Risiken bewusst.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>Die CREATE TABLE-Berechtigung wurde in der {0}-Datenbank verweigert.</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>Die ALTER TABLE-Berechtigung wurde für die Tabelle "{0}" verweigert.</value>
+  </data>
 </root>
