@@ -2853,36 +2853,6 @@
   <data name="SizeInTeraBytesFormat" xml:space="preserve">
     <value>{0} ТБ</value>
   </data>
-  <data name="TableNotInitializedException" xml:space="preserve">
-    <value>Инициализация выполнена некорректно для таблицы с идентификатором "{0}"</value>
-  </data>
-  <data name="TableColumnIdentityGroupName" xml:space="preserve">
-    <value>Спецификация идентификатора</value>
-  </data>
-  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
-    <value>Является идентификатором</value>
-  </data>
-  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
-    <value>Указывает, является ли данный столбец столбцом идентификаторов для таблицы.</value>
-  </data>
-  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
-    <value>Шаг приращения идентификатора</value>
-  </data>
-  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
-    <value>Отображает значение, добавляемое к максимальному существующему значению идентификатора при формировании следующего значения идентификатора.</value>
-  </data>
-  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
-    <value>Начальное значение идентификатора</value>
-  </data>
-  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
-    <value>Отображает значение начальной строки для столбца идентификаторов.</value>
-  </data>
-  <data name="TableEditPathNotProvidedException" xml:space="preserve">
-    <value>Путь в сведениях об изменении таблицы не может быть пустым</value>
-  </data>
-  <data name="InvalidTableEditPathException" xml:space="preserve">
-    <value>Недопустимый путь "{0}" в сведениях об изменении таблицы для типа правки: "{1}"</value>
-  </data>
   <data name="OperatorDisplayCost" xml:space="preserve">
     <value>{0:0.#######} ({1}%)</value>
   </data>
@@ -2890,62 +2860,8 @@
     <value>{0} из
 {1} ({2} %)</value>
   </data>
-  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
-    <value>Включен</value>
-  </data>
-  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
-    <value>Указывает, включен ли внешний ключ</value>
-  </data>
-  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
-    <value>Не для репликации</value>
-  </data>
-  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Включает или отключает ограничение для данных, вставленных в процессе репликации.</value>
-  </data>
-  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
-    <value>Нет действия</value>
-  </data>
-  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
-    <value>Каскад</value>
-  </data>
-  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
-    <value>Присвоить NULL</value>
-  </data>
-  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
-    <value>Присвоить значение по умолчанию</value>
-  </data>
-  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
-    <value>Указывает, включено ли проверочное ограничение.</value>
-  </data>
   <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
     <value>Не удалось разрешить базовый тип "{0}" для столбца переменной SQL "{1}".</value>
-  </data>
-  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
-    <value>Указывает, включен ли индекс.</value>
-  </data>
-  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Указывает, является ли индекс кластеризованным. В каждой таблице может существовать только один кластеризованный индекс.</value>
-  </data>
-  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Является кластеризованным</value>
-  </data>
-  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
-    <value>Указывает, являются ли данные, вводимые в индекс, уникальными.</value>
-  </data>
-  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
-    <value>Является уникальным</value>
-  </data>
-  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
-    <value>Указывает порядок сортировки столбца.</value>
-  </data>
-  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
-    <value>По возрастанию</value>
-  </data>
-  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
-    <value>Столбцы</value>
-  </data>
-  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
-    <value>Удаление столбца также приведет к его удалению из индексов и внешних ключей. Вы действительно хотите продолжить?</value>
   </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Отсутствует индекс (влияние {0}): {1}</value>
@@ -2968,248 +2884,11 @@
   <data name="NotSupportedCloudCreateSas" xml:space="preserve">
     <value>Создание подписи общего доступа для облачных экземпляров не поддерживается.</value>
   </data>
-  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
-    <value>Тип</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
-    <value>Граница</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
-    <value>Узел</value>
-  </data>
-  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
-    <value>Графовая таблица</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
-    <value>Ограничения границ</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
-    <value>Ограничение границ</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
-    <value>Имя ограничения.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
-    <value>Имя</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
-    <value>Указывает, включено ли ограничение.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
-    <value>Включено</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
-    <value>Поведение, которое реализуется при попытке пользователя удалить строку с данными, задействованную в ограничении границ.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
-    <value>При удалении</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
-    <value>Предложения ограничения границ.</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
-    <value>Предложения</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
-    <value>Предложение</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
-    <value>Из таблицы</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
-    <value>В таблицу</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
-    <value>Указывает тип таблицы.</value>
-  </data>
-  <data name="UnknownEnumString" xml:space="preserve">
-    <value>Неизвестное значение перечисления: {0}.</value>
-  </data>
-  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
-    <value>Схема и данные</value>
-  </data>
-  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
-    <value>Только схема</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
-    <value>Начало строки</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
-    <value>Конец строки</value>
-  </data>
-  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
-    <value>Управление версиями системы включено</value>
-  </data>
-  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
-    <value>Указывает, включено ли управление версиями системы в таблице.</value>
-  </data>
-  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
-    <value>Управление версиями системы</value>
-  </data>
-  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
-    <value>Таблица журнала текущей таблицы.</value>
-  </data>
-  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
-    <value>Таблица журнала</value>
-  </data>
-  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>Указывает, оптимизирована ли таблица для операций в памяти.</value>
-  </data>
-  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
-    <value>Оптимизировано для операций в памяти</value>
-  </data>
-  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
-    <value>Оптимизировано для операций в памяти</value>
-  </data>
-  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
-    <value>Задает параметр устойчивости таблицы.</value>
-  </data>
-  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
-    <value>Устойчивость</value>
-  </data>
-  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
-    <value>Указывает начало или конец задания периода управления версиями системы таблицы.</value>
-  </data>
-  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
-    <value>Столбец \"Generated Always As\"</value>
-  </data>
-  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
-    <value>Скрыто</value>
-  </data>
-  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
-    <value>Указывает, будет ли столбец возвращен оператором select.</value>
-  </data>
-  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
-    <value>Указывает, должен ли обработчик автоматически создавать таблицу журнала.</value>
-  </data>
-  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
-    <value>Автоматическое создание таблицы журнала</value>
-  </data>
-  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
-    <value>Указывает имя новой таблицы журнала.</value>
-  </data>
-  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
-    <value>Новое имя таблицы журнала</value>
-  </data>
-  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
-    <value>Задает имя ограничения по умолчанию.</value>
-  </data>
-  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
-    <value>Имя ограничения по умолчанию</value>
-  </data>
-  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
-    <value>Создать ограничение границы</value>
-  </data>
-  <data name="AddNewClauseLabel" xml:space="preserve">
-    <value>Создать предложение</value>
-  </data>
   <data name="WarningOverlayTooltip" xml:space="preserve">
     <value>Предупреждения</value>
   </data>
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>Параллельное выполнение</value>
-  </data>
-  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
-    <value>Спецификации вычисляемого столбца</value>
-  </data>
-  <data name="TableColumnIsComputedTitle" xml:space="preserve">
-    <value>Вычисляемый</value>
-  </data>
-  <data name="TableColumnIsComputedDescription" xml:space="preserve">
-    <value>Указывает, является ли столбец вычисляемым</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
-    <value>Сохраняемый</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
-    <value>Сохраняется ли вычисляемый столбец с источником данных</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
-    <value>Сохраняемый, допускается значение NULL</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
-    <value>Допускается ли значение NULL у вычисляемого столбца (значение NOT NULL можно указать лишь в том случае, если этот столбец является сохраняемым)</value>
-  </data>
-  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Выражение, определяющее значение вычисляемого столбца. [Дополнительные сведения](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
-  </data>
-  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
-    <value>Формула</value>
-  </data>
-  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>С индексом {0} не связано ни одного столбца.</value>
-  </data>
-  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Для внешнего ключа {0} не указаны столбцы.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
-    <value>Столбец с именем {0} уже добавлен в индекс {1}. Номер строки: {2}.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
-    <value>Столбец с именем {0} уже добавлен во внешний ключ {1}. Номер строки: {2}.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
-    <value>Внешний столбец с именем {0} уже добавлен во внешний ключ {1}. Номер строки: {2}.</value>
-  </data>
-  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
-    <value>Имя {0} уже используется другим ограничением. Номер строки: {1}.</value>
-  </data>
-  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
-    <value>Имя {0} уже используется другим столбцом. Номер строки: {1}.</value>
-  </data>
-  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
-    <value>Имя {0} уже используется другим индексом. Номер строки: {1}.</value>
-  </data>
-  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
-    <value>Ограничение границ {0} не содержит указанных предложений.</value>
-  </data>
-  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
-    <value>Пара {0} уже определена другим предложением в ограничении границ. Номер строки: {1}.</value>
-  </data>
-  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>Таблица, оптимизированная для памяти, должна иметь некластеризованный первичный ключ.</value>
-  </data>
-  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
-    <value>Системная версионная таблица должна иметь первичный ключ.</value>
-  </data>
-  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
-    <value>В таблице с версией системы должен быть определены столбцы периодов.</value>
-  </data>
-  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
-    <value>Столбцы периода (всегда создаются как начало или конец строки) могут быть определены только один раз.</value>
-  </data>
-  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
-    <value>Столбцы периода (всегда создаются как начало или конец строки) должны быть определены как пары. Если один из них определен, то должен быть определен и другой.</value>
-  </data>
-  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
-    <value>Столбцы в первичном ключе не могут иметь значение NULL.</value>
-  </data>
-  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
-    <value>Только устойчивые (DURABILITY = SCHEMA_AND_DATA) таблицы, оптимизированные для памяти, могут иметь версию системы.</value>
-  </data>
-  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
-    <value>В таблице должен быть определен хотя бы один невычисляемый столбец.</value>
-  </data>
-  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
-    <value>Использование начального или добавочного значения, отличного от 1, не поддерживается в таблицах, оптимизированных для операций в памяти.</value>
-  </data>
-  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
-    <value>Таблица имеет более одного ограничения границ. Это полезно только как временное состояние при изменении существующих ограничений границ и не должно использоваться в других случаях.</value>
-  </data>
-  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>Не удается использовать повторяющиеся имена столбцов в первичном ключе. Имя столбца: {0}</value>
-  </data>
-  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
-    <value>Таблица, оптимизированная для памяти, не поддерживается для этой базы данных.</value>
-  </data>
-  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
-    <value>В сценарии имеется несколько определений таблиц. В конструкторе можно редактировать только первую таблицу.</value>
   </data>
   <data name="Operation" xml:space="preserve">
     <value>Операция</value>
@@ -3247,36 +2926,6 @@
   <data name="AverageRowSize" xml:space="preserve">
     <value>Средний размер строки</value>
   </data>
-  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
-    <value>Включенные столбцы</value>
-  </data>
-  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
-    <value>Включенные столбцы индекса</value>
-  </data>
-  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
-    <value>Добавить столбец</value>
-  </data>
-  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
-    <value>Столбец</value>
-  </data>
-  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Предикат фильтра индекса</value>
-  </data>
-  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Фильтр (предикат)</value>
-  </data>
-  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
-    <value>Включенные столбцы не поддерживаются для кластеризованного индекса.</value>
-  </data>
-  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
-    <value>Предикат фильтра не поддерживается для кластеризованного индекса.</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
-    <value>Столбец с именем "{0}" уже добавлен в индекс "{1}". Номер строки: {2}.</value>
-  </data>
-  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
-    <value>Включенный столбец с именем "{0}" уже является частью индекса "{1}" не может быть включен. Номер строки: {2}.</value>
-  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Не удалось найти модель SQL из проекта: {0}.</value>
   </data>
@@ -3285,84 +2934,6 @@
   </data>
   <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
     <value>Не удалось получить пользовательские объекты из модели.</value>
-  </data>
-  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>Вычисляемый столбец с именем "{0}" должен быть сохранен и не может быть равен NULL, чтобы входить в состав первичного ключа.</value>
-  </data>
-  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
-    <value>Вычисляемый столбец с именем "{0}" должен быть сохранен в составе внешнего ключа "{1}".</value>
-  </data>
-  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>Хэш-индекс с именем "{0}" не поддерживается в таблице, не оптимизированной для памяти.</value>
-  </data>
-  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>Хэш-индекс "{0}" не имеет числа контейнеров.</value>
-  </data>
-  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>Является ли индекс хэш-индексом</value>
-  </data>
-  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>В хэше</value>
-  </data>
-  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Число контейнеров хэш-индекса. Обратите внимание, что значение всегда будет автоматически округляться до следующей степени 2.</value>
-  </data>
-  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Число контейнеров</value>
-  </data>
-  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>Имя</value>
-  </data>
-  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Имя индекса columnstore</value>
-  </data>
-  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>Описание</value>
-  </data>
-  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Описание индекса columnstore</value>
-  </data>
-  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Является ли индекс columnstore кластерированным.</value>
-  </data>
-  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Кластеризованный</value>
-  </data>
-  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Предикат фильтра индекса columnstore</value>
-  </data>
-  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Фильтр (предикат)</value>
-  </data>
-  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Столбцы в этом индексе columnstore</value>
-  </data>
-  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Столбцы</value>
-  </data>
-  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Добавить столбец</value>
-  </data>
-  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Столбец</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Столбец с именем "{0}" уже добавлен в некластеризованный индекс columnstore "{1}". Номер строки: {2}.</value>
-  </data>
-  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Индексы columnstore</value>
-  </data>
-  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Индекс columnstore</value>
-  </data>
-  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>Новый индекс columnstore</value>
-  </data>
-  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>У некластеризованного индекса columnstore "{0}" нет связанных с ним столбцов.</value>
-  </data>
-  <data name="TableDesignerConfirmationText" xml:space="preserve">
-    <value>Я прочел сводку и понимаю возможные риски.</value>
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Не удалось найти соединение.</value>
@@ -3381,18 +2952,6 @@
   </data>
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>Нажмите "ОК", чтобы ввести другой пароль.</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
-    <value>Начало ИД транзакции</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
-    <value>Конец ИД транзакции</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
-    <value>Начало последовательного номера</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
-    <value>Конец последовательного номера</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
     <value>URL-адрес аттестации не может быть пустым с выбранным значением протокола аттестации.</value>
@@ -4404,12 +3963,6 @@
   </data>
   <data name="PropertyNotInitialized" xml:space="preserve">
     <value>Свойство "{0}" задано до инициализации.</value>
-  </data>
-  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
-    <value>Отказано в разрешении CREATE TABLE в базе данных "{0}".</value>
-  </data>
-  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
-    <value>Отказано в разрешении ALTER TABLE для таблицы "{0}".</value>
   </data>
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</value>
