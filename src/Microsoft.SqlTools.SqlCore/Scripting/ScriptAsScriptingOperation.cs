@@ -53,6 +53,12 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             }
 
             ServerConnection = new ServerConnection(sqlConnection);
+            if (string.IsNullOrEmpty(ServerConnection.Password)) {
+                // Manually add password as server connection class does not add it to string, required for successful connection.
+                if(ServerConnection.ConnectionString.IndexOf("Authentication=SqlPassword") != -1 && ServerConnection.ConnectionString.IndexOf("Password=") == -1) {
+                    ServerConnection.ConnectionString += ";Password=;";
+                }
+            }
             if (!string.IsNullOrEmpty(azureAccountToken))
             {
                 ServerConnection.AccessToken = new AzureAccessToken(azureAccountToken);
