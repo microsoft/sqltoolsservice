@@ -15,6 +15,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
         Table = 2,
         Column = 3,
         Function = 4,
-        Folder = 5
+        Folder = 5,
+        MaterializedView = 6
     }
 }
