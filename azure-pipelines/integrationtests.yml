@@ -66,7 +66,7 @@ steps:
   - task: AzureKeyVault@1
     displayName: 'Azure Key Vault: SqlToolsSecretStore'
     inputs:
-      azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
+      azureSubscription: 'STS Pipelines'
       KeyVaultName: SqlToolsSecretStore
       SecretsFilter: 'sqltools-backup-url-tests-blobcontaineruri,sqltools-backup-url-tests-storageaccountname,sqltools-backup-url-tests-storageaccountkey'
 
