@@ -24,6 +24,7 @@
   </Choose>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.TestPlatform" VersionOverride="14.0.0" />
     <PackageReference Include="Moq" />
     <PackageReference Include="System.Net.Http" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

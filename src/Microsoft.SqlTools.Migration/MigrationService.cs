@@ -45,7 +45,9 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlManagedInstance;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
+using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.Migration.TargetProvisioning;
 using Microsoft.SqlServer.Migration.Tde;
 using Microsoft.SqlServer.Migration.Tde.Common;
 using Microsoft.SqlServer.Migration.Tde.Validations;
@@ -122,6 +124,7 @@ namespace Microsoft.SqlTools.Migration
             this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
             this.ServiceHost.SetRequestHandler(TdeValidationRequest.Type, HandleTdeValidationRequest);
             this.ServiceHost.SetRequestHandler(TdeValidationTitlesRequest.Type, HandleTdeValidationTitlesRequest);
+            this.ServiceHost.SetRequestHandler(GetArmTemplateRequest.Type, HandleGetArmTemplateRequest);
             Logger.Verbose("Migration Service initialized");
         }
 
@@ -592,6 +595,33 @@ namespace Microsoft.SqlTools.Migration
 
                 await requestContext.SendResult(results);
                 loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle request generate the ARM template.
+        /// </summary>
+        internal async Task HandleGetArmTemplateRequest(
+    string skuRecommendationReportFilePath,
+    RequestContext<string> requestContext)
+        {
+            try
+            {
+                ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
+                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
+                SqlArmTemplate template = provider.GenerateProvisioningScript(recommendations);
+
+                string jsonOutput = JsonConvert.SerializeObject(
+                template,
+                Formatting.Indented,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+                );
+
+                await requestContext.SendResult(jsonOutput);
             }
             catch (Exception e)
             {
