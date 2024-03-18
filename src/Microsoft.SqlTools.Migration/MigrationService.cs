@@ -618,7 +618,7 @@ namespace Microsoft.SqlTools.Migration
                 string jsonOutput = JsonConvert.SerializeObject(
                 template,
                 Formatting.Indented,
-                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, Culture = CultureInfo.InvariantCulture }
                 );
 
                 await requestContext.SendResult(jsonOutput);
