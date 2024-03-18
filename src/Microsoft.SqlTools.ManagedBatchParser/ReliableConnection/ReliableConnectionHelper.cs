@@ -22,7 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     {
         private const int PCU1BuildNumber = 2816;
         public readonly static SqlConnectionStringBuilder BuilderWithDefaultApplicationName = new SqlConnectionStringBuilder("server=(local);");
-
         private const string ServerNameLocalhost = "localhost";
         private const string SqlProviderName = "System.Data.SqlClient";
 

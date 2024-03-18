@@ -6,8 +6,8 @@
 #nullable disable
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.TableDesigner;
-using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
+using Microsoft.SqlTools.SqlCore.TableDesigner;
+using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TableDesigner

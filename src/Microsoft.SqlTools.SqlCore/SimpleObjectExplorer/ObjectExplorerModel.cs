@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Table" && child.Parent == this.Parent.Name)
+				if (child.Type == "Table" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new TableNode(this, child));
 				}
@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Column" && child.Parent == this.Parent.Name)
+				if (child.Type == "Column" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ColumnNode(this, child));
 				}
@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Index" && child.Parent == this.Parent.Name)
+				if (child.Type == "Index" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new IndexNode(this, child));
 				}
@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "View" && child.Parent == this.Parent.Name)
+				if (child.Type == "View" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ViewNode(this, child));
 				}
@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "StoredProcedure" && child.Parent == this.Parent.Name)
+				if (child.Type == "StoredProcedure" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new StoredProcedureNode(this, child));
 				}
@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "Param" && child.Parent == this.Parent.Name)
+				if (child.Type == "Param" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ParamNode(this, child));
 				}
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "ScalarFunction" && child.Parent == this.Parent.Parent.Name)
+				if (child.Type == "ScalarFunction" && child.Parent == this.Parent.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new ScalarFunctionNode(this, child));
 				}
@@ -385,7 +385,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			this.Children = new List<TreeNode>();
 			foreach(ObjectMetadata child in metadata)
 			{
-				if (child.Type == "TableValuedFunction" && child.Parent == this.Parent.Parent.Name)
+				if (child.Type == "TableValuedFunction" && child.Parent == this.Parent.Parent.Name && child.Schema == this.SchemaName)
 				{
 					Children.Add(new TableValuedFunctionNode(this, child));
 				}
@@ -433,7 +433,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
     TABLE_SCHEMA AS parent_name,
-    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS display_name,
+    TABLE_NAME AS display_name,
     'Table' AS object_type,
     NULL AS object_sub_type
   FROM
@@ -485,9 +485,9 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
         AS object_sub_type
     FROM INFORMATION_SCHEMA.COLUMNS AS c
         LEFT JOIN
-        information_schema.KEY_COLUMN_USAGE AS kcu ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.TABLE_NAME = kcu.TABLE_NAME AND c.COLUMN_NAME = kcu.COLUMN_NAME AND kcu.CONSTRAINT_NAME LIKE 'PK%'
+        INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kcu ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.TABLE_NAME = kcu.TABLE_NAME AND c.COLUMN_NAME = kcu.COLUMN_NAME AND kcu.CONSTRAINT_NAME LIKE 'PK%'
         LEFT JOIN
-        information_schema.KEY_COLUMN_USAGE AS kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEMA AND c.TABLE_NAME = kcu2.TABLE_NAME AND c.COLUMN_NAME = kcu2.COLUMN_NAME AND kcu2.CONSTRAINT_NAME LIKE 'FK%'
+        INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kcu2 ON c.TABLE_SCHEMA = kcu2.TABLE_SCHEMA AND c.TABLE_NAME = kcu2.TABLE_NAME AND c.COLUMN_NAME = kcu2.COLUMN_NAME AND kcu2.CONSTRAINT_NAME LIKE 'FK%'
     " 
 			},
 			{ 
@@ -525,7 +525,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
     TABLE_SCHEMA AS parent_name,
-    CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS display_name,
+    TABLE_NAME AS display_name,
     'View' AS object_type,
     NULL AS object_sub_type
   FROM
@@ -541,7 +541,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     SPECIFIC_SCHEMA AS schema_name,
     SPECIFIC_NAME AS object_name,
     SPECIFIC_SCHEMA AS parent_name,
-    CONCAT(SPECIFIC_SCHEMA, '.', SPECIFIC_NAME) AS display_name,
+    SPECIFIC_NAME AS display_name,
     'StoredProcedure' AS object_type,
     NULL AS object_sub_type
   FROM
@@ -578,7 +578,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       S.name AS schema_name,
       P.name AS object_name,
       S.name AS parent_name,
-      CONCAT (S.name, '.', P.name) AS display_name,
+      P.name AS display_name,
       'ScalarFunction' AS object_type,
       NULL AS object_sub_type
   FROM
@@ -595,7 +595,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       S.name AS schema_name,
       P.name AS object_name,
       S.name AS parent_name,
-      CONCAT (S.name, '.', P.name) AS display_name,
+      P.name AS display_name,
       'TableValuedFunction' AS object_type,
       NULL AS object_sub_type
   FROM

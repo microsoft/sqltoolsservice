@@ -2853,36 +2853,6 @@
   <data name="SizeInTeraBytesFormat" xml:space="preserve">
     <value>{0} TB</value>
   </data>
-  <data name="TableNotInitializedException" xml:space="preserve">
-    <value>ID '{0}' のテーブルの初期化が正しく行われていません</value>
-  </data>
-  <data name="TableColumnIdentityGroupName" xml:space="preserve">
-    <value>ID の指定</value>
-  </data>
-  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
-    <value>ID です</value>
-  </data>
-  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
-    <value>列がテーブルの ID 列かどうかを指定します。</value>
-  </data>
-  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
-    <value>ID の増分値</value>
-  </data>
-  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
-    <value>次の ID 値を生成するときに既存の行の最大の ID 値に追加される値を表示します。</value>
-  </data>
-  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
-    <value>ID シード</value>
-  </data>
-  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
-    <value>ID 列の最初の行の値を表示します。</value>
-  </data>
-  <data name="TableEditPathNotProvidedException" xml:space="preserve">
-    <value>テーブル変更情報のパスを空にすることはできません</value>
-  </data>
-  <data name="InvalidTableEditPathException" xml:space="preserve">
-    <value>テーブル変更情報のパス '{0}' が編集の種類に対して無効です: '{1}'</value>
-  </data>
   <data name="OperatorDisplayCost" xml:space="preserve">
     <value>{0:0.#######} ({1}%)</value>
   </data>
@@ -2890,62 +2860,8 @@
     <value>{0} /
 {1} ({2}%)</value>
   </data>
-  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
-    <value>有効である</value>
-  </data>
-  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
-    <value>外部キーが有効かどうか。</value>
-  </data>
-  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
-    <value>レプリケーションでは使用しない</value>
-  </data>
-  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>レプリケーション プロセスによって挿入されたデータの制約を有効または無効にします。</value>
-  </data>
-  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
-    <value>アクションなし</value>
-  </data>
-  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
-    <value>重ねて表示</value>
-  </data>
-  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
-    <value>NULL を設定</value>
-  </data>
-  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
-    <value>既定値を設定</value>
-  </data>
-  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
-    <value>CHECK 制約を有効にするかどうかを指定</value>
-  </data>
   <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
     <value>SQL variant 列 "{1}" の基になる型 "{0}" を解決できませんでした。</value>
-  </data>
-  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
-    <value>インデックスが有効になっているかどうかを指定します。</value>
-  </data>
-  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>インデックスがクラスター化されるかどうか。テーブルで使用できるクラスター化されたインデックスは 1 つだけです。</value>
-  </data>
-  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>クラスター化</value>
-  </data>
-  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
-    <value>このインデックスに入力されるデータが一意であるかどうか。</value>
-  </data>
-  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
-    <value>一意である</value>
-  </data>
-  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
-    <value>列の並べ替え順序を指定します。</value>
-  </data>
-  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
-    <value>昇順</value>
-  </data>
-  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
-    <value>列</value>
-  </data>
-  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
-    <value>列を削除すると、インデックスおよび外部キーからも削除されます。続行しますか?</value>
   </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>不足しているインデックス (影響 {0}): {1}</value>
@@ -2968,248 +2884,11 @@
   <data name="NotSupportedCloudCreateSas" xml:space="preserve">
     <value>共有アクセス署名の作成は、クラウド インスタンスではサポートされていません。</value>
   </data>
-  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
-    <value>種類</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
-    <value>エッジ</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
-    <value>ノード</value>
-  </data>
-  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
-    <value>グラフ テーブル</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
-    <value>エッジ制約</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
-    <value>エッジ制約</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
-    <value>制約の名前。</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
-    <value>名前</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
-    <value>制約が有効になっているかどうかを指定します。</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
-    <value>有効である</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
-    <value>エッジ制約に含まれるデータのある行をユーザーが削除しようとしたときの動作です。</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
-    <value>削除アクション時</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
-    <value>エッジ制約句。</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
-    <value>句</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
-    <value>句</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
-    <value>テーブルから</value>
-  </data>
-  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
-    <value>テーブルへ</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
-    <value>なし</value>
-  </data>
-  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
-    <value>テーブルの種類を指定します。</value>
-  </data>
-  <data name="UnknownEnumString" xml:space="preserve">
-    <value>不明な列挙値: {0}。</value>
-  </data>
-  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
-    <value>スキーマとデータ</value>
-  </data>
-  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
-    <value>スキーマのみ</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
-    <value>なし</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
-    <value>行の開始</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
-    <value>行末</value>
-  </data>
-  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
-    <value>システムのバージョン管理が有効</value>
-  </data>
-  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
-    <value>テーブルのシステム バージョン管理が有効かどうかを指定します。</value>
-  </data>
-  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
-    <value>システム バージョン管理</value>
-  </data>
-  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
-    <value>現在のテーブルの履歴テーブル。</value>
-  </data>
-  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
-    <value>履歴テーブル</value>
-  </data>
-  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>テーブルがメモリ最適化されているかどうかを示します。</value>
-  </data>
-  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
-    <value>メモリ最適化</value>
-  </data>
-  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
-    <value>メモリ最適化</value>
-  </data>
-  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
-    <value>テーブルの持続性の設定を指定します。</value>
-  </data>
-  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
-    <value>持続性</value>
-  </data>
-  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
-    <value>システム バージョン管理テーブルの期間設定の開始または終了を指定します。</value>
-  </data>
-  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
-    <value>常に次の名前で生成</value>
-  </data>
-  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
-    <value>非表示</value>
-  </data>
-  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
-    <value>Select ステートメントによって列を返すかどうかを指定します。</value>
-  </data>
-  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
-    <value>エンジンで履歴テーブルを自動的に作成するかどうかを指定します。</value>
-  </data>
-  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
-    <value>履歴テーブルの自動作成</value>
-  </data>
-  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
-    <value>新しい履歴テーブルの名前を指定します。</value>
-  </data>
-  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
-    <value>新しい履歴テーブル名</value>
-  </data>
-  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
-    <value>既定の制約名を指定します。</value>
-  </data>
-  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
-    <value>既定の制約名</value>
-  </data>
-  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
-    <value>新しい Edge の制約</value>
-  </data>
-  <data name="AddNewClauseLabel" xml:space="preserve">
-    <value>新しい句</value>
-  </data>
   <data name="WarningOverlayTooltip" xml:space="preserve">
     <value>警告</value>
   </data>
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>並列実行</value>
-  </data>
-  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
-    <value>計算列の指定</value>
-  </data>
-  <data name="TableColumnIsComputedTitle" xml:space="preserve">
-    <value>計算値</value>
-  </data>
-  <data name="TableColumnIsComputedDescription" xml:space="preserve">
-    <value>列が計算列であるかどうかを指定します</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
-    <value>永続化されている</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
-    <value>計算列をデータ ソースと共に保存するかどうか</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
-    <value>永続化されていて NULL 値が許容される</value>
-  </data>
-  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
-    <value>計算列が NULL 値を持つことができるかどうか (NOT NULL は、列が保持される場合にのみ指定できます)</value>
-  </data>
-  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>計算列の値を定義する式。[More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
-  </data>
-  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
-    <value>数式</value>
-  </data>
-  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>インデックス '{0}' には関連付けられた列がありません。</value>
-  </data>
-  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>外部キー '{0}' には列が指定されていません。</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前の列は既にインデックス '{1}' に追加されています。行番号: {2}。</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前の列は既に外部キー '{1}' に追加されています。行番号: {2}。</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
-    <value>'{0}' という名前の外部列は既に外部キー '{1}' に追加されています。行番号: {2}。</value>
-  </data>
-  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
-    <value>名前 '{0}' は既に別の成約により使用されています。行番号: {1}。</value>
-  </data>
-  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
-    <value>名前 '{0}' は既に別の列により使用されています。行番号: {1}。</value>
-  </data>
-  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
-    <value>名前 '{0}' は既に別のインデックスにより使用されています。行番号: {1}。</value>
-  </data>
-  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
-    <value>エッジ制約 '{0}' に句が指定されていません。</value>
-  </data>
-  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
-    <value>ペア '{0}' は、エッジ制約の別の句で既に定義されています。行番号: {1}。</value>
-  </data>
-  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>メモリ最適化テーブルには、非クラスター化プライマリ キーが必要です。</value>
-  </data>
-  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
-    <value>システム バージョン管理テーブルには、プライマリ キーが必要です。</value>
-  </data>
-  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
-    <value>システムでバージョン管理されるテーブルでは、期間列が定義されている必要があります。</value>
-  </data>
-  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
-    <value>期間列 (常に次の名前で生成 行の開始/終了) は一度だけ定義できます。</value>
-  </data>
-  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
-    <value>期間列 (常に次の名前で生成 行の開始/終了) はペアとして定義する必要があります。一方が定義されている場合は、もう一方も定義する必要があります。</value>
-  </data>
-  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
-    <value>プライマリ キーの列を Null 許容にすることはできません。</value>
-  </data>
-  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
-    <value>持続性 (DURABILITY = SCHEMA_AND_DATA) メモリ最適化したテーブルのみ、システムをバージョンアップできます。</value>
-  </data>
-  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
-    <value>テーブルには、計算列以外の列が 1 つ以上定義されている必要があります。</value>
-  </data>
-  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
-    <value>1 以外のシード値と増分値の使用は、メモリ最適化テーブルではサポートされません。</value>
-  </data>
-  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
-    <value>テーブルには、複数のエッジ制約があります。これは、既存のエッジ制約を変更する場合の一時的な状態としてのみ有効であり、他の場合には使用しないでください。</value>
-  </data>
-  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>プライマリ キーに重複する列名を使用できません。列名: {0}</value>
-  </data>
-  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
-    <value>メモリ最適化テーブルは、このデータベースではサポートされていません。</value>
-  </data>
-  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
-    <value>スクリプトに複数のテーブル定義があり、デザイナーで編集できるのは最初のテーブルのみです。</value>
   </data>
   <data name="Operation" xml:space="preserve">
     <value>操作</value>
@@ -3247,36 +2926,6 @@
   <data name="AverageRowSize" xml:space="preserve">
     <value>平均行サイズ</value>
   </data>
-  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
-    <value>付加列</value>
-  </data>
-  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
-    <value>インデックスの付加列</value>
-  </data>
-  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
-    <value>列の追加</value>
-  </data>
-  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
-    <value>列</value>
-  </data>
-  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>インデックスのフィルター述語</value>
-  </data>
-  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>フィルター述語</value>
-  </data>
-  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
-    <value>付加列は、クラスター化インデックスではサポートされていません。</value>
-  </data>
-  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
-    <value>クラスター化インデックスでは、フィルター述語はサポートされていません。</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前の列は既にインデックス '{1}' に付加されています。行番号: {2}。</value>
-  </data>
-  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前の付加列は既にインデックス '{1}' の一部であり、付加することはできません。行番号: {2}。</value>
-  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>プロジェクトから SQL モデルが見つかりませんでした: {0}。</value>
   </data>
@@ -3285,84 +2934,6 @@
   </data>
   <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
     <value>モデルからユーザー定義オブジェクトを取得できませんでした。</value>
-  </data>
-  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
-    <value>"{0}' という名前の計算列は永続化する必要があり、主キーの一部として null 許容されません。</value>
-  </data>
-  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前の計算列は、外部キー '{1}' の一部として保持する必要があります。</value>
-  </data>
-  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前のハッシュ インデックスは、非メモリ最適化テーブルではサポートされていません。</value>
-  </data>
-  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>ハッシュ インデックス '{0}' にはバケット数がありません。</value>
-  </data>
-  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>インデックスがハッシュ インデックスであるかどうか</value>
-  </data>
-  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>ハッシュ</value>
-  </data>
-  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>ハッシュ インデックスのバケット数。値は常に次の二乗に自動的に切り上げられます。</value>
-  </data>
-  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>バケット数</value>
-  </data>
-  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>名前</value>
-  </data>
-  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>列ストア インデックスの名前</value>
-  </data>
-  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>説明</value>
-  </data>
-  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>列ストア インデックスの説明</value>
-  </data>
-  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>列ストア インデックスがクラスター化されているかどうか。</value>
-  </data>
-  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>クラスター化</value>
-  </data>
-  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>列ストア インデックスのフィルター述語</value>
-  </data>
-  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>フィルター述語</value>
-  </data>
-  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>この列ストア インデックスの列</value>
-  </data>
-  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>列</value>
-  </data>
-  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>列の追加</value>
-  </data>
-  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>列</value>
-  </data>
-  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>'{0}' という名前の列は、クラスター化されていない列ストア インデックス '{1}' に既に追加されています。行番号: {2}。</value>
-  </data>
-  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>列ストア インデックス</value>
-  </data>
-  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>列ストア インデックス</value>
-  </data>
-  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>新しい列ストア インデックス</value>
-  </data>
-  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>非クラスター化列ストア インデックス '{0}' には、列が関連付けされていません。</value>
-  </data>
-  <data name="TableDesignerConfirmationText" xml:space="preserve">
-    <value>概要を読み、潜在的なリスクを理解しました。</value>
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>接続が見つかりませんでした</value>
@@ -3381,18 +2952,6 @@
   </data>
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>[OK] を押して別のパスワードを入力します。</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
-    <value>トランザクション ID の開始</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
-    <value>トランザクション ID の終了</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
-    <value>シーケンス番号の開始</value>
-  </data>
-  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
-    <value>シーケンス番号の終了</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
     <value>構成証明の URL を、構成証明プロトコルの選択された値と共に空にすることはできません。</value>
@@ -4404,12 +3963,6 @@
   </data>
   <data name="PropertyNotInitialized" xml:space="preserve">
     <value>プロパティ '{0}' が初期化前に設定されました。</value>
-  </data>
-  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
-    <value>データベース '{0}' でCREATE TABLEアクセス許可が拒否されました。</value>
-  </data>
-  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
-    <value>テーブル '{0}' に対する ALTER TABLE 権限が拒否されました。</value>
   </data>
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>ScriptingListObjectsCompleteParams.ConnectionString プロパティの解析エラーです。</value>

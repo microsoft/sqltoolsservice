@@ -31,6 +31,7 @@ using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.TableDesigner;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
@@ -389,7 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     {
                         var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
                         builder.InitialCatalog = node.NodeValue;
-                        builder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(builder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
+                        builder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
                         // Set Access Token only when authentication mode is not specified.
                         var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
                             ? session.ConnectionInfo.ConnectionDetails.AzureAccountToken : null;

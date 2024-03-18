@@ -190,6 +190,45 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
+        [Test]
+        public async Task ObjectWithSameNameAndDifferentSchemaShouldNotDuplicateChildObjects()
+        {
+            var query = @"Create table dbo.t1 (c1 int PRIMARY KEY)
+                            GO
+                            Create table dbo.t2 (c1 int)
+                            GO
+                            CREATE SCHEMA s1
+                            GO
+                            Create table s1.t1 (c2 int PRIMARY KEY)
+                            GO
+                            Create table s1.t2 (c2 int)
+                            GO
+                            Create view dbo.v1 as select c1 from dbo.t1
+                            GO
+                            Create view s1.v1 as select c2 from s1.t1
+                            ";
+            await RunTest(databaseName, query, "testdb", async (testdbName, connection) =>
+            {
+                var oeRoot = await OE.GetObjectExplorerModel(connection);
+
+                // Expand table columns
+                var nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Tables/t1/Columns/");
+                Assert.AreEqual(1, nodes.Length, "t1 table should have 1 column");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "c1"), "t1 table should have c1 column");
+                nodes = OE.GetNodeChildrenFromPath(oeRoot, "/s1/Tables/t1/Columns/");
+                Assert.AreEqual(1, nodes.Length, "t1 table should have 1 column");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "c2"), "t1 table should have c2 column");
+
+                // Expand Views columns
+                nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Views/v1/Columns/");
+                Assert.AreEqual(1, nodes.Length, "v1 view should have 1 column");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "c1"), "v1 view should have c1 column");
+                nodes = OE.GetNodeChildrenFromPath(oeRoot, "/s1/Views/v1/Columns/");
+                Assert.AreEqual(1, nodes.Length, "v1 view should have 1 column");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "c2"), "v1 view should have c2 column");
+            });
+        }
+
         private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, SqlConnection, Task> test)
         {
             SqlTestDb? testDb = null;
