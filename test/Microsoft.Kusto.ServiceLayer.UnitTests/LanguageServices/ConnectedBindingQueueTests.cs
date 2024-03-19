@@ -18,7 +18,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
 {
     public class ConnectedBindingQueueTests
     {
-        private static IEnumerable<Tuple<ConnectionDetails, string>> ConnectionDetailsSource()
+        private static List<Tuple<ConnectionDetails, string>> ConnectionDetailsSource()
         {
             var results = new List<Tuple<ConnectionDetails, string>>();
             

@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
                 item.Command = new Command
                 {
                     command = "vsintellicode.completionItemSelected",
-                    Arguments = new object[] { new Dictionary<string, string> { { "IsCommit", "True" } } }
+                    Arguments = [new Dictionary<string, string> { { "IsCommit", "True" } }]
                 };
             }
 
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             await Task.Delay(20); // for testing
             token.ThrowIfCancellationRequested();
             Console.WriteLine("Exit ExecuteAsync");
-            return sortedItems.ToArray();
+            return [.. sortedItems];
         }
     }
 }

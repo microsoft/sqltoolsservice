@@ -14,7 +14,6 @@ using System.Security;
 using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -787,7 +786,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 {
                     defaultFields.Add(nameof(server.PhysicalMemory));
                 }
-                if (defaultFields.Any())
+                if (defaultFields.Count != 0)
                 {
                     server.SetDefaultInitFields(server.GetType(), defaultFields.ToArray());
                 }

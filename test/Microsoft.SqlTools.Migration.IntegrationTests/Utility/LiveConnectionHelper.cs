@@ -20,10 +20,8 @@ using System.Threading;
 
 namespace Microsoft.SqlTools.Migration.IntegrationTests.Utility
 {
-    public class LiveConnectionException : Exception
+    public class LiveConnectionException(string message) : Exception(message)
     {
-        public LiveConnectionException(string message)
-            : base(message) { }
     }
 
     public class LiveConnectionHelper
