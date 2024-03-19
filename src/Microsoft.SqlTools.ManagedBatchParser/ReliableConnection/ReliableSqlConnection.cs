@@ -445,9 +445,9 @@ SET NUMERIC_ROUNDABORT OFF;";
         {
             try
             {
-                using (IDbCommand command = CreateReliableCommand())
+                using (var command = CreateReliableCommand())
                 {
-                    IDbConnection connection = command.Connection;
+                    var connection = command.Connection;
                     if (!IsSqlDwConnection(connection) && !IsSqlOnDemandConnection(connection))
                     {
                         command.CommandText = QueryAzureSessionId;

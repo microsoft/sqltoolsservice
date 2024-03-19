@@ -38,8 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private ScriptExecutionResult result = ScriptExecutionResult.Failure;
         private bool isLocalParse;
         private ExecutionEngineConditions conditions = null;
-        private IList<Batch> preConditionBatches = new List<Batch>();
-        private IList<Batch> postConditionBatches = new List<Batch>();
+        private List<Batch> preConditionBatches = new List<Batch>();
+        private List<Batch> postConditionBatches = new List<Batch>();
         private IBatchEventsHandler batchEventHandlers = null;
         private Batch currentBatch = new Batch();
         private ShowPlanType expectedShowPlan;
@@ -191,7 +191,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             commandParser = new Parser(batchParser, batchParser, new StringReader(script), "[script]");
             commandParser.SetRecognizeSqlCmdSyntax(sqlCmdMode);
-            commandParser.SetBatchDelimiter(BatchSeparator);
             commandParser.ThrowOnUnresolvedVariable = true;
             
             batchParser.Execute = new BatchParser.ExecuteDelegate(ExecuteBatchInternal);
@@ -795,7 +794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Cleans up any prev
         /// </summary>
-        private static void ConfigurePrePostConditionBatches(IList<Batch> batches)
+        private static void ConfigurePrePostConditionBatches(List<Batch> batches)
         {
             Validate.IsNotNull(nameof(batches), batches);
 
