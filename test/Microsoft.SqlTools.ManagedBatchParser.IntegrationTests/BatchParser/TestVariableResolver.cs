@@ -11,16 +11,9 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
-    internal sealed class TestVariableResolver : IVariableResolver
+    internal sealed class TestVariableResolver(StringBuilder outputString) : IVariableResolver
     {
-        private StringBuilder outputString;
-        private BatchParserSqlCmd batchParserSqlCmd;
-
-        public TestVariableResolver(StringBuilder outputString)
-        {
-            this.outputString = outputString;
-            batchParserSqlCmd = new BatchParserSqlCmd();
-        }
+        private BatchParserSqlCmd batchParserSqlCmd = new BatchParserSqlCmd();
 
         public string GetVariable(PositionStruct pos, string name)
         {
