@@ -8,7 +8,7 @@
 		<StartupObject />
 		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
 		<NoWarn>$(NoWarn);CS8795</NoWarn>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" />
@@ -18,7 +18,7 @@
 		<PackageReference Include="nunit" />
 		<PackageReference Include="nunit3testadapter" />
 		<PackageReference Include="nunit.console" />
-		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="Microsoft.Data.SqlClient" VersionOverride="5.2.0" />
 		<PackageReference Include="coverlet.collector">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
