@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                         {
                             Assert.NotNull(queryResult);
                             Assert.NotNull(queryResult.ResultSubset);
-                            Assert.True(queryResult.ResultSubset.Rows.Length != 0);
+                            Assert.True(queryResult.ResultSubset.Rows.Any());
                         }
                         return queryResult != null;
                     }, TimeSpan.FromMilliseconds(10));

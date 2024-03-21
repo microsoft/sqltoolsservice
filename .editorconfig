@@ -142,6 +142,24 @@ dotnet_diagnostic.CA2215.severity = none
 dotnet_diagnostic.CA2229.severity = none
 dotnet_diagnostic.CA1710.severity = none
 dotnet_diagnostic.CA1050.severity = none
+dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.IDE0300.severity = none
+dotnet_diagnostic.IDE0301.severity = none
+dotnet_diagnostic.IDE0305.severity = none
+dotnet_diagnostic.CA1854.severity = none
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.CA1860.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1862.severity = none
+dotnet_diagnostic.CA1863.severity = none
+dotnet_diagnostic.CA1864.severity = none
+dotnet_diagnostic.CA1865.severity = none
+dotnet_diagnostic.CA1866.severity = none
+dotnet_diagnostic.CA1868.severity = none
+dotnet_diagnostic.CA2250.severity = none
+dotnet_diagnostic.IDE0038.severity = none
+dotnet_diagnostic.CA1510.severity = none
+dotnet_diagnostic.CA1513.severity = none
 
 # XML doc warnings
 dotnet_diagnostic.CS1591.severity = none

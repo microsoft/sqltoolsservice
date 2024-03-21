@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="name"></param>
         /// <param name="sources"></param>
         /// <param name="filter">if null no filter, else use it to filter every ILogEntry</param>
-        public LogSourceAggregation (LogAggregator owner, string name, ILogSource[] sources)
+        public LogSourceAggregation (LogAggregator owner, string name, ILogSource[] sources, ILogConstraints filterTemplate)
         {
             m_owner = owner;
 
@@ -617,7 +617,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 #region ILogAggregator interface implementation
         ILogSource ILogAggregator.PrepareAggregation(string outputLogSourceName, ILogSource[] sources, ILogConstraints filterTemplate)
         {
-            ILogSource outputSource = CreateUninitializedAggregation(outputLogSourceName, sources);
+            ILogSource outputSource = CreateUninitializedAggregation(outputLogSourceName, sources, filterTemplate);
 
             m_currentSource = outputSource as LogSourceAggregation;
             
@@ -648,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="sources"></param>
         /// <param name="constraints">null if no filter</param>
         /// <returns></returns>
-        private ILogSource CreateUninitializedAggregation(string outputLogSourceName, ILogSource[] sources)
+        private ILogSource CreateUninitializedAggregation(string outputLogSourceName, ILogSource[] sources, ILogConstraints filterTemplate)
         {
             // zero sources - nothing we can do
             if ((sources == null) || (sources.Length==0))
@@ -660,7 +660,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             try
             {
                 // not in cache, so build it, add it to cache (if caching ok) and return it
-                newAggregation = new LogSourceAggregation(this, outputLogSourceName, sources);
+                newAggregation = new LogSourceAggregation(this, outputLogSourceName, sources, filterTemplate);
 
                 return newAggregation;
                 
@@ -679,7 +679,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 #endregion
 
 #region Report Progress
-#pragma warning disable IDE0060 // Remove unused parameter
         /// <summary>
         /// if job not null and callbackProgress available -> invoke progress delegate in ui thread
         /// </summary>
@@ -691,7 +690,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                                 IList<Exception> exceptionList)
         {
         }
-#pragma warning restore IDE0060 // Remove unused parameter
 
 #endregion
     }

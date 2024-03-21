@@ -688,7 +688,7 @@ GO";
             batch.Cancel();
         }
 
-        private static MemoryStream GenerateStreamFromString(string s)
+        private static Stream GenerateStreamFromString(string s)
         {
             MemoryStream stream = new MemoryStream();
             StreamWriter writer = new StreamWriter(stream);

@@ -54,7 +54,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             var uri = "uri";
             var scriptFile = new ScriptFile("", uri, "");
             ScriptFileMarker[] semanticMarkers =
-            [
+            {
                 new ScriptFileMarker
                 {
                     Level = markerLevel,
@@ -66,7 +66,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
                         EndColumnNumber = 2
                     }
                 }
-            ];
+            };
 
             var actualEventType = new EventType<PublishDiagnosticsNotification>();
             var actualNotification = new PublishDiagnosticsNotification();
@@ -124,7 +124,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
                     })
                 .Returns(Task.FromResult(0));
             
-            await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, [fileMarker], eventContextMock.Object);
+            await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, new[] {fileMarker}, eventContextMock.Object);
             
             Assert.AreEqual(PublishDiagnosticsNotification.Type.MethodName, actualEventType.MethodName);
             Assert.AreEqual(uri, actualNotification.Uri);

@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
                     .Where(p => p.StartTime >= startTime).ToArray();
 
                 // Wait a second if we can't find the process
-                if (processes.Length != 0)
+                if (processes.Any())
                 {
                     serviceProcesses = processes;
                 }

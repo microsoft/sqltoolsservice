@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             AddVariableReferences(token, 0, null);
         }
 
-        private void AddVariableReferences(Token token, int offset, List<VariableReference> variableRefs)
+        private void AddVariableReferences(Token token, int offset, IList<VariableReference> variableRefs)
         {
             if (!lexer.RecognizeSqlCmdSyntax || DisableVariableSubstitution)
             {
@@ -330,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 return new[] { token };
             }
 
-            var tokens = new List<Token>();
+            IList<Token> tokens = new List<Token>();
 
             int offset = 0;
             int quotePos = tokenText.IndexOf('"');
@@ -417,9 +417,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         ParseSetvar(setvarToken);
                         break;
                     case LexerTokenType.Connect:
+                        Token connectToken = LookaheadToken;
                         RemoveLastWhitespaceToken();
                         Accept();
-                        ParseConnect();
+                        ParseConnect(connectToken);
                         break;
                     case LexerTokenType.Ed:
                     case LexerTokenType.ErrorCommand:
@@ -540,7 +541,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         }
 
 
-        private void ParseConnect()
+        private void ParseConnect(Token connectToken)
         {
             string serverName = null;
             string userName = null;
@@ -766,6 +767,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
             Debug.Fail("This code should not be reached.");
             return null;
+        }
+
+        internal void SetBatchDelimiter(string batchSeparator)
+        {
+            // Not implemeneted as only GO is supported now
         }
 
         public static string TokenTypeToCommandString(LexerTokenType lexerTokenType)

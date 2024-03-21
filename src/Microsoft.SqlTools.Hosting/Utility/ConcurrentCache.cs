@@ -39,9 +39,9 @@ namespace Microsoft.SqlTools.Utility
             Exception exception;
             new AutoLock(_readerWriterLock, false, _timeout, () =>
             {
-                if (_cache.TryGetValue(key, out T value))
+                if (_cache.ContainsKey(key))
                 {
-                    result = value;
+                    result = _cache[key];
                 }
             }, out exception);
             if (exception != null)

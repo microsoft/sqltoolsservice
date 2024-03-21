@@ -20,12 +20,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// </summary>
         public class SqlAzureTemporaryAndIgnorableErrorDetectionStrategy : ErrorDetectionStrategyBase
         {
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance
             /// <summary>
             /// Azure error that can be ignored
             /// </summary>
             private readonly IList<int> ignorableAzureErrors = null;
-#pragma warning restore CA1859
 
             public SqlAzureTemporaryAndIgnorableErrorDetectionStrategy(params int[] ignorableErrors)
             {

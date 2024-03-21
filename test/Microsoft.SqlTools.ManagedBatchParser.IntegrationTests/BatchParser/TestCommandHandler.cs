@@ -13,9 +13,15 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
-    public class TestCommandHandler(StringBuilder outputString) : ICommandHandler
+    public class TestCommandHandler : ICommandHandler
     {
         private Parser parser;
+        private StringBuilder outputString;
+
+        public TestCommandHandler(StringBuilder outputString)
+        {
+            this.outputString = outputString;
+        }
 
         public void SetParser(Parser parser)
         {

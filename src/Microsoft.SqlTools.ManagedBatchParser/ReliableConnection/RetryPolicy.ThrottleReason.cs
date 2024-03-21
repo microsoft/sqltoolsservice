@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Maintains a collection of key-value pairs where a key is resource type and a value is the type of throttling applied to the given resource type.
             /// </summary>
-            private readonly List<Tuple<ThrottledResourceType, ThrottlingType>> throttledResources = new List<Tuple<ThrottledResourceType, ThrottlingType>>(9);
+            private readonly IList<Tuple<ThrottledResourceType, ThrottlingType>> throttledResources = new List<Tuple<ThrottledResourceType, ThrottlingType>>(9);
 
             /// <summary>
             /// Provides a compiled regular expression used for extracting the reason code from the error message.

@@ -4,6 +4,7 @@
 //
 using Microsoft.SqlServer.Management.Common;
 using System;
+using System.Data.Common;
 using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// attempts to establish connection with given params
         /// </summary>
         /// <returns>returns the connection object is successful, throws otherwise</returns>
-        public SqlConnection Connect()
+        public DbConnection Connect()
         {
             //create SqlConnectionInfo object
             SqlConnectionInfo connectionInfo = new SqlConnectionInfo();
@@ -45,8 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 connectionInfo.UseIntegratedSecurity = true;
             }
 
-            var connection = AttemptToEstablishCurConnection(connectionInfo);
-            return connection;
+            DbConnection dbConnection = AttemptToEstablishCurConnection(connectionInfo);
+            return dbConnection;
         }
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// </summary>
         /// <param name="ci"></param>
         /// <returns></returns>
-        private SqlConnection AttemptToEstablishCurConnection(SqlConnectionInfo ci)
+        private DbConnection AttemptToEstablishCurConnection(SqlConnectionInfo ci)
         {
             if (ci == null || ci.ServerName == null)
             {
@@ -72,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 conn.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
                 conn.Open();
 
-                return conn;
+                return conn as DbConnection;
             }
             catch (Exception ex)
             {

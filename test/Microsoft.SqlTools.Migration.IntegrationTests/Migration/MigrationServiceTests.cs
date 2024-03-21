@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
         {
             { "TestDb", "Latin1_General_CI_AI"}
         };
-        private static ProvisioningScriptServiceProvider provisioningScriptserviceProvider = new ProvisioningScriptServiceProvider();
+        private static IProvisioningScriptServiceProvider provisioningScriptserviceProvider = new ProvisioningScriptServiceProvider();
 
         [Test]
         public async Task TestHandleMigrationAssessmentRequest()

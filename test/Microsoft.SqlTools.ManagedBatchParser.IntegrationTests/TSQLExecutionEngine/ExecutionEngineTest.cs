@@ -501,7 +501,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         [Test]
         public void ExecutionEngineTest_SQLCmds()
         {
-            string[] sqlStatements = [
+            string[] sqlStatements = {
                 "select $(INVALIDVAR) from sysobjects",
                 ":help",
                 "exit",
@@ -519,7 +519,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
                 ":error STDOUT",
                 ":perftrace STDOUT",
                 "exit (Select count(*) from sysobjects)"
-            ];
+            };
 
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
 
@@ -638,10 +638,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         [Test]
         public async Task ExecutionEngineTest_MultiThreading_WithCancel()
         {
-            string[] sqlStatement = [ "waitfor delay '0:0:10'",
+            string[] sqlStatement = { "waitfor delay '0:0:10'",
                  "waitfor delay '0:0:10'",
                  "waitfor delay '0:0:10'"
-            ];
+            };
 
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
             conditions.IsTransactionWrapped = true;
