@@ -6,6 +6,7 @@
   "DotNetVersion": "5.0.301",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
+  "MSBuildEmitSolution":0,
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
