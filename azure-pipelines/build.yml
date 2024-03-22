@@ -74,11 +74,23 @@ steps:
   displayName: 'CodeQL Initialize'
   condition: eq(variables['Codeql.enabled'], 'True')
 
+- script: |
+    cd src\Microsoft.SqlTools.ServiceLayer
+    dir
+  displayName: List files under ServiceLayer folder before build.cmd
+  condition: true
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
     filename: build.cmd
     arguments: '-target=all -mono'
+
+- script: |
+    cd src\Microsoft.SqlTools.ServiceLayer
+    dir
+  displayName: List files under ServiceLayer folder after build.cmd
+  condition: true
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
