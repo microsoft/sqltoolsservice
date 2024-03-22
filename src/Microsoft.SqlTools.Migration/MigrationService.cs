@@ -45,7 +45,9 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlManagedInstance;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
+using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.Migration.TargetProvisioning;
 using Microsoft.SqlServer.Migration.Tde;
 using Microsoft.SqlServer.Migration.Tde.Common;
 using Microsoft.SqlServer.Migration.Tde.Validations;
@@ -122,6 +124,7 @@ namespace Microsoft.SqlTools.Migration
             this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
             this.ServiceHost.SetRequestHandler(TdeValidationRequest.Type, HandleTdeValidationRequest);
             this.ServiceHost.SetRequestHandler(TdeValidationTitlesRequest.Type, HandleTdeValidationTitlesRequest);
+            this.ServiceHost.SetRequestHandler(GetArmTemplateRequest.Type, HandleGetArmTemplateRequest);
             Logger.Verbose("Migration Service initialized");
         }
 
@@ -600,6 +603,33 @@ namespace Microsoft.SqlTools.Migration
         }
 
         /// <summary>
+        /// Handle request generate the ARM template.
+        /// </summary>
+        internal async Task HandleGetArmTemplateRequest(
+    string skuRecommendationReportFilePath,
+    RequestContext<string> requestContext)
+        {
+            try
+            {
+                ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
+                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
+                SqlArmTemplate template = provider.GenerateProvisioningScript(recommendations);
+
+                string jsonOutput = JsonConvert.SerializeObject(
+                template,
+                Formatting.Indented,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, Culture = CultureInfo.InvariantCulture }
+                );
+
+                await requestContext.SendResult(jsonOutput);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
         /// Handle request to migrate server roles and set permissions.
         /// </summary>
         internal async Task HandleMigrateServerRolesAndSetPermissions(
@@ -725,7 +755,7 @@ namespace Microsoft.SqlTools.Migration
                 Stopwatch sqlDbStopwatch = new Stopwatch();
                 sqlDbStopwatch.Start();
 
-                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus, false);
                 resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
                 sqlDbStopwatch.Stop();
@@ -746,7 +776,7 @@ namespace Microsoft.SqlTools.Migration
                 Stopwatch sqlMiStopwatch = new Stopwatch();
                 sqlMiStopwatch.Start();
 
-                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus, parameters.IsNextGenGPEnabled);
                 resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
 
                 sqlMiStopwatch.Stop();
@@ -767,7 +797,7 @@ namespace Microsoft.SqlTools.Migration
                 Stopwatch sqlVmStopwatch = new Stopwatch();
                 sqlVmStopwatch.Start();
 
-                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus, false);
                 resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
 
                 sqlVmStopwatch.Stop();
@@ -812,7 +842,7 @@ namespace Microsoft.SqlTools.Migration
                 Stopwatch sqlDbStopwatch = new Stopwatch();
                 sqlDbStopwatch.Start();
 
-                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
+                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus, false);
                 ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
                 DataTable SqlMISpec = pi.SqlMISpec.Copy();
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
@@ -837,7 +867,7 @@ namespace Microsoft.SqlTools.Migration
                 Stopwatch sqlMiStopwatch = new Stopwatch();
                 sqlMiStopwatch.Start();
 
-                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
+                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus, parameters.IsNextGenGPEnabled);
                 ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
                 DataTable SqlMISpec = pi.SqlMISpec.Copy();
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
@@ -1027,7 +1057,7 @@ namespace Microsoft.SqlTools.Migration
         }
 
         // Returns the list of eligible SKUs to consider, depending on the desired target platform
-        internal static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform, bool includePreviewSkus)
+        internal static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform, bool includePreviewSkus, bool recommendNextGen)
         {
             List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
 
@@ -1058,13 +1088,22 @@ namespace Microsoft.SqlTools.Migration
                     break;
 
                 case "AzureSqlManagedInstance":
-                    // Gen5 BC/GP MI
+                    // Gen5 BC/Next-GenGP/GP MI
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,
                                                     AzureSqlPurchasingModel.vCore,
                                                     AzureSqlPaaSServiceTier.BusinessCritical,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+                    if (recommendNextGen)
+                    {
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.Gen5));
+                    }
 
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,
@@ -1072,13 +1111,23 @@ namespace Microsoft.SqlTools.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
-                    // Premium BC/GP
+                    // Premium BC/Next-GenGP/GP
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,
                                                     AzureSqlPurchasingModel.vCore,
                                                     AzureSqlPaaSServiceTier.BusinessCritical,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
+
+                    if (recommendNextGen)
+                    {
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.PremiumSeries));
+                    }
 
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,
@@ -1087,13 +1136,23 @@ namespace Microsoft.SqlTools.Migration
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
 
-                    // Premium Memory Optimized BC/GP
+                    // Premium Memory Optimized BC/NextGenGP/GP
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,
                                                     AzureSqlPurchasingModel.vCore,
                                                     AzureSqlPaaSServiceTier.BusinessCritical,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+
+                    if (recommendNextGen)
+                    {
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    }
 
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,

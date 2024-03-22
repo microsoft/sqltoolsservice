@@ -28,6 +28,7 @@
     <PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
     <PackageReference Include="Microsoft.SqlServer.Migration.Tde" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="Microsoft.SqlServer.SqlTargetProvisioning" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />

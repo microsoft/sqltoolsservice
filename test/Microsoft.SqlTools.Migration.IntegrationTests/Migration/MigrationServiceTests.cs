@@ -17,11 +17,23 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
 using NUnit.Framework;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
+using Assert_ = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning.Contracts;
+using Microsoft.SqlServer.Migration.TargetProvisioning;
 
 namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
 {
     public class MigrationServiceTests
     {
+        private static string serverLevelCollation = "Latin1_General_CI_AI";
+        private static Dictionary<string, string> databaseLevelCollations = new Dictionary<string, string>()
+        {
+            { "TestDb", "Latin1_General_CI_AI"}
+        };
+        private static IProvisioningScriptServiceProvider provisioningScriptserviceProvider = new ProvisioningScriptServiceProvider();
+
         [Test]
         public async Task TestHandleMigrationAssessmentRequest()
         {
@@ -43,7 +55,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
         }
 
         [Test]
-        [Ignore("Disable failing test")]
+        [NUnit.Framework.Ignore("Disable failing test")]
         public async Task TestHandleMigrationGetSkuRecommendationsRequest()
         {
             GetSkuRecommendationsResult result = null;
@@ -120,5 +132,183 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
                 Assert.IsNotNull(stopResult.DateTimeStopped, "Time perf data collection stoped is null");
             }
         }
+
+        [Test]
+        public void GenerateProvisioningScript_DatabaseRecommendation_ReturnsDBArmTemplate()
+        {
+            // Arrange
+            var recs = new List<SkuRecommendationResult>
+        {
+            new SkuRecommendationResult
+            {
+                SqlInstanceName = "TestServer",
+                DatabaseName = "TestDb",
+                ServerCollation = serverLevelCollation,
+                DatabaseCollation = databaseLevelCollations["TestDb"],
+                TargetSku = new AzureSqlPaaSSku(
+                    new AzureSqlSkuPaaSCategory(
+                        AzureSqlTargetPlatform.AzureSqlDatabase,
+                        AzureSqlPurchasingModel.vCore,
+                AzureSqlPaaSServiceTier.GeneralPurpose,
+                        ComputeTier.Provisioned,
+                        AzureSqlPaaSHardwareType.Gen5),
+                    2,
+                    1)
+                {
+                }
+            }
+        };
+
+            // Act
+            var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
+
+            // Assert
+            Assert_.IsInstanceOfType(result, typeof(SqlArmTemplate));
+            Assert.AreEqual(result.resources.Count, 2);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Sql/servers").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Sql/servers/databases").Count(), 1);
+            Assert.AreEqual(result.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result.parameters.Where(par => par.Key == "Collation for database testdb").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result.parameters.Count, 9);
+        }
+
+        [Test]
+        public void GenerateProvisioningScript_ManagedInstanceRecommendation_ReturnsMIArmTemplate()
+        {
+            // Arrange
+            var recs = new List<SkuRecommendationResult>
+        {
+            new SkuRecommendationResult
+            {
+                SqlInstanceName = "TestServer",
+                ServerCollation = serverLevelCollation,
+                TargetSku = new AzureSqlPaaSSku(
+                    new AzureSqlSkuPaaSCategory(
+                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                        AzureSqlPurchasingModel.vCore,
+                        AzureSqlPaaSServiceTier.GeneralPurpose,
+                ComputeTier.Provisioned,
+                        AzureSqlPaaSHardwareType.Gen5),
+                    4,
+                    32)
+                {
+                }
+            }
+        };
+
+            // Act
+            var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
+
+            // Assert
+            Assert_.IsInstanceOfType(result, typeof(SqlArmTemplate));
+            Assert.AreEqual(result.resources.Count, 4);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/routeTables").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Sql/managedInstances").Count(), 1);
+            Assert.AreEqual(result.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result.parameters.Count, 11);
+        }
+
+        [Test]
+        public void GenerateProvisioningScript_VirtualMachineRecommendation_ReturnsVMArmTemplate()
+        {
+            // Arrange
+            var recs = new List<SkuRecommendationResult>
+        {
+            new SkuRecommendationResult
+            {
+                SqlInstanceName = "TestServer",
+                ServerCollation = serverLevelCollation,
+                TargetSku = new AzureSqlIaaSSku(
+                    new AzureSqlSkuIaaSCategory(VirtualMachineFamily.standardDASv4Family),
+                    new AzureVirtualMachineSku()
+                    {
+                        VirtualMachineFamily = VirtualMachineFamily.standardDASv4Family,
+                        SizeName = "D2as_v4",
+                        ComputeSize = 2,
+                    },
+                    new List<AzureManagedDiskSku>()
+                    {
+                        new AzureManagedDiskSku()
+                        {
+                            Type = AzureManagedDiskType.PremiumSSDV2,
+                            MaxSizeInGib = 64,
+                            MaxThroughputInMbps = 125,
+                            MaxIOPS = 3000,
+                            Size = "64 GB, 3000 IOPS, 125 MB/s",
+                        }
+                    },
+                    new List<AzureManagedDiskSku>()
+                    {
+                        new AzureManagedDiskSku()
+                        {
+                            Type = AzureManagedDiskType.PremiumSSDV2,
+                            MaxSizeInGib = 64,
+                            MaxThroughputInMbps = 125,
+                            MaxIOPS = 3000,
+                            Size = "64 GB, 3000 IOPS, 125 MB/s",
+                        }
+                    },
+                    new List<AzureManagedDiskSku>()
+                    {
+                        new AzureManagedDiskSku()
+                        {
+                            Type = AzureManagedDiskType.PremiumSSDV2,
+                            MaxSizeInGib = 64,
+                            MaxThroughputInMbps = 125,
+                            MaxIOPS = 3000,
+                            Size = "64 GB, 3000 IOPS, 125 MB/s",
+                        }
+                    })
+            }
+        };
+
+            // Act
+            var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
+
+            // Assert
+            Assert_.IsInstanceOfType(result, typeof(SqlArmTemplate));
+            Assert.AreEqual(result.resources.Count, 6);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.SqlVirtualMachine/SqlVirtualMachines").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Compute/virtualMachines").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/publicIpAddresses").Count(), 1);
+            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/networkInterfaces").Count(), 1);
+            Assert.AreEqual(result.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result.parameters.Count, 14);
+            // Add additional assertions based on the expected outcome for the virtual machine case
+        }
+
+        [Test]
+        public void GenerateProvisioningScript_InvalidTargetPlatform_ThrowsArgumentException()
+        {
+            // Arrange
+            var recs = new List<SkuRecommendationResult>
+        {
+            new SkuRecommendationResult
+            {
+                SqlInstanceName = "TestServer",
+                ServerCollation = serverLevelCollation,
+                TargetSku = new AzureSqlPaaSSku(
+                    new AzureSqlSkuPaaSCategory(
+                        (AzureSqlTargetPlatform)999,
+                        AzureSqlPurchasingModel.vCore,
+                        AzureSqlPaaSServiceTier.GeneralPurpose,
+                        ComputeTier.Provisioned,
+                        AzureSqlPaaSHardwareType.Gen5),
+                    4,
+                    32)
+                {
+                }
+            }
+        };
+
+            // Act & Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.ThrowsException<ArgumentException>(() => provisioningScriptserviceProvider.GenerateProvisioningScript(recs));
+        }
+
+
     }
 }
