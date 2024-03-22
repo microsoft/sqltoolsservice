@@ -73,6 +73,12 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// Defaults to false if not explicitly provided.
         /// </summary>
         public bool IsPremiumSSDV2Enabled { get; set; } = false;
+
+        /// <summary>
+        /// Whether or not NextGenGeneralPurpose as a feature is enabled.
+        /// Defaults to false if not explicitly provided.
+        /// </summary>
+        public bool IsNextGenGPEnabled { get; set; } = false;
     }
 
     public class GetSkuRecommendationsResult
