@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.OperationalInsights" />
-    <PackageReference Include="Microsoft.Data.SqlClient" VersionOverride="5.2.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
