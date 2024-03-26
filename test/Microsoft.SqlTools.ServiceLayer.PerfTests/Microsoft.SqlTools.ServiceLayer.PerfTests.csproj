@@ -11,7 +11,7 @@
 		<StartupObject>Microsoft.SqlTools.ServiceLayer.PerfTests.Program</StartupObject>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
