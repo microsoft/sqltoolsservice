@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<!-- Targeting both net8.0 and net472 so that other things such as PS cmdlets can use this
+		<!-- Targeting both net7.0 and net472 so that other things such as PS cmdlets can use this
 		which need to support a wider range of machines -->
-		<TargetFrameworks>net8.0;net472;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net7.0;net472;netstandard2.0</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
@@ -49,7 +49,7 @@
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework) == 'net8.0'">
+	<ItemGroup Condition="$(TargetFramework) == 'net7.0'">
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />

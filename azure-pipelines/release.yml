@@ -27,8 +27,8 @@ steps:
 
 - script: |
     cd $(Build.SourcesDirectory)/artifacts/package
-    rm Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net8.0.tar.gz
-    rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net8.0.tar.gz
+    rm Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz
+    rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net7.0.tar.gz
   displayName: 'Delete the unsigned arm64-osx packages'
 
 - task: PowerShell@2
