@@ -3,29 +3,29 @@
   "DotNetFolder": ".dotnet",
   "DotNetInstallScriptURL": "https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/",
   "DotNetChannel": "preview",
-  "DotNetVersion": "5.0.301",
+  "DotNetVersion": "8.0.0",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "net7.0"
+      "net8.0"
     ],
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net7.0"
+      "net8.0"
     ],
-    "Microsoft.SQlTools.Authentication.UnitTests": [
-      "net7.0"
+    "Microsoft.SqlTools.Authentication.UnitTests": [
+      "net8.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
-      "net7.0"
+      "net8.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
-      "net7.0"
+      "net8.0"
     ]
   },
   "Frameworks": [
-    "net7.0"
+    "net8.0"
   ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
@@ -40,7 +40,7 @@
       "Name": "Microsoft.SqlTools.ManagedBatchParser",
       "Frameworks": [
         "net472",
-        "net7.0"
+        "net8.0"
       ]
     },
     {
