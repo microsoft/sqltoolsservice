@@ -6,13 +6,13 @@
     <Company>Microsoft</Company>
     <Product>Sql Tools Service for Resource Provider services</Product>
     <Description>Provides Resource Provider and control plane support.</Description>
-    <Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
+    <Copyright>  Microsoft Corporation. All rights reserved.</Copyright>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 	<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
 	<NoWarn>$(NoWarn);CA1852</NoWarn>
   </PropertyGroup>
