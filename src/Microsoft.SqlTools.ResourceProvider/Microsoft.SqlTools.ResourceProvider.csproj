@@ -6,7 +6,6 @@
     <Company>Microsoft</Company>
     <Product>Sql Tools Service for Resource Provider services</Product>
     <Description>Provides Resource Provider and control plane support.</Description>
-    <Copyright>  Microsoft Corporation. All rights reserved.</Copyright>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>

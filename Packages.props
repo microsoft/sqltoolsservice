@@ -70,7 +70,7 @@
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.4" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.18.0" />
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Update="System.Configuration.ConfigurationManager" Version="7.0.0" />
+		<PackageReference Update="System.Configuration.ConfigurationManager" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

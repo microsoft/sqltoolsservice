@@ -9,7 +9,6 @@
 		<OutputType>Library</OutputType>
 		<StartupObject />
 		<Description>Provides the default  for SqlTools applications.</Description>
-		<Copyright>  Microsoft Corporation. All rights reserved.</Copyright>
 		<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
 		<NoWarn>$(NoWarn);CA1852</NoWarn>
 		<TargetFramework>net8.0</TargetFramework>
