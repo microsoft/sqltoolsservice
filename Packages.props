@@ -1,82 +1,82 @@
 <Project>
-	<ItemGroup>
-		<PackageReference Update="System.Net.Http" Version="4.3.4" />
-		<PackageReference Update="System.Runtime.Loader" Version="4.3.0" />
-		<PackageReference Update="System.Reactive.Core" Version="6.0.0" />
+  <ItemGroup>
+    <PackageReference Update="System.Net.Http" Version="4.3.4" />
+    <PackageReference Update="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Update="System.Reactive.Core" Version="6.0.0" />
 
-		<!-- Deprecated: TODO Migrate to Azure.Core -->
-		<PackageReference Update="Microsoft.Rest.ClientRuntime" Version="2.3.21" />
-		<!-- Deprecated: TODO Migrate to Azure.Core -->
-		<PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
+    <!-- Deprecated: TODO Migrate to Azure.Core -->
+    <PackageReference Update="Microsoft.Rest.ClientRuntime" Version="2.3.21" />
+    <!-- Deprecated: TODO Migrate to Azure.Core -->
+    <PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
 
-		<PackageReference Update="Microsoft.Identity.Client" Version="4.56.0" />
-		<PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.56.0" />
+    <PackageReference Update="Microsoft.Identity.Client" Version="4.56.0" />
+    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.56.0" />
 
-		<!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
-		<PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
-		<!-- Deprecated: TODO Migrate to Azure.ResourceManager.Sql -->
-		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
+    <!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
+    <PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
+    <!-- Deprecated: TODO Migrate to Azure.ResourceManager.Sql -->
+    <PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
-		<!-- TODO: Upgrade package and use Token Credential design -->
-		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.18.0" />
-		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="162.2.103-preview" />
-		<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.2.3-preview" />
-		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
-		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
-		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20240318.1" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20240222.1" />
-		<PackageReference Update="Microsoft.SqlServer.Management.QueryStoreModel" Version="163.55.1" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.9.0" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.0-preview.1.0.20230914.107" />
-		<PackageReference Update="Microsoft.SqlServer.SqlTargetProvisioning" Version="1.0.20240318.1" />
+    <!-- TODO: Upgrade package and use Token Credential design -->
+    <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
+    <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.18.0" />
+    <PackageReference Update="Microsoft.SqlServer.DacFx" Version="162.2.103-preview" />
+    <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.2.3-preview" />
+    <PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
+    <PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
+    <PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
+    <PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20240318.1" />
+    <PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20240222.1" />
+    <PackageReference Update="Microsoft.SqlServer.Management.QueryStoreModel" Version="163.55.1" />
+    <PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.9.0" />
+    <PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.0-preview.1.0.20230914.107" />
+    <PackageReference Update="Microsoft.SqlServer.SqlTargetProvisioning" Version="1.0.20240318.1" />
 
-		<!-- Deprecated: TODO Migrate to Azure.Monitor.Query -->
-		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
-		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
-		<PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
-		<PackageReference Update="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.7.0" />
+    <!-- Deprecated: TODO Migrate to Azure.Monitor.Query -->
+    <PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.7.0" />
 
-		<PackageReference Update="Moq" Version="4.8.2" />
-		<PackageReference Update="nunit" Version="3.13.3" />
-		<PackageReference Update="nunit3testadapter" Version="4.5.0" />
-		<PackageReference Update="nunit.console" version="3.16.3" />
-		<PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="14.0.0" />
-		<PackageReference Update="xunit" Version="2.5.1" />
-		<PackageReference Update="xunit.runner.visualstudio" Version="2.5.1" />
-		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.7.2" />
-		<PackageReference Update="Microsoft.SqlServer.TransactSql.ScriptDom.NRT" Version="1.2.10202.1" />
-		<PackageReference Update="Azure.Storage.Blobs" Version="12.18.0" />
-		<PackageReference Update="coverlet.collector" Version="6.0.0" />
-		<PackageReference Update="coverlet.msbuild" Version="6.0.0" />
-		<PackageReference Update="Microsoft.SqlServer.XEvent.XELite" Version="2023.1.30.3" />
-		<PackageReference Update="SkiaSharp" Version="2.88.6" />
-		<PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-	</ItemGroup>
-
-	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
-		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
-	<ItemGroup>
-		<PackageReference Update="Azure.Identity" Version="1.10.3" />
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.4" />
-		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.18.0" />
-		<PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Update="Moq" Version="4.8.2" />
+    <PackageReference Update="nunit" Version="3.13.3" />
+    <PackageReference Update="nunit3testadapter" Version="4.5.0" />
+    <PackageReference Update="nunit.console" version="3.16.3" />
+    <PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="14.0.0" />
+    <PackageReference Update="xunit" Version="2.5.1" />
+    <PackageReference Update="xunit.runner.visualstudio" Version="2.5.1" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Update="Microsoft.SqlServer.TransactSql.ScriptDom.NRT" Version="1.2.10202.1" />
+    <PackageReference Update="Azure.Storage.Blobs" Version="12.18.0" />
+    <PackageReference Update="coverlet.collector" Version="6.0.0" />
+    <PackageReference Update="coverlet.msbuild" Version="6.0.0" />
+    <PackageReference Update="Microsoft.SqlServer.XEvent.XELite" Version="2023.1.30.3" />
+    <PackageReference Update="SkiaSharp" Version="2.88.6" />
+    <PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
   </ItemGroup>
-  
+
+  <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
+		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
+  <ItemGroup>
+    <PackageReference Update="Azure.Identity" Version="1.10.3" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.4" />
+    <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.18.0" />
+    <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
   <!-- The following packages always need to be updated to the current .NET SDK version. -->
   <ItemGroup>
     <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
     <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageReference Update="System.Composition" Version="8.0.0" />
-		<PackageReference Update="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Update="System.Configuration.ConfigurationManager" Version="8.0.0" />
     <PackageReference Update="System.IO.Packaging" Version="8.0.0" />
     <PackageReference Update="System.Security.Permissions" Version="8.0.0" />
     <PackageReference Update="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Update="System.Text.Encodings.Web" Version="8.0.0" />
-	</ItemGroup>
+  </ItemGroup>
 
-	<ItemGroup>
-		<GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
-	</ItemGroup>
+  <ItemGroup>
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
 </Project>
