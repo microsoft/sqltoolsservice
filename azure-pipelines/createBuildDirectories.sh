@@ -39,7 +39,7 @@ dotnetProjectArray=(
 )
 
 # Please update the framework vars when updating target framework for the projects
-framework7="/bin/Debug/net7.0/"
+framework8="/bin/Debug/net8.0/"
 
 requiredLocDirectories=(
     "pt-br"
@@ -56,7 +56,7 @@ do
    for k in "${requiredLocDirectories[@]}"
     do
         : 
-        output=`mkdir -v -p $i$framework7$k`
+        output=`mkdir -v -p $i$framework8$k`
         echo $output
     done
 done
