@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
         public DropdownProperties GeneratedAlwaysAs { get; set; } = new DropdownProperties();
         [DataMember(Name = "isHidden")]
         public CheckBoxProperties IsHidden { get; set; } = new CheckBoxProperties();
-        [DataMember(Name = "DefaultConstraintName")]
+        [DataMember(Name = "defaultConstraintName")]
         public InputBoxProperties DefaultConstraintName { get; set; } = new InputBoxProperties();
         [DataMember(Name = "canBeDeleted")]
         public bool CanBeDeleted { get; set; } = true;
