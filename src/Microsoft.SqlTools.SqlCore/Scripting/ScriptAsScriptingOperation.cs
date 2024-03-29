@@ -53,6 +53,16 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             }
 
             ServerConnection = new ServerConnection(sqlConnection);
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(ServerConnection.ConnectionString);
+            if (!string.IsNullOrEmpty(builder.UserID) && string.IsNullOrEmpty(builder.Password)) {
+                if(SqlAuthenticationMethod.SqlPassword == builder.Authentication) {
+                    // Manually add password as server connection class does not add it to string, required for successful connection.
+                    builder.Password = "";
+                    if (ServerConnection.ConnectionString != builder.ConnectionString) {
+                        ServerConnection.ConnectionString = builder.ConnectionString;
+                    }
+                }
+            }
             if (!string.IsNullOrEmpty(azureAccountToken))
             {
                 ServerConnection.AccessToken = new AzureAccessToken(azureAccountToken);
