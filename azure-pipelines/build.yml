@@ -2,19 +2,14 @@ parameters:
   - name: platforms
     type: object
     default:
-    - name: 'osx.10.11-x64'
-      displayName: 'osx'
+    - name: 'osx-x64'
+      displayName: 'OSX 64 bit'
       archiveName: 'osx-x64'
       archiveFileFormat: 'tar.gz'
       archiveType: 'tar'
     - name: 'osx-arm64'
-      displayName: 'osx arm'
+      displayName: 'OSX ARM 64 bit'
       archiveName: 'osx-arm64-unsigned'
-      archiveFileFormat: 'tar.gz'
-      archiveType: 'tar'
-    - name: 'rhel.7.2-x64'
-      displayName: 'rhel'
-      archiveName: 'rhel-x64'
       archiveFileFormat: 'tar.gz'
       archiveType: 'tar'
     - name: 'win-x64'
@@ -32,6 +27,11 @@ parameters:
       displayName: 'Windows ARM 64 bit'
       archiveFileFormat: 'zip'
       archiveType: 'zip'
+    - name: 'linux-x64'
+      displayName: 'Linux 64 bit'
+      archiveName: 'linux-x64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
     - name: 'linux-arm64'
       archiveName: 'linux-arm64'
       displayName: 'Linux ARM 64 bit'
@@ -348,10 +348,10 @@ steps:
     - task: ArchiveFiles@1
       displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
       inputs:
-        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net7.0'
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net8.0'
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
-        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net7.0.${{ platform.archiveFileFormat }}'
+        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net8.0.${{ platform.archiveFileFormat }}'
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'
