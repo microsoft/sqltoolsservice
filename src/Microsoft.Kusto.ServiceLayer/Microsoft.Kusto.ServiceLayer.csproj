@@ -13,9 +13,10 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
     <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-	<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
-	<NoWarn>$(NoWarn);CS8795</NoWarn>
+    <!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
+    <NoWarn>$(NoWarn);CS8795</NoWarn>
     <AssemblyTitle>SqlTools Kusto Editor Services Host Protocol Library</AssemblyTitle>
     <Description>Provides message types and client/server APIs for the SqlTools Kusto Editor Services JSON protocol.</Description>
   </PropertyGroup>
@@ -62,5 +63,5 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Kusto.ServiceLayer.UnitTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-</ItemGroup>
+  </ItemGroup>
 </Project>
