@@ -17,6 +17,7 @@
 		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
 		<NoWarn>$(NoWarn);CS8795</NoWarn>
 		<TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
 	</PropertyGroup>
 
 	<PropertyGroup>

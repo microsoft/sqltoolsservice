@@ -13,6 +13,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
     <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
 	<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
 	<NoWarn>$(NoWarn);CS8795</NoWarn>
