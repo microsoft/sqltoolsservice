@@ -246,7 +246,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: '**/*.resources.dll'
+    Pattern: '*.resources.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
