@@ -1,88 +1,88 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
-		<OutputType>Exe</OutputType>
-		<ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
-		<EnableDefaultItems>false</EnableDefaultItems>
-		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
-		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-		<AssemblyTitle>SqlTools Editor Services Host Protocol Library</AssemblyTitle>
-		<Description>Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.</Description>
-		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
-		<NoWarn>$(NoWarn);CS8795</NoWarn>
-		<TargetFramework>net8.0</TargetFramework>
+  <PropertyGroup>
+    <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+    <AssemblyTitle>SqlTools Editor Services Host Protocol Library</AssemblyTitle>
+    <Description>Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.</Description>
+    <!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
+    <NoWarn>$(NoWarn);CS8795</NoWarn>
+    <TargetFramework>net8.0</TargetFramework>
     <RollForward>Major</RollForward>
-	</PropertyGroup>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-	</PropertyGroup>
+  <PropertyGroup>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-		<PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
-		<PackageVersion>2.0.0</PackageVersion>
-		<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
-		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>$(AssemblyName)</ToolCommandName>
-		<PackageOutputPath>./nupkg</PackageOutputPath>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+    <PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
+    <PackageVersion>2.0.0</PackageVersion>
+    <PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
-	</ItemGroup>
+  <ItemGroup>
+    <Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Azure.Identity" />
-		<PackageReference Include="Azure.Storage.Blobs" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
-		<PackageReference Include="Microsoft.SqlServer.DacFx" />
-		<PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
-		<PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
-		<PackageReference Include="Microsoft.Data.SqlClient" />
-		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
-		<PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
-		<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
-		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
-		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
-		<PackageReference Include="SkiaSharp" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />
-		<PackageReference Include="Microsoft.SqlServer.XEvent.XELite" />
-		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
-			<Aliases>ASAScriptDom</Aliases>
-		</PackageReference>
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
-		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
-		<ProjectReference Include="../Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />
-		<ProjectReference Include="../Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="..\..\Notice.txt">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<EmbeddedResource Include="Localization\*.resx" />
-		<None Include="Localization\sr.strings" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
-	</ItemGroup>
-	<ItemGroup>
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
-		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
+    <PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="Microsoft.SqlServer.XEvent.XELite" />
+    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
+      <Aliases>ASAScriptDom</Aliases>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Notice.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="Localization\*.resx" />
+    <None Include="Localization\sr.strings" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
 </Project>
