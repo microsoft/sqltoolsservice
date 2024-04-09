@@ -327,8 +327,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 var afterTableCreationCompletionItems = await langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
-                Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
-                Assert.True(afterTableCreationCompletionItems[0].InsertText == "foo", $"Expected single completion item 'foo'. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
+                Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', afterTableCreationCompletionItems.Select(ci => ci.Label))}]");
+                Assert.True(afterTableCreationCompletionItems[0].InsertText == "foo", $"Expected single completion item 'foo'. Actual : [{string.Join(',', afterTableCreationCompletionItems.Select(ci => ci.Label))}]");
             }
             finally
             {
