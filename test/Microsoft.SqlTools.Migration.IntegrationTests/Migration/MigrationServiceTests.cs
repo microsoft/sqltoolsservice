@@ -357,6 +357,48 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.ThrowsException<ArgumentException>(() => provisioningScriptserviceProvider.GenerateProvisioningScript(recs));
         }
 
+        [Test]
+        public void GenerateProvisioningScript_ManagedInstanceRecommendation_NextGenGP_ReturnsMIArmTemplate()
+        {
+            // Arrange
+            var recs = new List<SkuRecommendationResult>
+        {
+            new SkuRecommendationResult
+            {
+                SqlInstanceName = "TestServer",
+                ServerCollation = serverLevelCollation,
+                TargetSku = new AzureSqlPaaSSku(
+                    new AzureSqlSkuPaaSCategory(
+                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                        AzureSqlPurchasingModel.vCore,
+                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                        ComputeTier.Provisioned,
+                        AzureSqlPaaSHardwareType.Gen5),
+                    4,
+                    32,
+                    maxStorageIops: 300)
+                {
+                }
+            }
+        };
+
+            // Act
+            var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
+
+            // Assert
+            Assert_.IsInstanceOfType(result[0], typeof(SqlArmTemplate));
+            Assert.AreEqual(result[0].resources.Count, 4);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/routeTables").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Sql/managedInstances").Count(), 1);
+            Assert.AreEqual(result[0].parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result[0].parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result[0].parameters.Count, 12);
+            int maxStorageIOPS = result[0].parameters.Where(par => par.Key == "Max storage IOPS").Select(par => Convert.ToInt32(par.Value.defaultValue)).FirstOrDefault();
+            Assert.AreEqual(maxStorageIOPS, 300);
+        }
+
 
     }
 }
