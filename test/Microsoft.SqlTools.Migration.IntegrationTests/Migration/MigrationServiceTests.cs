@@ -22,6 +22,8 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
 using Assert_ = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning.Contracts;
 using Microsoft.SqlServer.Migration.TargetProvisioning;
+using Microsoft.SqlServer.Migration.SqlTargetProvisioning.Constants;
+
 
 namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
 {
@@ -163,13 +165,59 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
 
             // Assert
-            Assert_.IsInstanceOfType(result, typeof(SqlArmTemplate));
-            Assert.AreEqual(result.resources.Count, 2);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Sql/servers").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Sql/servers/databases").Count(), 1);
-            Assert.AreEqual(result.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
-            Assert.AreEqual(result.parameters.Where(par => par.Key == "Collation for database testdb").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
-            Assert.AreEqual(result.parameters.Count, 9);
+            Assert_.IsInstanceOfType(result[0], typeof(SqlArmTemplate));
+            Assert.AreEqual(result[0].resources.Count, 2);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Sql/servers").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Sql/servers/databases").Count(), 1);
+            Assert.AreEqual(result[0].parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result[0].parameters.Where(par => par.Key == "Collation for database testdb").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result[0].parameters.Count, 9);
+        }
+
+        [Test]
+        public void GenerateProvisioningScript_DatabaseRecommendationLargeNumber_ReturnsDBArmTemplateList()
+        {
+            // Arrange
+            List<SkuRecommendationResult> recs = new List<SkuRecommendationResult>();
+            for (int i = 0; i < 125; i++)
+            {
+                var rec = new SkuRecommendationResult
+                {
+                    SqlInstanceName = "TestServer",
+                    DatabaseName = "TestDb" + i,
+                    ServerCollation = serverLevelCollation,
+                    DatabaseCollation = databaseLevelCollations["TestDb"],
+                    TargetSku = new AzureSqlPaaSSku(
+                            new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.Gen5),
+                            2,
+                            i)
+                    {
+                    }
+                };
+
+                recs.Add(rec);
+            }
+
+            // Act
+            var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
+
+            // Assert
+            Assert_.AreEqual(result.Count, 1 + recs.Count / ArmConstants.AzureSqlDbProvisioningBatchSize);
+            foreach (var res in result)
+            {
+                Assert_.IsInstanceOfType(res, typeof(SqlArmTemplate));
+                Assert.IsTrue(res.resources.Count <= 51);
+                Assert.AreEqual(res.resources.Where(res => res.type == "Microsoft.Sql/servers").Count(), 1);
+                Assert.IsTrue(res.resources.Where(res => res.type == "Microsoft.Sql/servers/databases").Count() <= 50);
+                Assert.AreEqual(res.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+                Assert.AreEqual(res.parameters.Where(par => par.Key.StartsWith("Collation for database testdb")).FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+                Assert.IsTrue(res.parameters.Count <= 256);
+            }
         }
 
         [Test]
@@ -200,14 +248,14 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
 
             // Assert
-            Assert_.IsInstanceOfType(result, typeof(SqlArmTemplate));
-            Assert.AreEqual(result.resources.Count, 4);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/routeTables").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Sql/managedInstances").Count(), 1);
-            Assert.AreEqual(result.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
-            Assert.AreEqual(result.parameters.Count, 11);
+            Assert_.IsInstanceOfType(result[0], typeof(SqlArmTemplate));
+            Assert.AreEqual(result[0].resources.Count, 4);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/routeTables").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Sql/managedInstances").Count(), 1);
+            Assert.AreEqual(result[0].parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result[0].parameters.Count, 11);
         }
 
         [Test]
@@ -268,16 +316,16 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
             var result = provisioningScriptserviceProvider.GenerateProvisioningScript(recs);
 
             // Assert
-            Assert_.IsInstanceOfType(result, typeof(SqlArmTemplate));
-            Assert.AreEqual(result.resources.Count, 6);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.SqlVirtualMachine/SqlVirtualMachines").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Compute/virtualMachines").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/publicIpAddresses").Count(), 1);
-            Assert.AreEqual(result.resources.Where(res => res.type == "Microsoft.Network/networkInterfaces").Count(), 1);
-            Assert.AreEqual(result.parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
-            Assert.AreEqual(result.parameters.Count, 14);
+            Assert_.IsInstanceOfType(result[0], typeof(SqlArmTemplate));
+            Assert.AreEqual(result[0].resources.Count, 7);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/networkSecurityGroups").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.SqlVirtualMachine/SqlVirtualMachines").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/virtualNetworks").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Compute/virtualMachines").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/publicIpAddresses").Count(), 1);
+            Assert.AreEqual(result[0].resources.Where(res => res.type == "Microsoft.Network/networkInterfaces").Count(), 1);
+            Assert.AreEqual(result[0].parameters.Where(par => par.Key == "Server collation").FirstOrDefault().Value.defaultValue, "Latin1_General_CI_AI");
+            Assert.AreEqual(result[0].parameters.Count, 21);
             // Add additional assertions based on the expected outcome for the virtual machine case
         }
 
