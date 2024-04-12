@@ -54,8 +54,7 @@
     }
   ],
   "PackageProjects": [
-    "Microsoft.SqlTools.Hosting",
-    "Microsoft.SqlTools.Migration"
+    "Microsoft.SqlTools.Hosting"
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
