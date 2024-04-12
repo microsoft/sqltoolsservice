@@ -607,21 +607,24 @@ namespace Microsoft.SqlTools.Migration
         /// </summary>
         internal async Task HandleGetArmTemplateRequest(
     string skuRecommendationReportFilePath,
-    RequestContext<string> requestContext)
+    RequestContext<List<string>> requestContext)
         {
             try
             {
                 ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
                 List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
-                SqlArmTemplate template = provider.GenerateProvisioningScript(recommendations);
-
-                string jsonOutput = JsonConvert.SerializeObject(
-                template,
-                Formatting.Indented,
-                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, Culture = CultureInfo.InvariantCulture }
-                );
-
-                await requestContext.SendResult(jsonOutput);
+                List<SqlArmTemplate> templateList = provider.GenerateProvisioningScript(recommendations);
+                List<string> armTemplates = new List<string>();
+                foreach (SqlArmTemplate template in templateList)
+                {
+                    string jsonOutput = JsonConvert.SerializeObject(
+                        template,
+                        Formatting.Indented,
+                        new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, Culture = CultureInfo.InvariantCulture }
+                        );
+                    armTemplates.Add(jsonOutput);
+                }
+                await requestContext.SendResult(armTemplates);
             }
             catch (Exception e)
             {
