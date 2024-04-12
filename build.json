@@ -54,12 +54,12 @@
     }
   ],
   "PackageProjects": [
-    "Microsoft.SqlTools.Hosting"
+    "Microsoft.SqlTools.Hosting",
+    "Microsoft.SqlTools.Migration"
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer",
-    "Microsoft.SqlTools.Migration"
+    "Microsoft.Kusto.ServiceLayer"
   ],
   "Projects": [
     {
