@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using OE = Microsoft.SqlTools.SqlCore.SimpleObjectExplorer.ObjectExplorer;
@@ -230,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, ReliableSqlConnection, Task> test)
+        private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, SqlConnection, Task> test)
         {
             SqlTestDb? testDb = null;
             try
@@ -240,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 {
                     databaseName = testDb.DatabaseName;
                 }
-                using (ReliableSqlConnection connection = new ReliableSqlConnection(new SqlConnection(testDb.ConnectionString), RetryPolicyFactory.CreateDefaultDataConnectionRetryPolicy(), RetryPolicyFactory.CreateDefaultSchemaCommandRetryPolicy(useRetry: true)))
+                using (SqlConnection connection = new SqlConnection(testDb.ConnectionString))
                 {
                     await connection.OpenAsync();
                     await test(testDb.DatabaseName, connection);
