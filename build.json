@@ -58,8 +58,7 @@
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer",
-    "Microsoft.SqlTools.Migration"
+    "Microsoft.Kusto.ServiceLayer"
   ],
   "Projects": [
     {
