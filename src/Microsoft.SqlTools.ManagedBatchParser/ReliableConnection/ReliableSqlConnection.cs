@@ -83,6 +83,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
+        public ReliableSqlConnection(SqlConnection connection, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, SqlRetryLogicBaseProvider retryProvider = null)
+        {
+            _underlyingConnection = connection;
+
+            if (retryProvider != null) {
+                _underlyingConnection.RetryLogicProvider = retryProvider;
+            }
+
+            _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
+            _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
+
+            _underlyingConnection.StateChange += OnConnectionStateChange;
+            _connectionRetryPolicy.RetryOccurred += RetryConnectionCallback;
+            _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or
         ///  resetting managed and unmanaged resources.

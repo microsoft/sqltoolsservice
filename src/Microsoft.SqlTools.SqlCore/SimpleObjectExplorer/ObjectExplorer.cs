@@ -7,13 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 {
     public static class ObjectExplorer
     {
-        public static async Task<TreeNode> GetObjectExplorerModel(SqlConnection connection)
+        public static async Task<TreeNode> GetObjectExplorerModel(ReliableSqlConnection connection)
         {
             ObjectMetadata[] metdata = await FetchObjectExplorerMetadataTable(connection);
             TreeNode root = new DatabaseNode(null, new ObjectMetadata() { Name = connection.Database, Type = "Database", DisplayName = connection.Database });
@@ -39,13 +39,14 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
             return root;
         }
 
-        private static async Task<ObjectMetadata[]> FetchObjectExplorerMetadataTable(SqlConnection connection)
+        private static async Task<ObjectMetadata[]> FetchObjectExplorerMetadataTable(ReliableSqlConnection connection)
         {
             string[] metadataQueries = ObjectExplorerModelQueries.Queries.Values.ToArray();
             string combinedQuery = string.Join(Environment.NewLine + "UNION ALL" + Environment.NewLine, metadataQueries);
-            using (SqlCommand command = new SqlCommand(combinedQuery, connection))
+            using (ReliableSqlConnection.ReliableSqlCommand command = new ReliableSqlConnection.ReliableSqlCommand(connection))
             {
-                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                command.CommandText = combinedQuery;
+                using (System.Data.Common.DbDataReader reader = await command.ExecuteReaderAsync())
                 {
                     List<ObjectMetadata> metadata = new List<ObjectMetadata>();
                     while (reader.Read())
