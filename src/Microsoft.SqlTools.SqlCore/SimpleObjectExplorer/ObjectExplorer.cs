@@ -8,14 +8,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 {
     public static class ObjectExplorer
     {
-        public static async Task<TreeNode> GetObjectExplorerModel(SqlConnection connection)
+        public static async Task<TreeNode> GetObjectExplorerModel(SqlConnection connection, bool enableRetry = true)
         {
-            ObjectMetadata[] metdata = await FetchObjectExplorerMetadataTable(connection);
+            ObjectMetadata[] metdata = await FetchObjectExplorerMetadataTable(connection, enableRetry);
             TreeNode root = new DatabaseNode(null, new ObjectMetadata() { Name = connection.Database, Type = "Database", DisplayName = connection.Database });
             // Load all the children
             Stack<TreeNode> stack = new Stack<TreeNode>();
@@ -39,13 +40,20 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
             return root;
         }
 
-        private static async Task<ObjectMetadata[]> FetchObjectExplorerMetadataTable(SqlConnection connection)
+        private static async Task<ObjectMetadata[]> FetchObjectExplorerMetadataTable(SqlConnection connection, bool enableRetry)
         {
             string[] metadataQueries = ObjectExplorerModelQueries.Queries.Values.ToArray();
             string combinedQuery = string.Join(Environment.NewLine + "UNION ALL" + Environment.NewLine, metadataQueries);
-            using (SqlCommand command = new SqlCommand(combinedQuery, connection))
+            ReliableSqlConnection reliableSqlConnection = new ReliableSqlConnection(connection, 
+                enableRetry ? RetryPolicyFactory.CreateDefaultDataConnectionRetryPolicy() : RetryPolicyFactory.CreateNoRetryPolicy(), 
+                RetryPolicyFactory.CreateDefaultSchemaCommandRetryPolicy(useRetry: enableRetry));
+
+            // ReliableSqlConnection only opens the underlying SqlConnection if it is not already open
+            await reliableSqlConnection.OpenAsync();
+            using (ReliableSqlConnection.ReliableSqlCommand command = new ReliableSqlConnection.ReliableSqlCommand(reliableSqlConnection))
             {
-                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                command.CommandText = combinedQuery;
+                using (System.Data.Common.DbDataReader reader = await command.ExecuteReaderAsync())
                 {
                     List<ObjectMetadata> metadata = new List<ObjectMetadata>();
                     while (reader.Read())
