@@ -12,7 +12,7 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
 		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution, and Scripting</Description>
-		<TargetFrameworks>net8.0;net6.0;netstandard2.0;net472</TargetFrameworks>		<!-- TODO: remove netstandard; tracked in SqlToolsCore as Task #1254787 -->
+		<TargetFrameworks>net6.0;netstandard2.0;net472</TargetFrameworks>		<!-- TODO: remove netstandard; tracked in SqlToolsCore as Task #1254787 -->
 		<LangVersion>9.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
