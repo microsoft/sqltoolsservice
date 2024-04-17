@@ -29,19 +29,34 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\de" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\es" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\fr" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\it" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ja" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ko" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\pt-br" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ru" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\zh-hans" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\zh-hant" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\de" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\es" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\fr" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\it" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\ja" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\ko" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\pt-br" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\ru" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\zh-hans" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\zh-hant" />
 
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net8.0" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net8.0" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net8.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net472" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net472" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net472\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net472" />
+
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\de" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\es" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\fr" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\it" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ja" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ko" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\pt-br" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ru" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\zh-hans" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\zh-hant" />
+
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net8.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net8.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\win-x64\net8.0\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net8.0" />
     </files>
 </package>
