@@ -84,6 +84,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
+        /// Initialize a new instance of the ReliableSqlConnection class with a given connection
+        /// </summary>
+        /// <param name="connection">The connection used to open the SQL DB</param>
+        /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
+        /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
+        /// <param name="retryProvider">Optional retry provider to handle errors in a special way</param>
+        public ReliableSqlConnection(SqlConnection connection, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, SqlRetryLogicBaseProvider retryProvider = null)
+        {
+            _underlyingConnection = connection;
+
+            if (retryProvider != null) {
+                _underlyingConnection.RetryLogicProvider = retryProvider;
+            }
+
+            _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
+            _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
+
+            _underlyingConnection.StateChange += OnConnectionStateChange;
+            _connectionRetryPolicy.RetryOccurred += RetryConnectionCallback;
+            _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or
         ///  resetting managed and unmanaged resources.
         /// </summary>

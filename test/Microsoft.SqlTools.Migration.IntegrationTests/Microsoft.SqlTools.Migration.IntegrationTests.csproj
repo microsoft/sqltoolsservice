@@ -14,15 +14,6 @@
     <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-      <ItemGroup>
-        <Compile Remove="Migration\*" />
-      </ItemGroup>
-    </When>
-  </Choose>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.TestPlatform" VersionOverride="14.0.0" />
     <PackageReference Include="Moq" />
