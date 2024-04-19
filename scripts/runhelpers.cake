@@ -206,9 +206,10 @@ public void KillProcessTree(Process process)
 
 public void DotnetPack(string outputFolder, string projectFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,

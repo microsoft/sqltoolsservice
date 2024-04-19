@@ -444,6 +444,7 @@ void PublishProject(string packageName, string[] projects)
     foreach (var project in projects)
     {
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
         foreach (var framework in buildPlan.Frameworks)
         {
             foreach (var runtime in buildPlan.Rids)
@@ -455,7 +456,7 @@ void PublishProject(string packageName, string[] projects)
                     publishArguments = $"{publishArguments} --runtime {runtime} --self-contained";
                 }
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
-                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFile}\"";
                 var publishStart = DateTime.Now;
                 Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework} / {runtime}");
                 Run(dotnetcli, publishArguments)
