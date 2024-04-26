@@ -209,7 +209,7 @@ public void DotnetPack(string outputFolder, string projectFolder, string project
     var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFile}\"",
+        Run(dotnetcli, $"pack --no-build --configuration {configuration} --output {outputFolder} \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
