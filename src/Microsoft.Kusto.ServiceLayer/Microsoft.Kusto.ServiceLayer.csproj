@@ -10,6 +10,7 @@
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
     <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
     <TargetFramework>net8.0</TargetFramework>
