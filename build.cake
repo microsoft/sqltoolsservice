@@ -327,20 +327,6 @@ Task("DotnetPackServiceTools")
 });
 
 /// <summary>
-///  Packages dotnet tool projects specified in DotnetToolProjects.
-/// </summary>
-Task("DotnetPackServiceToolsnobuild")
-    .Does(() =>
-{
-    foreach (var project in buildPlan.DotnetToolProjects)
-    {
-        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
-        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-        DotnetPacknobuild(outputFolder, projectFolder, project);
-    }
-});
-
-/// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
 /// </summary>
 Task("TestAll")

@@ -233,18 +233,3 @@ public void DotnetPackNuspec(string outputFolder, string projectFolder, string p
     }
 
 }
-
-public void DotnetPacknobuild(string outputFolder, string projectFolder, string project) {
-    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
-    var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
-    using (var logWriter = new StreamWriter(logPath)) {
-        Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --no-build --configuration {configuration} --output {outputFolder} \"{projectFile}\"",
-            new RunOptions
-            {
-                StandardOutputWriter = logWriter,
-                StandardErrorWriter = logWriter
-            })
-        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
-    }
-}
