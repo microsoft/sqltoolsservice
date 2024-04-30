@@ -261,7 +261,7 @@ Task("BuildFx")
             var projectFolder = System.IO.Path.Combine(sourceFolder, project.Name);
             var logPath = System.IO.Path.Combine(logFolder, $"{project.Name}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
-                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} -bl \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
