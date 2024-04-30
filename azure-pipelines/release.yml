@@ -6,7 +6,7 @@ steps:
     KeyVaultName: 'ado-secrets'
     SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
 
-- checkout: git://mssqltools/_git/CrossPlatBuildScripts
+- checkout: git://dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
   displayName: Clone CrossPlatBuildScripts
 
 - task: DownloadBuildArtifacts@0
