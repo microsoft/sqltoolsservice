@@ -209,7 +209,22 @@ public void DotnetPack(string outputFolder, string projectFolder, string project
     var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} -bl \"{projectFile}\"",
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} -p:GeneratePackageOnBuild=false -bl \"{projectFile}\"",
+            new RunOptions
+            {
+                StandardOutputWriter = logWriter,
+                StandardErrorWriter = logWriter
+            })
+        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
+    }
+}
+
+public void DotnetPackNoBuild(string outputFolder, string projectFolder, string project) {
+    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
+    using (var logWriter = new StreamWriter(logPath)) {
+        Information($"Packaging {projectFolder}");
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} --no-build -p:GeneratePackageOnBuild=false -bl \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
