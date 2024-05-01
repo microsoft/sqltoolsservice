@@ -31,7 +31,7 @@ http://cakebuild.net
 Param(
     [string]$Script = "build.cake",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
-    [string]$Verbosity = "Verbose",
+    [string]$Verbosity = "Diagnostic",
     [Alias("DryRun","Noop")]
     [switch]$WhatIf,
     [switch]$Mono,

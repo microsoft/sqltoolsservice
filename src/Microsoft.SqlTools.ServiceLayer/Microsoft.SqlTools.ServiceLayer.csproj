@@ -31,6 +31,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>$(AssemblyName)</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
+    <IsCleaning>false</IsCleaning>
+    <CopyRoleFilesDependsOn />
+    <AddRoleContentDependsOn />
   </PropertyGroup>
 
   <ItemGroup>
