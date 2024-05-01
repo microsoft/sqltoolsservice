@@ -33,7 +33,7 @@ steps:
 - task: PowerShell@2
   displayName: 'Run Automated Release Script'
   inputs:
-    filePath: '$(System.DefaultWorkingDirectory)/.git/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
+    filePath: '$(System.DefaultWorkingDirectory)/AutomatedReleases/sqltoolsserviceRelease.ps1'
     arguments: '-workspace $(Build.SourcesDirectory) -minTag $(Major).$(Minor).$(Patch).0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
     workingDirectory: '$(Build.SourcesDirectory)'
   env:
