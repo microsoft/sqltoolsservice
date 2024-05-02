@@ -206,10 +206,11 @@ public void KillProcessTree(Process process)
 
 public void DotnetPack(string outputFolder, string projectFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    var logPath2 = System.IO.Path.Combine(logFolder, $"{project}-pack.binlog");
     var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
-        Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} -p:GeneratePackageOnBuild=false -bl \"{projectFile}\"",
+        Information($"In DotnetPack Packaging {projectFolder}");
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} -p:GeneratePackageOnBuild=false -bl:{logPath2} \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
@@ -221,10 +222,11 @@ public void DotnetPack(string outputFolder, string projectFolder, string project
 
 public void DotnetPackNoBuild(string outputFolder, string projectFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    var logPath2 = System.IO.Path.Combine(logFolder, $"{project}-pack.binlog");
     var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
-        Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} --no-build -p:GeneratePackageOnBuild=false -bl \"{projectFile}\"",
+        Information($"In DotnetPackNoBuild Packaging {projectFolder}");
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} --no-build -p:GeneratePackageOnBuild=false -bl:{logPath2} \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
@@ -236,9 +238,10 @@ public void DotnetPackNoBuild(string outputFolder, string projectFolder, string 
 
 public void DotnetPackNuspec(string outputFolder, string projectFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    var logPath2 = System.IO.Path.Combine(logFolder, $"{project}-pack.binlog");
     using (var logWriter = new StreamWriter(logPath)) {
-        Information($"Packaging {projectFolder}");
-        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder}",
+        Information($"In DotnetPackNuspec Packaging {projectFolder}");
+        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder} -bl:{logPath2}",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
