@@ -6,8 +6,6 @@ steps:
     KeyVaultName: 'ado-secrets'
     SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
 
-- checkout: git://CrossPlatBuildScripts/CrossPlatBuildScripts
-  displayName: Clone CrossPlatBuildScripts
 
 - task: DownloadBuildArtifacts@0
   displayName: 'Download build drop artifacts'
@@ -30,12 +28,17 @@ steps:
     rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net8.0.tar.gz
   displayName: 'Delete the unsigned arm64-osx packages'
 
-- task: PowerShell@2
-  displayName: 'Run Automated Release Script'
-  inputs:
-    filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-    arguments: '-workspace $(Build.SourcesDirectory) -minTag $(Major).$(Minor).$(Patch).0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
-    workingDirectory: '$(Build.SourcesDirectory)'
-  env:
-    GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
-    ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
+
+- task: GitHubRelease@1
+        inputs:
+          gitHubConnection: 'gosqlcmd_github'
+          repositoryName: '$(Build.Repository.Name)'
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'gitTag'
+          assets: 
+            '$(Build.SourcesDirectory)/artifacts/package/*.gz'
+            '$(Build.SourcesDirectory)/artifacts/package/*.zip'
+          changeLogCompareToRelease: 'lastFullRelease'
+          changeLogType: 'commitBased'
+          isPreRelease: true
