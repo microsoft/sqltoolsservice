@@ -456,7 +456,7 @@ void PublishProject(string packageName, string[] projects)
                     publishArguments = $"{publishArguments} --runtime {runtime} --self-contained";
                 }
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
-                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFile}\"";
+                publishArguments = $"{publishArguments} --output \"{outputFolder}\" -p:GeneratePackageOnBuild=false \"{projectFile}\"";
                 var publishStart = DateTime.Now;
                 Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework} / {runtime}");
                 Run(dotnetcli, publishArguments)
