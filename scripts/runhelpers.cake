@@ -238,7 +238,7 @@ public void DotnetPackNuspec(string outputFolder, string projectFolder, string p
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder}",
+        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder} --no-build -p:GeneratePackageOnBuild=false",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
