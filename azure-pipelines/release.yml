@@ -30,7 +30,7 @@ steps:
 
 - task: GitHubRelease@1
         inputs:
-          gitHubConnection: 'gosqlcmd_github'
+          gitHubConnection: 'sqltoolsservice_github'
           repositoryName: '$(Build.Repository.Name)'
           action: 'create'
           target: '$(Build.SourceVersion)'
