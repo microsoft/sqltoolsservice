@@ -29,15 +29,15 @@ steps:
   displayName: 'Delete the unsigned arm64-osx packages'
 
 - task: GitHubRelease@1
-        inputs:
-          gitHubConnection: 'sqltoolsservice_github'
-          repositoryName: '$(Build.Repository.Name)'
-          action: 'create'
-          target: '$(Build.SourceVersion)'
-          tagSource: 'gitTag'
-          assets: 
-            '$(Build.SourcesDirectory)/artifacts/package/*.gz'
-            '$(Build.SourcesDirectory)/artifacts/package/*.zip'
-          changeLogCompareToRelease: 'lastFullRelease'
-          changeLogType: 'commitBased'
-          isPreRelease: true
+  inputs:
+    gitHubConnection: 'sqltoolsservice_github'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    assets: 
+      '$(Build.SourcesDirectory)/artifacts/package/*.gz'
+      '$(Build.SourcesDirectory)/artifacts/package/*.zip'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
+    isPreRelease: true
