@@ -35,7 +35,7 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'gitTag'
-    assets: 
+    assets: |
       '$(Build.SourcesDirectory)/artifacts/package/*.gz'
       '$(Build.SourcesDirectory)/artifacts/package/*.zip'
     changeLogCompareToRelease: 'lastFullRelease'
