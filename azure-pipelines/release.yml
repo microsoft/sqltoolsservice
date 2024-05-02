@@ -28,7 +28,6 @@ steps:
     rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net8.0.tar.gz
   displayName: 'Delete the unsigned arm64-osx packages'
 
-
 - task: GitHubRelease@1
         inputs:
           gitHubConnection: 'gosqlcmd_github'
