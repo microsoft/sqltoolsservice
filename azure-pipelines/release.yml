@@ -1,12 +1,4 @@
 steps:
-- task: AzureKeyVault@1
-  displayName: 'Azure Key Vault: ado-secrets'
-  inputs:
-    azureSubscription: 'STS Pipelines' # this is the name of the service connection, which be found in mssqltools/CrossPlatBuildScripts ADO under Project Settings -> Service Connections
-    KeyVaultName: 'ado-secrets'
-    SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
-
-
 - task: DownloadBuildArtifacts@0
   displayName: 'Download build drop artifacts'
   inputs:
