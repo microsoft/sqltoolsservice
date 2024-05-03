@@ -236,7 +236,7 @@ public void DotnetPackNoBuild(string outputFolder, string projectFolder, string 
     }
 }
 
-public void DotnetPackNuspec(string outputFolder, string projectFolder, string project) {
+public void DotnetPackNuspec(string outputFolder, string projectFolder, string csprojFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-DotnetPackNuspecpack.log");
     var logPath2 = System.IO.Path.Combine(logFolder, $"{project}-DotnetPackNuspecpack.binlog");
 	var projectFile = System.IO.Path.Combine(csprojFolder, project+".csproj");
