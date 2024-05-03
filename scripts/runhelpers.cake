@@ -241,7 +241,7 @@ public void DotnetPackNuspec(string outputFolder, string projectFolder, string p
     var logPath2 = System.IO.Path.Combine(logFolder, $"{project}-pack.binlog");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"In DotnetPackNuspec Packaging {projectFolder}");
-        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder} -bl:{logPath2} --verbosity:diag",
+        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder} -verbosity detailed",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
