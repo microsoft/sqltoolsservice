@@ -32,4 +32,4 @@ steps:
       '$(Build.SourcesDirectory)/artifacts/package/*.zip'
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
-    isPreRelease: true
+    isPreRelease: false
