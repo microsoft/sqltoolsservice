@@ -21,10 +21,14 @@ steps:
   displayName: 'Delete the unsigned arm64-osx packages'
 
 - task: GitHubRelease@1
+  displayName: 'Upload artifacts to GitHub release'
   inputs:
     gitHubConnection: 'sqltoolsservice_github'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
+    assets: |
+      $(Build.ArtifactStagingDirectory)/.zip
+      $(Build.ArtifactStagingDirectory)/.tar.gz
     target: '$(Build.SourceVersion)'
     tagSource: 'gitTag'
     changeLogCompareToRelease: 'lastFullRelease'
