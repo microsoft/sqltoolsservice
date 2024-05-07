@@ -9,13 +9,13 @@ steps:
     downloadPath: '$(Agent.TempDirectory)'
 
 - task: CopyFiles@2
-  displayName: 'Copy build drop artifacts to: $(Build.ArtifactStagingDirectory)/artifacts/package'
+  displayName: 'Copy build drop artifacts to: $(Build.ArtifactStagingDirectory)'
   inputs:
     SourceFolder: '$(Agent.TempDirectory)/drop'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/artifacts/package'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - script: |
-    cd $(Build.ArtifactStagingDirectory)/artifacts/package
+    cd $(Build.ArtifactStagingDirectory)
     rm Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net8.0.tar.gz
     rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net8.0.tar.gz
   displayName: 'Delete the unsigned arm64-osx packages'
