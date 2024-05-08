@@ -27,8 +27,8 @@ steps:
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     assets: |
-      $(Build.ArtifactStagingDirectory)/.zip
-      $(Build.ArtifactStagingDirectory)/.tar.gz
+      $(Build.ArtifactStagingDirectory)/*.zip
+      $(Build.ArtifactStagingDirectory)/*.tar.gz
     target: '$(Build.SourceVersion)'
     tagSource: 'gitTag'
     changeLogCompareToRelease: 'lastFullRelease'
