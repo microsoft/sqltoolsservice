@@ -277,9 +277,6 @@ Task("BuildFx")
 ///  Packages projects specified in PackageProjects
 /// </summary>
 Task("DotnetPack")
-    .IsDependentOn("Cleanup")
-    .IsDependentOn("Setup")
-    .IsDependentOn("Restore")
     .Does(() =>
 {
     foreach (var project in buildPlan.PackageProjects)
