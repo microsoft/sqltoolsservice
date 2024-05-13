@@ -287,7 +287,7 @@ Task("DotnetPack")
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-        DotnetPack(outputFolder, projectFolder, project);
+        DotnetPackNoBuild(outputFolder, projectFolder, project);
     }
 });
 
@@ -297,6 +297,7 @@ Task("DotnetPack")
 ///  currently.
 /// </summary>
 Task("DotnetPackNuspec")
+    .IsDependentOn("DotnetPack")
     .Does(() =>
 {
     foreach (var project in buildPlan.FxBuildProjects)
@@ -629,7 +630,6 @@ Task("All")
     .IsDependentOn("Cleanup")
     .IsDependentOn("Restore")
     .IsDependentOn("TestAll")
-    .IsDependentOn("DotnetPack")
     .IsDependentOn("AllPublish")
     //.IsDependentOn("TestPublished")
     .Does(() =>
