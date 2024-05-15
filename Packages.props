@@ -10,14 +10,14 @@
     <!-- Deprecated: TODO Migrate to Azure.Core -->
     <PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
 
-    <PackageReference Update="Microsoft.Identity.Client" Version="4.56.0" />
-    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.56.0" />
+    <PackageReference Update="Microsoft.Identity.Client" Version="4.60.3" />
+    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.60.3" />
 
     <!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
     <PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
     <!-- Deprecated: TODO Migrate to Azure.ResourceManager.Sql -->
     <PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
-
+	
     <!-- TODO: Upgrade package and use Token Credential design -->
     <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.18.0" />
@@ -59,8 +59,8 @@
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
-    <PackageReference Update="Azure.Identity" Version="1.10.3" />
-    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.4" />
+    <PackageReference Update="Azure.Identity" Version="1.11.3" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.18.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
