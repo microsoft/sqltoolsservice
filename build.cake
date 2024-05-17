@@ -306,8 +306,7 @@ Task("DotnetPackNuspec")
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);
-        var csprojFolder = System.IO.Path.Combine(sourceFolder, project.Name);
-        DotnetPackNuspec(outputFolder, projectFolder, csprojFolder);
+        DotnetPackNuspec(outputFolder, projectFolder, project.Name);
     }
 });
 
