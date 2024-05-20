@@ -210,7 +210,7 @@ public void DotnetPackNoBuild(string outputFolder, string projectFolder, string 
     var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} --no-build -p:GeneratePackageOnBuild=false -bl:{logPath2} \"{projectFile}\"",
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} --no-build -bl:{logPath2} \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
@@ -223,11 +223,8 @@ public void DotnetPackNoBuild(string outputFolder, string projectFolder, string 
 public void DotnetPackNuspec(string outputFolder, string projectFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-DotnetPackNuspecpack.log");
     var logPath2 = System.IO.Path.Combine(logFolder, $"{project}-DotnetPackNuspecpack.binlog");
-    //var projectFile = System.IO.Path.Combine(csprojFolder, project+".csproj");
-    //var nuspecFile =  System.IO.Path.Combine(projectFolder, project+".nuspec");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        //Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} -bl:{logPath2} --no-build --verbosity:diag -p:NuspecFile=\"{nuspecFile}\" -p:NuspecBasePath=\"{projectFolder}\" \"{projectFile}\"",
         Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder}",
             new RunOptions
             {
