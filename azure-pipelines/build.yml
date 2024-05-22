@@ -305,7 +305,7 @@ steps:
   displayName: 'Package nuspec projects'
   inputs:
     filename: build.cmd
-    arguments: '-target=DotnetPackNuspec -mono'
+    arguments: '-target=NugetPackNuspec -mono'
     
 - task: BatchScript@1
   displayName: "Build and Package service tool projects"
