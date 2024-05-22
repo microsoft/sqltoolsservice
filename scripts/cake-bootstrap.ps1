@@ -89,7 +89,7 @@ if(-Not $SkipToolPackageRestore.IsPresent)
     Set-Location $TOOLS_DIR
 
     Write-Host "Restoring tools from NuGet..."
-    $NuGetConfig = Invoke-Expression "&`"$NUGET_EXE`" config -set repositoryPath=.packages -set globalPackagesFolder=.packages -configfile ../nuget.config"
+    $NuGetConfig = Invoke-Expression "&`"$NUGET_EXE`" config -configfile ../nuget.config"
     $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install $PACKAGES_CONFIG -ExcludeVersion -OutputDirectory `"$TOOLS_DIR`""
     Write-Host ($NuGetOutput | out-string)
 
