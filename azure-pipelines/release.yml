@@ -34,3 +34,4 @@ steps:
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
     isPreRelease: false
+    continueOnError: true
