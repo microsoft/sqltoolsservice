@@ -27,7 +27,7 @@ stages:
   jobs:
   - job: Build
     pool:
-      name: 'windows-latest'
+      vmImage: 'windows-latest'
     steps:
     - template: build.yml
     timeoutInMinutes: 150 # temporary while investigating timeout occurring in STS Product Build pipeline; should return to 90 after
