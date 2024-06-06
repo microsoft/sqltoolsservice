@@ -58,6 +58,10 @@ steps:
   inputs:
     useGlobalJson: true
 
+- pwsh: |
+    Get-Volume C
+  displayName: 'Check disk space'
+
 - task: PowerShell@2
   displayName: 'Add version number to SqlCore project for packaging'
   inputs:
