@@ -27,7 +27,9 @@ stages:
   jobs:
   - job: Build
     pool:
-      vmImage: 'windows-latest'
+      name: 'ads-build-1es-hosted-pool'
+      demands:
+      - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
     timeoutInMinutes: 150 # temporary while investigating timeout occurring in STS Product Build pipeline; should return to 90 after
