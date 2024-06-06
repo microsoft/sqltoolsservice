@@ -82,7 +82,7 @@ steps:
   displayName: 'Run script build.cmd'
   inputs:
     filename: build.cmd
-    arguments: '-target=all -mono'
+    arguments: '-target=test -mono'
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
