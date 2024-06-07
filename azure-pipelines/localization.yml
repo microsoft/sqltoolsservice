@@ -1,0 +1,27 @@
+# 'Allow scripts to access the OAuth token' was selected in pipeline.  Add the following YAML to any steps requiring access:
+#       env:
+#           MY_ACCESS_TOKEN: $(System.AccessToken)
+trigger:
+  branches:
+    include:
+    - refs/heads/main
+  paths:
+    include:
+    - src
+
+jobs:
+- job: Job_1
+  displayName: Loc Build
+  pool:
+    vmImage: windows-latest
+  steps:
+  - checkout: self
+    fetchDepth: 1
+    persistCredentials: True
+  - task: cesve.one-loc-build.one-loc-build.OneLocBuild@2
+    displayName: 'Localization Build: src/LocProject.json'
+    inputs:
+      packageSourceAuth: patAuth
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+...
