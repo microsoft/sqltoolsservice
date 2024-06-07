@@ -32,4 +32,4 @@ stages:
       - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
-    timeoutInMinutes: 150 # temporary while investigating timeout occurring in STS Product Build pipeline; should return to 90 after
+    timeoutInMinutes: 90
