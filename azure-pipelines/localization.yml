@@ -19,9 +19,12 @@ jobs:
     fetchDepth: 1
     persistCredentials: True
   - task: cesve.one-loc-build.one-loc-build.OneLocBuild@2
-    displayName: 'Localization Build: src/LocProject.json'
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
     inputs:
+      locProj: 'src/LocProject.json'
       packageSourceAuth: patAuth
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
 ...
