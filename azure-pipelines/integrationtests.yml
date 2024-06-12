@@ -63,26 +63,27 @@ steps:
     env:
       sqlOnPrem_password: '$(sqlOnPrem_password)'
 
-  - task: AzureKeyVault@1
-    displayName: 'Azure Key Vault: SqlToolsSecretStore'
-    inputs:
-      azureSubscription: 'STS Pipelines' # this is the name of the service connection, which be found in mssqltools/CrossPlatBuildScripts ADO under Project Settings -> Service Connections
-      KeyVaultName: SqlToolsSecretStore
-      SecretsFilter: 'sqltools-backup-url-tests-blobcontaineruri,sqltools-backup-url-tests-storageaccountname,sqltools-backup-url-tests-storageaccountkey'
+  # Uncomment tasks that use secrets while we get context on managed identity
+  # - task: AzureKeyVault@1
+  #   displayName: 'Azure Key Vault: SqlToolsSecretStore'
+  #   inputs:
+  #     azureSubscription: 'STS Pipelines' # this is the name of the service connection, which be found in mssqltools/CrossPlatBuildScripts ADO under Project Settings -> Service Connections
+  #     KeyVaultName: SqlToolsSecretStore
+  #     SecretsFilter: 'sqltools-backup-url-tests-blobcontaineruri,sqltools-backup-url-tests-storageaccountname,sqltools-backup-url-tests-storageaccountkey'
 
   - task: DotNetCoreCLI@2
     displayName: Building Integration Tests
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
 
-  - task: DotNetCoreCLI@2
-    displayName: Running Integration Tests
-    inputs:
-      command: test
-      projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-      arguments: '--no-build'
-      testRunTitle: 'SqlToolsService Integration Tests'
-    env:
-      AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
-      AzureStorageAccountName: '$(sqltools-backup-url-tests-storageaccountname)'
-      AzureBlobContainerUri: '$(sqltools-backup-url-tests-blobcontaineruri)'
+  # - task: DotNetCoreCLI@2
+  #   displayName: Running Integration Tests
+  #   inputs:
+  #     command: test
+  #     projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+  #     arguments: '--no-build'
+  #     testRunTitle: 'SqlToolsService Integration Tests'
+  #   env:
+  #     AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
+  #     AzureStorageAccountName: '$(sqltools-backup-url-tests-storageaccountname)'
+  #     AzureBlobContainerUri: '$(sqltools-backup-url-tests-blobcontaineruri)'
