@@ -23,8 +23,9 @@ jobs:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
     inputs:
       locProj: 'src/LocProject.json'
+      outDir: '$(Build.ArtifactStagingDirectory)'
       packageSourceAuth: patAuth
+      patVariable: '$(OneLocBuildPat)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
-...
