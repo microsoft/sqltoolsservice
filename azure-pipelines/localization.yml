@@ -19,7 +19,7 @@ jobs:
     fetchDepth: 1
     persistCredentials: True
 
-  - script: call build.cmd --target=SRGen
+  - script: call .\build.cmd --target=SRGen
     displayName: Generate xlf files
     workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
 
