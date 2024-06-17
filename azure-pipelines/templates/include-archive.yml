@@ -1,0 +1,77 @@
+parameters:
+  - name: platforms
+    type: object
+    default:
+    - name: 'osx'
+      displayName: 'OSX 64 bit'
+      folder: "osx-x64"
+      archiveType: tar
+      archiveFileName: "osx-x64-$(publishTargetFramework).tar.gz"
+    - name: 'osxArm'
+      displayName: 'OSX ARM 64 bit'
+      folder: "osx-arm64"
+      archiveType: tar
+      archiveFileName: "osx-arm64-$(publishTargetFramework).tar.gz"
+    - name: 'linuxArm'
+      displayName: 'Linux ARM 64 bit'
+      folder: "linux-arm64"
+      archiveType: tar
+      archiveFileName: "linux-arm64-$(publishTargetFramework).tar.gz"
+    - name: 'linux-x64'
+      displayName: 'Linux 64 bit'
+      folder: "linux-x64"
+      archiveType: 'tar'
+      archiveFileName: 'linux-x64-$(publishTargetFramework).tar.gz'
+    - name: 'windowsx64'
+      displayName: 'Windows 64 bit'
+      folder: "win-x64"
+      archiveType: zip
+      archiveFileName: "win-x64-$(publishTargetFramework).zip"
+    - name: 'windowsx86'
+      displayName: 'Windows 32 bit'
+      folder: "win-x86"
+      archiveType: zip
+      archiveFileName: "win-x86-$(publishTargetFramework).zip"
+    - name: 'windowsArm64'
+      displayName: 'Windows ARM 64 bit'
+      folder: "win-arm64"
+      archiveType: zip
+      archiveFileName: "win-arm64-$(publishTargetFramework).zip"
+  - name: publishProjects
+    type: object
+    default:
+    - 'Microsoft.SqlTools.ServiceLayer'
+    - 'Microsoft.SqlTools.Migration'
+
+steps:
+
+- ${{ each project in parameters.publishProjects }}:
+  - ${{ each platform in parameters.platforms }}:
+    - task: ArchiveFiles@1
+      displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
+      inputs:
+        rootFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/publish/${{ project }}/${{platform.folder}}/$(publishTargetFramework)'
+        includeRootFolder: false
+        archiveType: ${{ platform.archiveType }}
+        archiveFile: '$(Build.ArtifactStagingDirectory)/${{ project }}-${{ platform.archiveFileName }}'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files from: artifacts/nugetPackages to $(Build.ArtifactStagingDirectory)/nugetPackages'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/nugetPackages'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/nugetPackages'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files from: artifacts/logs to $(Build.ArtifactStagingDirectory)/logs'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/logs'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
+  condition: always()
+
+- task: CopyFiles@2
+  displayName: 'Copy Files from: msbuild.binlog to $(Build.ArtifactStagingDirectory)/logs'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice'
+    Contents: '*.binlog'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
+  condition: always()

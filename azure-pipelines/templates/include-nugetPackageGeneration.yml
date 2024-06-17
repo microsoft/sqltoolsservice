@@ -1,0 +1,38 @@
+steps:
+
+- task: PowerShell@2
+  displayName: 'Generate ManagedBatchParser Nuspec Version'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $projectFile = '$(Build.SourcesDirectory)\sqltoolsservice\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
+      $props = New-Object XML
+      $props.Load($projectFile)
+      $propGroup = $props.Project.PropertyGroup;
+      $versionPre = '$(ManagedBatchParserMajor)' + '.' + '$(ManagedBatchParserMinor)' + '.'
+      if('$(StableRelease)'.Equals('true')) {
+          $version = $versionPre + '0';
+      } else {
+          $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
+      }
+      $nuspecFile = '$(Build.SourcesDirectory)\sqltoolsservice\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
+      $nuspec = New-Object XML
+      $nuspec.Load($nuspecFile)
+      $nuspec.package.metadata.version = $version;
+      $nuspec.Save($nuspecFile)
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack sqlcore'
+  inputs:
+    command: custom
+    custom: pack
+    arguments: '--output $(Build.ArtifactStagingDirectory)\nugetPackages --no-build --configuration Release -v n $(Build.SourcesDirectory)\sqltoolsservice\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+
+- script: call build.cmd -target=NugetPackNuspec -mono
+  displayName: 'Package nuspec projects'
+  workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
+
+- script: call build.cmd -target=dotnetpackservicetools -mono
+  displayName: 'Build and Package service tool projects'
+  workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
+  env: { BUILD_DOTNET_TOOL: true }

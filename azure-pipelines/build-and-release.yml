@@ -31,5 +31,9 @@ stages:
       demands:
       - ImageOverride -equals ADS-Windows_Image
     steps:
-    - template: build.yml
+    - template: azure-pipelines/templates/include-archive.yml
+
+    - template: azure-pipelines/templates/include-build.yml
+
+    - template: azure-pipelines/templates/include-nugetPackageGeneration.yml
     timeoutInMinutes: 90
