@@ -42,6 +42,24 @@ steps:
     arguments: '-target=all -mono'
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore test/Microsoft.SqlTools.Authentication.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.SqlTools.Authentication.UnitTests
+
+- task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
