@@ -45,33 +45,57 @@ parameters:
 
 steps:
 
-- ${{ each project in parameters.publishProjects }}:
+- ${{ each project in parameters.projects }}:
   - ${{ each platform in parameters.platforms }}:
     - task: ArchiveFiles@1
       displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
       inputs:
-        rootFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/publish/${{ project }}/${{platform.folder}}/$(publishTargetFramework)'
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net8.0'
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
-        archiveFile: '$(Build.ArtifactStagingDirectory)/${{ project }}-${{ platform.archiveFileName }}'
-
-- task: CopyFiles@2
-  displayName: 'Copy Files from: artifacts/nugetPackages to $(Build.ArtifactStagingDirectory)/nugetPackages'
+        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net8.0.${{ platform.archiveFileFormat }}'
+    
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: build archives'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/nugetPackages'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/nugetPackages'
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/package'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files from: artifacts/logs to $(Build.ArtifactStagingDirectory)/logs'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: nuget packages'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/logs'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
-  condition: always()
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    ArtifactName: 'packages'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files from: msbuild.binlog to $(Build.ArtifactStagingDirectory)/logs'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: logs'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice'
-    Contents: '*.binlog'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
-  condition: always()
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
+    ArtifactName: 'logs'
+  condition: true
+
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
+  condition: eq(variables['PUSH_SYMBOLS'], 'true')
+  inputs:
+    command: push
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
+    allowPackageConflicts: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet push SqlCore'
+  condition: eq(variables['RELEASE_SQLCORE'], 'true')
+  inputs:
+    command: push
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg'
+    feedPublish: 'mssqltools'
+    allowPackageConflicts: true
+
+- task: CodeQL3000Finalize@0
+  displayName: 'CodeQL Finalize'
+  condition: eq(variables['Codeql.enabled'], 'True')
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+  inputs:
+    failOnAlert: true
