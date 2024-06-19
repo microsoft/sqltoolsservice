@@ -1,27 +1,18 @@
 steps:
 
+# .NET Core 2.1 SDK is installed for ESRP Code signing task,
+# ESRP currently uses DLL from this path: ~\1.9.111\netcoreapp2.1\esrpcli.dll (found in logs)
+# Can be removed once ESRP codesigning task gets an upgrade and a newer SDK DLL is used.
+- task: UseDotNet@2
+  displayName: 'Use .NET Core 2 sdk'
+  inputs:
+    useGlobalJson: false
+    version: 2.x
+
 - task: UseDotNet@2
   displayName: 'Use defined .NET sdk'
   inputs:
     useGlobalJson: true
-
-- task: CopyFiles@2
-  displayName: 'Copy nuget.config from: ADO repo to Github repo'
-  inputs:
-    Contents: 'nuget.config'
-    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice/'
-    Overwrite: true
-
-- task: PowerShell@2
-  displayName: 'Save STS commit hash into a build pipeline variable'
-  inputs:
-    targetType: 'inline'
-    script: |
-      pushd '$(Build.SourcesDirectory)/sqltoolsservice/'
-      $sts_commit = git log -n 1 --pretty=format:"%H"
-      echo "STS commit" 
-      echo $sts_commit
-      Write-Host "##vso[task.setvariable variable=StsSourceVersion;]$sts_commit"
 
 - task: PowerShell@2
   displayName: 'Add version number to SqlCore project for packaging'
@@ -35,12 +26,16 @@ steps:
       $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
 
+- task: CodeQL3000Init@0
+  displayName: 'CodeQL Initialize'
+  condition: eq(variables['Codeql.enabled'], 'True')
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
     filename: build.cmd
     arguments: '-target=all -mono'
-
+    
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
@@ -63,25 +58,25 @@ steps:
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
-    projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
+    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
-    arguments: '--configuration Release --collect "XPlat Code Coverage"'
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: test
-    projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.Kusto.ServiceLayer.UnitTests
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
-    arguments: '--configuration Release --collect "XPlat Code Coverage"'
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.Authentication.UnitTests'
   inputs:
     command: test
-    projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.Authentication.UnitTests
+    projects: test/Microsoft.SqlTools.Authentication.UnitTests
     testRunTitle: SqlTools.Authentication.UnitTests
-    arguments: '--configuration Release --collect "XPlat Code Coverage"'
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - script: |
     dotnet tool install -g dotnet-reportgenerator-globaltool
