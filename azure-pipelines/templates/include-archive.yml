@@ -2,46 +2,47 @@ parameters:
   - name: platforms
     type: object
     default:
-    - name: 'osx'
+    - name: 'osx-x64'
       displayName: 'OSX 64 bit'
-      folder: "osx-x64"
-      archiveType: tar
-      archiveFileName: "osx-x64-$(publishTargetFramework).tar.gz"
-    - name: 'osxArm'
+      archiveName: 'osx-x64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'osx-arm64'
       displayName: 'OSX ARM 64 bit'
-      folder: "osx-arm64"
-      archiveType: tar
-      archiveFileName: "osx-arm64-$(publishTargetFramework).tar.gz"
-    - name: 'linuxArm'
-      displayName: 'Linux ARM 64 bit'
-      folder: "linux-arm64"
-      archiveType: tar
-      archiveFileName: "linux-arm64-$(publishTargetFramework).tar.gz"
+      archiveName: 'osx-arm64-unsigned'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'win-x64'
+      displayName: 'Windows 64 bit'
+      archiveName: 'win-x64'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'win-x86'
+      displayName: 'Windows 32 bit'
+      archiveName: 'win-x86'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'win-arm64'
+      archiveName: 'win-arm64'
+      displayName: 'Windows ARM 64 bit'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
     - name: 'linux-x64'
       displayName: 'Linux 64 bit'
-      folder: "linux-x64"
+      archiveName: 'linux-x64'
+      archiveFileFormat: 'tar.gz'
       archiveType: 'tar'
-      archiveFileName: 'linux-x64-$(publishTargetFramework).tar.gz'
-    - name: 'windowsx64'
-      displayName: 'Windows 64 bit'
-      folder: "win-x64"
-      archiveType: zip
-      archiveFileName: "win-x64-$(publishTargetFramework).zip"
-    - name: 'windowsx86'
-      displayName: 'Windows 32 bit'
-      folder: "win-x86"
-      archiveType: zip
-      archiveFileName: "win-x86-$(publishTargetFramework).zip"
-    - name: 'windowsArm64'
-      displayName: 'Windows ARM 64 bit'
-      folder: "win-arm64"
-      archiveType: zip
-      archiveFileName: "win-arm64-$(publishTargetFramework).zip"
-  - name: publishProjects
+    - name: 'linux-arm64'
+      archiveName: 'linux-arm64'
+      displayName: 'Linux ARM 64 bit'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+  - name: projects
     type: object
     default:
     - 'Microsoft.SqlTools.ServiceLayer'
     - 'Microsoft.SqlTools.Migration'
+
 
 steps:
 
