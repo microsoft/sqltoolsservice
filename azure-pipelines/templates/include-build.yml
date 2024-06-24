@@ -35,9 +35,10 @@ steps:
       $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
 
-- script: call build.cmd -target=all -mono
+- task: BatchScript@1
+  script: call build.cmd -target=all -mono
   displayName: 'Run script build.cmd'
-  workingDirectory: $(Build.SourcesDirectory)/sqltoolsservice
+  workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
