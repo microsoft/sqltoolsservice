@@ -36,9 +36,10 @@ steps:
       $props.Save($projectFile)
 
 - task: BatchScript@1
-  script: call build.cmd -target=all -mono
   displayName: 'Run script build.cmd'
-  workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
+   inputs:
+    filename: build.cmd
+    arguments: '-target=all -mono'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
