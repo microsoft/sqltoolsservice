@@ -46,14 +46,14 @@ steps:
   displayName: 'Find UnitTest folder'
   inputs:
     script: |
-      echo $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
-      ls -l $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
+      echo $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests
+      ls -l $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
+  displayName: 'dotnet test $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
-    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+    projects: $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
 
@@ -61,7 +61,7 @@ steps:
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: test
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+    projects: $(Build.SourcesDirectory)/test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
 
@@ -69,7 +69,7 @@ steps:
   displayName: 'dotnet test test/Microsoft.SqlTools.Authentication.UnitTests'
   inputs:
     command: test
-    projects: test/Microsoft.SqlTools.Authentication.UnitTests
+    projects: $(Build.SourcesDirectory)/test/Microsoft.SqlTools.Authentication.UnitTests
     testRunTitle: SqlTools.Authentication.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
 
