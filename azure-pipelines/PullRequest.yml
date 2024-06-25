@@ -79,14 +79,14 @@ extends:
           ob_artifactBaseName: 'drop_Build'
         
         steps: # These steps will be run in unrestricted container's network
-    - checkout: sqltoolsservice
-      path: s/sqltoolsservice
-      displayName: 'Checkout sqltoolsservice github repo'
-      clean: 'true'
+        - checkout: sqltoolsservice
+          path: s/sqltoolsservice
+          displayName: 'Checkout sqltoolsservice github repo'
+          clean: 'true'
 
-    - template: templates/include-build.yml
+        - template: templates/include-build.yml
 
-    - template: templates/include-archive.yml
+        - template: templates/include-archive.yml
 
-    - template: templates/include-nugetPackageGeneration.yml
-    timeoutInMinutes: 90
+        - template: templates/include-nugetPackageGeneration.yml
+        timeoutInMinutes: 90
