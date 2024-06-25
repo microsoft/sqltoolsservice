@@ -84,9 +84,12 @@ extends:
           displayName: 'Checkout sqltoolsservice github repo'
           clean: 'true'
 
-        - template: templates/include-build.yml@self
+        - template: .pipelines\include-build.yml@self
 
-        - template: templates/include-archive.yml@self
+        - template: .pipelines\include-nugetPackageGeneration.yml@self
 
-        - template: templates/include-nugetPackageGeneration.yml@self
-        timeoutInMinutes: 90
+        - template: .pipelines\include-archive.yml@self
+
+        
+        timeoutInMinutes: 100
+      
