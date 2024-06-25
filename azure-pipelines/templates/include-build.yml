@@ -35,10 +35,10 @@ steps:
       $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
 
-- task: BatchScript@1
-  displayName: 'Run script build.cmd'
+- task: PowerShell@2
+  displayName: 'Run script build.ps1'
   inputs:
-    filename: build.cmd
+    filePath: ./build.ps1
     arguments: '-target=all -mono'
 
 - task: DotNetCoreCLI@2
