@@ -42,11 +42,12 @@ steps:
     arguments: '-target=all -mono'
 
 
-- task: PowerShell@2
+- task: CmdLine@2
   displayName: 'Find UnitTest folder'
   inputs:
     script: |
       echo $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
+      echo ls -l $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests'
