@@ -80,9 +80,9 @@ extends:
         
         steps: # These steps will be run in unrestricted container's network
     - checkout: sqltoolsservice
-        path: s/sqltoolsservice
-        displayName: 'Checkout sqltoolsservice github repo'
-        clean: 'true'
+      path: s/sqltoolsservice
+      displayName: 'Checkout sqltoolsservice github repo'
+      clean: 'true'
 
     - template: templates/include-build.yml
 
