@@ -44,8 +44,9 @@ steps:
 
 - task: PowerShell@2
   displayName: 'Find UnitTest folder'
-  script: |
-    echo $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  inputs:
+    script: |
+      echo $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests'
