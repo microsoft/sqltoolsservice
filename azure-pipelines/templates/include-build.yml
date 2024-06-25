@@ -37,7 +37,7 @@ steps:
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
-   inputs:
+  inputs:
     filename: build.cmd
     arguments: '-target=all -mono'
 
