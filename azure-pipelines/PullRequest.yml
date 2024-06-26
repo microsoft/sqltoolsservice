@@ -15,6 +15,8 @@ variables:
 stages:
 - stage: Build
   variables:
+  - name: publishTargetFramework
+    value: 'net8.0'
   - name: buildConfiguration
     value: 'Release'
   - name: ManagedBatchParserMajor
