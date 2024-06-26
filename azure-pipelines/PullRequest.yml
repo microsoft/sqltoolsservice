@@ -36,7 +36,7 @@ stages:
 
     - template: templates/include-build.yml
 
-    - template: templates/include-archive.yml
-
     - template: templates/include-nugetPackageGeneration.yml
+
+    - template: templates/include-archive.yml
     timeoutInMinutes: 90
