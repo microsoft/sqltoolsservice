@@ -31,10 +31,7 @@ stages:
       demands:
       - ImageOverride -equals ADS-Windows_Image
     steps:
-    - checkout: sqltoolsservice
-      path: s/sqltoolsservice
-      displayName: 'Checkout sqltoolsservice github repo'
-      clean: 'true'
+
     - template: templates/include-build.yml
 
     - template: templates/include-archive.yml

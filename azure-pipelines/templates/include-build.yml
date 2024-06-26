@@ -6,6 +6,14 @@ steps:
     useGlobalJson: true
 
 - task: CopyFiles@2
+  displayName: 'Copy Build.SourcesDirectory to sqltoolsservice'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice'
+    Overwrite: true
+
+- task: CopyFiles@2
   displayName: 'Copy nuget.config from: ADO repo to Github repo'
   inputs:
     Contents: 'nuget.config'
