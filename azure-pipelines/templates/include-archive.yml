@@ -43,14 +43,6 @@ parameters:
     - 'Microsoft.SqlTools.ServiceLayer'
     - 'Microsoft.SqlTools.Migration'
 
-steps:
-- task: CopyFiles@2
-  displayName: 'Copy Build.SourcesDirectory/artifacts to sqltoolsservice/artifacts'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/artifacts'
-    Contents: '**'
-    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts'
-    Overwrite: true
 
 - ${{ each project in parameters.publishProjects }}:
   - ${{ each platform in parameters.platforms }}:

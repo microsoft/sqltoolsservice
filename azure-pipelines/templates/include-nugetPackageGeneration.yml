@@ -28,6 +28,15 @@ steps:
     custom: pack
     arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration Release -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
+steps:
+- task: CopyFiles@2
+  displayName: 'Copy Build.SourcesDirectory/artifacts to sqltoolsservice/artifacts'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/artifacts'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts'
+    Overwrite: true
+
 - task: PowerShell@2
   displayName: 'Package nuspec projects'
   inputs:
@@ -41,9 +50,4 @@ steps:
     filePath: ./build.ps1
     arguments: '-target=dotnetpackservicetools -mono'
     workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
-  env: { BUILD_DOTNET_TOOL: true }
-
-- script: call build.ps1 -target=dotnetpackservicetools -mono
-  displayName: 'Build and Package service tool projects'
-  workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
   env: { BUILD_DOTNET_TOOL: true }
