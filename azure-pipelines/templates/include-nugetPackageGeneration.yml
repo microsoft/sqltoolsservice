@@ -28,9 +28,20 @@ steps:
     custom: pack
     arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration Release -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
-- script: call build.ps1 -target=NugetPackNuspec -mono
+- task: PowerShell@2
   displayName: 'Package nuspec projects'
-  workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
+  inputs:
+    filePath: ./build.ps1
+    arguments: '-target=NugetPackNuspec -mono'
+    workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
+
+- task: PowerShell@2
+  displayName: 'Build and Package service tool projects'
+  inputs:
+    filePath: ./build.ps1
+    arguments: '-target=dotnetpackservicetools -mono'
+    workingDirectory: $(Build.SourcesDirectory)\sqltoolsservice
+  env: { BUILD_DOTNET_TOOL: true }
 
 - script: call build.ps1 -target=dotnetpackservicetools -mono
   displayName: 'Build and Package service tool projects'
