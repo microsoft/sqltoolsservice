@@ -26,7 +26,7 @@ steps:
   inputs:
     command: custom
     custom: pack
-    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration Release -v n $(Build.SourcesDirectory)\sqltoolsservice\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration Release -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - script: call build.cmd -target=NugetPackNuspec -mono
   displayName: 'Package nuspec projects'
