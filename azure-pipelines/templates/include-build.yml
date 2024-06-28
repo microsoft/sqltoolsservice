@@ -50,7 +50,7 @@ steps:
     arguments: '-target=all -mono'
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet test $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests'
+  displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
     projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
