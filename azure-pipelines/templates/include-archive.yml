@@ -43,6 +43,7 @@ parameters:
     - 'Microsoft.SqlTools.ServiceLayer'
     - 'Microsoft.SqlTools.Migration'
 
+steps:
 
 - ${{ each project in parameters.publishProjects }}:
   - ${{ each platform in parameters.platforms }}:
