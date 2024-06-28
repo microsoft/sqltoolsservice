@@ -28,7 +28,6 @@ steps:
     custom: pack
     arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration Release -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
-steps:
 - task: CopyFiles@2
   displayName: 'Copy Build.SourcesDirectory/artifacts to sqltoolsservice/artifacts'
   inputs:
