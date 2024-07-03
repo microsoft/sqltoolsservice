@@ -5,7 +5,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $projectFile = '$(Build.SourcesDirectory)\sqltoolsservice\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
       $props = New-Object XML
       $props.Load($projectFile)
       $propGroup = $props.Project.PropertyGroup;
