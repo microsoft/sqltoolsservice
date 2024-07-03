@@ -58,20 +58,20 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Files from: artifacts/nugetPackages to $(Build.ArtifactStagingDirectory)/nugetPackages'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/nugetPackages'
+    SourceFolder: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/nugetPackages'
 
 - task: CopyFiles@2
   displayName: 'Copy Files from: artifacts/logs to $(Build.ArtifactStagingDirectory)/logs'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/logs'
+    SourceFolder: '$(Build.SourcesDirectory)/artifacts/logs'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
   condition: always()
 
 - task: CopyFiles@2
   displayName: 'Copy Files from: msbuild.binlog to $(Build.ArtifactStagingDirectory)/logs'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/sqltoolsservice'
+    SourceFolder: '$(Build.SourcesDirectory)'
     Contents: '*.binlog'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
   condition: always()
