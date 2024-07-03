@@ -50,7 +50,7 @@ steps:
     - task: ArchiveFiles@1
       displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
       inputs:
-        rootFolder: '$(Build.SourcesDirectory)/sqltoolsservice/artifacts/publish/${{ project }}/${{platform.folder}}/$(publishTargetFramework)'
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{platform.folder}}/$(publishTargetFramework)'
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
         archiveFile: '$(Build.ArtifactStagingDirectory)/${{ project }}-${{ platform.archiveFileName }}'
