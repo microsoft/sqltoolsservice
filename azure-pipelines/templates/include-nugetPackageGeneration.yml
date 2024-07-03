@@ -15,7 +15,7 @@ steps:
       } else {
           $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
       }
-      $nuspecFile = '$(Build.SourcesDirectory)\sqltoolsservice\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
+      $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
       $nuspec = New-Object XML
       $nuspec.Load($nuspecFile)
       $nuspec.package.metadata.version = $version;
