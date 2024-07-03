@@ -6,18 +6,10 @@ steps:
     useGlobalJson: true
 
 - task: CopyFiles@2
-  displayName: 'Copy Build.SourcesDirectory to sqltoolsservice'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: '**'
-    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice'
-    Overwrite: true
-
-- task: CopyFiles@2
   displayName: 'Copy nuget.config from: ADO repo to Github repo'
   inputs:
     Contents: 'nuget.config'
-    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice/'
+    TargetFolder: '$(Build.SourcesDirectory)/'
     Overwrite: true
 
 - task: PowerShell@2
@@ -25,7 +17,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      pushd '$(Build.SourcesDirectory)/sqltoolsservice/'
+      pushd '$(Build.SourcesDirectory)/'
       $sts_commit = git log -n 1 --pretty=format:"%H"
       echo "STS commit" 
       echo $sts_commit
@@ -36,7 +28,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $projectFile = '$(Build.SourcesDirectory)/sqltoolsservice/src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
+      $projectFile = '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
       $props = New-Object XML
       $props.Load($projectFile)
       $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
@@ -46,14 +38,14 @@ steps:
 - task: PowerShell@2
   displayName: 'Run script build.ps1'
   inputs:
-    filePath: ./sqltoolsservice/build.ps1
+    filePath: $(Build.SourcesDirectory)/build.ps1
     arguments: '-target=all -mono'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
-    projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.ServiceLayer.UnitTests
+    projects: $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
 
@@ -61,7 +53,7 @@ steps:
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: test
-    projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.Kusto.ServiceLayer.UnitTests
+    projects: $(Build.SourcesDirectory)/test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
 
@@ -69,7 +61,7 @@ steps:
   displayName: 'dotnet test test/Microsoft.SqlTools.Authentication.UnitTests'
   inputs:
     command: test
-    projects: $(Build.SourcesDirectory)/sqltoolsservice/test/Microsoft.SqlTools.Authentication.UnitTests
+    projects: $(Build.SourcesDirectory)/test/Microsoft.SqlTools.Authentication.UnitTests
     testRunTitle: SqlTools.Authentication.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
 
