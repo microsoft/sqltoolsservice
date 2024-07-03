@@ -9,7 +9,7 @@ steps:
   displayName: 'Copy nuget.config from: ADO repo to Github repo'
   inputs:
     Contents: 'nuget.config'
-    TargetFolder: '$(Build.SourcesDirectory)/'
+    TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice/'
     Overwrite: true
 
 - task: PowerShell@2
@@ -17,7 +17,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      pushd '$(Build.SourcesDirectory)/'
+      pushd '$(Build.SourcesDirectory)/sqltoolsservice/'
       $sts_commit = git log -n 1 --pretty=format:"%H"
       echo "STS commit" 
       echo $sts_commit
