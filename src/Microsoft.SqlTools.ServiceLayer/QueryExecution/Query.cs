@@ -22,6 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Text;
+using System.Data;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -700,6 +701,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
             }
 
+#if false
             // append first part of exec options
             builderBefore.AppendFormat("{0} {1} {2}",
                 helper.SetRowCountString, helper.SetTextSizeString, helper.SetNoCountString);
@@ -743,6 +745,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
                 }
             }
+#endif
+            if (!connection.IsSqlDW)
+            {
+                // "set noexec on" should be the very last command, cause everything after it is not
+                // being executed unitl "set noexec off" is encounered
+                // NOEXEC is not currently supported by SqlOnDemand servers
+                if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
+            }
 
             // add connection option statements before query execution
             if (builderBefore.Length > 0)
@@ -754,6 +767,310 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (builderAfter.Length > 0)
             {
                 AddBatch(builderAfter.ToString(), AfterBatches, outputFactory);
+            }
+        }
+
+#if false
+        /// <summary>
+        /// process requested execution options by filling out m_setConnectionOptionsBatches
+        /// and m_restoreConnectionOptionsBatches members
+        /// </summary>
+        protected void ProcessExecOptions(IDbConnection dbConnection, bool isSqlDw)
+        {
+            System.Diagnostics.Debug.Assert(m_execOptions != null);
+            System.Diagnostics.Debug.Assert(dbConnection != null);
+
+            execOptionHasBeenChanged = true;
+
+            StringBuilder strBldBefore = new StringBuilder(128);
+            StringBuilder strBldAfter = new StringBuilder(128);
+
+            String strBefore = String.Empty;
+            String strAfter = String.Empty;
+
+            // if we switch connection on the fly, we have to clean up
+            // old options
+            CleanupBatchCollection(m_setConnectionOptionsBatches);
+            CleanupBatchCollection(m_restoreConnectionOptionsBatches);
+
+            m_specialActions = QESQLBatchSpecialAction.None;
+            
+            // adjust if batch is Dw
+            m_curBatch.IsSqlDw = isSqlDw;
+
+           
+
+            int serverMajorVersion = 10;
+            bool multiServerConnection = false;
+
+            try
+            {
+                if (dbConnection is SqlConnection)
+                {
+                    serverMajorVersion = new Version(((SqlConnection)dbConnection).ServerVersion).Major;
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError(ex.Message);
+            }
+
+            if (!isSqlDw)
+            {
+                //"set noexec off" should be the very first command, cause everything after
+                //corresponding "set noexec on" is not executed until "set noexec off"
+                //is encounted
+                if (m_execOptions.WithNoExec)
+                {
+                    
+                    strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetNoExecString(false));
+                }
+
+                if (m_execOptions.WithStatisticsIO)
+                {
+                    
+
+                    strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsIOString (true));
+                    strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsIOString (false));
+                }
+
+                if (m_execOptions.WithStatisticsTime)
+                {
+                    
+
+                    strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsTimeString (true));
+                    strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsTimeString(false));
+                }
+            }
+
+            if (m_execOptions.WithDebugging)
+            {
+                m_specialActions |= QESQLBatchSpecialAction.ExecuteWithDebugging;
+            }
+
+            // Client statistics and showplan are not shown for multi-server connections.  If we do decide to show
+            // showplan or statistics for multi-server connections, each child server connection will need
+            // its own setting because the child servers do not have to be the same version.
+            if (!multiServerConnection)
+            {
+                //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
+                //over all other showplan related settings that might have been specified via Connection Settings
+                //UI
+                if (m_execOptions.WithEstimatedShowPlan)
+                {
+                    
+
+                    //estimated showplan should be the only statement in the batch
+                    m_specialActions &= ~QESQLBatchSpecialAction.ShowPlanMask;
+
+                    if (serverMajorVersion >= 9)
+                    {
+                        m_setConnectionOptionsBatches.Insert(0, new QESQLBatch(true,
+                            QESQLExecutionOptions.GetSetShowPlanXmlString(true), m_execTimeout));
+                        m_restoreConnectionOptionsBatches.Add(new QESQLBatch(true,
+                            QESQLExecutionOptions.GetSetShowPlanXmlString(false), m_execTimeout));
+
+                        m_specialActions |= QESQLBatchSpecialAction.ExpectEstimatedYukonXmlShowPlan;
+                    }
+                    else
+                    {
+                        m_setConnectionOptionsBatches.Insert(0, new QESQLBatch(true,
+                            QESQLExecutionOptions.GetSetShowPlanAllString(true), m_execTimeout));
+                        m_restoreConnectionOptionsBatches.Add(new QESQLBatch(true,
+                            QESQLExecutionOptions.GetSetShowPlanAllString(false), m_execTimeout));
+
+                        m_specialActions |= QESQLBatchSpecialAction.ExpectEstimatedExecutionPlan;
+                    }
+                }
+                else if (m_execOptions.WithStatisticsProfile || m_execOptions.WithShowPlan || m_execOptions.WithShowLivePlan)
+                {
+                    
+                    // If not Dw, then eanble statistics.
+                    if (!isSqlDw)
+                    {
+                        if (serverMajorVersion >= 9)
+                        {
+                            strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsXml(true));
+                            strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsXml(false));
+
+                            if (m_execOptions.WithShowLivePlan)
+                            {
+                                strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsProfileString(true));
+                                strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsProfileString(false));
+
+                                m_specialActions |= QESQLBatchSpecialAction.ExecuteLivePlan;
+                            }
+
+                            // see if it is graphical showplan
+                            if (m_execOptions.WithShowPlan)
+                            {
+                                m_specialActions &= ~QESQLBatchSpecialAction.ShowPlanMask;
+                                m_specialActions |= QESQLBatchSpecialAction.ExpectActualYukonXmlShowPlan;
+                            }
+                        }
+                        else
+                        {
+                            strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsProfileString(true));
+                            strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetStatisticsProfileString(false));
+
+                            //see if it is graphical showplan
+                            if (m_execOptions.WithShowPlan)
+                            {
+                                m_specialActions &= ~QESQLBatchSpecialAction.ShowPlanMask;
+                                m_specialActions |= QESQLBatchSpecialAction.ExpectActualExecutionPlan;
+                            }
+                        }
+                    }
+                    // if dw show live plan is enabled
+                    // then enable show plan xml
+                    // execute the original query to get the execution plan xml
+                    // turn show plan off
+
+                    else if (m_execOptions.WithShowLivePlan)
+                    {
+                        m_setConnectionOptionsBatches.Insert(0, new QESQLBatch(bNoResultsExpected: true, sqlText: QESQLExecutionOptions.GetSetShowPlanXmlString(on: true), execTimeout: m_execTimeout, isSqlDw: true));
+                        m_setConnectionOptionsBatches.Add(new QESQLBatch(bNoResultsExpected: false, sqlText: this.textSpan.Text, execTimeout: m_execTimeout, isSqlDw: true));
+                        m_setConnectionOptionsBatches.Add(new QESQLBatch(bNoResultsExpected: true, sqlText: QESQLExecutionOptions.GetSetShowPlanXmlString(on: false), execTimeout: m_execTimeout, isSqlDw: true));
+
+                        m_specialActions |= QESQLBatchSpecialAction.ExecuteLivePlan;
+                    }
+                }
+            }
+
+            if (m_execOptions.ParseOnly)
+            {
+                
+
+                strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetParseOnlyString(true));
+                strBldAfter.AppendFormat("{0} ", QESQLExecutionOptions.GetSetParseOnlyString(false));
+            }
+
+            if (!isSqlDw)
+            {
+                //"set noexec on" should be the very last command, cause everything after it is not
+                //being executed unitl "set noexec off" is encounered
+                if (m_execOptions.WithNoExec)
+                {
+                    
+                    strBldBefore.AppendFormat("{0} ", QESQLExecutionOptions.GetSetNoExecString(true));
+                }
+            }
+
+            strBefore = strBldBefore.ToString().Trim();
+            strAfter = strBldAfter.ToString().Trim();
+
+            if (strBefore.Length != 0)
+            {
+                //all "set <> on" MUST have corresponding "set <> off"
+                System.Diagnostics.Debug.Assert(strAfter != null);
+
+                m_setConnectionOptionsBatches.Add(new QESQLBatch(true, strBefore, m_execTimeout));
+                m_restoreConnectionOptionsBatches.Add(new QESQLBatch(true, strAfter, m_execTimeout));
+            }
+
+            if (!isSqlDw)
+            {
+                //"SET SHOWPLAN_TEXT ON/OFF" should be the only statements in a batch,
+                //so create 2 batches for them
+                //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
+                //over all other showplan related settings that might have been specified via Connection Settings
+                //UI
+                if (!multiServerConnection && m_execOptions.WithShowPlanText && !m_execOptions.WithStatisticsProfile &&
+                    !m_execOptions.WithShowPlan && !m_execOptions.WithEstimatedShowPlan)
+                {
+                    
+
+                    m_setConnectionOptionsBatches.Insert(0, new QESQLBatch(true,
+                        QESQLExecutionOptions.GetSetShowplanTextString(true), m_execTimeout));
+                    m_restoreConnectionOptionsBatches.Add(new QESQLBatch(true,
+                        QESQLExecutionOptions.GetSetShowplanTextString(false), m_execTimeout));
+                }
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Applies specified connection options for the specified connection
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="settings"></param>
+        private async void ApplyConnectionOptions(ConnectionInfo connection, QueryExecutionSettings settings)
+        {
+
+            DbConnection conn = await ConnectionService.Instance.GetOrOpenConnection(connection.OwnerUri, ConnectionType.Default);
+            QuerySettingsHelper helper = new QuerySettingsHelper(settings);
+            
+            System.Diagnostics.Debug.Assert(conn != null);
+            System.Diagnostics.Debug.Assert(conn.State == ConnectionState.Open);
+
+            StringBuilder strBuilder = new StringBuilder(512);
+
+            //append first part of exec options
+            strBuilder.AppendFormat("{0} {1} {2}",
+                                    helper.SetRowCountString,  helper.SetTextSizeString,
+                                    helper.SetNoCountString
+                                    //NOTE: these were excluded from UI exposure with the options dlg redesign
+                                    //,s.SetNumericAbortString, s.SetFmtOnlyString, s.SetForceplanString
+                                   );
+
+            if (!connection.IsSqlDW)
+            {
+                //append second part of exec options
+                strBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetConcatenationNullString,
+                                        helper.SetArithAbortString,
+                                        helper.SetLockTimeoutString,
+                                        helper.SetQueryGovernorCostString,
+                                        helper.SetDeadlockPriorityString,
+                                        helper.SetTransactionIsolationLevelString,
+                                        //We treat XACT_ABORT special in that we don't add anything if the option
+                                        //isn't checked. This is because we don't want to be overwriting the server
+                                        //if it has a default of ON since that's something people would specifically
+                                        //set and having a client change it could be dangerous (the reverse is much
+                                        //less risky)
+
+                                        //The full fix would probably be to make the options tri-state instead of
+                                        //just on/off, where the default is to use the servers default. Until that
+                                        //happens though this is the best solution we came up with. See TFS#7937925
+
+                                        //Note that users can always specifically add SET XACT_ABORT OFF to their
+                                        //queries if they do truly want to set it off. We just don't want SSMS to
+                                        //do it silently (since the default is going to be off)
+                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
+
+            //append Ansi options
+            strBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
+                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
+                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
+            }
+  
+
+            string strFinalString = strBuilder.ToString();
+            SqlCommand sqlCommand = null;
+
+            try
+            {
+                if (conn is SqlConnection)
+                {
+                    sqlCommand = new SqlCommand(strFinalString, (SqlConnection) conn);
+                    sqlCommand.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError(ex.Message);
+                StringBuilder strBld = new StringBuilder(100);
+                strBld.AppendFormat("Unable to apply settings '%s'", ex.Message);
+            }
+            finally
+            {
+                if (sqlCommand != null)
+                {
+                    sqlCommand.Dispose();
+                    sqlCommand = null;
+                }
             }
         }
 
