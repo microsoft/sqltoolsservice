@@ -2,6 +2,12 @@ $JobId =  "$(ESCAPE_SQUOTE(JOBID))"
 $StartTime = "$(ESCAPE_SQUOTE(STRTTM))"
 $StartDate = "$(ESCAPE_SQUOTE(STRTDT))"
 $JSONTable = "select * from notebooks.nb_template where job_id = $JobId"
+# so that we can use Invoke-Sqlcmd with named instances lets set a variable to the host\instancename
+$SqlInstance = '{0}\{1}' -f "$(ESCAPE_SQUOTE(MACH))", "$(ESCAPE_SQUOTE(INST))"
+# so that every time we call Invoke-Sqlcmd we don't have to specify the server instance
+ $PSDefaultParameterValues = @{
+     "Invoke-SqlCmd:ServerInstance" = $SqlInstance
+}
 $sqlResult = Invoke-Sqlcmd -Query $JSONTable -Database $TargetDatabase -MaxCharLength 2147483647
 $FirstNotebookError = ""
 function ParseTableToNotebookOutput {
@@ -59,7 +65,7 @@ function ParseQueryErrorToNotebookOutput {
     ", State " + $QueryError.Exception.InnerException.State +
     ", Line " + $QueryError.Exception.InnerException.LineNumber +
     "`r`n" + $QueryError.Exception.Message
-    
+
     $ErrorOutput = @{ }
     $ErrorOutput["output_type"] = "error"
     $ErrorOutput["traceback"] = @()
