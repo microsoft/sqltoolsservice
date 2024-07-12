@@ -75,6 +75,7 @@
     <PackageReference Update="System.Security.Permissions" Version="8.0.0" />
     <PackageReference Update="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Update="System.Text.Encodings.Web" Version="8.0.0" />
+    <PackageReference Update="System.Text.Json " Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>
