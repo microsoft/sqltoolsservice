@@ -6,23 +6,23 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
-using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Text;
-using System.Data;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
