@@ -4,8 +4,6 @@ steps:
   displayName: 'Use defined .NET sdk'
   inputs:
     useGlobalJson: true
-  env:
-    ob_restore_phase: true
 
 - task: CopyFiles@2
   displayName: 'Copy nuget.config from: ADO repo to Github repo'
@@ -13,8 +11,6 @@ steps:
     Contents: 'nuget.config'
     TargetFolder: '$(Build.SourcesDirectory)/sqltoolsservice/'
     Overwrite: true
-  env:
-    ob_restore_phase: true
 
 - task: PowerShell@2
   displayName: 'Save STS commit hash into a build pipeline variable'
@@ -26,8 +22,6 @@ steps:
       echo "STS commit" 
       echo $sts_commit
       Write-Host "##vso[task.setvariable variable=StsSourceVersion;]$sts_commit"
-  env:
-    ob_restore_phase: true
 
 - task: PowerShell@2
   displayName: 'Add version number to SqlCore project for packaging'
@@ -40,16 +34,12 @@ steps:
       $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
       $props.Project.PropertyGroup.Version = $version;
       $props.Save($projectFile)
-  env:
-    ob_restore_phase: true
 
 - task: PowerShell@2
   displayName: 'Run script build.ps1'
   inputs:
     filePath: $(Build.SourcesDirectory)/build.ps1
     arguments: '-target=all -mono'
-  env:
-    ob_restore_phase: true
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
@@ -58,8 +48,6 @@ steps:
     projects: $(Build.SourcesDirectory)/test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
-  env:
-    ob_restore_phase: true
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
@@ -68,8 +56,6 @@ steps:
     projects: $(Build.SourcesDirectory)/test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
-  env:
-    ob_restore_phase: true
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.Authentication.UnitTests'
@@ -78,20 +64,14 @@ steps:
     projects: $(Build.SourcesDirectory)/test/Microsoft.SqlTools.Authentication.UnitTests
     testRunTitle: SqlTools.Authentication.UnitTests
     arguments: '--configuration Release --collect "XPlat Code Coverage"'
-  env:
-    ob_restore_phase: true
 
 - script: |
     dotnet tool install -g dotnet-reportgenerator-globaltool
     reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura"
   displayName: Create Code coverage report
-  env:
-    ob_restore_phase: true
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
-  env:
-    ob_restore_phase: true
