@@ -1289,10 +1289,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             DbConnection dbConnection = await ConnectionService.GetOrOpenConnection(connection.OwnerUri, ConnectionType.Default);
             ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
-            using(SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection())) 
+            if (reliableSqlConnection != null)
             {
-                  cmd.CommandType = CommandType.Text;
-                  cmd.ExecuteNonQuery(); 
+                using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection())) 
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery(); 
+                }
             }
         }
 
