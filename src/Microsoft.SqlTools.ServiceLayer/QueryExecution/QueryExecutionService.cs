@@ -8,23 +8,27 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -124,6 +128,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal ConcurrentDictionary<string, QueryExecutionSettings> ActiveQueryExecutionSettings => queryExecutionSettings.Value;
 
         /// <summary>
+        /// The collection of query session execution options tracking flags
+        /// </summary>
+        internal ConcurrentDictionary<string, bool> QuerySessionSettingsApplied => querySessionSettingsApplied.Value;
+        
+        /// <summary>
         /// Internal task for testability
         /// </summary>
         internal Task WorkTask { get; private set; }
@@ -146,6 +155,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> queryExecutionSettings =
             new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());
+
+        /// <summary>
+        /// Internal storage of tracking flags for whether query sessions settings have been applied
+        /// </summary>
+        private readonly Lazy<ConcurrentDictionary<string, bool>> querySessionSettingsApplied =
+            new Lazy<ConcurrentDictionary<string, bool>>(() => new ConcurrentDictionary<string, bool>());
 
         /// <summary>
         /// Settings that will be used to execute queries. Internal for unit testing
@@ -204,6 +219,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Register a handler for when the configuration changes
             WorkspaceService.RegisterConfigChangeCallback(UpdateSettings);
+
+            // Register a callback for when a connection is created
+            ConnectionService.RegisterOnConnectionTask(OnNewConnection);
         }
 
         #region Request Handlers
@@ -363,17 +381,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             try
             {
-                string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
-                string NewOwnerUri = changeUriParams.NewOwnerUri;
-                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
+                string originalOwnerUri = changeUriParams.OriginalOwnerUri;
+                string newOwnerUri = changeUriParams.NewOwnerUri;
+                ConnectionService.ReplaceUri(originalOwnerUri, newOwnerUri);
                 // Attempt to load the query
                 Query query;
-                if (!ActiveQueries.TryRemove(OriginalOwnerUri, out query))
+                if (!ActiveQueries.TryRemove(originalOwnerUri, out query))
                 {
-                    throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
+                    throw new Exception("Uri: " + originalOwnerUri + " is not associated with an active query.");
                 }
-                query.ConnectionOwnerURI = NewOwnerUri;
-                ActiveQueries.TryAdd(NewOwnerUri, query);
+                query.ConnectionOwnerURI = newOwnerUri;
+                ActiveQueries.TryAdd(newOwnerUri, query);
+
+                // Update the session query execution options applied map
+                bool settingsApplied;
+                if (!QuerySessionSettingsApplied.TryRemove(originalOwnerUri, out settingsApplied))
+                {
+                    throw new Exception("Uri: " + originalOwnerUri + " is not associated with an active query settings.");
+                }
+                QuerySessionSettingsApplied.TryAdd(newOwnerUri, settingsApplied);
+
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -627,6 +654,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
+            if (connInfo == null)
+            {
+                ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo);
+            }
+
+            bool sessionSettingsApplied;
+            if (!this.QuerySessionSettingsApplied.TryGetValue(connInfo.OwnerUri, out sessionSettingsApplied))
+            {
+                sessionSettingsApplied = false;
+            }
+
+            if (!sessionSettingsApplied)
+            {
+                ApplySessionQueryExecutionOptions(connInfo, newQuery.Settings);
+                this.QuerySessionSettingsApplied.AddOrUpdate(connInfo.OwnerUri, true, (key, oldValue) => true);
+            }
+
             // Execute the query asynchronously
             ExecuteAndCompleteQuery(executeParams.OwnerUri, newQuery, queryEventSender, querySuccessFunc, queryFailureFunc);
         }
@@ -714,6 +758,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Logger.Error("Unknown error " + ex.ToString());
             }
 
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Runs UpdateLanguageServiceOnConnection as a background task
+        /// </summary>
+        /// <param name="info">Connection Info</param>
+        /// <returns></returns>
+        private Task OnNewConnection(ConnectionInfo info)
+        {
+            this.QuerySessionSettingsApplied.AddOrUpdate(info.OwnerUri, false, (key, oldValue) => false);
+    
             return Task.CompletedTask;
         }
 
@@ -1197,6 +1253,61 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             return mergedRanges;
         }
+
+        private async void ApplySessionQueryExecutionOptions(ConnectionInfo connection, QueryExecutionSettings settings)
+        {
+            QuerySettingsHelper helper = new QuerySettingsHelper(settings);
+
+            StringBuilder sqlBuilder = new StringBuilder(512);
+
+            // append first part of exec options
+            sqlBuilder.AppendFormat("{0} {1} {2}",
+                helper.SetRowCountString, helper.SetTextSizeString, helper.SetNoCountString);
+
+            if (!connection.IsSqlDW)
+            {
+                // append second part of exec options
+                sqlBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetConcatenationNullString,
+                                        helper.SetArithAbortString,
+                                        helper.SetLockTimeoutString,
+                                        helper.SetQueryGovernorCostString,
+                                        helper.SetDeadlockPriorityString,
+                                        helper.SetTransactionIsolationLevelString,
+                                        // We treat XACT_ABORT special in that we don't add anything if the option
+                                        // isn't checked. This is because we don't want to be overwriting the server
+                                        // if it has a default of ON since that's something people would specifically
+                                        // set and having a client change it could be dangerous (the reverse is much
+                                        // less risky)
+
+                                        // The full fix would probably be to make the options tri-state instead of 
+                                        // just on/off, where the default is to use the servers default. Until that
+                                        // happens though this is the best solution we came up with. See TFS#7937925
+
+                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
+                                        // queries if they do truly want to set it off. We just don't want  to
+                                        // do it silently (since the default is going to be off)
+                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
+
+                // append Ansi options
+                sqlBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
+                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
+                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
+            }
+
+            DbConnection dbConnection = await ConnectionService.GetOrOpenConnection(connection.OwnerUri, ConnectionType.Default);
+            ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
+            if (reliableSqlConnection != null)
+            {
+                using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection())) 
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery(); 
+                }
+            }
+        }
+
         #endregion
 
         #region IDisposable Implementation

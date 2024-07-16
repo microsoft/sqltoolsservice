@@ -6,22 +6,23 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
-using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Text;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -163,6 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 ApplyExecutionSettings(connection, settings, outputFactory);
             }
+
+            this.Settings = settings;
         }
 
         #region Events
@@ -297,6 +300,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; }
+
+        /// <summary>
+        /// Query execution settings
+        /// </summary>
+        public QueryExecutionSettings Settings { get; private set; }
 
         #endregion
 
@@ -700,41 +708,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
             }
 
-            // append first part of exec options
-            builderBefore.AppendFormat("{0} {1} {2}",
-                helper.SetRowCountString, helper.SetTextSizeString, helper.SetNoCountString);
-
             if (!connection.IsSqlDW)
             {
-                // append second part of exec options
-                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
-                                        helper.SetConcatenationNullString,
-                                        helper.SetArithAbortString,
-                                        helper.SetLockTimeoutString,
-                                        helper.SetQueryGovernorCostString,
-                                        helper.SetDeadlockPriorityString,
-                                        helper.SetTransactionIsolationLevelString,
-                                        // We treat XACT_ABORT special in that we don't add anything if the option
-                                        // isn't checked. This is because we don't want to be overwriting the server
-                                        // if it has a default of ON since that's something people would specifically
-                                        // set and having a client change it could be dangerous (the reverse is much
-                                        // less risky)
-
-                                        // The full fix would probably be to make the options tri-state instead of 
-                                        // just on/off, where the default is to use the servers default. Until that
-                                        // happens though this is the best solution we came up with. See TFS#7937925
-
-                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
-                                        // queries if they do truly want to set it off. We just don't want  to
-                                        // do it silently (since the default is going to be off)
-                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
-
-                // append Ansi options
-                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
-                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
-                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
-                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
-
                 // "set noexec on" should be the very last command, cause everything after it is not
                 // being executed unitl "set noexec off" is encounered
                 // NOEXEC is not currently supported by SqlOnDemand servers
