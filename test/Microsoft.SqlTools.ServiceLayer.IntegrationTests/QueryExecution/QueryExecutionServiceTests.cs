@@ -24,17 +24,57 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
     /// </summary>
     public class QueryExecutionServiceTests
     {
+        
+
+
+        [Test]
+        public async Task QueryExecutionSessionOptionsPersistAcrossQueries()
+        {
+            // Establish a new connection
+            ConnectionService.Instance.OwnerToConnectionMap.Clear();
+            ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
+
+            { // check the initial default transaction level
+                var queryResult = await ExecuteAndVerifyQuery(
+                    "SELECT transaction_isolation_level FROM sys.dm_exec_sessions WHERE session_id=@@SPID;",
+                    connectionInfo.OwnerUri);
+
+                Assert.AreEqual(queryResult.RowCount, 1);
+                Int16 transactionLevel = (Int16)queryResult.Rows[0][0].RawObject;
+                Assert.AreEqual(1, transactionLevel);
+            }
+
+            { // change the transaction level and run a query
+                var queryResult = await ExecuteAndVerifyQuery(
+                    "SET TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT transaction_isolation_level FROM sys.dm_exec_sessions WHERE session_id=@@SPID;",
+                    connectionInfo.OwnerUri);
+
+                Assert.AreEqual(queryResult.RowCount, 1);
+                Int16 transactionLevel = (Int16)queryResult.Rows[0][0].RawObject;
+                Assert.AreEqual(4, transactionLevel);
+            }
+
+            { // rerun the query without setting execution option and confirm previous option persists
+                var queryResult = await ExecuteAndVerifyQuery(
+                    "SELECT transaction_isolation_level FROM sys.dm_exec_sessions WHERE session_id=@@SPID;",
+                    connectionInfo.OwnerUri);
+
+                Assert.AreEqual(queryResult.RowCount, 1);
+                Int16 transactionLevel = (Int16)queryResult.Rows[0][0].RawObject;
+                Assert.AreEqual(4, transactionLevel);
+            }
+        }
+
         private async Task<ResultSetSubset> ExecuteAndVerifyQuery(string query, string ownerUri)
         {
             var requestContext = new Mock<RequestContext<ExecuteRequestResult>>();
             ManualResetEvent sendResultEvent = new ManualResetEvent(false);
             ExecuteRequestResult result = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<ExecuteRequestResult>()))
-                .Callback<ExecuteRequestResult>(r => 
+                .Callback<ExecuteRequestResult>(r =>
                 {
                     result = r;
                     sendResultEvent.Set();
-                
                 })
                 .Returns(Task.FromResult(new object()));
 
@@ -47,6 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 
             sendResultEvent.WaitOne(TimeSpan.FromSeconds(10));
             Assert.NotNull(result);
+            Thread.Sleep(TimeSpan.FromSeconds(1));
 
             var subsetParams = new SubsetParams()
             {
@@ -56,14 +97,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
                 RowsStartIndex = 0,
                 RowsCount = 1
             };
-            
+
             var subsetRequestContext = new Mock<RequestContext<SubsetResult>>();
             SubsetResult subsetResult = null;
             subsetRequestContext.Setup(x => x.SendResult(It.IsAny<SubsetResult>()))
-                .Callback<SubsetResult>(r => 
+                .Callback<SubsetResult>(r =>
                 {
                     subsetResult = r;
-                
                 })
                 .Returns(Task.FromResult(new object()));
 
@@ -71,101 +111,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             await QueryExecutionService.Instance.HandleResultSubsetRequest(subsetParams, subsetRequestContext.Object);
 
             return subsetResult.ResultSubset;
-        }
-
-
-        [Test]
-        public async Task RunningMultipleQueriesCreatesOnlyOneConnection()
-        {
-            // Connect/disconnect twice to ensure reconnection can occur
-            ConnectionService connectionService = ConnectionService.Instance;
-            connectionService.OwnerToConnectionMap.Clear();
-
-            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
-            ConnectionInfo connectionInfo = connectionResult.ConnectionInfo;
-
-            var queryResult = await ExecuteAndVerifyQuery("SELECT 1", connectionInfo.OwnerUri);
-            
-
-            // QueryExecutionService queryExecutionService = QueryExecutionService.Instance;
-
-            // var requestContext = new Mock<RequestContext<ExecuteRequestResult>>();
-
-            // ManualResetEvent sendResultEvent = new ManualResetEvent(false);
-            // ExecuteRequestResult result = null;
-            // requestContext.Setup(x => x.SendResult(It.IsAny<ExecuteRequestResult>()))
-            //     .Callback<ExecuteRequestResult>(r => 
-            //     {
-            //         result = r;
-            //         sendResultEvent.Set();
-                
-            //     })
-            //     .Returns(Task.FromResult(new object()));
-
-            // var executeParams = new ExecuteStringParams
-            // {
-            //     OwnerUri = connectionInfo.OwnerUri,
-            //     Query = "SELECT 1"
-            // };
-            // await queryExecutionService.HandleExecuteRequest(executeParams, requestContext.Object);
-
-            // sendResultEvent.WaitOne(TimeSpan.FromSeconds(10));
-            // Assert.NotNull(result);
-
-            // var subsetParams = new SubsetParams()
-            // {
-            //     OwnerUri = connectionInfo.OwnerUri,
-            //     BatchIndex = 0,
-            //     ResultSetIndex = 0,
-            //     RowsStartIndex = 0,
-            //     RowsCount = 1
-            // };
-            
-            // var subsetRequestContext = new Mock<RequestContext<SubsetResult>>();
-            // subsetRequestContext.Setup(x => x.SendResult(It.IsAny<SubsetResult>())).Returns(Task.FromResult(new object()));
-            // await queryExecutionService.HandleResultSubsetRequest(subsetParams, subsetRequestContext.Object);
-            
-            // queryExecutionService.HandleExecuteRequest(new ExecuteRequestParamsBase
-            // {
-            //     QuerySelection = null,
-            //     Query = Constants.StandardQuery,
-            //     OwnerUri = connectionInfo.OwnerUri
-            // });
-
-            // for (int i = 0; i < 2; i++)
-            // {
-            //     var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            //     ConnectionInfo connectionInfo = result.ConnectionInfo;
-            //     string uri = connectionInfo.OwnerUri;
-
-            //     // We should see one ConnectionInfo and one DbConnection
-            //     Assert.AreEqual(1, connectionInfo.CountConnections);
-            //     Assert.AreEqual(1, service.OwnerToConnectionMap.Count);
-
-            //     // If we run a query
-            //     var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
-            //     Query query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
-            //     query.Execute();
-            //     query.ExecutionTask.Wait();
-
-            //     // We should see 1 DbConnections
-            //     Assert.AreEqual(1, connectionInfo.CountConnections);
-
-            //     // If we run another query
-            //     query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
-            //     query.Execute();
-            //     query.ExecutionTask.Wait();
-
-            //     // We should see 1 DbConnections
-            //     Assert.AreEqual(1, connectionInfo.CountConnections);
-
-            //     // If we disconnect, we should remain in a consistent state to do it over again
-            //     // e.g. loop and do it over again
-            //     service.Disconnect(new DisconnectParams() { OwnerUri = connectionInfo.OwnerUri });
-
-            //     // We should be left with an empty connection map
-            //     Assert.AreEqual(0, service.OwnerToConnectionMap.Count);
-            // }
         }
     }
 }
