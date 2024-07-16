@@ -381,17 +381,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             try
             {
-                string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
-                string NewOwnerUri = changeUriParams.NewOwnerUri;
-                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
+                string originalOwnerUri = changeUriParams.OriginalOwnerUri;
+                string newOwnerUri = changeUriParams.NewOwnerUri;
+                ConnectionService.ReplaceUri(originalOwnerUri, newOwnerUri);
                 // Attempt to load the query
                 Query query;
-                if (!ActiveQueries.TryRemove(OriginalOwnerUri, out query))
+                if (!ActiveQueries.TryRemove(originalOwnerUri, out query))
                 {
-                    throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
+                    throw new Exception("Uri: " + originalOwnerUri + " is not associated with an active query.");
                 }
-                query.ConnectionOwnerURI = NewOwnerUri;
-                ActiveQueries.TryAdd(NewOwnerUri, query);
+                query.ConnectionOwnerURI = newOwnerUri;
+                ActiveQueries.TryAdd(newOwnerUri, query);
+
+                // Update the session query execution options applied map
+                bool settingsApplied;
+                if (!QuerySessionSettingsApplied.TryRemove(originalOwnerUri, out settingsApplied))
+                {
+                    throw new Exception("Uri: " + originalOwnerUri + " is not associated with an active query settings.");
+                }
+                QuerySessionSettingsApplied.TryAdd(newOwnerUri, settingsApplied);
+
                 return Task.FromResult(true);
             }
             catch (Exception ex)
