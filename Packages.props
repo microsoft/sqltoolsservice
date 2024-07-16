@@ -10,8 +10,8 @@
     <!-- Deprecated: TODO Migrate to Azure.Core -->
     <PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
 
-    <PackageReference Update="Microsoft.Identity.Client" Version="4.56.0" />
-    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.56.0" />
+    <PackageReference Update="Microsoft.Identity.Client" Version="4.61.3" />
+    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.3" />
 
     <!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
     <PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
@@ -59,7 +59,7 @@
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
-    <PackageReference Update="Azure.Identity" Version="1.10.3" />
+    <PackageReference Update="Azure.Identity" Version="1.12.0" />
     <PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.18.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
@@ -75,6 +75,7 @@
     <PackageReference Update="System.Security.Permissions" Version="8.0.0" />
     <PackageReference Update="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Update="System.Text.Encodings.Web" Version="8.0.0" />
+    <PackageReference Update="System.Text.Json " Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>
