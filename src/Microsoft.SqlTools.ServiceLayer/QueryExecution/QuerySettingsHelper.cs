@@ -196,30 +196,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        public string SetNoExecString
+        public string GetSetNoExecString(bool on)
         {
-            get
-            {
-                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetNoExec, (this.settings.NoExec ? s_On : s_Off));
-            }
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetNoExec, (on ? s_On : s_Off));
         }
 
-        public string GetSetStatisticsTimeString(bool? on)
+        public string GetSetStatisticsTimeString(bool on)
         {
-            on = on ?? this.settings.StatisticsTime;
-            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetStatisticsTime, (on.Value ? s_On : s_Off));
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetStatisticsTime, (on ? s_On : s_Off));
         }
 
-        public string GetSetStatisticsIOString(bool? on)
+        public string GetSetStatisticsIOString(bool on)
         {
-            on = on ?? this.settings.StatisticsIO;
-            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetStatisticsIO, (on.Value ? s_On : s_Off));
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetStatisticsIO, (on ? s_On : s_Off));
         }
 
-        public string GetSetParseOnlyString(bool? on)
+        public string GetSetParseOnlyString(bool on)
         {
-            on = on ?? this.settings.ParseOnly;
-            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetParseOnly, (on.Value ? s_On : s_Off));            
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetParseOnly, (on ? s_On : s_Off));            
         }
     }
 }
