@@ -684,9 +684,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // corresponding "set noexec on" is not executed until "set noexec off"
                 // is encounted
                 // NOEXEC is not currently supported by SqlOnDemand servers
-                if (!settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
+                if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                    builderBefore.AppendFormat("{0} ", helper.GetSetNoExecString(false));
                 }
 
                 if (settings.StatisticsIO)
@@ -715,7 +715,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // NOEXEC is not currently supported by SqlOnDemand servers
                 if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                    builderBefore.AppendFormat("{0} ", helper.GetSetNoExecString(true));
                 }
             }
 
