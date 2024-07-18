@@ -686,7 +686,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // NOEXEC is not currently supported by SqlOnDemand servers
                 if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.GetSetNoExecString(false));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetNoExecString(false));
                 }
 
                 if (settings.StatisticsIO)
