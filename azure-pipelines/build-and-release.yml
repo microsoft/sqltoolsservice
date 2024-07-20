@@ -32,4 +32,30 @@ stages:
       - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
-    timeoutInMinutes: 90
+    timeoutInMinutes: 150 # temporary while investigating timeout occurring in STS Product Build pipeline; should return to 90 after
+
+  # In order to run on arm64 macOS the executables must be at least self-signed, but dotnet publish step only does it when publishing on macOS.
+  # More information: https://github.com/dotnet/runtime/issues/49091
+  - job: CodeSign_osx_arm64_executables
+    pool:
+      vmImage: 'macos-latest'
+    dependsOn:
+      - Build
+    steps:
+    - template: osx-arm64-signing.yml
+
+- stage: Release
+  variables:
+  - name: skipComponentGovernanceDetection
+    value: true
+  dependsOn:
+  - Build
+  condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
+  pool:
+    name: 'ads-build-1es-hosted-pool'
+    demands:
+    - ImageOverride -equals ADS-Linux_Image
+  jobs:
+  - job: Release
+    steps:
+    - template: release.yml
