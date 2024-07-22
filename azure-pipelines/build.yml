@@ -161,7 +161,7 @@ steps:
     verbose: false
     customCommand: 'install -g gulp-cli'
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@5
   displayName: 'ESRP CodeSigning - SNK only'
   inputs:
     ConnectedServiceName: 'Code Signing'
@@ -193,7 +193,7 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@5
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
@@ -251,7 +251,7 @@ steps:
     SessionTimeout: 600
     MaxConcurrency: 5
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@5
   displayName: 'ESRP SqlCore CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
@@ -330,7 +330,7 @@ steps:
     filename: build.cmd
     arguments: "-target=dotnetpackservicetools -mono"
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@5
   displayName: 'ESRP Code Signing - Nuget Package'
   inputs:
     ConnectedServiceName: 'Code Signing'
