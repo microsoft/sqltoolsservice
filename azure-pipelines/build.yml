@@ -165,6 +165,11 @@ steps:
   displayName: 'ESRP CodeSigning - SNK only'
   inputs:
     ConnectedServiceName: 'Code Signing'
+    AppRegistrationClientId: 'f464e149-f00e-4d1c-9bdb-961988d6bbcc' 
+    AppRegistrationTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47' 
+    AuthAKVName: 'ESRP-Secrets-AKV'
+    AuthCertName: 'ESRP-Managed-Identity-AAD-Cert'
+    AuthSignCertName: 'ESRP-Managed-Identity-Request-Signing-Cert'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net472/'
     Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll'
     signConfigType: inlineSignParams
@@ -192,6 +197,11 @@ steps:
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
+    AppRegistrationClientId: 'f464e149-f00e-4d1c-9bdb-961988d6bbcc' 
+    AppRegistrationTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47' 
+    AuthAKVName: 'ESRP-Secrets-AKV'
+    AuthCertName: 'ESRP-Managed-Identity-AAD-Cert'
+    AuthSignCertName: 'ESRP-Managed-Identity-Request-Signing-Cert'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
     Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll,MicrosoftSqlToolsMigration.exe,MicrosoftSqlToolsMigration.dll,Microsoft.SqlTools.SqlCore.dll,Microsoft.SqlTools.Authentication.dll,MicrosoftKustoServiceLayer.dll,MicrosoftKustoServiceLayer.exe,MicrosoftKustoServiceLayer.resources.dll,MicrosoftSqlTools*.resources.dll,Microsoft.SqlTools*.resources.dll'
     signConfigType: inlineSignParams
@@ -245,6 +255,11 @@ steps:
   displayName: 'ESRP SqlCore CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
+    AppRegistrationClientId: 'f464e149-f00e-4d1c-9bdb-961988d6bbcc' 
+    AppRegistrationTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47' 
+    AuthAKVName: 'ESRP-Secrets-AKV'
+    AuthCertName: 'ESRP-Managed-Identity-AAD-Cert'
+    AuthSignCertName: 'ESRP-Managed-Identity-Request-Signing-Cert'
     FolderPath: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/bin/$(buildConfiguration)'
     Pattern: 'Microsoft.SqlTools.*.dll'
     signConfigType: inlineSignParams
@@ -319,6 +334,11 @@ steps:
   displayName: 'ESRP Code Signing - Nuget Package'
   inputs:
     ConnectedServiceName: 'Code Signing'
+    AppRegistrationClientId: 'f464e149-f00e-4d1c-9bdb-961988d6bbcc' 
+    AppRegistrationTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47' 
+    AuthAKVName: 'ESRP-Secrets-AKV'
+    AuthCertName: 'ESRP-Managed-Identity-AAD-Cert'
+    AuthSignCertName: 'ESRP-Managed-Identity-Request-Signing-Cert'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
     Pattern: '*.nupkg'
     signConfigType: 'inlineSignParams'
