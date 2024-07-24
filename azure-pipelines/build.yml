@@ -161,6 +161,11 @@ steps:
     verbose: false
     customCommand: 'install -g gulp-cli'
 
+- task: UseDotNet@2
+  displayName: 'Install .NET 6 for ESRP signing'
+  inputs:
+    version: '6.x'
+
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@5
   displayName: 'ESRP CodeSigning - SNK only'
   inputs:
