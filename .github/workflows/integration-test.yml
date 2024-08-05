@@ -1,0 +1,79 @@
+name: CI
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+push:
+  branches:
+    - main
+  pull_request:
+    branches:
+      - main
+
+workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+      
+      - name: Setup environment for smoke tests
+        run: |
+          echo "Setting up environment for smoke tests"
+          echo "PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9!?%=' < /dev/urandom | head -c 16)$(LC_ALL=C tr -dc '@^#' < /dev/urandom | head -c 1)" >> $GITHUB_ENV
+
+      - name: Install mssql
+        run: |
+          sudo cp build/mssql.init /etc/init.d/mssql-server
+          sudo chmod +x /etc/init.d/mssql-server
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list)"
+          sudo apt-get update
+          sudo apt-get install -y mssql-server
+          sudo ACCEPT_EULA='Y' MSSQL_PID='Developer' MSSQL_SA_PASSWORD=${{ env.PASSWORD }} /opt/mssql/bin/mssql-conf setup || true
+
+      - name: Start mssql
+        run: |
+          sudo service mssql-server start
+
+      - name: Build
+        run: dotnet build
+      
+      - name: Creating Loc Directories Expected By Dotnet Build
+        run: ./azure-pipelines/createBuildDirectories.sh
+      
+      - name: Building Test Environment
+        run: dotnet build '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
+      
+      - name: Writing test environment config file
+        run: |
+          echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+          <Instances>
+            <Instance VersionKey=\"sqlOnPrem\">
+            <DataSource>localhost</DataSource>
+            <UserId>sa</UserId>
+            <Password></Password>
+          </Instance>
+        </Instances>" > test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml
+      
+      - name: Setting Up Test Environment
+        run: dotnet run 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj' 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
+        env:
+          sqlOnPrem_password: ${{ env.PASSWORD }}
+        
+      - name: Building Integration Tests
+        run: dotnet build '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+      
+      - name: Running Integration Tests
+        run: dotnet test '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
