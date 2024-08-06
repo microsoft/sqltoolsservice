@@ -76,4 +76,4 @@ jobs:
         run: dotnet build  './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       
       - name: Running Integration Tests
-        run: dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
+        run: dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
