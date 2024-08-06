@@ -54,7 +54,6 @@
     <PackageReference Update="Microsoft.SqlServer.XEvent.XELite" Version="2023.1.30.3" />
     <PackageReference Update="SkiaSharp" Version="2.88.6" />
     <PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-    <PackageReference Update="JunitXml.TestLogger" Version="4.0.254"/>
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:

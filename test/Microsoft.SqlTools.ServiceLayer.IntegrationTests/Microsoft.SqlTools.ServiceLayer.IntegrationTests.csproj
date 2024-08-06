@@ -24,7 +24,6 @@
     <PackageReference Include="nunit" />
     <PackageReference Include="nunit3testadapter" />
     <PackageReference Include="nunit.console" />
-    <PackageReference Include="JunitXml.TestLogger" />
     <PackageReference Include="coverlet.collector">
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         <PrivateAssets>all</PrivateAssets>

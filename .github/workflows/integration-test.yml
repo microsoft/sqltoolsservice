@@ -75,14 +75,14 @@ jobs:
         run: dotnet build  './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       
       - name: Running Integration Tests
-        run: dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --logger "junit;LogFilePath=./TestResults.xml" --no-build
+        run: dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --logger "trx;logfilename=testResults.trx" --no-build
       
       - name: Integration Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
           name: 'Unit Test Report'
-          path: ./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/TestResults.xml
+          path: ./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/TestResults/testResults.trx
           reporter: jest-junit
           badge-title: 'unit-tests'
 
