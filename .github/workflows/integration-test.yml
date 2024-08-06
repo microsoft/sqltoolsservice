@@ -83,7 +83,7 @@ jobs:
         with:
           name: 'Unit Test Report'
           path: ./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/TestResults/testResults.trx
-          reporter: jest-junit
+          reporter: dotnet-trx
           badge-title: 'unit-tests'
 
       
