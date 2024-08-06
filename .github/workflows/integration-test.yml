@@ -50,7 +50,7 @@ jobs:
         run: ./azure-pipelines/createBuildDirectories.sh
       
       - name: Building Test Environment
-        run: dotnet build '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
+        run: dotnet build './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
       
       - name: Writing test environment config file
         run: |
