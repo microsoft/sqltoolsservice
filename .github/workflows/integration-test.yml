@@ -66,12 +66,12 @@ jobs:
           EOF
       
       - name: Setting Up Test Environment
-        run: dotnet run 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj' 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
+        run: dotnet run './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj' './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
         env:
           sqlOnPrem_password: ${{ env.PASSWORD }}
         
       - name: Building Integration Tests
-        run: dotnet build '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+        run: dotnet build  './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       
       - name: Running Integration Tests
-        run: dotnet test '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
+        run: dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
