@@ -55,9 +55,9 @@ jobs:
       - name: Writing test environment config file
         run: |
           cat << 'EOF' > test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml
-          <?xml version=\"1.0\" encoding=\"utf-8\"?>
+          <?xml version="1.0" encoding="utf-8"?>
           <Instances>
-            <Instance VersionKey=\"sqlOnPrem\">
+            <Instance VersionKey="sqlOnPrem">
               <DataSource>localhost</DataSource>
               <UserId>sa</UserId>
               <Password>${{ env.PASSWORD }}</Password>
