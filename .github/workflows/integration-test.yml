@@ -60,7 +60,7 @@ jobs:
             <Instance VersionKey=\"sqlOnPrem\">
               <DataSource>localhost</DataSource>
               <UserId>sa</UserId>
-              <Password></Password>
+              <Password>${{ env.PASSWORD }}</Password>
             </Instance>
           </Instances>
           EOF
