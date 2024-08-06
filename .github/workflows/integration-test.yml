@@ -67,10 +67,9 @@ jobs:
       
       - name: Setting Up Test Environment
         run: |
+          sqlOnPrem_password=${{ env.PASSWORD }}
           cd test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig
           dotnet run SQLConnectionInstances.xml
-        env:
-          sqlOnPrem_password: ${{ env.PASSWORD }}
         
       - name: Building Integration Tests
         run: dotnet build  './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
