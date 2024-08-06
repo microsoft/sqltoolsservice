@@ -46,11 +46,12 @@ jobs:
         run: |
           sudo service mssql-server start
 
+      - name: Creating Loc Directories Expected By Dotnet Build
+        run: ./azure-pipelines/createBuildDirectories.sh
+      
       - name: Build
         run: dotnet build
       
-      - name: Creating Loc Directories Expected By Dotnet Build
-        run: ./azure-pipelines/createBuildDirectories.sh
       
       - name: Building Test Environment
         run: dotnet build '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
