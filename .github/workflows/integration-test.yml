@@ -66,7 +66,7 @@ jobs:
           EOF
       
       - name: Setting Up Test Environment
-        run: dotnet run './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj' './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
+        run: dotnet run ./test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
         env:
           sqlOnPrem_password: ${{ env.PASSWORD }}
         
