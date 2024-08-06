@@ -36,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         /// Create simple backup test
         /// </summary>
         [Test]
+        [Ignore("Ignore until we setup Azure Blob storage for test")]
         public async Task BackupDatabaseToUrlAndRestoreFromUrlTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
