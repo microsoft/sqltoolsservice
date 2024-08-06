@@ -79,10 +79,3 @@ jobs:
       
       - name: Running Integration Tests
         run: dotnet test '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
-
-
- cat << 'EOF' > myfile.txt
-          This is line 1
-          This is line 2
-          This is line 3
-          EOF
