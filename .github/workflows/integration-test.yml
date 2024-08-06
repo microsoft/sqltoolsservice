@@ -75,8 +75,8 @@ jobs:
       
       - name: Running Integration Tests
         run: |
-        sqlOnPrem_password=${{ env.PASSWORD }}
-        dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --logger "trx;logfilename=testResults.trx" --no-build
+          sqlOnPrem_password=${{ env.PASSWORD }}
+          dotnet test './test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --logger "trx;logfilename=testResults.trx" --no-build
         # We need to figure out how to set these environment variables
         ## AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
         ## AzureStorageAccountName: '$(sqltools-backup-url-tests-storageaccountname)'
