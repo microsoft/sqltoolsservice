@@ -466,13 +466,13 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
                 WHEN c.CHARACTER_MAXIMUM_LENGTH = -1 THEN '(max)'
                 ELSE '(' +  CAST(c.CHARACTER_MAXIMUM_LENGTH AS NVARCHAR) + ')'
             END 
-            WHEN c.DATA_TYPE IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.NUMERIC_SCALE AS NVARCHAR) + ')'
+            WHEN c.DATA_TYPE IN ('datetime2', 'time', 'datetimeoffset') THEN '(' +  CAST(c.DATETIME_PRECISION AS NVARCHAR) + ')'
             ELSE  ''
         END +
         -- logic for null/notnull
         CASE
-            WHEN c.is_nullable = 'NO' THEN ', null'
-            ELSE ', not null'
+            WHEN c.is_nullable = 'NO' THEN ', not null'
+            ELSE ', null'
         END +
         ')' 
         AS display_name,

@@ -26,6 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                             GO
                             CREATE INDEX t2_idx ON t2 (c1)
                             GO
+                            Create table t3 (c1 int, c2 datetime2 NULL)
+                            GO
                             create view v1 WITH SCHEMABINDING as select c1 from dbo.t2
                             GO
                             CREATE UNIQUE CLUSTERED INDEX v2_idx ON dbo.v1(c1)
@@ -81,9 +83,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                 // Expand Tables folder
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Tables/");
-                Assert.AreEqual(2, nodes.Length, "Tables folder should have 2 tables");
+                Assert.AreEqual(3, nodes.Length, "Tables folder should have 3 tables");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "t1"), "Tables folder should have t1 table");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "t2"), "Tables folder should have t2 table");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "t3"), "Tables folder should have t3 table");
 
                 // Expand t1 table
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Tables/t1/");
@@ -115,6 +118,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Tables/t2/Indexes/");
                 Assert.AreEqual(1, nodes.Length, "Indexes folder should have 1 index");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "t2_idx"), "Indexes folder should have t2_idx index");
+
+                nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Tables/t3/Columns/");
+                Assert.AreEqual(2, nodes.Length, "Should have 2 columns");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "c2"), "Column c2 should exist");
+                Assert.IsNotNull(nodes.Find(node => node.Label == "c2 (datetime2(7), null)"), "Display Name for a c2 should have datetime 2 and null");
 
                 // Expand Views folder
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Views/");
