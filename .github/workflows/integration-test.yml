@@ -87,7 +87,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: 'Unit Test Report'
+          name: 'Integration Test Report'
           path: ./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/TestResults/testResults.trx
           reporter: dotnet-trx
           badge-title: 'unit-tests'
