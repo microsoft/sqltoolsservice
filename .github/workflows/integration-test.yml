@@ -82,7 +82,7 @@ jobs:
         if: success() || failure()
         with:
           name: 'Unit Test Report'
-          path: ./TestResults.xml
+          path: ./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/TestResults.xml
           reporter: jest-junit
           badge-title: 'unit-tests'
 
