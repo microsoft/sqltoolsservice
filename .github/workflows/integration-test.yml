@@ -58,14 +58,16 @@ jobs:
       
       - name: Writing test environment config file
         run: |
-          echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+          cat << 'EOF' > test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml
+          <?xml version=\"1.0\" encoding=\"utf-8\"?>
           <Instances>
             <Instance VersionKey=\"sqlOnPrem\">
-            <DataSource>localhost</DataSource>
-            <UserId>sa</UserId>
-            <Password></Password>
-          </Instance>
-        </Instances>" > test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml
+              <DataSource>localhost</DataSource>
+              <UserId>sa</UserId>
+              <Password></Password>
+            </Instance>
+          </Instances>
+          EOF
       
       - name: Setting Up Test Environment
         run: dotnet run 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj' 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
@@ -77,3 +79,10 @@ jobs:
       
       - name: Running Integration Tests
         run: dotnet test '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj' --no-build
+
+
+ cat << 'EOF' > myfile.txt
+          This is line 1
+          This is line 2
+          This is line 3
+          EOF
