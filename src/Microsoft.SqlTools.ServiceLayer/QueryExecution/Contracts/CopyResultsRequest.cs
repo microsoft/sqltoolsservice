@@ -31,6 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The selections.
         /// </summary>
         public TableSelectionRange[] Selections { get; set; }
+
+        /// <summary>
+        /// Whether to copy the results directly to the clipboard from STS.
+        /// </summary>
+        public bool CopyDirectlyToClipboard { get; set; }
     }
 
     /// <summary>
@@ -48,11 +53,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly RequestType<CopyResultsRequestParams, CopyResultsRequestResult> Type =
             RequestType<CopyResultsRequestParams, CopyResultsRequestResult>.Create("query/copy");
-    }
-
-    public class CopyResultsToClipboardEvent
-    {
-        public static readonly EventType<CopyResultsRequestParams> Type =
-            EventType<CopyResultsRequestParams>.Create("query/copyToClipboard");
     }
 }

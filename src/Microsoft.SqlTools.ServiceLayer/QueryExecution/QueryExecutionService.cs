@@ -207,7 +207,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
             serviceHost.SetRequestHandler(CopyResultsRequest.Type, HandleCopyResultsRequest, true);
-            serviceHost.SetEventHandler(CopyResultsToClipboardEvent.Type, HandleCopyResultsToClipboardNotification, true);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -782,21 +781,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             StringBuilder builder = await GetStringBuilderToCopyQueryResults(requestParams);
 
-            CopyResultsRequestResult result = new CopyResultsRequestResult
+            CopyResultsRequestResult result;
+            if (requestParams.CopyDirectlyToClipboard)
             {
-                Results = builder.ToString()
-            };
+                await ClipboardService.SetTextAsync(builder.ToString());
+
+                result = new CopyResultsRequestResult
+                {
+                    Results = string.Empty
+                };   
+            }
+            else
+            {
+                result = new CopyResultsRequestResult
+                {
+                    Results = builder.ToString()
+                };
+            }
+
             await requestContext.SendResult(result);
-        }
-
-        /// <summary>
-        /// Handles copying results to the clipboard.
-        /// </summary>
-        internal async Task HandleCopyResultsToClipboardNotification(CopyResultsRequestParams requestParams, EventContext eventContext)
-        {
-            StringBuilder builder = await GetStringBuilderToCopyQueryResults(requestParams);
-
-            await ClipboardService.SetTextAsync(builder.ToString());
         }
 
         private async Task<StringBuilder> GetStringBuilderToCopyQueryResults(CopyResultsRequestParams requestParams)
