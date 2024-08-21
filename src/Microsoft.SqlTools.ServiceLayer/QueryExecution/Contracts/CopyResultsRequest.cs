@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public TableSelectionRange[] Selections { get; set; }
 
         /// <summary>
-        /// Whether to copy the results directly to the clipboard from STS.
+        /// Whether to copy the results in the backend.
         /// </summary>
-        public bool CopyDirectlyToClipboard { get; set; }
+        public bool CopyInBackend { get; set; }
     }
 
     /// <summary>

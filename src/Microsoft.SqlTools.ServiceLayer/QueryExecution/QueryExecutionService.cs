@@ -782,7 +782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             StringBuilder builder = await GetStringBuilderToCopyQueryResults(requestParams);
 
             CopyResultsRequestResult result;
-            if (requestParams.CopyDirectlyToClipboard)
+            if (requestParams.CopyInBackend)
             {
                 await ClipboardService.SetTextAsync(builder.ToString());
 
