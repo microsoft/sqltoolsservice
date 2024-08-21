@@ -49,4 +49,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public static readonly RequestType<CopyResultsRequestParams, CopyResultsRequestResult> Type =
             RequestType<CopyResultsRequestParams, CopyResultsRequestResult>.Create("query/copy");
     }
+
+    public class CopyResultsToClipboardEvent
+    {
+        public static readonly EventType<CopyResultsRequestParams> Type =
+            EventType<CopyResultsRequestParams>.Create("query/copyToClipboard");
+    }
 }
