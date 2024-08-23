@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "database",
                         DisplayName = "Database name",
-                        Description = "The name of the initial catalog or database int the data source",
+                        Description = "The name of the initial catalog or database in the data source",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueDatabaseName,
                         IsIdentity = true,
@@ -185,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "hostNameInCertificate",
-                        DisplayName = "HostNameInCertificate",
+                        DisplayName = "Host name in certificate",
                         Description = "Specifies host name in certificate to be used for certificate validation, when encryption is enabled.",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeString,
@@ -210,7 +210,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "port",
                         DisplayName = "Port",
-                        ValueType = ConnectionOption.ValueTypeNumber
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        GroupName = "General"
                     },
                     new ConnectionOption
                     {
@@ -292,7 +293,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "attachDbFilename",
                         DisplayName = "Attach DB filename",
-                        ValueType = ConnectionOption.ValueTypeString
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = "Source"
                     },
                     new ConnectionOption
                     {
@@ -300,13 +302,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         DisplayName = "Failover partner",
                         Description = "the name or network address of the instance of SQL Server that acts as a failover partner",
                         ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = " Source"
+                        GroupName = "Source"
                     },
                     new ConnectionOption
                     {
                         Name = "multiSubnetFailover",
                         DisplayName = "Multi subnet failover",
-                        ValueType = ConnectionOption.ValueTypeBoolean
+                        ValueType = ConnectionOption.ValueTypeBoolean,
+                        GroupName = "General"
                     },
                     new ConnectionOption
                     {
