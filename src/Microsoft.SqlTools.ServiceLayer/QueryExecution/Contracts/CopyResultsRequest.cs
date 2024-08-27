@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public TableSelectionRange[] Selections { get; set; }
 
         /// <summary>
-        /// Whether to copy the results in the backend.
+        /// Whether to copy results from the UI process.
         /// </summary>
-        public bool CopyInBackend { get; set; }
+        public bool CopyFromUIProcess { get; set; }
     }
 
     /// <summary>
