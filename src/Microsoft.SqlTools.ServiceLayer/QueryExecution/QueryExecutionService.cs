@@ -779,31 +779,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal async Task HandleCopyResultsRequest(CopyResultsRequestParams requestParams, RequestContext<CopyResultsRequestResult> requestContext)
         {
-            StringBuilder builder = await GetStringBuilderToCopyQueryResults(requestParams);
-
-            CopyResultsRequestResult result;
-            if (!requestParams.CopyFromUIProcess)
-            {
-                await ClipboardService.SetTextAsync(builder.ToString());
-
-                result = new CopyResultsRequestResult
-                {
-                    Results = string.Empty
-                };
-            }
-            else
-            {
-                result = new CopyResultsRequestResult
-                {
-                    Results = builder.ToString()
-                };
-            }
-
-            await requestContext.SendResult(result);
-        }
-
-        private async Task<StringBuilder> GetStringBuilderToCopyQueryResults(CopyResultsRequestParams requestParams)
-        {
             var valueSeparator = "\t";
             var columnRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
             var rowRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromRow, End = selection.ToRow }).ToList());
@@ -897,8 +872,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     pageStartRowIndex += rowsToFetch;
                 } while (pageStartRowIndex < rowRange.End);
             }
-
-            return builder;
+            await ClipboardService.SetTextAsync(builder.ToString());
+            await requestContext.SendResult(new CopyResultsRequestResult());
         }
 
         #endregion

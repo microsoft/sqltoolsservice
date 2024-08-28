@@ -31,11 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The selections.
         /// </summary>
         public TableSelectionRange[] Selections { get; set; }
-
-        /// <summary>
-        /// Whether to copy results from the UI process.
-        /// </summary>
-        public bool CopyFromUIProcess { get; set; }
     }
 
     /// <summary>
@@ -43,7 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class CopyResultsRequestResult
     {
-        public string Results { get; set; }
     }
 
     /// <summary>
