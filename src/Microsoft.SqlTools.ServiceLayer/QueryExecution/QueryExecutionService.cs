@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -864,7 +864,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
+                        var lastChar = builder[builder.Length - 1];
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!Environment.NewLine.EndsWith(lastChar) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
                         {
                             builder.Append(Environment.NewLine);
                         }
