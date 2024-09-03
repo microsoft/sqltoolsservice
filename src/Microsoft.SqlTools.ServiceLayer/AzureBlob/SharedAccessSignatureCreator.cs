@@ -50,10 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
         {
             try
             {
-                // Format of Sql SAS credential: 
-                // CREATE CREDENTIAL [https://<StorageAccountName>.blob.core.windows.net/<ContainerName>] WITH IDENTITY = N'Shared Access Signature', 
-                // SECRET = N'sv=2014-02-14&sr=c&sig=lxb2aXr%2Bi0Aeygg%2B0a4REZ%2BqsUxxxxxxsqUybg0tVzg%3D&st=2015-10-15T08%3A00%3A00Z&se=2015-11-15T08%3A00%3A00Z&sp=rwdl'
-                //
                 CredentialCollection credentials = sqlServer.Credentials;
 
                 Credential azureCredential = new Credential(sqlServer, credentialName);
