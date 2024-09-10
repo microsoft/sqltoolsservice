@@ -72,45 +72,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     if (this.serverConnection != null && !string.IsNullOrEmpty(this.serverConnection.DatabaseName))
                     {
-                        try
+                        // The default database name is the database name of the server connection
+                        string dbName = this.serverConnection.DatabaseName;
+
+                        // If there is a query DbConnection, use that connection to get the database name
+                        // This is preferred since it has the most current database name (in case of database switching)
+                        if (this.connectionInfo?.TryGetConnection(ConnectionType.Query, out DbConnection connection) == true)
                         {
-                            // Reuse existing connection
-                            Server server = new Server(this.serverConnection);
-                            // The default database name is the database name of the server connection
-                            string dbName = this.serverConnection.DatabaseName;
-                            if (this.connectionInfo != null)
+                            if (!string.IsNullOrEmpty(connection.Database))
                             {
-                                // If there is a query DbConnection, use that connection to get the database name
-                                // This is preferred since it has the most current database name (in case of database switching)
-                                DbConnection connection;
-                                if (connectionInfo.TryGetConnection(ConnectionType.Query, out connection))
-                                {
-                                    if (!string.IsNullOrEmpty(connection.Database))
-                                    {
-                                        dbName = connection.Database;
-                                    }
-                                }
+                                dbName = connection.Database;
                             }
-                            this.database = new Database(server, dbName);
-                            this.database.Refresh();
                         }
-                        catch (ConnectionFailureException cfe)
-                        {
-                            Logger.Error("Exception at PeekDefinition Database.get() : " + cfe.Message);
-                            this.error = true;
-                            this.errorMessage = (connectionInfo != null && connectionInfo.IsCloud) ? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
-                            return null;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error("Exception at PeekDefinition Database.get() : " + ex.Message);
-                            this.error = true;
-                            this.errorMessage = SR.PeekDefinitionError(ex.Message);
-                            return null;
-                        }
+
+                        this.database = this.GetDatabase(dbName);
                     }
                 }
+
                 return this.database;
+            }
+        }
+
+        private Database? GetDatabase(string dbName)
+        {
+            try
+            {
+                // Reuse existing connection
+                var server = new Server(this.serverConnection);
+
+                var db = new Database(server, dbName);
+                db.Refresh();
+                return db;
+            }
+            catch (ConnectionFailureException cfe)
+            {
+                Logger.Error("Exception at PeekDefinition Database.get() : " + cfe.Message);
+                this.error = true;
+                this.errorMessage = (connectionInfo != null && connectionInfo.IsCloud)
+                    ? SR.PeekDefinitionAzureError(cfe.Message)
+                    : SR.PeekDefinitionError(cfe.Message);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Exception at PeekDefinition Database.get() : " + ex.Message);
+                this.error = true;
+                this.errorMessage = SR.PeekDefinitionError(ex.Message);
+                return null;
             }
         }
 
@@ -129,34 +137,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Get the script of the selected token based on the type of the token
         /// </summary>
-        /// <param name="declarationItems"></param>
-        /// <param name="tokenText"></param>
-        /// <param name="schemaName"></param>
+        /// <param name="parseResult"></param>
+        /// <param name="position"></param>
+        /// <param name="metadataDisplayInfoProvider"></param>
+        /// <param name="identifier">The object to be scripted</param>
         /// <returns>Location object of the script file</returns>
-        internal DefinitionResult GetScript(ParseResult parseResult, Position position, IMetadataDisplayInfoProvider metadataDisplayInfoProvider, string tokenText, string schemaName)
+        internal DefinitionResult GetScript(ParseResult parseResult, Position position, IMetadataDisplayInfoProvider metadataDisplayInfoProvider, Sql3PartIdentifier identifier)
         {
             int parserLine = position.Line;
             int parserColumn = position.Character;
             // Get DeclarationItems from The Intellisense Resolver for the selected token. The type of the selected token is extracted from the declarationItem.
             IEnumerable<Declaration> declarationItems = GetCompletionsForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
-            if (declarationItems != null && declarationItems.Count() > 0)
+            if (declarationItems != null && declarationItems.Any())
             {
+                Database? targetDb = identifier.DatabaseName == null ? this.Database : this.GetDatabase(identifier.DatabaseName);
                 foreach (Declaration declarationItem in declarationItems)
                 {
                     if (declarationItem.Title == null)
                     {
                         continue;
                     }
-                    if (this.Database == null)
+                    if (targetDb == null)
                     {
                         return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
                     }
-                    StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+                    StringComparison caseSensitivity = targetDb.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
                     // if declarationItem matches the selected token, script SMO using that type
 
-                    if (declarationItem.Title.Equals(tokenText, caseSensitivity))
+                    if (declarationItem.Title.Equals(identifier.ObjectName, caseSensitivity))
                     {
-                        return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, tokenText, schemaName);
+                        return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, identifier);
                     }
                 }
             }
@@ -164,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 // if no declarationItem matched the selected token, we try to find the type of the token using QuickInfo.Text
                 string quickInfoText = GetQuickInfoForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
-                return GetDefinitionUsingQuickInfoText(quickInfoText, tokenText, schemaName);
+                return GetDefinitionUsingQuickInfoText(quickInfoText, identifier);
             }
             // no definition found
             return GetDefinitionErrorResult(SR.PeekDefinitionNoResultsError);
@@ -174,17 +184,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// Script an object using the type extracted from quickInfo Text
         /// </summary>
         /// <param name="quickInfoText">the text from the quickInfo for the selected token</param>
-        /// <param name="tokenText">The text of the selected token</param>
-        /// <param name="schemaName">Schema name</param>
+        /// <param name="identifier">The object for the definition</param>
         /// <returns></returns>
-        internal DefinitionResult GetDefinitionUsingQuickInfoText(string quickInfoText, string tokenText, string schemaName)
+        internal DefinitionResult GetDefinitionUsingQuickInfoText(string quickInfoText, Sql3PartIdentifier identifier)
         {
-            if (this.Database == null)
+            Database? targetDb = identifier.DatabaseName == null ? this.Database : this.GetDatabase(identifier.DatabaseName);
+            if (targetDb == null)
             {
                 return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
             }
-            StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-            string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
+            StringComparison caseSensitivity = targetDb.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, identifier.ObjectName, caseSensitivity);
             if (tokenType != null)
             {
                 if (sqlObjectTypesFromQuickInfo.TryGetValue(tokenType.ToLowerInvariant(), out string sqlObjectType))
@@ -193,15 +203,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     // This workaround ensures that a schema name is present by attempting
                     // to get the schema name from the declaration item.
                     // If all fails, the default schema name is assumed to be "dbo"
-                    if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
+                    if (connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType) && string.IsNullOrEmpty(identifier.SchemaName))
                     {
-                        string fullObjectName = this.GetFullObjectNameFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
-                        schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
+                        string fullObjectName = this.GetFullObjectNameFromQuickInfo(quickInfoText, identifier.ObjectName, caseSensitivity);
+                        identifier.SchemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, identifier.ObjectName);
                     }
-                    Location[] locations = GetSqlObjectDefinition(
-                                tokenText,
-                                schemaName,
-                                sqlObjectType);
+                    Location[] locations = GetSqlObjectDefinition(identifier, sqlObjectType);
                     DefinitionResult result = new DefinitionResult
                     {
                         IsErrorResult = this.error,
@@ -221,13 +228,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         /// <summary>
-        /// Script a object using the type extracted from declarationItem
+        /// Script an object using the type extracted from declarationItem
         /// </summary>
-        /// <param name="declarationItem">The Declaration object that matched with the selected token</param>
-        /// <param name="tokenText">The text of the selected token</param>
-        /// <param name="schemaName">Schema name</param>
+        /// <param name="type"></param>
+        /// <param name="databaseQualifiedName"></param>
+        /// <param name="identifier">The object for the definition</param>
         /// <returns></returns>
-        internal DefinitionResult GetDefinitionUsingDeclarationType(DeclarationType type, string databaseQualifiedName, string tokenText, string schemaName)
+        internal DefinitionResult GetDefinitionUsingDeclarationType(DeclarationType type, string databaseQualifiedName, Sql3PartIdentifier identifier)
         {
             if (sqlObjectTypes.TryGetValue(type, out string sqlObjectType))
             {
@@ -235,15 +242,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // This workaround ensures that a schema name is present by attempting
                 // to get the schema name from the declaration item.
                 // If all fails, the default schema name is assumed to be "dbo"
-                if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
+                if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(identifier.SchemaName))
                 {
                     string fullObjectName = databaseQualifiedName;
-                    schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
+                    identifier.SchemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, identifier.ObjectName);
                 }
-                Location[] locations = GetSqlObjectDefinition(
-                            tokenText,
-                            schemaName,
-                            sqlObjectType);
+
+                Location[] locations = this.GetSqlObjectDefinition(identifier, sqlObjectType);
                 DefinitionResult result = new DefinitionResult
                 {
                     IsErrorResult = this.error,
@@ -256,8 +261,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return GetDefinitionErrorResult(SR.PeekDefinitionTypeNotSupportedError);
         }
 
+        internal Location[] GetSqlObjectDefinition(
+            string objectName,
+            string schemaName,
+            string objectType)
+        {
+            return GetSqlObjectDefinition(new Sql3PartIdentifier
+            {
+                ObjectName = objectName,
+                SchemaName = schemaName,
+            }, objectType);
+        }
+
         /// <summary>
-        /// Script a object using SMO and write to a file.
+        /// Script an object using SMO and write to a file.
         /// </summary>
         /// <param name="sqlScriptGetter">Function that returns the SMO scripts for an object</param>
         /// <param name="objectName">SQL object name</param>
@@ -265,15 +282,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectType">Type of SQL object</param>
         /// <returns>Location object representing URI and range of the script file</returns>
         internal Location[] GetSqlObjectDefinition(
-                string objectName,
-                string schemaName,
-                string objectType)
+            Sql3PartIdentifier identifier,
+            string objectType)
         {
             // script file destination
-            string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
-                                                : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
+            string fileName = CreateFileName(identifier);
 
-            SmoScriptingOperation operation = InitScriptOperation(objectName, schemaName, objectType);
+            string tempFileName = Path.Combine(this.tempPath, fileName);
+
+            SmoScriptingOperation operation = InitScriptOperation(identifier, objectType);
             operation.Execute();
             string script = operation.ScriptText;
 
@@ -289,7 +306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 createSyntax = string.Format("CREATE");
                 foreach (string line in lines)
                 {
-                    if (LineContainsObject(line, objectName, createSyntax))
+                    if (LineContainsObject(line, identifier.ObjectName, createSyntax))
                     {
                         createStatementLineNumber = lineCount;
                         objectFound = true;
@@ -309,6 +326,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.errorMessage = SR.PeekDefinitionNoResultsError;
                 return null;
             }
+        }
+
+        private static string CreateFileName(Sql3PartIdentifier identifier)
+        {
+            if (identifier.DatabaseName != null) return $"{identifier.DatabaseName}.{identifier.SchemaName}.{identifier.ObjectName}.sql";
+            if (identifier.SchemaName != null) return $"{identifier.SchemaName}.{identifier.ObjectName}.sql";
+            return $"{identifier.ObjectName}.sql";
         }
 
         #region Helper Methods
@@ -351,15 +375,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // Create a location array containing the tempFile Uri, as expected by VSCode.
             Location[] locations = new[]
             {
-                    new Location
+                new Location
+                {
+                    Uri = tempFileName,
+                    Range = new Range
                     {
-                        Uri = tempFileName,
-                        Range = new Range
-                        {
-                            Start = new Position { Line = lineNumber, Character = 0},
-                            End = new Position { Line = lineNumber + 1, Character = 0}
-                        }
+                        Start = new Position { Line = lineNumber, Character = 0 },
+                        End = new Position { Line = lineNumber + 1, Character = 0 }
                     }
+                }
             };
             return locations;
         }
@@ -453,18 +477,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Wrapper method that calls Resolver.FindCompletions
         /// </summary>
-        /// <param name="objectName"></param>
-        /// <param name="schemaName"></param>
+        /// <param name="identifier"></param>
         /// <param name="objectType"></param>
-        /// <param name="tempFileName"></param>
         /// <returns></returns>
-        internal SmoScriptingOperation InitScriptOperation(string objectName, string schemaName, string objectType)
+        internal SmoScriptingOperation InitScriptOperation(Sql3PartIdentifier identifier, string objectType)
         {
             // object that has to be scripted
             ScriptingObject scriptingObject = new ScriptingObject
             {
-                Name = objectName,
-                Schema = schemaName,
+                Name = identifier.ObjectName,
+                Schema = identifier.SchemaName,
+                DatabaseName = identifier.DatabaseName ?? this.Database.Name,
                 Type = objectType
             };
 
@@ -491,7 +514,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptPrimaryKeys = false,
                 ScriptTriggers = false,
                 UniqueKeys = false
-
             };
 
             List<ScriptingObject> objectList = new List<ScriptingObject>();

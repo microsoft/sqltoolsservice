@@ -1270,15 +1270,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindingTimeout: LanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
-                    string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                    Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
+                    
                     // Script object using SMO
                     Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
                     return scripter.GetScript(
                         scriptParseInfo.ParseResult,
                         textDocumentPosition.Position,
                         bindingContext.MetadataDisplayInfoProvider,
-                        tokenText,
-                        schemaName);
+                        identifier);
                 },
                 timeoutOperation: (bindingContext) =>
                 {
@@ -1422,14 +1422,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Wrapper around find token method
         /// </summary>
         /// <param name="scriptParseInfo"></param>
-        /// <param name="startLine"></param>
-        /// <param name="startColumn"></param>
+        /// <param name="position"></param>
         /// <returns> token index</returns>
-        private int FindTokenWithCorrectOffset(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        private int FindTokenWithCorrectOffset(ScriptParseInfo scriptParseInfo, Position position)
         {
-            var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+            var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(position.Line, position.Character);
             var end = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex).EndLocation;
-            if (end.LineNumber == startLine && end.ColumnNumber == startColumn)
+            if (end.LineNumber == position.Line && end.ColumnNumber == position.Character)
             {
                 return tokenIndex + 1;
             }
@@ -1437,33 +1436,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Extract schema name for a token, if present
+        /// Returns a 4 part identifier at the position in a script, if present
         /// </summary>
         /// <param name="scriptParseInfo"></param>
         /// <param name="position"></param>
-        /// <param name="scriptFile"></param>
-        /// <returns> schema name</returns>
-        private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
+        /// <returns></returns>
+        private Sql4PartIdentifier GetFullIdentifier(ScriptParseInfo scriptParseInfo, Position position)
         {
-            // Offset index by 1 for sql parser
-            int startLine = position.Line;
-            int startColumn = position.Character;
-
-            // Get schema name
-            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
+            if (scriptParseInfo?.ParseResult?.Script?.Tokens == null) return null;
+            var tokenManager = scriptParseInfo.ParseResult.Script.TokenManager;
+            int tokenIndex = this.FindTokenWithCorrectOffset(scriptParseInfo, position);
+            var identifiers = new string[4];
+            //work backwards from the initial token to read identifier parts
+            for (int i = 0; i < identifiers.Length; i++)
             {
-                var tokenIndex = FindTokenWithCorrectOffset(scriptParseInfo, startLine, startColumn);
-                var prevTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
-                var prevTokenText = scriptParseInfo.ParseResult.Script.TokenManager.GetText(prevTokenIndex);
-                if (prevTokenText != null && prevTokenText.Equals("."))
+                if (i > 0) //consume separator dot
                 {
-                    var schemaTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(prevTokenIndex);
-                    Token schemaToken = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(schemaTokenIndex);
-                    return TextUtilities.RemoveSquareBracketSyntax(schemaToken.Text);
+                    tokenIndex = tokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
+                    if (tokenIndex < 0) break;
+                    var period = tokenManager.GetText(tokenIndex);
+                    if (period is null or not ".") break;
+                    tokenIndex = tokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
                 }
+
+                if (tokenIndex < 0) break;
+                string identifierText = tokenManager.GetText(tokenIndex);
+                if (string.IsNullOrEmpty(identifierText)) break;
+                identifiers[i] = TextUtilities.RemoveSquareBracketSyntax(identifierText);
             }
-            // if no schema name, returns null
-            return null;
+            return new Sql4PartIdentifier
+            {
+                ObjectName = identifiers[0],
+                SchemaName = identifiers[1],
+                DatabaseName = identifiers[2],
+                ServerName = identifiers[3]
+            };
         }
 
         /// <summary>

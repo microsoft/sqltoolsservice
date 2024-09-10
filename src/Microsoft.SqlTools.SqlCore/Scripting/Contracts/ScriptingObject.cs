@@ -61,6 +61,8 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
         /// </summary>
         public string ParentTypeName { get; set; }
 
+        public string DatabaseName { get; set; }
+
         public override string ToString()
         {
             string objectName = string.Empty;
@@ -82,6 +84,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.Schema ?? string.Empty) ^
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.ParentName ?? string.Empty) ^
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.ParentTypeName ?? string.Empty) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.DatabaseName ?? string.Empty) ^
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name ?? string.Empty);
         }
 
@@ -105,7 +108,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
                 string.Equals(this.Schema, other.Schema, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.ParentName, other.ParentName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.ParentTypeName, other.ParentTypeName, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.ParentTypeName, other.ParentTypeName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.DatabaseName, other.DatabaseName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
     }

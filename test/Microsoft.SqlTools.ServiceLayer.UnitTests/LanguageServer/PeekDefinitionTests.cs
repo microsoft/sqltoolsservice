@@ -72,7 +72,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// <summary>
         /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid object name and no schema
         /// </summary>
-
         [Test]
         public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
         {
@@ -286,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tableName";
             string quickInfoText = "table master.dbo.tableName";
-            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, null);
+            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, new Sql3PartIdentifier { ObjectName = objectName });
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
@@ -301,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tableName";
             string fullObjectName = "master.dbo.tableName";
-            Assert.Throws<NullReferenceException>(() => peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, objectName, null));
+            Assert.Throws<NullReferenceException>(() => peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, new Sql3PartIdentifier { ObjectName = objectName }));
         }
     }
 }
