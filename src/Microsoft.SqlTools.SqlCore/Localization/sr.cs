@@ -1487,6 +1487,14 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
+        public static string SchemaHierarchy_Shortcuts
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Shortcuts);
+            }
+        }
+
         public static string UniqueIndex_LabelPart
         {
             get
@@ -3447,6 +3455,9 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString = "SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString";
+
+
+            public const string SchemaHierarchy_Shortcuts = "SchemaHierarchy_Shortcuts";
 
 
             public const string UniqueIndex_LabelPart = "UniqueIndex_LabelPart";

@@ -845,6 +845,10 @@
     <value>{0} (Column Set, {1}, {2}, {3})</value>
     <comment></comment>
   </data>
+  <data name="SchemaHierarchy_Shortcuts" xml:space="preserve">
+    <value>Shortcuts</value>
+    <comment></comment>
+  </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
     <value>Unique</value>
     <comment></comment>

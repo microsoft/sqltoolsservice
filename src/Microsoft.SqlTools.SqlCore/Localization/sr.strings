@@ -387,6 +387,8 @@ SchemaHierarchy_ColumnSetLabelWithType = {0} (Column Set, {1}{2}, {3})
 
 SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString = {0} (Column Set, {1}, {2}, {3})
 
+SchemaHierarchy_Shortcuts = Shortcuts
+
 UniqueIndex_LabelPart = Unique
 
 NonUniqueIndex_LabelPart = Non-Unique
