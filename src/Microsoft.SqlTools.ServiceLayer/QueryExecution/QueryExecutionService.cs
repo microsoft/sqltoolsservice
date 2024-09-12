@@ -864,8 +864,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        var lastChar = builder[builder.Length - 1];
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!Environment.NewLine.EndsWith(lastChar) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!StringBuilderEndsWith(builder, Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
                         {
                             builder.Append(Environment.NewLine);
                         }
@@ -880,6 +879,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Private Helpers
+
+        private bool StringBuilderEndsWith(StringBuilder sb, string target)
+        {
+            if (sb.Length < target.Length)
+            {
+                return false;
+            }
+
+            // Calling ToString like this only converts the last few characters of the StringBuilder to a string
+            return sb.ToString(sb.Length - target.Length, target.Length).EndsWith(target);
+        }
 
         private Query CreateQuery(
             ExecuteRequestParamsBase executeParams,
