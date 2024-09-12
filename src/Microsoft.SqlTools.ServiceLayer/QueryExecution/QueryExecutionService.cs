@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -29,6 +29,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
+using TextCopy;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -863,7 +864,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!StringBuilderEndsWith(builder, Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
                         {
                             builder.Append(Environment.NewLine);
                         }
@@ -871,16 +872,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     pageStartRowIndex += rowsToFetch;
                 } while (pageStartRowIndex < rowRange.End);
             }
-            CopyResultsRequestResult result = new CopyResultsRequestResult
-            {
-                Results = builder.ToString()
-            };
-            await requestContext.SendResult(result);
+            await ClipboardService.SetTextAsync(builder.ToString());
+            await requestContext.SendResult(new CopyResultsRequestResult());
         }
 
         #endregion
 
         #region Private Helpers
+
+        private bool StringBuilderEndsWith(StringBuilder sb, string target)
+        {
+            if (sb.Length < target.Length)
+            {
+                return false;
+            }
+
+            // Calling ToString like this only converts the last few characters of the StringBuilder to a string
+            return sb.ToString(sb.Length - target.Length, target.Length).EndsWith(target);
+        }
 
         private Query CreateQuery(
             ExecuteRequestParamsBase executeParams,
