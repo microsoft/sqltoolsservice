@@ -24,8 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "server",
-                        DisplayName = "Server name",
-                        Description = "Name of the SQL Server instance",
+                        DisplayName = SR.ConnectionConfigOptions_server_displayName,
+                        Description = SR.ConnectionConfigOptions_server_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueServerName,
                         IsIdentity = true,
@@ -35,8 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "database",
-                        DisplayName = "Database name",
-                        Description = "The name of the initial catalog or database in the data source",
+                        DisplayName = SR.ConnectionConfigOptions_database_displayName,
+                        Description = SR.ConnectionConfigOptions_database_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueDatabaseName,
                         IsIdentity = true,
@@ -46,14 +46,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "authenticationType",
-                        DisplayName = "Authentication type",
-                        Description = "Specifies the method of authenticating with SQL Server",
+                        DisplayName = SR.ConnectionConfigOptions_authenticationType_displayName,
+                        Description = SR.ConnectionConfigOptions_authenticationType_description,
                         ValueType = ConnectionOption.ValueTypeCategory,
                         SpecialValueType = ConnectionOption.SpecialValueAuthType,
                         CategoryValues = new CategoryValue[]
-                        { new CategoryValue { DisplayName = "SQL Login", Name = "SqlLogin" },
-                          new CategoryValue { DisplayName = "Windows Authentication", Name = "Integrated" },
-                          new CategoryValue { DisplayName = "Microsoft Entra ID - Universal with MFA support", Name = AzureMFA }
+                        { new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_SqlLogin, Name = "SqlLogin" },
+                          new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_Integrated, Name = "Integrated" },
+                          new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_AzureMFA, Name = AzureMFA }
                         },
                         IsIdentity = true,
                         IsRequired = true,
@@ -62,8 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "user",
-                        DisplayName = "User name",
-                        Description = "Indicates the user ID to be used when connecting to the data source",
+                        DisplayName = SR.ConnectionConfigOptions_user_displayName,
+                        Description = SR.ConnectionConfigOptions_user_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueUserName,
                         IsIdentity = true,
@@ -73,8 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "password",
-                        DisplayName = "Password",
-                        Description = "Indicates the password to be used when connecting to the data source",
+                        DisplayName = SR.ConnectionConfigOptions_password_displayName,
+                        Description = SR.ConnectionConfigOptions_password_description,
                         ValueType = ConnectionOption.ValueTypePassword,
                         SpecialValueType = ConnectionOption.SpecialValuePasswordName,
                         IsIdentity = true,
@@ -84,21 +84,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "applicationIntent",
-                        DisplayName = "Application intent",
-                        Description = "Declares the application workload type when connecting to a server",
+                        DisplayName = SR.ConnectionConfigOptions_applicationIntent_displayName,
+                        Description = SR.ConnectionConfigOptions_applicationIntent_description,
                         ValueType = ConnectionOption.ValueTypeCategory,
                         CategoryValues = new CategoryValue[] {
-                            new CategoryValue { Name = "ReadWrite", DisplayName = "ReadWrite" },
-                            new CategoryValue {Name = "ReadOnly", DisplayName = "ReadOnly" }
+                            new CategoryValue { Name = "ReadWrite", DisplayName = SR.ConnectionConfigOptions_applicationIntent_category_ReadWrite },
+                            new CategoryValue { Name = "ReadOnly", DisplayName = SR.ConnectionConfigOptions_applicationIntent_category_ReadOnly }
                         },
                         GroupName = "Initialization"
                     },
                     new ConnectionOption
                     {
                         Name = "connectTimeout",
-                        DisplayName = "Connect timeout",
-                        Description =
-                        "The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error",
+                        DisplayName = SR.ConnectionConfigOptions_connectTimeout_displayName,
+                        Description = SR.ConnectionConfigOptions_connectTimeout_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "15",
                         GroupName = "Initialization"
@@ -106,9 +105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "commandTimeout",
-                        DisplayName = "Command timeout",
-                        Description =
-                        "The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error",
+                        DisplayName = SR.ConnectionConfigOptions_commandTimeout_displayName,
+                        Description = SR.ConnectionConfigOptions_commandTimeout_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "30",
                         GroupName = "Initialization"
@@ -116,108 +114,108 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "currentLanguage",
-                        DisplayName = "Current language",
-                        Description = "The SQL Server language record name",
+                        DisplayName = SR.ConnectionConfigOptions_currentLanguage_displayName,
+                        Description = SR.ConnectionConfigOptions_currentLanguage_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Initialization"
                     },
                     new ConnectionOption
                     {
                         Name = "columnEncryptionSetting",
-                        DisplayName = "Always Encrypted",
-                        Description = "Enables or disables Always Encrypted for the connection",
+                        DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_displayName,
+                        Description = SR.ConnectionConfigOptions_columnEncryptionSetting_description,
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
-                            new CategoryValue { Name = "Disabled" },
-                            new CategoryValue { Name = "Enabled" }
+                            new CategoryValue { Name = "Disabled", DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_category_Disabled },
+                            new CategoryValue { Name = "Enabled", DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_category_Enabled }
                         }
                     },
                     new ConnectionOption
                     {
                         Name = "attestationProtocol",
-                        DisplayName = "Attestation Protocol",
-                        Description = "Specifies a protocol for attesting a server-side enclave used with Always Encrypted with secure enclaves",
+                        DisplayName = SR.ConnectionConfigOptions_attestationProtocol_displayName,
+                        Description = SR.ConnectionConfigOptions_attestationProtocol_description,
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
-                            new CategoryValue { DisplayName = "Host Guardian Service", Name = "HGS" },
-                            new CategoryValue { DisplayName = "Azure Attestation", Name = "AAS" }
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_attestationProtocol_category_HGS, Name = "HGS" },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_attestationProtocol_category_AAS, Name = "AAS" }
                         }
                     },
                     new ConnectionOption
                     {
                         Name = "enclaveAttestationUrl",
-                        DisplayName = "Enclave Attestation URL",
-                        Description = "Specifies an endpoint for attesting a server-side enclave used with Always Encrypted with secure enclaves",
+                        DisplayName = SR.ConnectionConfigOptions_enclaveAttestationUrl_displayName,
+                        Description = SR.ConnectionConfigOptions_enclaveAttestationUrl_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Security"
                     },
                     new ConnectionOption
                     {
                         Name = "encrypt",
-                        DisplayName = "Encrypt",
-                        Description = "When set, SQL Server uses provided setting for SSL encryption for all data sent between the client and server.",
+                        DisplayName = SR.ConnectionConfigOptions_encrypt_displayName,
+                        Description = SR.ConnectionConfigOptions_encrypt_description,
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
-                            new CategoryValue { DisplayName = "Optional", Name = "Optional" },
-                            new CategoryValue { DisplayName = "Mandatory", Name = "Mandatory" },
-                            new CategoryValue { DisplayName = "Strict", Name = "Strict" }
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Optional, Name = "Optional" },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Mandatory, Name = "Mandatory" },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Strict, Name = "Strict" }
                         }
                     },
                     new ConnectionOption
                     {
                         Name = "persistSecurityInfo",
-                        DisplayName = "Persist security info",
-                        Description = "When false, security-sensitive information, such as the password, is not returned as part of the connection",
+                        DisplayName = SR.ConnectionConfigOptions_persistSecurityInfo_displayName,
+                        Description = SR.ConnectionConfigOptions_persistSecurityInfo_description,
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
                         Name = "trustServerCertificate",
-                        DisplayName = "Trust server certificate",
-                        Description = "When true (and encrypt=true), SQL Server uses SSL encryption for all data sent between the client and server without validating the server certificate",
+                        DisplayName = SR.ConnectionConfigOptions_trustServerCertificate_displayName,
+                        Description = SR.ConnectionConfigOptions_trustServerCertificate_description,
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
                         Name = "hostNameInCertificate",
-                        DisplayName = "Host name in certificate",
-                        Description = "Specifies host name in certificate to be used for certificate validation, when encryption is enabled.",
+                        DisplayName = SR.ConnectionConfigOptions_hostNameInCertificate_displayName,
+                        Description = SR.ConnectionConfigOptions_hostNameInCertificate_description,
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeString,
                     },
                     new ConnectionOption
                     {
                         Name = "attachedDBFileName",
-                        DisplayName = "Attached DB file name",
-                        Description = "The name of the primary file, including the full path name, of an attachable database",
+                        DisplayName = SR.ConnectionConfigOptions_attachedDBFileName_displayName,
+                        Description = SR.ConnectionConfigOptions_attachedDBFileName_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Source"
                     },
                     new ConnectionOption
                     {
                         Name = "contextConnection",
-                        DisplayName = "Context connection",
-                        Description = "When true, indicates the connection should be from the SQL server context. Available only when running in the SQL Server process",
+                        DisplayName = SR.ConnectionConfigOptions_contextConnection_displayName,
+                        Description = SR.ConnectionConfigOptions_contextConnection_description,
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Source"
                     },
                     new ConnectionOption
                     {
                         Name = "port",
-                        DisplayName = "Port",
+                        DisplayName = SR.ConnectionConfigOptions_port_displayName,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "General"
                     },
                     new ConnectionOption
                     {
                         Name = "connectRetryCount",
-                        DisplayName = "Connect retry count",
-                        Description = "Number of attempts to restore connection",
+                        DisplayName = SR.ConnectionConfigOptions_connectRetryCount_displayName,
+                        Description = SR.ConnectionConfigOptions_connectRetryCount_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "1",
                         GroupName = "Connection Resiliency"
@@ -225,8 +223,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "connectRetryInterval",
-                        DisplayName = "Connect retry interval",
-                        Description = "Delay between attempts to restore connection",
+                        DisplayName = SR.ConnectionConfigOptions_connectRetryInterval_displayName,
+                        Description = SR.ConnectionConfigOptions_connectRetryInterval_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "10",
                         GroupName = "Connection Resiliency"
@@ -235,8 +233,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "applicationName",
-                        DisplayName = "Application name",
-                        Description = "The name of the application",
+                        DisplayName = SR.ConnectionConfigOptions_applicationName_displayName,
+                        Description = SR.ConnectionConfigOptions_applicationName_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Context",
                         SpecialValueType = ConnectionOption.SpecialValueAppName
@@ -244,94 +242,94 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "workstationId",
-                        DisplayName = "Workstation Id",
-                        Description = "The name of the workstation connecting to SQL Server",
+                        DisplayName = SR.ConnectionConfigOptions_workstationId_displayName,
+                        Description = SR.ConnectionConfigOptions_workstationId_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Context"
                     },
                     new ConnectionOption
                     {
                         Name = "pooling",
-                        DisplayName = "Pooling",
-                        Description = "When true, the connection object is drawn from the appropriate pool, or if necessary, is created and added to the appropriate pool",
+                        DisplayName = SR.ConnectionConfigOptions_pooling_displayName,
+                        Description = SR.ConnectionConfigOptions_pooling_description,
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Pooling"
                     },
                     new ConnectionOption
                     {
                         Name = "maxPoolSize",
-                        DisplayName = "Max pool size",
-                        Description = "The maximum number of connections allowed in the pool",
+                        DisplayName = SR.ConnectionConfigOptions_maxPoolSize_displayName,
+                        Description = SR.ConnectionConfigOptions_maxPoolSize_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Pooling"
                     },
                     new ConnectionOption
                     {
                         Name = "minPoolSize",
-                        DisplayName = "Min pool size",
-                        Description = "The minimum number of connections allowed in the pool",
+                        DisplayName = SR.ConnectionConfigOptions_minPoolSize_displayName,
+                        Description = SR.ConnectionConfigOptions_minPoolSize_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Pooling"
                     },
                     new ConnectionOption
                     {
                         Name = "loadBalanceTimeout",
-                        DisplayName = "Load balance timeout",
-                        Description = "The minimum amount of time (in seconds) for this connection to live in the pool before being destroyed",
+                        DisplayName = SR.ConnectionConfigOptions_loadBalanceTimeout_displayName,
+                        Description = SR.ConnectionConfigOptions_loadBalanceTimeout_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Pooling"
                     },
                     new ConnectionOption
                     {
                         Name = "replication",
-                        DisplayName = "Replication",
-                        Description = "Used by SQL Server in Replication",
+                        DisplayName = SR.ConnectionConfigOptions_replication_displayName,
+                        Description = SR.ConnectionConfigOptions_replication_description,
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Replication"
                     },
                     new ConnectionOption
                     {
                         Name = "attachDbFilename",
-                        DisplayName = "Attach DB filename",
+                        DisplayName = SR.ConnectionConfigOptions_attachDbFilename_displayName,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Source"
                     },
                     new ConnectionOption
                     {
                         Name = "failoverPartner",
-                        DisplayName = "Failover partner",
-                        Description = "the name or network address of the instance of SQL Server that acts as a failover partner",
+                        DisplayName = SR.ConnectionConfigOptions_failoverPartner_displayName,
+                        Description = SR.ConnectionConfigOptions_failoverPartner_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Source"
                     },
                     new ConnectionOption
                     {
                         Name = "multiSubnetFailover",
-                        DisplayName = "Multi subnet failover",
+                        DisplayName = SR.ConnectionConfigOptions_multiSubnetFailover_displayName,
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "General"
                     },
                     new ConnectionOption
                     {
                         Name = "multipleActiveResultSets",
-                        DisplayName = "Multiple active result sets",
-                        Description = "When true, multiple result sets can be returned and read from one connection",
+                        DisplayName = SR.ConnectionConfigOptions_multipleActiveResultSets_displayName,
+                        Description = SR.ConnectionConfigOptions_multipleActiveResultSets_description,
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Advanced"
                     },
                     new ConnectionOption
                     {
                         Name = "packetSize",
-                        DisplayName = "Packet size",
-                        Description = "Size in bytes of the network packets used to communicate with an instance of SQL Server",
+                        DisplayName = SR.ConnectionConfigOptions_packetSize_displayName,
+                        Description = SR.ConnectionConfigOptions_packetSize_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Advanced"
                     },
                     new ConnectionOption
                     {
                         Name = "typeSystemVersion",
-                        DisplayName = "Type system version",
-                        Description = "Indicates which server type system then provider will expose through the DataReader",
+                        DisplayName = SR.ConnectionConfigOptions_typeSystemVersion_displayName,
+                        Description = SR.ConnectionConfigOptions_typeSystemVersion_description,
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Advanced"
                     }

@@ -5413,4 +5413,312 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - dsp (string) </comment>
   </data>
+  <data name="ConnectionConfigOptions_server_displayName" xml:space="preserve">
+    <value>Server name</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_server_description" xml:space="preserve">
+    <value>Name of the SQL Server instance</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_database_displayName" xml:space="preserve">
+    <value>Database name</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_database_description" xml:space="preserve">
+    <value>The name of the initial catalog or database in the data source</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_displayName" xml:space="preserve">
+    <value>Authentication type</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_description" xml:space="preserve">
+    <value>Specifies the method of authenticating with SQL Server</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_SqlLogin" xml:space="preserve">
+    <value>SQL Login</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_Integrated" xml:space="preserve">
+    <value>Windows Authentication</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_AzureMFA" xml:space="preserve">
+    <value>Microsoft Entra ID - Universal with MFA support</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_user_displayName" xml:space="preserve">
+    <value>User name</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_user_description" xml:space="preserve">
+    <value>Indicates the user ID to be used when connecting to the data source</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_password_displayName" xml:space="preserve">
+    <value>Password</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_password_description" xml:space="preserve">
+    <value>Indicates the password to be used when connecting to the data source</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_displayName" xml:space="preserve">
+    <value>Application intent</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_description" xml:space="preserve">
+    <value>Declares the application workload type when connecting to a server</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadWrite" xml:space="preserve">
+    <value>Read/Write</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadOnly" xml:space="preserve">
+    <value>Read-Only</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_displayName" xml:space="preserve">
+    <value>Connect timeout</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_description" xml:space="preserve">
+    <value>The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_displayName" xml:space="preserve">
+    <value>Command timeout</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_description" xml:space="preserve">
+    <value>The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_displayName" xml:space="preserve">
+    <value>Current language</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_description" xml:space="preserve">
+    <value>The SQL Server language record name</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_displayName" xml:space="preserve">
+    <value>Always Encrypted</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_description" xml:space="preserve">
+    <value>Enables or disables Always Encrypted for the connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_category_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_category_Enabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_displayName" xml:space="preserve">
+    <value>Attestation Protocol</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_description" xml:space="preserve">
+    <value>Specifies a protocol for attesting a server-side enclave used with Always Encrypted with secure enclaves</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_HGS" xml:space="preserve">
+    <value>Host Guardian Service</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_AAS" xml:space="preserve">
+    <value>Azure Attestation</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_displayName" xml:space="preserve">
+    <value>Enclave Attestation URL</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_description" xml:space="preserve">
+    <value>Specifies an endpoint for attesting a server-side enclave used with Always Encrypted with secure enclaves</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_displayName" xml:space="preserve">
+    <value>Encrypt</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_description" xml:space="preserve">
+    <value>When set, SQL Server uses provided setting for SSL encryption for all data sent between the client and server.</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Optional" xml:space="preserve">
+    <value>Optional</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Mandatory" xml:space="preserve">
+    <value>Mandatory</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Strict" xml:space="preserve">
+    <value>Strict</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_displayName" xml:space="preserve">
+    <value>Persist security info</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_description" xml:space="preserve">
+    <value>When false, security-sensitive information, such as the password, is not returned as part of the connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_displayName" xml:space="preserve">
+    <value>Trust server certificate</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_description" xml:space="preserve">
+    <value>When true (and encrypt=true), SQL Server uses SSL encryption for all data sent between the client and server without validating the server certificate</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_displayName" xml:space="preserve">
+    <value>Host name in certificate</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_description" xml:space="preserve">
+    <value>Specifies host name in certificate to be used for certificate validation, when encryption is enabled.</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_displayName" xml:space="preserve">
+    <value>Attached DB file name</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_description" xml:space="preserve">
+    <value>The name of the primary file, including the full path name, of an attachable database</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_displayName" xml:space="preserve">
+    <value>Context connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_description" xml:space="preserve">
+    <value>When true, indicates the connection should be from the SQL server context. Available only when running in the SQL Server process</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_port_displayName" xml:space="preserve">
+    <value>Port</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_displayName" xml:space="preserve">
+    <value>Connect retry count</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_description" xml:space="preserve">
+    <value>Number of attempts to restore connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_displayName" xml:space="preserve">
+    <value>Connect retry interval</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_description" xml:space="preserve">
+    <value>Delay between attempts to restore connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_displayName" xml:space="preserve">
+    <value>Application name</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_description" xml:space="preserve">
+    <value>The name of the application</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_displayName" xml:space="preserve">
+    <value>Workstation Id</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_description" xml:space="preserve">
+    <value>The name of the workstation connecting to SQL Server</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_displayName" xml:space="preserve">
+    <value>Pooling</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_description" xml:space="preserve">
+    <value>When true, the connection object is drawn from the appropriate pool, or if necessary, is created and added to the appropriate pool</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_displayName" xml:space="preserve">
+    <value>Max pool size</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_description" xml:space="preserve">
+    <value>The maximum number of connections allowed in the pool</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_displayName" xml:space="preserve">
+    <value>Min pool size</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_description" xml:space="preserve">
+    <value>The minimum number of connections allowed in the pool</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_displayName" xml:space="preserve">
+    <value>Load balance timeout</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_description" xml:space="preserve">
+    <value>The minimum amount of time (in seconds) for this connection to live in the pool before being destroyed</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_replication_displayName" xml:space="preserve">
+    <value>Replication</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_replication_description" xml:space="preserve">
+    <value>Used by SQL Server in Replication</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_attachDbFilename_displayName" xml:space="preserve">
+    <value>Attach DB filename</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_displayName" xml:space="preserve">
+    <value>Failover partner</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_description" xml:space="preserve">
+    <value>the name or network address of the instance of SQL Server that acts as a failover partner</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_displayName" xml:space="preserve">
+    <value>Multi subnet failover</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_displayName" xml:space="preserve">
+    <value>Multiple active result sets</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_description" xml:space="preserve">
+    <value>When true, multiple result sets can be returned and read from one connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_displayName" xml:space="preserve">
+    <value>Packet size</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_description" xml:space="preserve">
+    <value>Size in bytes of the network packets used to communicate with an instance of SQL Server</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_displayName" xml:space="preserve">
+    <value>Type system version</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_description" xml:space="preserve">
+    <value>Indicates which server type system then provider will expose through the DataReader</value>
+    <comment></comment>
+  </data>
 </root>

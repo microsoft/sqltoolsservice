@@ -2,6 +2,381 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" original="sr.resx" source-language="en">
     <body>
+      <trans-unit id="ConnectionConfigOptions_server_displayName">
+        <source>Server name</source>
+        <target state="new">Server name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_server_description">
+        <source>Name of the SQL Server instance</source>
+        <target state="new">Name of the SQL Server instance</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_database_displayName">
+        <source>Database name</source>
+        <target state="new">Database name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_database_description">
+        <source>The name of the initial catalog or database in the data source</source>
+        <target state="new">The name of the initial catalog or database in the data source</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_authenticationType_displayName">
+        <source>Authentication type</source>
+        <target state="new">Authentication type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_authenticationType_description">
+        <source>Specifies the method of authenticating with SQL Server</source>
+        <target state="new">Specifies the method of authenticating with SQL Server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_authenticationType_category_SqlLogin">
+        <source>SQL Login</source>
+        <target state="new">SQL Login</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_authenticationType_category_Integrated">
+        <source>Windows Authentication</source>
+        <target state="new">Windows Authentication</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_authenticationType_category_AzureMFA">
+        <source>Microsoft Entra ID - Universal with MFA support</source>
+        <target state="new">Microsoft Entra ID - Universal with MFA support</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_user_displayName">
+        <source>User name</source>
+        <target state="new">User name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_user_description">
+        <source>Indicates the user ID to be used when connecting to the data source</source>
+        <target state="new">Indicates the user ID to be used when connecting to the data source</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_password_displayName">
+        <source>Password</source>
+        <target state="new">Password</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_password_description">
+        <source>Indicates the password to be used when connecting to the data source</source>
+        <target state="new">Indicates the password to be used when connecting to the data source</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_applicationIntent_displayName">
+        <source>Application intent</source>
+        <target state="new">Application intent</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_applicationIntent_description">
+        <source>Declares the application workload type when connecting to a server</source>
+        <target state="new">Declares the application workload type when connecting to a server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_applicationIntent_category_ReadWrite">
+        <source>Read/Write</source>
+        <target state="new">Read/Write</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_applicationIntent_category_ReadOnly">
+        <source>Read-Only</source>
+        <target state="new">Read-Only</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_connectTimeout_displayName">
+        <source>Connect timeout</source>
+        <target state="new">Connect timeout</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_commandTimeout_displayName">
+        <source>Command timeout</source>
+        <target state="new">Command timeout</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_currentLanguage_displayName">
+        <source>Current language</source>
+        <target state="new">Current language</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_currentLanguage_description">
+        <source>The SQL Server language record name</source>
+        <target state="new">The SQL Server language record name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_columnEncryptionSetting_displayName">
+        <source>Always Encrypted</source>
+        <target state="new">Always Encrypted</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_columnEncryptionSetting_description">
+        <source>Enables or disables Always Encrypted for the connection</source>
+        <target state="new">Enables or disables Always Encrypted for the connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_columnEncryptionSetting_category_Disabled">
+        <source>Disabled</source>
+        <target state="new">Disabled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_columnEncryptionSetting_category_Enabled">
+        <source>Enabled</source>
+        <target state="new">Enabled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attestationProtocol_displayName">
+        <source>Attestation Protocol</source>
+        <target state="new">Attestation Protocol</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attestationProtocol_description">
+        <source>Specifies a protocol for attesting a server-side enclave used with Always Encrypted with secure enclaves</source>
+        <target state="new">Specifies a protocol for attesting a server-side enclave used with Always Encrypted with secure enclaves</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attestationProtocol_category_HGS">
+        <source>Host Guardian Service</source>
+        <target state="new">Host Guardian Service</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attestationProtocol_category_AAS">
+        <source>Azure Attestation</source>
+        <target state="new">Azure Attestation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_enclaveAttestationUrl_displayName">
+        <source>Enclave Attestation URL</source>
+        <target state="new">Enclave Attestation URL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_enclaveAttestationUrl_description">
+        <source>Specifies an endpoint for attesting a server-side enclave used with Always Encrypted with secure enclaves</source>
+        <target state="new">Specifies an endpoint for attesting a server-side enclave used with Always Encrypted with secure enclaves</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_encrypt_displayName">
+        <source>Encrypt</source>
+        <target state="new">Encrypt</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_encrypt_description">
+        <source>When set, SQL Server uses provided setting for SSL encryption for all data sent between the client and server.</source>
+        <target state="new">When set, SQL Server uses provided setting for SSL encryption for all data sent between the client and server.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_encrypt_category_Optional">
+        <source>Optional</source>
+        <target state="new">Optional</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_encrypt_category_Mandatory">
+        <source>Mandatory</source>
+        <target state="new">Mandatory</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_encrypt_category_Strict">
+        <source>Strict</source>
+        <target state="new">Strict</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_persistSecurityInfo_displayName">
+        <source>Persist security info</source>
+        <target state="new">Persist security info</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_persistSecurityInfo_description">
+        <source>When false, security-sensitive information, such as the password, is not returned as part of the connection</source>
+        <target state="new">When false, security-sensitive information, such as the password, is not returned as part of the connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_trustServerCertificate_displayName">
+        <source>Trust server certificate</source>
+        <target state="new">Trust server certificate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_trustServerCertificate_description">
+        <source>When true (and encrypt=true), SQL Server uses SSL encryption for all data sent between the client and server without validating the server certificate</source>
+        <target state="new">When true (and encrypt=true), SQL Server uses SSL encryption for all data sent between the client and server without validating the server certificate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_hostNameInCertificate_displayName">
+        <source>Host name in certificate</source>
+        <target state="new">Host name in certificate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_hostNameInCertificate_description">
+        <source>Specifies host name in certificate to be used for certificate validation, when encryption is enabled.</source>
+        <target state="new">Specifies host name in certificate to be used for certificate validation, when encryption is enabled.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attachedDBFileName_displayName">
+        <source>Attached DB file name</source>
+        <target state="new">Attached DB file name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attachedDBFileName_description">
+        <source>The name of the primary file, including the full path name, of an attachable database</source>
+        <target state="new">The name of the primary file, including the full path name, of an attachable database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_contextConnection_displayName">
+        <source>Context connection</source>
+        <target state="new">Context connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_contextConnection_description">
+        <source>When true, indicates the connection should be from the SQL server context. Available only when running in the SQL Server process</source>
+        <target state="new">When true, indicates the connection should be from the SQL server context. Available only when running in the SQL Server process</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_port_displayName">
+        <source>Port</source>
+        <target state="new">Port</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_connectRetryCount_displayName">
+        <source>Connect retry count</source>
+        <target state="new">Connect retry count</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_connectRetryCount_description">
+        <source>Number of attempts to restore connection</source>
+        <target state="new">Number of attempts to restore connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_connectRetryInterval_displayName">
+        <source>Connect retry interval</source>
+        <target state="new">Connect retry interval</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_connectRetryInterval_description">
+        <source>Delay between attempts to restore connection</source>
+        <target state="new">Delay between attempts to restore connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_applicationName_displayName">
+        <source>Application name</source>
+        <target state="new">Application name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_applicationName_description">
+        <source>The name of the application</source>
+        <target state="new">The name of the application</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_workstationId_displayName">
+        <source>Workstation Id</source>
+        <target state="new">Workstation Id</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_workstationId_description">
+        <source>The name of the workstation connecting to SQL Server</source>
+        <target state="new">The name of the workstation connecting to SQL Server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_pooling_displayName">
+        <source>Pooling</source>
+        <target state="new">Pooling</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_pooling_description">
+        <source>When true, the connection object is drawn from the appropriate pool, or if necessary, is created and added to the appropriate pool</source>
+        <target state="new">When true, the connection object is drawn from the appropriate pool, or if necessary, is created and added to the appropriate pool</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_maxPoolSize_displayName">
+        <source>Max pool size</source>
+        <target state="new">Max pool size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_maxPoolSize_description">
+        <source>The maximum number of connections allowed in the pool</source>
+        <target state="new">The maximum number of connections allowed in the pool</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_minPoolSize_displayName">
+        <source>Min pool size</source>
+        <target state="new">Min pool size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_minPoolSize_description">
+        <source>The minimum number of connections allowed in the pool</source>
+        <target state="new">The minimum number of connections allowed in the pool</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_loadBalanceTimeout_displayName">
+        <source>Load balance timeout</source>
+        <target state="new">Load balance timeout</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_loadBalanceTimeout_description">
+        <source>The minimum amount of time (in seconds) for this connection to live in the pool before being destroyed</source>
+        <target state="new">The minimum amount of time (in seconds) for this connection to live in the pool before being destroyed</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_replication_displayName">
+        <source>Replication</source>
+        <target state="new">Replication</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_replication_description">
+        <source>Used by SQL Server in Replication</source>
+        <target state="new">Used by SQL Server in Replication</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_attachDbFilename_displayName">
+        <source>Attach DB filename</source>
+        <target state="new">Attach DB filename</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_failoverPartner_displayName">
+        <source>Failover partner</source>
+        <target state="new">Failover partner</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_failoverPartner_description">
+        <source>the name or network address of the instance of SQL Server that acts as a failover partner</source>
+        <target state="new">the name or network address of the instance of SQL Server that acts as a failover partner</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_multiSubnetFailover_displayName">
+        <source>Multi subnet failover</source>
+        <target state="new">Multi subnet failover</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_multipleActiveResultSets_displayName">
+        <source>Multiple active result sets</source>
+        <target state="new">Multiple active result sets</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_multipleActiveResultSets_description">
+        <source>When true, multiple result sets can be returned and read from one connection</source>
+        <target state="new">When true, multiple result sets can be returned and read from one connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_packetSize_displayName">
+        <source>Packet size</source>
+        <target state="new">Packet size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_packetSize_description">
+        <source>Size in bytes of the network packets used to communicate with an instance of SQL Server</source>
+        <target state="new">Size in bytes of the network packets used to communicate with an instance of SQL Server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_typeSystemVersion_displayName">
+        <source>Type system version</source>
+        <target state="new">Type system version</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_typeSystemVersion_description">
+        <source>Indicates which server type system then provider will expose through the DataReader</source>
+        <target state="new">Indicates which server type system then provider will expose through the DataReader</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnectErrorNullParams">
         <source>Connection parameters cannot be null</source>
         <target state="new">Connection parameters cannot be null</target>
@@ -18,11 +393,61 @@
         <note>.
  Parameters: 0 - uri (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
+        <source>Specified URI '{0}' does not have a default connection</source>
+        <target state="new">Specified URI '{0}' does not have a default connection</target>
+        <note>.
+ Parameters: 0 - uri (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAuthType">
         <source>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</source>
         <target state="new">Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</target>
         <note>.
  Parameters: 0 - authType (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
+        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="new">Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</target>
+        <note>.
+ Parameters: 0 - columnEncryptionSetting (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="new">Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <note>.
+ Parameters: 0 - secureEnclaves (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="new">Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="new">Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <note>.
+ Parameters: 0 - enclaveAttestationProtocol (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="new">Attestation protocol cannot be empty with Secure enclaves enabled.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
+        <target state="new">Attestation URL cannot be empty with the selected value of Attestation protocol.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="new">The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="new">The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidIntent">
         <source>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</source>
@@ -33,6 +458,26 @@
       <trans-unit id="ConnectionServiceConnectionCanceled">
         <source>Connection canceled</source>
         <target state="new">Connection canceled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPassword">
+        <source>New password cannot be empty</source>
+        <target state="new">New password cannot be empty</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPasswordRetry">
+        <source>Press OK to input a new password that is not empty.</source>
+        <target state="new">Press OK to input a new password that is not empty.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeDNMReqsRetry">
+        <source>Press OK to input a new password that meets operating system policy requirements.</source>
+        <target state="new">Press OK to input a new password that meets operating system policy requirements.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangePWCannotBeUsedRetry">
+        <source>Press OK to input a different password.</source>
+        <target state="new">Press OK to input a different password.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionParamsValidateNullOwnerUri">
@@ -55,6 +500,26 @@
         <target state="new">{0} cannot be null or empty when using SqlLogin authentication</target>
         <note>.
  Parameters: 0 - component (string) </note>
+      </trans-unit>
+      <trans-unit id="AzureSqlDbEdition">
+        <source>Azure SQL DB</source>
+        <target state="new">Azure SQL DB</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSqlDwEdition">
+        <source>Azure SQL Data Warehouse</source>
+        <target state="new">Azure SQL Data Warehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSqlStretchEdition">
+        <source>Azure SQL Stretch Database</source>
+        <target state="new">Azure SQL Stretch Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
+        <source>Azure SQL Analytics on-demand</source>
+        <target state="new">Azure SQL Analytics on-demand</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="QueryServiceCancelAlreadyCompleted">
         <source>The query has already completed, it cannot be cancelled</source>
@@ -149,6 +614,11 @@
         <target state="new">(No column name)</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceCellNull">
+        <source>NULL</source>
+        <target state="new">NULL</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="QueryServiceRequestsNoQuery">
         <source>The requested query does not exist</source>
         <target state="new">The requested query does not exist</target>
@@ -168,6 +638,27 @@
         <source>Sender for OnInfoMessage event must be a SqlConnection</source>
         <target state="new">Sender for OnInfoMessage event must be a SqlConnection</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetAddNoRows">
+        <source>Cannot add row to result buffer, data reader does not contain rows</source>
+        <target state="new">Cannot add row to result buffer, data reader does not contain rows</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetHasNoResults">
+        <source>Query has no results to return</source>
+        <target state="new">Query has no results to return</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetTooLarge">
+        <source>Result set has too many rows to be safely loaded</source>
+        <target state="new">Result set has too many rows to be safely loaded</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="new">The underlying type "{0}" for sql variant column "{1}" could not be resolved.</target>
+        <note>.
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
       </trans-unit>
       <trans-unit id="QueryServiceSaveAsResultSetNotComplete">
         <source>Result cannot be saved until query execution has completed</source>
@@ -215,6 +706,92 @@
         <target state="new">Could not retrieve an execution plan from the result set</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlCmdExitOnError">
+        <source>An error was encountered during execution of batch. Exiting.</source>
+        <target state="new">An error was encountered during execution of batch. Exiting.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmdUnsupportedToken">
+        <source>Encountered unsupported token {0}</source>
+        <target state="new">Encountered unsupported token {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ParameterizationDetails">
+        <source>{0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</source>
+        <target state="new">{0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDbType (string), 2 - size (int), 3 - precision (int), 4 - scale (int), 5 - sqlValue (string) </note>
+      </trans-unit>
+      <trans-unit id="ErrorMessageHeader">
+        <source>Line {0}</source>
+        <target state="new">Line {0}</target>
+        <note>.
+ Parameters: 0 - lineNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ErrorMessage">
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</source>
+        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
+      </trans-unit>
+      <trans-unit id="DateTimeErrorMessage">
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</source>
+        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
+      </trans-unit>
+      <trans-unit id="BinaryLiteralPrefixMissingError">
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</source>
+        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
+      </trans-unit>
+      <trans-unit id="ParsingErrorHeader">
+        <source>Line {0}, column {1}</source>
+        <target state="new">Line {0}, column {1}</target>
+        <note>.
+ Parameters: 0 - lineNumber (int), 1 - columnNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ScriptTooLarge">
+        <source>The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</source>
+        <target state="new">The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</target>
+        <note>.
+ Parameters: 0 - maxChars (int), 1 - currentChars (int) </note>
+      </trans-unit>
+      <trans-unit id="WritingServerContextualizationToCacheError">
+        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
+        <target state="new">An error was encountered while writing server contextualization scripts to the cache. Error: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToGenerateServerContextualizationScripts">
+        <source>Failed to generate server contextualization scripts</source>
+        <target state="new">Failed to generate server contextualization scripts</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToFindConnectionInfoAboutTheServer">
+        <source>Failed to find connection info about the server</source>
+        <target state="new">Failed to find connection info about the server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceUnsupportedFormat">
+        <source>Unsupported Save Format: {0}</source>
+        <target state="new">Unsupported Save Format: {0}</target>
+        <note>.
+ Parameters: 0 - formatName (string) </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceRequestInProgress">
+        <source>A request for file {0} is already in progress</source>
+        <target state="new">A request for file {0} is already in progress</target>
+        <note>.
+ Parameters: 0 - filePath (string) </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceRequestNotFound">
+        <source>Cannot serialize more data as no request for file {0} could be found</source>
+        <target state="new">Cannot serialize more data as no request for file {0} could be found</target>
+        <note>.
+ Parameters: 0 - filePath (string) </note>
+      </trans-unit>
       <trans-unit id="PeekDefinitionAzureError">
         <source>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</source>
         <target state="new">This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</target>
@@ -252,6 +829,11 @@
         <target state="new">This object type is currently not supported by this feature.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ErrorEmptyStringReplacement">
+        <source>Replacement of an empty string by an empty string.</source>
+        <target state="new">Replacement of an empty string by an empty string.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="WorkspaceServicePositionLineOutOfRange">
         <source>Position is outside of file line range</source>
         <target state="new">Position is outside of file line range</target>
@@ -269,19 +851,65 @@
         <note>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
       </trans-unit>
-      <trans-unit id="TestLocalizationConstant">
-        <source>test</source>
-        <target state="new">test</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ErrorEmptyStringReplacement">
-        <source>Replacement of an empty string by an empty string.</source>
-        <target state="new">Replacement of an empty string by an empty string.</target>
+      <trans-unit id="EditDataObjectNotFound">
+        <source>Table or view requested for edit could not be found</source>
+        <target state="new">Table or view requested for edit could not be found</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataSessionNotFound">
         <source>Edit session does not exist.</source>
         <target state="new">Edit session does not exist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyExists">
+        <source>Edit session already exists.</source>
+        <target state="new">Edit session already exists.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionNotInitialized">
+        <source>Edit session has not been initialized</source>
+        <target state="new">Edit session has not been initialized</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyInitialized">
+        <source>Edit session has already been initialized</source>
+        <target state="new">Edit session has already been initialized</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyInitializing">
+        <source>Edit session has already been initialized or is in the process of initializing</source>
+        <target state="new">Edit session has already been initialized or is in the process of initializing</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataNotExtended">
+        <source>Table metadata does not have extended properties</source>
+        <target state="new">Table metadata does not have extended properties</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataObjectNameRequired">
+        <source>A object name must be provided</source>
+        <target state="new">A object name must be provided</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataTooManyIdentifiers">
+        <source>Explicitly specifying server or database is not supported</source>
+        <target state="new">Explicitly specifying server or database is not supported</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataFilteringNegativeLimit">
+        <source>Result limit cannot be negative</source>
+        <target state="new">Result limit cannot be negative</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataUnsupportedObjectType">
+        <source>Database object {0} cannot be used for editing.</source>
+        <target state="new">Database object {0} cannot be used for editing.</target>
+        <note>.
+ Parameters: 0 - typeName (string) </note>
+      </trans-unit>
+      <trans-unit id="EditDataQueryFailed">
+        <source>Query execution failed, see messages for details</source>
+        <target state="new">Query execution failed, see messages for details</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataQueryNotCompleted">
@@ -318,6 +946,12 @@
         <source>Table or view metadata could not be found</source>
         <target state="new">Table or view metadata could not be found</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormat">
+        <source>Invalid format for column '{0}', column is defined as {1}</source>
+        <target state="new">Invalid format for column '{0}', column is defined as {1}</target>
+        <note>.
+ Parameters: 0 - colName (string), 1 - colType (string) </note>
       </trans-unit>
       <trans-unit id="EditDataInvalidFormatBinary">
         <source>Invalid format for binary column</source>
@@ -360,36 +994,14 @@
         <target state="new">An output filename must be provided</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataUnsupportedObjectType">
-        <source>Database object {0} cannot be used for editing.</source>
-        <target state="new">Database object {0} cannot be used for editing.</target>
-        <note>.
- Parameters: 0 - typeName (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
-        <source>Specified URI '{0}' does not have a default connection</source>
-        <target state="new">Specified URI '{0}' does not have a default connection</target>
-        <note>.
- Parameters: 0 - uri (string) </note>
-      </trans-unit>
       <trans-unit id="EditDataCommitInProgress">
         <source>A commit task is in progress. Please wait for completion.</source>
         <target state="new">A commit task is in progress. Please wait for completion.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
-        <source>Exact numeric column is missing numeric precision or numeric scale</source>
-        <target state="new">Exact numeric column is missing numeric precision or numeric scale</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="EditDataComputedColumnPlaceholder">
         <source>&lt;TBD&gt;</source>
         <target state="new">&lt;TBD&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetAddNoRows">
-        <source>Cannot add row to result buffer, data reader does not contain rows</source>
-        <target state="new">Cannot add row to result buffer, data reader does not contain rows</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataTimeOver24Hrs">
@@ -402,69 +1014,107 @@
         <target state="new">NULL is not allowed for this column</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataSessionAlreadyExists">
-        <source>Edit session already exists.</source>
-        <target state="new">Edit session already exists.</target>
+      <trans-unit id="EditDataValueTooLarge">
+        <source>Value {0} is too large to fit in column of type {1}</source>
+        <target state="new">Value {0} is too large to fit in column of type {1}</target>
+        <note>.
+ Parameters: 0 - value (string), 1 - columnType (string) </note>
+      </trans-unit>
+      <trans-unit id="EditDataMultiTableNotSupported">
+        <source>EditData queries targeting multiple tables are not supported</source>
+        <target state="new">EditData queries targeting multiple tables are not supported</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataSessionNotInitialized">
-        <source>Edit session has not been initialized</source>
-        <target state="new">Edit session has not been initialized</target>
+      <trans-unit id="EditDataAliasesNotSupported">
+        <source>EditData queries with aliased columns are not supported</source>
+        <target state="new">EditData queries with aliased columns are not supported</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataSessionAlreadyInitialized">
-        <source>Edit session has already been initialized</source>
-        <target state="new">Edit session has already been initialized</target>
+      <trans-unit id="EditDataExpressionsNotSupported">
+        <source>EditData queries with aggregate or expression columns are not supported</source>
+        <target state="new">EditData queries with aggregate or expression columns are not supported</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataSessionAlreadyInitializing">
-        <source>Edit session has already been initialized or is in the process of initializing</source>
-        <target state="new">Edit session has already been initialized or is in the process of initializing</target>
+      <trans-unit id="EditDataDuplicateColumnsNotSupported">
+        <source>EditData queries with duplicate columns are not supported</source>
+        <target state="new">EditData queries with duplicate columns are not supported</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataQueryFailed">
-        <source>Query execution failed, see messages for details</source>
-        <target state="new">Query execution failed, see messages for details</target>
+      <trans-unit id="EditDataIncorrectTable">
+        <source>EditData queries must query the originally targeted table '{0}'</source>
+        <target state="new">EditData queries must query the originally targeted table '{0}'</target>
+        <note>.
+ Parameters: 0 - tableName (string) </note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
+        <target state="new">Beginning execution loop</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataFilteringNegativeLimit">
-        <source>Result limit cannot be negative</source>
-        <target state="new">Result limit cannot be negative</target>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceCellNull">
-        <source>NULL</source>
-        <target state="new">NULL</target>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Batch execution completed {0} times...</source>
+        <target state="new">Batch execution completed {0} times...</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataMetadataObjectNameRequired">
-        <source>A object name must be provided</source>
-        <target state="new">A object name must be provided</target>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataMetadataTooManyIdentifiers">
-        <source>Explicitly specifying server or database is not supported</source>
-        <target state="new">Explicitly specifying server or database is not supported</target>
+      <trans-unit id="TestLocalizationConstant">
+        <source>test</source>
+        <target state="new">test</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataMetadataNotExtended">
-        <source>Table metadata does not have extended properties</source>
-        <target state="new">Table metadata does not have extended properties</target>
+      <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
+        <source>Exact numeric column is missing numeric precision or numeric scale</source>
+        <target state="new">Exact numeric column is missing numeric precision or numeric scale</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataObjectNotFound">
-        <source>Table or view requested for edit could not be found</source>
-        <target state="new">Table or view requested for edit could not be found</target>
+      <trans-unit id="SqlScriptFormatterLengthTypeMissingSize">
+        <source>Column with length is missing size</source>
+        <target state="new">Column with length is missing size</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceResultSetHasNoResults">
-        <source>Query has no results to return</source>
-        <target state="new">Query has no results to return</target>
+      <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
+        <source>Scalar column missing scale</source>
+        <target state="new">Scalar column missing scale</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceResultSetTooLarge">
-        <source>Result set has too many rows to be safely loaded</source>
-        <target state="new">Result set has too many rows to be safely loaded</target>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="new">Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BackupTaskName">
+        <source>Backup Database</source>
+        <target state="new">Backup Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BackupPathIsFolderError">
+        <source>Please provide a file path instead of directory path</source>
+        <target state="new">Please provide a file path instead of directory path</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidBackupPathError">
+        <source> The provided path is invalid</source>
+        <target state="new"> The provided path is invalid</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TaskInProgress">
+        <source>In progress</source>
+        <target state="new">In progress</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TaskCompleted">
+        <source>Completed</source>
+        <target state="new">Completed</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="ConflictWithNoRecovery">
         <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
@@ -504,6 +1154,11 @@
       <trans-unit id="RestoreBackupSetComponent">
         <source>Component</source>
         <target state="new">Component</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetName">
+        <source>Name</source>
+        <target state="new">Name</target>
         <note></note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetType">
@@ -571,34 +1226,30 @@
         <target state="new">Expiration</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="RestoreBackupSetName">
-        <source>Name</source>
-        <target state="new">Name</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="TheLastBackupTaken">
         <source>The last backup taken ({0})</source>
         <target state="new">The last backup taken ({0})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="BackupTaskName">
-        <source>Backup Database</source>
-        <target state="new">Backup Database</target>
+      <trans-unit id="NoBackupsetsToRestore">
+        <source>No backupset selected to be restored</source>
+        <target state="new">No backupset selected to be restored</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="TaskInProgress">
-        <source>In progress</source>
-        <target state="new">In progress</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TaskCompleted">
-        <source>Completed</source>
-        <target state="new">Completed</target>
-        <note></note>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="new">Unsupported device type {0} for engine edition {1}.</target>
+        <note>.
+ Parameters: 0 - deviceType (String), 1 - engineEdition (String) </note>
       </trans-unit>
       <trans-unit id="ScriptTaskName">
         <source>scripting</source>
         <target state="new">scripting</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidPathError">
+        <source>Cannot access the specified path on the server: {0}</source>
+        <target state="new">Cannot access the specified path on the server: {0}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ProfilerConnectionNotFound">
@@ -611,93 +1262,55 @@
         <target state="new">Cannot profile Azure system databases</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="BackupPathIsFolderError">
-        <source>Please provide a file path instead of directory path</source>
-        <target state="new">Please provide a file path instead of directory path</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="InvalidBackupPathError">
-        <source> The provided path is invalid</source>
-        <target state="new"> The provided path is invalid</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="InvalidPathError">
-        <source>Cannot access the specified path on the server: {0}</source>
-        <target state="new">Cannot access the specified path on the server: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="NoBackupsetsToRestore">
-        <source>No backupset selected to be restored</source>
-        <target state="new">No backupset selected to be restored</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="AzureSqlDbEdition">
-        <source>Azure SQL DB</source>
-        <target state="new">Azure SQL DB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="AzureSqlDwEdition">
-        <source>Azure SQL Data Warehouse</source>
-        <target state="new">Azure SQL Data Warehouse</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="AzureSqlStretchEdition">
-        <source>Azure SQL Stretch Database</source>
-        <target state="new">Azure SQL Stretch Database</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
-        <source>Azure SQL Analytics on-demand</source>
-        <target state="new">Azure SQL Analytics on-demand</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataValueTooLarge">
-        <source>Value {0} is too large to fit in column of type {1}</source>
-        <target state="new">Value {0} is too large to fit in column of type {1}</target>
+      <trans-unit id="CreateSessionFailed">
+        <source>Failed to create session: {0}</source>
+        <target state="new">Failed to create session: {0}</target>
         <note>.
- Parameters: 0 - value (string), 1 - columnType (string) </note>
+ Parameters: 0 - error (String) </note>
       </trans-unit>
-      <trans-unit id="EditDataInvalidFormat">
-        <source>Invalid format for column '{0}', column is defined as {1}</source>
-        <target state="new">Invalid format for column '{0}', column is defined as {1}</target>
+      <trans-unit id="StartSessionFailed">
+        <source>Failed to start session: {0}</source>
+        <target state="new">Failed to start session: {0}</target>
         <note>.
- Parameters: 0 - colName (string), 1 - colType (string) </note>
+ Parameters: 0 - error (String) </note>
       </trans-unit>
-      <trans-unit id="SqlScriptFormatterLengthTypeMissingSize">
-        <source>Column with length is missing size</source>
-        <target state="new">Column with length is missing size</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
-        <source>Scalar column missing scale</source>
-        <target state="new">Scalar column missing scale</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataMultiTableNotSupported">
-        <source>EditData queries targeting multiple tables are not supported</source>
-        <target state="new">EditData queries targeting multiple tables are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataAliasesNotSupported">
-        <source>EditData queries with aliased columns are not supported</source>
-        <target state="new">EditData queries with aliased columns are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataExpressionsNotSupported">
-        <source>EditData queries with aggregate or expression columns are not supported</source>
-        <target state="new">EditData queries with aggregate or expression columns are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataDuplicateColumnsNotSupported">
-        <source>EditData queries with duplicate columns are not supported</source>
-        <target state="new">EditData queries with duplicate columns are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataIncorrectTable">
-        <source>EditData queries must query the originally targeted table '{0}'</source>
-        <target state="new">EditData queries must query the originally targeted table '{0}'</target>
+      <trans-unit id="PauseSessionFailed">
+        <source>Failed to pause session: {0}</source>
+        <target state="new">Failed to pause session: {0}</target>
         <note>.
- Parameters: 0 - tableName (string) </note>
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="StopSessionFailed">
+        <source>Failed to stop session: {0}</source>
+        <target state="new">Failed to stop session: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="SessionNotFound">
+        <source>Cannot find requested XEvent session</source>
+        <target state="new">Cannot find requested XEvent session</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SessionAlreadyExists">
+        <source>An XEvent session named {0} already exists</source>
+        <target state="new">An XEvent session named {0} already exists</target>
+        <note>.
+ Parameters: 0 - sessionName (String) </note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="new">Create shared access signature is not supported for cloud instances.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="new">Cannot generate SAS URI for blob container.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="new">Failed storing shared access signature token on the SQL Servers.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CategoryLocal">
         <source>[Uncategorized (Local)]</source>
@@ -804,6 +1417,50 @@
         <target state="new">Data Collector</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="UnknownSizeUnit">
+        <source>Unknown size unit {0}</source>
+        <target state="new">Unknown size unit {0}</target>
+        <note>.
+ Parameters: 0 - unit (string) </note>
+      </trans-unit>
+      <trans-unit id="UnexpectedRunType">
+        <source>Unexpected run type.</source>
+        <target state="new">Unexpected run type.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CredentialNoLongerExists">
+        <source>The object does no longer exist on server.</source>
+        <target state="new">The object does no longer exist on server.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnknownServerType">
+        <source>Unknown server type '{0}'.</source>
+        <target state="new">Unknown server type '{0}'.</target>
+        <note>.
+ Parameters: 0 - serverTypeName (string) </note>
+      </trans-unit>
+      <trans-unit id="SetOwnerFailed">
+        <source>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</source>
+        <target state="new">The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</target>
+        <note>.
+ Parameters: 0 - ownerName (string) </note>
+      </trans-unit>
+      <trans-unit id="TargetServerNotSelected">
+        <source>You must specify the Target Servers on which this multi server job will execute.</source>
+        <target state="new">You must specify the Target Servers on which this multi server job will execute.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ProxyAccountNotFound">
+        <source>Proxy account '{0}' does not exist on the server.</source>
+        <target state="new">Proxy account '{0}' does not exist on the server.</target>
+        <note>.
+ Parameters: 0 - proxyName (string) </note>
+      </trans-unit>
+      <trans-unit id="SysadminAccount">
+        <source>SQL Server Agent Service Account</source>
+        <target state="new">SQL Server Agent Service Account</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="JobAlreadyExists">
         <source>A job named '{0}' already exists.  Enter a unique name for the job.</source>
         <target state="new">A job named '{0}' already exists.  Enter a unique name for the job.</target>
@@ -835,85 +1492,6 @@
         <source>Cannot alter alert.</source>
         <target state="new">Cannot alter alert.</target>
         <note></note>
-      </trans-unit>
-      <trans-unit id="SysadminAccount">
-        <source>SQL Server Agent Service Account</source>
-        <target state="new">SQL Server Agent Service Account</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ProxyAccountNotFound">
-        <source>Proxy account '{0}' does not exist on the server.</source>
-        <target state="new">Proxy account '{0}' does not exist on the server.</target>
-        <note>.
- Parameters: 0 - proxyName (string) </note>
-      </trans-unit>
-      <trans-unit id="CredentialNoLongerExists">
-        <source>The object does no longer exist on server.</source>
-        <target state="new">The object does no longer exist on server.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="UnknownServerType">
-        <source>Unknown server type '{0}'.</source>
-        <target state="new">Unknown server type '{0}'.</target>
-        <note>.
- Parameters: 0 - serverTypeName (string) </note>
-      </trans-unit>
-      <trans-unit id="SetOwnerFailed">
-        <source>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</source>
-        <target state="new">The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</target>
-        <note>.
- Parameters: 0 - ownerName (string) </note>
-      </trans-unit>
-      <trans-unit id="TargetServerNotSelected">
-        <source>You must specify the Target Servers on which this multi server job will execute.</source>
-        <target state="new">You must specify the Target Servers on which this multi server job will execute.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="UnexpectedRunType">
-        <source>Unexpected run type.</source>
-        <target state="new">Unexpected run type.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="UnknownSizeUnit">
-        <source>Unknown size unit {0}</source>
-        <target state="new">Unknown size unit {0}</target>
-        <note>.
- Parameters: 0 - unit (string) </note>
-      </trans-unit>
-      <trans-unit id="SessionNotFound">
-        <source>Cannot find requested XEvent session</source>
-        <target state="new">Cannot find requested XEvent session</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StopSessionFailed">
-        <source>Failed to stop session: {0}</source>
-        <target state="new">Failed to stop session: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="StartSessionFailed">
-        <source>Failed to start session: {0}</source>
-        <target state="new">Failed to start session: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="CreateSessionFailed">
-        <source>Failed to create session: {0}</source>
-        <target state="new">Failed to create session: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="PauseSessionFailed">
-        <source>Failed to pause session: {0}</source>
-        <target state="new">Failed to pause session: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="SessionAlreadyExists">
-        <source>An XEvent session named {0} already exists</source>
-        <target state="new">An XEvent session named {0} already exists</target>
-        <note>.
- Parameters: 0 - sessionName (String) </note>
       </trans-unit>
       <trans-unit id="InvalidScheduleTitle">
         <source>Invalid Schedule</source>
@@ -971,31 +1549,6 @@
         <target state="new">For directory {0} a file with name {1} already exist</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Beginning execution loop</source>
-        <target state="new">Beginning execution loop</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Ignoring">
-        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Batch execution completed {0} times...</source>
-        <target state="new">Batch execution completed {0} times...</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionError">
-        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ExtractInvalidVersion">
-        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</source>
-        <target state="new">Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ExportBacpacTaskName">
         <source>Export bacpac</source>
         <target state="new">Export bacpac</target>
@@ -1021,140 +1574,6 @@
         <target state="new">Generate script</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PublishChangesTaskName">
-        <source>Apply schema compare changes</source>
-        <target state="new">Apply schema compare changes</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
-        <source>Failed to find the specified change in the model</source>
-        <target state="new">Failed to find the specified change in the model</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="OpenScmpConnectionBasedModelParsingError">
-        <source>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</source>
-        <target state="new">Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SchemaCompareSessionNotFound">
-        <source>Could not find the schema compare session to cancel</source>
-        <target state="new">Could not find the schema compare session to cancel</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SerializationServiceUnsupportedFormat">
-        <source>Unsupported Save Format: {0}</source>
-        <target state="new">Unsupported Save Format: {0}</target>
-        <note>.
- Parameters: 0 - formatName (string) </note>
-      </trans-unit>
-      <trans-unit id="SerializationServiceRequestInProgress">
-        <source>A request for file {0} is already in progress</source>
-        <target state="new">A request for file {0} is already in progress</target>
-        <note>.
- Parameters: 0 - filePath (string) </note>
-      </trans-unit>
-      <trans-unit id="SerializationServiceRequestNotFound">
-        <source>Cannot serialize more data as no request for file {0} could be found</source>
-        <target state="new">Cannot serialize more data as no request for file {0} could be found</target>
-        <note>.
- Parameters: 0 - filePath (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
-        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
-        <target state="new">Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</target>
-        <note>.
- Parameters: 0 - encrypt (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="new">An error was encountered during execution of batch. Exiting.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="new">Encountered unsupported token {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlAssessmentGenerateScriptTaskName">
-        <source>Generate SQL Assessment script</source>
-        <target state="new">Generate SQL Assessment script</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlAssessmentQueryInvalidOwnerUri">
-        <source>Not connected to a server</source>
-        <target state="new">Not connected to a server</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlAssessmentConnectingError">
-        <source>Cannot connect to the server</source>
-        <target state="new">Cannot connect to the server</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlAssessmentUnsuppoertedEdition">
-        <source>Unsupported engine edition {0}</source>
-        <target state="new">Unsupported engine edition {0}</target>
-        <note>.
- Parameters: 0 - editionCode (int) </note>
-      </trans-unit>
-      <trans-unit id="ParameterizationDetails">
-        <source>{0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</source>
-        <target state="new">{0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</target>
-        <note>.
- Parameters: 0 - variableName (string), 1 - sqlDbType (string), 2 - size (int), 3 - precision (int), 4 - scale (int), 5 - sqlValue (string) </note>
-      </trans-unit>
-      <trans-unit id="ErrorMessageHeader">
-        <source>Line {0}</source>
-        <target state="new">Line {0}</target>
-        <note>.
- Parameters: 0 - lineNumber (int) </note>
-      </trans-unit>
-      <trans-unit id="ErrorMessage">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</target>
-        <note>.
- Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
-      </trans-unit>
-      <trans-unit id="DateTimeErrorMessage">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</target>
-        <note>.
- Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
-      </trans-unit>
-      <trans-unit id="BinaryLiteralPrefixMissingError">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</target>
-        <note>.
- Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
-      </trans-unit>
-      <trans-unit id="ParsingErrorHeader">
-        <source>Line {0}, column {1}</source>
-        <target state="new">Line {0}, column {1}</target>
-        <note>.
- Parameters: 0 - lineNumber (int), 1 - columnNumber (int) </note>
-      </trans-unit>
-      <trans-unit id="ScriptTooLarge">
-        <source>The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</source>
-        <target state="new">The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</target>
-        <note>.
- Parameters: 0 - maxChars (int), 1 - currentChars (int) </note>
-      </trans-unit>
       <trans-unit id="ProjectExtractTaskName">
         <source>Extract project files</source>
         <target state="new">Extract project files</target>
@@ -1163,6 +1582,11 @@
       <trans-unit id="ValidateStreamingJobTaskName">
         <source>Validate streaming job</source>
         <target state="new">Validate streaming job</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExtractInvalidVersion">
+        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</source>
+        <target state="new">Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="StreamNotFoundInModel">
@@ -1196,6 +1620,47 @@
         <source>No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</source>
         <target state="new">No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="PublishChangesTaskName">
+        <source>Apply schema compare changes</source>
+        <target state="new">Apply schema compare changes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
+        <source>Failed to find the specified change in the model</source>
+        <target state="new">Failed to find the specified change in the model</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OpenScmpConnectionBasedModelParsingError">
+        <source>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</source>
+        <target state="new">Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareSessionNotFound">
+        <source>Could not find the schema compare session to cancel</source>
+        <target state="new">Could not find the schema compare session to cancel</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentGenerateScriptTaskName">
+        <source>Generate SQL Assessment script</source>
+        <target state="new">Generate SQL Assessment script</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentQueryInvalidOwnerUri">
+        <source>Not connected to a server</source>
+        <target state="new">Not connected to a server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentConnectingError">
+        <source>Cannot connect to the server</source>
+        <target state="new">Cannot connect to the server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentUnsuppoertedEdition">
+        <source>Unsupported engine edition {0}</source>
+        <target state="new">Unsupported engine edition {0}</target>
+        <note>.
+ Parameters: 0 - editionCode (int) </note>
       </trans-unit>
       <trans-unit id="CouldntFindAzureFunction">
         <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
@@ -2607,7 +3072,7 @@
       <trans-unit id="ObjectTableDescription">
         <source>Table name for the referenced object.</source>
         <target state="new">Table name for the referenced object.</target>
-        <note> Table property description </note>
+        <note> Table property description</note>
       </trans-unit>
       <trans-unit id="ObjectAlias">
         <source>Alias</source>
@@ -3359,106 +3824,6 @@
         <target state="new">A level of grouping attributes computed in this rollup.</target>
         <note> Show plan node property description</note>
       </trans-unit>
-      <trans-unit id="RemoteQuery">
-        <source>Remote Query</source>
-        <target state="new">Remote Query</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="RemoteQueryDescription">
-        <source>Send a SQL query to another than the current SQL Server.</source>
-        <target state="new">Send a SQL query to another than the current SQL Server.</target>
-        <note> Operator description</note>
-      </trans-unit>
-      <trans-unit id="ComputeScalar">
-        <source>Compute Scalar</source>
-        <target state="new">Compute Scalar</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="MergeInterval">
-        <source>Merge Interval</source>
-        <target state="new">Merge Interval</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Print">
-        <source>Print</source>
-        <target state="new">Print</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Segment">
-        <source>Segment</source>
-        <target state="new">Segment</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Split">
-        <source>Split</source>
-        <target state="new">Split</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="BatchHashTableBuild">
-        <source>Batch Hash Table Build</source>
-        <target state="new">Batch Hash Table Build</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Bitmap">
-        <source>Bitmap</source>
-        <target state="new">Bitmap</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Collapse">
-        <source>Collapse</source>
-        <target state="new">Collapse</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="TableSpool">
-        <source>Table Spool</source>
-        <target state="new">Table Spool</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="RepartitionStreams">
-        <source>Repartition Streams</source>
-        <target state="new">Repartition Streams</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Assert">
-        <source>Assert</source>
-        <target state="new">Assert</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Sort">
-        <source>Sort</source>
-        <target state="new">Sort</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Top">
-        <source>Top</source>
-        <target state="new">Top</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="SequenceProject">
-        <source>Sequence Project</source>
-        <target state="new">Sequence Project</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Spool">
-        <source>Spool</source>
-        <target state="new">Spool</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="Window">
-        <source>Window Spool</source>
-        <target state="new">Window Spool</target>
-        <note> Show plan's Window node property</note>
-      </trans-unit>
-      <trans-unit id="Parallelism">
-        <source>Parallelism</source>
-        <target state="new">Parallelism</target>
-        <note> Operator name</note>
-      </trans-unit>
-      <trans-unit id="RowCountSpool">
-        <source>Row Count Spool</source>
-        <target state="new">Row Count Spool</target>
-        <note> Operator name</note>
-      </trans-unit>
       <trans-unit id="Unknown">
         <source>Unknown</source>
         <target state="new">Unknown</target>
@@ -3478,6 +3843,11 @@
         <source>Result.</source>
         <target state="new">Result.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Collapse">
+        <source>Collapse</source>
+        <target state="new">Collapse</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="CollapseDescription">
         <source>Groups an insert and delete on the same value into an update within wide update plans.</source>
@@ -3503,6 +3873,11 @@
         <source>Scan an internal table of constants.</source>
         <target state="new">Scan an internal table of constants.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Parallelism">
+        <source>Parallelism</source>
+        <target state="new">Parallelism</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="ParallelismDescription">
         <source>An operation involving parallelism.</source>
@@ -3539,6 +3914,11 @@
         <target state="new">Gather streams.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="RepartitionStreams">
+        <source>Repartition Streams</source>
+        <target state="new">Repartition Streams</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="RepartitionStreamsDescription">
         <source>Repartition streams.</source>
         <target state="new">Repartition streams.</target>
@@ -3573,6 +3953,11 @@
         <source>Restricting the set of rows based on a predicate.</source>
         <target state="new">Restricting the set of rows based on a predicate.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Assert">
+        <source>Assert</source>
+        <target state="new">Assert</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="AssertDescription">
         <source>Used to verify that a specified condition exists.</source>
@@ -3649,15 +4034,30 @@
         <target state="new">For each row in the top (outer) input, scan the bottom (inner) input, and output matching rows.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="Print">
+        <source>Print</source>
+        <target state="new">Print</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="PrintDescription">
         <source>Print.</source>
         <target state="new">Print.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="ComputeScalar">
+        <source>Compute Scalar</source>
+        <target state="new">Compute Scalar</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="ComputeScalarDescription">
         <source>Compute new values from existing values in a row.</source>
         <target state="new">Compute new values from existing values in a row.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="MergeInterval">
+        <source>Merge Interval</source>
+        <target state="new">Merge Interval</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="MergeIntervalDescription">
         <source>Merge interval.</source>
@@ -3674,10 +4074,20 @@
         <target state="new">Creates a computed column with the rank of the values in an existing column in the table.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="RowCountSpool">
+        <source>Row Count Spool</source>
+        <target state="new">Row Count Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="RowCountSpoolDescription">
         <source>Stores the data from the input into a temporary table in order to optimize rewinds.</source>
         <target state="new">Stores the data from the input into a temporary table in order to optimize rewinds.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Segment">
+        <source>Segment</source>
+        <target state="new">Segment</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="SegmentDescription">
         <source>Segment.</source>
@@ -3694,10 +4104,20 @@
         <target state="new">Process each input, in sequence from top to bottom.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="SequenceProject">
+        <source>Sequence Project</source>
+        <target state="new">Sequence Project</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="SequenceProjectDescription">
         <source>Adds columns to perform computations over an ordered set.</source>
         <target state="new">Adds columns to perform computations over an ordered set.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Split">
+        <source>Split</source>
+        <target state="new">Split</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="SplitDescription">
         <source>Split.</source>
@@ -3874,6 +4294,16 @@
         <target state="new">Scan a particular range of rows from a clustered index that is stored in a database or file other than the current database server.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="RemoteQuery">
+        <source>Remote Query</source>
+        <target state="new">Remote Query</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteQueryDescription">
+        <source>Send a SQL query to another than the current SQL Server.</source>
+        <target state="new">Send a SQL query to another than the current SQL Server.</target>
+        <note> Operator description</note>
+      </trans-unit>
       <trans-unit id="RemoteInsert">
         <source>Remote Insert</source>
         <target state="new">Remote Insert</target>
@@ -3914,10 +4344,20 @@
         <target state="new">Clustered Update.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="Sort">
+        <source>Sort</source>
+        <target state="new">Sort</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="SortDescription">
         <source>Sort the input.</source>
         <target state="new">Sort the input.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableSpool">
+        <source>Table Spool</source>
+        <target state="new">Table Spool</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="TableSpoolDescription">
         <source>Stores the data from the input into a temporary table in order to optimize rewinds.</source>
@@ -4044,10 +4484,20 @@
         <target state="new">Delete rows from a clustered index.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="Top">
+        <source>Top</source>
+        <target state="new">Top</target>
+        <note> Operator name</note>
+      </trans-unit>
       <trans-unit id="TopDescription">
         <source>Select the first few rows based on a sort order.</source>
         <target state="new">Select the first few rows based on a sort order.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Bitmap">
+        <source>Bitmap</source>
+        <target state="new">Bitmap</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="BitmapDescription">
         <source>Bitmap.</source>
@@ -4064,6 +4514,11 @@
         <target state="new">UDX.</target>
         <note> Operator description</note>
       </trans-unit>
+      <trans-unit id="Window">
+        <source>Window Spool</source>
+        <target state="new">Window Spool</target>
+        <note> Show plan's Window node property</note>
+      </trans-unit>
       <trans-unit id="WindowDescription">
         <source>Expands each row into the set of rows that represent the window associated with it.</source>
         <target state="new">Expands each row into the set of rows that represent the window associated with it.</target>
@@ -4078,6 +4533,11 @@
         <source>Computes values of functions across the windows defined by the OVER clause. Input rowset is suitably sorted stream.</source>
         <target state="new">Computes values of functions across the windows defined by the OVER clause. Input rowset is suitably sorted stream.</target>
         <note> Show plan's Window Aggregate node property description</note>
+      </trans-unit>
+      <trans-unit id="BatchHashTableBuild">
+        <source>Batch Hash Table Build</source>
+        <target state="new">Batch Hash Table Build</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="BatchHashTableBuildDescription">
         <source>Batch Hash Table Build.</source>
@@ -4163,6 +4623,11 @@
         <source>Fetching a full row from a heap or a clustered index.</source>
         <target state="new">Fetching a full row from a heap or a clustered index.</target>
         <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Spool">
+        <source>Spool</source>
+        <target state="new">Spool</target>
+        <note> Operator name</note>
       </trans-unit>
       <trans-unit id="SpoolDescription">
         <source>Saving temporarily an intermediate query result.</source>
@@ -4629,16 +5094,11 @@
         <note>.
  Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </note>
       </trans-unit>
-      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
-        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
-        <target state="new">The underlying type "{0}" for sql variant column "{1}" could not be resolved.</target>
-        <note>.
- Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
-      </trans-unit>
       <trans-unit id="MissingIndexFormat">
         <source>Missing Index (Impact {0}): {1}</source>
         <target state="new">Missing Index (Impact {0}): {1}</target>
-        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan.
+ Parameters: 0 - impact (string), 1 - queryText (string) </note>
       </trans-unit>
       <trans-unit id="MissingIndexDetailsTitle">
         <source>/*
@@ -4649,27 +5109,8 @@ The Query Processor estimates that implementing the following index could improv
 Missing Index Details from {0}
 The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
 */</target>
-        <note>title of missing index details</note>
-      </trans-unit>
-      <trans-unit id="CreateSasForBlobContainerFailed">
-        <source>Cannot generate SAS URI for blob container.</source>
-        <target state="new">Cannot generate SAS URI for blob container.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="WriteSASCredentialToSqlServerFailed">
-        <source>Failed storing shared access signature token on the SQL Servers.</source>
-        <target state="new">Failed storing shared access signature token on the SQL Servers.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="UnsupportedDeviceType">
-        <source>Unsupported device type {0} for engine edition {1}.</source>
-        <target state="new">Unsupported device type {0} for engine edition {1}.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="NotSupportedCloudCreateSas">
-        <source>Create shared access signature is not supported for cloud instances.</source>
-        <target state="new">Create shared access signature is not supported for cloud instances.</target>
-        <note></note>
+        <note>title of missing index details.
+ Parameters: 0 - fileName (string), 1 - impact (string) </note>
       </trans-unit>
       <trans-unit id="WarningOverlayTooltip">
         <source>Warnings</source>
@@ -4726,19 +5167,24 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Estimated CPU Cost</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="new">Actual CPU Cost</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="EstimatedIO">
         <source>Estimated IO Cost</source>
         <target state="new">Estimated IO Cost</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ActualDataSize">
-        <source>Actual Data Size</source>
-        <target state="new">Actual Data Size</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="AverageRowSize">
         <source>Average Row Size</source>
         <target state="new">Average Row Size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualDataSize">
+        <source>Actual Data Size</source>
+        <target state="new">Actual Data Size</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
@@ -4763,46 +5209,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">The connection could not be found</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ActualCpu">
-        <source>Actual CPU Cost</source>
-        <target state="new">Actual CPU Cost</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangeEmptyPassword">
-        <source>New password cannot be empty</source>
-        <target state="new">New password cannot be empty</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangeEmptyPasswordRetry">
-        <source>Press OK to input a new password that is not empty.</source>
-        <target state="new">Press OK to input a new password that is not empty.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqsRetry">
-        <source>Press OK to input a new password that meets operating system policy requirements.</source>
-        <target state="new">Press OK to input a new password that meets operating system policy requirements.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsedRetry">
-        <source>Press OK to input a different password.</source>
-        <target state="new">Press OK to input a different password.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
-        <target state="new">Attestation URL cannot be empty with the selected value of Attestation protocol.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="new">The object could not be renamed. URN: '{0}'.</target>
         <note>.
- Parameters: 0 - secureEnclaves (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</target>
-        <note></note>
+ Parameters: 0 - urn (string) </note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
         <source>&lt;default&gt;</source>
@@ -4814,15 +5225,364 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Reset password for the login while unlocking.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ObjectNotRenamable">
-        <source>The object could not be renamed. URN: '{0}'.</source>
-        <target state="new">The object could not be renamed. URN: '{0}'.</target>
-        <note>.
- Parameters: 0 - urn (string) </note>
+      <trans-unit id="objectType_functionTable_plural">
+        <source>Table-valued functions</source>
+        <target state="new">Table-valued functions</target>
+        <note></note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
-        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
-        <target state="new">Attestation protocol cannot be empty with Secure enclaves enabled.</target>
+      <trans-unit id="objectType_externalDataSource_singular">
+        <source>External Data Source</source>
+        <target state="new">External Data Source</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serverRole_singular">
+        <source>Server role</source>
+        <target state="new">Server role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_xmlSchemaCollection_singular">
+        <source>XML schema collection</source>
+        <target state="new">XML schema collection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_storedProcedure_plural">
+        <source>Stored procedures</source>
+        <target state="new">Stored procedures</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_endpoint_plural">
+        <source>Endpoints</source>
+        <target state="new">Endpoints</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_sequence_singular">
+        <source>Sequence</source>
+        <target state="new">Sequence</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedDataType_singular">
+        <source>User-defined data type</source>
+        <target state="new">User-defined data type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_fullTextCatalog_plural">
+        <source>Full-text catalogs</source>
+        <target state="new">Full-text catalogs</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_credential_singular">
+        <source>Credential</source>
+        <target state="new">Credential</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_databaseRole_plural">
+        <source>Database roles</source>
+        <target state="new">Database roles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_endpoint_singular">
+        <source>Endpoint</source>
+        <target state="new">Endpoint</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_view_plural">
+        <source>Views</source>
+        <target state="new">Views</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_assembly_singular">
+        <source>Assembly</source>
+        <target state="new">Assembly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionScalar_singular">
+        <source>Scalar function</source>
+        <target state="new">Scalar function</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_server_plural">
+        <source>Servers</source>
+        <target state="new">Servers</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_table_singular">
+        <source>Table</source>
+        <target state="new">Table</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serviceQueue_singular">
+        <source>Queue</source>
+        <target state="new">Queue</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_login_plural">
+        <source>Logins</source>
+        <target state="new">Logins</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_storedProcedure_singular">
+        <source>Stored procedure</source>
+        <target state="new">Stored procedure</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_default_plural">
+        <source>Defaults</source>
+        <target state="new">Defaults</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_symmetricKey_singular">
+        <source>Symmetric key</source>
+        <target state="new">Symmetric key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedTableType_singular">
+        <source>User-defined table type</source>
+        <target state="new">User-defined table type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionInline_singular">
+        <source>Inline function</source>
+        <target state="new">Inline function</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serverRole_plural">
+        <source>Server roles</source>
+        <target state="new">Server roles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_agentjob_singular">
+        <source>Agent job</source>
+        <target state="new">Agent job</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_databaseRole_singular">
+        <source>Database role</source>
+        <target state="new">Database role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_synonym_singular">
+        <source>Synonym</source>
+        <target state="new">Synonym</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_AvailabilityGroup_singular">
+        <source>Availability Group</source>
+        <target state="new">Availability Group</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalFileFormat_plural">
+        <source>External File Formats</source>
+        <target state="new">External File Formats</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_database_singular">
+        <source>Database</source>
+        <target state="new">Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_symmetricKey_plural">
+        <source>Symmetric keys</source>
+        <target state="new">Symmetric keys</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_securityPolicy_singular">
+        <source>Security Policy</source>
+        <target state="new">Security Policy</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalFileFormat_singular">
+        <source>External File Format</source>
+        <target state="new">External File Format</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_applicationRole_singular">
+        <source>Application role</source>
+        <target state="new">Application role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_assembly_plural">
+        <source>Assemblies</source>
+        <target state="new">Assemblies</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_sequence_plural">
+        <source>Sequences</source>
+        <target state="new">Sequences</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedDataType_plural">
+        <source>User-defined data types</source>
+        <target state="new">User-defined data types</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_server_singular">
+        <source>Server</source>
+        <target state="new">Server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_aggregateFunction_singular">
+        <source>Aggregate function</source>
+        <target state="new">Aggregate function</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_fullTextCatalog_singular">
+        <source>Full-text catalog</source>
+        <target state="new">Full-text catalog</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_certificate_plural">
+        <source>Certificates</source>
+        <target state="new">Certificates</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_AvailabilityGroup_plural">
+        <source>Availability Groups</source>
+        <target state="new">Availability Groups</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_database_plural">
+        <source>Databases</source>
+        <target state="new">Databases</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_view_singular">
+        <source>View</source>
+        <target state="new">View</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_schema_plural">
+        <source>Schemas</source>
+        <target state="new">Schemas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_rule_plural">
+        <source>Rules</source>
+        <target state="new">Rules</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_certificate_singular">
+        <source>Certificate</source>
+        <target state="new">Certificate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_user_singular">
+        <source>User</source>
+        <target state="new">User</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_agentjob_plural">
+        <source>Agent jobs</source>
+        <target state="new">Agent jobs</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_synonym_plural">
+        <source>Synonyms</source>
+        <target state="new">Synonyms</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_aggregateFunction_plural">
+        <source>Aggregate functions</source>
+        <target state="new">Aggregate functions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionTable_singular">
+        <source>Table-valued function</source>
+        <target state="new">Table-valued function</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_rule_singular">
+        <source>Rule</source>
+        <target state="new">Rule</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serviceQueue_plural">
+        <source>Queues</source>
+        <target state="new">Queues</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_asymmetricKey_plural">
+        <source>Asymmetric keys</source>
+        <target state="new">Asymmetric keys</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_applicationRole_plural">
+        <source>Application roles</source>
+        <target state="new">Application roles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_extendedStoredProcedure_singular">
+        <source>Extended stored procedure</source>
+        <target state="new">Extended stored procedure</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_login_singular">
+        <source>Login</source>
+        <target state="new">Login</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionInline_plural">
+        <source>Inline functions</source>
+        <target state="new">Inline functions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_user_plural">
+        <source>Users</source>
+        <target state="new">Users</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalDataSource_plural">
+        <source>External Data Sources</source>
+        <target state="new">External Data Sources</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionScalar_plural">
+        <source>Scalar functions</source>
+        <target state="new">Scalar functions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_table_plural">
+        <source>Tables</source>
+        <target state="new">Tables</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_credential_plural">
+        <source>Credentials</source>
+        <target state="new">Credentials</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_schema_singular">
+        <source>Schema</source>
+        <target state="new">Schema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedTableType_plural">
+        <source>User-defined table types</source>
+        <target state="new">User-defined table types</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_securityPolicy_plural">
+        <source>Security Policies</source>
+        <target state="new">Security Policies</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_xmlSchemaCollection_plural">
+        <source>XML schema collections</source>
+        <target state="new">XML schema collections</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_extendedStoredProcedure_plural">
+        <source>Extended stored procedures</source>
+        <target state="new">Extended stored procedures</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_asymmetricKey_singular">
+        <source>Asymmetric key</source>
+        <target state="new">Asymmetric key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_default_singular">
+        <source>Default</source>
+        <target state="new">Default</target>
         <note></note>
       </trans-unit>
       <trans-unit id="Permission_Alter">
@@ -5383,366 +6143,8 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
         <target state="new">Service {0} was not found in the service provider</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_functionTable_plural">
-        <source>Table-valued functions</source>
-        <target state="new">Table-valued functions</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_externalDataSource_singular">
-        <source>External Data Source</source>
-        <target state="new">External Data Source</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_serverRole_singular">
-        <source>Server role</source>
-        <target state="new">Server role</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_xmlSchemaCollection_singular">
-        <source>XML schema collection</source>
-        <target state="new">XML schema collection</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_storedProcedure_plural">
-        <source>Stored procedures</source>
-        <target state="new">Stored procedures</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_endpoint_plural">
-        <source>Endpoints</source>
-        <target state="new">Endpoints</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_sequence_singular">
-        <source>Sequence</source>
-        <target state="new">Sequence</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_userDefinedDataType_singular">
-        <source>User-defined data type</source>
-        <target state="new">User-defined data type</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_fullTextCatalog_plural">
-        <source>Full-text catalogs</source>
-        <target state="new">Full-text catalogs</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_credential_singular">
-        <source>Credential</source>
-        <target state="new">Credential</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_databaseRole_plural">
-        <source>Database roles</source>
-        <target state="new">Database roles</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_endpoint_singular">
-        <source>Endpoint</source>
-        <target state="new">Endpoint</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_view_plural">
-        <source>Views</source>
-        <target state="new">Views</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_assembly_singular">
-        <source>Assembly</source>
-        <target state="new">Assembly</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_functionScalar_singular">
-        <source>Scalar function</source>
-        <target state="new">Scalar function</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_server_plural">
-        <source>Servers</source>
-        <target state="new">Servers</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_table_singular">
-        <source>Table</source>
-        <target state="new">Table</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_serviceQueue_singular">
-        <source>Queue</source>
-        <target state="new">Queue</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_login_plural">
-        <source>Logins</source>
-        <target state="new">Logins</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_storedProcedure_singular">
-        <source>Stored procedure</source>
-        <target state="new">Stored procedure</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_default_plural">
-        <source>Defaults</source>
-        <target state="new">Defaults</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_symmetricKey_singular">
-        <source>Symmetric key</source>
-        <target state="new">Symmetric key</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_userDefinedTableType_singular">
-        <source>User-defined table type</source>
-        <target state="new">User-defined table type</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_functionInline_singular">
-        <source>Inline function</source>
-        <target state="new">Inline function</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_serverRole_plural">
-        <source>Server roles</source>
-        <target state="new">Server roles</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_agentjob_singular">
-        <source>Agent job</source>
-        <target state="new">Agent job</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_databaseRole_singular">
-        <source>Database role</source>
-        <target state="new">Database role</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_synonym_singular">
-        <source>Synonym</source>
-        <target state="new">Synonym</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_AvailabilityGroup_singular">
-        <source>Availability Group</source>
-        <target state="new">Availability Group</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_externalFileFormat_plural">
-        <source>External File Formats</source>
-        <target state="new">External File Formats</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_database_singular">
-        <source>Database</source>
-        <target state="new">Database</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_symmetricKey_plural">
-        <source>Symmetric keys</source>
-        <target state="new">Symmetric keys</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_securityPolicy_singular">
-        <source>Security Policy</source>
-        <target state="new">Security Policy</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_externalFileFormat_singular">
-        <source>External File Format</source>
-        <target state="new">External File Format</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_applicationRole_singular">
-        <source>Application role</source>
-        <target state="new">Application role</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_assembly_plural">
-        <source>Assemblies</source>
-        <target state="new">Assemblies</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_sequence_plural">
-        <source>Sequences</source>
-        <target state="new">Sequences</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_userDefinedDataType_plural">
-        <source>User-defined data types</source>
-        <target state="new">User-defined data types</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_server_singular">
-        <source>Server</source>
-        <target state="new">Server</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_aggregateFunction_singular">
-        <source>Aggregate function</source>
-        <target state="new">Aggregate function</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_fullTextCatalog_singular">
-        <source>Full-text catalog</source>
-        <target state="new">Full-text catalog</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_certificate_plural">
-        <source>Certificates</source>
-        <target state="new">Certificates</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_AvailabilityGroup_plural">
-        <source>Availability Groups</source>
-        <target state="new">Availability Groups</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_database_plural">
-        <source>Databases</source>
-        <target state="new">Databases</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_view_singular">
-        <source>View</source>
-        <target state="new">View</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_schema_plural">
-        <source>Schemas</source>
-        <target state="new">Schemas</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_rule_plural">
-        <source>Rules</source>
-        <target state="new">Rules</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_certificate_singular">
-        <source>Certificate</source>
-        <target state="new">Certificate</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_user_singular">
-        <source>User</source>
-        <target state="new">User</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_agentjob_plural">
-        <source>Agent jobs</source>
-        <target state="new">Agent jobs</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_synonym_plural">
-        <source>Synonyms</source>
-        <target state="new">Synonyms</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_aggregateFunction_plural">
-        <source>Aggregate functions</source>
-        <target state="new">Aggregate functions</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_functionTable_singular">
-        <source>Table-valued function</source>
-        <target state="new">Table-valued function</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_rule_singular">
-        <source>Rule</source>
-        <target state="new">Rule</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_serviceQueue_plural">
-        <source>Queues</source>
-        <target state="new">Queues</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_asymmetricKey_plural">
-        <source>Asymmetric keys</source>
-        <target state="new">Asymmetric keys</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_applicationRole_plural">
-        <source>Application roles</source>
-        <target state="new">Application roles</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_extendedStoredProcedure_singular">
-        <source>Extended stored procedure</source>
-        <target state="new">Extended stored procedure</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_login_singular">
-        <source>Login</source>
-        <target state="new">Login</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_functionInline_plural">
-        <source>Inline functions</source>
-        <target state="new">Inline functions</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_user_plural">
-        <source>Users</source>
-        <target state="new">Users</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_externalDataSource_plural">
-        <source>External Data Sources</source>
-        <target state="new">External Data Sources</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_functionScalar_plural">
-        <source>Scalar functions</source>
-        <target state="new">Scalar functions</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_table_plural">
-        <source>Tables</source>
-        <target state="new">Tables</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_credential_plural">
-        <source>Credentials</source>
-        <target state="new">Credentials</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_schema_singular">
-        <source>Schema</source>
-        <target state="new">Schema</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_userDefinedTableType_plural">
-        <source>User-defined table types</source>
-        <target state="new">User-defined table types</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_securityPolicy_plural">
-        <source>Security Policies</source>
-        <target state="new">Security Policies</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_xmlSchemaCollection_plural">
-        <source>XML schema collections</source>
-        <target state="new">XML schema collections</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_extendedStoredProcedure_plural">
-        <source>Extended stored procedures</source>
-        <target state="new">Extended stored procedures</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_asymmetricKey_singular">
-        <source>Asymmetric key</source>
-        <target state="new">Asymmetric key</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="objectType_default_singular">
-        <source>Default</source>
-        <target state="new">Default</target>
+        <note>.
+ Parameters: 0 - serviceName (string) </note>
       </trans-unit>
       <trans-unit id="autogrowth_dialog_title">
         <source>Change Autogrowth for {0}</source>
@@ -5762,21 +6164,6 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="autogrowth_dialog_defaultfilestreamtitle">
         <source>Change Maxsize</source>
         <target state="new">Change Maxsize</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_shiloh">
-        <source>SQL Server 2000 (80)</source>
-        <target state="new">SQL Server 2000 (80)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sphinx">
-        <source>SQL Server 7.0 (70)</source>
-        <target state="new">SQL Server 7.0 (70)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_yukon">
-        <source>SQL Server 2005 (90)</source>
-        <target state="new">SQL Server 2005 (90)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="createDatabase_title">
@@ -6349,11 +6736,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">VarDecimal Storage Format Enabled</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="compatibilityLevel_katmai">
-        <source>SQL Server 2008 (100)</source>
-        <target state="new">SQL Server 2008 (100)</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="prototype_db_prop_encryptionEnabled">
         <source>Encryption Enabled</source>
         <target state="new">Encryption Enabled</target>
@@ -6372,6 +6754,26 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="error_db_prop_invalidleadingColumns">
         <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</source>
         <target state="new">For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sphinx">
+        <source>SQL Server 7.0 (70)</source>
+        <target state="new">SQL Server 7.0 (70)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_shiloh">
+        <source>SQL Server 2000 (80)</source>
+        <target state="new">SQL Server 2000 (80)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_yukon">
+        <source>SQL Server 2005 (90)</source>
+        <target state="new">SQL Server 2005 (90)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_katmai">
+        <source>SQL Server 2008 (100)</source>
+        <target state="new">SQL Server 2008 (100)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="compatibilityLevel_denali">
@@ -6424,76 +6826,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">No Applicable Filegroup</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="BasicAzureEdition">
-        <source>Basic</source>
-        <target state="new">Basic</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StandardAzureEdition">
-        <source>Standard</source>
-        <target state="new">Standard</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PremiumAzureEdition">
-        <source>Premium</source>
-        <target state="new">Premium</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="DataWarehouseAzureEdition">
-        <source>DataWarehouse</source>
-        <target state="new">DataWarehouse</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="GeneralPurposeAzureEdition">
-        <source>General Purpose</source>
-        <target state="new">General Purpose</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BusinessCriticalAzureEdition">
-        <source>Business Critical</source>
-        <target state="new">Business Critical</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ErrorInvalidEdition">
-        <source>Edition value is not valid</source>
-        <target state="new">Edition value is not valid</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="HyperscaleAzureEdition">
-        <source>Hyperscale</source>
-        <target state="new">Hyperscale</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="databaseBackupDate_None">
         <source>None</source>
         <target state="new">None</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PropertyNotInitialized">
-        <source>Property '{0}' was set before initialization.</source>
-        <target state="new">Property '{0}' was set before initialization.</target>
-        <note>.
- Parameters: 0 - propertyName (string) </note>
-      </trans-unit>
-      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
-        <target state="new">Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="WritingServerContextualizationToCacheError">
-        <source>An error was encountered while writing server contextualization scripts to the cache. Error: {0}</source>
-        <target state="new">An error was encountered while writing server contextualization scripts to the cache. Error: {0}</target>
-        <note>.
- Parameters: 0 - message (string) </note>
-      </trans-unit>
-      <trans-unit id="FailedToGenerateServerContextualizationScripts">
-        <source>Failed to generate server contextualization scripts</source>
-        <target state="new">Failed to generate server contextualization scripts</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="FailedToFindConnectionInfoAboutTheServer">
-        <source>Failed to find connection info about the server</source>
-        <target state="new">Failed to find connection info about the server</target>
         <note></note>
       </trans-unit>
       <trans-unit id="querystorecapturemode_all">
@@ -6596,11 +6931,67 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">7 Days</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="new">Basic</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="new">Standard</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="new">Premium</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="new">DataWarehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="new">General Purpose</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="new">Business Critical</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="new">Edition value is not valid</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="new">Hyperscale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="new">Property '{0}' was set before initialization.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
       <trans-unit id="InvalidDspFormatError">
         <source>Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</source>
         <target state="new">Invalid value for Database Schema Provider: '{0}'; expected to be in the form 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider'.</target>
         <note>.
  Parameters: 0 - dsp (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_connectTimeout_description">
+        <source>The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error</source>
+        <target state="new">The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_commandTimeout_description">
+        <source>The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error</source>
+        <target state="new">The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>
