@@ -474,7 +474,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       s.name AS schema_name,
       t.name AS object_name,
       s.name AS parent_name,
-      t.name AS dispaly_name,
+      t.name AS display_name,
       'Table' AS object_type,
       NULL AS object_sub_type
   FROM 
@@ -653,7 +653,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       s.name AS schema_name,
       t.name AS object_name,
       s.name AS parent_name,
-      t.name AS dispaly_name,
+      t.name AS display_name,
       'Shortcut' AS object_type,
       NULL AS object_sub_type
   FROM 
