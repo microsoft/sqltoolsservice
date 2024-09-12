@@ -1861,6 +1861,11 @@
         <note>.
  Parameters: 0 - table (string) </note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_Shortcuts">
+        <source>Shortcuts</source>
+        <target state="new">Shortcuts</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

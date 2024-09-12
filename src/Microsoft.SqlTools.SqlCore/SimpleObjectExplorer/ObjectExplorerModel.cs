@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			Children.Add(new ViewsFolder(this));
 			Children.Add(new StoredProceduresFolder(this));
 			Children.Add(new FunctionsFolder(this));
+			Children.Add(new ShortcutsFolder(this));
 		}
 	}
 	/// <summary>
@@ -197,6 +198,24 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		{
 			this.Children = new List<TreeNode>();
 			Children.Add(new ParametersFolder(this));
+		}
+	}
+	/// <summary>
+	/// Shortcut Node
+	/// </summary>
+	public class ShortcutNode : TreeNode
+	{
+		public ShortcutNode(TreeNode parent, ObjectMetadata metadata) : base(parent, metadata, false)
+		{
+			Type = NodeTypes.Shortcut;
+			IsLeaf = false;
+			ScriptingObject.Type = "Shortcut";
+		}
+
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			Children.Add(new ColumnsFolder(this));
 		}
 	}
 	public class TablesFolder : FolderNode
@@ -392,6 +411,28 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			}
 		}
 	}
+	public class ShortcutsFolder : FolderNode
+	{
+		public ShortcutsFolder(TreeNode parent) : base(parent)
+		{
+			Name = "Shortcuts";
+			Type = NodeTypes.Shortcuts;
+			IsLeaf = false;
+			Label = SR.SchemaHierarchy_Shortcuts;
+		}
+
+		public override void  LoadChildren(ObjectMetadata[] metadata)
+		{
+			this.Children = new List<TreeNode>();
+			foreach(ObjectMetadata child in metadata)
+			{
+				if (child.Type == "Shortcut" && child.Parent == this.Parent.Name && child.Schema == this.SchemaName)
+				{
+					Children.Add(new ShortcutNode(this, child));
+				}
+			}
+		}
+	}
 
 	public static class ObjectExplorerModelQueries
 	{
@@ -429,17 +470,17 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 			{ 
 				"Table", 
 				@"
-  SELECT
-    TABLE_SCHEMA AS schema_name,
-    TABLE_NAME AS object_name,
-    TABLE_SCHEMA AS parent_name,
-    TABLE_NAME AS display_name,
-    'Table' AS object_type,
-    NULL AS object_sub_type
-  FROM
-    INFORMATION_SCHEMA.TABLES
-  WHERE
-    TABLE_TYPE = 'BASE TABLE'
+  SELECT 
+      s.name AS schema_name,
+      t.name AS object_name,
+      s.name AS parent_name,
+      t.name AS display_name,
+      'Table' AS object_type,
+      NULL AS object_sub_type
+  FROM 
+    sys.tables t
+    JOIN sys.schemas s ON t.schema_id = s.schema_id
+  WHERE t.is_external = 0
   " 
 			},
 			{ 
@@ -605,6 +646,22 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
       P.type = 'IF' OR P.type = 'TF'
   " 
 			},
+			{ 
+				"Shortcut", 
+				@"
+  SELECT 
+      s.name AS schema_name,
+      t.name AS object_name,
+      s.name AS parent_name,
+      t.name AS display_name,
+      'Shortcut' AS object_type,
+      NULL AS object_sub_type
+  FROM 
+    sys.tables t
+    JOIN sys.schemas s ON t.schema_id = s.schema_id
+  WHERE t.is_external = 1
+  " 
+			},
 		};
 	}
 
@@ -620,6 +677,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		Param,
 		ScalarFunction,
 		TableValuedFunction,
+		Shortcut,
 		Tables,
 		Columns,
 		Indexes,
@@ -629,6 +687,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
 		Functions,
 		ScalarFunctions,
 		TableValuedFunctions,
+		Shortcuts,
 		Folder,
 	}
 }

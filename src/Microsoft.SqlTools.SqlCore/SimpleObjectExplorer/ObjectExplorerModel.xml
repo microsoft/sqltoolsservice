@@ -79,6 +79,7 @@
     <ChildFolder Name="Views" />
     <ChildFolder Name="StoredProcedures" />
     <ChildFolder Name="Functions"/>
+    <ChildFolder Name="Shortcuts"/>
   </Node>
 
   <!-- Tables folder definition-->
@@ -88,17 +89,17 @@
 
   <!-- Table Query -->
   <Querier NodeType="Table" Query="
-  SELECT
-    TABLE_SCHEMA AS schema_name,
-    TABLE_NAME AS object_name,
-    TABLE_SCHEMA AS parent_name,
-    TABLE_NAME AS display_name,
-    'Table' AS object_type,
-    NULL AS object_sub_type
-  FROM
-    INFORMATION_SCHEMA.TABLES
-  WHERE
-    TABLE_TYPE = 'BASE TABLE'
+  SELECT 
+      s.name AS schema_name,
+      t.name AS object_name,
+      s.name AS parent_name,
+      t.name AS display_name,
+      'Table' AS object_type,
+      NULL AS object_sub_type
+  FROM 
+    sys.tables t
+    JOIN sys.schemas s ON t.schema_id = s.schema_id
+  WHERE t.is_external = 0
   " />
 
   <!-- Table Node -->
@@ -335,5 +336,30 @@
   <!-- Table Valued Function Node -->
   <Node Name="TableValuedFunction" Type="TableValuedFunction" IsLeaf="false" ScriptingObjectType="UserDefinedFunction">
     <ChildFolder Name="Parameters" />
+  </Node>
+
+  <!-- Shortcuts folder definition-->
+  <Folder Name="Shortcuts" Label="SR.SchemaHierarchy_Shortcuts" ParentName = "Parent.Name">
+    <ChildQuerier NodeType="Shortcut" />
+  </Folder>
+
+  <!-- Shortcut Query -->
+  <Querier NodeType="Shortcut" Query="
+  SELECT 
+      s.name AS schema_name,
+      t.name AS object_name,
+      s.name AS parent_name,
+      t.name AS display_name,
+      'Shortcut' AS object_type,
+      NULL AS object_sub_type
+  FROM 
+    sys.tables t
+    JOIN sys.schemas s ON t.schema_id = s.schema_id
+  WHERE t.is_external = 1
+  " />
+
+  <!-- Shortcut Node -->
+  <Node Name="Shortcut" Type="Shortcut" IsLeaf="false">
+    <ChildFolder Name="Columns" />
   </Node>
 </ObjectExplorerModel>

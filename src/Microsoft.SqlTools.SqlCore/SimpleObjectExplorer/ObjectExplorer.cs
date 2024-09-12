@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     {
         public static async Task<TreeNode> GetObjectExplorerModel(SqlConnection connection, bool enableRetry = true)
         {
-            ObjectMetadata[] metdata = await FetchObjectExplorerMetadataTable(connection, enableRetry);
+            ObjectMetadata[] metadata = await FetchObjectExplorerMetadataTable(connection, enableRetry);
             TreeNode root = new DatabaseNode(null, new ObjectMetadata() { Name = connection.Database, Type = "Database", DisplayName = connection.Database });
             // Load all the children
             Stack<TreeNode> stack = new Stack<TreeNode>();
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
                 {
                     continue;
                 }
-                currentNode.LoadChildren(metdata);
+                currentNode.LoadChildren(metadata);
                 if (currentNode.Children != null)
                 {
                     foreach (TreeNode child in currentNode.Children)

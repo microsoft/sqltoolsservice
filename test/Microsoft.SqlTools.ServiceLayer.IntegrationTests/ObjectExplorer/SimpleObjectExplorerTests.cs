@@ -79,7 +79,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                 // Expand dbo schema node
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/");
-                Assert.AreEqual(4, nodes.Length, "dbo schema node should have 4 folders");
+                Assert.AreEqual(5, nodes.Length, "dbo schema node should have 5 folders");
+                Assert.IsNotNull(nodes.Find(node => node.Name == "Shortcuts"), "dbo schema should have Shortcuts folder");
 
                 // Expand Tables folder
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Tables/");
@@ -123,6 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.AreEqual(2, nodes.Length, "Should have 2 columns");
                 Assert.IsNotNull(nodes.Find(node => node.Name == "c2"), "Column c2 should exist");
                 Assert.IsNotNull(nodes.Find(node => node.Label == "c2 (datetime2(7), null)"), "Display Name for a c2 should have datetime 2 and null");
+
+                nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Shortcuts/");
+                Assert.AreEqual(0, nodes.Length, "Should have no records under existing Shortcut folder yet");
 
                 // Expand Views folder
                 nodes = OE.GetNodeChildrenFromPath(oeRoot, "/dbo/Views/");
