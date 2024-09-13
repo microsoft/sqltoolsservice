@@ -9935,6 +9935,622 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_server_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_server_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_server_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_server_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_database_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_database_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_database_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_database_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_authenticationType_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_authenticationType_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_authenticationType_category_SqlLogin
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_SqlLogin);
+            }
+        }
+
+        public static string ConnectionConfigOptions_authenticationType_category_Integrated
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_Integrated);
+            }
+        }
+
+        public static string ConnectionConfigOptions_authenticationType_category_AzureMFA
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_AzureMFA);
+            }
+        }
+
+        public static string ConnectionConfigOptions_user_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_user_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_user_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_user_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_password_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_password_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_password_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_password_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_applicationIntent_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_applicationIntent_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_applicationIntent_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_applicationIntent_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_applicationIntent_category_ReadWrite
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_applicationIntent_category_ReadWrite);
+            }
+        }
+
+        public static string ConnectionConfigOptions_applicationIntent_category_ReadOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_applicationIntent_category_ReadOnly);
+            }
+        }
+
+        public static string ConnectionConfigOptions_connectTimeout_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_connectTimeout_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_connectTimeout_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_connectTimeout_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_commandTimeout_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_commandTimeout_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_commandTimeout_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_commandTimeout_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_currentLanguage_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_currentLanguage_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_currentLanguage_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_currentLanguage_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_columnEncryptionSetting_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_columnEncryptionSetting_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_columnEncryptionSetting_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_columnEncryptionSetting_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_columnEncryptionSetting_category_Disabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_columnEncryptionSetting_category_Disabled);
+            }
+        }
+
+        public static string ConnectionConfigOptions_columnEncryptionSetting_category_Enabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_columnEncryptionSetting_category_Enabled);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attestationProtocol_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attestationProtocol_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attestationProtocol_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attestationProtocol_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attestationProtocol_category_HGS
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attestationProtocol_category_HGS);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attestationProtocol_category_AAS
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attestationProtocol_category_AAS);
+            }
+        }
+
+        public static string ConnectionConfigOptions_enclaveAttestationUrl_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_enclaveAttestationUrl_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_enclaveAttestationUrl_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_enclaveAttestationUrl_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_encrypt_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_encrypt_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_encrypt_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_encrypt_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_encrypt_category_Optional
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_encrypt_category_Optional);
+            }
+        }
+
+        public static string ConnectionConfigOptions_encrypt_category_Mandatory
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_encrypt_category_Mandatory);
+            }
+        }
+
+        public static string ConnectionConfigOptions_encrypt_category_Strict
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_encrypt_category_Strict);
+            }
+        }
+
+        public static string ConnectionConfigOptions_persistSecurityInfo_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_persistSecurityInfo_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_persistSecurityInfo_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_persistSecurityInfo_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_trustServerCertificate_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_trustServerCertificate_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_trustServerCertificate_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_trustServerCertificate_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_hostNameInCertificate_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_hostNameInCertificate_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_hostNameInCertificate_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_hostNameInCertificate_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attachedDBFileName_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attachedDBFileName_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attachedDBFileName_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attachedDBFileName_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_contextConnection_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_contextConnection_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_contextConnection_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_contextConnection_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_port_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_port_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_connectRetryCount_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_connectRetryCount_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_connectRetryCount_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_connectRetryCount_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_connectRetryInterval_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_connectRetryInterval_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_connectRetryInterval_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_connectRetryInterval_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_applicationName_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_applicationName_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_applicationName_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_applicationName_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_workstationId_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_workstationId_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_workstationId_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_workstationId_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_pooling_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_pooling_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_pooling_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_pooling_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_maxPoolSize_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_maxPoolSize_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_maxPoolSize_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_maxPoolSize_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_minPoolSize_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_minPoolSize_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_minPoolSize_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_minPoolSize_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_loadBalanceTimeout_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_loadBalanceTimeout_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_loadBalanceTimeout_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_loadBalanceTimeout_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_replication_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_replication_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_replication_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_replication_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_attachDbFilename_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attachDbFilename_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_failoverPartner_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_failoverPartner_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_failoverPartner_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_failoverPartner_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_multiSubnetFailover_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_multiSubnetFailover_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_multipleActiveResultSets_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_multipleActiveResultSets_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_multipleActiveResultSets_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_multipleActiveResultSets_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_packetSize_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_packetSize_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_packetSize_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_packetSize_description);
+            }
+        }
+
+        public static string ConnectionConfigOptions_typeSystemVersion_displayName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_typeSystemVersion_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_typeSystemVersion_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_typeSystemVersion_description);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -14199,6 +14815,237 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string InvalidDspFormatError = "InvalidDspFormatError";
+
+
+            public const string ConnectionConfigOptions_server_displayName = "ConnectionConfigOptions_server_displayName";
+
+
+            public const string ConnectionConfigOptions_server_description = "ConnectionConfigOptions_server_description";
+
+
+            public const string ConnectionConfigOptions_database_displayName = "ConnectionConfigOptions_database_displayName";
+
+
+            public const string ConnectionConfigOptions_database_description = "ConnectionConfigOptions_database_description";
+
+
+            public const string ConnectionConfigOptions_authenticationType_displayName = "ConnectionConfigOptions_authenticationType_displayName";
+
+
+            public const string ConnectionConfigOptions_authenticationType_description = "ConnectionConfigOptions_authenticationType_description";
+
+
+            public const string ConnectionConfigOptions_authenticationType_category_SqlLogin = "ConnectionConfigOptions_authenticationType_category_SqlLogin";
+
+
+            public const string ConnectionConfigOptions_authenticationType_category_Integrated = "ConnectionConfigOptions_authenticationType_category_Integrated";
+
+
+            public const string ConnectionConfigOptions_authenticationType_category_AzureMFA = "ConnectionConfigOptions_authenticationType_category_AzureMFA";
+
+
+            public const string ConnectionConfigOptions_user_displayName = "ConnectionConfigOptions_user_displayName";
+
+
+            public const string ConnectionConfigOptions_user_description = "ConnectionConfigOptions_user_description";
+
+
+            public const string ConnectionConfigOptions_password_displayName = "ConnectionConfigOptions_password_displayName";
+
+
+            public const string ConnectionConfigOptions_password_description = "ConnectionConfigOptions_password_description";
+
+
+            public const string ConnectionConfigOptions_applicationIntent_displayName = "ConnectionConfigOptions_applicationIntent_displayName";
+
+
+            public const string ConnectionConfigOptions_applicationIntent_description = "ConnectionConfigOptions_applicationIntent_description";
+
+
+            public const string ConnectionConfigOptions_applicationIntent_category_ReadWrite = "ConnectionConfigOptions_applicationIntent_category_ReadWrite";
+
+
+            public const string ConnectionConfigOptions_applicationIntent_category_ReadOnly = "ConnectionConfigOptions_applicationIntent_category_ReadOnly";
+
+
+            public const string ConnectionConfigOptions_connectTimeout_displayName = "ConnectionConfigOptions_connectTimeout_displayName";
+
+
+            public const string ConnectionConfigOptions_connectTimeout_description = "ConnectionConfigOptions_connectTimeout_description";
+
+
+            public const string ConnectionConfigOptions_commandTimeout_displayName = "ConnectionConfigOptions_commandTimeout_displayName";
+
+
+            public const string ConnectionConfigOptions_commandTimeout_description = "ConnectionConfigOptions_commandTimeout_description";
+
+
+            public const string ConnectionConfigOptions_currentLanguage_displayName = "ConnectionConfigOptions_currentLanguage_displayName";
+
+
+            public const string ConnectionConfigOptions_currentLanguage_description = "ConnectionConfigOptions_currentLanguage_description";
+
+
+            public const string ConnectionConfigOptions_columnEncryptionSetting_displayName = "ConnectionConfigOptions_columnEncryptionSetting_displayName";
+
+
+            public const string ConnectionConfigOptions_columnEncryptionSetting_description = "ConnectionConfigOptions_columnEncryptionSetting_description";
+
+
+            public const string ConnectionConfigOptions_columnEncryptionSetting_category_Disabled = "ConnectionConfigOptions_columnEncryptionSetting_category_Disabled";
+
+
+            public const string ConnectionConfigOptions_columnEncryptionSetting_category_Enabled = "ConnectionConfigOptions_columnEncryptionSetting_category_Enabled";
+
+
+            public const string ConnectionConfigOptions_attestationProtocol_displayName = "ConnectionConfigOptions_attestationProtocol_displayName";
+
+
+            public const string ConnectionConfigOptions_attestationProtocol_description = "ConnectionConfigOptions_attestationProtocol_description";
+
+
+            public const string ConnectionConfigOptions_attestationProtocol_category_HGS = "ConnectionConfigOptions_attestationProtocol_category_HGS";
+
+
+            public const string ConnectionConfigOptions_attestationProtocol_category_AAS = "ConnectionConfigOptions_attestationProtocol_category_AAS";
+
+
+            public const string ConnectionConfigOptions_enclaveAttestationUrl_displayName = "ConnectionConfigOptions_enclaveAttestationUrl_displayName";
+
+
+            public const string ConnectionConfigOptions_enclaveAttestationUrl_description = "ConnectionConfigOptions_enclaveAttestationUrl_description";
+
+
+            public const string ConnectionConfigOptions_encrypt_displayName = "ConnectionConfigOptions_encrypt_displayName";
+
+
+            public const string ConnectionConfigOptions_encrypt_description = "ConnectionConfigOptions_encrypt_description";
+
+
+            public const string ConnectionConfigOptions_encrypt_category_Optional = "ConnectionConfigOptions_encrypt_category_Optional";
+
+
+            public const string ConnectionConfigOptions_encrypt_category_Mandatory = "ConnectionConfigOptions_encrypt_category_Mandatory";
+
+
+            public const string ConnectionConfigOptions_encrypt_category_Strict = "ConnectionConfigOptions_encrypt_category_Strict";
+
+
+            public const string ConnectionConfigOptions_persistSecurityInfo_displayName = "ConnectionConfigOptions_persistSecurityInfo_displayName";
+
+
+            public const string ConnectionConfigOptions_persistSecurityInfo_description = "ConnectionConfigOptions_persistSecurityInfo_description";
+
+
+            public const string ConnectionConfigOptions_trustServerCertificate_displayName = "ConnectionConfigOptions_trustServerCertificate_displayName";
+
+
+            public const string ConnectionConfigOptions_trustServerCertificate_description = "ConnectionConfigOptions_trustServerCertificate_description";
+
+
+            public const string ConnectionConfigOptions_hostNameInCertificate_displayName = "ConnectionConfigOptions_hostNameInCertificate_displayName";
+
+
+            public const string ConnectionConfigOptions_hostNameInCertificate_description = "ConnectionConfigOptions_hostNameInCertificate_description";
+
+
+            public const string ConnectionConfigOptions_attachedDBFileName_displayName = "ConnectionConfigOptions_attachedDBFileName_displayName";
+
+
+            public const string ConnectionConfigOptions_attachedDBFileName_description = "ConnectionConfigOptions_attachedDBFileName_description";
+
+
+            public const string ConnectionConfigOptions_contextConnection_displayName = "ConnectionConfigOptions_contextConnection_displayName";
+
+
+            public const string ConnectionConfigOptions_contextConnection_description = "ConnectionConfigOptions_contextConnection_description";
+
+
+            public const string ConnectionConfigOptions_port_displayName = "ConnectionConfigOptions_port_displayName";
+
+
+            public const string ConnectionConfigOptions_connectRetryCount_displayName = "ConnectionConfigOptions_connectRetryCount_displayName";
+
+
+            public const string ConnectionConfigOptions_connectRetryCount_description = "ConnectionConfigOptions_connectRetryCount_description";
+
+
+            public const string ConnectionConfigOptions_connectRetryInterval_displayName = "ConnectionConfigOptions_connectRetryInterval_displayName";
+
+
+            public const string ConnectionConfigOptions_connectRetryInterval_description = "ConnectionConfigOptions_connectRetryInterval_description";
+
+
+            public const string ConnectionConfigOptions_applicationName_displayName = "ConnectionConfigOptions_applicationName_displayName";
+
+
+            public const string ConnectionConfigOptions_applicationName_description = "ConnectionConfigOptions_applicationName_description";
+
+
+            public const string ConnectionConfigOptions_workstationId_displayName = "ConnectionConfigOptions_workstationId_displayName";
+
+
+            public const string ConnectionConfigOptions_workstationId_description = "ConnectionConfigOptions_workstationId_description";
+
+
+            public const string ConnectionConfigOptions_pooling_displayName = "ConnectionConfigOptions_pooling_displayName";
+
+
+            public const string ConnectionConfigOptions_pooling_description = "ConnectionConfigOptions_pooling_description";
+
+
+            public const string ConnectionConfigOptions_maxPoolSize_displayName = "ConnectionConfigOptions_maxPoolSize_displayName";
+
+
+            public const string ConnectionConfigOptions_maxPoolSize_description = "ConnectionConfigOptions_maxPoolSize_description";
+
+
+            public const string ConnectionConfigOptions_minPoolSize_displayName = "ConnectionConfigOptions_minPoolSize_displayName";
+
+
+            public const string ConnectionConfigOptions_minPoolSize_description = "ConnectionConfigOptions_minPoolSize_description";
+
+
+            public const string ConnectionConfigOptions_loadBalanceTimeout_displayName = "ConnectionConfigOptions_loadBalanceTimeout_displayName";
+
+
+            public const string ConnectionConfigOptions_loadBalanceTimeout_description = "ConnectionConfigOptions_loadBalanceTimeout_description";
+
+
+            public const string ConnectionConfigOptions_replication_displayName = "ConnectionConfigOptions_replication_displayName";
+
+
+            public const string ConnectionConfigOptions_replication_description = "ConnectionConfigOptions_replication_description";
+
+
+            public const string ConnectionConfigOptions_attachDbFilename_displayName = "ConnectionConfigOptions_attachDbFilename_displayName";
+
+
+            public const string ConnectionConfigOptions_failoverPartner_displayName = "ConnectionConfigOptions_failoverPartner_displayName";
+
+
+            public const string ConnectionConfigOptions_failoverPartner_description = "ConnectionConfigOptions_failoverPartner_description";
+
+
+            public const string ConnectionConfigOptions_multiSubnetFailover_displayName = "ConnectionConfigOptions_multiSubnetFailover_displayName";
+
+
+            public const string ConnectionConfigOptions_multipleActiveResultSets_displayName = "ConnectionConfigOptions_multipleActiveResultSets_displayName";
+
+
+            public const string ConnectionConfigOptions_multipleActiveResultSets_description = "ConnectionConfigOptions_multipleActiveResultSets_description";
+
+
+            public const string ConnectionConfigOptions_packetSize_displayName = "ConnectionConfigOptions_packetSize_displayName";
+
+
+            public const string ConnectionConfigOptions_packetSize_description = "ConnectionConfigOptions_packetSize_description";
+
+
+            public const string ConnectionConfigOptions_typeSystemVersion_displayName = "ConnectionConfigOptions_typeSystemVersion_displayName";
+
+
+            public const string ConnectionConfigOptions_typeSystemVersion_description = "ConnectionConfigOptions_typeSystemVersion_description";
 
 
             private Keys()
