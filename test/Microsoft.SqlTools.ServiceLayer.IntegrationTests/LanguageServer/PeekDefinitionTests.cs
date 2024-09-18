@@ -23,6 +23,7 @@ using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -121,7 +122,6 @@ GO";
             test.LogMessage = "OnScriptingProgress ScriptingCompleted"; //Log message to verify. This message comes from SMO code.
             test.Verify(); // The log message should be absent since the tracing level is set to Off.
             test.Cleanup();
-
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ GO";
         public void GetTableDefinitionWithSchemaTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition("master");
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
@@ -203,7 +203,7 @@ GO";
             };
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { IsConnected = true };
             Mock<IBindingContext> bindingContextMock = new Mock<IBindingContext>();
-            DefinitionResult result = scripter.GetScript(scriptParseInfo.ParseResult, position, bindingContextMock.Object.MetadataDisplayInfoProvider, objectName, null);
+            DefinitionResult result = scripter.GetScript(scriptParseInfo.ParseResult, position, bindingContextMock.Object.MetadataDisplayInfoProvider, new Sql3PartIdentifier {ObjectName = objectName});
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
@@ -290,6 +290,7 @@ GO";
             Assert.NotNull(locations);
             Cleanup(locations);
         }
+
 
         /// <summary>
         /// Test get definition for an invalid view object with no schema name and with active connection
@@ -415,7 +416,7 @@ GO";
             var connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
             connectionService.Disconnect(new DisconnectParams
             {
-                    OwnerUri = connInfo.OwnerUri
+                OwnerUri = connInfo.OwnerUri
             });
         }
 
@@ -530,7 +531,6 @@ GO";
             string schemaName = "dbo";
             string objectType = UserDefinedTableTypeTypeName;
             await ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
-
         }
 
         /// <summary>
@@ -583,7 +583,6 @@ GO";
             Assert.NotNull(result.Locations);
             Assert.False(result.IsErrorResult);
             Cleanup(result.Locations);
-
         }
 
         /// <summary>
@@ -620,12 +619,11 @@ GO";
             string schemaName = "sys";
             string quickInfoText = "view master.sys.objects";
 
-            DefinitionResult result = scripter.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingQuickInfoText(quickInfoText, new Sql3PartIdentifier { ObjectName = objectName, SchemaName = schemaName });
             Assert.NotNull(result);
             Assert.NotNull(result.Locations);
             Assert.False(result.IsErrorResult);
             Cleanup(result.Locations);
-
         }
 
         /// <summary>
@@ -643,7 +641,7 @@ GO";
             string schemaName = "sys";
             string quickInfoText = "view master.sys.objects";
 
-            DefinitionResult result = scripter.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingQuickInfoText(quickInfoText, new Sql3PartIdentifier { ObjectName = objectName, SchemaName = schemaName });
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
@@ -703,40 +701,13 @@ GO";
         public async Task GetDefinitionFromChildrenAndParents()
         {
             string queryString = "select * from master.sys.objects";
+
             // place the cursor on every token
 
-            //cursor on objects
-            TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
-
-            //cursor on sys
-            TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22, OwnerUri);
-
-            //cursor on master
-            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(17, OwnerUri);
-            
-            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
-            ScriptFile scriptFile = connectionResult.ScriptFile;
-            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
-            connInfo.RemoveAllConnections();
-            var bindingQueue = new ConnectedBindingQueue();
-            bindingQueue.AddConnectionContext(connInfo);
-            scriptFile.Contents = queryString;
-
-            var service = new LanguageService();
-            service.RemoveScriptParseInfo(OwnerUri);
-            service.BindingQueue = bindingQueue;
-            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
-            Thread.Sleep(2000);
-
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            await service.ParseAndBind(scriptFile, connInfo);
-            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            service.ScriptParseInfoMap.TryAdd(OwnerUri, scriptInfo);
-
             // When I call the language service
-            var objectResult = service.GetDefinition(objectDocument, scriptFile, connInfo);
-            var sysResult = service.GetDefinition(sysDocument, scriptFile, connInfo);
-            var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
+            DefinitionResult objectResult = await this.PeekDefinitionAt(queryString, 26);  //cursor on objects
+            DefinitionResult sysResult = await this.PeekDefinitionAt(queryString, 22); //cursor on sys
+            DefinitionResult masterResult = await this.PeekDefinitionAt(queryString, 17); //cursor on master
 
             // Then I expect the results to be non-null
             Assert.NotNull(objectResult);
@@ -750,50 +721,19 @@ GO";
             Cleanup(objectResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            service.ScriptParseInfoMap.TryRemove(OwnerUri, out _);
-            connInfo.RemoveAllConnections();
         }
 
         [Test]
         public async Task GetDefinitionFromProcedures()
         {
-
             string queryString = "EXEC master.dbo.sp_MSrepl_startup";
 
             // place the cursor on every token
 
-            //cursor on objects
-            TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30, TestUri);
-
-            //cursor on sys
-            TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14, TestUri);
-
-            //cursor on master
-            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10, TestUri);
-
-            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
-            ScriptFile scriptFile = connectionResult.ScriptFile;
-            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
-            connInfo.RemoveAllConnections();
-            var bindingQueue = new ConnectedBindingQueue();
-            bindingQueue.AddConnectionContext(connInfo);
-            scriptFile.Contents = queryString;
-
-            var service = new LanguageService();
-            service.RemoveScriptParseInfo(OwnerUri);
-            service.BindingQueue = bindingQueue;
-            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
-            Thread.Sleep(2000);
-
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            await service.ParseAndBind(scriptFile, connInfo);
-            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
-
             // When I call the language service
-            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
-            var sysResult = service.GetDefinition(dboDocument, scriptFile, connInfo);
-            var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
+            DefinitionResult fnResult = await this.PeekDefinitionAt(queryString, 30);  //cursor on objects
+            DefinitionResult sysResult = await this.PeekDefinitionAt(queryString, 14); //cursor on sys
+            DefinitionResult masterResult = await this.PeekDefinitionAt(queryString, 10); //cursor on master
 
             // Then I expect the results to be non-null
             Assert.NotNull(fnResult);
@@ -807,10 +747,80 @@ GO";
             Cleanup(fnResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            service.ScriptParseInfoMap.TryRemove(TestUri, out _);
-            connInfo.RemoveAllConnections();
         }
 
+        [Test]
+        public async Task GetCrossDatabaseDefinition()
+        {
+            string queryString = "SELECT * FROM msdb.dbo.sysalerts";
+
+            //cursor on objects
+            DefinitionResult definition = await PeekDefinitionAt(queryString, 30, "master");
+
+            Assert.IsFalse(definition.IsErrorResult);
+            Location location = definition.Locations.Single();
+
+            Assert.NotNull(location);
+            Assert.IsTrue(location.Uri.EndsWith("msdb.dbo.sysalerts.sql"));
+
+            Uri filePath = GetFilePath(location);
+            Assert.NotNull(filePath);
+            var scriptedFile = await File.ReadAllTextAsync(filePath.AbsolutePath);
+            Assert.IsTrue(scriptedFile.Contains("CREATE TABLE [dbo].[sysalerts]"));
+
+            Cleanup(definition.Locations);
+        }
+
+        private async Task<DefinitionResult> PeekDefinitionAt(string fileContents, int column, string? databasename = null)
+        {
+            TextDocumentPosition fnDocument = this.CreateTextDocPositionWithCursor(column, TestUri);
+
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(databasename);
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            connInfo.RemoveAllConnections();
+            var bindingQueue = new ConnectedBindingQueue();
+            bindingQueue.AddConnectionContext(connInfo);
+            scriptFile.Contents = fileContents;
+
+            var service = new LanguageService();
+            service.RemoveScriptParseInfo(OwnerUri);
+            service.BindingQueue = bindingQueue;
+            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            await service.ParseAndBind(scriptFile, connInfo);
+            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
+
+            // When I call the language service
+            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
+            return fnResult;
+        }
+
+        /// <summary>
+        /// Gets the path to the file of a Location on disk
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        private static Uri? GetFilePath(Location location)
+        {
+            string filePath = location.Uri;
+            Uri fileUri = null;
+            if (Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
+            {
+                fileUri = new Uri(filePath);
+            }
+            else
+            {
+                filePath = filePath.Replace("file:/", "file://");
+                if (Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
+                {
+                    fileUri = new Uri(filePath);
+                }
+            }
+            return fileUri;
+        }
 
         /// <summary>
         /// Helper method to clean up script files
@@ -819,23 +829,10 @@ GO";
         {
             try
             {
-                string filePath = locations[0].Uri;
-                Uri fileUri = null;
-                if (Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
+                foreach (var location in locations)
                 {
-                    fileUri = new Uri(filePath);
-                }
-                else 
-                {
-                    filePath = filePath.Replace("file:/", "file://");
-                    if (Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
-                    {
-                        fileUri = new Uri(filePath);
-                    }
-                }
-                if (fileUri != null && File.Exists(fileUri.LocalPath))
-                {
-                    File.Delete(fileUri.LocalPath);                    
+                    var path = GetFilePath(location);
+                    if (path != null) File.Delete(path.AbsolutePath); //does not throw if file doesn't exist
                 }
             }
             catch (Exception)
@@ -878,6 +875,14 @@ GO";
                 }
             };
             return textDocPos;
+        }
+    }
+
+    internal static class ScripterExtensions
+    {
+        internal static DefinitionResult GetDefinitionUsingDeclarationType(this Scripter scripter, DeclarationType type, string databaseQualifiedName, string objectName, string schemaName)
+        {
+            return scripter.GetDefinitionUsingDeclarationType(type, databaseQualifiedName, new Sql3PartIdentifier { ObjectName = objectName, SchemaName = schemaName });
         }
     }
 }

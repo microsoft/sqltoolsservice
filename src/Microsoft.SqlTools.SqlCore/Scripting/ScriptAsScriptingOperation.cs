@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         internal ServerConnection ServerConnection { get; set; }
 
         private string serverName;
-        private string databaseName;
+
         private bool disconnectAtDispose = false;
 
         public override void Execute()
@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
             Urn objectUrn = urns[0];
             string typeName = objectUrn.GetNameForType(scriptingObject.Type);
-
+            var dbName = objectUrn.GetNameForType("Database");
             // select from service broker
             if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
             {
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             // select from table or view
             else
             {
-                Database db = server.Databases[databaseName];
+                Database db = server.Databases[dbName];
                 bool isDw = db.IsSqlDw;
                 script = ScriptingHelper.SelectFromTableOrView(server, objectUrn, isDw);
             }
@@ -525,7 +525,6 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
             serverName = serverConnection.TrueName;
-            databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {
@@ -534,7 +533,11 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                     // TODO: get the default schema
                     scriptingObject.Schema = "dbo";
                 }
-                urnCollection.Add(scriptingObject.ToUrn(serverName, databaseName));
+                if (string.IsNullOrEmpty(scriptingObject.DatabaseName))
+                {
+                    scriptingObject.DatabaseName = serverConnection.DatabaseName;
+                }
+                urnCollection.Add(scriptingObject.ToUrn(serverName, scriptingObject.DatabaseName));
             }
             return urnCollection;
         }
