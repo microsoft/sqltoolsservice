@@ -871,7 +871,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        private bool TryGetAsSqlConnection(DbConnection dbConn, out SqlConnection sqlConn)
+        public bool TryGetAsSqlConnection(DbConnection dbConn, out SqlConnection sqlConn)
         {
             ReliableSqlConnection reliableConn = dbConn as ReliableSqlConnection;
             if (reliableConn != null)
