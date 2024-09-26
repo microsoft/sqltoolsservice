@@ -56,12 +56,13 @@
     <PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
     <PackageReference Update="TextCopy" Version="6.2.1" />
     <PackageReference Update="Microsoft.SemanticKernel" Version="1.19.0" />
-  </ItemGroup>
 
+    <PackageReference Update="OpenAI" Version="2.0.0-beta.10" />
+    <PackageReference Update="System.ClientModel" Version="1.1.0-beta.7" />
+  </ItemGroup>
 
   <ItemGroup Label="Product packages">
     
-  
   <!--
   <PackageVersion Include="Microsoft.SqlServer.Management.SqlParser" Version="172.0.1" />
   <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />

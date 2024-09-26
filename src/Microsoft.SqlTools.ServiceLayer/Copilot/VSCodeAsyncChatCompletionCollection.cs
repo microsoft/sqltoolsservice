@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SqlTools.Connectors.VSCode;
-using Microsoft.SqlTools.Connectors.VSCode.Core;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 using Microsoft.SqlTools.Utility;
 using OpenAI.Chat;

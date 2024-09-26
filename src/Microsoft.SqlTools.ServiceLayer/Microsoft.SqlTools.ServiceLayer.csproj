@@ -41,9 +41,6 @@
     <Reference Include="SqlCopilotCommon">
       <HintPath>..\..\bin\SqlCopilot\SqlCopilotCommon.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.SqlTools.Connectors.VSCode">
-      <HintPath>..\..\bin\SqlCopilot\Microsoft.SqlTools.Connectors.VSCode.dll</HintPath>
-    </Reference>
     <Reference Include="SqlCopilotCartridges">
       <HintPath>..\..\bin\SqlCopilot\SqlCopilotCartridges.dll</HintPath>
     </Reference>
@@ -102,6 +99,7 @@
     <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.Connectors.VSCode\Microsoft.SqlTools.Connectors.VSCode.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\Notice.txt">

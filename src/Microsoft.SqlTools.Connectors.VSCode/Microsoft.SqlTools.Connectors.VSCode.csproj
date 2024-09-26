@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- THIS PROPERTY GROUP MUST COME FIRST -->
+    <AssemblyName>Microsoft.SqlTools.Connectors.VSCode</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);NU5104;SKEXP0001,SKEXP0010</NoWarn>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <LangVersion>12.0</LangVersion>
+    <NoWarn>IDE0160;CA1848;IDE0270;IDE0005;IDE0024;IDE0042;IDE0073;SKEXP0001;SKEXP0010;CS8600</NoWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- IMPORT NUGET PACKAGE SHARED PROPERTIES -->
+  <!-- <Import Project="$(RepoRoot)/dotnet/nuget/nuget-package.props" /> 
+  <Import Project="./InternalUtilities/src/InternalUtilities.props" />
+  <Import Project="./InternalUtilities/openai/OpenAIUtilities.props" />-->
+
+  <!--<PropertyGroup>
+     NuGet Package Settings 
+    <Title>Semantic Kernel - OpenAI connector</Title>
+    <Description>Semantic Kernel connectors for OpenAI. Contains clients for chat completion, embedding and DALL-E text to image.</Description>
+  </PropertyGroup>-->
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SemanticKernel.Connectors.OpenAI.UnitTests" />
+    <InternalsVisibleTo Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package references">
+    <PackageReference Include="Microsoft.SemanticKernel" />
+     <ackageReference Include="OpenAI" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+<!--
+  <ItemGroup>
+    <ProjectReference Include="..\..\SemanticKernel.Core\SemanticKernel.Core.csproj" />
+  </ItemGroup>
+-->
+
+</Project>
