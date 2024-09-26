@@ -103,8 +103,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Authenti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Authentication.UnitTests", "test\Microsoft.SqlTools.Authentication.UnitTests\Microsoft.SqlTools.Authentication.UnitTests.csproj", "{D3960B1C-3191-4A0B-AD0C-3D5D0FFF60A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connectors.VSCode", "src\Microsoft.SqlTools.Connectors.VSCode\Connectors.VSCode.csproj", "{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Connectors.VSCode", "src\Microsoft.SqlTools.Connectors.VSCode\Microsoft.SqlTools.Connectors.VSCode.csproj", "{8901F11F-E35E-43BC-A360-AB4802453086}"
 EndProject
 Global
@@ -258,12 +256,6 @@ Global
 		{D3960B1C-3191-4A0B-AD0C-3D5D0FFF60A9}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{D3960B1C-3191-4A0B-AD0C-3D5D0FFF60A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3960B1C-3191-4A0B-AD0C-3D5D0FFF60A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8901F11F-E35E-43BC-A360-AB4802453086}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8901F11F-E35E-43BC-A360-AB4802453086}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8901F11F-E35E-43BC-A360-AB4802453086}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
@@ -300,7 +292,6 @@ Global
 		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{D3960B1C-3191-4A0B-AD0C-3D5D0FFF60A9} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
-		{2EAA414F-00F4-4C76-9FD7-7CC86D45FA1C} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{8901F11F-E35E-43BC-A360-AB4802453086} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

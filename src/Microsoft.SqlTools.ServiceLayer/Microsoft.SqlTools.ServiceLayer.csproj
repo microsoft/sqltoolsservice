@@ -39,10 +39,10 @@
 
   <ItemGroup>
     <Reference Include="SqlCopilotCommon">
-      <HintPath>..\..\bin\SqlCopilot\SqlCopilotCommon.dll</HintPath>
+      <HintPath>..\..\bin\ref\SqlCopilotCommon.dll</HintPath>
     </Reference>
     <Reference Include="SqlCopilotCartridges">
-      <HintPath>..\..\bin\SqlCopilot\SqlCopilotCartridges.dll</HintPath>
+      <HintPath>..\..\bin\ref\SqlCopilotCartridges.dll</HintPath>
     </Reference>
     
   </ItemGroup>
