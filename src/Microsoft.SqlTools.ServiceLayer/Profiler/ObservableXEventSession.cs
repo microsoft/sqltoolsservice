@@ -143,6 +143,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
+            // Add the XE 'actions'.
+            if(xEvent.Actions != null)
+            {
+                foreach (var kvp in xEvent.Actions)
+                {
+                    string key = kvp.Key;
+                    if (profileEvent.Values.ContainsKey(key))
+                    {
+                        // Append a postfix to avoid duplicate keys while keeping the data.
+                        key += " (action)";
+                    }
+                    profileEvent.Values.Add(key, kvp.Value.ToString());
+                }
+            }
             CurrentObservers.ForEach(o => o.OnNext(profileEvent));
             return Task.FromResult(0);
         }
