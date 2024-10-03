@@ -27,7 +27,7 @@
     <PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
     <PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
     <PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20240410.1" />
-    <PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20240222.1" />
+    <PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20240920.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.QueryStoreModel" Version="163.55.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.9.0" />
     <PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.0-preview.1.0.20230914.107" />
@@ -61,7 +61,7 @@
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
     <PackageReference Update="Azure.Identity" Version="1.12.0" />
-    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.6" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.18.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
