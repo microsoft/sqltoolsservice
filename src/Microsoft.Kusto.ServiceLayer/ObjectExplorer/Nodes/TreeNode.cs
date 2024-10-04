@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Threading;
 using System.Linq;
+using System.Threading;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
@@ -72,7 +72,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The name of this object as included in its node path
         /// </summary>
-        public string NodePathName {
+        public string NodePathName
+        {
             get
             {
                 if (string.IsNullOrEmpty(nodePathName))
@@ -123,10 +124,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// for many nodes such as the server, the display label will be different
         /// to the value.
         /// </summary>
-        protected string Label {
+        protected string Label
+        {
             get
             {
-                if(label == null)
+                if (label == null)
                 {
                     return NodeValue;
                 }
@@ -166,7 +168,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                 nodePath = null;
             }
         }
-        
+
         /// <summary>
         /// Path identifying this node: for example a table will be at ["server", "database", "tables", "tableName"].
         /// This enables rapid navigation of the tree without the need for a global registry of elements.
@@ -193,7 +195,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     return false;
                 }
                 // Otherwise add this value to the beginning of the path and keep iterating up
-                path = string.Format(CultureInfo.InvariantCulture, 
+                path = string.Format(CultureInfo.InvariantCulture,
                     "{0}{1}{2}", node.NodePathName, string.IsNullOrEmpty(path) ? "" : PathPartSeperator.ToString(), path);
                 return true;
             });
@@ -311,7 +313,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             Debug.Assert(IsAlwaysLeaf == false);
 
             QueryContext context = this.GetContextAs<QueryContext>();
-            
+
             if (children.IsPopulating || context == null)
             {
                 return;
@@ -332,7 +334,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                         children.Add(item);
                         item.Parent = this;
                     }
-                }    
+                }
             }
             catch (Exception ex)
             {
@@ -386,7 +388,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     {
                         parent.DataSource.Refresh(parent.ObjectMetadata);
                     }
-                    
+
                     objectMetadataList = parent.DataSource.GetChildObjects(parent.ObjectMetadata);
                 }
 
@@ -423,34 +425,44 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <param name="childMetadata"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        
+
         private TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
             ValidationUtils.IsNotNull(parent, nameof(parent));
             ValidationUtils.IsNotNull(childMetadata, nameof(childMetadata));
 
-            switch(childMetadata.MetadataType)
+            switch (childMetadata.MetadataType)
             {
-                 case DataSourceMetadataType.Database:
-                    return new DataSourceTreeNode(parent.DataSource, childMetadata) {
+                case DataSourceMetadataType.Database:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
                         Parent = parent as ServerNode,
                         NodeType = "Database",
-    		            NodeTypeId = NodeTypes.Database
+                        NodeTypeId = NodeTypes.Database
                     };
 
                 case DataSourceMetadataType.Table:
-                    return new DataSourceTreeNode(parent.DataSource, childMetadata) {
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
                         NodeType = "Table",
-    		            NodeTypeId = NodeTypes.Table
+                        NodeTypeId = NodeTypes.Table
+                    };
+
+                case DataSourceMetadataType.MaterializedView:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
+                        NodeType = "View",
+                        NodeTypeId = NodeTypes.View
                     };
 
                 case DataSourceMetadataType.Column:
-                    return new DataSourceTreeNode(parent.DataSource, childMetadata) {
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
                         IsAlwaysLeaf = true,
                         NodeType = "Column",
                         SortPriority = DataSourceTreeNode.NextSortPriority
                     };
-                
+
                 case DataSourceMetadataType.Folder:
                     return new DataSourceTreeNode(parent.DataSource, childMetadata)
                     {
@@ -458,7 +470,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                         NodeType = "Folder",
                         NodeTypeId = NodeTypes.Folder
                     };
-                
+
                 case DataSourceMetadataType.Function:
                     return new DataSourceTreeNode(parent.DataSource, childMetadata)
                     {
@@ -495,7 +507,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         {
             return string.Compare(thisItem.NodeValue, otherItem.NodeValue, StringComparison.OrdinalIgnoreCase);
         }
-        
+
         public int CompareTo(TreeNode other)
         {
 
