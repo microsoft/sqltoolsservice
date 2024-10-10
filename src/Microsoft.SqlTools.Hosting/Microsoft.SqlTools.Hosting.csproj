@@ -18,11 +18,13 @@
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
-		<PackageReference Include="System.Runtime.Loader" />
+		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="System.Composition" />
+		<PackageReference Include="System.Runtime.Caching" />
+		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Text.Encodings.Web" />
+		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />

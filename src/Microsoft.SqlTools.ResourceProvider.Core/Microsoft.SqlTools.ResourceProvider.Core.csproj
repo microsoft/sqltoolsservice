@@ -14,10 +14,12 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
-		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Composition" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" />
+		<PackageReference Include="System.Runtime.Caching" />
+		<PackageReference Include="System.Runtime.Loader" />
+		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />

@@ -38,10 +38,12 @@
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
 	</ItemGroup>
 	<ItemGroup>
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
-		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<PackageReference Include="System.IO.Packaging" />
+		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="bin\$(Configuration)\**\Microsoft.SqlTools.*.dll">

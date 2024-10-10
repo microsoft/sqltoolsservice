@@ -22,13 +22,17 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" />
-    <PackageReference Include="Microsoft.SqlServer.Assessment" />
-    <PackageReference Include="Microsoft.SqlServer.Migration.Logins" />
-    <PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-    <PackageReference Include="Microsoft.SqlServer.Migration.Tde" />
-    <PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.SqlServer.SqlTargetProvisioning" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.SqlServer.Assessment" />
+    <PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+    <PackageReference Include="Microsoft.SqlServer.Migration.Logins" />
+    <PackageReference Include="Microsoft.SqlServer.Migration.Tde" />
+    <PackageReference Include="System.Drawing.Common" />
+    <PackageReference Include="System.IO.Packaging" />
+    <PackageReference Include="System.Runtime.Caching" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />

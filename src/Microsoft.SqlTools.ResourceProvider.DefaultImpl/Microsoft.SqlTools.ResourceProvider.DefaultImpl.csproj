@@ -21,6 +21,7 @@
 		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Composition" />
 		<PackageReference Include="Microsoft.Azure.Management.Sql" />
+		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj" />
