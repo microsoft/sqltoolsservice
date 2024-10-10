@@ -1324,8 +1324,8 @@
     <value>Sequence Number End</value>
     <comment></comment>
   </data>
-  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
-    <value>System Versioning Enabled</value>
+  <data name="TableDesignerIsSystemVersioningTitle" xml:space="preserve">
+    <value>System Versioning</value>
     <comment></comment>
   </data>
   <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
