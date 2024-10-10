@@ -808,6 +808,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     					},
     					new NodeFilterProperty
     					{
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
+    						Type = NodeFilterPropertyDataType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+    					new NodeFilterProperty
+    					{
     						Name = "Owner",
     						DisplayName = SR.FilterOwner,
     						Type = NodeFilterPropertyDataType.String,
@@ -837,13 +844,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     						Type = NodeFilterPropertyDataType.Boolean,
     						Description = SR.FilterIsMemoryOptimizedDescription,
     					},
-    					new NodeFilterProperty
-    					{
-    						Name = "CreateDate",
-    						DisplayName = SR.FilterCreateDate,
-    						Type = NodeFilterPropertyDataType.Date,
-    						Description = SR.FilterCreateDateDescription,
-    					},
                 	}
                 });
 			}
@@ -872,17 +872,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     					},
     					new NodeFilterProperty
     					{
-    						Name = "Owner",
-    						DisplayName = SR.FilterOwner,
-    						Type = NodeFilterPropertyDataType.String,
-    						Description = SR.FilterOwnerDescription,
-    					},
-    					new NodeFilterProperty
-    					{
     						Name = "CreateDate",
     						DisplayName = SR.FilterCreateDate,
     						Type = NodeFilterPropertyDataType.Date,
     						Description = SR.FilterCreateDateDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterOwnerDescription,
     					},
                 	}
                 });
@@ -1082,6 +1082,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
 						Name = "Owner",
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
@@ -1111,13 +1118,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsMemoryOptimizedDescription,
 					},
-					new NodeFilterProperty
-					{
-						Name = "CreateDate",
-						DisplayName = SR.FilterCreateDate,
-						Type = NodeFilterPropertyDataType.Date,
-						Description = SR.FilterCreateDateDescription,
-					},
             	}
             });
             currentChildren.Add(new FolderNode {
@@ -1143,17 +1143,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "Owner",
-						DisplayName = SR.FilterOwner,
-						Type = NodeFilterPropertyDataType.String,
-						Description = SR.FilterOwnerDescription,
-					},
-					new NodeFilterProperty
-					{
 						Name = "CreateDate",
 						DisplayName = SR.FilterCreateDate,
 						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
 					},
             	}
             });
@@ -1311,6 +1311,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
 						Name = "Owner",
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
@@ -1339,13 +1346,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						DisplayName = SR.FilterIsMemoryOptimized,
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsMemoryOptimizedDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "CreateDate",
-						DisplayName = SR.FilterCreateDate,
-						Type = NodeFilterPropertyDataType.Date,
-						Description = SR.FilterCreateDateDescription,
 					},
             	}
             });
@@ -1373,6 +1373,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
 						Name = "Owner",
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
@@ -1401,13 +1408,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						DisplayName = SR.FilterIsMemoryOptimized,
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsMemoryOptimizedDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "CreateDate",
-						DisplayName = SR.FilterCreateDate,
-						Type = NodeFilterPropertyDataType.Date,
-						Description = SR.FilterCreateDateDescription,
 					},
             	}
             });
@@ -1505,17 +1505,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "Owner",
-						DisplayName = SR.FilterOwner,
-						Type = NodeFilterPropertyDataType.String,
-						Description = SR.FilterOwnerDescription,
-					},
-					new NodeFilterProperty
-					{
 						Name = "CreateDate",
 						DisplayName = SR.FilterCreateDate,
 						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
 					},
             	}
             });
@@ -1594,6 +1594,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     					},
     					new NodeFilterProperty
     					{
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
+    						Type = NodeFilterPropertyDataType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+    					new NodeFilterProperty
+    					{
     						Name = "Owner",
     						DisplayName = SR.FilterOwner,
     						Type = NodeFilterPropertyDataType.String,
@@ -1605,13 +1612,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     						DisplayName = SR.FilterIsNativelyCompiled,
     						Type = NodeFilterPropertyDataType.Boolean,
     						Description = SR.FilterIsNativelyCompiledDescription,
-    					},
-    					new NodeFilterProperty
-    					{
-    						Name = "CreateDate",
-    						DisplayName = SR.FilterCreateDate,
-    						Type = NodeFilterPropertyDataType.Date,
-    						Description = SR.FilterCreateDateDescription,
     					},
                 	}
                 });
@@ -1676,17 +1676,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     					},
     					new NodeFilterProperty
     					{
-    						Name = "Owner",
-    						DisplayName = SR.FilterOwner,
-    						Type = NodeFilterPropertyDataType.String,
-    						Description = SR.FilterOwnerDescription,
-    					},
-    					new NodeFilterProperty
-    					{
     						Name = "CreateDate",
     						DisplayName = SR.FilterCreateDate,
     						Type = NodeFilterPropertyDataType.Date,
     						Description = SR.FilterCreateDateDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterOwnerDescription,
     					},
                 	}
                 });
@@ -1733,6 +1733,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
 						Name = "Owner",
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
@@ -1744,13 +1751,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						DisplayName = SR.FilterIsNativelyCompiled,
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsNativelyCompiledDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "CreateDate",
-						DisplayName = SR.FilterCreateDate,
-						Type = NodeFilterPropertyDataType.Date,
-						Description = SR.FilterCreateDateDescription,
 					},
             	}
             });
@@ -1792,17 +1792,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "Owner",
-						DisplayName = SR.FilterOwner,
-						Type = NodeFilterPropertyDataType.String,
-						Description = SR.FilterOwnerDescription,
-					},
-					new NodeFilterProperty
-					{
 						Name = "CreateDate",
 						DisplayName = SR.FilterCreateDate,
 						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
 					},
             	}
             });
@@ -2916,6 +2916,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
 						Name = "Owner",
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
@@ -2927,13 +2934,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						DisplayName = SR.FilterIsNativelyCompiled,
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsNativelyCompiledDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "CreateDate",
-						DisplayName = SR.FilterCreateDate,
-						Type = NodeFilterPropertyDataType.Date,
-						Description = SR.FilterCreateDateDescription,
 					},
             	}
             });
@@ -2960,6 +2960,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
 						Name = "Owner",
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
@@ -2971,13 +2978,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						DisplayName = SR.FilterIsNativelyCompiled,
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsNativelyCompiledDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "CreateDate",
-						DisplayName = SR.FilterCreateDate,
-						Type = NodeFilterPropertyDataType.Date,
-						Description = SR.FilterCreateDateDescription,
 					},
             	}
             });
@@ -3005,17 +3005,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "Owner",
-						DisplayName = SR.FilterOwner,
-						Type = NodeFilterPropertyDataType.String,
-						Description = SR.FilterOwnerDescription,
-					},
-					new NodeFilterProperty
-					{
 						Name = "CreateDate",
 						DisplayName = SR.FilterCreateDate,
 						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
 					},
             	}
             });
