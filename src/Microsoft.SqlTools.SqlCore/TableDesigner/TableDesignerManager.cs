@@ -1718,11 +1718,15 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 tableDesigner = new Dac.TableDesigner(tableInfo.ProjectFilePath, tableInfo.TableScriptPath, tableInfo.AllScripts, tableInfo.TargetVersion);
             }
             this.idTableMap[tableInfo.Id] = tableDesigner;
-            if (tableInfo.IsNewTable){
+            if (tableInfo.IsNewTable)
+            {
                 var firstColumn = tableDesigner.TableViewModel.Columns.Items[0];
-                firstColumn.Name = "Id";
-                firstColumn.IsIdentity = true;
-                firstColumn.IsPrimaryKey = true;
+                if (firstColumn != null)
+                {
+                    firstColumn.Name = "Id";
+                    firstColumn.IsIdentity = true;
+                    firstColumn.IsPrimaryKey = true;
+                }
             }
             return tableDesigner;
         }
