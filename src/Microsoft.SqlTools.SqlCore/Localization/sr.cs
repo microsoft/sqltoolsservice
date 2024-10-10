@@ -2415,11 +2415,11 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
-        public static string TableDesignerIsSystemVersioningEnabledTitle
+        public static string TableDesignerIsSystemVersioningTitle
         {
             get
             {
-                return Keys.GetString(Keys.TableDesignerIsSystemVersioningEnabledTitle);
+                return Keys.GetString(Keys.TableDesignerIsSystemVersioningTitle);
             }
         }
 
@@ -3814,7 +3814,7 @@ namespace Microsoft.SqlTools.SqlCore
             public const string GeneratedAlwaysColumnType_SequenceNumberEnd = "GeneratedAlwaysColumnType_SequenceNumberEnd";
 
 
-            public const string TableDesignerIsSystemVersioningEnabledTitle = "TableDesignerIsSystemVersioningEnabledTitle";
+            public const string TableDesignerIsSystemVersioningTitle = "TableDesignerIsSystemVersioningTitle";
 
 
             public const string TableDesignerIsSystemVersioningEnabledDescription = "TableDesignerIsSystemVersioningEnabledDescription";

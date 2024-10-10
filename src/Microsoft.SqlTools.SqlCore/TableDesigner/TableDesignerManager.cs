@@ -1577,7 +1577,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 Group = SR.TableDesignerSystemVersioningGroupTitle,
                 ComponentProperties = new CheckBoxProperties()
                 {
-                    Title = SR.TableDesignerIsSystemVersioningEnabledTitle
+                    Title = SR.TableDesignerIsSystemVersioningTitle
                 }
             });
 
@@ -1718,6 +1718,16 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 tableDesigner = new Dac.TableDesigner(tableInfo.ProjectFilePath, tableInfo.TableScriptPath, tableInfo.AllScripts, tableInfo.TargetVersion);
             }
             this.idTableMap[tableInfo.Id] = tableDesigner;
+            if (tableInfo.IsNewTable)
+            {
+                var firstColumn = tableDesigner.TableViewModel.Columns.Items[0];
+                if (firstColumn != null)
+                {
+                    firstColumn.Name = "Id";
+                    firstColumn.IsIdentity = true;
+                    firstColumn.IsPrimaryKey = true;
+                }
+            }
             return tableDesigner;
         }
 

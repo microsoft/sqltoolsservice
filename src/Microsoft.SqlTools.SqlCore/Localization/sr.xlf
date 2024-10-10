@@ -1505,11 +1505,6 @@
         <target state="new">Sequence Number End</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="TableDesignerIsSystemVersioningEnabledTitle">
-        <source>System Versioning Enabled</source>
-        <target state="new">System Versioning Enabled</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="TableDesignerIsSystemVersioningEnabledDescription">
         <source>Specifies whether the table is system versioning enabled.</source>
         <target state="new">Specifies whether the table is system versioning enabled.</target>
@@ -1864,6 +1859,11 @@
       <trans-unit id="SchemaHierarchy_Shortcuts">
         <source>Shortcuts</source>
         <target state="new">Shortcuts</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningTitle">
+        <source>System Versioning</source>
+        <target state="new">System Versioning</target>
         <note></note>
       </trans-unit>
     </body>
