@@ -2282,6 +2282,13 @@ InvalidDspFormatError(string dsp) = Invalid value for Database Schema Provider: 
 
 #############################################################################
 # Connection Configuration Options
+ConnectionConfigOptions_groups_general = General
+ConnectionConfigOptions_groups_security = Security and Encryption
+ConnectionConfigOptions_groups_initialization = Database Initialization
+ConnectionConfigOptions_groups_resiliency = Connection Resiliency & Failover
+ConnectionConfigOptions_groups_pooling = Pooling Settings
+ConnectionConfigOptions_groups_context = Data Source & Context
+
 ConnectionConfigOptions_server_displayName = Server name
 ConnectionConfigOptions_server_description = Name of the SQL Server instance
 ConnectionConfigOptions_database_displayName = Database name
@@ -2299,7 +2306,7 @@ ConnectionConfigOptions_applicationIntent_displayName = Application intent
 ConnectionConfigOptions_applicationIntent_description = Declares the application workload type when connecting to a server
 ConnectionConfigOptions_applicationIntent_category_ReadWrite = Read/Write
 ConnectionConfigOptions_applicationIntent_category_ReadOnly = Read-Only
-ConnectionConfigOptions_connectTimeout_displayName = Connect timeout
+ConnectionConfigOptions_connectTimeout_displayName = Connection timeout (seconds)
 ConnectionConfigOptions_connectTimeout_description = The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error
 ConnectionConfigOptions_commandTimeout_displayName = Command timeout
 ConnectionConfigOptions_commandTimeout_description = The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error

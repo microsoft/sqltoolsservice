@@ -5413,6 +5413,30 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - dsp (string) </comment>
   </data>
+  <data name="ConnectionConfigOptions_groups_general" xml:space="preserve">
+    <value>General</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_groups_security" xml:space="preserve">
+    <value>Security and Encryption</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_groups_initialization" xml:space="preserve">
+    <value>Database Initialization</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
+    <value>Connection Resiliency &amp; Failover</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_groups_pooling" xml:space="preserve">
+    <value>Pooling Settings</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_groups_context" xml:space="preserve">
+    <value>Data Source &amp; Context</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionConfigOptions_server_displayName" xml:space="preserve">
     <value>Server name</value>
     <comment></comment>

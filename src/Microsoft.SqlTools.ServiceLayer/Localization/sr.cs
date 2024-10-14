@@ -9935,6 +9935,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_groups_general
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_groups_general);
+            }
+        }
+
+        public static string ConnectionConfigOptions_groups_security
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_groups_security);
+            }
+        }
+
+        public static string ConnectionConfigOptions_groups_initialization
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_groups_initialization);
+            }
+        }
+
+        public static string ConnectionConfigOptions_groups_resiliency
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_groups_resiliency);
+            }
+        }
+
+        public static string ConnectionConfigOptions_groups_pooling
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_groups_pooling);
+            }
+        }
+
+        public static string ConnectionConfigOptions_groups_context
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_groups_context);
+            }
+        }
+
         public static string ConnectionConfigOptions_server_displayName
         {
             get
@@ -14815,6 +14863,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string InvalidDspFormatError = "InvalidDspFormatError";
+
+
+            public const string ConnectionConfigOptions_groups_general = "ConnectionConfigOptions_groups_general";
+
+
+            public const string ConnectionConfigOptions_groups_security = "ConnectionConfigOptions_groups_security";
+
+
+            public const string ConnectionConfigOptions_groups_initialization = "ConnectionConfigOptions_groups_initialization";
+
+
+            public const string ConnectionConfigOptions_groups_resiliency = "ConnectionConfigOptions_groups_resiliency";
+
+
+            public const string ConnectionConfigOptions_groups_pooling = "ConnectionConfigOptions_groups_pooling";
+
+
+            public const string ConnectionConfigOptions_groups_context = "ConnectionConfigOptions_groups_context";
 
 
             public const string ConnectionConfigOptions_server_displayName = "ConnectionConfigOptions_server_displayName";
