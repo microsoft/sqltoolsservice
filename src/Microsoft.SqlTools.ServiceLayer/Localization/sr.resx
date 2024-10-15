@@ -5506,7 +5506,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_connectTimeout_displayName" xml:space="preserve">
-    <value>Connect timeout</value>
+    <value>Connection timeout (seconds)</value>
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_connectTimeout_description" xml:space="preserve">

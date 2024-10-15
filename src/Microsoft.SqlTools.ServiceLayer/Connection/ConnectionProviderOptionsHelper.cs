@@ -190,14 +190,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "attachedDBFileName",
-                        DisplayName = SR.ConnectionConfigOptions_attachedDBFileName_displayName,
-                        Description = SR.ConnectionConfigOptions_attachedDBFileName_description,
-                        ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = SR.ConnectionConfigOptions_groups_context
-                    },
-                    new ConnectionOption
-                    {
                         Name = "contextConnection",
                         DisplayName = SR.ConnectionConfigOptions_contextConnection_displayName,
                         Description = SR.ConnectionConfigOptions_contextConnection_description,
@@ -292,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         Name = "attachDbFilename",
                         DisplayName = SR.ConnectionConfigOptions_attachDbFilename_displayName,
                         ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = "Source"
+                        GroupName = SR.ConnectionConfigOptions_groups_context
                     },
                     new ConnectionOption
                     {
