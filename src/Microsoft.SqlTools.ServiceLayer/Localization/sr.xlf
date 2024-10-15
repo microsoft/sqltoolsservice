@@ -6993,6 +6993,36 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_groups_general">
+        <source>General</source>
+        <target state="new">General</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_groups_security">
+        <source>Security and Encryption</source>
+        <target state="new">Security and Encryption</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_groups_initialization">
+        <source>Database Initialization</source>
+        <target state="new">Database Initialization</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_groups_resiliency">
+        <source>Connection Resiliency &amp; Failover</source>
+        <target state="new">Connection Resiliency &amp; Failover</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_groups_pooling">
+        <source>Pooling Settings</source>
+        <target state="new">Pooling Settings</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_groups_context">
+        <source>Data Source &amp; Context</source>
+        <target state="new">Data Source &amp; Context</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
