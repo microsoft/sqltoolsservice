@@ -88,8 +88,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionConfigOptions_connectTimeout_displayName">
-        <source>Connect timeout</source>
-        <target state="new">Connect timeout</target>
+        <source>Connection timeout (seconds)</source>
+        <target state="new">Connection timeout (seconds)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionConfigOptions_commandTimeout_displayName">
