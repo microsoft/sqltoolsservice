@@ -910,7 +910,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Programmability,
                 NodeTypeId = NodeTypes.Programmability,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.NotSqlDemand,
+                ValidFor = ValidForFlag.All,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1168,7 +1168,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Programmability,
                 NodeTypeId = NodeTypes.ExpandableSchemaProgrammability,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.NotSqlDemand,
+                ValidFor = ValidForFlag.All,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1622,7 +1622,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     NodeValue = SR.SchemaHierarchy_Functions,
                     NodeTypeId = NodeTypes.Functions,
                     IsSystemObject = false,
-                    ValidFor = ValidForFlag.NotSqlDemand,
+                    ValidFor = ValidForFlag.All,
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
@@ -1758,7 +1758,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Functions,
                 NodeTypeId = NodeTypes.Functions,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.NotSqlDemand,
+                ValidFor = ValidForFlag.All,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {

@@ -153,7 +153,7 @@
   </Node>
 
   <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="AllOnPrem|AzureV12"/>
-  <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
+  <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="All">
     <Child Name="StoredProcedures" SettingsFlag="!GroupBySchema"/>
     <Child Name="Functions" SettingsFlag="!GroupBySchema"/>
     <Child Name="DatabaseTriggers"/>
@@ -165,7 +165,7 @@
     -->
     <Child Name="Sequences" SettingsFlag="!GroupBySchema"/>
   </Node>
-  <Node Name="ExpandableSchemaProgrammability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
+  <Node Name="ExpandableSchemaProgrammability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="All">
     <Child Name="StoredProcedures"/>
     <Child Name="Functions"/>
     <Child Name="Types"/>
@@ -329,7 +329,7 @@
     <Child Name="Statistics"/>
   </Node>
 
-  <Node Name="Functions" LocLabel="SR.SchemaHierarchy_Functions" BaseClass="ModelBased" ValidFor="NotSqlDemand">
+  <Node Name="Functions" LocLabel="SR.SchemaHierarchy_Functions" BaseClass="ModelBased" ValidFor="All">
     <Child Name="SystemFunctions" IsSystemObject="1"/>
     <Child Name="TableValuedFunctions"/>
     <Child Name="ScalarValuedFunctions"/>
