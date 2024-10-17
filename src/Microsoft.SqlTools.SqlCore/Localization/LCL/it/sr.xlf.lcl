@@ -3178,11 +3178,11 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";TableDesignerIsSystemVersioningEnabledTitle" ItemType="0" PsrId="308" Leaf="true">
+      <Item ItemId=";TableDesignerIsSystemVersioningTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[System Versioning Enabled]]></Val>
+          <Val><![CDATA[System Versioning]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Controllo delle versioni di sistema abilitato]]></Val>
+            <Val><![CDATA[Controllo delle versioni di sistema]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
