@@ -613,6 +613,7 @@ namespace Microsoft.SqlTools.Migration
             {
                 ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
                 string skuRecommendationReportFilePath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, skuRecommendationReportFileName);
+                skuRecommendationReportFilePath += ".json";
                 List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
                 List<SqlArmTemplate> templateList = provider.GenerateProvisioningScript(recommendations);
                 List<string> armTemplates = new List<string>();
