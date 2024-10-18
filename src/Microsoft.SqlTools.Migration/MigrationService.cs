@@ -606,14 +606,12 @@ namespace Microsoft.SqlTools.Migration
         /// Handle request generate the ARM template.
         /// </summary>
         internal async Task HandleGetArmTemplateRequest(
-    string skuRecommendationReportFileName,
+    string skuRecommendationReportFilePath,
     RequestContext<List<string>> requestContext)
         {
             try
             {
                 ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
-                string skuRecommendationReportFilePath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, skuRecommendationReportFileName);
-                skuRecommendationReportFilePath += ".json";
                 List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
                 List<SqlArmTemplate> templateList = provider.GenerateProvisioningScript(recommendations);
                 List<string> armTemplates = new List<string>();
