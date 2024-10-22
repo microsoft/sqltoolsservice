@@ -606,21 +606,37 @@ namespace Microsoft.SqlTools.Migration
         /// Handle request generate the ARM template.
         /// </summary>
         internal async Task HandleGetArmTemplateRequest(
-    string targetType,
-    RequestContext<List<string>> requestContext)
+            string targetType,
+            RequestContext<List<string>> requestContext)
         {
             try
             {
-                Logger.Verbose("request received in toolsservice");
+
                 ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
                 string searchPattern = $"*{targetType}-Baseline*.json";
                 string skuRecommendationReportFilePath = Directory.GetFiles(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, searchPattern).FirstOrDefault();
-                Logger.Verbose($"Logging report file path -- {skuRecommendationReportFilePath}");
-                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
-                Logger.Verbose($"recommendations generated-- {recommendations.Count}");
-                List<SqlArmTemplate> templateList = provider.GenerateProvisioningScript(recommendations);
-                Logger.Verbose($"ARM templates generated-- {templateList.Count}");
+                List<SkuRecommendationResult> recommendations;
                 List<string> armTemplates = new List<string>();
+
+                // Save the current Console.Out
+                var originalOut = Console.Out;
+
+                using (var nullWriter = new StreamWriter(Stream.Null))
+                {
+                    // Redirect Console.Out to a null stream (no output)
+                    Console.SetOut(nullWriter);
+
+
+                    /* This call was adding some console messages in the response hence the API call was failing in MacOS
+                     * setting Console.Out to a null stream so that this call does not add any random messages to response.*/
+                    recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
+                }
+
+                // Restore the original Console.Out
+                Console.SetOut(originalOut);
+
+                List<SqlArmTemplate> templateList = provider.GenerateProvisioningScript(recommendations);
+
                 foreach (SqlArmTemplate template in templateList)
                 {
                     string jsonOutput = JsonConvert.SerializeObject(
@@ -628,16 +644,13 @@ namespace Microsoft.SqlTools.Migration
                         Formatting.Indented,
                         new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, Culture = CultureInfo.InvariantCulture }
                         );
-                    Logger.Verbose($"Logging ARM templates -- {jsonOutput}");
                     armTemplates.Add(jsonOutput);
                 }
-                Logger.Verbose($"sending response -- {armTemplates.Count}");
+
                 await requestContext.SendResult(armTemplates);
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
-                Logger.Verbose($"inside catch block --  ");
                 await requestContext.SendError(e.ToString());
             }
         }
@@ -646,679 +659,679 @@ namespace Microsoft.SqlTools.Migration
         /// Handle request to migrate server roles and set permissions.
         /// </summary>
         internal async Task HandleMigrateServerRolesAndSetPermissions(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationResult> requestContext)
-        {
-            try
-            {
-                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
-                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList, parameters.AADDomainName, logger);
-
-                loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
-
-                // Run the blocking parts on a separate thread
-                LoginMigrationResult results = await Task.Run(async () =>
-                {
-                    IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
-                    Stopwatch stopWatch = new Stopwatch();
-                    stopWatch.Start();
-                    exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
-                    stopWatch.Stop();
-                    TimeSpan elapsedTime = stopWatch.Elapsed;
-
-                    await this.ServiceHost.SendEvent(
-                        LoginMigrationNotification.Type,
-                        new LoginMigrationResult()
-                        {
-                            ExceptionMap = exceptionMap,
-                            CompletedStep = LoginMigrationStep.StartValidations,
-                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                        });
-
-                    stopWatch.Restart();
-                    exceptionMap.AddExceptions(loginMigration.MigrateServerRoles(CancellationToken.None));
-                    stopWatch.Stop();
-                    elapsedTime = stopWatch.Elapsed;
-
-                    await this.ServiceHost.SendEvent(
-                        LoginMigrationNotification.Type,
-                        new LoginMigrationResult()
-                        {
-                            ExceptionMap = exceptionMap,
-                            CompletedStep = LoginMigrationStep.MigrateServerRoles,
-                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                        });
-
-                    stopWatch.Restart();
-                    exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
-                    stopWatch.Stop();
-                    elapsedTime = stopWatch.Elapsed;
-
-                    await this.ServiceHost.SendEvent(
-                        LoginMigrationNotification.Type,
-                        new LoginMigrationResult()
-                        {
-                            ExceptionMap = exceptionMap,
-                            CompletedStep = LoginMigrationStep.EstablishServerRoleMapping,
-                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                        });
-
-                    stopWatch.Restart();
-                    exceptionMap.AddExceptions(loginMigration.SetLoginPermissions(CancellationToken.None));
-                    stopWatch.Stop();
-                    elapsedTime = stopWatch.Elapsed;
-
-                    await this.ServiceHost.SendEvent(
-                        LoginMigrationNotification.Type,
-                        new LoginMigrationResult()
-                        {
-                            ExceptionMap = exceptionMap,
-                            CompletedStep = LoginMigrationStep.SetLoginPermissions,
-                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                        });
-
-                    stopWatch.Restart();
-                    exceptionMap.AddExceptions(loginMigration.SetServerRolePermissions(CancellationToken.None));
-                    stopWatch.Stop();
-                    elapsedTime = stopWatch.Elapsed;
-
-                    await this.ServiceHost.SendEvent(
-                        LoginMigrationNotification.Type,
-                        new LoginMigrationResult()
-                        {
-                            ExceptionMap = exceptionMap,
-                            CompletedStep = LoginMigrationStep.SetServerRolePermissions,
-                            ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                        });
-
-                    return new LoginMigrationResult()
-                    {
-                        ExceptionMap = exceptionMap,
-                        CompletedStep = LoginMigrationStep.SetServerRolePermissions,
-                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                    };
-                });
-
-                await requestContext.SendResult(results);
-                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
-        }
-
-        internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
-        {
-            RecommendationResultSet resultSet = new RecommendationResultSet();
-
-            SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
-            AzurePreferences prefs = new AzurePreferences()
-            {
-                EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
-                ScalingFactor = parameters.ScalingFactor / 100.0,
-                TargetEnvironment = TargetEnvironmentType.Production,
-                IsPremiumSSDV2Enabled = parameters.IsPremiumSSDV2Enabled,
-            };
-
-            // generate SQL DB recommendations, if applicable
-            if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
-            {
-                Stopwatch sqlDbStopwatch = new Stopwatch();
-                sqlDbStopwatch.Start();
-
-                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus, false);
-                resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
-
-                sqlDbStopwatch.Stop();
-                resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
-
-                SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
-                    AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
-                var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
-                ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
-                resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
-            }
-
-            // generate SQL MI recommendations, if applicable
-            if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
-            {
-                Stopwatch sqlMiStopwatch = new Stopwatch();
-                sqlMiStopwatch.Start();
-
-                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus, parameters.IsNextGenGPEnabled);
-                resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
-
-                sqlMiStopwatch.Stop();
-                resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
-
-                SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
-                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
-                var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
-                ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
-                resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
-            }
-
-            // generate SQL VM recommendations, if applicable
-            if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
-            {
-                Stopwatch sqlVmStopwatch = new Stopwatch();
-                sqlVmStopwatch.Start();
-
-                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus, false);
-                resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
-
-                sqlVmStopwatch.Stop();
-                resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
-
-                SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
-                    AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
-                var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
-                ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
-                resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
-            }
-
-            return resultSet;
-        }
-
-        /// <summary>
-        /// Handles the login migration progress notification event.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">A LoginMigrationNotificationEventArgs that contains the event data.</param>
-        private async void HandleLoginMigrationProgressNotification(object sender, LoginMigrationNotificationEventArgs e)
-        {
-            await this.ServiceHost.SendEvent(LoginMigrationProgressEvent.Type, e.Notification);
-        }
-
-        internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
-        {
-            RecommendationResultSet resultSet = new RecommendationResultSet();
-
-            CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
-                instanceId: parameters.TargetSqlInstance,
-                directory: parameters.DataFolder,
-                queryInterval: parameters.PerfQueryIntervalInSec,
-                logger: null,
-                dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
-
-            // generate SQL DB recommendations, if applicable
-            if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
-            {
-                Stopwatch sqlDbStopwatch = new Stopwatch();
-                sqlDbStopwatch.Start();
-
-                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus, false);
-                ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
-                DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                sqlDbStopwatch.Stop();
-                resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
-
-                SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
-                    AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
-                var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
-                ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
-                resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
-            }
-
-            // generate SQL MI recommendations, if applicable
-            if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
-            {
-                Stopwatch sqlMiStopwatch = new Stopwatch();
-                sqlMiStopwatch.Start();
-
-                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus, parameters.IsNextGenGPEnabled);
-                ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
-                DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                resultSet.sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                sqlMiStopwatch.Stop();
-                resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
-
-                SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
-                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
-                var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
-                ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
-                resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
-            }
-
-            // generate SQL VM recommendations, if applicable
-            if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
-            {
-                // elastic model currently doesn't support VM recommendation, return empty list                
-                resultSet.sqlVmResults = new List<SkuRecommendationResult> { };
-                resultSet.sqlVmDurationInMs = -1;
-                resultSet.sqlVmReportPath = String.Empty;
-            }
-
-            return resultSet;
-        }
-
-        internal class AssessmentRequest : IAssessmentRequest
-        {
-            private readonly Check[] checks = null;
-
-            public AssessmentRequest(ISqlObjectLocator locator)
-            {
-                Target = locator ?? throw new ArgumentNullException(nameof(locator));
-            }
-
-            public EvaluationContext<object> EvaluationContext { get; }
-
-            public ISqlObjectLocator Target { get; }
-
-            public IEnumerable<Check> Checks
-            {
-                get
-                {
-                    return checks;
-                }
-            }
-
-            public bool TryGetData(string column, out object value)
-            {
-                return EvaluationContext.TryGetData(column, out value);
-            }
-        }
-
-        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string xEventsFilesFolderPath, bool collectAdhocQueries)
-        {
-            SqlAssessmentConfiguration.EnableLocalLogging = true;
-            SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-
-            SqlConnectionLocator locator = new SqlConnectionLocator();
-            AdHocQueriesCollectionParameters parameters = new()
-            {
-                CollectAdHocQueries = collectAdhocQueries,
-                XEventsFilesFolderPath = xEventsFilesFolderPath,
-            };
-            locator.ConnectionStrings.AddRange(connectionStrings);
-            locator.AdHocQueriesParameters = parameters;
-            DmaEngine engine = new DmaEngine(locator);
-
-            ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
-            var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-            var assessmentReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentReportFileName);
-            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false, assessmentReportFullPath);
-
-            var server = (contextualizedAssessmentResult.Servers.Count > 0) ? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine) : null;
-
-            return new MigrationAssessmentResult()
-            {
-                AssessmentResult = server,
-                Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
-                StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
-                EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
-                RawAssessmentResult = contextualizedAssessmentResult,
-                AssessmentReportPath = assessmentReportFullPath
-            };
-        }
-
-        internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server, DmaEngine engine)
-        {
-            return new ServerAssessmentProperties()
-            {
-                CpuCoreCount = server.Properties.ServerCoreCount,
-                PhysicalServerMemory = server.Properties.MaxServerMemoryInUse,
-                ServerHostPlatform = server.Properties.ServerHostPlatform,
-                ServerVersion = server.Properties.ServerVersion,
-                ServerEngineEdition = server.Properties.ServerEngineEdition,
-                ServerEdition = server.Properties.ServerEdition,
-                IsClustered = server.Properties.IsClustered,
-                NumberOfUserDatabases = server.Properties.NumberOfUserDatabases,
-                SqlAssessmentStatus = (int)server.Status,
-                AssessedDatabaseCount = server.Properties.NumberOfUserDatabases,
-                SQLManagedInstanceTargetReadiness = server.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance],
-                Errors = ParseAssessmentError(server.Errors),
-                Items = ParseAssessmentResult(server.ServerAssessments, engine),
-                Databases = ParseDatabaseAssessmentInfo(server.Databases, engine),
-                Name = server.Properties.ServerName
-            };
-        }
-
-        internal DatabaseAssessmentProperties[] ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, DmaEngine engine)
-        {
-            return databases.Select(d =>
-            {
-                return new DatabaseAssessmentProperties()
-                {
-                    Name = d.Properties.Name,
-                    CompatibilityLevel = d.Properties.CompatibilityLevel.ToString(),
-                    DatabaseSize = d.Properties.SizeMB,
-                    IsReplicationEnabled = d.Properties.IsReplicationEnabled,
-                    AssessmentTimeInMilliseconds = d.Properties.TSqlScriptAnalysisTimeElapse.TotalMilliseconds,
-                    Errors = ParseAssessmentError(d.Errors),
-                    Items = ParseAssessmentResult(d.DatabaseAssessments, engine),
-                    SQLManagedInstanceTargetReadiness = d.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
-                };
-            }).ToArray();
-        }
-        internal ErrorModel[] ParseAssessmentError(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling.IErrorModel> errors)
-        {
-            return errors.Select(e =>
-            {
-                return new ErrorModel()
-                {
-                    ErrorId = e.ErrorID.ToString(),
-                    Message = e.Message,
-                    ErrorSummary = e.ErrorSummary,
-                    PossibleCauses = e.PossibleCauses,
-                    Guidance = e.Guidance,
-                };
-            }).ToArray();
-        }
-        internal MigrationAssessmentInfo[] ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, DmaEngine engine)
-        {
-            return assessmentResults.Select(r =>
-            {
-                var check = (Microsoft.SqlServer.Management.Assessment.Checks.Check)r.Check;
-                return new MigrationAssessmentInfo()
-                {
-                    CheckId = check.Id,
-                    Description = check.Description,
-                    DisplayName = r.Message,
-                    HelpLink = check.HelpLink,
-                    Level = check.Level.ToString(),
-                    TargetType = r.TargetType.ToString(),
-                    DatabaseName = r.DatabaseName,
-                    ServerName = r.ServerName,
-                    Tags = check.Tags.ToArray(),
-                    RulesetName = Engine.Configuration.DefaultRuleset.Name,
-                    RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
-                    RuleId = r.FeatureId.ToString(),
-                    Message = check.Message,
-                    AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
-                    IssueCategory = r.IssueCategory.ToString(),
-                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects),
-                    DatabaseRestoreFails = r.DatabaseRestoreFails
-                };
-            }).ToArray();
-        }
-        internal ImpactedObjectInfo[] ParseImpactedObjects(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.Models.IImpactedObject> impactedObjects)
-        {
-            return impactedObjects.Select(i =>
-            {
-                return new ImpactedObjectInfo()
-                {
-                    Name = i.Name,
-                    ImpactDetail = i.ImpactDetail,
-                    ObjectType = i.ObjectType
-                };
-            }).ToArray();
-        }
-
-        internal string CreateAssessmentResultKey(ISqlMigrationAssessmentResult assessment)
-        {
-            return assessment.ServerName + assessment.DatabaseName + assessment.FeatureId.ToString() + assessment.IssueCategory.ToString() + assessment.Message + assessment.TargetType.ToString() + assessment.AppliesToMigrationTargetPlatform.ToString();
-        }
-
-        // Returns the list of eligible SKUs to consider, depending on the desired target platform
-        internal static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform, bool includePreviewSkus, bool recommendNextGen)
-        {
-            List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
-
-            switch (targetPlatform)
-            {
-                case "AzureSqlDatabase":
-                    // Gen5 BC/GP/HS DB
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.BusinessCritical,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.Gen5));
-
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.Gen5));
-
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.HyperScale,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.Gen5));
-                    break;
-
-                case "AzureSqlManagedInstance":
-                    // Gen5 BC/Next-GenGP/GP MI
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.BusinessCritical,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.Gen5));
-                    if (recommendNextGen)
-                    {
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.Gen5));
-                    }
-
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.Gen5));
-                    // Premium BC/Next-GenGP/GP
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.BusinessCritical,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.PremiumSeries));
-
-                    if (recommendNextGen)
-                    {
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeries));
-                    }
-
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.PremiumSeries));
-
-                    // Premium Memory Optimized BC/NextGenGP/GP
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.BusinessCritical,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-
-                    if (recommendNextGen)
-                    {
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-                    }
-
-                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                    AzureSqlPurchasingModel.vCore,
-                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                    ComputeTier.Provisioned,
-                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-                    break;
-
-                case "AzureSqlVirtualMachine":
-                    string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-                    // load Azure VM capabilities
-                    string jsonFile = File.ReadAllText(Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmCapability));
-                    List<AzureSqlIaaSCapability> vmCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
-
-                    // Eb series capabilities stored separately 
-                    string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
-                    if (File.Exists(computePreviewFilePath))
-                    {
-                        jsonFile = File.ReadAllText(computePreviewFilePath);
-                        List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
-
-                        vmCapabilities.AddRange(vmPreviewCapabilities);
-                    }
-
-                    foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
-                        .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
-                    {
-                        var skus = vmCapabilities.Where(c => string.Equals(c.Family, family.ToString(), StringComparison.OrdinalIgnoreCase)).Select(c => c.Name);
-                        AzureSqlSkuIaaSCategory category = new AzureSqlSkuIaaSCategory(family);
-                        category.AvailableVmSkus.AddRange(skus);
-
-                        eligibleSkuCategories.Add(category);
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            return eligibleSkuCategories;
-        }
-
-        /// <summary>
-        /// Request handler for the certifica migration operation
-        /// </summary>
-        /// <param name="parameters">Parameters for the operation, as register during the type definition</param>
-        /// <param name="requestContext">Context provided by the framework</param>
-        /// <returns></returns>
-        internal async Task HandleTdeCertificateMigrationRequest(
-          CertificateMigrationParams parameters,
-          RequestContext<CertificateMigrationResult> requestContext)
-        {
-            var result = new CertificateMigrationResult();
-
-            var credentials = new StaticTokenCredential(parameters.AccessToken); //New token provided, will change to shared ADS cache later.
-
-            // Reuse the tde migration client
-            var tdeMigrationClient = new TdeMigration(
-                   parameters.SourceSqlConnectionString,
-                   parameters.TargetSubscriptionId,
-                   parameters.TargetResourceGroupName,
-                   parameters.TargetManagedInstanceName,
-                   parameters.NetworkSharePath,
-                   parameters.NetworkShareDomain,
-                   parameters.NetworkShareUserName,
-                   parameters.NetworkSharePassword,
-                   credentials
-                   );
-
-            foreach (var dbName in parameters.EncryptedDatabases)
-            {
-                var migrationResult = await MigrateCertificate(tdeMigrationClient, dbName);
-
-                var eventData = new CertificateMigrationProgressParams
-                {
-                    Name = dbName,
-                    Success = migrationResult.Success,
-                    Message = migrationResult.Message,
-                    StatusCode = migrationResult.StatusCode
-                };
-                await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
-
-                result.MigrationStatuses.Add(migrationResult);
-            }
-
-            await requestContext.SendResult(result);
-        }
-
-        internal async Task HandleTdeValidationRequest(
-            TdeValidationParams parameters,
-            RequestContext<TdeValidationResult[]> requestContext)
-        {
-            TdeValidationResult[] result =
-                await TdeMigration.RunTdeValidation(
-                   parameters.SourceSqlConnectionString,
-                   parameters.NetworkSharePath);
-            await requestContext.SendResult(result);
-        }
-
-        internal async Task HandleTdeValidationTitlesRequest(
-            TdeValidationTitlesParams parameters,
-            RequestContext<string[]> requestContext)
-        {
-            await requestContext.SendResult(TdeMigration.TdeValidationTitles);
-        }
-
-        /// <summary>
-        /// Individual certificate migration operation
-        /// </summary>
-        /// <param name="tdeMigrationClient">Instance of the migration client</param>
-        /// <param name="dbName">Name of the database to migrate</param>
-        /// <returns></returns>
-        private async Task<CertificateMigrationEntryResult> MigrateCertificate(TdeMigration tdeMigrationClient, string dbName)
-        {
-            try
-            {
-                var result = await tdeMigrationClient.MigrateTdeCertificate(dbName, CancellationToken.None);
-
-                if (result is TdeExceptionResult tdeExceptionResult)
-                {
-                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message, StatusCode = tdeExceptionResult.StatusCode };
-                }
-                else
-                {
-                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage, StatusCode = result.StatusCode };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new CertificateMigrationEntryResult { DbName = dbName, Success = false, Message = ex.Message };
-            }
-        }
-
-        private ILoginsMigrationLogger GetLoginsMigrationLogger()
-        {
-            SqlLoginMigrationConfiguration.AllowTelemetry = true;
-            SqlLoginMigrationConfiguration.EnableLocalLogging = true;
-            SqlLoginMigrationConfiguration.LogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-            return new DefaultLoginsMigrationLogger();
-        }
-
-        /// <summary>
-        /// Disposes the Migration Service
-        /// </summary>
-        public void Dispose()
-        {
-            if (!disposed)
-            {
-                this.DataCollectionController.Dispose();
-                disposed = true;
-            }
-        }
-    }
+StartLoginMigrationParams parameters,
+RequestContext<LoginMigrationResult> requestContext)
+{
+try
+{
+ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
+ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+null, parameters.LoginList, parameters.AADDomainName, logger);
+
+loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
+
+// Run the blocking parts on a separate thread
+LoginMigrationResult results = await Task.Run(async () =>
+{
+IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
+Stopwatch stopWatch = new Stopwatch();
+stopWatch.Start();
+exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+stopWatch.Stop();
+TimeSpan elapsedTime = stopWatch.Elapsed;
+
+await this.ServiceHost.SendEvent(
+    LoginMigrationNotification.Type,
+    new LoginMigrationResult()
+    {
+        ExceptionMap = exceptionMap,
+        CompletedStep = LoginMigrationStep.StartValidations,
+        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+    });
+
+stopWatch.Restart();
+exceptionMap.AddExceptions(loginMigration.MigrateServerRoles(CancellationToken.None));
+stopWatch.Stop();
+elapsedTime = stopWatch.Elapsed;
+
+await this.ServiceHost.SendEvent(
+    LoginMigrationNotification.Type,
+    new LoginMigrationResult()
+    {
+        ExceptionMap = exceptionMap,
+        CompletedStep = LoginMigrationStep.MigrateServerRoles,
+        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+    });
+
+stopWatch.Restart();
+exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
+stopWatch.Stop();
+elapsedTime = stopWatch.Elapsed;
+
+await this.ServiceHost.SendEvent(
+    LoginMigrationNotification.Type,
+    new LoginMigrationResult()
+    {
+        ExceptionMap = exceptionMap,
+        CompletedStep = LoginMigrationStep.EstablishServerRoleMapping,
+        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+    });
+
+stopWatch.Restart();
+exceptionMap.AddExceptions(loginMigration.SetLoginPermissions(CancellationToken.None));
+stopWatch.Stop();
+elapsedTime = stopWatch.Elapsed;
+
+await this.ServiceHost.SendEvent(
+    LoginMigrationNotification.Type,
+    new LoginMigrationResult()
+    {
+        ExceptionMap = exceptionMap,
+        CompletedStep = LoginMigrationStep.SetLoginPermissions,
+        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+    });
+
+stopWatch.Restart();
+exceptionMap.AddExceptions(loginMigration.SetServerRolePermissions(CancellationToken.None));
+stopWatch.Stop();
+elapsedTime = stopWatch.Elapsed;
+
+await this.ServiceHost.SendEvent(
+    LoginMigrationNotification.Type,
+    new LoginMigrationResult()
+    {
+        ExceptionMap = exceptionMap,
+        CompletedStep = LoginMigrationStep.SetServerRolePermissions,
+        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+    });
+
+return new LoginMigrationResult()
+{
+    ExceptionMap = exceptionMap,
+    CompletedStep = LoginMigrationStep.SetServerRolePermissions,
+    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+};
+});
+
+await requestContext.SendResult(results);
+loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+}
+catch (Exception e)
+{
+await requestContext.SendError(e.ToString());
+}
+}
+
+internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
+{
+RecommendationResultSet resultSet = new RecommendationResultSet();
+
+SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
+AzurePreferences prefs = new AzurePreferences()
+{
+EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
+ScalingFactor = parameters.ScalingFactor / 100.0,
+TargetEnvironment = TargetEnvironmentType.Production,
+IsPremiumSSDV2Enabled = parameters.IsPremiumSSDV2Enabled,
+};
+
+// generate SQL DB recommendations, if applicable
+if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+{
+Stopwatch sqlDbStopwatch = new Stopwatch();
+sqlDbStopwatch.Start();
+
+prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus, false);
+resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
+
+sqlDbStopwatch.Stop();
+resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
+
+SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
+AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
+}
+
+// generate SQL MI recommendations, if applicable
+if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+{
+Stopwatch sqlMiStopwatch = new Stopwatch();
+sqlMiStopwatch.Start();
+
+prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus, parameters.IsNextGenGPEnabled);
+resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
+
+sqlMiStopwatch.Stop();
+resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
+
+SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
+AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
+}
+
+// generate SQL VM recommendations, if applicable
+if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+{
+Stopwatch sqlVmStopwatch = new Stopwatch();
+sqlVmStopwatch.Start();
+
+prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus, false);
+resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+
+sqlVmStopwatch.Stop();
+resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
+
+SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
+new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
+AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
+var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
+ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
+resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
+}
+
+return resultSet;
+}
+
+/// <summary>
+/// Handles the login migration progress notification event.
+/// </summary>
+/// <param name="sender">The source of the event.</param>
+/// <param name="e">A LoginMigrationNotificationEventArgs that contains the event data.</param>
+private async void HandleLoginMigrationProgressNotification(object sender, LoginMigrationNotificationEventArgs e)
+{
+await this.ServiceHost.SendEvent(LoginMigrationProgressEvent.Type, e.Notification);
+}
+
+internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
+{
+RecommendationResultSet resultSet = new RecommendationResultSet();
+
+CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
+instanceId: parameters.TargetSqlInstance,
+directory: parameters.DataFolder,
+queryInterval: parameters.PerfQueryIntervalInSec,
+logger: null,
+dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
+
+// generate SQL DB recommendations, if applicable
+if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+{
+Stopwatch sqlDbStopwatch = new Stopwatch();
+sqlDbStopwatch.Start();
+
+List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus, false);
+ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
+DataTable SqlMISpec = pi.SqlMISpec.Copy();
+MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
+
+sqlDbStopwatch.Stop();
+resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
+
+SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
+AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
+}
+
+// generate SQL MI recommendations, if applicable
+if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+{
+Stopwatch sqlMiStopwatch = new Stopwatch();
+sqlMiStopwatch.Start();
+
+List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus, parameters.IsNextGenGPEnabled);
+ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
+DataTable SqlMISpec = pi.SqlMISpec.Copy();
+MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+resultSet.sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
+
+sqlMiStopwatch.Stop();
+resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
+
+SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
+AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
+}
+
+// generate SQL VM recommendations, if applicable
+if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+{
+// elastic model currently doesn't support VM recommendation, return empty list                
+resultSet.sqlVmResults = new List<SkuRecommendationResult> { };
+resultSet.sqlVmDurationInMs = -1;
+resultSet.sqlVmReportPath = String.Empty;
+}
+
+return resultSet;
+}
+
+internal class AssessmentRequest : IAssessmentRequest
+{
+private readonly Check[] checks = null;
+
+public AssessmentRequest(ISqlObjectLocator locator)
+{
+Target = locator ?? throw new ArgumentNullException(nameof(locator));
+}
+
+public EvaluationContext<object> EvaluationContext { get; }
+
+public ISqlObjectLocator Target { get; }
+
+public IEnumerable<Check> Checks
+{
+get
+{
+return checks;
+}
+}
+
+public bool TryGetData(string column, out object value)
+{
+return EvaluationContext.TryGetData(column, out value);
+}
+}
+
+internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string xEventsFilesFolderPath, bool collectAdhocQueries)
+{
+SqlAssessmentConfiguration.EnableLocalLogging = true;
+SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+
+SqlConnectionLocator locator = new SqlConnectionLocator();
+AdHocQueriesCollectionParameters parameters = new()
+{
+CollectAdHocQueries = collectAdhocQueries,
+XEventsFilesFolderPath = xEventsFilesFolderPath,
+};
+locator.ConnectionStrings.AddRange(connectionStrings);
+locator.AdHocQueriesParameters = parameters;
+DmaEngine engine = new DmaEngine(locator);
+
+ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
+var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+var assessmentReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentReportFileName);
+engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false, assessmentReportFullPath);
+
+var server = (contextualizedAssessmentResult.Servers.Count > 0) ? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine) : null;
+
+return new MigrationAssessmentResult()
+{
+AssessmentResult = server,
+Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
+StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
+EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
+RawAssessmentResult = contextualizedAssessmentResult,
+AssessmentReportPath = assessmentReportFullPath
+};
+}
+
+internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server, DmaEngine engine)
+{
+return new ServerAssessmentProperties()
+{
+CpuCoreCount = server.Properties.ServerCoreCount,
+PhysicalServerMemory = server.Properties.MaxServerMemoryInUse,
+ServerHostPlatform = server.Properties.ServerHostPlatform,
+ServerVersion = server.Properties.ServerVersion,
+ServerEngineEdition = server.Properties.ServerEngineEdition,
+ServerEdition = server.Properties.ServerEdition,
+IsClustered = server.Properties.IsClustered,
+NumberOfUserDatabases = server.Properties.NumberOfUserDatabases,
+SqlAssessmentStatus = (int)server.Status,
+AssessedDatabaseCount = server.Properties.NumberOfUserDatabases,
+SQLManagedInstanceTargetReadiness = server.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance],
+Errors = ParseAssessmentError(server.Errors),
+Items = ParseAssessmentResult(server.ServerAssessments, engine),
+Databases = ParseDatabaseAssessmentInfo(server.Databases, engine),
+Name = server.Properties.ServerName
+};
+}
+
+internal DatabaseAssessmentProperties[] ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, DmaEngine engine)
+{
+return databases.Select(d =>
+{
+return new DatabaseAssessmentProperties()
+{
+Name = d.Properties.Name,
+CompatibilityLevel = d.Properties.CompatibilityLevel.ToString(),
+DatabaseSize = d.Properties.SizeMB,
+IsReplicationEnabled = d.Properties.IsReplicationEnabled,
+AssessmentTimeInMilliseconds = d.Properties.TSqlScriptAnalysisTimeElapse.TotalMilliseconds,
+Errors = ParseAssessmentError(d.Errors),
+Items = ParseAssessmentResult(d.DatabaseAssessments, engine),
+SQLManagedInstanceTargetReadiness = d.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
+};
+}).ToArray();
+}
+internal ErrorModel[] ParseAssessmentError(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling.IErrorModel> errors)
+{
+return errors.Select(e =>
+{
+return new ErrorModel()
+{
+ErrorId = e.ErrorID.ToString(),
+Message = e.Message,
+ErrorSummary = e.ErrorSummary,
+PossibleCauses = e.PossibleCauses,
+Guidance = e.Guidance,
+};
+}).ToArray();
+}
+internal MigrationAssessmentInfo[] ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, DmaEngine engine)
+{
+return assessmentResults.Select(r =>
+{
+var check = (Microsoft.SqlServer.Management.Assessment.Checks.Check)r.Check;
+return new MigrationAssessmentInfo()
+{
+CheckId = check.Id,
+Description = check.Description,
+DisplayName = r.Message,
+HelpLink = check.HelpLink,
+Level = check.Level.ToString(),
+TargetType = r.TargetType.ToString(),
+DatabaseName = r.DatabaseName,
+ServerName = r.ServerName,
+Tags = check.Tags.ToArray(),
+RulesetName = Engine.Configuration.DefaultRuleset.Name,
+RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
+RuleId = r.FeatureId.ToString(),
+Message = check.Message,
+AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
+IssueCategory = r.IssueCategory.ToString(),
+ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects),
+DatabaseRestoreFails = r.DatabaseRestoreFails
+};
+}).ToArray();
+}
+internal ImpactedObjectInfo[] ParseImpactedObjects(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.Models.IImpactedObject> impactedObjects)
+{
+return impactedObjects.Select(i =>
+{
+return new ImpactedObjectInfo()
+{
+Name = i.Name,
+ImpactDetail = i.ImpactDetail,
+ObjectType = i.ObjectType
+};
+}).ToArray();
+}
+
+internal string CreateAssessmentResultKey(ISqlMigrationAssessmentResult assessment)
+{
+return assessment.ServerName + assessment.DatabaseName + assessment.FeatureId.ToString() + assessment.IssueCategory.ToString() + assessment.Message + assessment.TargetType.ToString() + assessment.AppliesToMigrationTargetPlatform.ToString();
+}
+
+// Returns the list of eligible SKUs to consider, depending on the desired target platform
+internal static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform, bool includePreviewSkus, bool recommendNextGen)
+{
+List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
+
+switch (targetPlatform)
+{
+case "AzureSqlDatabase":
+// Gen5 BC/GP/HS DB
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.BusinessCritical,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.Gen5));
+
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.Gen5));
+
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.HyperScale,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.Gen5));
+break;
+
+case "AzureSqlManagedInstance":
+// Gen5 BC/Next-GenGP/GP MI
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.BusinessCritical,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.Gen5));
+if (recommendNextGen)
+{
+    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                    AzureSqlPurchasingModel.vCore,
+                                    AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                                    ComputeTier.Provisioned,
+                                    AzureSqlPaaSHardwareType.Gen5));
+}
+
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.Gen5));
+// Premium BC/Next-GenGP/GP
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.BusinessCritical,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.PremiumSeries));
+
+if (recommendNextGen)
+{
+    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                    AzureSqlPurchasingModel.vCore,
+                                    AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                                    ComputeTier.Provisioned,
+                                    AzureSqlPaaSHardwareType.PremiumSeries));
+}
+
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.PremiumSeries));
+
+// Premium Memory Optimized BC/NextGenGP/GP
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.BusinessCritical,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+
+if (recommendNextGen)
+{
+    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                    AzureSqlPurchasingModel.vCore,
+                                    AzureSqlPaaSServiceTier.NextGenGeneralPurpose,
+                                    ComputeTier.Provisioned,
+                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+}
+
+eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                AzureSqlPurchasingModel.vCore,
+                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                ComputeTier.Provisioned,
+                                AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+break;
+
+case "AzureSqlVirtualMachine":
+string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+// load Azure VM capabilities
+string jsonFile = File.ReadAllText(Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmCapability));
+List<AzureSqlIaaSCapability> vmCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
+
+// Eb series capabilities stored separately 
+string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
+if (File.Exists(computePreviewFilePath))
+{
+    jsonFile = File.ReadAllText(computePreviewFilePath);
+    List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
+
+    vmCapabilities.AddRange(vmPreviewCapabilities);
+}
+
+foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
+    .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
+{
+    var skus = vmCapabilities.Where(c => string.Equals(c.Family, family.ToString(), StringComparison.OrdinalIgnoreCase)).Select(c => c.Name);
+    AzureSqlSkuIaaSCategory category = new AzureSqlSkuIaaSCategory(family);
+    category.AvailableVmSkus.AddRange(skus);
+
+    eligibleSkuCategories.Add(category);
+}
+break;
+
+default:
+break;
+}
+
+return eligibleSkuCategories;
+}
+
+/// <summary>
+/// Request handler for the certifica migration operation
+/// </summary>
+/// <param name="parameters">Parameters for the operation, as register during the type definition</param>
+/// <param name="requestContext">Context provided by the framework</param>
+/// <returns></returns>
+internal async Task HandleTdeCertificateMigrationRequest(
+CertificateMigrationParams parameters,
+RequestContext<CertificateMigrationResult> requestContext)
+{
+var result = new CertificateMigrationResult();
+
+var credentials = new StaticTokenCredential(parameters.AccessToken); //New token provided, will change to shared ADS cache later.
+
+// Reuse the tde migration client
+var tdeMigrationClient = new TdeMigration(
+parameters.SourceSqlConnectionString,
+parameters.TargetSubscriptionId,
+parameters.TargetResourceGroupName,
+parameters.TargetManagedInstanceName,
+parameters.NetworkSharePath,
+parameters.NetworkShareDomain,
+parameters.NetworkShareUserName,
+parameters.NetworkSharePassword,
+credentials
+);
+
+foreach (var dbName in parameters.EncryptedDatabases)
+{
+var migrationResult = await MigrateCertificate(tdeMigrationClient, dbName);
+
+var eventData = new CertificateMigrationProgressParams
+{
+Name = dbName,
+Success = migrationResult.Success,
+Message = migrationResult.Message,
+StatusCode = migrationResult.StatusCode
+};
+await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
+
+result.MigrationStatuses.Add(migrationResult);
+}
+
+await requestContext.SendResult(result);
+}
+
+internal async Task HandleTdeValidationRequest(
+TdeValidationParams parameters,
+RequestContext<TdeValidationResult[]> requestContext)
+{
+TdeValidationResult[] result =
+await TdeMigration.RunTdeValidation(
+parameters.SourceSqlConnectionString,
+parameters.NetworkSharePath);
+await requestContext.SendResult(result);
+}
+
+internal async Task HandleTdeValidationTitlesRequest(
+TdeValidationTitlesParams parameters,
+RequestContext<string[]> requestContext)
+{
+await requestContext.SendResult(TdeMigration.TdeValidationTitles);
+}
+
+/// <summary>
+/// Individual certificate migration operation
+/// </summary>
+/// <param name="tdeMigrationClient">Instance of the migration client</param>
+/// <param name="dbName">Name of the database to migrate</param>
+/// <returns></returns>
+private async Task<CertificateMigrationEntryResult> MigrateCertificate(TdeMigration tdeMigrationClient, string dbName)
+{
+try
+{
+var result = await tdeMigrationClient.MigrateTdeCertificate(dbName, CancellationToken.None);
+
+if (result is TdeExceptionResult tdeExceptionResult)
+{
+return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message, StatusCode = tdeExceptionResult.StatusCode };
+}
+else
+{
+return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage, StatusCode = result.StatusCode };
+}
+}
+catch (Exception ex)
+{
+return new CertificateMigrationEntryResult { DbName = dbName, Success = false, Message = ex.Message };
+}
+}
+
+private ILoginsMigrationLogger GetLoginsMigrationLogger()
+{
+SqlLoginMigrationConfiguration.AllowTelemetry = true;
+SqlLoginMigrationConfiguration.EnableLocalLogging = true;
+SqlLoginMigrationConfiguration.LogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+return new DefaultLoginsMigrationLogger();
+}
+
+/// <summary>
+/// Disposes the Migration Service
+/// </summary>
+public void Dispose()
+{
+if (!disposed)
+{
+this.DataCollectionController.Dispose();
+disposed = true;
+}
+}
+}
 }
