@@ -31,7 +31,7 @@
     <PackageReference Update="Microsoft.SqlServer.Management.QueryStoreModel" Version="163.55.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.9.0" />
     <PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.0-preview.1.0.20230914.107" />
-    <PackageReference Update="Microsoft.SqlServer.SqlTargetProvisioning" Version="1.0.20241010.2" />
+    <PackageReference Update="Microsoft.SqlServer.Migration.SqlTargetProvisioning" Version="1.0.20241022.2" />
 
     <!-- Deprecated: TODO Migrate to Azure.Monitor.Query -->
     <PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
