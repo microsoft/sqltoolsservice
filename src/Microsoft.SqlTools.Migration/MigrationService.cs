@@ -611,15 +611,33 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
-                Logger.Verbose("request received in toolsservice");
                 ProvisioningScriptServiceProvider provider = new ProvisioningScriptServiceProvider();
                 string searchPattern = $"*{targetType}-Baseline*.json";
                 string skuRecommendationReportFilePath = Directory.GetFiles(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, searchPattern).FirstOrDefault();
-                Logger.Verbose($"Logging report file path -- {skuRecommendationReportFilePath}");
-                List<SkuRecommendationResult> recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
-                Logger.Verbose($"recommendations generated-- {recommendations.Count}");
+
+                // Save the current Console.Out
+                var originalOut = Console.Out;
+                List<SkuRecommendationResult> recommendations;
+                try
+                {
+                    // Redirect Console.Out to a null stream (no output)
+                    using (var nullWriter = new StreamWriter(Stream.Null))
+                    {
+                        Console.SetOut(nullWriter);
+
+                        /* This call was adding some console messages in the response hence the API call was failing in MacOS
+                         * setting Console.Out to a null stream so that this call does not add any random messages to response.*/
+                        recommendations = ExtractSkuRecommendationReportAction.ExtractSkuRecommendationsFromReport(skuRecommendationReportFilePath);
+                    }
+                }
+                finally
+                {
+                    // Restore the original Console.Out
+                    Console.SetOut(originalOut);
+                }
+
+                
                 List<SqlArmTemplate> templateList = provider.GenerateProvisioningScript(recommendations);
-                Logger.Verbose($"ARM templates generated-- {templateList.Count}");
                 List<string> armTemplates = new List<string>();
                 foreach (SqlArmTemplate template in templateList)
                 {
@@ -628,16 +646,12 @@ namespace Microsoft.SqlTools.Migration
                         Formatting.Indented,
                         new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, Culture = CultureInfo.InvariantCulture }
                         );
-                    Logger.Verbose($"Logging ARM templates -- {jsonOutput}");
                     armTemplates.Add(jsonOutput);
                 }
-                Logger.Verbose($"sending response -- {armTemplates.Count}");
                 await requestContext.SendResult(armTemplates);
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
-                Logger.Verbose($"inside catch block --  ");
                 await requestContext.SendError(e.ToString());
             }
         }
