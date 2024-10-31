@@ -94,11 +94,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             });
         }
 
-        private Task HandleGetNextMessageRequest(GetNextMessageParams requestParams, RequestContext<GetNextMessageResponse> requestContext)
+        private async Task HandleGetNextMessageRequest(GetNextMessageParams requestParams, RequestContext<GetNextMessageResponse> requestContext)
         {          
-            return this.HandleRequest<GetNextMessageResponse>(requestContext, async () =>
+            await this.HandleRequest<GetNextMessageResponse>(requestContext, async () =>
             {
-                GetNextMessageResponse response = this.copilotConversationManager.GetNextMessage(
+                GetNextMessageResponse response = await this.copilotConversationManager.GetNextMessage(
                     requestParams.ConversationUri, 
                     requestParams.UserText,
                     requestParams.Tool,

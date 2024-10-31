@@ -63,7 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
     public class CopilotConversationManager
     {
-        private ConcurrentDictionary<string, CopilotConversation> conversations = new ConcurrentDictionary<string, CopilotConversation>();
+        private readonly ConcurrentDictionary<string, CopilotConversation> conversations = new();
+        private readonly ConcurrentDictionary<string, ToolCallManager> toolManagers = new();
+        private readonly ConcurrentDictionary<string, SqlExecutionService> sqlServices = new();
+
 
         private Kernel? _userSessionKernel = null;
         private SqlExecAndParse? _sqlExecAndParseHelper = null;
@@ -76,6 +79,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private static StringBuilder _responseHistory = new StringBuilder();
 
         private static ConcurrentDictionary<string, CancellationTokenSource> _activeConversations = new ConcurrentDictionary<string, CancellationTokenSource>();
+
+        private ToolCallManager toolManager;
+        private SqlExecutionService sqlExecutionService;
 
         public CopilotConversationManager()
         {
@@ -96,13 +102,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         {
             // get a connection to the database
             DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(connectionUri, ConnectionType.Default);
-            SqlConnection sqlConnection;
-            ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out sqlConnection);
-
-            if (sqlConnection == null)
+            if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
             {
                 return false;
             }
+
+            var sqlService = new SqlExecutionService(sqlConnection);
+            sqlServices[conversationUri] = sqlService;
+            toolManagers[conversationUri] = new ToolCallManager(sqlService);
 
             CopilotConversation conversation = new CopilotConversation()
             {
@@ -160,12 +167,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             return request;
         }
 
-        public GetNextMessageResponse GetNextMessage(
+        public async Task<GetNextMessageResponse>  GetNextMessage(
             string conversationUri, 
             string userText,
             LanguageModelChatTool tool,
             string toolParameters)
         {
+            SqlCopilotTrace.WriteInfoEvent(
+                SqlCopilotTraceEvents.KernelFunctionCall,
+                $"Executing tool {tool.FunctionName} with parameters: {toolParameters}");
+
+            // If we got a tool call, handle it
+            ToolCallManager toolManager;
+            if (tool != null && toolManagers.TryGetValue(conversationUri, out toolManager))
+            {
+                try
+                {
+                    string result = await toolManager.HandleToolCallAsync(
+                        conversationUri,
+                        tool,
+                        toolParameters);
+                    
+                    // Add tool response to conversation
+                    CopilotConversation currentConversation;
+                    if (conversations.TryGetValue(conversationUri, out  currentConversation))
+                    {
+                        currentConversation.CurrentMessage = result;
+                        currentConversation.MessageCompleteEvent.Set();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    SqlCopilotTrace.WriteErrorEvent(
+                        SqlCopilotTraceEvents.KernelFunctionCall,
+                        $"Tool execution failed: {ex.Message}");
+                }
+            }
+
             if (tool != null)
             {
                 pendingLLMRequest.ResponseTool = tool;
