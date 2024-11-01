@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
@@ -23,13 +24,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public string ResponseToolParameters { get; set; }
         public AutoResetEvent RequestCompleteEvent { get; set; }
     }
-    
+
     public class ChatMessageQueue
     {
         private readonly AutoResetEvent _requestEvent = new(false);
         private readonly Queue<LLMRequest> _requestQueue = new();
         private LLMRequest _pendingRequest;
         private readonly ConcurrentDictionary<string, CopilotConversation> _conversations;
+        private readonly ConcurrentDictionary<string, HashSet<string>> _toolCallCache = new();
+        private string CreateToolCallKey(string toolName, string parameters) => 
+            $"{toolName}:{parameters}";
 
         public ChatMessageQueue(ConcurrentDictionary<string, CopilotConversation> conversations)
         {
@@ -64,6 +68,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             LanguageModelChatTool tool,
             string toolParameters)
         {
+            if (tool != null)
+            {
+                var callKey = CreateToolCallKey(tool.FunctionName, toolParameters);
+                var conversationCache = _toolCallCache.GetOrAdd(
+                    conversationUri, 
+                    _ => new HashSet<string>());
+
+                // If we've seen this exact call before, ignore it
+                if (!conversationCache.Add(callKey))
+                {
+                    SqlCopilotTrace.WriteInfoEvent(
+                        SqlCopilotTraceEvents.KernelFunctionCall,
+                        $"Skipping repeated tool call: {callKey}");
+                    return new GetNextMessageResponse
+                    {
+                        MessageType = MessageType.MessageComplete,
+                        ResponseText = string.Empty
+                    };
+                }
+            }
+
             // Handle tool response or user text
             if (tool != null && _pendingRequest != null)
             {
