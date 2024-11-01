@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#if false
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -48,57 +50,57 @@ public class ToolCallContext
 /// <summary>
 /// Provides execution services for SQL queries with proper connection management
 /// </summary>
-public class SqlExecutionService
-{
-    private readonly SqlConnection _sqlConnection;
+//public class SqlExecutionService
+//{
+//    private readonly SqlConnection _sqlConnection;
 
-    public SqlExecutionService(SqlConnection connection)
-    {
-        _sqlConnection = connection ?? throw new ArgumentNullException(nameof(connection));
-    }
+//    public SqlExecutionService(SqlConnection connection)
+//    {
+//        _sqlConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+//    }
 
-    public async Task<string> ExecuteToolAsync(string functionName, string parameters, CancellationToken cancellationToken)
-    {
-        // For now, we treat all tool calls as SQL queries
-        return await ExecuteSqlQueryAsync(parameters, false, cancellationToken);
-    }
+//    public async Task<string> ExecuteToolAsync(string functionName, string parameters, CancellationToken cancellationToken)
+//    {
+//        // For now, we treat all tool calls as SQL queries
+//        return await ExecuteSqlQueryAsync(parameters, false, cancellationToken);
+//    }
 
-    public async Task<string> ExecuteSqlQueryAsync(string query, bool isStoredProc, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var command = new SqlCommand(query, _sqlConnection);
-            command.CommandType = isStoredProc ? CommandType.StoredProcedure : CommandType.Text;
+//    public async Task<string> ExecuteSqlQueryAsync(string query, bool isStoredProc, CancellationToken cancellationToken)
+//    {
+//        try
+//        {
+//            using var command = new SqlCommand(query, _sqlConnection);
+//            command.CommandType = isStoredProc ? CommandType.StoredProcedure : CommandType.Text;
 
-            using var reader = await command.ExecuteReaderAsync(cancellationToken);
-            var result = new System.Text.StringBuilder();
+//            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+//            var result = new System.Text.StringBuilder();
 
-            do
-            {
-                while (await reader.ReadAsync(cancellationToken))
-                {
-                    for (var i = 0; i < reader.FieldCount; i++)
-                    {
-                        result.Append(reader.GetName(i))
-                              .Append(": ")
-                              .Append(reader.GetValue(i))
-                              .AppendLine();
-                    }
-                }
-                result.AppendLine();
-            } while (await reader.NextResultAsync(cancellationToken));
+//            do
+//            {
+//                while (await reader.ReadAsync(cancellationToken))
+//                {
+//                    for (var i = 0; i < reader.FieldCount; i++)
+//                    {
+//                        result.Append(reader.GetName(i))
+//                              .Append(": ")
+//                              .Append(reader.GetValue(i))
+//                              .AppendLine();
+//                    }
+//                }
+//                result.AppendLine();
+//            } while (await reader.NextResultAsync(cancellationToken));
 
-            return result.ToString();
-        }
-        catch (Exception ex)
-        {
-            SqlCopilotTrace.WriteErrorEvent(
-                SqlCopilotTraceEvents.KernelFunctionCall,
-                $"SQL execution failed: {ex.Message}");
-            return $"Error executing query: {ex.Message}";
-        }
-    }
-}
+//            return result.ToString();
+//        }
+//        catch (Exception ex)
+//        {
+//            SqlCopilotTrace.WriteErrorEvent(
+//                SqlCopilotTraceEvents.KernelFunctionCall,
+//                $"SQL execution failed: {ex.Message}");
+//            return $"Error executing query: {ex.Message}";
+//        }
+//    }
+//}
 
 /// <summary>
 /// Manages tool call execution, caching, and recursion prevention
@@ -218,3 +220,5 @@ public class ToolCallManager
         calls.Add(call);
     }
 }
+
+#endif
