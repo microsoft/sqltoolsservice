@@ -317,8 +317,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 // // Create chat history - initialize to default profile
                 _currentProfile = cartridgeBoostrapper.CurrentProfile;
-                _chatHistory = new ChatHistory(_currentProfile!.DBA_ReadOnly().InitialPrompt());
-                SqlExecAndParse.SetAccessMode(CopilotAccessModes.DBA_RO);
+                //_chatHistory = new ChatHistory(_currentProfile!.DBA_ReadOnly().InitialPrompt());
+
+                var initialSystemMessage = @"System message: YOUR ROLE:
+You are an AI copilot assistant running inside SQL Server Management Studio and connected to a specific SQL Server database.
+Act as a SQL Server and SQL Server Management Studio SME.
+
+GENERAL REQUIREMENTS:
+- Work step-by-step, do not skip any requirements.
+- **Important**: Do not re-call the same tool with identical parameters unless specifically prompted.
+- If a tool has been successfully called, move on to the next step based on the user's query.
+- Always confirm the schema of objects before assuming a default schema (e.g., dbo)";
+
+                _chatHistory = new ChatHistory(initialSystemMessage);
+                
+                SqlExecAndParse.SetAccessMode(CopilotAccessModes.READ_WRITE_NEVER);
 
                 // add the current sql version and database name to the chat
                 _chatHistory.AddSystemMessage($"Configuration information for currently connected database: {currentDbConfiguration}");
