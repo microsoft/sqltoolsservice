@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.Data.SqlClient;
@@ -202,40 +201,59 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             _sqlConnection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        public async Task<string> ExecuteSqlQueryAsync(string query, bool isStoredProc, params object[] parameters)
+
+        public async Task<string> ExecuteSqlQueryAsync(string query, bool execSP, params object[] parameters)
         {
-            CancellationToken cancellationToken = default;
-            try
+            if (_sqlConnection != null && _sqlConnection.State == ConnectionState.Open)
             {
-                using var command = new SqlCommand(query, _sqlConnection);
-                command.CommandType = isStoredProc ? CommandType.StoredProcedure : CommandType.Text;
+                // create a command to execute the sql
+                var command = new SqlCommand(query, _sqlConnection);
 
-                using var reader = await command.ExecuteReaderAsync(cancellationToken);
-                var result = new System.Text.StringBuilder();
-
-                do
+                // add the parameters to the command
+                foreach (var param in parameters)
                 {
-                    while (await reader.ReadAsync(cancellationToken))
-                    {
-                        for (var i = 0; i < reader.FieldCount; i++)
-                        {
-                            result.Append(reader.GetName(i))
-                                    .Append(": ")
-                                    .Append(reader.GetValue(i))
-                                    .AppendLine();
-                        }
-                    }
-                    result.AppendLine();
-                } while (await reader.NextResultAsync(cancellationToken));
+                    var paramStr = param.ToString();
+                    var paramParts = paramStr.Split('=');
+                    _ = command.Parameters.AddWithValue(paramParts[0], paramParts[1]);
+                }
 
-                return result.ToString();
+                // if it is a stored procedure, set the command type to stored procedure
+                if (execSP)
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                }
+
+                try
+                {
+                    // execute the query async and then process the results, returning them as a string
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        var result = new System.Text.StringBuilder();
+                        do
+                        {
+                            while (reader.Read())
+                            {
+                                for (var i = 0; i < reader.FieldCount; i++)
+                                {
+                                    _ = result.Append(reader.GetName(i) + ": " + reader.GetValue(i) + "\n");
+                                }
+                            }
+                            _ = result.Append("\n");
+                        } while (reader.NextResult());
+
+                        return result.ToString();
+                    }
+                }
+                catch (Exception e)
+                {
+                    // return the error to the LLM
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    return $"The following error occured querying the database: {e.Message}";
+                }
             }
-            catch (Exception ex)
+            else
             {
-                SqlCopilotTrace.WriteErrorEvent(
-                    SqlCopilotTraceEvents.KernelFunctionCall,
-                    $"SQL execution failed: {ex.Message}");
-                return $"Error executing query: {ex.Message}";
+                return "Not connected to a database";
             }
         }
     }
