@@ -1,0 +1,242 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.SqlCopilot.Common;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Microsoft.SqlServer.SqlCopilot.Cartridges;
+using System.Collections.Generic;
+
+namespace Microsoft.SqlTools.ServiceLayer.Copilot
+{
+    public class ChatResponseHandler
+    {
+        private readonly CopilotConversation _conversation;
+
+        public ChatResponseHandler(CopilotConversation conversation)
+        {
+            _conversation = conversation;
+        }
+
+        public event Action<ChatResponseEventArgs> OnChatResponse;
+        public event Action<ProcessingUpdateEventArgs> OnProcessingUpdate;
+
+        public async Task HandlePartialResponse(string exchangeId, string response)
+        {
+            await Task.Run(() => OnChatResponse?.Invoke(new ChatResponseEventArgs
+            {
+                UpdateType = ResponseUpdateType.PartialResponseUpdate,
+                ChatExchangeId = exchangeId,
+                PartialResponse = response,
+                Conversation = _conversation
+            }));
+        }
+
+        public async Task NotifyExchangeStarted(string exchangeId)
+        {
+            await Task.Run(() => OnChatResponse?.Invoke(new ChatResponseEventArgs
+            {
+                UpdateType = ResponseUpdateType.Started,
+                ChatExchangeId = exchangeId,
+                Conversation = _conversation
+            }));
+        }
+
+        public async Task NotifyExchangeComplete(string exchangeId)
+        {
+            await Task.Run(() => OnChatResponse?.Invoke(new ChatResponseEventArgs
+            {
+                UpdateType = ResponseUpdateType.Completed,
+                ChatExchangeId = exchangeId,
+                Conversation = _conversation
+            }));
+        }
+
+        public async Task NotifyExchangeCanceled(string exchangeId)
+        {
+            await Task.Run(() => OnChatResponse?.Invoke(new ChatResponseEventArgs
+            {
+                UpdateType = ResponseUpdateType.Canceled,
+                ChatExchangeId = exchangeId,
+                Conversation = _conversation
+            }));
+        }
+
+        public async Task<string> HandleProcessingUpdate(
+            string exchangeId,
+            ProcessingUpdateType updateType,
+            Dictionary<string, string> parameters)
+        {
+            await Task.Run(() => OnProcessingUpdate?.Invoke(new ProcessingUpdateEventArgs
+            {
+                ChatExchangeId = exchangeId,
+                UpdateType = updateType,
+                Parameters = parameters
+            }));
+            return "success";
+        }
+    }
+
+    public class SqlToolsRpcClient : IJsonRpcParent
+    {
+        private readonly ISqlExecutionService _sqlService;
+        private readonly ChatResponseHandler _responseHandler;
+
+        public SqlToolsRpcClient(
+            ISqlExecutionService sqlService,
+            ChatResponseHandler responseHandler)
+        {
+            _sqlService = sqlService;
+            _responseHandler = responseHandler;
+        }
+
+        public async Task<T> InvokeAsync<T>(string method, params object[] parameters)
+        {
+            try
+            {
+                return method switch
+                {
+                    "ExecuteSqlQueryAsync" => await HandleSqlQuery<T>(parameters),
+                    "HandlePartialResponseAsync" => await HandleChatResponse<T>(parameters),
+                    "ChatExchangeStartedAsync" => await HandleExchangeStarted<T>(parameters),
+                    "ChatExchangeCompleteAsync" => await HandleExchangeComplete<T>(parameters),
+                    "ChatExchangeCanceledAsync" => await HandleExchangeCanceled<T>(parameters),
+                    "PromptProcessingUpdate" => await HandleProcessingUpdate<T>(parameters),
+                    _ => throw new NotImplementedException($"Method not implemented: {method}")
+                };
+            }
+            catch (Exception ex)
+            {
+                SqlCopilotTrace.WriteErrorEvent(
+                    SqlCopilotTraceEvents.RpcCallFailed,
+                    $"RPC call failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task<T> HandleSqlQuery<T>(object[] parameters)
+        {
+            if (parameters.Length < 2)
+                throw new ArgumentException("Not enough parameters for SQL query");
+
+            string query = (string)parameters[0];
+            bool isStoredProc = (bool)parameters[1];
+            object[] sqlParams = parameters.Length > 2 ?
+                (object[])parameters[2] : Array.Empty<object>();
+
+            var result = await _sqlService.ExecuteSqlQueryAsync(
+                query, isStoredProc, sqlParams);
+
+            return typeof(T) == typeof(string)
+                ? (T)(object)result
+                : throw new InvalidCastException("Invalid return type");
+        }
+
+        private async Task<T> HandleChatResponse<T>(object[] parameters)
+        {
+            if (parameters.Length < 2)
+                throw new ArgumentException("Not enough parameters for chat response");
+
+            await _responseHandler.HandlePartialResponse(
+                (string)parameters[0],
+                (string)parameters[1]);
+
+            return default;
+        }
+
+        private async Task<T> HandleExchangeStarted<T>(object[] parameters)
+        {
+            await _responseHandler.NotifyExchangeStarted((string)parameters[0]);
+            return default;
+        }
+
+        private async Task<T> HandleExchangeComplete<T>(object[] parameters)
+        {
+            await _responseHandler.NotifyExchangeComplete((string)parameters[0]);
+            return default;
+        }
+
+        private async Task<T> HandleExchangeCanceled<T>(object[] parameters)
+        {
+            await _responseHandler.NotifyExchangeCanceled((string)parameters[0]);
+            return default;
+        }
+
+        private async Task<T> HandleProcessingUpdate<T>(object[] parameters)
+        {
+            if (parameters.Length < 3)
+                throw new ArgumentException("Not enough parameters for processing update");
+
+            var result = await _responseHandler.HandleProcessingUpdate(
+                (string)parameters[0],
+                (ProcessingUpdateType)parameters[1],
+                (Dictionary<string, string>)parameters[2]);
+
+            return typeof(T) == typeof(string)
+                ? (T)(object)result
+                : throw new InvalidCastException("Invalid return type");
+        }
+    }
+    
+    public interface ISqlExecutionService
+    {
+        Task<string> ExecuteSqlQueryAsync(string query, bool isStoredProc, params object[] parameters);
+    }
+
+    // <summary>
+    // Provides execution services for SQL queries with proper connection management
+    // </summary>
+    public class SqlExecutionService : ISqlExecutionService
+    {
+        private readonly SqlConnection _sqlConnection;
+
+        public SqlExecutionService(SqlConnection connection)
+        {
+            _sqlConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+        }
+
+        public async Task<string> ExecuteSqlQueryAsync(string query, bool isStoredProc, params object[] parameters)
+        {
+            CancellationToken cancellationToken = default;
+            try
+            {
+                using var command = new SqlCommand(query, _sqlConnection);
+                command.CommandType = isStoredProc ? CommandType.StoredProcedure : CommandType.Text;
+
+                using var reader = await command.ExecuteReaderAsync(cancellationToken);
+                var result = new System.Text.StringBuilder();
+
+                do
+                {
+                    while (await reader.ReadAsync(cancellationToken))
+                    {
+                        for (var i = 0; i < reader.FieldCount; i++)
+                        {
+                            result.Append(reader.GetName(i))
+                                    .Append(": ")
+                                    .Append(reader.GetValue(i))
+                                    .AppendLine();
+                        }
+                    }
+                    result.AppendLine();
+                } while (await reader.NextResultAsync(cancellationToken));
+
+                return result.ToString();
+            }
+            catch (Exception ex)
+            {
+                SqlCopilotTrace.WriteErrorEvent(
+                    SqlCopilotTraceEvents.KernelFunctionCall,
+                    $"SQL execution failed: {ex.Message}");
+                return $"Error executing query: {ex.Message}";
+            }
+        }
+    }
+}

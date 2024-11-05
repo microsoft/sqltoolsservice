@@ -6,10 +6,8 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
@@ -26,30 +24,9 @@ using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 using Newtonsoft.Json.Linq;
-using OpenAI.Chat;
-using static Microsoft.SqlTools.ServiceLayer.Copilot.SqlExecuteRpcParent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
-    internal class VSCodeLanguageModelEndpoint : ILanguageModelEndpoint
-    {
-        public LanguageModelChatCompletion SendChatRequest(ChatHistory chatHistory, IList<ChatTool> tools)
-        {
-            return new LanguageModelChatCompletion
-            {
-                ResultText = "Non-async message - result text",
-            };
-        }
-
-        public AsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(
-            ChatHistory chatHistory, 
-            IList<ChatTool> tools)
-        {
-            return new VSCodeAsyncChatCompletionCollection(chatHistory, tools);
-        }
-    }
-
-
     public class CopilotConversation
     {
         public string ConversationUri { get; set; }
@@ -63,160 +40,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
     public class CopilotConversationManager
     {
-        private ConcurrentDictionary<string, CopilotConversation> conversations = new ConcurrentDictionary<string, CopilotConversation>();
-
-        private Kernel? _userSessionKernel = null;
-        private SqlExecAndParse? _sqlExecAndParseHelper = null;
-        private ExecutionAccessChecker? _accessChecker = null;
-        private readonly ActivitySource s_activitySource = new("SqlCopilot");
-        private static IProfile? _currentProfile = null;
-        private static IChatCompletionService? _userChatCompletionService = null;
-        private ChatHistory? _chatHistory = null;
-        private static VSCodePromptExecutionSettings? _openAIPromptExecutionSettings = null;
-        private static StringBuilder _responseHistory = new StringBuilder();
-
+        //private readonly ActivitySource s_activitySource = new("SqlCopilot");
+        //private static IChatCompletionService? _userChatCompletionService = null;
+        //private ChatHistory? _chatHistory = null;
+        //private static VSCodePromptExecutionSettings? _openAIPromptExecutionSettings = null;
+        //private Kernel? _userSessionKernel = null;
+        //private SqlExecAndParse? _sqlExecAndParseHelper = null;
+        // private ExecutionAccessChecker? _accessChecker = null;
+        // private static IProfile? _currentProfile = null;
+        private static StringBuilder responseHistory = new StringBuilder();
         private static ConcurrentDictionary<string, CancellationTokenSource> _activeConversations = new ConcurrentDictionary<string, CancellationTokenSource>();
+
+        private readonly ConcurrentDictionary<string, CopilotConversation> conversations = new();
+        private readonly ChatMessageQueue messageQueue;
+        private readonly Dictionary<string, SqlToolsRpcClient> rpcClients = new();
+        private readonly ActivitySource activitySource = new("SqlCopilot");
+        private Kernel userSessionKernel;
+        private IChatCompletionService userChatCompletionService;
+        private ChatHistory chatHistory;
+        private static VSCodePromptExecutionSettings openAIPromptExecutionSettings;
+
 
         public CopilotConversationManager()
         {
+            messageQueue = new ChatMessageQueue(conversations);
             InitializeTraceSource();
         }
 
-        //public CopilotConversation GetConversation(string conversationUri)
-        //{
-        //    CopilotConversation conversation;
-        //    if (conversations.TryGetValue(conversationUri, out conversation))
-        //    {
-        //        return conversation;
-        //    }
-        //    return null;
-        //}
-
-        public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
-        {
-            // get a connection to the database
-            DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(connectionUri, ConnectionType.Default);
-            SqlConnection sqlConnection;
-            ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out sqlConnection);
-
-            if (sqlConnection == null)
-            {
-                return false;
-            }
-
-            CopilotConversation conversation = new CopilotConversation()
-            {
-                ConversationUri = conversationUri,
-                SqlConnection = sqlConnection,
-                CurrentMessage = string.Empty,
-                MessageCompleteEvent = new AutoResetEvent(false)
-            };
-
-            InitConversation(conversation);
-           
-            conversations.AddOrUpdate(conversationUri, conversation, (key, oldValue) => conversation);
-
-#pragma warning disable CS4014
-            Task.Run(async () =>
-            {
-                _ = await SendUserPromptStreamingAsync(userText, conversationUri);
-            });
-#pragma warning restore CS4014
-
-            return true;
-        }
-
-        public class LLMRequest
-        {
-            public string ConversationUri { get; set; }
-            public IList<LanguageModelRequestMessage> Messages { get; set; }
-            public IList<LanguageModelChatTool> Tools { get; set; }
-            public string Response { get; set; }
-            public LanguageModelChatTool ResponseTool { get; set; }
-            public string ResponseToolParameters { get; set; }
-            public AutoResetEvent RequestCompleteEvent { get; set; }
-        }
-
-        private AutoResetEvent requestLLMEvent = new AutoResetEvent(false);
-        private Queue<LLMRequest> requestLLMQueue = new Queue<LLMRequest>();
-        private LLMRequest pendingLLMRequest = null;
-
-
         public LLMRequest RequestLLM(
-            string conversationUri, 
-            IList<LanguageModelRequestMessage> messages, 
+            string conversationUri,
+            IList<LanguageModelRequestMessage> messages,
             IList<LanguageModelChatTool> tools,
             AutoResetEvent responseReadyEvent)
         {
-            var request = new LLMRequest()
-            {
-                ConversationUri = conversationUri,
-                Messages = messages,
-                Tools = tools,
-                RequestCompleteEvent = responseReadyEvent
-            };
-            requestLLMQueue.Enqueue(request);
-            requestLLMEvent.Set();
-            return request;
+            return messageQueue.EnqueueRequest(
+                conversationUri, messages, tools, responseReadyEvent);
         }
 
         public GetNextMessageResponse GetNextMessage(
-            string conversationUri, 
+            string conversationUri,
             string userText,
             LanguageModelChatTool tool,
             string toolParameters)
         {
-            if (tool != null)
-            {
-                pendingLLMRequest.ResponseTool = tool;
-                pendingLLMRequest.ResponseToolParameters = toolParameters;
-                pendingLLMRequest.RequestCompleteEvent.Set();
-                pendingLLMRequest = null;
-            }
-
-            // got a response from the LLM
-            else if (!string.IsNullOrEmpty(userText))
-            {
-                pendingLLMRequest.Response = userText;
-                pendingLLMRequest.RequestCompleteEvent.Set();
-                pendingLLMRequest = null;
-            }
-
-            AutoResetEvent[] events = new AutoResetEvent[conversations.Count+1];
-            events[conversations.Count] = requestLLMEvent;
-            int i = 0;
-            foreach (var c in conversations)
-            {
-               events[i++] = c.Value.MessageCompleteEvent;
-            }
-            int eventIdx = WaitHandle.WaitAny(events);
-            if (eventIdx == conversations.Count && requestLLMQueue.Count > 0)
-            {
-                pendingLLMRequest = requestLLMQueue.Dequeue();
-                return new GetNextMessageResponse()
-                {
-                    MessageType = MessageType.RequestLLM,
-                    ResponseText = pendingLLMRequest.Messages.Last().Text,
-                    Tools = pendingLLMRequest.Tools.ToArray(),
-                    RequestMessages = pendingLLMRequest.Messages.ToArray(),
-                };
-            }
-
-            conversations.TryGetValue(conversationUri, out CopilotConversation conversation);
-            if (conversation == null)
-            {
-                return new GetNextMessageResponse()
-                {
-                    MessageType = MessageType.MessageComplete,
-                    ResponseText = string.Empty
-                };
-            }
-    
-            return new GetNextMessageResponse()
-            {
-                MessageType = MessageType.MessageComplete,
-                ResponseText = conversation.CurrentMessage
-            };
+            return messageQueue.ProcessNextMessage(
+                conversationUri, userText, tool, toolParameters);
         }
 
         private void InitializeTraceSource()
@@ -245,8 +113,155 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             SqlCopilotTrace.Source.Switch.Level = SourceLevels.Information;
         }
 
-        private SqlExecuteRpcParent sqlExecuteRpcParent;
+        private void InitConversation(CopilotConversation conversation)
+    {
+        SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.ChatSessionStart, "Initializing Chat Session");
 
+        try
+        {
+            // Create our services
+            var sqlService = new SqlExecutionService(conversation.SqlConnection);
+            var responseHandler = new ChatResponseHandler(conversation);
+            var rpcClient = new SqlToolsRpcClient(sqlService, responseHandler);
+            rpcClients[conversation.ConversationUri] = rpcClient;
+
+            // Setup the kernel
+            openAIPromptExecutionSettings = new VSCodePromptExecutionSettings
+            {
+                Temperature = 0.0,
+                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+                MaxTokens = 1500
+            };
+
+            var builder = Kernel.CreateBuilder();
+            builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint());
+
+            userSessionKernel = builder.Build();
+            activitySource.StartActivity("Main");
+
+            // Setup access and tools
+            var accessChecker = new ExecutionAccessChecker(userSessionKernel);
+            var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
+            var currentDbConfig = SqlExecAndParse.GetCurrentDatabaseAndServerInfo().Result;
+
+            // Add tools to kernel
+            builder.Plugins.AddFromObject(sqlExecHelper);
+
+            // Setup cartridges
+            var services = new ServiceCollection();
+            services.AddSingleton<SQLPluginHelperResourceServices>();
+            
+            var cartridgeBootstrapper = new Bootstrapper(rpcClient, accessChecker);
+            cartridgeBootstrapper.LoadCartridges(
+                services.BuildServiceProvider().GetRequiredService<SQLPluginHelperResourceServices>());
+            cartridgeBootstrapper.LoadToolSets(builder, currentDbConfig);
+
+            // Rebuild kernel with all plugins
+            userSessionKernel = builder.Build();
+            userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
+
+			// Initialize chat history
+			var initialSystemMessage = @"System message: YOUR ROLE:
+You are an AI copilot assistant running inside SQL Server Management Studio and connected to a specific SQL Server database.
+Act as a SQL Server and SQL Server Management Studio SME.
+
+GENERAL REQUIREMENTS:
+- Work step-by-step, do not skip any requirements.
+- **Important**: Do not re-call the same tool with identical parameters unless specifically prompted.
+- If a tool has been successfully called, move on to the next step based on the user's query.
+- Always confirm the schema of objects before assuming a default schema (e.g., dbo)";
+
+            chatHistory = new ChatHistory(initialSystemMessage);
+                
+            SqlExecAndParse.SetAccessMode(CopilotAccessModes.READ_WRITE_NEVER);
+            chatHistory.AddSystemMessage(
+                $"Configuration information for currently connected database: {currentDbConfig}");
+
+            // Wire up response handler events
+            responseHandler.OnChatResponse += (e) =>
+            {
+                switch (e.UpdateType)
+                {
+                    case ResponseUpdateType.PartialResponseUpdate:
+                        e.Conversation.CurrentMessage += e.PartialResponse;
+                        break;
+                    case ResponseUpdateType.Completed:
+                        e.Conversation.MessageCompleteEvent.Set();
+                        break;
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            SqlCopilotTrace.WriteErrorEvent(
+                SqlCopilotTraceEvents.ChatSessionFailed, 
+                e.Message);
+        }
+    }
+
+    public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
+    {
+        // Get DB connection
+        DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(
+            connectionUri, ConnectionType.Default);
+        
+        if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
+            return false;
+
+        // Create and initialize conversation
+        var conversation = new CopilotConversation
+        {
+            ConversationUri = conversationUri,
+            SqlConnection = sqlConnection,
+            CurrentMessage = string.Empty,
+            MessageCompleteEvent = new AutoResetEvent(false)
+        };
+
+        InitConversation(conversation);
+        conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
+
+        // Start processing in background
+        _ = Task.Run(async () => 
+            await SendUserPromptStreamingAsync(userText, conversationUri));
+
+        return true;
+    }
+
+
+
+#if false
+        public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
+        {
+            // get a connection to the database
+            DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(connectionUri, ConnectionType.Default);
+            if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
+            {
+                return false;
+            }
+
+            CopilotConversation conversation = new CopilotConversation()
+            {
+                ConversationUri = conversationUri,
+                SqlConnection = sqlConnection,
+                CurrentMessage = string.Empty,
+                MessageCompleteEvent = new AutoResetEvent(false)
+            };
+
+            InitConversation(conversation);
+
+            conversations.AddOrUpdate(conversationUri, conversation, (key, oldValue) => conversation);
+
+#pragma warning disable CS4014
+            Task.Run(async () =>
+            {
+                _ = await SendUserPromptStreamingAsync(userText, conversationUri);
+            });
+#pragma warning restore CS4014
+
+            return true;
+        }
+#endif
+#if false
         private void InitConversation(CopilotConversation conversation)
         {
             SqlConnection sqlConnection = conversation.SqlConnection;
@@ -265,20 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 _openAIPromptExecutionSettings.Temperature = 0.0;
                 _openAIPromptExecutionSettings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
                 _openAIPromptExecutionSettings.MaxTokens = 1500;
-
-                // // setup code completion execution settings
-                // _codeCompletionExecutionSettings = new VSCodePromptExecutionSettings();
-                // _codeCompletionExecutionSettings.Temperature = 0.3;
-                // _codeCompletionExecutionSettings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
-                // _codeCompletionExecutionSettings.MaxTokens = 200;
-
-                // _copilotMetricExporter = new SqlCopilotMetricExporter();
-                // _meterProvider = Sdk.CreateMeterProviderBuilder()
-                // .AddMeter("Microsoft.SemanticKernel.Connectors.OpenAI")
-                // .AddMeter("TestMeter")
-                // .AddReader(new PeriodicExportingMetricReader(_copilotMetricExporter, exportIntervalMilliseconds: 1000))
-                // .Build();
-                // _testCounter = _testMeter.CreateCounter<int>("PromptCount", description: "Number of user prompts submitted.");
 
                 // setup the kernel builder
                 var builder = Kernel.CreateBuilder();
@@ -300,14 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 _ = builder.Plugins.AddFromObject(_sqlExecAndParseHelper);
 
                 // // load the cartridges and toolsets for the current database configuration
-                 Bootstrapper cartridgeBoostrapper = new Bootstrapper(sqlExecuteRpcParent, _accessChecker);
-                // if (serverConfiguration != null)
-                // {
-                //     // set exclusion lists read from appsettings.json
-                //     serverConfiguration.GetSection("PackageExclusions:Cartridges").Bind(cartridgeBoostrapper.ExcludedCartridges);
-                //     serverConfiguration.GetSection("PackageExclusions:Toolsets").Bind(cartridgeBoostrapper.ExcludedToolsets);
-                //     serverConfiguration.GetSection("PackageExclusions:Tools").Bind(cartridgeBoostrapper.ExcludedTools);
-                // }
+                Bootstrapper cartridgeBoostrapper = new Bootstrapper(sqlExecuteRpcParent, _accessChecker);
                 cartridgeBoostrapper.LoadCartridges(services.BuildServiceProvider().GetRequiredService<SQLPluginHelperResourceServices>());
                 cartridgeBoostrapper.LoadToolSets(builder, currentDbConfiguration);
 
@@ -346,9 +340,7 @@ GENERAL REQUIREMENTS:
                 return;
             }
         }
-
-        //private string message = string.Empty;
-        //private bool isProcess = true;
+#endif
 
         /// <summary>
         /// Event handler for the chat response received event from the SqlCopilotClient.
@@ -381,28 +373,27 @@ GENERAL REQUIREMENTS:
 
         public async Task<RpcResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
         {
-            if (_chatHistory == null)
+            if (chatHistory == null)
             {
                 var errorMessage = "Chat history not initialized.  Call InitializeAsync first.";
                 SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.PromptReceived, errorMessage);
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
             }
 
-            if (_userChatCompletionService == null) // || _plannerChatCompletionService == null || _databaseQueryChatCompletionService == null)
+            if (userChatCompletionService == null) // || _plannerChatCompletionService == null || _databaseQueryChatCompletionService == null)
             {
                 var errorMessage = "Chat completion service not initialized.  Call InitializeAsync first.";
                 SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.PromptReceived, errorMessage);
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
             }
 
+            var sqlExecuteRpcParent = rpcClients[chatExchangeId];
             if (sqlExecuteRpcParent == null)
             {
                 var errorMessage = "Communication channel not configured.  Call InitializeAsync first.";
                 SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.PromptReceived, errorMessage);
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
             }
-
-            //_testCounter!.Add(1);
 
             SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"User prompt received.");
             SqlCopilotTrace.WriteVerboseEvent(SqlCopilotTraceEvents.PromptReceived, $"Prompt: {userPrompt}");
@@ -420,12 +411,12 @@ GENERAL REQUIREMENTS:
 
             try
             {
-                _chatHistory.AddUserMessage(userPrompt);
+                chatHistory.AddUserMessage(userPrompt);
                 StringBuilder completeResponse = new StringBuilder();
 
-                var result = _userChatCompletionService.GetStreamingChatMessageContentsAsync(_chatHistory,
-                    executionSettings: _openAIPromptExecutionSettings,
-                    kernel: _userSessionKernel,
+                var result = userChatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory,
+                    executionSettings: openAIPromptExecutionSettings,
+                    kernel: userSessionKernel,
                     cts.Token);
                 SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Prompt submitted to kernel.");
 
@@ -501,8 +492,8 @@ GENERAL REQUIREMENTS:
                     // add the assistant response to the chat history
                     SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.ResponseGenerated, "Response completed. Updating chat history.");
                     await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeCompleteAsync", chatExchangeId);
-                    _chatHistory.AddAssistantMessage(completeResponse.ToString());
-                    _responseHistory.Append(completeResponse);
+                    chatHistory.AddAssistantMessage(completeResponse.ToString());
+                    responseHistory.Append(completeResponse);
                 }
             }
             catch (HttpOperationException e)
@@ -543,6 +534,56 @@ GENERAL REQUIREMENTS:
         public Dictionary<string, string> Parameters { get; set; }
     }
 
+    /// <summary>
+    /// the type of procsessing update the event is for
+    /// </summary>
+    public enum ResponseUpdateType
+    {
+        /// <summary>
+        /// processing of the prompt has started
+        /// </summary>
+        Started,
+
+        /// <summary>
+        /// processing of the prompt has completed
+        /// </summary>
+        Completed,
+
+        /// <summary>
+        /// a partial response has been generated (streaming)
+        /// </summary>
+        PartialResponseUpdate,
+
+        /// <summary>
+        /// the prompt processing has been canceled (user initiated)
+        /// </summary>
+        Canceled
+    }
+
+    /// <summary>
+    /// common event data for chat response events
+    /// </summary>
+    public class ChatResponseEventArgs : EventArgs
+    {
+        /// <summary>
+        /// type of processing update event
+        /// </summary>
+        public ResponseUpdateType UpdateType { get; set; }
+
+        /// <summary>
+        /// the unique ID of the chat exchange this completion event is for
+        /// </summary>
+        public string ChatExchangeId { get; set; }
+
+        /// <summary>
+        /// the partial response if it is a partial response event
+        /// </summary>
+        public string PartialResponse { get; set; }
+
+        public CopilotConversation Conversation { get; set; }
+    }
+
+#if false
     /// <summary>
     /// concrete implementation of the IJsonRpcParent interface for RPC calls to the parent process
     /// </summary>
@@ -799,54 +840,7 @@ GENERAL REQUIREMENTS:
         /// <param name="e"></param>
         public delegate void ChatResponse(object sender, ChatResponseEventArgs e);
 
-        /// <summary>
-        /// the type of procsessing update the event is for
-        /// </summary>
-        public enum ResponseUpdateType
-        {
-            /// <summary>
-            /// processing of the prompt has started
-            /// </summary>
-            Started,
-
-            /// <summary>
-            /// processing of the prompt has completed
-            /// </summary>
-            Completed,
-
-            /// <summary>
-            /// a partial response has been generated (streaming)
-            /// </summary>
-            PartialResponseUpdate,
-
-            /// <summary>
-            /// the prompt processing has been canceled (user initiated)
-            /// </summary>
-            Canceled
-        }
-
-        /// <summary>
-        /// common event data for chat response events
-        /// </summary>
-        public class ChatResponseEventArgs : EventArgs
-        {
-            /// <summary>
-            /// type of processing update event
-            /// </summary>
-            public ResponseUpdateType UpdateType { get; set; }
-
-            /// <summary>
-            /// the unique ID of the chat exchange this completion event is for
-            /// </summary>
-            public string ChatExchangeId { get; set; }
-
-            /// <summary>
-            /// the partial response if it is a partial response event
-            /// </summary>
-            public string PartialResponse { get; set; }
-
-            public CopilotConversation Conversation { get; set; }
-        }
+        
 
         /// <summary>
         /// An update message from the server process analyzing the prompt.  The update includes a message type and a variable set of parameters.
@@ -870,4 +864,5 @@ GENERAL REQUIREMENTS:
             return "success";
         }
     }
+#endif
 }
