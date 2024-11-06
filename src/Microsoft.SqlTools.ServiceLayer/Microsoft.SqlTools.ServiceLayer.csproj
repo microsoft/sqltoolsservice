@@ -44,7 +44,9 @@
     <Reference Include="SqlCopilotCartridges">
       <HintPath>..\..\bin\ref\SqlCopilotCartridges.dll</HintPath>
     </Reference>
-    
+    <Reference Include="YamlDotNet">
+      <HintPath>..\..\bin\ref\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -74,27 +76,9 @@
     </PackageReference>
     <PackageReference Include="TextCopy" />
   </ItemGroup>
-
-<ItemGroup Label="Package references">
-  <PackageReference Include="Microsoft.SemanticKernel" />
-<!--
-  <PackageReference Include="Microsoft.Extensions.Configuration" />
-  <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
-  <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
-  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
-  <PackageReference Include="Microsoft.Extensions.Hosting" />
-  <PackageReference Include="Newtonsoft.Json" />
-  <PackageReference Include="StreamJsonRpc" />
-  <PackageReference Include="Microsoft.Extensions.Logging.Console" />
-  <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-  <PackageReference Include="Microsoft.Extensions.Logging" />
-  <PackageReference Include="OpenTelemetry" />
-  <PackageReference Include="OpenTelemetry.Api" />
-  <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
-  -->
-</ItemGroup>
-
-  
+  <ItemGroup Label="Package references">
+    <PackageReference Include="Microsoft.SemanticKernel" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />

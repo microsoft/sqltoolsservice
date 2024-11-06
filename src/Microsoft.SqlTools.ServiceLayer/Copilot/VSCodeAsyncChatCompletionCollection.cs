@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.ClientModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,7 +18,7 @@ using OpenAI.Chat;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
-    public class VSCodeAsyncChatCompletionCollection : AsyncCollectionResult<LanguageModelChatCompletion>
+    public class VSCodeAsyncChatCompletionCollection : VSCodeAsyncCollectionResult<LanguageModelChatCompletion>
     {
         private readonly IList<LanguageModelRequestMessage> _messages;
         private readonly IList<LanguageModelChatTool> _tools;
@@ -28,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         public VSCodeAsyncChatCompletionCollection(
             ChatHistory chat,
-            IList<ChatTool> tools) : base()
+            IList<ChatTool> tools)
         {
             Debug.Assert(chat is not null);
             Debug.Assert(tools is not null);
@@ -98,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             return result;
         }
 
-        public override IAsyncEnumerator<LanguageModelChatCompletion> GetAsyncEnumerator(
+        public IAsyncEnumerator<LanguageModelChatCompletion> GetAsyncEnumerator(
             CancellationToken cancellationToken = default)
         {
             return new AsyncStreamingChatUpdateEnumerator(_request, _copilotTools);
@@ -126,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 if (_processed)
                     return false;
 
-                _request.RequestCompleteEvent.WaitOne();
+                await Task.Run(_request.RequestCompleteEvent.WaitOne).ConfigureAwait(false);
 
                 _current = CreateCompletion(
                     _request.Response,

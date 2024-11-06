@@ -114,118 +114,118 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         }
 
         private void InitConversation(CopilotConversation conversation)
-    {
-        SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.ChatSessionStart, "Initializing Chat Session");
-
-        try
         {
-            // Create our services
-            var sqlService = new SqlExecutionService(conversation.SqlConnection);
-            var responseHandler = new ChatResponseHandler(conversation);
-            var rpcClient = new SqlToolsRpcClient(sqlService, responseHandler);
-            rpcClients[conversation.ConversationUri] = rpcClient;
+            SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.ChatSessionStart, "Initializing Chat Session");
 
-            // Setup the kernel
-            openAIPromptExecutionSettings = new VSCodePromptExecutionSettings
+            try
             {
-                Temperature = 0.0,
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-                MaxTokens = 1500
-            };
+                // Create our services
+                var sqlService = new SqlExecutionService(conversation.SqlConnection);
+                var responseHandler = new ChatResponseHandler(conversation);
+                var rpcClient = new SqlToolsRpcClient(sqlService, responseHandler);
+                rpcClients[conversation.ConversationUri] = rpcClient;
 
-            var builder = Kernel.CreateBuilder();
-            builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint());
+                // Setup the kernel
+                openAIPromptExecutionSettings = new VSCodePromptExecutionSettings
+                {
+                    Temperature = 0.0,
+                    ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+                    MaxTokens = 1500
+                };
 
-            userSessionKernel = builder.Build();
-            activitySource.StartActivity("Main");
+                var builder = Kernel.CreateBuilder();
+                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint());
 
-            // Setup access and tools
-            var accessChecker = new ExecutionAccessChecker(userSessionKernel);
-            var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
-            var currentDbConfig = SqlExecAndParse.GetCurrentDatabaseAndServerInfo().Result;
+                userSessionKernel = builder.Build();
+                activitySource.StartActivity("Main");
 
-            // Add tools to kernel
-            builder.Plugins.AddFromObject(sqlExecHelper);
+                // Setup access and tools
+                var accessChecker = new ExecutionAccessChecker(userSessionKernel);
+                var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
+                var currentDbConfig = SqlExecAndParse.GetCurrentDatabaseAndServerInfo().Result;
 
-            // Setup cartridges
-            var services = new ServiceCollection();
-            services.AddSingleton<SQLPluginHelperResourceServices>();
-            
-            var cartridgeBootstrapper = new Bootstrapper(rpcClient, accessChecker);
-            cartridgeBootstrapper.LoadCartridges(
-                services.BuildServiceProvider().GetRequiredService<SQLPluginHelperResourceServices>());
-            cartridgeBootstrapper.LoadToolSets(builder, currentDbConfig);
+                // Add tools to kernel
+                builder.Plugins.AddFromObject(sqlExecHelper);
 
-            // Rebuild kernel with all plugins
-            userSessionKernel = builder.Build();
-            userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
+                // Setup cartridges
+                var services = new ServiceCollection();
+                services.AddSingleton<SQLPluginHelperResourceServices>();
 
-			// Initialize chat history
-			var initialSystemMessage = @"System message: YOUR ROLE:
-You are an AI copilot assistant running inside SQL Server Management Studio and connected to a specific SQL Server database.
-Act as a SQL Server and SQL Server Management Studio SME.
+                var cartridgeBootstrapper = new Bootstrapper(rpcClient, accessChecker);
+                cartridgeBootstrapper.LoadCartridges(
+                    services.BuildServiceProvider().GetRequiredService<SQLPluginHelperResourceServices>());
+                cartridgeBootstrapper.LoadToolSets(builder, currentDbConfig);
+
+                // Rebuild kernel with all plugins
+                userSessionKernel = builder.Build();
+                userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
+
+                // Initialize chat history
+                var initialSystemMessage = @"System message: YOUR ROLE:
+You are an AI copilot assistant running inside Visual Studio Code and connected to a specific SQL Server database.
+Act as a SQL Server and VS Code SME.
 
 GENERAL REQUIREMENTS:
 - Work step-by-step, do not skip any requirements.
 - **Important**: Do not re-call the same tool with identical parameters unless specifically prompted.
-- If a tool has been successfully called, move on to the next step based on the user's query.
-- Always confirm the schema of objects before assuming a default schema (e.g., dbo)";
+- **Important**: Do not assume a default schema (e.g. dbo) for database objects when calling tool functions.  Use the schema discovery tool to find the correct schema before calling other tools.
+- If a tool has been successfully called, move on to the next step based on the user's query.";
 
-            chatHistory = new ChatHistory(initialSystemMessage);
-                
-            SqlExecAndParse.SetAccessMode(CopilotAccessModes.READ_WRITE_NEVER);
-            chatHistory.AddSystemMessage(
-                $"Configuration information for currently connected database: {currentDbConfig}");
+                chatHistory = new ChatHistory(initialSystemMessage);
 
-            // Wire up response handler events
-            responseHandler.OnChatResponse += (e) =>
-            {
-                switch (e.UpdateType)
+                SqlExecAndParse.SetAccessMode(CopilotAccessModes.READ_WRITE_NEVER);
+                chatHistory.AddSystemMessage(
+                    $"Configuration information for currently connected database: {currentDbConfig}");
+
+                // Wire up response handler events
+                responseHandler.OnChatResponse += (e) =>
                 {
-                    case ResponseUpdateType.PartialResponseUpdate:
-                        e.Conversation.CurrentMessage += e.PartialResponse;
-                        break;
-                    case ResponseUpdateType.Completed:
-                        e.Conversation.MessageCompleteEvent.Set();
-                        break;
-                }
+                    switch (e.UpdateType)
+                    {
+                        case ResponseUpdateType.PartialResponseUpdate:
+                            e.Conversation.CurrentMessage += e.PartialResponse;
+                            break;
+                        case ResponseUpdateType.Completed:
+                            e.Conversation.MessageCompleteEvent.Set();
+                            break;
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                SqlCopilotTrace.WriteErrorEvent(
+                    SqlCopilotTraceEvents.ChatSessionFailed,
+                    e.Message);
+            }
+        }
+
+        public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
+        {
+            // Get DB connection
+            DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(
+                connectionUri, ConnectionType.Default);
+
+            if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
+                return false;
+
+            // Create and initialize conversation
+            var conversation = new CopilotConversation
+            {
+                ConversationUri = conversationUri,
+                SqlConnection = sqlConnection,
+                CurrentMessage = string.Empty,
+                MessageCompleteEvent = new AutoResetEvent(false)
             };
+
+            InitConversation(conversation);
+            conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
+
+            // Start processing in background
+            _ = Task.Run(async () =>
+                await SendUserPromptStreamingAsync(userText, conversationUri));
+
+            return true;
         }
-        catch (Exception e)
-        {
-            SqlCopilotTrace.WriteErrorEvent(
-                SqlCopilotTraceEvents.ChatSessionFailed, 
-                e.Message);
-        }
-    }
-
-    public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
-    {
-        // Get DB connection
-        DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(
-            connectionUri, ConnectionType.Default);
-        
-        if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
-            return false;
-
-        // Create and initialize conversation
-        var conversation = new CopilotConversation
-        {
-            ConversationUri = conversationUri,
-            SqlConnection = sqlConnection,
-            CurrentMessage = string.Empty,
-            MessageCompleteEvent = new AutoResetEvent(false)
-        };
-
-        InitConversation(conversation);
-        conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
-
-        // Start processing in background
-        _ = Task.Run(async () => 
-            await SendUserPromptStreamingAsync(userText, conversationUri));
-
-        return true;
-    }
 
 
 

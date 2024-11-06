@@ -22,7 +22,7 @@ public class VSCodeChatMessageContentPart
 /// <summary>
 /// OpenAI specialized chat message content
 /// </summary>
-public sealed class VSCodeChatMessageContent : ChatMessageContent
+public sealed class VSCodeChatMessageContent : Microsoft.SemanticKernel.ChatMessageContent
 {
     /// <summary>
     /// Gets the metadata key for the tool id.

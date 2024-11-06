@@ -3,6 +3,7 @@
 using System;
 using System.ClientModel;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -64,6 +65,13 @@ public class LanguageModelChatCompletion
     public string? ResponseToolParameters { get; set; }
 }
 
+
+public interface VSCodeAsyncCollectionResult<T>
+{
+    IAsyncEnumerator<LanguageModelChatCompletion> GetAsyncEnumerator(CancellationToken cancellationToken = default);
+}
+
+
 /// <summary>
 /// Language model endpoint
 /// </summary>
@@ -82,7 +90,7 @@ public interface ILanguageModelEndpoint
     /// <param name="chatHistory"></param>
     /// <param name="tools"></param>
     /// <returns></returns>
-    AsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(ChatHistory chatHistory, IList<ChatTool> tools);
+    VSCodeAsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(ChatHistory chatHistory, IList<ChatTool> tools);
 }
 
 /// <summary>

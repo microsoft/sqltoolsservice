@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using JsonSchemaMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Diagnostics;
@@ -25,6 +26,16 @@ namespace Microsoft.SqlTools.Connectors.VSCode;
 /// </summary>
 internal partial class VSCodeClientCore
 {
+    /// <summary>
+    /// <see cref="JsonSchemaMapperConfiguration"/> for JSON schema format for structured outputs.
+    /// </summary>
+    private static readonly JsonSchemaMapperConfiguration s_jsonSchemaMapperConfiguration = new()
+    {
+        IncludeSchemaVersion = false,
+        IncludeTypeInEnums = true,
+        TreatNullObliviousAsNonNullable = true,
+        TransformSchemaNode = VSCodeJsonSchemaTransformer.Transform
+    };
     protected const string ModelProvider = "openai";
     protected record ToolCallingConfig(IList<ChatTool>? Tools, ChatToolChoice? Choice, bool AutoInvoke);
 
@@ -103,7 +114,7 @@ internal partial class VSCodeClientCore
     {
         return new Dictionary<string, object?>
         {
-            { nameof(completionUpdate.Id), completionUpdate.Id },
+            { nameof(completionUpdate.CompletionId), completionUpdate.CompletionId },
             { nameof(completionUpdate.CreatedAt), completionUpdate.CreatedAt },
             { nameof(completionUpdate.SystemFingerprint), completionUpdate.SystemFingerprint },
 
@@ -121,7 +132,7 @@ internal partial class VSCodeClientCore
     /// <param name="kernel">The <see cref="Kernel"/> containing services, plugins, and other state for use throughout the operation.</param>
     /// <param name="cancellationToken">Async cancellation token</param>
     /// <returns>Generated chat message in string format</returns>
-    internal async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(
+    internal async Task<IReadOnlyList<Microsoft.SemanticKernel.ChatMessageContent>> GetChatMessageContentsAsync(
         string targetModel,
         ChatHistory chat,
         PromptExecutionSettings? executionSettings,
@@ -353,7 +364,7 @@ internal partial class VSCodeClientCore
             IReadOnlyDictionary<string, object?>? metadata = null;
             string? streamedName = null;
             ChatMessageRole? streamedRole = default;
-            ChatFinishReason finishReason = default;
+            // ChatFinishReason finishReason = default;
             ChatToolCall[]? toolCalls = null;
             FunctionCallContent[]? functionCallContents = null;
 
@@ -364,11 +375,10 @@ internal partial class VSCodeClientCore
             {
                 // Make the request.
                 //AsyncCollectionResult<StreamingChatCompletionUpdate> response;
-                AsyncCollectionResult<LanguageModelChatCompletion> response;
+                VSCodeAsyncCollectionResult<LanguageModelChatCompletion> response;
                 try
                 {
 #pragma warning disable CS8604
-                    //response = RunRequest(() => this.Client!.GetChatClient(targetModel).CompleteChatStreamingAsync(chatForRequest, chatOptions, cancellationToken));
                     response = this._modelEndpoint.SendChatRequestStreamingAsync(chat, toolCallingConfig.Tools);
 #pragma warning restore CS8604
                 }
@@ -378,7 +388,7 @@ internal partial class VSCodeClientCore
                     throw;
                 }
 
-                var responseEnumerator = response.ConfigureAwait(false).GetAsyncEnumerator();
+                var responseEnumerator = response.GetAsyncEnumerator();
                 List<VSCodeStreamingChatMessageContent>? streamedContents = activity is not null ? [] : null;
                 try
                 {
@@ -401,11 +411,6 @@ internal partial class VSCodeClientCore
                         responseTool = chatCompletionUpdate.ResponseTool;
                         responseToolParameters = chatCompletionUpdate.ResponseToolParameters;
 
-                        //metadata = GetChatCompletionMetadata(chatCompletionUpdate);
-                        //streamedRole ??= chatCompletionUpdate.Role;
-                        //streamedName ??= update.AuthorName;
-                        //finishReason = chatCompletionUpdate.FinishReason ?? default;
-
                         // If we're intending to invoke function calls, we need to consume that function call information.
                         if (toolCallingConfig.AutoInvoke && chatCompletionUpdate.Content != null)
                         {
@@ -413,10 +418,6 @@ internal partial class VSCodeClientCore
                             {
                                 (contentBuilder ??= new()).Append(contentPart.Text);
                             }
-
-                            // contentBuilder = new StringBuilder();
-                            // contentBuilder.Append(chatCompletionUpdate.ResultText);
-                            // OpenAIFunctionToolCall.TrackStreamingToolingUpdate(chatCompletionUpdate.ToolCallUpdates, ref toolCallIdsByIndex, ref functionNamesByIndex, ref functionArgumentBuildersByIndex);
                         }
 
                         var openAIStreamingChatMessageContent = new VSCodeStreamingChatMessageContent(chatCompletionUpdate, 0, targetModel, metadata);
@@ -427,17 +428,21 @@ internal partial class VSCodeClientCore
                             {
                                 // Using the code below to distinguish and skip non - function call related updates.
                                 // The Kind property of updates can't be reliably used because it's only initialized for the first update.
-                                if (string.IsNullOrEmpty(functionCallUpdate.Id) &&
+                                if (string.IsNullOrEmpty(functionCallUpdate.ToolCallId) &&
                                     string.IsNullOrEmpty(functionCallUpdate.FunctionName) &&
-                                    string.IsNullOrEmpty(functionCallUpdate.FunctionArgumentsUpdate))
+                                    (functionCallUpdate.FunctionArgumentsUpdate is null || functionCallUpdate.FunctionArgumentsUpdate.ToMemory().IsEmpty))
                                 {
                                     continue;
                                 }
 
+                                string streamingArguments = (functionCallUpdate.FunctionArgumentsUpdate?.ToMemory().IsEmpty ?? true)
+                                    ? string.Empty
+                                    : functionCallUpdate.FunctionArgumentsUpdate.ToString();
+
                                 openAIStreamingChatMessageContent.Items.Add(new StreamingFunctionCallUpdateContent(
-                                    callId: functionCallUpdate.Id,
+                                    callId: functionCallUpdate.ToolCallId,
                                     name: functionCallUpdate.FunctionName,
-                                    arguments: functionCallUpdate.FunctionArgumentsUpdate,
+                                    arguments: streamingArguments,
                                     functionCallIndex: functionCallUpdate.Index));
                             }
                         }
@@ -463,13 +468,6 @@ internal partial class VSCodeClientCore
             // Note that we don't check the FinishReason and instead check whether there are any tool calls, as the service
             // may return a FinishReason of "stop" even if there are tool calls to be made, in particular if a required tool
             // is specified.
-            /////////////////////////////////////////////// ????
-            //if (!toolCallingConfig.AutoInvoke ||
-            //    toolCallIdsByIndex is not { Count: > 0 })
-            //{
-            //    yield break;
-            //}
-
             if (responseTool == null)
             {
                 yield break;
@@ -477,16 +475,6 @@ internal partial class VSCodeClientCore
 
             // Get any response content that was streamed.
             string content = contentBuilder?.ToString() ?? string.Empty;
-
-            // Log the requests
-            //if (this.Logger.IsEnabled(LogLevel.Trace))
-            //{
-            //    this.Logger.LogTrace("Function call requests: {Requests}", string.Join(", ", toolCalls.Select(fcr => $"{fcr.FunctionName}({fcr.FunctionName})")));
-            //}
-            //else if (this.Logger.IsEnabled(LogLevel.Debug))
-            //{
-            //    this.Logger.LogDebug("Function call requests: {Requests}", toolCalls.Length);
-            //}
 
             // Add the result message to the caller's chat history; this is required for the service to understand the tool call responses.
 #pragma warning disable 
@@ -777,7 +765,7 @@ internal partial class VSCodeClientCore
     {
         var options = new ChatCompletionOptions
         {
-            MaxTokens = executionSettings.MaxTokens,
+            MaxOutputTokenCount = executionSettings.MaxTokens,
             Temperature = (float?)executionSettings.Temperature,
             TopP = (float?)executionSettings.TopP,
             FrequencyPenalty = (float?)executionSettings.FrequencyPenalty,
@@ -840,10 +828,10 @@ internal partial class VSCodeClientCore
                 switch (formatString)
                 {
                     case "json_object":
-                        return ChatResponseFormat.JsonObject;
+                        return ChatResponseFormat.CreateJsonObjectFormat();
 
                     case "text":
-                        return ChatResponseFormat.Text;
+                        return ChatResponseFormat.CreateTextFormat();
                 }
                 break;
 
@@ -852,20 +840,40 @@ internal partial class VSCodeClientCore
                 // Handling only string formatElement.
                 if (formatElement.ValueKind == JsonValueKind.String)
                 {
-                    string formatString = formatElement.GetString() ?? "";
-                    switch (formatString)
+                    switch (formatElement.GetString())
                     {
                         case "json_object":
-                            return ChatResponseFormat.JsonObject;
+                            return ChatResponseFormat.CreateJsonObjectFormat();
 
+                        case null:
+                        case "":
                         case "text":
-                            return ChatResponseFormat.Text;
+                            return ChatResponseFormat.CreateTextFormat();
                     }
                 }
-                break;
+
+                return ChatResponseFormat.CreateJsonSchemaFormat(
+                    "JsonSchema",
+                    new BinaryData(Encoding.UTF8.GetBytes(formatElement.ToString())));
+
+            case Type formatObjectType:
+                return GetJsonSchemaResponseFormat(formatObjectType);
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Gets instance of <see cref="ChatResponseFormat"/> object for JSON schema format for structured outputs.
+    /// </summary>
+    private static ChatResponseFormat GetJsonSchemaResponseFormat(Type formatObjectType)
+    {
+        var type = formatObjectType.IsGenericType && formatObjectType.GetGenericTypeDefinition() == typeof(Nullable<>) ? Nullable.GetUnderlyingType(formatObjectType)! : formatObjectType;
+
+        var schema = KernelJsonSchemaBuilder.Build(type, configuration: s_jsonSchemaMapperConfiguration);
+        var schemaBinaryData = BinaryData.FromString(schema.ToString());
+
+        return ChatResponseFormat.CreateJsonSchemaFormat(type.Name, schemaBinaryData, jsonSchemaIsStrict: true);
     }
 
     /// <summary>Checks if a tool call is for a function that was defined.</summary>
@@ -928,7 +936,7 @@ internal partial class VSCodeClientCore
         return messages;
     }
 
-    private static List<ChatMessage> CreateRequestMessages(ChatMessageContent message, ToolCallBehavior? toolCallBehavior)
+    private static List<ChatMessage> CreateRequestMessages(Microsoft.SemanticKernel.ChatMessageContent message, ToolCallBehavior? toolCallBehavior)
     {
         if (message.Role == AuthorRole.System)
         {
@@ -983,13 +991,15 @@ internal partial class VSCodeClientCore
                 return [new UserChatMessage(textContent.Text) { ParticipantName = message.AuthorName }];
             }
 
-            return [new UserChatMessage(message.Items.Select(static (KernelContent item) => (ChatMessageContentPart)(item switch
-            {
-                TextContent textContent => ChatMessageContentPart.CreateTextMessageContentPart(textContent.Text),
-                ImageContent imageContent => GetImageContentItem(imageContent),
-                _ => throw new NotSupportedException($"Unsupported chat message content type '{item.GetType()}'.")
-            })))
-            { ParticipantName = message.AuthorName }];
+            return
+            [
+                new UserChatMessage(message.Items.Select(static (KernelContent item) => item switch
+                    {
+                        TextContent textContent => ChatMessageContentPart.CreateTextPart(textContent.Text),
+                        _ => throw new NotSupportedException($"Unsupported chat message content type '{item.GetType()}'.")
+                    }))
+                { ParticipantName = message.AuthorName }
+            ];
         }
 
         if (message.Role == AuthorRole.Assistant)
@@ -1017,7 +1027,7 @@ internal partial class VSCodeClientCore
                             name.ValueKind == JsonValueKind.String &&
                             arguments.ValueKind == JsonValueKind.String)
                         {
-                            ftcs.Add(ChatToolCall.CreateFunctionToolCall(id.GetString()!, name.GetString()!, arguments.GetString()!));
+                            ftcs.Add(ChatToolCall.CreateFunctionToolCall(id.GetString()!, name.GetString()!, BinaryData.FromString(arguments.GetString()!)));
                         }
                     }
                     tools = ftcs;
@@ -1047,7 +1057,7 @@ internal partial class VSCodeClientCore
 
                 var argument = JsonSerializer.Serialize(callRequest.Arguments);
 
-                toolCalls.Add(ChatToolCall.CreateFunctionToolCall(callRequest.Id, FunctionName.ToFullyQualifiedName(callRequest.FunctionName, callRequest.PluginName, OpenAIFunction.NameSeparator), argument ?? string.Empty));
+                toolCalls.Add(ChatToolCall.CreateFunctionToolCall(callRequest.Id, FunctionName.ToFullyQualifiedName(callRequest.FunctionName, callRequest.PluginName, OpenAIFunction.NameSeparator), BinaryData.FromString(argument ?? string.Empty)));
             }
 
             // This check is necessary to prevent an exception that will be thrown if the toolCalls collection is empty.
@@ -1057,26 +1067,32 @@ internal partial class VSCodeClientCore
                 return [new AssistantChatMessage(message.Content) { ParticipantName = message.AuthorName }];
             }
 
-            return [new AssistantChatMessage(toolCalls, message.Content) { ParticipantName = message.AuthorName }];
+            var assistantMessage = new AssistantChatMessage(toolCalls) { ParticipantName = message.AuthorName };
+
+            // If message content is null, adding it as empty string,
+            // because chat message content must be string.
+            assistantMessage.Content.Add(message.Content ?? string.Empty);
+
+            return [assistantMessage];
         }
 
         throw new NotSupportedException($"Role {message.Role} is not supported.");
     }
 
-    private static ChatMessageContentPart GetImageContentItem(ImageContent imageContent)
-    {
-        if (imageContent.Data is { IsEmpty: false } data)
-        {
-            return ChatMessageContentPart.CreateImageMessageContentPart(BinaryData.FromBytes(data), imageContent.MimeType);
-        }
+    // private static ChatMessageContentPart GetImageContentItem(ImageContent imageContent)
+    // {
+    //     if (imageContent.Data is { IsEmpty: false } data)
+    //     {
+    //         return ChatMessageContentPart.CreateImageMessageContentPart(BinaryData.FromBytes(data), imageContent.MimeType);
+    //     }
 
-        if (imageContent.Uri is not null)
-        {
-            return ChatMessageContentPart.CreateImageMessageContentPart(imageContent.Uri);
-        }
+    //     if (imageContent.Uri is not null)
+    //     {
+    //         return ChatMessageContentPart.CreateImageMessageContentPart(imageContent.Uri);
+    //     }
 
-        throw new ArgumentException($"{nameof(ImageContent)} must have either Data or a Uri.");
-    }
+    //     throw new ArgumentException($"{nameof(ImageContent)} must have either Data or a Uri.");
+    // }
 
     private VSCodeChatMessageContent CreateChatMessageContent(LanguageModelChatCompletion completion, string targetModel)
     {
@@ -1174,7 +1190,7 @@ internal partial class VSCodeClientCore
         result ??= errorMessage ?? string.Empty;
 
         // Add the tool response message to the chat history.
-        var message = new ChatMessageContent(role: AuthorRole.Tool, content: result, metadata: new Dictionary<string, object?> { { VSCodeChatMessageContent.ToolIdProperty, toolCall.FunctionName } });
+        var message = new Microsoft.SemanticKernel.ChatMessageContent(role: AuthorRole.Tool, content: result, metadata: new Dictionary<string, object?> { { VSCodeChatMessageContent.ToolIdProperty, toolCall.FunctionName } });
 
         //if (toolCall.Kind == ChatToolCallKind.Function)
         //{
@@ -1199,7 +1215,7 @@ internal partial class VSCodeClientCore
         result ??= errorMessage ?? string.Empty;
 
         // Add the tool response message to the chat history.
-        var message = new ChatMessageContent(role: AuthorRole.Tool, content: result, metadata: new Dictionary<string, object?> { { VSCodeChatMessageContent.ToolIdProperty, toolCall.Id } });
+        var message = new Microsoft.SemanticKernel.ChatMessageContent(role: AuthorRole.Tool, content: result, metadata: new Dictionary<string, object?> { { VSCodeChatMessageContent.ToolIdProperty, toolCall.Id } });
 
         if (toolCall.Kind == ChatToolCallKind.Function)
         {
@@ -1235,13 +1251,13 @@ internal partial class VSCodeClientCore
         if (this.Logger!.IsEnabled(LogLevel.Information))
         {
             this.Logger.LogInformation(
-                "Prompt tokens: {InputTokens}. Completion tokens: {OutputTokens}. Total tokens: {TotalTokens}.",
-                usage.InputTokens, usage.OutputTokens, usage.TotalTokens);
+                "Prompt tokens: {InputTokenCount}. Completion tokens: {OutputTokenCount}. Total tokens: {TotalTokenCount}.",
+                usage.InputTokenCount, usage.OutputTokenCount, usage.TotalTokenCount);
         }
 
-        s_promptTokensCounter.Add(usage.InputTokens);
-        s_completionTokensCounter.Add(usage.OutputTokens);
-        s_totalTokensCounter.Add(usage.TotalTokens);
+        s_promptTokensCounter.Add(usage.InputTokenCount);
+        s_completionTokensCounter.Add(usage.OutputTokenCount);
+        s_totalTokensCounter.Add(usage.TotalTokenCount);
     }
 
     /// <summary>
@@ -1259,7 +1275,7 @@ internal partial class VSCodeClientCore
 
         // This is an optimization to use ChatMessageContent content directly  
         // without unnecessary serialization of the whole message content class.  
-        if (functionResult is ChatMessageContent chatMessageContent)
+        if (functionResult is Microsoft.SemanticKernel.ChatMessageContent chatMessageContent)
         {
             return chatMessageContent.ToString();
         }
@@ -1326,7 +1342,7 @@ internal partial class VSCodeClientCore
                 this.Logger.LogDebug("Maximum use ({MaximumUse}) reached; removing the tool.", executionSettings.ToolCallBehavior!.MaximumUseAttempts);
             }
 
-            return new ToolCallingConfig(Tools: [s_nonInvocableFunctionTool], Choice: ChatToolChoice.None, AutoInvoke: false);
+            return new ToolCallingConfig(Tools: [s_nonInvocableFunctionTool], Choice: ChatToolChoice.CreateNoneChoice(), AutoInvoke: false);
         }
 
         var (tools, choice) = executionSettings.ToolCallBehavior.ConfigureOptions(kernel);
@@ -1347,7 +1363,7 @@ internal partial class VSCodeClientCore
 
         return new ToolCallingConfig(
             Tools: tools ?? [s_nonInvocableFunctionTool],
-            Choice: choice ?? ChatToolChoice.None,
+            Choice: choice ?? ChatToolChoice.CreateNoneChoice(),
             AutoInvoke: autoInvoke);
     }
 }

@@ -5,7 +5,6 @@
 
 #nullable disable
 
-using System.ClientModel;
 using System.Collections.Generic;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SqlTools.Connectors.VSCode;
@@ -23,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             };
         }
 
-        public AsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(
+        public VSCodeAsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(
             ChatHistory chatHistory, 
             IList<ChatTool> tools)
         {

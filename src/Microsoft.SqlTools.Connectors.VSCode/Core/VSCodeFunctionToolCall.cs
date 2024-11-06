@@ -24,7 +24,7 @@ public sealed class VSCodeFunctionToolCall
 
         string fullyQualifiedFunctionName = functionToolCall.FunctionName;
         string functionName = fullyQualifiedFunctionName;
-        string? arguments = functionToolCall.FunctionArguments;
+        string? arguments = functionToolCall.FunctionArguments?.ToString();
         string? pluginName = null;
 
         int separatorPos = fullyQualifiedFunctionName.IndexOf(OpenAIFunction.NameSeparator, StringComparison.Ordinal);
@@ -138,7 +138,7 @@ public sealed class VSCodeFunctionToolCall
         {
             // If we have an ID, ensure the index is being tracked. Even if it's not a function update,
             // we want to keep track of it so we can send back an error.
-            if (update.Id is string id)
+            if (update.ToolCallId is string id)
             {
                 (toolCallIdsByIndex ??= [])[update.Index] = id;
             }
@@ -150,14 +150,14 @@ public sealed class VSCodeFunctionToolCall
             }
 
             // Ensure we're tracking the function's arguments.
-            if (update.FunctionArgumentsUpdate is string argumentsUpdate)
+            if (update.FunctionArgumentsUpdate is not null && !update.FunctionArgumentsUpdate.ToMemory().IsEmpty)
             {
                 if (!(functionArgumentBuildersByIndex ??= []).TryGetValue(update.Index, out StringBuilder? arguments))
                 {
                     functionArgumentBuildersByIndex[update.Index] = arguments = new();
                 }
 
-                arguments.Append(argumentsUpdate);
+                arguments.Append(update.FunctionArgumentsUpdate.ToString());
             }
         }
     }
@@ -187,7 +187,7 @@ public sealed class VSCodeFunctionToolCall
                 functionNamesByIndex?.TryGetValue(toolCallIndexAndId.Key, out functionName);
                 functionArgumentBuildersByIndex?.TryGetValue(toolCallIndexAndId.Key, out functionArguments);
 
-                toolCalls[i] = ChatToolCall.CreateFunctionToolCall(toolCallIndexAndId.Value, functionName ?? string.Empty, functionArguments?.ToString() ?? string.Empty);
+                toolCalls[i] = ChatToolCall.CreateFunctionToolCall(toolCallIndexAndId.Value, functionName ?? string.Empty, BinaryData.FromString(functionArguments?.ToString() ?? string.Empty));
                 i++;
             }
 

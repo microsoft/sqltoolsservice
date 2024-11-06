@@ -70,11 +70,11 @@ public sealed class OpenAIFunction
     /// This is an optimization to avoid serializing the same JSON Schema over and over again
     /// for this relatively common case.
     /// </remarks>
-    private static readonly BinaryData s_zeroFunctionParametersSchema = new("""{"type":"object","required":[],"properties":{}}""");
+    private static readonly BinaryData s_zeroFunctionParametersSchema = new(/*lang=json,strict*/ """{"type":"object","required":[],"properties":{}}""");
     /// <summary>
     /// Cached schema for a descriptionless string.
     /// </summary>
-    private static readonly KernelJsonSchema s_stringNoDescriptionSchema = KernelJsonSchema.Parse("""{"type":"string"}""");
+    private static readonly KernelJsonSchema s_stringNoDescriptionSchema = KernelJsonSchema.Parse(/*lang=json,strict*/"""{"type":"string"}""");
 
     /// <summary>Initializes the OpenAIFunction.</summary>
     internal OpenAIFunction(
@@ -169,7 +169,7 @@ public sealed class OpenAIFunction
         // If there's a description, incorporate it.
         if (!string.IsNullOrWhiteSpace(description))
         {
-            return KernelJsonSchemaBuilder.Build(null, typeof(string), description);
+            return KernelJsonSchemaBuilder.Build(typeof(string), description);
         }
 
         // Otherwise, we can use a cached schema for a string with no description.
