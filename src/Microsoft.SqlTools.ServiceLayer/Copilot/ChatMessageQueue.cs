@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 
@@ -25,23 +27,147 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public AutoResetEvent RequestCompleteEvent { get; set; }
     }
 
+    public enum RequestMessageType
+    {
+        StartConversation,
+        ToolCallRequest,
+        Response
+    }
+
+    public record ChatMessage(
+        RequestMessageType Type,
+        string ConversationUri,
+        IList<LanguageModelRequestMessage> Messages,
+        IList<LanguageModelChatTool> Tools,
+        AutoResetEvent ResponseReadyEvent,
+        CopilotConversation Conversation
+    );
+
     public class ChatMessageQueue
     {
-        private readonly AutoResetEvent _requestEvent = new(false);
-        private readonly Queue<LLMRequest> _requestQueue = new();
-        private LLMRequest _pendingRequest;
-        private readonly ConcurrentDictionary<string, CopilotConversation> _conversations;
-        private readonly ConcurrentDictionary<string, HashSet<string>> _toolCallCache = new();
+        private readonly AutoResetEvent requestEvent = new(false);
+        private readonly Queue<LLMRequest> requestQueue = new();
+        //private LLMRequest pendingRequest;
+        private readonly ConcurrentDictionary<string, CopilotConversation> conversations;
+        private readonly ConcurrentDictionary<string, HashSet<string>> toolCallCache = new();
         private string CreateToolCallKey(string toolName, string parameters) => 
             $"{toolName}:{parameters}";
 
+
+        private readonly Channel<ChatMessage> messageChannel = Channel.CreateUnbounded<ChatMessage>();
+
+
         public ChatMessageQueue(ConcurrentDictionary<string, CopilotConversation> conversations)
         {
-            _conversations = conversations;
+            this.conversations = conversations;
         }
 
         // Expose this for WaitAny
-        public AutoResetEvent RequestEvent => _requestEvent;
+        public AutoResetEvent RequestEvent => requestEvent;
+
+
+        public async Task EnqueueMessageAsync(ChatMessage message)
+        {
+            await messageChannel.Writer.WriteAsync(message);
+
+            var request = new LLMRequest
+            {
+                ConversationUri = message.ConversationUri,
+                Messages = message.Messages,
+                Tools = message.Tools,
+                RequestCompleteEvent = message.ResponseReadyEvent
+            };
+
+            requestQueue.Enqueue(request);
+            requestEvent.Set();
+        }
+
+        public GetNextMessageResponse ProcessNextMessage(
+            string conversationUri,
+            string userText,
+            LanguageModelChatTool tool,
+            string toolParameters)
+        {
+            
+            if (tool != null && HandleToolCallMessage(conversationUri, tool, toolParameters, out var response))
+            {
+                return response;
+            }
+
+            // Handle conversation message
+            string responseText = string.Empty;
+            if (conversations.TryGetValue(conversationUri, out var conversation))
+            {
+                responseText = conversation.CurrentMessage;
+            }
+
+            ConversationState state = conversation.State;
+        
+            // Handle tool response or user text
+            if (tool != null && state != null)
+            {
+                NotifyToolCallRequest(tool, toolParameters, state);
+            }
+            else if (!string.IsNullOrEmpty(userText) && state != null)
+            {
+                NotifyUserTextRequest(userText, state);
+            }
+
+            // Wait on all events
+            int eventIdx = WaitForMessage();
+
+            // Handle new LLM request
+            if (IsLanguageModelRequestMessage(eventIdx))
+            {
+                var nextRequest = requestQueue.Dequeue();
+                conversation.State = new ConversationState
+                {
+                    RequestCompleteEvent = nextRequest.RequestCompleteEvent,
+                    Response = nextRequest.Messages.Last().Text,
+                };
+                return new GetNextMessageResponse
+                {
+                    MessageType = MessageType.RequestLLM,
+                    ResponseText = nextRequest.Messages.Last().Text,
+                    Tools = nextRequest.Tools.ToArray(),
+                    RequestMessages = nextRequest.Messages.ToArray()
+                };        
+            }
+
+            
+
+            return new GetNextMessageResponse
+            {
+                MessageType = MessageType.MessageComplete,
+                ResponseText = responseText
+            };
+        }
+
+        // public async Task StartProcessingAsync()
+        // {
+        //     await foreach (var message in messageChannel.Reader.ReadAllAsync())
+        //     {
+        //         await ProcessMessageAsync(message);  // Process each message as it arrives
+        //     }
+        // }
+
+        // private async Task ProcessMessageAsync(ChatMessage message)
+        // {
+        //     switch (message.Type)
+        //     {
+        //         // case MessageType.StartConversation:
+        //         //     await HandleStartConversationAsync(message);
+        //         //     break;
+                
+        //         case RequestMessageType.ToolCallRequest:
+        //             await HandleToolCallRequestAsync(message);
+        //             break;
+
+        //         // case MessageType.Response:
+        //         //     SetResponse(message.ConversationId, message.Response);
+        //         //     break;
+        //     }
+        // }
 
         public LLMRequest EnqueueRequest(
             string conversationUri,
@@ -57,92 +183,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 RequestCompleteEvent = responseReadyEvent
             };
 
-            _requestQueue.Enqueue(request);
-            _requestEvent.Set();
+            requestQueue.Enqueue(request);
+            requestEvent.Set();
             return request;
         }
 
-        public GetNextMessageResponse ProcessNextMessage(
-            string conversationUri,
-            string userText,
-            LanguageModelChatTool tool,
-            string toolParameters)
+        private bool HandleToolCallMessage(string conversationUri, LanguageModelChatTool tool, string toolParameters, out GetNextMessageResponse response)
         {
-            if (tool != null)
-            {
-                var callKey = CreateToolCallKey(tool.FunctionName, toolParameters);
-                var conversationCache = _toolCallCache.GetOrAdd(
-                    conversationUri, 
-                    _ => new HashSet<string>());
+            response = null;
+            var callKey = CreateToolCallKey(tool.FunctionName, toolParameters);
+            var conversationCache = toolCallCache.GetOrAdd(
+                conversationUri, 
+                _ => new HashSet<string>());
 
-                // If we've seen this exact call before, ignore it
-                if (!conversationCache.Add(callKey))
+            if (!conversationCache.Add(callKey))
+            {
+                SqlCopilotTrace.WriteInfoEvent(
+                    SqlCopilotTraceEvents.KernelFunctionCall,
+                    $"Skipping repeated tool call: {callKey}");
+                
+                response = new GetNextMessageResponse
                 {
-                    SqlCopilotTrace.WriteInfoEvent(
-                        SqlCopilotTraceEvents.KernelFunctionCall,
-                        $"Skipping repeated tool call: {callKey}");
-                    return new GetNextMessageResponse
-                    {
-                        MessageType = MessageType.MessageComplete,
-                        ResponseText = string.Empty
-                    };
-                }
+                    MessageType = MessageType.MessageComplete,
+                    ResponseText = string.Empty
+                };
+                
+                return true; // Indicate that processing should stop
             }
 
-            // Handle tool response or user text
-            if (tool != null && _pendingRequest != null)
-            {
-                _pendingRequest.ResponseTool = tool;
-                _pendingRequest.ResponseToolParameters = toolParameters;
-                _pendingRequest.RequestCompleteEvent.Set();
-                _pendingRequest = null;
-            }
-            else if (!string.IsNullOrEmpty(userText) && _pendingRequest != null)
-            {
-                _pendingRequest.Response = userText;
-                _pendingRequest.RequestCompleteEvent.Set();
-                _pendingRequest = null;
-            }
+            return false; // Indicate that processing should continue
+        }
 
-            // Wait on all events
-            var events = new AutoResetEvent[_conversations.Count + 1];
-            events[_conversations.Count] = _requestEvent;
+        private void NotifyToolCallRequest(LanguageModelChatTool tool, string toolParameters, ConversationState state)
+        {
+            state.ResponseTool = tool;
+            state.ResponseToolParameters = toolParameters;
+            state.RequestCompleteEvent.Set();
+        }
+
+        private void NotifyUserTextRequest(string userText, ConversationState state)
+        {
+            state.Response = userText;
+            state.RequestCompleteEvent.Set();
+        }
+
+        private int WaitForMessage()
+        {
+            var events = new AutoResetEvent[conversations.Count + 1];
+            events[conversations.Count] = requestEvent;
             int i = 0;
-            foreach (var c in _conversations)
+            foreach (var c in conversations)
             {
                 events[i++] = c.Value.MessageCompleteEvent;
             }
 
-            int eventIdx = WaitHandle.WaitAny(events);
-
-            // Handle new LLM request
-            if (eventIdx == _conversations.Count && _requestQueue.Count > 0)
-            {
-                _pendingRequest = _requestQueue.Dequeue();
-                return new GetNextMessageResponse
-                {
-                    MessageType = MessageType.RequestLLM,
-                    ResponseText = _pendingRequest.Messages.Last().Text,
-                    Tools = _pendingRequest.Tools.ToArray(),
-                    RequestMessages = _pendingRequest.Messages.ToArray()
-                };
-            }
-
-            // Handle conversation message
-            if (_conversations.TryGetValue(conversationUri, out var conversation))
-            {
-                return new GetNextMessageResponse
-                {
-                    MessageType = MessageType.MessageComplete,
-                    ResponseText = conversation.CurrentMessage
-                };
-            }
-
-            return new GetNextMessageResponse
-            {
-                MessageType = MessageType.MessageComplete,
-                ResponseText = string.Empty
-            };
+            return WaitHandle.WaitAny(events);
         }
+
+        private bool IsLanguageModelRequestMessage(int eventIdx) =>
+            eventIdx == conversations.Count && requestQueue.Count > 0;
     }
 }

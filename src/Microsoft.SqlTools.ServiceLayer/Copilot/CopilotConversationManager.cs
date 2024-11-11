@@ -25,6 +25,15 @@ using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
+
+    public class ConversationState
+    {
+        public string Response { get; set; }
+        public LanguageModelChatTool ResponseTool { get; set; }
+        public string ResponseToolParameters { get; set; }
+        public AutoResetEvent RequestCompleteEvent { get; set; }
+    }
+
     public class CopilotConversation
     {
         public string ConversationUri { get; set; }
@@ -34,13 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public SqlConnection SqlConnection { get; set; }
 
         public AutoResetEvent MessageCompleteEvent { get; set; }
+
+        public ConversationState State { get; set; }
     }
 
     public class CopilotConversationManager
     {
         private static StringBuilder responseHistory = new StringBuilder();
-        private static ConcurrentDictionary<string, CancellationTokenSource> _activeConversations = new ConcurrentDictionary<string, CancellationTokenSource>();
-
+        private static ConcurrentDictionary<string, CancellationTokenSource> activeConversations = new ConcurrentDictionary<string, CancellationTokenSource>();
         private readonly ConcurrentDictionary<string, CopilotConversation> conversations = new();
         private readonly ChatMessageQueue messageQueue;
         private readonly Dictionary<string, SqlToolsRpcClient> rpcClients = new();
@@ -50,21 +60,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private ChatHistory chatHistory;
         private static VSCodePromptExecutionSettings openAIPromptExecutionSettings;
 
-
         public CopilotConversationManager()
         {
             messageQueue = new ChatMessageQueue(conversations);
             InitializeTraceSource();
         }
 
-        public LLMRequest RequestLLM(
+        public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
+        {
+            // Get DB connection
+            DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(
+                connectionUri, ConnectionType.Default);
+
+            if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
+                return false;
+
+            // Create and initialize conversation
+            var conversation = new CopilotConversation
+            {
+                ConversationUri = conversationUri,
+                SqlConnection = sqlConnection,
+                CurrentMessage = string.Empty,
+                MessageCompleteEvent = new AutoResetEvent(false)
+            };
+
+            InitConversation(conversation);
+            conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
+
+            // Start processing in background
+            _ = Task.Run(async () =>
+                await SendUserPromptStreamingAsync(userText, conversationUri));
+
+            return true;
+        }
+
+        public async Task<ChatMessage> QueueLLMRequest(
             string conversationUri,
             IList<LanguageModelRequestMessage> messages,
             IList<LanguageModelChatTool> tools,
             AutoResetEvent responseReadyEvent)
         {
-            return messageQueue.EnqueueRequest(
-                conversationUri, messages, tools, responseReadyEvent);
+            conversations.TryGetValue(conversationUri, out var conversation);
+            var chatRequest = new ChatMessage(RequestMessageType.ToolCallRequest, conversationUri, messages, tools, responseReadyEvent, conversation);
+            await messageQueue.EnqueueMessageAsync(chatRequest);
+            return chatRequest;
         }
 
         public GetNextMessageResponse GetNextMessage(
@@ -124,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 };
 
                 var builder = Kernel.CreateBuilder();
-                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint());
+                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation));
 
                 userSessionKernel = builder.Build();
                 activitySource.StartActivity("Main");
@@ -189,34 +228,6 @@ GENERAL REQUIREMENTS:
             }
         }
 
-        public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
-        {
-            // Get DB connection
-            DbConnection dbConnection = await ConnectionService.Instance.GetOrOpenConnection(
-                connectionUri, ConnectionType.Default);
-
-            if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
-                return false;
-
-            // Create and initialize conversation
-            var conversation = new CopilotConversation
-            {
-                ConversationUri = conversationUri,
-                SqlConnection = sqlConnection,
-                CurrentMessage = string.Empty,
-                MessageCompleteEvent = new AutoResetEvent(false)
-            };
-
-            InitConversation(conversation);
-            conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
-
-            // Start processing in background
-            _ = Task.Run(async () =>
-                await SendUserPromptStreamingAsync(userText, conversationUri));
-
-            return true;
-        }
-
         /// <summary>
         /// Event handler for the chat response received event from the SqlCopilotClient.
         /// This is then forwarded onto the SSMS specific events.  This is so in case the SQL 
@@ -246,7 +257,7 @@ GENERAL REQUIREMENTS:
             }
         }
 
-        public async Task<RpcResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
+        private async Task<RpcResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
         {
             if (chatHistory == null)
             {
@@ -276,7 +287,7 @@ GENERAL REQUIREMENTS:
             // track this exchange and its cancellation token
             SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Tracking exchange {chatExchangeId}.");
             var cts = new CancellationTokenSource();
-            _activeConversations.TryAdd(chatExchangeId, cts);
+            activeConversations.TryAdd(chatExchangeId, cts);
 
             // notify client of ID for this exchange
             await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeStartedAsync", chatExchangeId);
@@ -344,7 +355,7 @@ GENERAL REQUIREMENTS:
 
                 // remove this exchange ID from the active conversations
                 SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Removing exchange {chatExchangeId} from active conversations.");
-                _activeConversations.Remove(chatExchangeId, out cts);
+                activeConversations.Remove(chatExchangeId, out cts);
             }
 
             return promptResponse;

@@ -374,12 +374,11 @@ internal partial class VSCodeClientCore
             using (var activity = this.StartCompletionActivity(chat, chatExecutionSettings))
             {
                 // Make the request.
-                //AsyncCollectionResult<StreamingChatCompletionUpdate> response;
                 VSCodeAsyncCollectionResult<LanguageModelChatCompletion> response;
                 try
                 {
 #pragma warning disable CS8604
-                    response = this._modelEndpoint.SendChatRequestStreamingAsync(chat, toolCallingConfig.Tools);
+                    response = await this._modelEndpoint.SendChatRequestStreamingAsync(chat, toolCallingConfig.Tools);
 #pragma warning restore CS8604
                 }
                 catch (Exception ex) when (activity is not null)

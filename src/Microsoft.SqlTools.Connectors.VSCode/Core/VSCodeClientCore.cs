@@ -90,7 +90,7 @@ public interface ILanguageModelEndpoint
     /// <param name="chatHistory"></param>
     /// <param name="tools"></param>
     /// <returns></returns>
-    VSCodeAsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(ChatHistory chatHistory, IList<ChatTool> tools);
+    Task<VSCodeAsyncCollectionResult<LanguageModelChatCompletion>> SendChatRequestStreamingAsync(ChatHistory chatHistory, IList<ChatTool> tools);
 }
 
 /// <summary>

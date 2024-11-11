@@ -6,6 +6,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SqlTools.Connectors.VSCode;
 using OpenAI.Chat;
@@ -14,6 +15,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
     internal class VSCodeLanguageModelEndpoint : ILanguageModelEndpoint
     {
+        private CopilotConversation conversation;
+
+        public VSCodeLanguageModelEndpoint(CopilotConversation conversation)
+        {
+            this.conversation = conversation;
+        }
+    
         public LanguageModelChatCompletion SendChatRequest(ChatHistory chatHistory, IList<ChatTool> tools)
         {
             return new LanguageModelChatCompletion
@@ -22,11 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             };
         }
 
-        public VSCodeAsyncCollectionResult<LanguageModelChatCompletion> SendChatRequestStreamingAsync(
+        public async Task<VSCodeAsyncCollectionResult<LanguageModelChatCompletion>> SendChatRequestStreamingAsync(
             ChatHistory chatHistory, 
             IList<ChatTool> tools)
         {
-            return new VSCodeAsyncChatCompletionCollection(chatHistory, tools);
+            return await VSCodeAsyncChatCompletionCollection.CreateAsync(conversation, chatHistory, tools);
         }
     }
 }

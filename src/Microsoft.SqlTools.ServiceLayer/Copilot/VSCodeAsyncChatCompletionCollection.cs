@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,25 +22,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
     public class VSCodeAsyncChatCompletionCollection : VSCodeAsyncCollectionResult<LanguageModelChatCompletion>
     {
-        private readonly IList<LanguageModelRequestMessage> _messages;
-        private readonly IList<LanguageModelChatTool> _tools;
-        private readonly IList<ChatTool> _copilotTools;
-        private readonly LLMRequest _request;
+        private readonly IList<LanguageModelRequestMessage> messages;
+        private readonly IList<LanguageModelChatTool> tools;
+        private readonly IList<ChatTool> copilotTools;
+        private readonly CopilotConversation conversation;
+        private ChatMessage request;
 
-        public VSCodeAsyncChatCompletionCollection(
+        private VSCodeAsyncChatCompletionCollection(
+            CopilotConversation conversation,
             ChatHistory chat,
             IList<ChatTool> tools)
         {
             Debug.Assert(chat is not null);
             Debug.Assert(tools is not null);
 
-            _copilotTools = tools;
-            _messages = FromChatMessages(chat);
-            _tools = FromChatTools(tools);
+            this.copilotTools = tools;
+            this.conversation = conversation;
+            this.messages = FromChatMessages(chat);
+            this.tools = FromChatTools(tools);
+        }
 
-            // Create the request with an AutoResetEvent
-            _request = CopilotService.Instance.ConversationManager.RequestLLM(
-                "uri", _messages, _tools, new AutoResetEvent(false));
+        private async Task InitializeAsync()
+        {
+            // Queue the request asynchronously via the channel in ChatMessageQueue
+            request = await CopilotService.Instance.ConversationManager.QueueLLMRequest(
+                this.conversation.ConversationUri, messages, tools, new AutoResetEvent(false));
+        }
+
+        public static async Task<VSCodeAsyncChatCompletionCollection> CreateAsync(
+            CopilotConversation conversation,
+            ChatHistory chat,
+            IList<ChatTool> tools)
+        {
+            var collection = new VSCodeAsyncChatCompletionCollection(conversation, chat, tools);
+            await collection.InitializeAsync();
+            return collection;
         }
 
         private static IList<LanguageModelChatTool> FromChatTools(IList<ChatTool> tools)
@@ -100,22 +118,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public IAsyncEnumerator<LanguageModelChatCompletion> GetAsyncEnumerator(
             CancellationToken cancellationToken = default)
         {
-            return new AsyncStreamingChatUpdateEnumerator(_request, _copilotTools);
+            return new AsyncStreamingChatUpdateEnumerator(request, copilotTools);
         }
 
         private sealed class AsyncStreamingChatUpdateEnumerator : IAsyncEnumerator<LanguageModelChatCompletion>
         {
-            private readonly LLMRequest _request;
-            private readonly IList<ChatTool> _tools;
-            private LanguageModelChatCompletion? _current;
+            private readonly ChatMessage request;
+            private readonly IList<ChatTool> tools;
+            private LanguageModelChatCompletion _current;
             private bool _processed;
 
             public AsyncStreamingChatUpdateEnumerator(
-                LLMRequest request,
+                ChatMessage request,
                 IList<ChatTool> tools)
             {
-                _request = request;
-                _tools = tools;
+                this.request = request;
+                this.tools = tools;
             }
 
             public LanguageModelChatCompletion Current => _current!;
@@ -125,12 +143,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 if (_processed)
                     return false;
 
-                await Task.Run(_request.RequestCompleteEvent.WaitOne).ConfigureAwait(false);
+                await Task.Run(request.ResponseReadyEvent.WaitOne).ConfigureAwait(false);
 
                 _current = CreateCompletion(
-                    _request.Response,
-                    _request.ResponseTool,
-                    _request.ResponseToolParameters);
+                    request.Conversation.State.Response,
+                    request.Conversation.State.ResponseTool,
+                    request.Conversation.State.ResponseToolParameters);
 
                 _processed = true;
                 return true;
@@ -138,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
             private LanguageModelChatCompletion CreateCompletion(
                 string response,
-                LanguageModelChatTool? responseTool,
+                LanguageModelChatTool responseTool,
                 string? toolParameters)
             {
                 var completion = new LanguageModelChatCompletion
@@ -151,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 if (responseTool != null)
                 {
-                    completion.ResponseTool = _tools.First(t =>
+                    completion.ResponseTool = tools.First(t =>
                         t.FunctionName == responseTool.FunctionName);
                     completion.ResponseToolParameters = toolParameters;
                 }
