@@ -201,7 +201,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             _sqlConnection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-
         public async Task<string> ExecuteSqlQueryAsync(string query, bool execSP, params object[] parameters)
         {
             if (_sqlConnection != null && _sqlConnection.State == ConnectionState.Open)

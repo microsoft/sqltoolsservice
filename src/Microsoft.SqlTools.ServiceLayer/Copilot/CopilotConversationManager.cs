@@ -31,20 +31,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public string Response { get; set; }
         public LanguageModelChatTool ResponseTool { get; set; }
         public string ResponseToolParameters { get; set; }
-        public AutoResetEvent RequestCompleteEvent { get; set; }
     }
 
     public class CopilotConversation
     {
         public string ConversationUri { get; set; }
-
         public string CurrentMessage { get; set; }
-
         public SqlConnection SqlConnection { get; set; }
-
-        public AutoResetEvent MessageCompleteEvent { get; set; }
-
         public ConversationState State { get; set; }
+        public TaskCompletionSource<ConversationState> CompletionSource { get; set; } = new TaskCompletionSource<ConversationState>();
     }
 
     public class CopilotConversationManager
@@ -81,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 ConversationUri = conversationUri,
                 SqlConnection = sqlConnection,
                 CurrentMessage = string.Empty,
-                MessageCompleteEvent = new AutoResetEvent(false)
             };
 
             InitConversation(conversation);
@@ -97,22 +91,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public async Task<ChatMessage> QueueLLMRequest(
             string conversationUri,
             IList<LanguageModelRequestMessage> messages,
-            IList<LanguageModelChatTool> tools,
-            AutoResetEvent responseReadyEvent)
+            IList<LanguageModelChatTool> tools)
         {
             conversations.TryGetValue(conversationUri, out var conversation);
-            var chatRequest = new ChatMessage(RequestMessageType.ToolCallRequest, conversationUri, messages, tools, responseReadyEvent, conversation);
+            var chatRequest = new ChatMessage(RequestMessageType.ToolCallRequest, conversationUri, messages, tools, conversation);
             await messageQueue.EnqueueMessageAsync(chatRequest);
             return chatRequest;
         }
 
-        public GetNextMessageResponse GetNextMessage(
+        public async Task<GetNextMessageResponse> GetNextMessage(
             string conversationUri,
             string userText,
             LanguageModelChatTool tool,
             string toolParameters)
         {
-            return messageQueue.ProcessNextMessage(
+            return await messageQueue.ProcessNextMessage(
                 conversationUri, userText, tool, toolParameters);
         }
 
@@ -207,7 +200,7 @@ GENERAL REQUIREMENTS:
                     $"Configuration information for currently connected database: {currentDbConfig}");
 
                 // Wire up response handler events
-                responseHandler.OnChatResponse += (e) =>
+                responseHandler.OnChatResponse += async (e) =>
                 {
                     switch (e.UpdateType)
                     {
@@ -215,7 +208,8 @@ GENERAL REQUIREMENTS:
                             e.Conversation.CurrentMessage += e.PartialResponse;
                             break;
                         case ResponseUpdateType.Completed:
-                            e.Conversation.MessageCompleteEvent.Set();
+                            await messageQueue.EnqueueMessageAsync(new ChatMessage(
+                                RequestMessageType.Response, conversation.ConversationUri, null, null, conversation));
                             break;
                     }
                 };
@@ -235,7 +229,7 @@ GENERAL REQUIREMENTS:
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnChatResponse(object sender, ChatResponseEventArgs e)
+        private async Task OnChatResponse(object sender, ChatResponseEventArgs e)
         {
             ChatResponseEventArgs chatResponseArgs = new ChatResponseEventArgs();
             // forward the event onto the SSMS specific events the UI subscribes to
@@ -246,7 +240,8 @@ GENERAL REQUIREMENTS:
                     break;
 
                 case ResponseUpdateType.Completed:
-                    e.Conversation.MessageCompleteEvent.Set();
+                    await messageQueue.EnqueueMessageAsync(new ChatMessage(
+                                RequestMessageType.Response, e.Conversation.ConversationUri, null, null, e.Conversation));
                     break;
 
                 case ResponseUpdateType.Started:
@@ -429,6 +424,9 @@ GENERAL REQUIREMENTS:
         /// </summary>
         public string PartialResponse { get; set; }
 
+        /// <summary>
+        /// the conversation this response is for
+        /// </summary>
         public CopilotConversation Conversation { get; set; }
     }
 }

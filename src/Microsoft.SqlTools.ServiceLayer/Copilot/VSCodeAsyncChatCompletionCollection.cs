@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         {
             // Queue the request asynchronously via the channel in ChatMessageQueue
             request = await CopilotService.Instance.ConversationManager.QueueLLMRequest(
-                this.conversation.ConversationUri, messages, tools, new AutoResetEvent(false));
+                this.conversation.ConversationUri, messages, tools);
         }
 
         public static async Task<VSCodeAsyncChatCompletionCollection> CreateAsync(
@@ -143,12 +143,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 if (_processed)
                     return false;
 
-                await Task.Run(request.ResponseReadyEvent.WaitOne).ConfigureAwait(false);
+                ConversationState state = await request.Conversation.CompletionSource.Task.ConfigureAwait(false);
+                request.Conversation.CompletionSource = new TaskCompletionSource<ConversationState>();
 
                 _current = CreateCompletion(
-                    request.Conversation.State.Response,
-                    request.Conversation.State.ResponseTool,
-                    request.Conversation.State.ResponseToolParameters);
+                    state.Response,
+                    state.ResponseTool,
+                    state.ResponseToolParameters);
 
                 _processed = true;
                 return true;

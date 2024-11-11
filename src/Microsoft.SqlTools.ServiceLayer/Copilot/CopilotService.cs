@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         {          
             return this.HandleRequest<GetNextMessageResponse>(requestContext, async () =>
             {
-                GetNextMessageResponse response = this.copilotConversationManager.GetNextMessage(
+                GetNextMessageResponse response = await this.copilotConversationManager.GetNextMessage(
                     requestParams.ConversationUri, 
                     requestParams.UserText,
                     requestParams.Tool,
