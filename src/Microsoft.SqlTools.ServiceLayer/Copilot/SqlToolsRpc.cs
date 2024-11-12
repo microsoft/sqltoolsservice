@@ -12,6 +12,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using Microsoft.SqlServer.SqlCopilot.Cartridges;
 using System.Collections.Generic;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -113,9 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             }
             catch (Exception ex)
             {
-                SqlCopilotTrace.WriteErrorEvent(
-                    SqlCopilotTraceEvents.RpcCallFailed,
-                    $"RPC call failed: {ex.Message}");
+                Logger.Error($"RPC call failed: {ex.Message}");
                 throw;
             }
         }

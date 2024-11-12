@@ -10,8 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -112,9 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
             if (!conversationCache.Add(callKey))
             {
-                SqlCopilotTrace.WriteInfoEvent(
-                    SqlCopilotTraceEvents.KernelFunctionCall,
-                    $"Skipping repeated tool call: {callKey}");
+                Logger.Verbose($"Skipping repeated tool call: {callKey}");
                 
                 response = new GetNextMessageResponse
                 {

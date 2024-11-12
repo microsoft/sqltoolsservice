@@ -22,6 +22,7 @@ using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -58,7 +59,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public CopilotConversationManager()
         {
             messageQueue = new ChatMessageQueue(conversations);
-            InitializeTraceSource();
         }
 
         public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
@@ -109,35 +109,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 conversationUri, userText, tool, toolParameters);
         }
 
-        private void InitializeTraceSource()
-        {
-            // make sure any console listeners are configured to write to stderr so that the 
-            // JSON RPC channel over stdio isn't clobbered.  If there is no console
-            // listener then add one for stderr
-            bool consoleListnerFound = false;
-            foreach (TraceListener listener in SqlCopilotTrace.Source.Listeners)
-            {
-                if (listener is ConsoleTraceListener)
-                {
-                    // Change the ConsoleTraceListener to write to stderr instead of stdout
-                    ((ConsoleTraceListener)listener).Writer = Console.Error;
-                    consoleListnerFound = true;
-                }
-            }
-
-            // if there is no console listener, add one for stderr
-            if (!consoleListnerFound)
-            {
-                SqlCopilotTrace.Source.Listeners.Add(new ConsoleTraceListener() { Writer = Console.Error, TraceOutputOptions = TraceOptions.DateTime });
-            }
-
-            // Set trace level for the console output
-            SqlCopilotTrace.Source.Switch.Level = SourceLevels.Information;
-        }
-
         private void InitConversation(CopilotConversation conversation)
         {
-            SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.ChatSessionStart, "Initializing Chat Session");
+            Logger.Verbose("Initializing Chat Session");
 
             try
             {
@@ -216,9 +190,7 @@ GENERAL REQUIREMENTS:
             }
             catch (Exception e)
             {
-                SqlCopilotTrace.WriteErrorEvent(
-                    SqlCopilotTraceEvents.ChatSessionFailed,
-                    e.Message);
+                Logger.Error($"ChatSessionFailed: {e.Message}");
             }
         }
 
@@ -257,14 +229,14 @@ GENERAL REQUIREMENTS:
             if (chatHistory == null)
             {
                 var errorMessage = "Chat history not initialized.  Call InitializeAsync first.";
-                SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.PromptReceived, errorMessage);
+                Logger.Error($"Prompt Received Error: {errorMessage}");
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
             }
 
             if (userChatCompletionService == null) // || _plannerChatCompletionService == null || _databaseQueryChatCompletionService == null)
             {
                 var errorMessage = "Chat completion service not initialized.  Call InitializeAsync first.";
-                SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.PromptReceived, errorMessage);
+                Logger.Error($"Prompt Received Error: {errorMessage}");
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
             }
 
@@ -272,15 +244,15 @@ GENERAL REQUIREMENTS:
             if (sqlExecuteRpcParent == null)
             {
                 var errorMessage = "Communication channel not configured.  Call InitializeAsync first.";
-                SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.PromptReceived, errorMessage);
+                Logger.Error($"Prompt Received Error: {errorMessage}");
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
             }
 
-            SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"User prompt received.");
-            SqlCopilotTrace.WriteVerboseEvent(SqlCopilotTraceEvents.PromptReceived, $"Prompt: {userPrompt}");
+            Logger.Verbose( $"User prompt received.");
+            Logger.Verbose($"Prompt: {userPrompt}");
 
             // track this exchange and its cancellation token
-            SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Tracking exchange {chatExchangeId}.");
+            Logger.Verbose($"Tracking exchange {chatExchangeId}.");
             var cts = new CancellationTokenSource();
             activeConversations.TryAdd(chatExchangeId, cts);
 
@@ -299,17 +271,17 @@ GENERAL REQUIREMENTS:
                     executionSettings: openAIPromptExecutionSettings,
                     kernel: userSessionKernel,
                     cts.Token);
-                SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Prompt submitted to kernel.");
+                Logger.Verbose( $"Prompt submitted to kernel.");
 
                 // loop on the IAsyncEnumerable to get the results
-                SqlCopilotTrace.WriteVerboseEvent(SqlCopilotTraceEvents.ResponseGenerated, "Response:");
+                Logger.Verbose("Response Generated:");
                 for (int awaitAttempts = 0; awaitAttempts < 10; awaitAttempts++)
                 {
                     await foreach (var content in result)
                     {
                         if (!string.IsNullOrEmpty(content.Content))
                         {
-                            SqlCopilotTrace.WriteVerboseEvent(SqlCopilotTraceEvents.ResponseGenerated, content.Content);
+                            Logger.Verbose(content.Content);
                             completeResponse.Append(content.Content);
                             await sqlExecuteRpcParent.InvokeAsync<string>("HandlePartialResponseAsync", chatExchangeId, content.Content);
                         }
@@ -325,7 +297,7 @@ GENERAL REQUIREMENTS:
                 if (cts.IsCancellationRequested)
                 {
                     // client cancelled the request
-                    SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Client canceled exchange {chatExchangeId}.");
+                    Logger.Verbose($"Client canceled exchange {chatExchangeId}.");
                     await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeCanceledAsync", chatExchangeId);
 
                     // change the prompt response to indicate the cancellation
@@ -334,7 +306,7 @@ GENERAL REQUIREMENTS:
                 else
                 {
                     // add the assistant response to the chat history
-                    SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.ResponseGenerated, "Response completed. Updating chat history.");
+                    Logger.Verbose("Response completed. Updating chat history.");
                     await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeCompleteAsync", chatExchangeId);
                     chatHistory.AddAssistantMessage(completeResponse.ToString());
                     responseHistory.Append(completeResponse);
@@ -342,14 +314,14 @@ GENERAL REQUIREMENTS:
             }
             catch (HttpOperationException e)
             {
-                SqlCopilotTrace.WriteErrorEvent(SqlCopilotTraceEvents.CopilotServerException, e.Message);
+                Logger.Error($"Copilot Server Exception: {e.Message}");
                 return new RpcResponse<string>(SqlCopilotRpcReturnCodes.ApiException, e.Message);
             }
             finally
             {
 
                 // remove this exchange ID from the active conversations
-                SqlCopilotTrace.WriteInfoEvent(SqlCopilotTraceEvents.PromptReceived, $"Removing exchange {chatExchangeId} from active conversations.");
+                Logger.Verbose( $"Removing exchange {chatExchangeId} from active conversations.");
                 activeConversations.Remove(chatExchangeId, out cts);
             }
 
