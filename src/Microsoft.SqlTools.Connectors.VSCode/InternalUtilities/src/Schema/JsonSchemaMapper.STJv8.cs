@@ -1,4 +1,7 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 #if !NET9_0_OR_GREATER && !SYSTEM_TEXT_JSON_V9
 using System;

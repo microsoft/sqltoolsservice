@@ -30,11 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             };
         }
 
-        public async Task<VSCodeAsyncCollectionResult<LanguageModelChatCompletion>> SendChatRequestStreamingAsync(
+        public async Task<IVSCodeStreamResult<LanguageModelChatCompletion>> SendChatRequestStreamingAsync(
             ChatHistory chatHistory, 
             IList<ChatTool> tools)
         {
-            return await VSCodeAsyncChatCompletionCollection.CreateAsync(conversation, chatHistory, tools);
+            return await VSCodeChatCompletionStream.CreateAsync(conversation, chatHistory, tools);
         }
     }
 }

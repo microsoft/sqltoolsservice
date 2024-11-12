@@ -65,12 +65,10 @@ public class LanguageModelChatCompletion
     public string? ResponseToolParameters { get; set; }
 }
 
-
-public interface VSCodeAsyncCollectionResult<T>
+public interface IVSCodeStreamResult<T>
 {
     IAsyncEnumerator<LanguageModelChatCompletion> GetAsyncEnumerator(CancellationToken cancellationToken = default);
 }
-
 
 /// <summary>
 /// Language model endpoint
@@ -90,7 +88,7 @@ public interface ILanguageModelEndpoint
     /// <param name="chatHistory"></param>
     /// <param name="tools"></param>
     /// <returns></returns>
-    Task<VSCodeAsyncCollectionResult<LanguageModelChatCompletion>> SendChatRequestStreamingAsync(ChatHistory chatHistory, IList<ChatTool> tools);
+    Task<IVSCodeStreamResult<LanguageModelChatCompletion>> SendChatRequestStreamingAsync(ChatHistory chatHistory, IList<ChatTool> tools);
 }
 
 /// <summary>

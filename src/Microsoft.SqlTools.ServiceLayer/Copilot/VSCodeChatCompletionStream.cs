@@ -20,7 +20,7 @@ using OpenAI.Chat;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
-    public class VSCodeAsyncChatCompletionCollection : VSCodeAsyncCollectionResult<LanguageModelChatCompletion>
+    public class VSCodeChatCompletionStream : IVSCodeStreamResult<LanguageModelChatCompletion>
     {
         private readonly IList<LanguageModelRequestMessage> messages;
         private readonly IList<LanguageModelChatTool> tools;
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private readonly CopilotConversation conversation;
         private ChatMessage request;
 
-        private VSCodeAsyncChatCompletionCollection(
+        private VSCodeChatCompletionStream(
             CopilotConversation conversation,
             ChatHistory chat,
             IList<ChatTool> tools)
@@ -49,12 +49,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 this.conversation.ConversationUri, messages, tools);
         }
 
-        public static async Task<VSCodeAsyncChatCompletionCollection> CreateAsync(
+        public static async Task<VSCodeChatCompletionStream> CreateAsync(
             CopilotConversation conversation,
             ChatHistory chat,
             IList<ChatTool> tools)
         {
-            var collection = new VSCodeAsyncChatCompletionCollection(conversation, chat, tools);
+            var collection = new VSCodeChatCompletionStream(conversation, chat, tools);
             await collection.InitializeAsync();
             return collection;
         }

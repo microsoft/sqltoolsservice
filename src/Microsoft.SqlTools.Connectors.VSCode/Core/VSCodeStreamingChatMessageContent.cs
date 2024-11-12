@@ -1,4 +1,7 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +12,7 @@ using OpenAI.Chat;
 namespace Microsoft.SqlTools.Connectors.VSCode;
 
 /// <summary>
-/// OpenAI specialized streaming chat message content.
+/// VS Code specialized streaming chat message content.
 /// </summary>
 /// <remarks>
 /// Represents a chat message content chunk that was streamed from the remote model.
@@ -115,10 +118,7 @@ public sealed class VSCodeStreamingChatMessageContent : StreamingChatMessageCont
         foreach (var content in contentUpdate)
         {
             // We only support text content for now.
-            //if (content.Kind == ChatMessageContentPartKind.Text)
-            //{
             collection.Add(new StreamingTextContent(content.Text));
-            //}
         }
 
         return collection;

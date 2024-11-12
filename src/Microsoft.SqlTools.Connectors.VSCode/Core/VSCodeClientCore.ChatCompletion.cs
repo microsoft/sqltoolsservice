@@ -1,4 +1,7 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.ClientModel;
@@ -99,14 +102,8 @@ internal partial class VSCodeClientCore
     {
         return new Dictionary<string, object?>
         {
-            //{ nameof(completions.Id), completions.Id },
-            //{ nameof(completions.CreatedAt), completions.CreatedAt },
-            //{ nameof(completions.SystemFingerprint), completions.SystemFingerprint },
-            //{ nameof(completions.Usage), completions.Usage },
-
             // Serialization of this struct behaves as an empty object {}, need to cast to string to avoid it.
             { nameof(completions.FinishReason), completions.FinishReason.ToString() },
-            //{ nameof(completions.ContentTokenLogProbabilities), completions.ContentTokenLogProbabilities },
         };
     }
 
@@ -169,19 +166,10 @@ internal partial class VSCodeClientCore
                 try
                 {
                     chatCompletion = this._modelEndpoint.SendChatRequest(chat, null);
-                    //this.LogUsage(chatCompletion.Usage);
                 }
                 catch (Exception ex) when (activity is not null)
                 {
                     activity.SetError(ex);
-                    //if (chatCompletion != null)
-                    //{
-                    //    // Capture available metadata even if the operation failed.
-                    //    activity
-                    //        .SetResponseId(chatCompletion.Id)
-                    //        .SetPromptTokenUsage(chatCompletion.Usage.InputTokens)
-                    //        .SetCompletionTokenUsage(chatCompletion.Usage.OutputTokens);
-                    //}
                     throw;
                 }
 
@@ -374,7 +362,7 @@ internal partial class VSCodeClientCore
             using (var activity = this.StartCompletionActivity(chat, chatExecutionSettings))
             {
                 // Make the request.
-                VSCodeAsyncCollectionResult<LanguageModelChatCompletion> response;
+                IVSCodeStreamResult<LanguageModelChatCompletion> response;
                 try
                 {
 #pragma warning disable CS8604
@@ -481,18 +469,6 @@ internal partial class VSCodeClientCore
 #pragma warning restore
             chat.Add(chatMessageContent);
 
-            // Respond to each tooling request.
-            //for (int toolCallIndex = 0; toolCallIndex < toolCalls.Length; toolCallIndex++)
-            //{
-            //    ChatToolCall toolCall = toolCalls[toolCallIndex];
-
-            //    // We currently only know about function tool calls. If it's anything else, we'll respond with an error.
-            //    if (string.IsNullOrEmpty(toolCall.FunctionName))
-            //    {
-            //        AddResponseMessage(chat, result: null, "Error: Tool call was not a function call.", toolCall, this.Logger);
-            //        continue;
-            //    }
-
             // Parse the function call arguments.
             VSCodeFunctionToolCall? openAIFunctionToolCall;
             try
@@ -584,129 +560,6 @@ internal partial class VSCodeClientCore
                 yield return new VSCodeStreamingChatMessageContent(lastChatMessage.Role, lastChatMessage.Content);
                 yield break;
             }
-            //}
-
-#if false
-            // Get any response content that was streamed.
-            string content = contentBuilder?.ToString() ?? string.Empty;
-
-            // Log the requests
-            if (this.Logger.IsEnabled(LogLevel.Trace))
-            {
-                this.Logger.LogTrace("Function call requests: {Requests}", string.Join(", ", toolCalls.Select(fcr => $"{fcr.FunctionName}({fcr.FunctionName})")));
-            }
-            else if (this.Logger.IsEnabled(LogLevel.Debug))
-            {
-                this.Logger.LogDebug("Function call requests: {Requests}", toolCalls.Length);
-            }
-
-            // Add the result message to the caller's chat history; this is required for the service to understand the tool call responses.
-            var chatMessageContent = this.CreateChatMessageContent(streamedRole ?? default, content, toolCalls, functionCallContents, metadata, streamedName);
-            chat.Add(chatMessageContent);
-
-            // Respond to each tooling request.
-            for (int toolCallIndex = 0; toolCallIndex < toolCalls.Length; toolCallIndex++)
-            {
-                ChatToolCall toolCall = toolCalls[toolCallIndex];
-
-                // We currently only know about function tool calls. If it's anything else, we'll respond with an error.
-                if (string.IsNullOrEmpty(toolCall.FunctionName))
-                {
-                    AddResponseMessage(chat, result: null, "Error: Tool call was not a function call.", toolCall, this.Logger);
-                    continue;
-                }
-
-                // Parse the function call arguments.
-                OpenAIFunctionToolCall? openAIFunctionToolCall;
-                try
-                {
-                    openAIFunctionToolCall = new(toolCall);
-                }
-                catch (JsonException)
-                {
-                    AddResponseMessage(chat, result: null, "Error: Function call arguments were invalid JSON.", toolCall, this.Logger);
-                    continue;
-                }
-
-                // Make sure the requested function is one we requested. If we're permitting any kernel function to be invoked,
-                // then we don't need to check this, as it'll be handled when we look up the function in the kernel to be able
-                // to invoke it. If we're permitting only a specific list of functions, though, then we need to explicitly check.
-                if (chatExecutionSettings.ToolCallBehavior?.AllowAnyRequestedKernelFunction is not true &&
-                    !IsRequestableTool(chatOptions, openAIFunctionToolCall))
-                {
-                    AddResponseMessage(chat, result: null, "Error: Function call request for a function that wasn't defined.", toolCall, this.Logger);
-                    continue;
-                }
-
-                // Find the function in the kernel and populate the arguments.
-                if (!kernel!.Plugins.TryGetFunctionAndArguments(openAIFunctionToolCall, out KernelFunction? function, out KernelArguments? functionArgs))
-                {
-                    AddResponseMessage(chat, result: null, "Error: Requested function could not be found.", toolCall, this.Logger);
-                    continue;
-                }
-
-                // Now, invoke the function, and add the resulting tool call message to the chat options.
-                FunctionResult functionResult = new(function) { Culture = kernel.Culture };
-                AutoFunctionInvocationContext invocationContext = new(kernel, function, functionResult, chat, chatMessageContent)
-                {
-                    Arguments = functionArgs,
-                    RequestSequenceIndex = requestIndex,
-                    FunctionSequenceIndex = toolCallIndex,
-                    FunctionCount = toolCalls.Length
-                };
-
-                s_inflightAutoInvokes.Value++;
-                try
-                {
-                    invocationContext = await OnAutoFunctionInvocationAsync(kernel, invocationContext, async (context) =>
-                    {
-                        // Check if filter requested termination.
-                        if (context.Terminate)
-                        {
-                            return;
-                        }
-
-                        // Note that we explicitly do not use executionSettings here; those pertain to the all-up operation and not necessarily to any
-                        // further calls made as part of this function invocation. In particular, we must not use function calling settings naively here,
-                        // as the called function could in turn telling the model about itself as a possible candidate for invocation.
-                        context.Result = await function.InvokeAsync(kernel, invocationContext.Arguments, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    }).ConfigureAwait(false);
-                }
-#pragma warning disable CA1031 // Do not catch general exception types
-                catch (Exception e)
-#pragma warning restore CA1031 // Do not catch general exception types
-                {
-                    AddResponseMessage(chat, result: null, $"Error: Exception while invoking function. {e.Message}", toolCall, this.Logger);
-                    continue;
-                }
-                finally
-                {
-                    s_inflightAutoInvokes.Value--;
-                }
-
-                // Apply any changes from the auto function invocation filters context to final result.
-                functionResult = invocationContext.Result;
-
-                object functionResultValue = functionResult.GetValue<object>() ?? string.Empty;
-                var stringResult = ProcessFunctionResult(functionResultValue, chatExecutionSettings.ToolCallBehavior);
-
-                AddResponseMessage(chat, stringResult, errorMessage: null, toolCall, this.Logger);
-
-                // If filter requested termination, returning latest function result and breaking request iteration loop.
-                if (invocationContext.Terminate)
-                {
-                    if (this.Logger.IsEnabled(LogLevel.Debug))
-                    {
-                        this.Logger.LogDebug("Filter requested termination of automatic function invocation.");
-                    }
-
-                    var lastChatMessage = chat.Last();
-
-                    yield return new VSCodeStreamingChatMessageContent(lastChatMessage.Role, lastChatMessage.Content);
-                    yield break;
-                }
-            }
-#endif
         }
     }
 
@@ -1078,21 +931,6 @@ internal partial class VSCodeClientCore
         throw new NotSupportedException($"Role {message.Role} is not supported.");
     }
 
-    // private static ChatMessageContentPart GetImageContentItem(ImageContent imageContent)
-    // {
-    //     if (imageContent.Data is { IsEmpty: false } data)
-    //     {
-    //         return ChatMessageContentPart.CreateImageMessageContentPart(BinaryData.FromBytes(data), imageContent.MimeType);
-    //     }
-
-    //     if (imageContent.Uri is not null)
-    //     {
-    //         return ChatMessageContentPart.CreateImageMessageContentPart(imageContent.Uri);
-    //     }
-
-    //     throw new ArgumentException($"{nameof(ImageContent)} must have either Data or a Uri.");
-    // }
-
     private VSCodeChatMessageContent CreateChatMessageContent(LanguageModelChatCompletion completion, string targetModel)
     {
         var message = new VSCodeChatMessageContent(completion, targetModel, this.GetChatCompletionMetadata(completion));
@@ -1107,7 +945,6 @@ internal partial class VSCodeClientCore
         IReadOnlyDictionary<string, object?>? metadata, string? authorName,
         ChatTool responseTool, string responseToolParameters)
     {
-        // var message = new VSCodeChatMessageContent(chatRole, content, "this.ModelId", toolCalls, metadata)
         content = string.Format("The subsequent message is the result of calling function {0}.  Do not call this same function again.", responseTool.FunctionName);
         var message = new VSCodeChatMessageContent(chatRole, content, "this.ModelId", responseTool, responseToolParameters, metadata)
         {
@@ -1176,7 +1013,6 @@ internal partial class VSCodeClientCore
         return result;
     }
 
-    // private static void AddResponseMessage(ChatHistory chat, string? result, string? errorMessage, ChatToolCall toolCall, ILogger logger)
     private static void AddResponseMessage(ChatHistory chat, string? result, string? errorMessage, ChatTool toolCall, ILogger logger)
     {
         // Log any error
