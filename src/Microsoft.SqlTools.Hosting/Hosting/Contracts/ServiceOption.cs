@@ -15,13 +15,27 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public static readonly string ValueTypeBoolean = "boolean";
         public static readonly string ValueTypeObject = "object";
 
+        /// <summary>
+        /// Defined name that can be used to reference a specific option
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Translated name of the option for display in a UI
+        /// </summary>
         public string DisplayName { get; set; }
 
         public string Description {get; set; }
 
-         public string GroupName {get; set; }
+        /// <summary>
+        /// Defined name that can be used to organize by group
+        /// </summary>
+        public string GroupName {get; set; }
+
+        /// <summary>
+        /// Translated name of the group for display in a UI
+        /// </summary>
+        public string GroupDisplayName { get; set; }
 
         /// <summary>
         /// Type of the parameter.  Can be either string, number, or category.
