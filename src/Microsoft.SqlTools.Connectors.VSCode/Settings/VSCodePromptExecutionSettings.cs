@@ -320,7 +320,9 @@ public class VSCodePromptExecutionSettings : PromptExecutionSettings
         {
             return new VSCodePromptExecutionSettings()
             {
-                MaxTokens = defaultMaxTokens
+                MaxTokens = defaultMaxTokens,
+                Temperature = 0.0,
+                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
             };
         }
 
