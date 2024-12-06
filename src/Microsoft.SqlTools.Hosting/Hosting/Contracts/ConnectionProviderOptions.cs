@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
@@ -13,6 +15,8 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     public class ConnectionProviderOptions
     {
         public ConnectionOption[] Options { get; set; }
+
+        public Dictionary<string, string> GroupDisplayNames { get; set; }
     }
 
     public class CategoryValue
