@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -26,16 +27,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             _kustoClient = kustoClient;
             schemaState = LoadSchemaState(kustoClient.DatabaseName, kustoClient.ClusterName);
         }
-        
+
         public override void UpdateDatabase(string databaseName)
         {
             schemaState = LoadSchemaState(databaseName, _kustoClient.ClusterName);
         }
-        
+
         private GlobalState LoadSchemaState(string databaseName, string clusterName)
         {
             IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
             IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
+            var materializedViewSchemas = new ConcurrentBag<ShowMaterializedViewSchemaResult>();
 
             if (!string.IsNullOrWhiteSpace(databaseName))
             {
@@ -48,26 +50,43 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                     () =>
                     {
                         functionSchemas = _kustoClient.ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, databaseName).Result;
+                    },
+                    () =>
+                    {
+                        var materializedViews = _kustoClient.ExecuteQueryAsync<ShowMaterializedViewsResult>(".show materialized-views", source.Token, databaseName).Result;
+                        Parallel.ForEach(materializedViews, materializedView =>
+                        {
+                            var materializedViewSchema = _kustoClient
+                                .ExecuteQueryAsync<ShowMaterializedViewSchemaResult>(
+                                    $".show materialized-view {materializedView.Name} cslschema", source.Token,
+                                    databaseName).Result
+                                .FirstOrDefault();
+
+                            if (materializedViewSchema != null)
+                            {
+                                materializedViewSchemas.Add(materializedViewSchema);
+                            }
+                        });
                     });
             }
 
-            return AddOrUpdateDatabase(tableSchemas, functionSchemas, GlobalState.Default, databaseName,
+            return AddOrUpdateDatabase(tableSchemas, functionSchemas, materializedViewSchemas, GlobalState.Default, databaseName,
                 clusterName);
         }
-        
+
         /// <summary>
         /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
         /// </summary>
         private GlobalState AddOrUpdateDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
-            IEnumerable<ShowFunctionsResult> functionSchemas, GlobalState globals,
-            string databaseName, string clusterName)
+            IEnumerable<ShowFunctionsResult> functionSchemas, IEnumerable<ShowMaterializedViewSchemaResult> materializedViewSchemas,
+            GlobalState globals, string databaseName, string clusterName)
         {
             // try and show error from here.
             DatabaseSymbol databaseSymbol = null;
 
             if (databaseName != null)
             {
-                databaseSymbol = LoadDatabase(tableSchemas, functionSchemas, databaseName);
+                databaseSymbol = LoadDatabase(tableSchemas, functionSchemas, materializedViewSchemas, databaseName);
             }
 
             if (databaseSymbol == null)
@@ -78,7 +97,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             var cluster = globals.GetCluster(clusterName);
             if (cluster == null)
             {
-                cluster = new ClusterSymbol(clusterName, new[] {databaseSymbol}, isOpen: true);
+                cluster = new ClusterSymbol(clusterName, new[] { databaseSymbol }, isOpen: true);
                 globals = globals.AddOrUpdateCluster(cluster);
             }
             else
@@ -89,12 +108,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
             return globals.WithCluster(cluster).WithDatabase(databaseSymbol);
         }
-        
+
         /// <summary>
         /// Loads the schema for the specified database into a <see cref="DatabaseSymbol"/>.
         /// </summary>
         private DatabaseSymbol LoadDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
-            IEnumerable<ShowFunctionsResult> functionSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas, IEnumerable<ShowMaterializedViewSchemaResult> materializedViewSchemas,
             string databaseName)
         {
             if (tableSchemas == null)
@@ -114,21 +133,34 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 members.Add(tableSymbol);
             }
 
-            if (functionSchemas == null)
+            if (functionSchemas != null)
             {
-                return null;
+                foreach (var fun in functionSchemas)
+                {
+                    var parameters = TranslateParameters(fun.Parameters);
+                    var functionSymbol = new FunctionSymbol(fun.Name, fun.Body, parameters);
+                    members.Add(functionSymbol);
+                }
             }
 
-            foreach (var fun in functionSchemas)
+            if (materializedViewSchemas != null)
             {
-                var parameters = TranslateParameters(fun.Parameters);
-                var functionSymbol = new FunctionSymbol(fun.Name, fun.Body, parameters);
-                members.Add(functionSymbol);
+                foreach (var view in materializedViewSchemas)
+                {
+                    var columns = view.Schema.Split(',')
+                        .Select(col =>
+                        {
+                            var nameType = col.Split(':');
+                            return new ColumnSymbol(nameType[0], ScalarTypes.GetSymbol(nameType[1]));
+                        });
+                    var viewSymbol = new TableSymbol(view.TableName, columns);
+                    members.Add(viewSymbol);
+                }
             }
 
             return new DatabaseSymbol(databaseName, members);
         }
-        
+
         /// <summary>
         /// Convert CLR type name into a Kusto scalar type.
         /// </summary>
@@ -202,7 +234,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                     throw new InvalidOperationException($"Unhandled clr type: {clrTypeName}");
             }
         }
-        
+
         /// <summary>
         /// Translate Kusto parameter list declaration into into list of <see cref="Parameter"/> instances.
         /// </summary>
@@ -228,7 +260,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             var query = "let fn = " + parameters + " { };";
             var code = KustoCode.ParseAndAnalyze(query);
             var let = code.Syntax.GetFirstDescendant<LetStatement>();
-            
+
             FunctionSymbol function = let.Name.ReferencedSymbol is VariableSymbol variable
                 ? variable.Type as FunctionSymbol
                 : let.Name.ReferencedSymbol as FunctionSymbol;
