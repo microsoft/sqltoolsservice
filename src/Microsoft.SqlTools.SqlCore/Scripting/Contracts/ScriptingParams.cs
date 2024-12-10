@@ -73,6 +73,11 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
+        /// Number of rows to preview
+        /// </summary>
+        public int PreviewRows { get; set; }
+
+        /// <summary>
         /// The script operation
         /// </summary>
         public ScriptingOperationType Operation { get; set; } = ScriptingOperationType.Create;

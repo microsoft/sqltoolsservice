@@ -147,11 +147,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             // Scripting as operation should be used to script one object.
             // Scripting data and scripting to file is not supported by scripting as operation
-            // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
+            // To script Select, alter, execute and preview use scripting as operation. The other operation doesn't support those types
             if ((parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null
                 && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") ||
                 parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute ||
-                parameters.Operation == ScriptingOperationType.Alter)
+                parameters.Operation == ScriptingOperationType.Alter || parameters.Operation == ScriptingOperationType.Preview)
             {
                 return true;
             }

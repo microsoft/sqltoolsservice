@@ -271,6 +271,83 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             return selectQuery.ToString();
         }
 
+        public static string PreviewFromTableOrView(Server server, Urn urn, bool isDw, int rows)
+        {
+            DataTable dt = GetColumnNames(server, urn, isDw);
+            StringBuilder selectQuery = new StringBuilder();
+
+            // build the first line
+            if (dt != null && dt.Rows.Count > 0)
+            {
+
+                selectQuery.AppendFormat("SELECT TOP ({0}) ", rows);
+
+                // first column
+                selectQuery.AppendFormat("{0}{1}{2}\r\n",
+                                         ScriptingGlobals.LeftDelimiter,
+                                         QuoteObjectName(dt.Rows[0][0] as string, ScriptingGlobals.RightDelimiter),
+                                         ScriptingGlobals.RightDelimiter);
+                // add all other columns on separate lines. Make the names align.
+                for (int i = 1; i < dt.Rows.Count; i++)
+                {
+                    selectQuery.AppendFormat("      ,{0}{1}{2}\r\n",
+                                             ScriptingGlobals.LeftDelimiter,
+                                             QuoteObjectName(dt.Rows[i][0] as string, ScriptingGlobals.RightDelimiter),
+                                             ScriptingGlobals.RightDelimiter);
+                }
+            }
+            else
+            {
+                selectQuery.AppendFormat("SELECT TOP ({0}) * ", rows);
+            }
+
+            // from clause
+            selectQuery.Append("  FROM ");
+
+            if (server.ServerType != DatabaseEngineType.SqlAzureDatabase)
+            {
+                // Azure doesn't allow qualifying object names with the DB, so only add it on if we're not in Azure database URN
+                Urn dbUrn = urn.Parent;
+                selectQuery.AppendFormat("{0}{1}{2}.",
+                                     ScriptingGlobals.LeftDelimiter,
+                                     QuoteObjectName(dbUrn.GetAttribute("Name"), ScriptingGlobals.RightDelimiter),
+                                     ScriptingGlobals.RightDelimiter);
+            }
+
+            // schema
+            selectQuery.AppendFormat("{0}{1}{2}.",
+                                     ScriptingGlobals.LeftDelimiter,
+                                     QuoteObjectName(urn.GetAttribute("Schema"), ScriptingGlobals.RightDelimiter),
+                                     ScriptingGlobals.RightDelimiter);
+            // object
+            selectQuery.AppendFormat("{0}{1}{2}",
+                                     ScriptingGlobals.LeftDelimiter,
+                                     QuoteObjectName(urn.GetAttribute("Name"), ScriptingGlobals.RightDelimiter),
+                                     ScriptingGlobals.RightDelimiter);
+
+            // In Hekaton M5, if it's a memory optimized table, we need to provide SNAPSHOT hint for SELECT.
+            if (urn.Type.Equals("Table") && IsXTPSupportedOnServer(server))
+            {
+                try
+                {
+                    Table table = (Table)server.GetSmoObject(urn);
+                    table.Refresh();
+                    if (table.IsMemoryOptimized)
+                    {
+                        selectQuery.Append(" WITH (SNAPSHOT)");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // log any exceptions determining if InMemory, but don't treat as fatal exception
+                    Logger.Error("Could not determine if is InMemory table " + ex.ToString());
+                }
+            }
+
+            return selectQuery.ToString();
+        }
+
+
         /// <summary>
         /// Quote the name of a given sql object.
         /// </summary>

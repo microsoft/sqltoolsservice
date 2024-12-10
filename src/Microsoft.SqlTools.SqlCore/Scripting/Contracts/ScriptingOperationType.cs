@@ -16,6 +16,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
         Update = 3,
         Delete = 4,
         Execute = 5,
-        Alter = 6
+        Alter = 6,
+        Preview = 7,
     }
 }

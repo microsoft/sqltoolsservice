@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         /// </summary>
         public const char RightDelimiter = ']';
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, ServerConnection serverConnection): base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, ServerConnection serverConnection) : base(parameters)
         {
             Validate.IsNotNull("serverConnection", serverConnection);
             ServerConnection = serverConnection;
@@ -54,11 +54,14 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
 
             ServerConnection = new ServerConnection(sqlConnection);
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(ServerConnection.ConnectionString);
-            if (!string.IsNullOrEmpty(builder.UserID) && string.IsNullOrEmpty(builder.Password)) {
-                if(SqlAuthenticationMethod.SqlPassword == builder.Authentication) {
+            if (!string.IsNullOrEmpty(builder.UserID) && string.IsNullOrEmpty(builder.Password))
+            {
+                if (SqlAuthenticationMethod.SqlPassword == builder.Authentication)
+                {
                     // Manually add password as server connection class does not add it to string, required for successful connection.
                     builder.Password = "";
-                    if (ServerConnection.ConnectionString != builder.ConnectionString) {
+                    if (ServerConnection.ConnectionString != builder.ConnectionString)
+                    {
                         ServerConnection.ConnectionString = builder.ConnectionString;
                     }
                 }
@@ -94,7 +97,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 {
                     ServerConnection.Connect();
                 }
-                
+
                 UrnCollection urns = CreateUrns(ServerConnection);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
@@ -117,6 +120,9 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                         break;
                     case ScriptingOperationType.Select:
                         resultScript = GenerateScriptSelect(server, urns);
+                        break;
+                    case ScriptingOperationType.Preview:
+                        resultScript = GenerateScriptPreview(server, urns);
                         break;
                     case ScriptingOperationType.Execute:
                         resultScript = GenerareScriptAsExecute(server, urns, options);
@@ -201,6 +207,37 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 Database db = server.Databases[dbName];
                 bool isDw = db.IsSqlDw;
                 script = ScriptingHelper.SelectFromTableOrView(server, objectUrn, isDw);
+            }
+
+            return script;
+        }
+
+        private string GenerateScriptPreview(Server server, UrnCollection urns)
+        {
+            string script = string.Empty;
+            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
+            Urn objectUrn = urns[0];
+            string typeName = objectUrn.GetNameForType(scriptingObject.Type);
+            var dbName = objectUrn.GetNameForType("Database");
+            // select from service broker
+            if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
+            {
+                script = ScriptingHelper.SelectAllValuesFromTransmissionQueue(objectUrn);
+            }
+
+            // select from queues
+            else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
+                     string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
+            {
+                script = ScriptingHelper.SelectAllValues(objectUrn);
+            }
+
+            // select from table or view
+            else
+            {
+                Database db = server.Databases[dbName];
+                bool isDw = db.IsSqlDw;
+                script = ScriptingHelper.PreviewFromTableOrView(server, objectUrn, isDw, this.Parameters.PreviewRows);
             }
 
             return script;
@@ -437,7 +474,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             return result.ToString();
         }
 
-        private static void WriteUseDatabase(Database parentObject, StringBuilder stringBuilder , ScriptingOptions options)
+        private static void WriteUseDatabase(Database parentObject, StringBuilder stringBuilder, ScriptingOptions options)
         {
             if (options.IncludeDatabaseContext)
             {
@@ -445,7 +482,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 if (!options.NoCommandTerminator)
                 {
                     stringBuilder.Append(useDb);
-                    
+
                 }
                 else
                 {
@@ -462,7 +499,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             try
             {
                 scripter = new SqlServer.Management.Smo.Scripter(server);
-                if(this.Parameters.Operation == ScriptingOperationType.Alter)
+                if (this.Parameters.Operation == ScriptingOperationType.Alter)
                 {
                     options.ScriptForAlter = true;
                     foreach (var urn in urns)
@@ -528,7 +565,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {
-                if(string.IsNullOrEmpty(scriptingObject.Schema))
+                if (string.IsNullOrEmpty(scriptingObject.Schema))
                 {
                     // TODO: get the default schema
                     scriptingObject.Schema = "dbo";
@@ -588,7 +625,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             //We always want role memberships for users and database roles to be scripted
             scriptingOptions.IncludeDatabaseRoleMemberships = true;
             SqlServerVersion targetServerVersion;
-            if(scriptCompatibilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
+            if (scriptCompatibilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
             {
                 scriptingOptions.TargetServerVersion = targetServerVersion;
             }
@@ -596,7 +633,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             {
                 //If you are getting this assertion fail it means you are working for higher
                 //version of SQL Server. You need to update this part of code.
-                 Logger.Warning("This part of the code is not updated corresponding to latest version change");
+                Logger.Warning("This part of the code is not updated corresponding to latest version change");
             }
 
             // for cloud scripting to work we also have to have Script Compat set to 105.
