@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
         {
             if (!ConnectionService.Instance.OwnerToConnectionMap.TryGetValue(
-                conversationUri, out ConnectionInfo connectionInfo))
+                connectionUri, out ConnectionInfo connectionInfo))
             {
                 return false;
             }
