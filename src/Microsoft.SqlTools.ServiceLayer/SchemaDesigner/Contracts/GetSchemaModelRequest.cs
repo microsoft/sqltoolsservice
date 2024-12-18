@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -14,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class GetSchemaModelRequest
     {
         public static readonly
-            RequestType<ConnectionDetails, SchemaModel> Type =
-            RequestType<ConnectionDetails, SchemaModel>.Create("schemaDesigner/getSchemaModel");
+            RequestType<string, SchemaModel> Type =
+            RequestType<string, SchemaModel>.Create("schemaDesigner/getSchemaModel");
     }
 }
