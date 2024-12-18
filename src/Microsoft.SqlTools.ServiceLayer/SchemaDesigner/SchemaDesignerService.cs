@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -28,9 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private ConnectionService connectionService;
         private QueryExecutionService queryService;
-
-        private const string ConnectionType = "SchemaDesigner";
-
 
         public SchemaDesignerService()
         {
@@ -56,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         }
 
 
-        internal async Task HandleGetSchemaModelRequest(string connectionUri, RequestContext<SchemaModel> requestContext)
+        internal async Task HandleGetSchemaModelRequest(GetSchemaModelRequestParams requestParams, RequestContext<SchemaModel> requestContext)
         {
             try
             {
@@ -72,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     ON t.TABLE_NAME = kcu.TABLE_NAME AND t.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.COLUMN_NAME = kcu.COLUMN_NAME
                 WHERE t.TABLE_TYPE = 'BASE TABLE'";
 
-                var columnResult = await RunSimpleQuery(connectionUri, columnQuery) ?? throw new Exception("Failed to get schema information");
+                var columnResult = await RunSimpleQuery(requestParams.OwnerUri, requestParams.DatabaseName, columnQuery) ?? throw new Exception("Failed to get schema information");
 
                 var entityDict = new Dictionary<string, Entity>();
                 for (int i = 0; i < columnResult.RowCount; i++)
@@ -121,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
                 INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id";
 
-                var relationshipResult = await RunSimpleQuery(connectionUri, relationshipQuery);
+                var relationshipResult = await RunSimpleQuery(requestParams.OwnerUri, requestParams.DatabaseName, relationshipQuery);
 
                 schema.Relationships = new List<Relationship>();
 
@@ -148,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        private async Task<ResultSet> RunSimpleQuery(string connectionUri, string query, RequestContext<Object> requestContext = null)
+        private async Task<ResultSet> RunSimpleQuery(string connectionUri, string DatabaseName, string query, RequestContext<Object> requestContext = null)
         {
 
             TaskCompletionSource<ResultSet> taskCompletion =
@@ -173,14 +171,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 OwnerUri = randomUri,
                 Connection = connInfo.ConnectionDetails,
-                Type = ConnectionType
+                Type = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default,
             };
-
 
             await this.connectionService.Connect(connectParams);
 
+            ConnectionCompleteParams connectionCompleteParams = await this.connectionService.Connect(connectParams);
+            if (!string.IsNullOrEmpty(connectionCompleteParams.Messages))
+            {
+                throw new Exception(connectionCompleteParams.Messages);
+            }
+
+            // Get Connection
+           
             ConnectionInfo newConn;
             this.connectionService.TryFindConnection(randomUri, out newConn);
+            newConn.ConnectionDetails.DatabaseName = DatabaseName;
+            ConnectionCompleteParams connectionResult = await connectionService.Connect(new ConnectParams() {
+                OwnerUri = randomUri,
+                Connection = newConn.ConnectionDetails,
+                Type = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default,
+            });
+
+            ConnectionInfo connectionInfo = this.connectionService.OwnerToConnectionMap[connectionResult.OwnerUri];
+            connectionInfo.ConnectionDetails.DatabaseName = DatabaseName;
+            ServerConnection serverConn = ConnectionService.OpenServerConnection(connectionInfo);
 
             Func<string, Task> queryCreateFailureAction = message =>
             {
@@ -225,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 return;
             };
 
-            await queryService.InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            await queryService.InterServiceExecuteQuery(executeStringParams, connectionInfo, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
             return await taskCompletion.Task;
         }
 
