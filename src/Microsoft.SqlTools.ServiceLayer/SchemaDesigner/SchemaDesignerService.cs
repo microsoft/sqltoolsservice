@@ -129,9 +129,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     schema.Relationships.Add(new Relationship
                     {
                         ForeignKeyName = row[0].DisplayValue,
-                        ParentTable = row[1].DisplayValue,
-                        ParentColumn = row[2].DisplayValue,
-                        ReferencedTable = row[3].DisplayValue,
+                        Entity = row[1].DisplayValue,
+                        Column = row[2].DisplayValue,
+                        ReferencedEntity = row[3].DisplayValue,
                         ReferencedColumn = row[4].DisplayValue,
                         OnDeleteAction = MapOnAction(row[5].DisplayValue),
                         OnUpdateAction = MapOnAction(row[6].DisplayValue),

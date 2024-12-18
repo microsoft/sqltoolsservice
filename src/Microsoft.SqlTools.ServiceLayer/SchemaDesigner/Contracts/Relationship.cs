@@ -14,15 +14,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the parent table
         /// </summary>
-        public string ParentTable { get; set; }
+        public string Entity { get; set; }
         /// <summary>
         /// Gets or sets the parent column
         /// </summary>
-        public string ParentColumn { get; set; }
+        public string Column { get; set; }
         /// <summary>
         /// Gets or sets the referenced table
         /// </summary>
-        public string ReferencedTable { get; set; }
+        public string ReferencedEntity { get; set; }
         /// <summary>
         /// Gets or sets the referenced column
         /// </summary>
