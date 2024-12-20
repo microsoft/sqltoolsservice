@@ -7,12 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.Utility;
@@ -23,16 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     {
         private static readonly Lazy<SchemaDesignerService> instance = new Lazy<SchemaDesignerService>(() => new SchemaDesignerService());
         private bool disposed = false;
+        private IProtocolEndpoint? serviceHost;
+        private ConnectionService? connectionService;
+        private QueryExecutionService? queryService;
+
         public static SchemaDesignerService Instance => instance.Value;
-
-        private IProtocolEndpoint serviceHost;
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
-        private ConnectionService connectionService;
-        private QueryExecutionService queryService;
-
-        public SchemaDesignerService()
-        {
-        }
 
         public void Dispose()
         {
@@ -46,11 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             Logger.Verbose("Initializing Schema Designer Service");
             this.serviceHost = serviceHost;
-
             connectionService = ConnectionService.Instance;
             queryService = QueryExecutionService.Instance;
-
             serviceHost.SetRequestHandler(GetSchemaModelRequest.Type, HandleGetSchemaModelRequest);
+            Logger.Verbose("Initialized Schema Designer Service");
         }
 
 
@@ -68,7 +60,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
                 LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu 
                     ON t.TABLE_NAME = kcu.TABLE_NAME AND t.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.COLUMN_NAME = kcu.COLUMN_NAME
-                WHERE t.TABLE_TYPE = 'BASE TABLE'";
+                WHERE t.TABLE_TYPE = 'BASE TABLE'
+                ";
 
                 var columnResult = await RunSimpleQuery(requestParams.OwnerUri, requestParams.DatabaseName, columnQuery) ?? throw new Exception("Failed to get schema information");
 
@@ -149,61 +142,48 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private async Task<ResultSet> RunSimpleQuery(string connectionUri, string DatabaseName, string query, RequestContext<Object> requestContext = null)
         {
 
-            TaskCompletionSource<ResultSet> taskCompletion =
-                new TaskCompletionSource<ResultSet>();
+            TaskCompletionSource<ResultSet> taskCompletion = new TaskCompletionSource<ResultSet>();
 
             string randomUri = Guid.NewGuid().ToString();
             ExecuteStringParams executeStringParams = new ExecuteStringParams
             {
                 Query = query,
-                // generate guid as the owner uri to make sure every query is unique
                 OwnerUri = randomUri
             };
 
-            // get connection
+            // Getting existing connection
             ConnectionInfo connInfo;
             if (!this.connectionService.TryFindConnection(connectionUri, out connInfo))
             {
                 taskCompletion.SetException(new Exception(SR.QueryServiceQueryInvalidOwnerUri));
             }
 
-            ConnectParams connectParams = new ConnectParams
+            // Creating new connection to execute query
+            ConnectParams newConnectionParams = new ConnectParams
             {
                 OwnerUri = randomUri,
                 Connection = connInfo.ConnectionDetails,
                 Type = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default,
             };
-
-            await this.connectionService.Connect(connectParams);
-
-            ConnectionCompleteParams connectionCompleteParams = await this.connectionService.Connect(connectParams);
+            ConnectionCompleteParams connectionCompleteParams = await this.connectionService.Connect(newConnectionParams);
             if (!string.IsNullOrEmpty(connectionCompleteParams.Messages))
             {
                 throw new Exception(connectionCompleteParams.Messages);
             }
 
-            // Get Connection
-           
+            // Get ConnectionInfo for the new connection
             ConnectionInfo newConn;
             this.connectionService.TryFindConnection(randomUri, out newConn);
             newConn.ConnectionDetails.DatabaseName = DatabaseName;
-            ConnectionCompleteParams connectionResult = await connectionService.Connect(new ConnectParams() {
-                OwnerUri = randomUri,
-                Connection = newConn.ConnectionDetails,
-                Type = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default,
-            });
 
-            ConnectionInfo connectionInfo = this.connectionService.OwnerToConnectionMap[connectionResult.OwnerUri];
-            connectionInfo.ConnectionDetails.DatabaseName = DatabaseName;
-            ServerConnection serverConn = ConnectionService.OpenServerConnection(connectionInfo);
+            // Setting up query execution handlers
 
+            // handle sending error back when query fails to create
             Func<string, Task> queryCreateFailureAction = message =>
             {
                 taskCompletion.SetException(new Exception(message));
                 return Task.FromResult(0);
             };
-
-            ResultOnlyContext<Object> newContext = new ResultOnlyContext<Object>(requestContext);
 
             // handle sending event back when the query completes
             Query.QueryAsyncEventHandler queryComplete = async query =>
@@ -214,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     if (query.Batches.Length == 0
                         || query.Batches[0].ResultSets.Count == 0)
                     {
-                        await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                        taskCompletion.SetException(new Exception(SR.QueryServiceResultSetHasNoResults));
                         return;
                     }
 
@@ -222,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     // check to make sure there is a safe amount of rows to load into memory
                     if (rowCount > Int32.MaxValue)
                     {
-                        await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
+                        taskCompletion.SetException(new Exception(SR.QueryServiceResultSetTooLarge));
                         return;
                     }
                     taskCompletion.SetResult(query.Batches[0].ResultSets[0]);
@@ -240,16 +220,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 return;
             };
 
-            await queryService.InterServiceExecuteQuery(executeStringParams, connectionInfo, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            await queryService.InterServiceExecuteQuery(
+                executeStringParams,
+                newConn,
+                new SchemaDesignerQueryExecutionEventSender(taskCompletion),
+                null,
+                queryCreateFailureAction,
+                queryComplete,
+                queryFail
+            );
+
             return await taskCompletion.Task;
         }
 
-        private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
+        internal async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
             string connectionErrorMessage = string.Empty;
             try
             {
-                // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
                 connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}" : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
@@ -269,20 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        /// <summary>
-        /// Generates a URI for object explorer using a similar pattern to Mongo DB (which has URI-based database definition)
-        /// as this should ensure uniqueness
-        /// </summary>
-        /// <param name="details"></param>
-        /// <returns>string representing a URI</returns>
-        /// <remarks>Internal for testing purposes only</remarks>
-        internal static string GenerateUri(ConnectionDetails details)
-        {
-            return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }
-
-
-        private static OnAction MapOnAction(string action)
+        internal static OnAction MapOnAction(string action)
         {
             return action switch
             {
@@ -295,16 +270,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         }
 
 
-        public class SchemaDesignerEventSender : IEventSender
+        public class SchemaDesignerQueryExecutionEventSender : IEventSender
         {
-            public Action<ResultSetEventParams> ResultSetHandler { get; set; }
+            private readonly TaskCompletionSource<ResultSet> TaskCompletion;
+
+            public SchemaDesignerQueryExecutionEventSender(TaskCompletionSource<ResultSet> taskCompletion)
+            {
+                TaskCompletion = taskCompletion;
+            }
 
             public Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
             {
-                if (eventParams is ResultSetEventParams && this.ResultSetHandler != null)
-                {
-                    this.ResultSetHandler(eventParams as ResultSetEventParams);
-                }
+                return Task.FromResult(true);
+            }
+
+            public Task SendError(string errorMessage, int errorCode = 0)
+            {
+                TaskCompletion.SetException(new Exception(errorMessage));
                 return Task.FromResult(0);
             }
         }
