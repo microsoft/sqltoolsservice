@@ -51,6 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             try
             {
                 var schema = new SchemaModel();
+                var connectionCompleteParams = await CreateNewConnection(requestParams.OwnerUri, Guid.NewGuid().ToString());
+
                 var columnQuery = @"
                 SELECT 
                     t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME, c.DATA_TYPE,
@@ -63,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 WHERE t.TABLE_TYPE = 'BASE TABLE'
                 ";
 
-                var columnResult = await RunSimpleQuery(requestParams.OwnerUri, requestParams.DatabaseName, columnQuery) ?? throw new Exception("Failed to get schema information");
+                var columnResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, columnQuery) ?? throw new Exception("Failed to get schema information");
 
                 var entityDict = new Dictionary<string, Entity>();
                 for (int i = 0; i < columnResult.RowCount; i++)
@@ -112,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
                 INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id";
 
-                var relationshipResult = await RunSimpleQuery(requestParams.OwnerUri, requestParams.DatabaseName, relationshipQuery);
+                var relationshipResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, relationshipQuery) ?? throw new Exception("Failed to get schema information");
 
                 schema.Relationships = new List<Relationship>();
 
@@ -131,6 +133,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     });
                 }
                 await requestContext.SendResult(schema);
+                if (connectionCompleteParams != null)
+                {
+                    this.connectionService.Disconnect(new DisconnectParams()
+                    {
+                        OwnerUri = connectionCompleteParams.OwnerUri
+                    });
+                }
             }
             catch (Exception e)
             {
@@ -139,23 +148,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        private async Task<ResultSet> RunSimpleQuery(string connectionUri, string DatabaseName, string query, RequestContext<Object> requestContext = null)
+        private async Task<ConnectionCompleteParams> CreateNewConnection(string existingConnectionUri, string newConnectionUri)
         {
-
-            TaskCompletionSource<ResultSet> taskCompletion = new TaskCompletionSource<ResultSet>();
-
             string randomUri = Guid.NewGuid().ToString();
-            ExecuteStringParams executeStringParams = new ExecuteStringParams
-            {
-                Query = query,
-                OwnerUri = randomUri
-            };
-
             // Getting existing connection
             ConnectionInfo connInfo;
-            if (!this.connectionService.TryFindConnection(connectionUri, out connInfo))
+            if (!this.connectionService.TryFindConnection(existingConnectionUri, out connInfo))
             {
-                taskCompletion.SetException(new Exception(SR.QueryServiceQueryInvalidOwnerUri));
+                throw new Exception(SR.QueryServiceQueryInvalidOwnerUri);
             }
 
             // Creating new connection to execute query
@@ -170,11 +170,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 throw new Exception(connectionCompleteParams.Messages);
             }
+            return connectionCompleteParams;
+        }
 
-            // Get ConnectionInfo for the new connection
+
+        private async Task<ResultSet> RunSimpleQuery(ConnectionCompleteParams connectionCompleteParams, string DatabaseName, string query)
+        {
             ConnectionInfo newConn;
-            this.connectionService.TryFindConnection(randomUri, out newConn);
+            this.connectionService.TryFindConnection(connectionCompleteParams.OwnerUri, out newConn);
             newConn.ConnectionDetails.DatabaseName = DatabaseName;
+
+            TaskCompletionSource<ResultSet> taskCompletion = new TaskCompletionSource<ResultSet>();
+
+            ExecuteStringParams executeStringParams = new ExecuteStringParams
+            {
+                Query = query,
+                OwnerUri = connectionCompleteParams.OwnerUri
+            };
 
             // Setting up query execution handlers
 
@@ -238,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             string connectionErrorMessage = string.Empty;
             try
             {
-                ConnectionCompleteParams result = await connectionService.Connect(connectParams);
+                ConnectionCompleteParams result = await this.connectionService.Connect(connectParams);
                 connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}" : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {
