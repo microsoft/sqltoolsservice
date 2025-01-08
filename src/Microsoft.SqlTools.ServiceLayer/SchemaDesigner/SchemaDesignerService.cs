@@ -55,14 +55,46 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 var columnQuery = @"
                 SELECT 
-                    t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME, c.DATA_TYPE,
-                    COLUMNPROPERTY(OBJECT_ID(t.TABLE_SCHEMA + '.' + t.TABLE_NAME), c.COLUMN_NAME, 'IsIdentity') AS IsIdentity,
-                    CASE WHEN kcu.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS IsPrimaryKey
-                FROM INFORMATION_SCHEMA.TABLES t
-                JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
-                LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu 
-                    ON t.TABLE_NAME = kcu.TABLE_NAME AND t.TABLE_SCHEMA = kcu.TABLE_SCHEMA AND c.COLUMN_NAME = kcu.COLUMN_NAME
-                WHERE t.TABLE_TYPE = 'BASE TABLE'
+                    SCHEMA_NAME(t.schema_id) AS SchemaName,
+                    t.name AS TableName,
+                    c.name AS ColumnName,
+                    ty.name AS DataType,
+                    c.is_identity AS IsIdentity,
+                    CASE 
+                        WHEN pk.column_id IS NOT NULL THEN 1 
+                        ELSE 0 
+                    END AS IsPrimaryKey,
+                    CASE 
+                        WHEN fk.column_id IS NOT NULL THEN 1 
+                        ELSE 0 
+                    END AS IsForeignKey
+                FROM sys.tables t
+                JOIN sys.columns c 
+                    ON t.object_id = c.object_id
+                JOIN sys.types ty
+                    ON c.user_type_id = ty.user_type_id
+                LEFT JOIN (
+                    -- Get primary key columns
+                    SELECT 
+                        kc.parent_object_id, 
+                        ic.column_id
+                    FROM sys.key_constraints kc
+                    JOIN sys.index_columns ic 
+                        ON kc.parent_object_id = ic.object_id AND kc.unique_index_id = ic.index_id
+                    WHERE kc.type = 'PK'
+                ) pk 
+                    ON t.object_id = pk.parent_object_id AND c.column_id = pk.column_id
+                LEFT JOIN (
+                    -- Get foreign key columns
+                    SELECT 
+                        fk.parent_object_id, 
+                        fkc.parent_column_id AS column_id
+                    FROM sys.foreign_keys fk
+                    JOIN sys.foreign_key_columns fkc 
+                        ON fk.object_id = fkc.constraint_object_id
+                ) fk 
+                    ON t.object_id = fk.parent_object_id AND c.column_id = fk.column_id
+                WHERE t.type = 'U'
                 ";
 
                 var columnResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, columnQuery) ?? throw new Exception("Failed to get schema information");
