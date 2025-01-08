@@ -305,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return action switch
             {
-                "CASCADE" => OnAction.CASACADE,
+                "CASCADE" => OnAction.CASCADE,
                 "NO_ACTION" => OnAction.NO_ACTION,
                 "SET_NULL" => OnAction.SET_NULL,
                 "SET_DEFAULT" => OnAction.SET_DEFAULT,

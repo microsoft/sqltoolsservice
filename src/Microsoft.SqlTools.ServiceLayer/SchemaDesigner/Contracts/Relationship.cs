@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
     public enum OnAction
     {
-        CASACADE = 0,
+        CASCADE = 0,
         NO_ACTION = 1,
         SET_NULL = 2,
         SET_DEFAULT = 3
