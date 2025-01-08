@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             try
             {
                 var schema = new SchemaModel();
-                var connectionCompleteParams = await CreateNewConnection(requestParams.OwnerUri, Guid.NewGuid().ToString());
+                var connectionCompleteParams = await CreateNewConnection(requestParams.OwnerUri, Guid.NewGuid().ToString(), requestParams.DatabaseName);
 
                 var columnQuery = @"
                 SELECT 
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        private async Task<ConnectionCompleteParams> CreateNewConnection(string existingConnectionUri, string newConnectionUri)
+        private async Task<ConnectionCompleteParams> CreateNewConnection(string existingConnectionUri, string newConnectionUri, string DatabaseName)
         {
             string randomUri = Guid.NewGuid().ToString();
             // Getting existing connection
@@ -189,6 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 throw new Exception(SR.QueryServiceQueryInvalidOwnerUri);
             }
+            connInfo.ConnectionDetails.DatabaseName = DatabaseName;
 
             // Creating new connection to execute query
             ConnectParams newConnectionParams = new ConnectParams
@@ -210,7 +211,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             ConnectionInfo newConn;
             this.connectionService.TryFindConnection(connectionCompleteParams.OwnerUri, out newConn);
-            newConn.ConnectionDetails.DatabaseName = DatabaseName;
 
             TaskCompletionSource<ResultSet> taskCompletion = new TaskCompletionSource<ResultSet>();
 
