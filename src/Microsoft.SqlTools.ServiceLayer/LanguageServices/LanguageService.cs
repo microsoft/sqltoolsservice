@@ -1728,7 +1728,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private async Task CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
         {
-            if (parseResult.Errors.Count() > TSqlDetectionConstants.SqlFileErrorLimit)
+            int len = parseResult.Errors.Count();
+            int limit = TSqlDetectionConstants.SqlFileErrorLimit;
+            if (len > limit)
             {
                 await ServiceHostInstance.SendEvent(
                                    NonTSqlNotification.Type,
