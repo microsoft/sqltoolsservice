@@ -1726,17 +1726,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #region Diagnostic Provider methods
 
-        private async Task CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
+        /// <summary>
+        /// Gets a list of semantic diagnostic marks for the provided script file
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        internal async Task<ScriptFileMarker[]> GetSemanticMarkers(ScriptFile scriptFile)
         {
-            int len = parseResult.Errors.Count();
-            int limit = TSqlDetectionConstants.SqlFileErrorLimit;
-            if (len > limit)
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                scriptFile.ClientUri,
+                out connInfo);
+            var parseResult = await ParseAndBind(scriptFile, connInfo);
+
+            // await CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+            if (parseResult.Errors.Count() > TSqlDetectionConstants.SqlFileErrorLimit)
             {
                 await ServiceHostInstance.SendEvent(
                                    NonTSqlNotification.Type,
                                    new NonTSqlParams
                                    {
-                                       OwnerUri = uri,
+                                       OwnerUri = scriptFile.ClientUri,
                                        ContainsNonTSqlKeywords = false
                                    });
             }
@@ -1751,25 +1760,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     NonTSqlNotification.Type,
                     new NonTSqlParams
                     {
-                        OwnerUri = uri,
+                        OwnerUri = scriptFile.ClientUri,
                         ContainsNonTSqlKeywords = true
                     });
             }
-        }
-
-        /// <summary>
-        /// Gets a list of semantic diagnostic marks for the provided script file
-        /// </summary>
-        /// <param name="scriptFile"></param>
-        internal async Task<ScriptFileMarker[]> GetSemanticMarkers(ScriptFile scriptFile)
-        {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(
-                scriptFile.ClientUri,
-                out connInfo);
-            var parseResult = await ParseAndBind(scriptFile, connInfo);
-
-            await CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
