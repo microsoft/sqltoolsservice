@@ -50,66 +50,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                var schema = new SchemaModel();
-                var connectionCompleteParams = await CreateNewConnection(requestParams.OwnerUri, Guid.NewGuid().ToString(), requestParams.DatabaseName);
+                SchemaModel schema = new SchemaModel();
+                ConnectionCompleteParams connectionCompleteParams = await CreateNewConnection(requestParams.ConnectionUri, Guid.NewGuid().ToString(), requestParams.DatabaseName);
 
-                var columnQuery = @"
-                SELECT 
-                    SCHEMA_NAME(t.schema_id) AS SchemaName,
-                    t.name AS TableName,
-                    c.name AS ColumnName,
-                    ty.name AS DataType,
-                    c.is_identity AS IsIdentity,
-                    CASE 
-                        WHEN pk.column_id IS NOT NULL THEN 1 
-                        ELSE 0 
-                    END AS IsPrimaryKey,
-                    CASE 
-                        WHEN fk.column_id IS NOT NULL THEN 1 
-                        ELSE 0 
-                    END AS IsForeignKey
-                FROM sys.tables t
-                JOIN sys.columns c 
-                    ON t.object_id = c.object_id
-                JOIN sys.types ty
-                    ON c.user_type_id = ty.user_type_id
-                LEFT JOIN (
-                    -- Get primary key columns
-                    SELECT 
-                        kc.parent_object_id, 
-                        ic.column_id
-                    FROM sys.key_constraints kc
-                    JOIN sys.index_columns ic 
-                        ON kc.parent_object_id = ic.object_id AND kc.unique_index_id = ic.index_id
-                    WHERE kc.type = 'PK'
-                ) pk 
-                    ON t.object_id = pk.parent_object_id AND c.column_id = pk.column_id
-                LEFT JOIN (
-                    -- Get foreign key columns
-                    SELECT 
-                        fk.parent_object_id, 
-                        fkc.parent_column_id AS column_id
-                    FROM sys.foreign_keys fk
-                    JOIN sys.foreign_key_columns fkc 
-                        ON fk.object_id = fkc.constraint_object_id
-                ) fk 
-                    ON t.object_id = fk.parent_object_id AND c.column_id = fk.column_id
-                WHERE t.type = 'U'
-                ";
+                ResultSet columnResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, SchemaDesignerQueries.TableAndColumnQuery) ?? throw new Exception("Failed to get schema information");
 
-                var columnResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, columnQuery) ?? throw new Exception("Failed to get schema information");
-
-                var entityDict = new Dictionary<string, Entity>();
+                Dictionary<string, Entity> entityDict = new Dictionary<string, Entity>();
                 for (int i = 0; i < columnResult.RowCount; i++)
                 {
-                    var row = columnResult.GetRow(i);
-                    var schemaName = row[0].DisplayValue;
-                    var tableName = row[1].DisplayValue;
-                    var columnName = row[2].DisplayValue;
-                    var dataType = row[3].DisplayValue;
-                    var isIdentity = row[4].DisplayValue;
-                    var isPrimaryKey = row[5].DisplayValue;
-                    var key = $"{schemaName}.{tableName}";
+                    IList<QueryExecution.Contracts.DbCellValue> row = columnResult.GetRow(i);
+                    string schemaName = row[0].DisplayValue;
+                    string tableName = row[1].DisplayValue;
+                    string columnName = row[2].DisplayValue;
+                    string dataType = row[3].DisplayValue;
+                    string isIdentity = row[4].DisplayValue;
+                    string isPrimaryKey = row[5].DisplayValue;
+                    string key = $"[{schemaName}].[{tableName}]";
                     if (!entityDict.ContainsKey(key))
                     {
                         entityDict[key] = new Entity
@@ -128,40 +84,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     });
                 }
 
-                schema.Entities = new List<Entity>(entityDict.Values);
-
-                var relationshipQuery = @"
-                SELECT 
-                    fk.name AS ForeignKeyName, 
-                    tp.name AS ParentTable, 
-                    cp.name AS ParentColumn, 
-                    tr.name AS ReferencedTable, 
-                    cr.name AS ReferencedColumn, 
-                    fk.delete_referential_action_desc AS OnDeleteAction, 
-                    fk.update_referential_action_desc AS OnUpdateAction
-                FROM sys.foreign_keys fk
-                INNER JOIN sys.tables tp ON fk.parent_object_id = tp.object_id
-                INNER JOIN sys.tables tr ON fk.referenced_object_id = tr.object_id
-                INNER JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id
-                INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
-                INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id";
-
-                var relationshipResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, relationshipQuery) ?? throw new Exception("Failed to get schema information");
+                schema.Entities = [.. entityDict.Values];
+                
+                ResultSet relationshipResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, SchemaDesignerQueries.RelationshipQuery) ?? throw new Exception("Failed to get schema information");
 
                 schema.Relationships = new List<Relationship>();
 
                 for (int i = 0; i < relationshipResult.RowCount; i++)
                 {
-                    var row = relationshipResult.GetRow(i);
+                    IList<QueryExecution.Contracts.DbCellValue> row = relationshipResult.GetRow(i);
                     schema.Relationships.Add(new Relationship
                     {
                         ForeignKeyName = row[0].DisplayValue,
-                        Entity = row[1].DisplayValue,
-                        Column = row[2].DisplayValue,
-                        ReferencedEntity = row[3].DisplayValue,
-                        ReferencedColumn = row[4].DisplayValue,
-                        OnDeleteAction = MapOnAction(row[5].DisplayValue),
-                        OnUpdateAction = MapOnAction(row[6].DisplayValue),
+                        SchemaName = row[1].DisplayValue,
+                        Entity = row[2].DisplayValue,
+                        Column = row[3].DisplayValue,
+                        ReferencedSchema = row[4].DisplayValue,
+                        ReferencedEntity = row[5].DisplayValue,
+                        ReferencedColumn = row[6].DisplayValue,
+                        OnDeleteAction = MapOnAction(row[7].DisplayValue),
+                        OnUpdateAction = MapOnAction(row[8].DisplayValue),
                     });
                 }
                 await requestContext.SendResult(schema);
@@ -336,4 +278,73 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         }
 
     }
+}
+
+static class SchemaDesignerQueries
+{
+    // Query to get all tables and columns in the database
+    public const string TableAndColumnQuery = @"
+        SELECT 
+            SCHEMA_NAME(t.schema_id) AS SchemaName,
+            t.name AS TableName,
+            c.name AS ColumnName,
+            ty.name AS DataType,
+            c.is_identity AS IsIdentity,
+            CASE 
+                WHEN pk.column_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS IsPrimaryKey,
+            CASE 
+                WHEN fk.column_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS IsForeignKey
+        FROM sys.tables t
+        JOIN sys.columns c 
+            ON t.object_id = c.object_id
+        JOIN sys.types ty
+            ON c.user_type_id = ty.user_type_id
+        LEFT JOIN (
+            -- Get primary key columns
+            SELECT 
+                kc.parent_object_id, 
+                ic.column_id
+            FROM sys.key_constraints kc
+            JOIN sys.index_columns ic 
+                ON kc.parent_object_id = ic.object_id AND kc.unique_index_id = ic.index_id
+            WHERE kc.type = 'PK'
+        ) pk 
+            ON t.object_id = pk.parent_object_id AND c.column_id = pk.column_id
+        LEFT JOIN (
+            -- Get foreign key columns
+            SELECT 
+                fk.parent_object_id, 
+                fkc.parent_column_id AS column_id
+            FROM sys.foreign_keys fk
+            JOIN sys.foreign_key_columns fkc 
+                ON fk.object_id = fkc.constraint_object_id
+        ) fk 
+            ON t.object_id = fk.parent_object_id AND c.column_id = fk.column_id
+        WHERE t.type = 'U'
+        ";
+
+    public const string RelationshipQuery = @"
+        SELECT 
+            fk.name AS ForeignKeyName,
+            SCHEMA_NAME(tp.schema_id) AS SchemaName,
+            tp.name AS ParentTable, 
+            cp.name AS ParentColumn, 
+            SCHEMA_NAME(tr.schema_id) AS ReferencedSchema,
+            tr.name AS ReferencedTable, 
+            cr.name AS ReferencedColumn, 
+            fk.delete_referential_action_desc AS OnDeleteAction, 
+            fk.update_referential_action_desc AS OnUpdateAction
+        FROM sys.foreign_keys fk
+        INNER JOIN sys.tables tp ON fk.parent_object_id = tp.object_id
+        INNER JOIN sys.tables tr ON fk.referenced_object_id = tr.object_id
+        INNER JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id
+        INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
+        INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id
+        ";
+        
+
 }
