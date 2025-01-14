@@ -1726,6 +1726,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #region Diagnostic Provider methods
 
+        private async Task checkForNonTSqlLanguage(ParseResult parseResult) {
+            var significantTokens = parseResult.Script.Tokens.Where(token => token.IsSignificant);
+            await ServiceHostInstance.SendEvent(NonTSqlNotification.Type, new NonTSqlParams() { OwnerUri = "", ContainsNonTSqlKeywords = true });
+        }
+
         /// <summary>
         /// Gets a list of semantic diagnostic marks for the provided script file
         /// </summary>
@@ -1737,6 +1742,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptFile.ClientUri,
                 out connInfo);
             var parseResult = await ParseAndBind(scriptFile, connInfo);
+
+            await checkForNonTSqlLanguage(parseResult);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
