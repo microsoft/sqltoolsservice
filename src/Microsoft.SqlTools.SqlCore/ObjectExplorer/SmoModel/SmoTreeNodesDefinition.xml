@@ -575,8 +575,6 @@
     <Property>Schema</Property>
     <Property>CreateDate</Property>
     <Property>Owner</Property>
-    <Property>Durability</Property>
-    <Property>IsMemoryOptimized</Property>
   </FilterProperties>
 
   <FilterProperties NodeName="SystemTables">
@@ -584,8 +582,6 @@
     <Property>Schema</Property>
     <Property>CreateDate</Property>
     <Property>Owner</Property>
-    <Property>Durability</Property>
-    <Property>IsMemoryOptimized</Property>
   </FilterProperties>
 
   <FilterProperties NodeName="DroppedLedgerTables">
@@ -593,8 +589,6 @@
     <Property>Schema</Property>
     <Property>CreateDate</Property>
     <Property>Owner</Property>
-    <Property>Durability</Property>
-    <Property>IsMemoryOptimized</Property>
   </FilterProperties>
   
   <FilterProperties NodeName="Views">
