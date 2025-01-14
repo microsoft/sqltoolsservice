@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string SchemaName { get; set; }
         /// <summary>
-        /// Gets or sets the parent entity name
+        /// Gets or sets the parent entity (Table in MSSQL) name.
         /// </summary>
         public string Entity { get; set; }
         /// <summary>
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string ReferencedSchema { get; set; }
         /// <summary>
-        /// Gets or sets the referenced entity
+        /// Gets or sets the referenced entity (Table in MSSQL) name.
         /// </summary>
         public string ReferencedEntity { get; set; }
         /// <summary>

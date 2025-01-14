@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class SchemaModel
     {
         /// <summary>
-        /// Gets or sets the entities in the schema
+        /// Gets or sets the entities (Table in MSSQL) in the schema
         /// </summary>
         public List<Entity> Entities { get; set; }
         /// <summary>
