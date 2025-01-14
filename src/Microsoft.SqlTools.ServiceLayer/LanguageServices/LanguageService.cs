@@ -1739,9 +1739,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                    });
             }
             var significantTokenTexts = parseResult.Script.Tokens
-                .Where(token => token.IsSignificant)
-                .Select(token => token.Text)
-                .ToList();
+             .Where(token => token.IsSignificant)
+             .Select(token => token.Text.ToUpperInvariant())
+             .ToList();
 
             if (significantTokenTexts.Any(TSqlDetectionConstants.Keywords.Contains))
             {
