@@ -1271,7 +1271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
-                    
+
                     // Script object using SMO
                     Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
                     return scripter.GetScript(
@@ -1726,9 +1726,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #region Diagnostic Provider methods
 
-        private async Task checkForNonTSqlLanguage(ParseResult parseResult) {
-            var significantTokens = parseResult.Script.Tokens.Where(token => token.IsSignificant);
-            await ServiceHostInstance.SendEvent(NonTSqlNotification.Type, new NonTSqlParams() { OwnerUri = "", ContainsNonTSqlKeywords = true });
+        private async Task CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
+        {
+            if (parseResult.Errors != null && parseResult.Errors.Count() > TSqlDetectionConstants.SqlFileErrorLimit)
+            {
+                await ServiceHostInstance.SendEvent(
+                                   NonTSqlNotification.Type,
+                                   new NonTSqlParams
+                                   {
+                                       OwnerUri = uri,
+                                       ContainsNonTSqlKeywords = false
+                                   });
+            }
+            var significantTokenTexts = parseResult.Script.Tokens
+                .Where(token => token.IsSignificant)
+                .Select(token => token.Text)
+                .ToList();
+
+            if (significantTokenTexts.Any(TSqlDetectionConstants.Keywords.Contains))
+            {
+                await ServiceHostInstance.SendEvent(
+                    NonTSqlNotification.Type,
+                    new NonTSqlParams
+                    {
+                        OwnerUri = uri,
+                        ContainsNonTSqlKeywords = true
+                    });
+            }
         }
 
         /// <summary>
@@ -1743,7 +1767,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 out connInfo);
             var parseResult = await ParseAndBind(scriptFile, connInfo);
 
-            await checkForNonTSqlLanguage(parseResult);
+            await CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
