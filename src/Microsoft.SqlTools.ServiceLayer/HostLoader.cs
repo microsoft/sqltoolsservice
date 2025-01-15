@@ -34,6 +34,7 @@ using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlTools.ServiceLayer.SchemaDesigner;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
@@ -178,6 +179,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             QueryStoreService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryStoreService.Instance);
+
+            SchemaDesignerService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SchemaDesignerService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }

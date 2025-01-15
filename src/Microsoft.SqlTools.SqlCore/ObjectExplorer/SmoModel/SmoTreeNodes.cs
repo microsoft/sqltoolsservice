@@ -820,30 +820,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterOwnerDescription,
     					},
-    					new NodeFilterProperty
-    					{
-    						Name = "Durability",
-    						DisplayName = SR.FilterDurabilityType,
-    						Type = NodeFilterPropertyDataType.Choice,
-    						Description = SR.FilterDurabilityTypeDescription,
-    						Choices = new NodeFilterPropertyChoice[] {
-    							new NodeFilterPropertyChoice {
-    								DisplayName = SR.FilterDurabilitySchemaAndData,
-    								Value = "1",
-    							},
-    							new NodeFilterPropertyChoice {
-    								DisplayName = SR.FilterDurabilitySchemaOnly,
-    								Value = "0",
-    							},
-    						}
-    					},
-    					new NodeFilterProperty
-    					{
-    						Name = "IsMemoryOptimized",
-    						DisplayName = SR.FilterIsMemoryOptimized,
-    						Type = NodeFilterPropertyDataType.Boolean,
-    						Description = SR.FilterIsMemoryOptimizedDescription,
-    					},
                 	}
                 });
 			}
@@ -1094,30 +1070,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
 					},
-					new NodeFilterProperty
-					{
-						Name = "Durability",
-						DisplayName = SR.FilterDurabilityType,
-						Type = NodeFilterPropertyDataType.Choice,
-						Description = SR.FilterDurabilityTypeDescription,
-						Choices = new NodeFilterPropertyChoice[] {
-							new NodeFilterPropertyChoice {
-								DisplayName = SR.FilterDurabilitySchemaAndData,
-								Value = "1",
-							},
-							new NodeFilterPropertyChoice {
-								DisplayName = SR.FilterDurabilitySchemaOnly,
-								Value = "0",
-							},
-						}
-					},
-					new NodeFilterProperty
-					{
-						Name = "IsMemoryOptimized",
-						DisplayName = SR.FilterIsMemoryOptimized,
-						Type = NodeFilterPropertyDataType.Boolean,
-						Description = SR.FilterIsMemoryOptimizedDescription,
-					},
             	}
             });
             currentChildren.Add(new FolderNode {
@@ -1323,30 +1275,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
 					},
-					new NodeFilterProperty
-					{
-						Name = "Durability",
-						DisplayName = SR.FilterDurabilityType,
-						Type = NodeFilterPropertyDataType.Choice,
-						Description = SR.FilterDurabilityTypeDescription,
-						Choices = new NodeFilterPropertyChoice[] {
-							new NodeFilterPropertyChoice {
-								DisplayName = SR.FilterDurabilitySchemaAndData,
-								Value = "1",
-							},
-							new NodeFilterPropertyChoice {
-								DisplayName = SR.FilterDurabilitySchemaOnly,
-								Value = "0",
-							},
-						}
-					},
-					new NodeFilterProperty
-					{
-						Name = "IsMemoryOptimized",
-						DisplayName = SR.FilterIsMemoryOptimized,
-						Type = NodeFilterPropertyDataType.Boolean,
-						Description = SR.FilterIsMemoryOptimizedDescription,
-					},
             	}
             });
             currentChildren.Add(new FolderNode {
@@ -1384,30 +1312,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "Durability",
-						DisplayName = SR.FilterDurabilityType,
-						Type = NodeFilterPropertyDataType.Choice,
-						Description = SR.FilterDurabilityTypeDescription,
-						Choices = new NodeFilterPropertyChoice[] {
-							new NodeFilterPropertyChoice {
-								DisplayName = SR.FilterDurabilitySchemaAndData,
-								Value = "1",
-							},
-							new NodeFilterPropertyChoice {
-								DisplayName = SR.FilterDurabilitySchemaOnly,
-								Value = "0",
-							},
-						}
-					},
-					new NodeFilterProperty
-					{
-						Name = "IsMemoryOptimized",
-						DisplayName = SR.FilterIsMemoryOptimized,
-						Type = NodeFilterPropertyDataType.Boolean,
-						Description = SR.FilterIsMemoryOptimizedDescription,
 					},
             	}
             });
