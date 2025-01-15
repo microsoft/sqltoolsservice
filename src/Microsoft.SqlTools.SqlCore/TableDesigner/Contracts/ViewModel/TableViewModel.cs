@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
         public TableComponentProperties<ForeignKeyViewModel> ForeignKeys { get; set; } = new TableComponentProperties<ForeignKeyViewModel>();
         [DataMember(Name = "checkConstraints")]
         public TableComponentProperties<CheckConstraintViewModel> CheckConstraints { get; set; } = new TableComponentProperties<CheckConstraintViewModel>();
-        [DataMember(Name = "uniqueConstraints")]
+        [DataMember(Name = "edgeConstraints")]
         public TableComponentProperties<EdgeConstraintViewModel> EdgeConstraints { get; set; } = new TableComponentProperties<EdgeConstraintViewModel>();
         [DataMember(Name = "indexes")]
         public TableComponentProperties<IndexViewModel> Indexes { get; set; } = new TableComponentProperties<IndexViewModel>();
