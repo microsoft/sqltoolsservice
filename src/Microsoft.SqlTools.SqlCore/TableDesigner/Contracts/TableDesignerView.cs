@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
     {
         [DataMember(Name = "title")]
         public string Title { get; set; }
-        [DataMember(Name = "properties")]
+        [DataMember(Name = "components")]
         public List<DesignerDataPropertyInfo> Components { get; } = new List<DesignerDataPropertyInfo>();
     }
 }
