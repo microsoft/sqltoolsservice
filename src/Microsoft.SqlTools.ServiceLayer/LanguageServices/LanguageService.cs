@@ -1729,11 +1729,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Checks for non T-SQL syntax within the Parse Result, and 
         /// sends notification if non T-SQL syntax is detected
+        /// Public for testing purposes
         /// </summary>
-        /// <param name="scriptFile"></param>
-        private async Task CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
+        /// <param name="uri"></param>
+        /// <param name="parseResult"></param>
+        public async Task CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
         {
-            if (parseResult.Errors.Count() > TSqlDetectionConstants.SqlFileErrorLimit)
+            if (parseResult.Errors.Count() >= TSqlDetectionConstants.SqlFileErrorLimit)
             {
                 await ServiceHostInstance.SendEvent(
                                    NonTSqlNotification.Type,
