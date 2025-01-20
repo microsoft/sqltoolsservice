@@ -371,6 +371,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             "Should not detect non-T-SQL in a valid T-SQL script."
         )]
         [TestCase(
+            @"
+            SELECT * from [returning]
+            --returning
+            ", 
+            false, 
+            "Should not detect non-T-SQL in a valid T-SQL script, with a Non-T-SQL keyword as an object name"
+        )]
+        [TestCase(
             "returning", 
             true, 
             "Should detect non-T-SQL keywords in the script."
