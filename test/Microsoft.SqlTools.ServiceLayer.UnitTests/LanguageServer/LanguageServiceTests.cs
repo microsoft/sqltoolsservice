@@ -5,10 +5,6 @@
 
 #nullable disable
 
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -23,29 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        /// <summary>
-        /// Verify that the latest SqlParser (2016 as of this writing) is used by default
-        /// </summary>
-        [Test]
-        public void LatestSqlParserIsUsedByDefault()
-        {
-            // This should only parse correctly on SQL server 2016 or newer
-            const string sql2016Text =
-                @"CREATE SECURITY POLICY [FederatedSecurityPolicy]" + "\r\n" +
-                @"ADD FILTER PREDICATE [rls].[fn_securitypredicate]([CustomerId])" + "\r\n" +
-                @"ON [dbo].[Customer];";
-
-            LanguageService service = TestObjects.GetTestLanguageService();
-
-            // parse
-            var scriptFile = new ScriptFile();
-            scriptFile.SetFileContents(sql2016Text);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
-
-            // verify that no errors are detected
-            Assert.AreEqual(0, fileMarkers.Length);
-        }
-
         /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
@@ -212,47 +185,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
             Assert.AreEqual(1, result.Length);
-
-        }
-
-        [Test]
-        public async Task CheckForNonTSqlLanguageTest()
-        {
-            // get the test service 
-            LanguageService service = TestObjects.GetTestLanguageService();
-            var connInfo = new ConnectionInfo(null, null, null);
-
-            const string tsqlText = "SELECT * FROM sys.objects\n--returning\nselect * s\n";
-            const string nonTSqlText = "returning";
-            string errorLimitText = string.Concat(Enumerable.Repeat("select * s\n", 51));
-
-            var scriptFileTSql = new ScriptFile();
-            scriptFileTSql.SetFileContents(tsqlText);
-
-            var scriptFileNonTSql = new ScriptFile();
-            scriptFileNonTSql.SetFileContents(nonTSqlText);
-
-            var errorScriptFile = new ScriptFile();
-            errorScriptFile.SetFileContents(errorLimitText);
-
-            ParseResult tSqlParseResult = service.ParseAndBind(scriptFileTSql, connInfo).GetAwaiter().GetResult();
-            ParseResult nonTSqlParseResult = service.ParseAndBind(scriptFileNonTSql, connInfo).GetAwaiter().GetResult();
-            ParseResult errorParseResult = service.ParseAndBind(errorScriptFile, connInfo).GetAwaiter().GetResult();
-            
-            // This should not notify, so it won't error out
-            await service.CheckForNonTSqlLanguage(scriptFileTSql.ClientUri, tSqlParseResult);
-
-            // Check that send event is called; this will error out because the Language Service's 
-            // service host is not set up; it will only error out if a Non T Sql Notification is trying to be sent out
-            var exceptionErrorFile = Assert.ThrowsAsync<System.InvalidOperationException>(async () =>
-               await service.CheckForNonTSqlLanguage(errorScriptFile.ClientUri, errorParseResult));
-            Assert.AreEqual("SendEvent called when ProtocolChannel was not yet connected", exceptionErrorFile.Message);
-
-            // Check that send event is called; this will error out because the Language Service's 
-            // service host is not set up; it will only error out if a Non T Sql Notification is trying to be sent out
-            var exceptionNonTSql = Assert.ThrowsAsync<System.InvalidOperationException>(() =>
-                service.CheckForNonTSqlLanguage(scriptFileNonTSql.ClientUri, nonTSqlParseResult));
-            Assert.AreEqual("SendEvent called when ProtocolChannel was not yet connected", exceptionNonTSql.Message);
         }
     }
 }

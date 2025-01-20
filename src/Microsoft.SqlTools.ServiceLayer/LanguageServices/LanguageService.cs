@@ -1733,7 +1733,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="parseResult"></param>
-        public async Task CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
+        public async Task<bool> CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
         {
             if (parseResult.Errors.Count() >= TSqlDetectionConstants.SqlFileErrorLimit)
             {
@@ -1744,6 +1744,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                        OwnerUri = uri,
                                        ContainsNonTSqlKeywords = false
                                    });
+
+                return true;
             }
             var significantTokenTexts = parseResult.Script.Tokens
              .Where(token => token.IsSignificant)
@@ -1759,7 +1761,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         OwnerUri = uri,
                         ContainsNonTSqlKeywords = true
                     });
+                return true;
             }
+            return false;
         }
 
         /// <summary>

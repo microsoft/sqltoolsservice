@@ -24,6 +24,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Moq;
 using NUnit.Framework;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 {
@@ -334,6 +335,67 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 testDb.Cleanup();
             }
+        }
+
+        /// <summary>
+        /// Verify that the latest SqlParser (2016 as of this writing) is used by default
+        /// </summary>
+        [Test]
+        public void LatestSqlParserIsUsedByDefault()
+        {
+            // This should only parse correctly on SQL server 2016 or newer
+            const string sql2016Text =
+                @"CREATE SECURITY POLICY [FederatedSecurityPolicy]" + "\r\n" +
+                @"ADD FILTER PREDICATE [rls].[fn_securitypredicate]([CustomerId])" + "\r\n" +
+                @"ON [dbo].[Customer];";
+
+            // parse
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(sql2016Text);
+            var langService = CreateLanguageService(scriptFile);
+
+            ScriptFileMarker[] fileMarkers = langService.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
+
+            // verify that no errors are detected
+            Assert.AreEqual(0, fileMarkers.Length);
+        }
+
+        [Test]
+        [TestCase(
+            @"
+            SELECT * from sys.objects
+            --returning
+            select * s
+            ", 
+            false, 
+            "Should not detect non-T-SQL in a valid T-SQL script."
+        )]
+        [TestCase(
+            "returning", 
+            true, 
+            "Should detect non-T-SQL keywords in the script."
+        )]
+        [TestCase(
+            null, 
+            true, 
+            "Should detect non-T-SQL due to exceeding error limit."
+        )]
+        public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
+        {
+            var connInfo = new ConnectionInfo(null, null, null);
+
+             // Dynamically generate the script if it's null (for error limit test)
+            scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", 51));
+
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(scriptText);
+
+            var langService = CreateLanguageService(scriptFile);
+            ParseResult parseResult = await langService.ParseAndBind(scriptFile, connInfo);
+
+            var result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+
+            Assert.AreEqual(expectedResult, result, message);
         }
 
         /// <summary>
