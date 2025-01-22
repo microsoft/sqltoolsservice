@@ -1742,7 +1742,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                    new NonTSqlParams
                                    {
                                        OwnerUri = uri,
-                                       ContainsNonTSqlKeywords = false
+                                       NonTSqlKeyword = null
                                    });
 
                 return true;
@@ -1756,7 +1756,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     new NonTSqlParams
                     {
                         OwnerUri = uri,
-                        ContainsNonTSqlKeywords = true
+                        NonTSqlKeyword = token.Text
                     });
                     return true;
                 }

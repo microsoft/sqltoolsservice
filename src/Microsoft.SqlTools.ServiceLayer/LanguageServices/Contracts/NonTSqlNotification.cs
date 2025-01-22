@@ -21,12 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// Indicates whether the file was flagged due to containing
-        /// non-TSQL keywords or hitting the error limit.
-        /// If true, file contains non-TSQL keywords. 
-        /// If false, file hit the error limit.
+        /// If null, indicates that the script was flagged due to the error limit
+        /// Else, contains the word the script was flagged for 
         /// </summary>
-        public bool ContainsNonTSqlKeywords { get; set; }
+        public string NonTSqlKeyword { get; set; }
     }
 
     /// <summary>
@@ -104,7 +102,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "DELAY_KEY_WRITE",
             "DENSE_RANK",
             "DIRECTORY",
-            "DISABLE",
             "DISCARD",
             "DISTINCTROW",
             "DIV",
@@ -128,7 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "EXTENT_SIZE",
             "FACTOR",
             "FAILED_LOGIN_ATTEMPTS",
-            "FAST",
             "FAULTS",
             "FILE_BLOCK_SIZE",
             "FINISH",
@@ -139,8 +135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "FLUSH",
             "FOLLOWING",
             "FOLLOWS",
-            "FORCE",
-            "FULLTEXT",
             "GENERATE",
             "GEOMCOLLECTION",
             "GEOMETRYCOLLECTION",
@@ -181,9 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "JSON_VALUE",
             "KEYRING",
             "KEY_BLOCK_SIZE",
-            "LAG",
             "LAST_VALUE",
-            "LEAD",
             "LEAVE",
             "LEAVES",
             "LINEAR",
@@ -194,7 +186,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "LONG",
             "LONGBLOB",
             "LONGTEXT",
-            "LOOP",
             "LOW_PRIORITY",
             "MANUAL",
             "MAX_CONNECTIONS_PER_HOUR",
@@ -232,7 +223,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "NTILE",
             "NULLS",
             "OJ",
-            "OPTIMIZE",
             "OPTIMIZER_COSTS",
             "OPTIONALLY",
             "OTHERS",
@@ -257,7 +247,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "PURGE",
             "QUALIFY",
             "QUARTER",
-            "QUERY",
             "QUICK",
             "RANDOM",
             "READ_WRITE",
@@ -279,7 +268,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "REPAIR",
             "REPEAT",
             "REPEATABLE",
-            "REPLACE",
             "REPLICA",
             "REPLICAS",
             "REPLICATE_DO_DB",
@@ -401,7 +389,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "UNDO",
             "UNDOFILE",
             "UNDO_BUFFER_SIZE",
-            "UNICODE",
             "UNINSTALL",
             "UNLOCK",
             "UNREGISTER",
@@ -446,7 +433,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "BOM",
             "BTRIM",
             "CEIL",
-            "CEILING",
             "CHAINING",
             "CHARACTER_SET_SCHEMA",
             "CHARACTER_​SET_​CATALOG",
@@ -504,7 +490,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "FINAL",
             "FINALIZE",
             "FLAG",
-            "FLOOR",
             "FORWARD",
             "FRAME_ROW",
             "FREEZE",
@@ -524,9 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "INHERITS",
             "INLINE",
             "INSTANTIABLE",
-            "INSTEAD",
             "INTEGRITY",
-            "ISNULL",
             "JSON_ARRAY",
             "JSON_ARRAYAGG",
             "JSON_EXISTS",
@@ -536,7 +519,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "JSON_SCALAR",
             "JSON_SERIALIZE",
             "JSON_TABLE_PRIMITIVE",
-            "KEEP",
             "KEY_MEMBER",
             "LEAKPROOF",
             "LEAST",
@@ -546,7 +528,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "LOG10",
             "LOGGED",
             "LPAD",
-            "LTRIM",
             "MAPPING",
             "MATCHED",
             "MATCHES",
@@ -614,7 +595,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "ROUTINE_CATALOG",
             "ROUTINE_SCHEMA",
             "RPAD",
-            "RTRIM",
             "RUNNING",
             "SCALAR",
             "SCALE",
