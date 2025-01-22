@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             "Should not detect non-T-SQL in a valid T-SQL script, with a Non-T-SQL keyword as an object name"
         )]
         [TestCase(
-            "returning", 
+            "CREATE DATABASE ExampleDB; returNING", 
             true, 
             "Should detect non-T-SQL keywords in the script."
         )]

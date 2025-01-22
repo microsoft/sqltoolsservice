@@ -23,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// <summary>
         /// Indicates whether the file was flagged due to containing
         /// non-TSQL keywords or hitting the error limit.
+        /// If true, file contains non-TSQL keywords. 
+        /// If false, file hit the error limit.
         /// </summary>
         public bool ContainsNonTSqlKeywords { get; set; }
     }
@@ -53,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// - T-SQL: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
         /// Some of the MySql keywords have an overlap with PGSQL keywords 
         /// </summary>
-        public static readonly HashSet<string> Keywords = new HashSet<string>
+        public static readonly HashSet<string> Keywords = new HashSet<string>(new[]
         {
             // MYSQL words
             "ACCESSIBLE",
@@ -682,6 +684,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "XMLDECLARATION",
             "XMLROOT",
             "XMLSCHEMA",
-        };
+        },
+        System.StringComparer.OrdinalIgnoreCase);
     }
 }

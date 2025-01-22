@@ -1747,21 +1747,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 return true;
             }
-            var significantTokenTexts = parseResult.Script.Tokens
-             .Where(token => token.IsSignificant)
-             .Select(token => token.Text.ToUpperInvariant())
-             .ToList();
-
-            if (significantTokenTexts.Any(TSqlDetectionConstants.Keywords.Contains))
+            foreach (var token in parseResult.Script.Tokens)
             {
-                await ServiceHostInstance.SendEvent(
+                if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text))
+                {
+                    await ServiceHostInstance.SendEvent(
                     NonTSqlNotification.Type,
                     new NonTSqlParams
                     {
                         OwnerUri = uri,
                         ContainsNonTSqlKeywords = true
                     });
-                return true;
+                    return true;
+                }
             }
             return false;
         }
@@ -1778,7 +1776,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 out connInfo);
             var parseResult = await ParseAndBind(scriptFile, connInfo);
 
-            await CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+            _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
