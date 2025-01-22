@@ -128,6 +128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest, true);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest, true);
             serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest, true);
+            serviceHost.SetRequestHandler(GetSessionIdRequest.Type, HandleGetSessionIdRequest, true);
+
             WorkspaceService<SqlToolsSettings> workspaceService = WorkspaceService;
             if (workspaceService != null)
             {
@@ -158,6 +160,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             return Task.FromResult(true);
         }
 
+        internal async Task HandleGetSessionIdRequest(ConnectionDetails connectionDetails, RequestContext<GetSessionIdResponse> context)
+        {
+            Logger.Verbose(nameof(HandleGetSessionIdRequest));
+            Func<Task<GetSessionIdResponse>> getConnectionKey = async () =>
+            {
+                Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+                Validate.IsNotNull(nameof(context), context);
+                return await Task.Run(() =>
+                {
+                    string key = ConnectedBindingQueue.GetConnectionContextKey(connectionDetails);
+                    return new GetSessionIdResponse { SessionId = key };
+                });
+            };
+            GetSessionIdResponse response = await HandleRequestAsync(getConnectionKey, context, nameof(HandleGetSessionIdRequest));
+        }
 
         internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
         {
