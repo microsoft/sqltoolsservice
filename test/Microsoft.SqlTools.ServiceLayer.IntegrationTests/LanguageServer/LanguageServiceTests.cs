@@ -388,7 +388,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             true, 
             "Should detect non-T-SQL due to exceeding error limit."
         )]
-        public async Task<Boolean> CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
+        public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
+        {
+            bool result = await CheckForNonTSqlHelper(scriptText);
+            Assert.AreEqual(expectedResult, result, message);
+        }
+
+        [Test]
+        [TestCase(
+            "LanguageServer\\AdventureWorksDeploymentTestScript.sql", 
+            false, 
+            "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
+        )]
+        public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
+        {            
+            filePath = Path.Combine(AppContext.BaseDirectory, filePath);
+            if (File.Exists(filePath))
+            {
+                // Read the contents of the file
+                string scriptText = File.ReadAllText(filePath);
+                bool result = await CheckForNonTSqlHelper(scriptText);
+                Assert.AreEqual(expectedResult, result, message);
+            }
+            else {
+                Assert.Fail($"File not found: {filePath}");
+            }
+        }
+
+        public async Task<bool>CheckForNonTSqlHelper(string scriptText)
         {
             var connInfo = new ConnectionInfo(null, null, null);
 
@@ -402,29 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             ParseResult parseResult = await langService.ParseAndBind(scriptFile, connInfo);
 
             var result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
-
-            Assert.AreEqual(expectedResult, result, message);
             return result;
-        }
-
-        [Test]
-        [TestCase(
-            "./TestScript.txt", 
-            false, 
-            "Long Sql Server script; should not detect Non-T-SQL syntax"
-        )]
-        public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
-        {            
-            if (File.Exists(filePath))
-            {
-                // Read the contents of the file
-                string scriptText = File.ReadAllText(filePath);
-                bool result = await CheckForNonTSqlLanguageTest(scriptText, false, message);
-                Assert.AreEqual(expectedResult, result, message);
-            }
-            else {
-                Assert.Fail($"File not found: {filePath}");
-            }
         }
 
         /// <summary>
