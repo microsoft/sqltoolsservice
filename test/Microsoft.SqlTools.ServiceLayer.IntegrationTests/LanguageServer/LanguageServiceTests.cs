@@ -413,14 +413,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             false, 
             "Long Sql Server script; should not detect Non-T-SQL syntax"
         )]
-        public async Task CheckForNonTSqlLanguageFromFilePathTest(string scriptText, bool expectedResult, string message)
+        public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
         {            
-            if (File.Exists(scriptText))
+            if (File.Exists(filePath))
             {
                 // Read the contents of the file
-                scriptText = File.ReadAllText(scriptText);
+                string scriptText = File.ReadAllText(filePath);
                 bool result = await CheckForNonTSqlLanguageTest(scriptText, false, message);
                 Assert.AreEqual(expectedResult, result, message);
+            }
+            else {
+                Assert.Fail($"File not found: {filePath}");
             }
         }
 
