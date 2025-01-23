@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -1747,14 +1748,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return true;
             }
 
-            HashSet<string> identifiers = new HashSet<string>();
+            HashSet<string> identifiers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             IList<SqlIdentifier> scriptIdentifiers = parseResult.Script.RetrieveAllIdentifiers();
-            foreach (var identifier in scriptIdentifiers)
+            foreach (SqlIdentifier identifier in scriptIdentifiers)
             {
                 identifiers.Add(identifier.ToString());
             }
 
-            foreach (var token in parseResult.Script.Tokens)
+            foreach (Token token in parseResult.Script.Tokens)
             {
                 if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text) && !identifiers.Contains(token.Text))
                 {
