@@ -1742,14 +1742,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                    new NonTSqlParams
                                    {
                                        OwnerUri = uri,
-                                       NonTSqlKeyword = null
+                                    NonTSqlKeyword = null,
                                    });
-
                 return true;
             }
+
+            HashSet<string> identifiers = new HashSet<string>();
+            IList<SqlIdentifier> scriptIdentifiers = parseResult.Script.RetrieveAllIdentifiers();
+            foreach (var identifier in scriptIdentifiers)
+            {
+                identifiers.Add(identifier.ToString());
+            }
+
             foreach (var token in parseResult.Script.Tokens)
             {
-                if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text))
+                if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text) && !identifiers.Contains(token.Text))
                 {
                     await ServiceHostInstance.SendEvent(
                     NonTSqlNotification.Type,
