@@ -388,24 +388,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             true, 
             "Should detect non-T-SQL due to exceeding error limit."
         )]
-        [TestCase(
-            "./TestScript.txt", 
-            false, 
-            "Long Sql Server script; should not detect Non-T-SQL syntax"
-        )]
-        public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
+        public async Task<Boolean> CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
         {
             var connInfo = new ConnectionInfo(null, null, null);
-            
-            if (File.Exists(scriptText))
-            {
-                // Read the contents of the file
-                scriptText = File.ReadAllText(scriptText);
-            }
-            else {
-                // Dynamically generate the script if it's null (for error limit test)
-                scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", 51));
-            }
+
+            // Dynamically generate the script if it's null (for error limit test)
+            scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", 51));
 
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(scriptText);
@@ -416,6 +404,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
             Assert.AreEqual(expectedResult, result, message);
+            return result;
+        }
+
+        [Test]
+        [TestCase(
+            "./TestScript.txt", 
+            false, 
+            "Long Sql Server script; should not detect Non-T-SQL syntax"
+        )]
+        public async Task CheckForNonTSqlLanguageFromFilePathTest(string scriptText, bool expectedResult, string message)
+        {            
+            if (File.Exists(scriptText))
+            {
+                // Read the contents of the file
+                scriptText = File.ReadAllText(scriptText);
+                bool result = await CheckForNonTSqlLanguageTest(scriptText, false, message);
+                Assert.AreEqual(expectedResult, result, message);
+            }
         }
 
         /// <summary>
