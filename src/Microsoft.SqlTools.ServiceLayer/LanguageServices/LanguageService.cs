@@ -14,7 +14,6 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -1764,7 +1763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     new NonTSqlParams
                     {
                         OwnerUri = uri,
-                        NonTSqlKeyword = token.Text
+                        NonTSqlKeyword = token.Text,
                     });
                     return true;
                 }
