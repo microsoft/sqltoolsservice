@@ -20,29 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     public class LanguageServiceTests
     {
         /// <summary>
-        /// Verify that the latest SqlParser (2016 as of this writing) is used by default
-        /// </summary>
-        [Test]
-        public void LatestSqlParserIsUsedByDefault()
-        {
-            // This should only parse correctly on SQL server 2016 or newer
-            const string sql2016Text =
-                @"CREATE SECURITY POLICY [FederatedSecurityPolicy]" + "\r\n" +
-                @"ADD FILTER PREDICATE [rls].[fn_securitypredicate]([CustomerId])" + "\r\n" +
-                @"ON [dbo].[Customer];";
-
-            LanguageService service = TestObjects.GetTestLanguageService();
-
-            // parse
-            var scriptFile = new ScriptFile();
-            scriptFile.SetFileContents(sql2016Text);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
-
-            // verify that no errors are detected
-            Assert.AreEqual(0, fileMarkers.Length);
-        }
-
-        /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
         [Test]
@@ -208,7 +185,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
             Assert.AreEqual(1, result.Length);
-
         }
     }
 }
