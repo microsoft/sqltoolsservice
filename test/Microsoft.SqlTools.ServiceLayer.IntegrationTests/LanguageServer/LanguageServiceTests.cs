@@ -11,6 +11,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
@@ -24,7 +25,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Moq;
 using NUnit.Framework;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 {
@@ -420,7 +420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var connInfo = new ConnectionInfo(null, null, null);
 
             // Dynamically generate the script if it's null (for error limit test)
-            scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", 51));
+            scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", TSqlDetectionConstants.SqlFileErrorLimit + 1));
 
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(scriptText);
@@ -428,7 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var langService = CreateLanguageService(scriptFile);
             ParseResult parseResult = await langService.ParseAndBind(scriptFile, connInfo);
 
-            var result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+            bool result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
             return result;
         }
 
