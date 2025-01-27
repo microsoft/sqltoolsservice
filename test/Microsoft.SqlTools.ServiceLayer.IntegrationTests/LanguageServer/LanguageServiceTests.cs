@@ -11,6 +11,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
@@ -334,6 +335,101 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 testDb.Cleanup();
             }
+        }
+
+        /// <summary>
+        /// Verify that the latest SqlParser (2016 as of this writing) is used by default
+        /// </summary>
+        [Test]
+        public void LatestSqlParserIsUsedByDefault()
+        {
+            // This should only parse correctly on SQL server 2016 or newer
+            const string sql2016Text =
+                @"CREATE SECURITY POLICY [FederatedSecurityPolicy]" + "\r\n" +
+                @"ADD FILTER PREDICATE [rls].[fn_securitypredicate]([CustomerId])" + "\r\n" +
+                @"ON [dbo].[Customer];";
+
+            // parse
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(sql2016Text);
+            var langService = CreateLanguageService(scriptFile);
+
+            ScriptFileMarker[] fileMarkers = langService.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
+
+            // verify that no errors are detected
+            Assert.AreEqual(0, fileMarkers.Length);
+        }
+
+        [Test]
+        [TestCase(
+            @"
+            SELECT * from sys.objects
+            --returning
+            select * s
+            ", 
+            false, 
+            "Should not detect non-T-SQL in a valid T-SQL script."
+        )]
+        [TestCase(
+            @"
+            SELECT * from [returning]
+            --returning
+            ", 
+            false, 
+            "Should not detect non-T-SQL in a valid T-SQL script, with a Non-T-SQL keyword as an object name"
+        )]
+        [TestCase(
+            "CREATE DATABASE ExampleDB; returNING", 
+            true, 
+            "Should detect non-T-SQL keywords in the script."
+        )]
+        [TestCase(
+            null, 
+            true, 
+            "Should detect non-T-SQL due to exceeding error limit."
+        )]
+        public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
+        {
+            bool result = await CheckForNonTSqlHelper(scriptText);
+            Assert.AreEqual(expectedResult, result, message);
+        }
+
+        [Test]
+        [TestCase(
+            "LanguageServer\\AdventureWorksDeploymentTestScript.sql", 
+            false, 
+            "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
+        )]
+        public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
+        {            
+            filePath = Path.Combine(AppContext.BaseDirectory, filePath);
+            if (File.Exists(filePath))
+            {
+                // Read the contents of the file
+                string scriptText = File.ReadAllText(filePath);
+                bool result = await CheckForNonTSqlHelper(scriptText);
+                Assert.AreEqual(expectedResult, result, message);
+            }
+            else {
+                Assert.Fail($"File not found: {filePath}");
+            }
+        }
+
+        public async Task<bool>CheckForNonTSqlHelper(string scriptText)
+        {
+            var connInfo = new ConnectionInfo(null, null, null);
+
+            // Dynamically generate the script if it's null (for error limit test)
+            scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", TSqlDetectionConstants.SqlFileErrorLimit + 1));
+
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(scriptText);
+
+            var langService = CreateLanguageService(scriptFile);
+            ParseResult parseResult = await langService.ParseAndBind(scriptFile, connInfo);
+
+            bool result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+            return result;
         }
 
         /// <summary>

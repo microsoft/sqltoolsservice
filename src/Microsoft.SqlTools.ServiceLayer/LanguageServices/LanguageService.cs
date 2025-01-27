@@ -1271,7 +1271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
-                    
+
                     // Script object using SMO
                     Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
                     return scripter.GetScript(
@@ -1727,6 +1727,51 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #region Diagnostic Provider methods
 
         /// <summary>
+        /// Checks for non T-SQL syntax within the Parse Result, and 
+        /// sends notification if non T-SQL syntax is detected
+        /// Public for testing purposes
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="parseResult"></param>
+        public async Task<bool> CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
+        {
+            if (parseResult.Errors.Count() >= TSqlDetectionConstants.SqlFileErrorLimit)
+            {
+                await ServiceHostInstance.SendEvent(
+                                   NonTSqlNotification.Type,
+                                   new NonTSqlParams
+                                   {
+                                       OwnerUri = uri,
+                                       NonTSqlKeyword = null,
+                                   });
+                return true;
+            }
+
+            HashSet<string> identifiers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            IList<SqlIdentifier> scriptIdentifiers = parseResult.Script.RetrieveAllIdentifiers();
+            foreach (SqlIdentifier identifier in scriptIdentifiers)
+            {
+                identifiers.Add(identifier.ToString());
+            }
+
+            foreach (Token token in parseResult.Script.Tokens)
+            {
+                if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text) && !identifiers.Contains(token.Text))
+                {
+                    await ServiceHostInstance.SendEvent(
+                    NonTSqlNotification.Type,
+                    new NonTSqlParams
+                    {
+                        OwnerUri = uri,
+                        NonTSqlKeyword = token.Text,
+                    });
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Gets a list of semantic diagnostic marks for the provided script file
         /// </summary>
         /// <param name="scriptFile"></param>
@@ -1737,6 +1782,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptFile.ClientUri,
                 out connInfo);
             var parseResult = await ParseAndBind(scriptFile, connInfo);
+
+            _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();

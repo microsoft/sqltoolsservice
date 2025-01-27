@@ -44,6 +44,14 @@
     <None Include="AzureFunctions\AzureFunctionTestFiles\*" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="LanguageServer\AdventureWorksDeploymentTestScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LanguageServer\AdventureWorksDeploymentTestScript.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="DacFx\Dacpacs\" />
   </ItemGroup>
   <ItemGroup>
