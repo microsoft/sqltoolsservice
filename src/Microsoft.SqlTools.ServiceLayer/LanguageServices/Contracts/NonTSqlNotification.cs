@@ -73,7 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             "AVG_ROW_LENGTH",
             "BERNOULLI",
             "BINLOG",
-            "BOOL",
             "BTREE",
             "BUCKETS",
             "BYTE",
