@@ -45,6 +45,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public const int SqlFileErrorLimit = 50;
 
         /// <summary>
+        /// The number of Non-TSQL keywords that need to be found
+        /// to trigger a notification
+        /// </summary>
+        /// 
+        public const int NonTSqlKeywordLimit = 2;
+
+        /// <summary>
         /// A list of keywords that exist in MySQL and PostgreSQL documentation
         /// but are not present in T-SQL documentation.
         /// Sources:
@@ -52,6 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// - PostgreSQL: https://www.postgresql.org/docs/current/sql-keywords-appendix.html
         /// - T-SQL: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
         /// Some of the MySql keywords have an overlap with PGSQL keywords 
+        /// Additionally, this was tested on files from https://github.com/microsoft/sql-server-samples/tree/master
+        /// Keywords flagged by TSql files in this repo were removed
         /// </summary>
         public static readonly HashSet<string> Keywords = new HashSet<string>(new[]
         {

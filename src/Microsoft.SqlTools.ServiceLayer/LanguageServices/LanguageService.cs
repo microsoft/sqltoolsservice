@@ -1755,14 +1755,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             int count = 0;
-            string[] nonTSqlKeywords = new string[2];
+            string[] nonTSqlKeywords = new string[TSqlDetectionConstants.NonTSqlKeywordLimit];
             foreach (Token token in parseResult.Script.Tokens)
             {
                 if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text) && !identifiers.Contains(token.Text))
                 {
                     nonTSqlKeywords[count] = token.Text;
                     count++;
-                    if (count == 2)
+                    if (count == TSqlDetectionConstants.NonTSqlKeywordLimit)
                     {
                         await ServiceHostInstance.SendEvent(
                         NonTSqlNotification.Type,
