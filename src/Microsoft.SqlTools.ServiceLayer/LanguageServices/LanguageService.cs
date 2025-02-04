@@ -1754,18 +1754,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 identifiers.Add(identifier.ToString());
             }
 
+            int count = 0;
+            string[] nonTSqlKeywords = new string[TSqlDetectionConstants.NonTSqlKeywordLimit];
             foreach (Token token in parseResult.Script.Tokens)
             {
                 if (token.IsSignificant && TSqlDetectionConstants.Keywords.Contains(token.Text) && !identifiers.Contains(token.Text))
                 {
-                    await ServiceHostInstance.SendEvent(
-                    NonTSqlNotification.Type,
-                    new NonTSqlParams
+                    nonTSqlKeywords[count] = token.Text;
+                    count++;
+                    if (count == TSqlDetectionConstants.NonTSqlKeywordLimit)
                     {
-                        OwnerUri = uri,
-                        NonTSqlKeyword = token.Text,
-                    });
-                    return true;
+                        await ServiceHostInstance.SendEvent(
+                        NonTSqlNotification.Type,
+                        new NonTSqlParams
+                        {
+                            OwnerUri = uri,
+                            NonTSqlKeyword = string.Join(", ", nonTSqlKeywords)
+                        });
+                        return true;
+                    }
                 }
             }
             return false;

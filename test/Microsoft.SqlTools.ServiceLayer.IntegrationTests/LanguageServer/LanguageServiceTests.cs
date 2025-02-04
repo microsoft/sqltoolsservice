@@ -400,6 +400,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             false, 
             "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
         )]
+        [TestCase(
+            "LanguageServer\\AdventureWorksTestScript.sql", 
+            false, 
+            "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
+        )]
+        [TestCase(
+            "LanguageServer\\WWITestScript.sql", 
+            false, 
+            "WWI script; should not detect Non-T-SQL syntax"
+        )]
         public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
         {            
             filePath = Path.Combine(AppContext.BaseDirectory, filePath);

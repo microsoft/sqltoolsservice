@@ -45,9 +45,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="LanguageServer\AdventureWorksDeploymentTestScript.sql" />
+    <None Remove="LanguageServer\AdventureWorksTestScript.sql" />
+    <None Remove="LanguageServer\WWITestScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LanguageServer\AdventureWorksDeploymentTestScript.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LanguageServer\AdventureWorksTestScript.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LanguageServer\WWITestScript.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
