@@ -17,7 +17,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SqlServer.SqlCopilot.Cartridges;
+using Microsoft.SqlScriptoria;
 using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -26,7 +26,6 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
-
     public class ConversationState
     {
         public string Response { get; set; }
@@ -56,6 +55,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private ChatHistory chatHistory;
         private static VSCodePromptExecutionSettings openAIPromptExecutionSettings;
 
+        private static IDictionary<string, string> _connectionContext = new Dictionary<string, string>();
+
+        // active cartridge
+        private static Cartridge? _activeCartridge = null;
+        // private static ChatHistory? _chatHistory = null;
+
         public CopilotConversationManager()
         {
             messageQueue = new ChatMessageQueue(conversations);
@@ -63,6 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         public async Task<bool> StartConversation(string conversationUri, string connectionUri, string userText)
         {
+            Logger.Verbose($"Start Copilot conversation '{conversationUri}' for connection '{connectionUri}'");
+
             if (!ConnectionService.Instance.OwnerToConnectionMap.TryGetValue(
                 connectionUri, out ConnectionInfo connectionInfo))
             {
@@ -74,7 +81,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 connectionUri, ConnectionType.Default);
 
             if (!ConnectionService.Instance.TryGetAsSqlConnection(dbConnection, out var sqlConnection))
+            {
+                Logger.Verbose($"Could not get connection '{connectionUri}'");
                 return false;
+            }
 
             // Create and initialize conversation
             var conversation = new CopilotConversation
@@ -94,13 +104,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             return true;
         }
 
+        public void AddOrUpdateConversation(string conversationUri, CopilotConversation conversation)
+        {
+            conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
+        }
+
         public async Task<ChatMessage> QueueLLMRequest(
             string conversationUri,
+            RequestMessageType type,
             IList<LanguageModelRequestMessage> messages,
             IList<LanguageModelChatTool> tools)
         {
             conversations.TryGetValue(conversationUri, out var conversation);
-            var chatRequest = new ChatMessage(RequestMessageType.ToolCallRequest, conversationUri, messages, tools, conversation);
+            var chatRequest = new ChatMessage(type, conversationUri, messages, tools, conversation);
             await messageQueue.EnqueueMessageAsync(chatRequest);
             return chatRequest;
         }
@@ -142,25 +158,71 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 activitySource.StartActivity("Main");
 
                 // Setup access and tools
-                var accessChecker = new ExecutionAccessChecker(userSessionKernel);
-                var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
-                var currentDbConfig = SqlExecAndParse.GetCurrentDatabaseAndServerInfo().Result;
+                // var accessChecker = new ExecutionAccessChecker(userSessionKernel);
+                // var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
+               // var currentDbConfig = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
+
 
                 // Add tools to kernel
-                builder.Plugins.AddFromObject(sqlExecHelper);
+                //builder.Plugins.AddFromObject(sqlExecHelper);
 
                 // Setup cartridges
                 var services = new ServiceCollection();
-                services.AddSingleton<SQLPluginHelperResourceServices>();
+                services.AddSingleton<CartridgeContentManager>();
 
-                var cartridgeBootstrapper = new Bootstrapper(rpcClient, accessChecker);
-                cartridgeBootstrapper.LoadCartridges(
-                    services.BuildServiceProvider().GetRequiredService<SQLPluginHelperResourceServices>());
-                cartridgeBootstrapper.LoadToolSets(builder, currentDbConfig);
+                ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
 
-                // Rebuild kernel with all plugins
+                // initialize the bootstrapper that will discover and find the correct cartridge to use for the current 
+                // connection context
+                var contentManager = services.BuildServiceProvider().GetRequiredService<CartridgeContentManager>();
+                contentManager.ContentProviderType = contentLibraryProviderType;
+
+                Logger.Verbose($"SqlScriptoria version: {contentManager.Version}");
+             
+                Bootstrapper cartridgeBootstrapper = new Bootstrapper(sqlService, sqlService, contentManager, new ChatExecutionAccessCheckerFactory());
+
+                //// appsettings.json allows for excluding specific cartridges, toolsets, or tools.  Load these seetings
+                //// into the bootstrapper so it can exclude them from the set of loaded assets
+                //if (serverConfiguration != null)
+                //{
+                //    // set exclusion lists read from appsettings.json
+                //    serverConfiguration.GetSection("PackageExclusions:Cartridges").Bind(cartridgeBootstrapper.ExcludedCartridges);
+                //    serverConfiguration.GetSection("PackageExclusions:Toolsets").Bind(cartridgeBootstrapper.ExcludedToolsets);
+                //    serverConfiguration.GetSection("PackageExclusions:Tools").Bind(cartridgeBootstrapper.ExcludedTools);
+                //}
+
+                // we need the current connection context to be able to load the cartridges.  To the connection 
+                // context we add what experiecnce this is being loaded into by the client.  
+                var connectionContext = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService!).Result;
+
+                // the active cartridge (there can only be one in the current design) is loaded using the current db config 
+                // the 'Experience' and 'Version' properties will deterime which cartridge is loaded.
+                // other configuration values will be used by toolsets in the future as well.
+                _activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, connectionContext, CartridgeExperiences.TsqlEditorChat);
+                _activeCartridge.InitializeToolsets();
+
+                // inject the preferred style if the user set it in appsettings or via an API call.
+                //if (!string.IsNullOrEmpty(_preferredResponseStyle))
+                //{
+                //    _activeCartridge.PreferredStyle = _preferredResponseStyle;
+                //}
+
+                // load any memorable facts about the current database and user preferences
+                //_factsManager = new FactsManager(connectionContext[CartridgeContextKeys.DatabaseName]);
+                //if (_memorableFactsEnabled)
+                //{
+                //    _factsManager.LoadMemorableFacts();
+                //}
+
+                // rebuild the kernel with the set of plugins for the current database
                 userSessionKernel = builder.Build();
                 userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
+
+                // read-only is the default startup mode
+                _activeCartridge.AccessChecker.ExecutionMode = CopilotAccessModes.READ_WRITE_NEVER;
+
+                // InitializeChatHistory();
+
 
                 // Initialize chat history
                 var initialSystemMessage = @"System message: YOUR ROLE:
@@ -169,15 +231,13 @@ Act as a SQL Server and VS Code SME.
 
 GENERAL REQUIREMENTS:
 - Work step-by-step, do not skip any requirements.
+- **Important**: Do not assume a default schema (e.g. dbo) for database objects when calling tool functions.  If an table does not contain a scehema call the GetTableNames tool lookup the schema before calling other tools with the object name.  This is IMPORTANT or other tools will fail.
 - **Important**: Do not re-call the same tool with identical parameters unless specifically prompted.
-- **Important**: Do not assume a default schema (e.g. dbo) for database objects when calling tool functions.  Use the schema discovery tool to find the correct schema before calling other tools.
 - If a tool has been successfully called, move on to the next step based on the user's query.";
 
                 chatHistory = new ChatHistory(initialSystemMessage);
-
-                SqlExecAndParse.SetAccessMode(CopilotAccessModes.READ_WRITE_NEVER);
                 chatHistory.AddSystemMessage(
-                    $"Configuration information for currently connected database: {currentDbConfig}");
+                    $"Configuration information for currently connected database: {connectionContext}");
 
                 // Wire up response handler events
                 responseHandler.OnChatResponse += async (e) =>

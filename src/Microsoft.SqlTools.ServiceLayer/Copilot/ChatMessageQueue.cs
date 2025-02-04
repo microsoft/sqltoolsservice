@@ -18,6 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
     public enum RequestMessageType
     {
         ToolCallRequest,
+        DirectRequest,
         Response
     }
 
@@ -55,7 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             LanguageModelChatTool tool,
             string toolParameters)
         {
-            
+
+            Logger.Verbose($"ProcessNextMessage: Conversation '{conversationUri}' for text '{userText}'");
+
             if (tool != null && HandleToolCallMessage(conversationUri, tool, toolParameters, out var response))
             {
                 return response;
@@ -79,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             }
 
             var message = await messageChannel.Reader.ReadAsync();
-            if (message.Type == RequestMessageType.ToolCallRequest)
+            if (message.Type == RequestMessageType.ToolCallRequest || message.Type == RequestMessageType.DirectRequest)
             {
                 conversation.State = new ConversationState
                 {
@@ -87,7 +90,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 };
                 return new GetNextMessageResponse
                 {
-                    MessageType = MessageType.RequestLLM,
+                    ConversationUri = message.ConversationUri,
+                    MessageType = message.Type == RequestMessageType.DirectRequest ? MessageType.RequestDirectLLM : MessageType.RequestLLM,
                     ResponseText = message.Conversation.CurrentMessage,
                     Tools = message.Tools.ToArray(),
                     RequestMessages = message.Messages.ToArray()
@@ -96,6 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
             return new GetNextMessageResponse
             {
+                ConversationUri = message.ConversationUri,
                 MessageType = MessageType.MessageComplete,
                 ResponseText = responseText
             };
@@ -104,6 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         private bool HandleToolCallMessage(string conversationUri, LanguageModelChatTool tool, string toolParameters, out GetNextMessageResponse response)
         {
+            Logger.Verbose($"HandleToolCallMessage: Conversation '{conversationUri}' for tool '{tool.FunctionName}'");
+
             response = null;
             var callKey = CreateToolCallKey(tool.FunctionName, toolParameters);
             var conversationCache = toolCallCache.GetOrAdd(
@@ -128,6 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         private void NotifyToolCallRequest(LanguageModelChatTool tool, string toolParameters, CopilotConversation conversation)
         {
+            Logger.Verbose($"NotifyToolCallRequest: Conversation '{conversation.ConversationUri}' for tool '{tool.FunctionName}'");
+
             conversation.State.ResponseTool = tool;
             conversation.State.ResponseToolParameters = toolParameters;
             conversation.CompletionSource.TrySetResult(conversation.State);
@@ -135,6 +144,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         private void NotifyUserTextRequest(string userText, CopilotConversation conversation)
         {
+            Logger.Verbose($"NotifyToolCallRequest: Conversation '{conversation.ConversationUri}' for text '{userText}'");
+
             conversation.State.Response = userText;
             conversation.CompletionSource.TrySetResult(conversation.State);
         }

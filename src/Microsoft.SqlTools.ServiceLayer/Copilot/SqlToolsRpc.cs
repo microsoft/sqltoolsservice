@@ -6,13 +6,12 @@
 #nullable disable
 
 using System;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.SqlCopilot.Common;
-using Microsoft.Data.SqlClient;
 using System.Data;
-using Microsoft.SqlServer.SqlCopilot.Cartridges;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlScriptoria;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -84,13 +83,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         }
     }
 
-    public class SqlToolsRpcClient : IJsonRpcParent
+    public class SqlToolsRpcClient
     {
-        private readonly ISqlExecutionService _sqlService;
+        private readonly ICartridgeDataAccess _sqlService;
         private readonly ChatResponseHandler _responseHandler;
 
         public SqlToolsRpcClient(
-            ISqlExecutionService sqlService,
+            ICartridgeDataAccess sqlService,
             ChatResponseHandler responseHandler)
         {
             _sqlService = sqlService;
@@ -182,16 +181,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 : throw new InvalidCastException("Invalid return type");
         }
     }
-    
-    public interface ISqlExecutionService
-    {
-        Task<string> ExecuteSqlQueryAsync(string query, bool isStoredProc, params object[] parameters);
-    }
 
     // <summary>
     // Provides execution services for SQL queries with proper connection management
     // </summary>
-    public class SqlExecutionService : ISqlExecutionService
+    public class SqlExecutionService : ICartridgeDataAccess, ICartridgeListener
     {
         private readonly SqlConnection _sqlConnection;
 
@@ -253,6 +247,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             {
                 return "Not connected to a database";
             }
+        }
+
+        /// <summary>
+        /// Forward the processing update to the client
+        /// </summary>
+        /// <param name="updateType"></param>
+        /// <param name="updateParameters"></param>
+        /// <returns></returns>
+        public Task SendProcessUpdate(ProcessingUpdateType updateType, Dictionary<string, string> updateParameters)
+        {
+            // not used in the evaluation framework
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// forward the approval request to the client
+        /// </summary>
+        /// <param name="exchangeId"></param>
+        /// <param name="requestId"></param>
+        /// <param name="requestText"></param>
+        /// <returns></returns>
+        public Task<string> RequestUserApprovalAsync(string exchangeId, Guid requestId, string requestText)
+        {
+            // not used in the evaluation framework
+            return Task.FromResult(string.Empty);
         }
     }
 }

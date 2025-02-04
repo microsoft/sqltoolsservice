@@ -39,14 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             this.copilotTools = tools;
             this.conversation = conversation;
             this.messages = FromChatMessages(chat);
-            this.tools = FromChatTools(tools);
+            this.tools = FromChatTools(tools);  
         }
 
         private async Task InitializeAsync()
         {
             // Queue the request asynchronously via the channel in ChatMessageQueue
             request = await CopilotService.Instance.ConversationManager.QueueLLMRequest(
-                this.conversation.ConversationUri, messages, tools);
+                this.conversation.ConversationUri, RequestMessageType.ToolCallRequest, messages, tools);
         }
 
         public static async Task<VSCodeChatCompletionStream> CreateAsync(

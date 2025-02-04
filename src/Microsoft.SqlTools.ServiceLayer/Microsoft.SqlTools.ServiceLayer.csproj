@@ -41,8 +41,11 @@
     <Reference Include="SqlCopilotCommon">
       <HintPath>..\..\bin\ref\SqlCopilotCommon.dll</HintPath>
     </Reference>
-    <Reference Include="SqlCopilotCartridges">
-      <HintPath>..\..\bin\ref\SqlCopilotCartridges.dll</HintPath>
+    <Reference Include="SqlScriptoria">
+      <HintPath>..\..\bin\ref\SqlScriptoria.dll</HintPath>
+    </Reference>
+    <Reference Include="ScriptoriaCommonDefs">
+      <HintPath>..\..\bin\ref\ScriptoriaCommonDefs.dll</HintPath>
     </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>..\..\bin\ref\YamlDotNet.dll</HintPath>

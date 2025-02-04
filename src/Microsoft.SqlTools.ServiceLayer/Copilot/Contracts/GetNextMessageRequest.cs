@@ -15,7 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot.Contracts
 
         MessageComplete = 1,
 
-        RequestLLM = 2
+        RequestLLM = 2,
+
+        RequestDirectLLM = 3,
     }
 
     public enum MessageRole
@@ -60,6 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot.Contracts
 
     public class GetNextMessageResponse
     {
+        public string ConversationUri { get; set; }
+
         public MessageType MessageType { get; set; }
 
         public string ResponseText { get; set; }
