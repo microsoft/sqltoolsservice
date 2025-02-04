@@ -364,6 +364,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (!sessionMap.TryGetValue(uri, out session))
             {
                 // Establish a connection to the specified server/database
+                if (connectionDetails.ServerName.EndsWith(".database.windows.net", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Task.Delay(60_000); // simulate a serverless DB that's slow to wake up
+                }
                 session = await DoCreateSession(connectionDetails, uri);
             }
 
