@@ -15,7 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// tree under the node
         /// </summary>
         public string SessionId { get; set; }
-
     }
 
     public class GetSessionIdRequest
