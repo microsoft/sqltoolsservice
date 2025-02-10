@@ -249,40 +249,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             return Task.Run(async () => await CheckRequiredRoleAsync(queryToCheck)).Result;
         }
 
-        //public string CheckRequiredRole(string queryToCheck)
-        //{
-        //    //return ScriptExecutionRequirement.READ_ONLY;
-        //    //_queryToCheck = queryToCheck;
-        //    //var shortQueryText = queryToCheck.Length > 30 ? string.Concat(queryToCheck.Substring(0, 30), "...") : queryToCheck;
-        //    //ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall, $"Access check on query (first 30 chars shown): {shortQueryText}");
-
-        //    //// prompt the LLM to evaluate the script and return the required access level
-        //    //var accessCheckString = ExecuteTask();
-
-        //    //// convert the LLM response back to one of the enum string values
-        //    //var trimmedString = accessCheckString.ToString().Trim();
-        //    //if (trimmedString ==  null || trimmedString.Length == 0)
-        //    //{
-        //    //    ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall, $"Access check trimmed string and found no LLM result. Returning role as unknown.");
-        //    //    return ScriptExecutionRequirement.UNKNOWN;
-        //    //}
-
-        //    //switch (trimmedString)
-        //    //{
-        //    //    case ScriptExecutionRequirement.READ_ONLY:
-        //    //        ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall, $"Access check result is read-only.");
-        //    //        return ScriptExecutionRequirement.READ_ONLY;
-
-        //    //    case ScriptExecutionRequirement.READ_WRITE:
-        //    //        ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall, $"Access check result is read-write.");
-        //    //        return ScriptExecutionRequirement.READ_WRITE;
-
-        //    //    default:
-        //    //        ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall, $"Access check result is unknown.");
-        //    //        return ScriptExecutionRequirement.UNKNOWN;
-        //    //}
-        //}
-
         /// <summary>
         /// Instructions for the system prompt based on the current execution mode
         /// </summary>
