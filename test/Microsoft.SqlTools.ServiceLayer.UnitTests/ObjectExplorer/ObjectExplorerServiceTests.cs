@@ -319,9 +319,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             var requestContext = RequestContextMocks.Create<GetSessionIdResponse>(r => result = r);
             requestContext.AddErrorHandling((string e, int i, string s2) => error = e);
 
-            ObjectExplorerService oes = new ObjectExplorerService();
+            ObjectExplorerService oeService = new();
 
-            await oes.HandleGetSessionIdRequest(new()
+            await oeService.HandleGetSessionIdRequest(new()
             {
                 ServerName = "serverName",
                 DatabaseName = "msdb",
@@ -340,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             result = null;
             error = null;
 
-            await oes.HandleGetSessionIdRequest(null, requestContext.Object);
+            await oeService.HandleGetSessionIdRequest(null, requestContext.Object);
 
             Assert.That(result, Is.Null, "No result should have been sent for an invalid input");
             Assert.That(error, Does.Contain("System.ArgumentNullException: Value cannot be null. (Parameter 'connectionDetails')"), "Error message about connectionDetails being null should have been sent for an invalid input");
