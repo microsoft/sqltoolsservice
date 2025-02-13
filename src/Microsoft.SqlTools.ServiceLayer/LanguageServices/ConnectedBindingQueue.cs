@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using System.Threading;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -87,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Generate a unique key based on the ConnectionInfo object
+        /// Generate a unique key based on the ConnectionDetails object
         /// </summary>
         /// <param name="connInfo"></param>
         internal static string GetConnectionContextKey(ConnectionDetails details)
@@ -116,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Additional properties that are used to distinguish the connection (besides password)
             // These are so that multiple connections can connect to the same target, with different settings.
-            foreach (KeyValuePair<string, object> entry in details.Options)
+            foreach (KeyValuePair<string, object> entry in details.Options.OrderBy(entry => entry.Key))
             {
                 // Filter out properties we already have or don't want (password)
                 if (entry.Key != "server" && entry.Key != "database" && entry.Key != "user"
@@ -142,7 +143,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
+#pragma warning disable SYSLIB0013 // we don't want to escape the ":" characters in our key-value options pairs because it's more readable
             return Uri.EscapeUriString(key);
+#pragma warning restore SYSLIB0013
         }
 
         /// <summary>

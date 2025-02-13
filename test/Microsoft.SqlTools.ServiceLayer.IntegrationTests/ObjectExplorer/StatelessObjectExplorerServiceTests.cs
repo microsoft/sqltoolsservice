@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {
     public class StatelessObjectExplorerServiceTests
     {
-
         string databaseName = "tempdb";
 
         ObjectExplorerServerInfo serverInfo = new ObjectExplorerServerInfo()
