@@ -729,7 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations.ParamStartLocation != null)
             {
                 // Is the cursor past the function name?
-                var location = locations.ParamStartLocation.Value;
+                var location = locations.ParamStartLocation;
                 if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column >= location.ColumnNumber))
                 {
                     currentParameter = 0;
@@ -746,7 +746,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations.ParamEndLocation != null)
             {
                 // Is the cursor past the end of the parameter list on a different token?
-                var location = locations.ParamEndLocation.Value;
+                var location = locations.ParamEndLocation;
                 if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column > location.ColumnNumber))
                 {
                     currentParameter = -1;
