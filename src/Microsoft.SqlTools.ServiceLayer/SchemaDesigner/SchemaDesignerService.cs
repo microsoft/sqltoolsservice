@@ -24,9 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private IProtocolEndpoint? serviceHost;
         private ConnectionService? connectionService;
         private QueryExecutionService? queryService;
-
         public static SchemaDesignerService Instance => instance.Value;
-
         public void Dispose()
         {
             if (!disposed)
@@ -153,6 +151,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             ConnectionInfo newConn;
             this.connectionService.TryFindConnection(connectionCompleteParams.OwnerUri, out newConn);
+
+            var session = new SchemaDesignerSession(ConnectionService.BuildConnectionString(newConn.ConnectionDetails), null, DatabaseName); 
 
             TaskCompletionSource<ResultSet> taskCompletion = new TaskCompletionSource<ResultSet>();
 
