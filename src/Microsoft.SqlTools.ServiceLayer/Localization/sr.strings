@@ -2289,7 +2289,7 @@ ConnectionConfigOptions_groups_resiliency = Connection Resiliency & Failover
 ConnectionConfigOptions_groups_pooling = Pooling Settings
 ConnectionConfigOptions_groups_context = Data Source & Context
 
-ConnectionConfigOptions_common_category_Enabled = Disabled
+ConnectionConfigOptions_common_category_Enabled = Enabled
 ConnectionConfigOptions_common_category_Disabled = Disabled
 
 ConnectionConfigOptions_server_displayName = Server name

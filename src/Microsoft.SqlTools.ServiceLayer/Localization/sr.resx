@@ -5438,7 +5438,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_common_category_Enabled" xml:space="preserve">
-    <value>Disabled</value>
+    <value>Enabled</value>
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_common_category_Disabled" xml:space="preserve">
