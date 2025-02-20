@@ -117,16 +117,6 @@
         <target state="new">Enables or disables Always Encrypted for the connection</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ConnectionConfigOptions_columnEncryptionSetting_category_Disabled">
-        <source>Disabled</source>
-        <target state="new">Disabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ConnectionConfigOptions_columnEncryptionSetting_category_Enabled">
-        <source>Enabled</source>
-        <target state="new">Enabled</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ConnectionConfigOptions_attestationProtocol_displayName">
         <source>Attestation Protocol</source>
         <target state="new">Attestation Protocol</target>
@@ -7021,6 +7011,26 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ConnectionConfigOptions_groups_context">
         <source>Data Source &amp; Context</source>
         <target state="new">Data Source &amp; Context</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_secureEnclaves_displayName">
+        <source>Secure Enclaves</source>
+        <target state="new">Secure Enclaves</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_secureEnclaves_description">
+        <source>Enables or disables Secure Enclaves for the connection</source>
+        <target state="new">Enables or disables Secure Enclaves for the connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_common_category_Enabled">
+        <source>Disabled</source>
+        <target state="new">Disabled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_common_category_Disabled">
+        <source>Disabled</source>
+        <target state="new">Disabled</target>
         <note></note>
       </trans-unit>
     </body>

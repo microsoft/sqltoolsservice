@@ -5437,6 +5437,14 @@ The Query Processor estimates that implementing the following index could improv
     <value>Data Source &amp; Context</value>
     <comment></comment>
   </data>
+  <data name="ConnectionConfigOptions_common_category_Enabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionConfigOptions_server_displayName" xml:space="preserve">
     <value>Server name</value>
     <comment></comment>
@@ -5537,12 +5545,12 @@ The Query Processor estimates that implementing the following index could improv
     <value>Enables or disables Always Encrypted for the connection</value>
     <comment></comment>
   </data>
-  <data name="ConnectionConfigOptions_columnEncryptionSetting_category_Disabled" xml:space="preserve">
-    <value>Disabled</value>
+  <data name="ConnectionConfigOptions_secureEnclaves_displayName" xml:space="preserve">
+    <value>Secure Enclaves</value>
     <comment></comment>
   </data>
-  <data name="ConnectionConfigOptions_columnEncryptionSetting_category_Enabled" xml:space="preserve">
-    <value>Enabled</value>
+  <data name="ConnectionConfigOptions_secureEnclaves_description" xml:space="preserve">
+    <value>Enables or disables Secure Enclaves for the connection</value>
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_attestationProtocol_displayName" xml:space="preserve">
