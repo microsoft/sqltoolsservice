@@ -102,6 +102,8 @@ namespace Microsoft.SqlTools.Utility
                                     ParentProcessId = pidValue;
                                 }
                                 break;
+                            case "-vscode-debug-launch":
+                                break;
                             default:
                                 ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
