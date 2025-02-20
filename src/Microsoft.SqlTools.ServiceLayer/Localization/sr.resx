@@ -5545,6 +5545,22 @@ The Query Processor estimates that implementing the following index could improv
     <value>Enabled</value>
     <comment></comment>
   </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_displayName" xml:space="preserve">
+    <value>Secure Enclaves</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_description" xml:space="preserve">
+    <value>Enables or disables Secure Enclaves for the connection</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_category_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_category_Enabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionConfigOptions_attestationProtocol_displayName" xml:space="preserve">
     <value>Attestation Protocol</value>
     <comment></comment>
