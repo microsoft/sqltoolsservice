@@ -156,6 +156,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
+                        Name = "secureEnclaves",
+                        DisplayName = SR.ConnectionConfigOptions_secureEnclaves_displayName,
+                        Description = SR.ConnectionConfigOptions_secureEnclaves_description,
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        GroupName = GroupNames.Security,
+                        CategoryValues =
+                        [
+                            new CategoryValue { Name = "Disabled", DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_category_Disabled },
+                            new CategoryValue { Name = "Enabled", DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_category_Enabled }
+                        ]
+                    },
+                    new ConnectionOption
+                    {
                         Name = "attestationProtocol",
                         DisplayName = SR.ConnectionConfigOptions_attestationProtocol_displayName,
                         Description = SR.ConnectionConfigOptions_attestationProtocol_description,
