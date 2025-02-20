@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -24,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private IProtocolEndpoint? serviceHost;
         private ConnectionService? connectionService;
         private QueryExecutionService? queryService;
+        private Dictionary<string, SchemaDesignerSession> sessions = new Dictionary<string, SchemaDesignerSession>();
         public static SchemaDesignerService Instance => instance.Value;
         public void Dispose()
         {
@@ -51,12 +53,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 SchemaModel schema = new SchemaModel();
                 ConnectionCompleteParams connectionCompleteParams = await CreateNewConnection(requestParams.ConnectionUri, Guid.NewGuid().ToString(), requestParams.DatabaseName);
 
-                ResultSet columnResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, SchemaDesignerQueries.TableAndColumnQuery) ?? throw new Exception("Failed to get schema information");
-
-                Dictionary<string, Entity> entityDict = new Dictionary<string, Entity>();
-                for (int i = 0; i < columnResult.RowCount; i++)
+                ResultSet tablesResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, SchemaDesignerQueries.TableAndColumnQuery) ?? throw new Exception("Failed to get schema information");
+                List<IList<QueryExecution.Contracts.DbCellValue>> tablesResultRows = new List<IList<QueryExecution.Contracts.DbCellValue>>();
+                for (int i = 0; i < tablesResult.RowCount; i++)
                 {
-                    IList<QueryExecution.Contracts.DbCellValue> row = columnResult.GetRow(i);
+                    tablesResultRows.Add(tablesResult.GetRow(i));
+                }
+                ResultSet foreignKeysResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, SchemaDesignerQueries.RelationshipQuery) ?? throw new Exception("Failed to get schema information");
+                List<IList<QueryExecution.Contracts.DbCellValue>> foreignKeysResultRows = new List<IList<QueryExecution.Contracts.DbCellValue>>();
+                for (int i = 0; i < foreignKeysResult.RowCount; i++)
+                {
+                    foreignKeysResultRows.Add(foreignKeysResult.GetRow(i));
+                }
+                Dictionary<string, ITable> tableDict = new Dictionary<string, ITable>();
+
+                for (int i = 0; i < tablesResultRows.Count; i++)
+                {
+                    IList<QueryExecution.Contracts.DbCellValue> row = tablesResultRows[i];
                     string schemaName = row[0].DisplayValue;
                     string tableName = row[1].DisplayValue;
                     string columnName = row[2].DisplayValue;
@@ -64,17 +77,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     string isIdentity = row[4].DisplayValue;
                     string isPrimaryKey = row[5].DisplayValue;
                     string key = $"[{schemaName}].[{tableName}]";
-                    if (!entityDict.ContainsKey(key))
+                    if (!tableDict.ContainsKey(key))
                     {
-                        entityDict[key] = new Entity
+                        tableDict[key] = new ITable
                         {
+                            Id = Guid.NewGuid(),
                             Schema = schemaName,
                             Name = tableName,
-                            Columns = new List<Column>()
+                            Columns = new List<IColumn>(),
+                            ForeignKeys = new List<IForeignKey>()
                         };
                     }
-                    entityDict[key].Columns.Add(new Column
+                    tableDict[key].Columns.Add(new IColumn
                     {
+                        Id = Guid.NewGuid(),
                         Name = columnName,
                         DataType = dataType,
                         IsIdentity = isIdentity == "1",
@@ -82,42 +98,93 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     });
                 }
 
-                schema.Entities = [.. entityDict.Values];
-                
-                ResultSet relationshipResult = await RunSimpleQuery(connectionCompleteParams, requestParams.DatabaseName, SchemaDesignerQueries.RelationshipQuery) ?? throw new Exception("Failed to get schema information");
+                schema.Tables = [.. tableDict.Values];
 
-                schema.Relationships = new List<Relationship>();
-
-                for (int i = 0; i < relationshipResult.RowCount; i++)
+                for (int i = 0; i < foreignKeysResultRows.Count; i++)
                 {
-                    IList<QueryExecution.Contracts.DbCellValue> row = relationshipResult.GetRow(i);
-                    schema.Relationships.Add(new Relationship
+                    IList<QueryExecution.Contracts.DbCellValue> row = foreignKeysResultRows[i];
+                    string schemaName = row[1].DisplayValue;
+                    string tableName = row[2].DisplayValue;
+                    string key = $"[{schemaName}].[{tableName}]";
+                    if (!tableDict.ContainsKey(key))
                     {
-                        ForeignKeyName = row[0].DisplayValue,
-                        SchemaName = row[1].DisplayValue,
-                        Entity = row[2].DisplayValue,
-                        Column = row[3].DisplayValue,
-                        ReferencedSchema = row[4].DisplayValue,
-                        ReferencedEntity = row[5].DisplayValue,
-                        ReferencedColumn = row[6].DisplayValue,
-                        OnDeleteAction = MapOnAction(row[7].DisplayValue),
-                        OnUpdateAction = MapOnAction(row[8].DisplayValue),
-                    });
+                        continue;
+                    }
+                    else
+                    {
+                        ITable table = tableDict[key];
+                        table.ForeignKeys ??= new List<IForeignKey>();
+                        table.ForeignKeys.Add(new IForeignKey
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = row[0].DisplayValue,
+                            Columns = [.. row[3].DisplayValue.Split('|')],
+                            ReferencedSchemaName = row[4].DisplayValue,
+                            ReferencedTableName = row[5].DisplayValue,
+                            ReferencedColumns = [.. row[6].DisplayValue.Split('|')],
+                            OnDeleteAction = MapOnAction(row[7].DisplayValue),
+                            OnUpdateAction = MapOnAction(row[8].DisplayValue),
+                        });
+                    }
                 }
                 await requestContext.SendResult(schema);
-                if (connectionCompleteParams != null)
+
+                _ = Task.Run(async () =>
                 {
-                    this.connectionService.Disconnect(new DisconnectParams()
+                    ConnectionInfo newConn;
+                    this.connectionService.TryFindConnection(connectionCompleteParams.OwnerUri, out newConn);
+                    var session = new SchemaDesignerSession(ConnectionService.BuildConnectionString(newConn.ConnectionDetails), requestParams.AccessToken, requestParams.DatabaseName);
+                    sessions.Add($"{requestParams.ConnectionUri}_{requestParams.DatabaseName}", session);
+                    session.schema = addIds(schema, session.schema);
+                    await requestContext.SendEvent(ModelReadyNotification.Type, new ModelReadyParams()
                     {
-                        OwnerUri = connectionCompleteParams.OwnerUri
+                        Model = session.schema,
+                        OriginalModel = schema,
                     });
-                }
+
+                    if (connectionCompleteParams != null)
+                    {
+                        this.connectionService.Disconnect(new DisconnectParams()
+                        {
+                            OwnerUri = connectionCompleteParams.OwnerUri
+                        });
+                    }
+                });
             }
             catch (Exception e)
             {
                 Logger.Error(e.Message);
                 await requestContext.SendError(e);
             }
+        }
+
+        private SchemaModel addIds(SchemaModel schemawithIds, SchemaModel schemawithoutIds)
+        {
+            foreach (var table in schemawithoutIds.Tables)
+            {
+                var tableWithId = schemawithIds.Tables.FirstOrDefault(t => t.Name == table.Name && t.Schema == table.Schema);
+                if (tableWithId != null)
+                {
+                    table.Id = tableWithId.Id;
+                    foreach (var column in table.Columns)
+                    {
+                        var columnWithId = tableWithId.Columns.FirstOrDefault(c => c.Name == column.Name);
+                        if (columnWithId != null)
+                        {
+                            column.Id = columnWithId.Id;
+                        }
+                    }
+                    foreach (var foreignKey in table.ForeignKeys)
+                    {
+                        var foreignKeyWithId = tableWithId.ForeignKeys.FirstOrDefault(fk => fk.Name == foreignKey.Name);
+                        if (foreignKeyWithId != null)
+                        {
+                            foreignKey.Id = foreignKeyWithId.Id;
+                        }
+                    }
+                }
+            }
+            return schemawithoutIds;
         }
 
         private async Task<ConnectionCompleteParams> CreateNewConnection(string existingConnectionUri, string newConnectionUri, string DatabaseName)
@@ -151,8 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             ConnectionInfo newConn;
             this.connectionService.TryFindConnection(connectionCompleteParams.OwnerUri, out newConn);
-
-            var session = new SchemaDesignerSession(ConnectionService.BuildConnectionString(newConn.ConnectionDetails), null, DatabaseName); 
 
             TaskCompletionSource<ResultSet> taskCompletion = new TaskCompletionSource<ResultSet>();
 
@@ -332,10 +397,10 @@ static class SchemaDesignerQueries
             fk.name AS ForeignKeyName,
             SCHEMA_NAME(tp.schema_id) AS SchemaName,
             tp.name AS ParentTable, 
-            cp.name AS ParentColumn, 
+            STRING_AGG(cp.name, '|') AS ParentColumns,  -- Use | as a separator
             SCHEMA_NAME(tr.schema_id) AS ReferencedSchema,
             tr.name AS ReferencedTable, 
-            cr.name AS ReferencedColumn, 
+            STRING_AGG(cr.name, '|') AS ReferencedColumns, -- Use | as a separator
             fk.delete_referential_action_desc AS OnDeleteAction, 
             fk.update_referential_action_desc AS OnUpdateAction
         FROM sys.foreign_keys fk
@@ -344,7 +409,9 @@ static class SchemaDesignerQueries
         INNER JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id
         INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
         INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id
+        GROUP BY fk.name, tp.schema_id, tp.name, tr.schema_id, tr.name, 
+                fk.delete_referential_action_desc, fk.update_referential_action_desc;
         ";
-        
+
 
 }

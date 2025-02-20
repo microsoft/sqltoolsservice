@@ -3,13 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
     /// <summary>
     /// Represents a column in an entity
     /// </summary>
-    public class Column
+    public class IColumn
     {
+        /// <summary>
+        /// Gets or sets the unique identifier for the column
+        /// </summary>
+        public Guid Id { get; set; }
         /// <summary>
         /// Gets or sets the name of the column
         /// </summary>

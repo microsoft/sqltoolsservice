@@ -3,38 +3,37 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class Relationship
+    public class IForeignKey
     {
+        /// <summary>
+        /// Gets or sets the unique identifier for the relationship
+        /// </summary>
+        public Guid Id { get; set; }
         /// <summary>
         /// Gets or sets the name of the foreign key
         /// </summary>
-        public string ForeignKeyName { get; set; }
+        public string Name { get; set; }
         /// <summary>
-        /// Gets or sets the schema name
+        /// Gets or sets the parent columns
         /// </summary>
-        public string SchemaName { get; set; }
-        /// <summary>
-        /// Gets or sets the parent entity (Table in MSSQL) name.
-        /// </summary>
-        public string Entity { get; set; }
-        /// <summary>
-        /// Gets or sets the parent column
-        /// </summary>
-        public string Column { get; set; }
+        public List<string> Columns { get; set; }
         /// <summary>
         /// Gets or sets the referenced schema
         /// </summary>
-        public string ReferencedSchema { get; set; }
+        public string ReferencedSchemaName { get; set; }
         /// <summary>
         /// Gets or sets the referenced entity (Table in MSSQL) name.
         /// </summary>
-        public string ReferencedEntity { get; set; }
+        public string ReferencedTableName { get; set; }
         /// <summary>
         /// Gets or sets the referenced column
         /// </summary>
-        public string ReferencedColumn { get; set; }
+        public List<string> ReferencedColumns { get; set; }
         /// <summary>
         /// Gets or sets the delete cascade action. Default is NO_ACTION
         /// </summary>

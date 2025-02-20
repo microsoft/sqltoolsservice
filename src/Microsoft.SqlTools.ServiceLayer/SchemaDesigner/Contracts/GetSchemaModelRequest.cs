@@ -14,6 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string ConnectionUri { get; set; }
         /// <summary>
+        /// Access token for the connection
+        /// </summary>
+        public string AccessToken { get; set; }
+        /// <summary>
         /// Gets or sets the name of the database. Database name is required to get the schema model for the database.
         /// </summary>
         public string DatabaseName { get; set; }
