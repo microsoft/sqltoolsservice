@@ -24,6 +24,7 @@ using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -309,6 +310,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             mockTreeNode.Protected().Verify("PopulateChildren", Times.Once(), populateChildrenArguments);
         }
 
+        [Test]
+        public async Task VerifyGeneratesSessionId()
+        {
+            GetSessionIdResponse result = null;
+            string error = null;
+
+            var requestContext = RequestContextMocks.Create<GetSessionIdResponse>(r => result = r);
+            requestContext.AddErrorHandling((string e, int i, string s2) => error = e);
+
+            ObjectExplorerService oeService = new();
+
+            await oeService.HandleGetSessionIdRequest(new()
+            {
+                ServerName = "serverName",
+                DatabaseName = "msdb",
+                AuthenticationType = SqlConstants.ActiveDirectoryPassword,
+                UserName = "TestUser",
+                Password = "test_password",
+                SecureEnclaves = "fakeEnclave"
+
+            }, requestContext.Object);
+
+            Assert.That(error, Is.Null, "No error should have been sent for an invalid input");
+            Assert.That(result.SessionId, Does.Not.Contain("test_password"), "Password should not appear in SessionId");
+            Assert.That(result.SessionId, Is.EqualTo("serverName_msdb_TestUser_ActiveDirectoryPassword_secureEnclaves:fakeEnclave"), "SessionId not as expected");
+
+            // reset
+            result = null;
+            error = null;
+
+            await oeService.HandleGetSessionIdRequest(null, requestContext.Object);
+
+            Assert.That(result, Is.Null, "No result should have been sent for an invalid input");
+            Assert.That(error, Does.Contain("System.ArgumentNullException: Value cannot be null. (Parameter 'connectionDetails')"), "Error message about connectionDetails being null should have been sent for an invalid input");
+        }
+
+        #region Helper methods
         private async Task<SessionCreatedParameters> CreateSession()
         {
             SessionCreatedParameters sessionResult = null;
@@ -495,5 +533,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 ServerInfo = TestObjects.GetTestServerInfo()
             };
         }
+        #endregion
     }
 }
