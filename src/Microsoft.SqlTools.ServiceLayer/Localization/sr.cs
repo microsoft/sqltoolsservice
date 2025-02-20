@@ -9983,6 +9983,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_common_category_Enabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_common_category_Enabled);
+            }
+        }
+
+        public static string ConnectionConfigOptions_common_category_Disabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_common_category_Disabled);
+            }
+        }
+
         public static string ConnectionConfigOptions_server_displayName
         {
             get
@@ -10183,22 +10199,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ConnectionConfigOptions_columnEncryptionSetting_category_Disabled
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionConfigOptions_columnEncryptionSetting_category_Disabled);
-            }
-        }
-
-        public static string ConnectionConfigOptions_columnEncryptionSetting_category_Enabled
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionConfigOptions_columnEncryptionSetting_category_Enabled);
-            }
-        }
-
         public static string ConnectionConfigOptions_secureEnclaves_displayName
         {
             get
@@ -10212,22 +10212,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.ConnectionConfigOptions_secureEnclaves_description);
-            }
-        }
-
-        public static string ConnectionConfigOptions_secureEnclaves_category_Disabled
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionConfigOptions_secureEnclaves_category_Disabled);
-            }
-        }
-
-        public static string ConnectionConfigOptions_secureEnclaves_category_Enabled
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionConfigOptions_secureEnclaves_category_Enabled);
             }
         }
 
@@ -14915,6 +14899,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionConfigOptions_groups_context = "ConnectionConfigOptions_groups_context";
 
 
+            public const string ConnectionConfigOptions_common_category_Enabled = "ConnectionConfigOptions_common_category_Enabled";
+
+
+            public const string ConnectionConfigOptions_common_category_Disabled = "ConnectionConfigOptions_common_category_Disabled";
+
+
             public const string ConnectionConfigOptions_server_displayName = "ConnectionConfigOptions_server_displayName";
 
 
@@ -14990,22 +14980,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionConfigOptions_columnEncryptionSetting_description = "ConnectionConfigOptions_columnEncryptionSetting_description";
 
 
-            public const string ConnectionConfigOptions_columnEncryptionSetting_category_Disabled = "ConnectionConfigOptions_columnEncryptionSetting_category_Disabled";
-
-
-            public const string ConnectionConfigOptions_columnEncryptionSetting_category_Enabled = "ConnectionConfigOptions_columnEncryptionSetting_category_Enabled";
-
-
             public const string ConnectionConfigOptions_secureEnclaves_displayName = "ConnectionConfigOptions_secureEnclaves_displayName";
 
 
             public const string ConnectionConfigOptions_secureEnclaves_description = "ConnectionConfigOptions_secureEnclaves_description";
-
-
-            public const string ConnectionConfigOptions_secureEnclaves_category_Disabled = "ConnectionConfigOptions_secureEnclaves_category_Disabled";
-
-
-            public const string ConnectionConfigOptions_secureEnclaves_category_Enabled = "ConnectionConfigOptions_secureEnclaves_category_Enabled";
 
 
             public const string ConnectionConfigOptions_attestationProtocol_displayName = "ConnectionConfigOptions_attestationProtocol_displayName";
