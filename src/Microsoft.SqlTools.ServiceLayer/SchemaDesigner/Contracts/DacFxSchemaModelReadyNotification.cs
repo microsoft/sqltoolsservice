@@ -9,10 +9,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
     public class ModelReadyParams
     {
-       public SchemaModel Model;
-       public SchemaModel OriginalModel;
+        public SchemaModel Model;
+        public SchemaModel OriginalModel;
+        public string SessionId;
+        public string Code;
     }
-    public class ModelReadyNotification
+
+    public class SchemaModelReadyNotification
     {
         public static readonly
             EventType<ModelReadyParams> Type =

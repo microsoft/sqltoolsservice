@@ -46,10 +46,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         }
 
 
-        internal async Task HandleGetSchemaModelRequest(GetSchemaModelRequestParams requestParams, RequestContext<SchemaModel> requestContext)
+        internal async Task HandleGetSchemaModelRequest(GetSchemaModelRequestParams requestParams, RequestContext<GetSchemaModelResponse> requestContext)
         {
             try
             {
+                string SessionId = Guid.NewGuid().ToString(); // $"{requestParams.ConnectionUri}_{requestParams.DatabaseName}";
                 SchemaModel schema = new SchemaModel();
                 ConnectionCompleteParams connectionCompleteParams = await CreateNewConnection(requestParams.ConnectionUri, Guid.NewGuid().ToString(), requestParams.DatabaseName);
 
@@ -127,19 +128,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         });
                     }
                 }
-                await requestContext.SendResult(schema);
+                await requestContext.SendResult(new GetSchemaModelResponse()
+                {
+                    SchemaModel = schema,
+                    SessionId = SessionId,
+                });
 
                 _ = Task.Run(async () =>
                 {
                     ConnectionInfo newConn;
                     this.connectionService.TryFindConnection(connectionCompleteParams.OwnerUri, out newConn);
-                    var session = new SchemaDesignerSession(ConnectionService.BuildConnectionString(newConn.ConnectionDetails), requestParams.AccessToken, requestParams.DatabaseName);
-                    sessions.Add($"{requestParams.ConnectionUri}_{requestParams.DatabaseName}", session);
+                    var session = new SchemaDesignerSession(ConnectionService.BuildConnectionString(newConn.ConnectionDetails), requestParams.AccessToken, requestParams.DatabaseName, newConn, SessionId);
+                    sessions.Add(SessionId, session);
                     session.schema = addIds(schema, session.schema);
-                    await requestContext.SendEvent(ModelReadyNotification.Type, new ModelReadyParams()
+                    await requestContext.SendEvent(SchemaModelReadyNotification.Type, new ModelReadyParams()
                     {
                         Model = session.schema,
                         OriginalModel = schema,
+                        SessionId = SessionId,
+                        Code = session.GetCode() + "\n\n\n\n" + session.GenerateChangeReport()
                     });
 
                     if (connectionCompleteParams != null)
@@ -149,6 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                             OwnerUri = connectionCompleteParams.OwnerUri
                         });
                     }
+
                 });
             }
             catch (Exception e)
@@ -341,6 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 return Task.FromResult(0);
             }
         }
+        
 
     }
 }

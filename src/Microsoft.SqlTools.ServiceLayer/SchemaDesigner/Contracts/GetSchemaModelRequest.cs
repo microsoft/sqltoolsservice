@@ -22,13 +22,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string DatabaseName { get; set; }
     }
+
+    public class GetSchemaModelResponse
+    {
+        public SchemaModel SchemaModel { get; set; }
+        public string SessionId { get; set; }
+    }
+
     /// <summary>
     /// Request to get the schema model
     /// </summary>
     public class GetSchemaModelRequest
     {
         public static readonly
-            RequestType<GetSchemaModelRequestParams, SchemaModel> Type =
-            RequestType<GetSchemaModelRequestParams, SchemaModel>.Create("schemaDesigner/getSchemaModel");
+            RequestType<GetSchemaModelRequestParams, GetSchemaModelResponse> Type =
+            RequestType<GetSchemaModelRequestParams, GetSchemaModelResponse>.Create("schemaDesigner/getSchemaModel");
     }
 }
