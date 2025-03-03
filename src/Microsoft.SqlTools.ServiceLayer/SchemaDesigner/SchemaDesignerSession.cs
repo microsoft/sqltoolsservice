@@ -12,6 +12,11 @@ using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlTools.SqlCore.TableDesigner;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -23,10 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         public DacServices dacServices;
         public string databaseName;
         public string sessionId;
-
         SchemaCompareDatabaseEndpoint targetDatabase;
-
         ConnectionInfo connectionInfo;
+        TableDesignerManager tableDesignerManager = new TableDesignerManager();
 
         public SchemaDesignerSession(string connectionString, string? accessToken, string databaseName, ConnectionInfo connectionInfo, string sessionId)
         {
@@ -47,6 +51,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 targetDatabase = new SchemaCompareDatabaseEndpoint(connectionString);
             }
             var tables = new List<ITable>();
+
+            var _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        var builder = ConnectionService.CreateConnectionStringBuilder(connectionInfo.ConnectionDetails);
+                        builder.InitialCatalog = databaseName;
+                        builder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
+                        // Set Access Token only when authentication mode is not specified.
+                        var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
+                            ? connectionInfo.ConnectionDetails.AzureAccountToken : null;
+                        TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning($"Failed to start database initialization for table designer: {ex.Message}");
+                    }
+                });
 
             foreach (TSqlObject table in clonedModel.GetObjects(DacQueryScopes.UserDefined, Table.TypeClass))
             {
@@ -88,30 +110,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     }).ToList()
                 });
             }
-
-
-
             schema = new SchemaModel()
             {
                 Tables = tables,
             };
-
-
-            // foreach(var table in schema.Tables)
-            // {
-            //     tableDesignerManager.InitializeTableDesigner(new TableInfo() {
-            //         AccessToken = accessToken,
-            //         ConnectionString = connectionString,
-            //         IsNewTable = false,
-            //         Schema = table.Schema,
-            //         Database = databaseName,
-            //         Id =  new Guid().ToString(),
-            //         Tooltip = $"{this.connectionInfo.ConnectionDetails.ServerName} - {databaseName} - {table.Schema}.{table.Name}",
-            //         Name = table.Name,
-            //         Server = this.connectionInfo.ConnectionDetails.ServerName,
-            //         Title = $"{table.Schema}.{table.Name}",
-            //     });
-            // }
         }
 
         public string GetCode()
@@ -219,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 AnsiNulls = true,
                 QuotedIdentifier = true,
             });
-            
+
             string fileName = "cloned" + this.sessionId + ".dacpac";
             if (System.IO.File.Exists(fileName))
             {

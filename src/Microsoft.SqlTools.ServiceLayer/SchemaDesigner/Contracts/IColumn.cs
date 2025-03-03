@@ -32,5 +32,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Gets or sets if the column is an identity column
         /// </summary>
         public bool IsIdentity { get; set; }
+        /// <summary>
+        /// Gets or sets if the column is a nullable column
+        /// </summary>
+        public bool IsNullable { get; set; }
+        /// <summary>
+        /// Get or sets if the column is has unique constraint
+        /// </summary>
+        public bool IsUnique { get; set; }
     }
 }
