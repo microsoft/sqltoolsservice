@@ -5,349 +5,787 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.SqlCore.TableDesigner;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.SqlCore.TableDesigner;
+using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
+using TableViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.TableViewModel;
+using TableColumnViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.TableColumnViewModel;
+using ForeignKeyViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.ForeignKeyViewModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
     public class SchemaDesignerSession
     {
-        private readonly string connectionString;
-        private TSqlModel clonedModel;
-        public SchemaModel schema;
-        public DacServices dacServices;
-        public string databaseName;
-        public string sessionId;
-        SchemaCompareDatabaseEndpoint targetDatabase;
-        ConnectionInfo connectionInfo;
-        TableDesignerManager tableDesignerManager = new TableDesignerManager();
+        private SchemaDesignerModel schema;
+        private TableDesignerManager tableDesignerManager = new TableDesignerManager();
+        private ConnectionInfo connectionInfo;
+        private string connectionString;
+        private string? accessToken;
+        private string databaseName;
+        private string sessionId;
 
-        public SchemaDesignerSession(string connectionString, string? accessToken, string databaseName, ConnectionInfo connectionInfo, string sessionId)
+        public SchemaDesignerSession(string sessionId, SchemaDesignerModel initialSchema)
         {
-            this.connectionString = connectionString;
-            this.databaseName = databaseName;
-            this.connectionInfo = connectionInfo;
+            ConnectionInfo newConn;
+            ConnectionService.Instance.TryFindConnection(sessionId, out newConn);
+            var builder = ConnectionService.CreateConnectionStringBuilder(newConn.ConnectionDetails);
+            builder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
+            this.connectionString = builder.ConnectionString;
+            // Set Access Token only when authentication mode is not specified.
+            this.accessToken = builder.Authentication == Data.SqlClient.SqlAuthenticationMethod.NotSpecified
+                ? newConn.ConnectionDetails.AzureAccountToken : null;
+            this.schema = initialSchema;
+            this.connectionInfo = newConn;
+            this.databaseName = newConn.ConnectionDetails.DatabaseName;
+            this.accessToken = newConn.ConnectionDetails.AzureAccountToken;
             this.sessionId = sessionId;
-            if (!accessToken.IsNullOrEmpty())
-            {
-                dacServices = new DacServices(connectionString, new AccessTokenProvider(accessToken));
-                clonedModel = TSqlModel.LoadFromDatabaseWithAuthProvider(connectionString, new AccessTokenProvider(accessToken));
-                targetDatabase = new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(accessToken));
-            }
-            else
-            {
-                dacServices = new DacServices(connectionString);
-                clonedModel = TSqlModel.LoadFromDatabase(connectionString);
-                targetDatabase = new SchemaCompareDatabaseEndpoint(connectionString);
-            }
-            var tables = new List<ITable>();
+            TableDesignerCacheManager.StartDatabaseModelInitialization(connectionString, accessToken);
+            LoadTableDesignersForInitialSchema();
+        }
 
-            var _ = Task.Run(() =>
-                {
-                    try
-                    {
-                        var builder = ConnectionService.CreateConnectionStringBuilder(connectionInfo.ConnectionDetails);
-                        builder.InitialCatalog = databaseName;
-                        builder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
-                        // Set Access Token only when authentication mode is not specified.
-                        var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
-                            ? connectionInfo.ConnectionDetails.AzureAccountToken : null;
-                        TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Warning($"Failed to start database initialization for table designer: {ex.Message}");
-                    }
-                });
-
-            foreach (TSqlObject table in clonedModel.GetObjects(DacQueryScopes.UserDefined, Table.TypeClass))
+        /// <summary>
+        /// Loads table designers for the initial schema
+        /// </summary>
+        public void LoadTableDesignersForInitialSchema()
+        {
+            // TODO: Get a proper load notification from TableDesignerCacheManager
+            // Make sure at least one table is loaded.
+            if (this.schema.Tables.Count == 0)
             {
-                TSqlObject schema = table.GetReferenced(Table.Schema).ToList()[0];
-                List<TSqlObject> columns = table.GetReferenced(Table.Columns).ToList();
-                IEnumerable<TSqlObject> foreignKeys = table.GetReferencing(ForeignKeyConstraint.Host, DacQueryScopes.UserDefined);
-                tables.Add(new ITable()
-                {
-                    Name = table.Name.Parts[1],
-                    Schema = schema.Name.Parts[0],
-                    Columns = columns.Select(c =>
-                    {
-                        string dataType = "";
-                        if (c.GetReferenced(SqlServer.Dac.Model.Column.DataType).ToList().Count != 0)
-                        {
-                            dataType = c.GetReferenced(SqlServer.Dac.Model.Column.DataType).ToList()[0].Name.Parts[0];
-                        }
-                        return new IColumn()
-                        {
-                            Name = c.Name.Parts[2],
-                            DataType = dataType,
-                            IsIdentity = c.GetProperty<bool>(SqlServer.Dac.Model.Column.IsIdentity),
-                            IsPrimaryKey = c.GetReferencing(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined).ToList().Count != 0
-                        };
-                    }).ToList(),
-                    ForeignKeys = foreignKeys.Select(fk =>
-                    {
-                        var foreignKey = new IForeignKey()
-                        {
-                            Name = fk.Name.Parts.Count != 0 ? fk.Name.Parts[1] : "",
-                            Columns = fk.GetReferenced(ForeignKeyConstraint.Columns).ToList().Select(f => f.Name.Parts[2]).ToList(),
-                            ReferencedColumns = fk.GetReferenced(ForeignKeyConstraint.ForeignColumns).ToList().Select(f => f.Name.Parts[2]).ToList(),
-                            ReferencedTableName = fk.GetReferenced(ForeignKeyConstraint.ForeignTable).ToList()[0].Name.Parts[1],
-                            ReferencedSchemaName = fk.GetReferenced(ForeignKeyConstraint.ForeignTable).ToList()[0].GetReferenced(Table.Schema).ToList()[0].Name.Parts[0],
-                            OnDeleteAction = ConvertForeingKeyActionToOnAction(fk.GetProperty<ForeignKeyAction>(ForeignKeyConstraint.DeleteAction)),
-                            OnUpdateAction = ConvertForeingKeyActionToOnAction(fk.GetProperty<ForeignKeyAction>(ForeignKeyConstraint.UpdateAction))
-                        };
-                        return foreignKey;
-                    }).ToList()
-                });
+                return;
             }
-            schema = new SchemaModel()
+            SchemaDesignerTable firstTable = this.schema.Tables[0];
+            TableInfo firstTableInfo = CreateTableInfo(firstTable);
+            tableDesignerManager.InitializeTableDesigner(firstTableInfo);
+            tableDesignerManager.DisposeTableDesigner(firstTableInfo);
+        }
+
+        private TableInfo CreateTableInfo(SchemaDesignerTable table)
+        {
+            // If the table is present in initial schema, then it is a new table
+            // and we need to set the IsNewTable property to true
+            bool isNewTable = this.schema.Tables.Find(t => t.Id == table.Id) != null;
+
+            TableInfo tableInfo = new TableInfo()
             {
-                Tables = tables,
+                AccessToken = this.accessToken,
+                ConnectionString = this.connectionString,
+                Database = this.databaseName,
+                Name = table.Name,
+                Schema = table.Schema,
+                Server = connectionInfo.ConnectionDetails.ServerName,
+                Tooltip = $"{connectionInfo.ConnectionDetails.ServerName} - {databaseName} - {table.Name}",
+                IsNewTable = isNewTable,
+                Id = table.Id.ToString(),
             };
+            return tableInfo;
         }
 
-        public string GetCode()
+        public async Task<List<SchemaDesignerReportObject>> GetReport(SchemaDesignerModel modifiedSchema)
         {
-            string code = "";
-
-            var tables = new List<ITable>();
-
-            foreach (TSqlObject table in clonedModel.GetObjects(DacQueryScopes.UserDefined, Table.TypeClass))
+            // Dispose all old table designers
+            foreach (var table in modifiedSchema.Tables)
             {
-                string script = table.GetScript(); // Gets the T-SQL definition
-                code += $"-- Object: {table.Name}" + "\n";
-                code += script + "\n";
-                code += new string('-', 80) + "\n";
-            }
-            return code;
-        }
-
-        /// <summary>
-        /// Updates the schema model with the new model 
-        public void UpdateModel(SchemaModel modifiedModel)
-        {
-            // Let's update the tables names first.
-
-            List<Guid> newTableIds = new List<Guid>();
-
-            foreach (var table in modifiedModel.Tables)
-            {
-                ITable? oldTable = schema.Tables.FirstOrDefault(t => t.Id == table.Id);
-                if (oldTable == null)
+                try
                 {
-                    // new table found
-                    newTableIds.Add(table.Id);
+                    tableDesignerManager.DisposeTableDesigner(
+                        CreateTableInfo(table)
+                    );
+                }
+                catch (Exception e)
+                {
+                    // Log the exception
                 }
             }
-        }
 
-
-
-        private OnAction ConvertForeingKeyActionToOnAction(ForeignKeyAction action)
-        {
-            switch (action)
+            List<SchemaDesignerReportObject> response = new List<SchemaDesignerReportObject>();
+            // Initialize the table designer for each table in the schema
+            foreach (var table in modifiedSchema.Tables)
             {
-                case ForeignKeyAction.NoAction:
-                    return OnAction.NO_ACTION;
-                case ForeignKeyAction.Cascade:
-                    return OnAction.CASCADE;
-                case ForeignKeyAction.SetDefault:
-                    return OnAction.SET_DEFAULT;
-                case ForeignKeyAction.SetNull:
-                    return OnAction.SET_NULL;
-                default:
-                    return OnAction.NO_ACTION;
-            }
-        }
+                TableInfo tableInfo = CreateTableInfo(table);
+                TableDesignerInfo designerInfo = tableDesignerManager.InitializeTableDesigner(tableInfo);
+                TableDesignerEditUtils tableDesignerEditUtils = new TableDesignerEditUtils(tableDesignerManager, tableInfo, designerInfo.ViewModel);
 
-        public string GenerateChangeReport()
-        {
-            this.CreateNewTable(new ITable()
-            {
-                Name = "NewTable",
-                Schema = "dbo",
-                Columns = new List<IColumn>()
+                if (tableInfo.IsNewTable)
                 {
-                    new IColumn()
+                    tableDesignerEditUtils.ProcessNewTable(table);
+                }
+                else
+                {
+                    SchemaDesignerTable? oldTable = this.schema.Tables.Find(t => t.Id == table.Id);
+                    if (SchemaDesignerUtils.DeepCompareTable(oldTable, table))
                     {
-                        Name = "Id",
-                        DataType = "int",
-                        IsIdentity = true,
-                        IsPrimaryKey = true
-                    },
-                    new IColumn()
-                    {
-                        Name = "Name",
-                        DataType = "nvarchar(50)",
-                        IsIdentity = false,
-                        IsPrimaryKey = false
+                        // If the tables are the same, then no need to generate the report
+                        continue;
                     }
-                },
-                ForeignKeys = new List<IForeignKey>()
-                {
-                    new IForeignKey()
+                    tableDesignerEditUtils.UpdateTableProperties(table);
+
+                    if (oldTable == null)
                     {
-                        Name = "FK_NewTable_OldTable",
-                        Columns = new List<string>() { "Id" },
-                        ReferencedColumns = new List<string>() { "CustomerId" },
-                        ReferencedTableName = "Customers",
-                        ReferencedSchemaName = "Demo",
-                        OnDeleteAction = OnAction.CASCADE,
-                        OnUpdateAction = OnAction.NO_ACTION
+                        // Log the error
+                        continue;
                     }
+
+                    List<int> columnsToAdd = new List<int>();
+                    Dictionary<int, TableColumnViewModel> columnsToUpdate = new Dictionary<int, TableColumnViewModel>();
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        SchemaDesignerColumn column = table.Columns[i];
+                        SchemaDesignerColumn? oldColumn = oldTable.Columns.Find(c => c.Id == column.Id);
+
+                        // If the column is not present in the old table, then it is a new column
+                        if (oldColumn == null)
+                        {
+                            columnsToAdd.Add(i);
+                            continue;
+                        }
+                        else
+                        {
+                            int oldColumnIndex = oldTable.Columns.IndexOf(oldColumn);
+                            columnsToUpdate.Add(i, tableDesignerEditUtils.lastViewModel.Columns.Data[oldColumnIndex]);
+                        }
+                    }
+
+                    // Delete all the columns. We will add them back later
+                    for (int i = oldTable.Columns.Count - 1; i >= 0; i--)
+                    {
+                        tableDesignerEditUtils.DeleteColumn(i);
+                    }
+
+                    // Add all the columns
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        if (columnsToAdd.Contains(i))
+                        {
+                            tableDesignerEditUtils.AddNewColumn(table.Columns[i], i);
+                        }
+                        else if (columnsToUpdate.ContainsKey(i))
+                        {
+                            tableDesignerEditUtils.AddNewColumn(table.Columns[i], columnsToUpdate[i], i);
+                        }
+                    }
+
+                    List<int> foreignKeysToAdd = new List<int>();
+                    Dictionary<int, ForeignKeyViewModel> foreignKeysToUpdate = new Dictionary<int, ForeignKeyViewModel>();
+
+                    for (int i = 0; i < table.ForeignKeys.Count; i++)
+                    {
+                        SchemaDesignerForeignKey foreignKey = table.ForeignKeys[i];
+                        SchemaDesignerForeignKey? oldForeignKey = oldTable.ForeignKeys.Find(fk => fk.Id == foreignKey.Id);
+
+                        // If the foreign key is not present in the old table, then it is a new foreign key
+                        if (oldForeignKey == null)
+                        {
+                            foreignKeysToAdd.Add(i);
+                            continue;
+                        }
+                        else
+                        {
+                            int oldForeignKeyIndex = oldTable.ForeignKeys.IndexOf(oldForeignKey);
+                            foreignKeysToUpdate.Add(i, tableDesignerEditUtils.lastViewModel.ForeignKeys.Data[oldForeignKeyIndex]);
+                        }
+                    }
+
+                    // Delete all the foreign keys. We will add them back later
+                    for (int i = oldTable.ForeignKeys.Count - 1; i >= 0; i--)
+                    {
+                        tableDesignerEditUtils.DeleteForeignKey(i);
+                    }
+
+                    // Add all the foreign keys
+                    for (int i = 0; i < table.ForeignKeys.Count; i++)
+                    {
+                        if (foreignKeysToAdd.Contains(i))
+                        {
+                            tableDesignerEditUtils.AddForeignKey(table.ForeignKeys[i], i);
+                        }
+                        else if (foreignKeysToUpdate.ContainsKey(i))
+                        {
+                            tableDesignerEditUtils.AddForeignKey(table.ForeignKeys[i], foreignKeysToUpdate[i], i);
+                        }
+                    }
+
                 }
-            });
 
-            // modify column name to be not null and add unique
-            this.clonedModel.AddOrUpdateObjects("ALTER TABLE [dbo].[OldTable] ALTER COLUMN [Name] NVARCHAR(50) NOT NULL", "dbo.OldTable.Name", new TSqlObjectOptions()
-            {
-                AnsiNulls = true,
-                QuotedIdentifier = true
-            });
-
-            // drop column payment method from table payments
-            this.clonedModel.AddOrUpdateObjects("ALTER TABLE [dbo].[Payments] DROP COLUMN [PaymentMethod]", "dbo.Payments.PaymentMethod", new TSqlObjectOptions()
-            {
-                AnsiNulls = true,
-                QuotedIdentifier = true,
-            });
-
-            string fileName = "cloned" + this.sessionId + ".dacpac";
-            if (System.IO.File.Exists(fileName))
-            {
-                System.IO.File.Delete(fileName);
-            }
-            DacPackageExtensions.BuildPackage(fileName, clonedModel, new PackageMetadata());
-
-            SchemaCompareDacpacEndpoint modifiedSchema = new SchemaCompareDacpacEndpoint(fileName);
-
-            SchemaComparison result = new SchemaComparison(modifiedSchema, targetDatabase);
-            SchemaComparisonResult comparisonResult = result.Compare();
-            SchemaCompareScriptGenerationResult report = comparisonResult.GenerateScript(databaseName);
-            string rs = report.Message + "\n" + report.Script;
-            return rs;
-        }
-
-        private void CreateNewTable(ITable newTable)
-        {
-            // Build T-SQL script for the new table
-            string script = $"CREATE TABLE [{newTable.Schema}].[{newTable.Name}] (\n";
-
-            // Add columns
-            List<string> columnDefinitions = new List<string>();
-            List<string> primaryKeyColumns = new List<string>();
-
-            foreach (var column in newTable.Columns)
-            {
-                string columnDef = $"    [{column.Name}] {column.DataType}";
-
-                // Handle identity
-                if (column.IsIdentity)
+                GeneratePreviewReportResult previewReport = await tableDesignerManager.GeneratePreviewReport(tableInfo);
+                response.Add(new SchemaDesignerReportObject()
                 {
-                    columnDef += " IDENTITY(1,1)";
-                }
-
-                // // Handle nullable
-                // columnDef += column.IsNullable ? " NULL" : " NOT NULL";
-
-                // Track primary key columns
-                if (column.IsPrimaryKey)
-                {
-                    primaryKeyColumns.Add(column.Name);
-                }
-
-                columnDefinitions.Add(columnDef);
+                    TableId = table.Id,
+                    Report = previewReport
+                });
             }
-
-            // Add primary key constraint if needed
-            if (primaryKeyColumns.Count > 0)
-            {
-                string pkColumnList = string.Join(", ", primaryKeyColumns.Select(c => $"[{c}]"));
-                columnDefinitions.Add($"    CONSTRAINT [PK_{newTable.Name}] PRIMARY KEY ({pkColumnList})");
-            }
-
-            script += string.Join(",\n", columnDefinitions);
-            script += "\n)";
-
-            // Add the table to the model
-            clonedModel.AddOrUpdateObjects(script, $"{newTable.Schema}.{newTable.Name}", new TSqlObjectOptions()
-            {
-                AnsiNulls = true,
-                QuotedIdentifier = true
-            });
-
-            // Process foreign keys separately (they need the table to exist first)
-            foreach (var foreignKey in newTable.ForeignKeys)
-            {
-                AddForeignKey(newTable, foreignKey);
-            }
+            return response;
         }
 
         /// <summary>
-        /// Adds a foreign key to a table
+        /// Closes the session and disposes all table designers
         /// </summary>
-        private void AddForeignKey(ITable table, IForeignKey foreignKey)
+        public void CloseSession()
         {
-            // Column lists
-            string columnList = string.Join(", ", foreignKey.Columns.Select(c => $"[{c}]"));
-            string refColumnList = string.Join(", ", foreignKey.ReferencedColumns.Select(c => $"[{c}]"));
-
-            // Handle ON DELETE and ON UPDATE actions
-            string onDelete = "";
-            string onUpdate = "";
-
-            if (foreignKey.OnDeleteAction != OnAction.NO_ACTION)
+            if (this.schema != null)
             {
-                onDelete = $" ON DELETE {ConvertOnActionToSql(foreignKey.OnDeleteAction)}";
+                foreach (var table in this.schema.Tables)
+                {
+                    tableDesignerManager.DisposeTableDesigner(
+                        CreateTableInfo(table)
+                    );
+                }
             }
-
-            if (foreignKey.OnUpdateAction != OnAction.NO_ACTION)
-            {
-                onUpdate = $" ON UPDATE {ConvertOnActionToSql(foreignKey.OnUpdateAction)}";
-            }
-
-            // Generate FK name if empty
-            string fkName = !string.IsNullOrEmpty(foreignKey.Name)
-                ? foreignKey.Name
-                : $"FK_{table.Name}_{foreignKey.ReferencedTableName}";
-
-            // Create the foreign key script
-            string script = $"ALTER TABLE [{table.Schema}].[{table.Name}] " +
-                           $"ADD CONSTRAINT [{fkName}] " +
-                           $"FOREIGN KEY ({columnList}) " +
-                           $"REFERENCES [{foreignKey.ReferencedSchemaName}].[{foreignKey.ReferencedTableName}] ({refColumnList})" +
-                           $"{onDelete}{onUpdate}";
-
-            clonedModel.AddObjects(script);
-
         }
 
-        /// <summary>
-        /// Converts OnAction enum to T-SQL action text
-        /// </summary>
-        private string ConvertOnActionToSql(OnAction action)
+        public class TableDesignerEditUtils
         {
-            switch (action)
+            private TableDesignerManager tableDesignerManager;
+            private TableInfo tableInfo;
+            public TableViewModel lastViewModel;
+
+            public static string Name = "name";
+            public static string Schema = "schema";
+            public static string Columns = "columns";
+            public static string type = "type";
+            public static string IsPrimaryKey = "isPrimaryKey";
+            public static string IsIdentity = "isIdentity";
+            public static string AllowNulls = "allowNulls";
+            public static string ForeignKeys = "foreignKeys";
+            public static string ForeignTable = "foreignTable";
+            public static string Column = "column";
+            public static string ForeignColumn = "foreignColumn";
+            public static string OnDelete = "onDelete";
+            public static string OnUpdate = "onUpdate";
+
+            public TableDesignerEditUtils(TableDesignerManager tableDesignerManager, TableInfo tableInfo, TableViewModel viewModel)
             {
-                case OnAction.CASCADE:
-                    return "CASCADE";
-                case OnAction.SET_NULL:
-                    return "SET NULL";
-                case OnAction.SET_DEFAULT:
-                    return "SET DEFAULT";
-                case OnAction.NO_ACTION:
-                default:
-                    return "NO ACTION";
+                this.tableDesignerManager = tableDesignerManager;
+                this.tableInfo = tableInfo;
+                this.lastViewModel = viewModel;
+            }
+
+            /// <summary>
+            /// Perform a table designer edit operation and update the lastViewModel
+            /// </summary>
+            /// <param name="requestParams"></param>
+            public void PerformTableDesignerEdit(ProcessTableDesignerEditRequestParams requestParams)
+            {
+                lastViewModel = tableDesignerManager.TableDesignerEdit(requestParams).ViewModel;
+            }
+
+            /// <summary>
+            /// Process a new table
+            /// </summary>
+            /// <param name="table"></param>
+            public void ProcessNewTable(SchemaDesignerTable table)
+            {
+                // Remove the first default column
+                this.RemoveFirstDefaultColumn();
+
+                // Update the table properties
+                this.UpdateTableProperties(table);
+
+                // Add all columns
+                for (int i = 0; i < table.Columns.Count; i++)
+                {
+                    this.AddNewColumn(table.Columns[i], i);
+                }
+
+                // Add all foreign keys
+                for (int i = 0; i < table.ForeignKeys.Count; i++)
+                {
+                    this.AddForeignKey(table.ForeignKeys[i], i);
+                }
+            }
+
+            /// <summary>
+            /// Update the properties of the table
+            /// </summary>
+            /// <param name="table"></param>
+            public void UpdateTableProperties(SchemaDesignerTable table)
+            {
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Name },
+                        Type = DesignerEditType.Update,
+                        Value = table.Name
+                    }
+                });
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Schema },
+                        Type = DesignerEditType.Update,
+                        Value = table.Schema
+                    }
+                });
+            }
+
+            /// <summary>
+            /// Remove the first default column created by the table designer. Used when creating a new table
+            /// </summary>
+            public void RemoveFirstDefaultColumn()
+            {
+                this.RemoveColumnAt(0);
+            }
+
+            /// <summary>
+            /// Remove a column at the specified index
+            /// </summary>
+            /// <param name="index"></param>
+            public void RemoveColumnAt(int index)
+            {
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString() },
+                        Type = DesignerEditType.Remove,
+                    }
+                });
+            }
+
+            /// <summary>
+            /// Add a new column to the table
+            /// </summary>
+            public void AddNewColumn(SchemaDesignerColumn column, int? index)
+            {
+                // If index is not specified, add the column at the end
+                index ??= lastViewModel.Columns.Data.Count;
+
+                // Add a new column at the specified index
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString() },
+                        Type = DesignerEditType.Add,
+                    }
+                });
+
+                this.UpdateColumn(column, index.Value);
+            }
+
+            public void AddNewColumn(SchemaDesignerColumn column, TableColumnViewModel? columnViewModel, int? index)
+            {
+
+                // Add a new column at the specified index
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString() },
+                        Type = DesignerEditType.Add,
+                    }
+                });
+
+                this.UpdateColumn(column, index.Value);
+
+                // IF the type is not changed
+                if (column.DataType == columnViewModel.Type.Value)
+                {
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "advancedType" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.AdvancedType.Value
+                        }
+                    });
+
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "length" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.Length.Value
+                        }
+                    });
+
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "scale" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.Scale.Value
+                        }
+                    });
+
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "precision" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.Precision.Value
+                        }
+                    });
+                }
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "allowNulls" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.AllowNulls.Checked
+                    }
+                });
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "isPrimaryKey" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IsPrimaryKey.Checked
+                    }
+                });
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "isIdentity" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IsIdentity.Checked
+                    }
+                });
+
+                //identitySeed
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "identitySeed" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IdentitySeed.Value
+                    }
+                });
+
+                //identityIncrement
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "identityIncrement" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IdentityIncrement.Value
+                    }
+                });
+
+                //isComputed
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "isComputed" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IsComputed.Checked
+                    }
+                });
+
+                //computedFormula
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "computedFormula" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.ComputedFormula.Value
+                    }
+                });
+
+                //isComputedPersisted
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "isComputedPersisted" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IsComputedPersisted.Checked
+                    }
+                });
+
+
+                //isComputedPersistedNullable
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "isComputedPersistedNullable" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.IsComputedPersistedNullable.Checked
+                    }
+                });
+
+                //defaultConstraintName
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), "defaultConstraintName" },
+                        Type = DesignerEditType.Update,
+                        Value = columnViewModel.DefaultConstraintName.Value
+                    }
+                });
+            }
+
+            /// <summary>
+            /// Update the column at the specified index
+            /// </summary>
+            /// <param name="column"></param>
+            /// <param name="index"></param>
+            public void UpdateColumn(SchemaDesignerColumn column, int index)
+            {
+                // Set the name of the column
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), Name },
+                        Type = DesignerEditType.Update,
+                        Value = column.Name
+                    }
+                });
+
+                // Set the type of the column
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), type },
+                        Type = DesignerEditType.Update,
+                        Value = column.DataType
+                    }
+                });
+
+                // Set the primary key of the column
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString(), IsPrimaryKey },
+                        Type = DesignerEditType.Update,
+                        Value = column.IsPrimaryKey
+                    }
+                });
+            }
+
+            /// <summary>
+            /// Delete a column at the specified index
+            /// </summary>
+            /// <param name="index"></param>
+            public void DeleteColumn(int index)
+            {
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { Columns, index.ToString() },
+                        Type = DesignerEditType.Remove,
+                    }
+                });
+            }
+
+            /// <summary>
+            /// Add a foreign key to the table
+            /// </summary>
+            public void AddForeignKey(SchemaDesignerForeignKey foreignKey, int? index)
+            {
+                // If index is not specified, add the foreign key at the end
+                index ??= lastViewModel.ForeignKeys.Data.Count;
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString() },
+                        Type = DesignerEditType.Add,
+                    }
+                });
+
+                this.UpdateForeignKeys(foreignKey, index.Value);
+            }
+
+            public void AddForeignKey(SchemaDesignerForeignKey foreignKey, ForeignKeyViewModel? foreignKeyViewModel, int? index)
+            {
+                // If index is not specified, add the foreign key at the end
+                index ??= lastViewModel.ForeignKeys.Data.Count;
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString() },
+                        Type = DesignerEditType.Add,
+                    }
+                });
+
+                this.UpdateForeignKeys(foreignKey, index.Value);
+
+                // Set the onDelete of the foreign key
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString(), "onDeleteAction" },
+                        Type = DesignerEditType.Update,
+                        Value = foreignKeyViewModel.OnDeleteAction.Value
+                    }
+                });
+
+                // Set the onUpdate of the foreign key
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString(), "onUpdateAction" },
+                        Type = DesignerEditType.Update,
+                        Value = foreignKeyViewModel.OnUpdateAction.Value
+                    }
+                });
+
+                // Set the IsNotForReplication of the foreign key
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString(), "isNotForReplication" },
+                        Type = DesignerEditType.Update,
+                        Value = foreignKeyViewModel.IsNotForReplication.Checked
+                    }
+                });
+
+                // Enable the foreign key
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString(), "enabled" },
+                        Type = DesignerEditType.Update,
+                        Value = foreignKeyViewModel.Enabled.Checked
+                    }
+                });
+            }
+
+            /// <summary>
+            /// Update the foreign keys at the specified index
+            /// </summary>
+            public void UpdateForeignKeys(SchemaDesignerForeignKey foreignKey, int index)
+            {
+                // Set the foreign table of the foreign key
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString(), Name },
+                        Type = DesignerEditType.Update,
+                        Value = foreignKey.Name
+                    }
+                });
+
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString(), ForeignTable },
+                        Type = DesignerEditType.Update,
+                        Value = $"{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}"
+                    }
+                });
+
+                // Set the column of the foreign key
+                for (int i = 0; i < foreignKey.Columns.Count; i++)
+                {
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { ForeignKeys, index.ToString(), Columns, i.ToString() },
+                            Type = DesignerEditType.Add,
+                        }
+                    });
+
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { ForeignKeys, index.ToString(), Columns, i.ToString(), Column },
+                            Type = DesignerEditType.Update,
+                            Value = foreignKey.Columns[i]
+                        }
+                    });
+
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    {
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { ForeignKeys, index.ToString(), Columns, i.ToString(), ForeignColumn },
+                            Type = DesignerEditType.Update,
+                            Value = foreignKey.ReferencedColumns[i]
+                        }
+                    });
+                }
+            }
+
+            public void DeleteForeignKey(int index)
+            {
+                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                {
+                    TableInfo = this.tableInfo,
+                    TableChangeInfo = new TableDesignerChangeInfo()
+                    {
+                        Path = new object[] { ForeignKeys, index.ToString() },
+                        Type = DesignerEditType.Remove,
+                    }
+                });
             }
         }
     }

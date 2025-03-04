@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class ITable
+    public class SchemaDesignerTable
     {
         /// <summary>
         /// Gets or sets the unique identifier for the table
@@ -17,18 +17,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the name of the table
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>
         /// Gets or sets the schema of the table
         /// </summary>
-        public string Schema { get; set; }
+        public string? Schema { get; set; }
         /// <summary>
         /// Gets or sets the columns in the table
         /// </summary>
-        public List<IColumn> Columns { get; set; }
+        public List<SchemaDesignerColumn>? Columns { get; set; }
         /// <summary>
         /// Gets or sets the foreign keys in the table
         /// </summary>
-        public List<IForeignKey> ForeignKeys { get; set; }
+        public List<SchemaDesignerForeignKey>? ForeignKeys { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     /// <summary>
     /// Represents a column in an entity
     /// </summary>
-    public class IColumn
+    public class SchemaDesignerColumn
     {
         /// <summary>
         /// Gets or sets the unique identifier for the column
@@ -19,11 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the name of the column
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>
         /// Gets or sets the data type of the column
         /// </summary>
-        public string DataType { get; set; }
+        public string? DataType { get; set; }
         /// <summary>
         /// Gets or sets if the column is a primary key
         /// </summary>

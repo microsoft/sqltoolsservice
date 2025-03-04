@@ -3,15 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class SchemaModel
+    public class SchemaDesignerScriptObject
     {
-        /// <summary>
-        /// Gets or sets the entities (Table in MSSQL) in the schema
-        /// </summary>
-        public List<ITable> Tables { get; set; }
+        public Guid? TableId { get; set; }
+        public string? Script { get; set; }
     }
 }
