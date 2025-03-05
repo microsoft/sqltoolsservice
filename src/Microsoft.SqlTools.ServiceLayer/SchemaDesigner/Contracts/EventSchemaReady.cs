@@ -7,16 +7,16 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class SchemaDesignerModelReadyParams
+    public class SchemaReadyResponse
     {
         public string SessionId;
     }
 
-    public class SchemaDesignerModelReady
+    public class SchemaReady
     {
         public static readonly
-            EventType<SchemaDesignerModelReadyParams> Type =
-            EventType<SchemaDesignerModelReadyParams>.Create("schemaDesigner/modelReady");
+            EventType<SchemaReadyResponse> Type =
+            EventType<SchemaReadyResponse>.Create("schemaDesigner/schemaReady");
     }
 
 }

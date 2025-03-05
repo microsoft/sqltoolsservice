@@ -8,7 +8,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class CreateSchemaDesignerSessionRequestParams
+    public class CreateSessionRequest
     {
         /// <summary>
         /// URI identifying the connection to perform the action on. Generally the connection is picked from an existing OE connection.
@@ -20,12 +20,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         public string DatabaseName { get; set; }
     }
 
-    public class CreateSchemaDesignerSessionResponseParams
+    public class CreateSessionResponse
     {
         /// <summary>
         /// Gets or sets the schema model
         /// </summary>
-        public SchemaDesignerModel SchemaModel { get; set; }
+        public SchemaDesignerModel Schema { get; set; }
         /// <summary>
         /// Gets or sets the datatypes available in the database
         /// </summary>
@@ -43,10 +43,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     /// <summary>
     /// Request to get the schema model
     /// </summary>
-    public class CreateSchemaDesignerSessionRequest
+    public class CreateSession
     {
         public static readonly
-            RequestType<CreateSchemaDesignerSessionRequestParams, CreateSchemaDesignerSessionResponseParams> Type =
-            RequestType<CreateSchemaDesignerSessionRequestParams, CreateSchemaDesignerSessionResponseParams>.Create("schemaDesigner/createSchemaDesignerSession");
+            RequestType<CreateSessionRequest, CreateSessionResponse> Type =
+            RequestType<CreateSessionRequest, CreateSessionResponse>.Create("schemaDesigner/createSession");
     }
 }

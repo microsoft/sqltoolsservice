@@ -49,8 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 });
             }
 
-            schema.Tables = [.. tableDict.Values];
-
             for (int i = 0; i < relationships.Count; i++)
             {
                 IList<QueryExecution.Contracts.DbCellValue> row = relationships[i];
@@ -64,7 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 else
                 {
                     SchemaDesignerTable table = tableDict[key];
-                    table.ForeignKeys= new List<SchemaDesignerForeignKey>();
                     table.ForeignKeys.Add(new SchemaDesignerForeignKey
                     {
                         Id = Guid.NewGuid(),
@@ -79,6 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 }
             }
 
+            schema.Tables = [.. tableDict.Values];
             return schema;
         }
 

@@ -229,9 +229,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 foreach (var table in this.schema.Tables)
                 {
-                    tableDesignerManager.DisposeTableDesigner(
-                        CreateTableInfo(table)
-                    );
+                    if(tableDesignerManager.IsTableDesignerSessionActive(table.Id.ToString()))
+                    {
+                        tableDesignerManager.DisposeTableDesigner(
+                            CreateTableInfo(table)
+                        );
+                    }
                 }
             }
         }

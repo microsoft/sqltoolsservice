@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class DisposeSchemaDesignerSessionParams
+    public class DisposeSessionRequest
     {
         /// <summary>
         /// Unique id for the session to dispose
@@ -15,20 +15,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         public string SessionId { get; set; }
     }
 
-    public class DisposeSchemaDesignerSessionResponse
+    public class DisposeSessionResponse
     {
     }
 
     /// <summary>
     /// Request to dispose the schema designer session
     /// </summary>
-    public class DisposeSchemaDesignerSessionRequest
+    public class DisposeSession
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DisposeSchemaDesignerSessionParams, DisposeSchemaDesignerSessionResponse> Type =
-            RequestType<DisposeSchemaDesignerSessionParams, DisposeSchemaDesignerSessionResponse>.Create("schemaDesigner/disposeSchemaDesignerSession");
+            RequestType<DisposeSessionRequest, DisposeSessionResponse> Type =
+            RequestType<DisposeSessionRequest, DisposeSessionResponse>.Create("schemaDesigner/disposeSession");
     }
 }

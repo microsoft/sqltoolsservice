@@ -8,20 +8,20 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class GetSchemaDesignerCreateAsScriptParams
+    public class GenerateScriptRequest
     {
         public string? SessionId { get; set; }
-        public SchemaDesignerModel? UpdatedModel { get; set; }
+        public SchemaDesignerModel? UpdatedSchema { get; set; }
     }
 
-    public class GetSchemaDesignerCreateAsScriptResponse
+    public class GenerateScriptResponse
     {
         public List<SchemaDesignerScriptObject>? Scripts { get; set; }
         public string? CombinedScript { get; set; }
     }
 
-    public class GetSchemaDesignerCreateAsScriptRequest
+    public class GenerateScript
     {
-        public static readonly RequestType<GetSchemaDesignerCreateAsScriptParams, GetSchemaDesignerCreateAsScriptResponse> Type = RequestType<GetSchemaDesignerCreateAsScriptParams, GetSchemaDesignerCreateAsScriptResponse>.Create("schemaDesigner/getScript");
+        public static readonly RequestType<GenerateScriptRequest, GenerateScriptResponse> Type = RequestType<GenerateScriptRequest, GenerateScriptResponse>.Create("schemaDesigner/generateScript");
     }
 }

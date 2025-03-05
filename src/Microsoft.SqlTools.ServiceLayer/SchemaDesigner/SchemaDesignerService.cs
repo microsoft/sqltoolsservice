@@ -38,15 +38,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             Logger.Verbose("Initializing Schema Designer Service");
             this.serviceHost = serviceHost;
-            serviceHost.SetRequestHandler(CreateSchemaDesignerSessionRequest.Type, HandleGetSchemaModelRequest);
-            serviceHost.SetRequestHandler(GetSchemaDesignerCreateAsScriptRequest.Type, HandleGetSchemaDesignerScriptRequest);
-            serviceHost.SetRequestHandler(DisposeSchemaDesignerSessionRequest.Type, HandleDisposeSchemaDesignerSessionRequest);
-            serviceHost.SetRequestHandler(GetSchemaDesignerSessionReportRequest.Type, HandleGetSchemaDesignerSessionReportRequest);
+            serviceHost.SetRequestHandler(CreateSession.Type, HandleGetSchemaModelRequest);
+            serviceHost.SetRequestHandler(GenerateScript.Type, HandleGetSchemaDesignerScriptRequest);
+            serviceHost.SetRequestHandler(DisposeSession.Type, HandleDisposeSchemaDesignerSessionRequest);
+            serviceHost.SetRequestHandler(GetReport.Type, HandleGetSchemaDesignerSessionReportRequest);
             Logger.Verbose("Initialized Schema Designer Service");
         }
 
 
-        internal async Task HandleGetSchemaModelRequest(CreateSchemaDesignerSessionRequestParams requestParams, RequestContext<CreateSchemaDesignerSessionResponseParams> requestContext)
+        internal async Task HandleGetSchemaModelRequest(CreateSessionRequest requestParams, RequestContext<CreateSessionResponse> requestContext)
         {
             try
             {
@@ -57,9 +57,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 List<string> datatypes = await SchemaDesignerSchemaFetcher.GetDatatypes(sessionId);
                 List<string> schemas = await SchemaDesignerSchemaFetcher.GetSchemas(sessionId);
                 
-                await requestContext.SendResult(new CreateSchemaDesignerSessionResponseParams()
+                await requestContext.SendResult(new CreateSessionResponse()
                 {
-                    SchemaModel = schema,
+                    Schema = schema,
                     DataTypes = datatypes,
                     SchemaNames = schemas,
                     SessionId = sessionId,
@@ -68,7 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 _ = Task.Run(async () =>
                 {
                     var session = new SchemaDesignerSession(sessionId, schema);
-                    await requestContext.SendEvent(SchemaDesignerModelReady.Type, new SchemaDesignerModelReadyParams()
+                    sessions.Add(sessionId, session);
+                    await requestContext.SendEvent(SchemaReady.Type, new SchemaReadyResponse()
                     {
                         SessionId = sessionId,
                     });
@@ -82,14 +83,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        internal async Task HandleGetSchemaDesignerScriptRequest(GetSchemaDesignerCreateAsScriptParams requestParams, RequestContext<GetSchemaDesignerCreateAsScriptResponse> requestContext)
+        internal async Task HandleGetSchemaDesignerScriptRequest(GenerateScriptRequest requestParams, RequestContext<GenerateScriptResponse> requestContext)
         {
             try
             {
-                await requestContext.SendResult(new GetSchemaDesignerCreateAsScriptResponse()
+                await requestContext.SendResult(new GenerateScriptResponse()
                 {
-                    Scripts = SchemaDesignerUtils.GetCreateAsScriptForSchema(requestParams.UpdatedModel),
-                    CombinedScript = SchemaDesignerUtils.GetCombinedScriptForSchema(requestParams.UpdatedModel)
+                    Scripts = SchemaDesignerUtils.GetCreateAsScriptForSchema(requestParams.UpdatedSchema),
+                    CombinedScript = SchemaDesignerUtils.GetCombinedScriptForSchema(requestParams.UpdatedSchema)
                 });
             }
             catch (Exception e)
@@ -99,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        internal async Task HandleDisposeSchemaDesignerSessionRequest(DisposeSchemaDesignerSessionParams requestParams, RequestContext<DisposeSchemaDesignerSessionResponse> requestContext)
+        internal async Task HandleDisposeSchemaDesignerSessionRequest(DisposeSessionRequest requestParams, RequestContext<DisposeSessionResponse> requestContext)
         {
             try
             {
@@ -107,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 session.CloseSession();
                 sessions.Remove(requestParams.SessionId);
                 SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
-                await requestContext.SendResult(new DisposeSchemaDesignerSessionResponse());
+                await requestContext.SendResult(new DisposeSessionResponse());
             }
             catch (Exception e)
             {
@@ -116,12 +117,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
-        internal async Task HandleGetSchemaDesignerSessionReportRequest(GetSchemaDesignerSessionReportParams requestParams, RequestContext<GetSchemaDesignerSessionReportResponse> requestContext)
+        internal async Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
         {
             try
             {
                 SchemaDesignerSession session = sessions[requestParams.SessionId];
-                await requestContext.SendResult(new GetSchemaDesignerSessionReportResponse()
+                await requestContext.SendResult(new GetReportResponse()
                 {
                     Reports = await session.GetReport(requestParams.UpdatedModel)
                 });

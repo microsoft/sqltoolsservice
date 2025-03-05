@@ -137,6 +137,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
 
             return generatePreviewReportResult;
         }
+        
+        public bool IsTableDesignerSessionActive(string tableId)
+        {
+            return this.idTableMap.ContainsKey(tableId);
+        }
+
         public void DisposeTableDesigner(TableInfo tableInfo)
         {
             var td = this.GetTableDesigner(tableInfo);

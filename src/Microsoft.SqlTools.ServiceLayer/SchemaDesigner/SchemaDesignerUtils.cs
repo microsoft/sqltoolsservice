@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -96,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     var localColumn = fk.Columns[i];
                     var ReferencedColumn = fk.ReferencedColumns[i];
                     localColumns.Add($"[{localColumn}]");
-                    referencedColumns.Add($"[{referencedColumns}]");
+                    referencedColumns.Add($"[{ReferencedColumn}]");
                 }
 
                 string onDelete = fk.OnDeleteAction != null ? $" ON DELETE {ConvertOnActionToSql(fk.OnDeleteAction)}" : "";
@@ -193,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 && fk.Columns.TrueForAll(c => otherFk.Columns.Exists(oc => c == oc))
                 && fk.ReferencedColumns != null && otherFk.ReferencedColumns != null
                 && fk.ReferencedColumns.Count == otherFk.ReferencedColumns.Count
-                && fk.ReferencedColumns.TrueForAll(rc => otherFk.ReferencedColumns.Exists(orc => rc == orc))
+                && fk.ReferencedColumns.TrueForAll(rc => otherFk.ReferencedColumns.Exists(orc => rc == orc));
         }
     }
 }
