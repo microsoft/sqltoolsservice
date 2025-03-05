@@ -3,16 +3,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
-using Microsoft.SqlScriptoria;
-using Microsoft.SemanticKernel;
-using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
-using System.Threading.Tasks;
 using System;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SqlTools.Connectors.VSCode;
-using Microsoft.SqlTools.Utility;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Scriptoria.Common;
+using Microsoft.Scriptoria.Interfaces;
+using Microsoft.Scriptoria.Services;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
+using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
+using Microsoft.SqlTools.Connectors.VSCode;
+using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -27,6 +31,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             // Creates and returns a new ExecutionAccessChecker.
             return new ChatExecutionAccessChecker(readOnlyProcs);
         }
+    }
+
+
+    public interface IKernelFactory
+    {
+        Kernel Create();
     }
 
 
@@ -82,9 +92,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 new ChatExecutionAccessCheckerFactory()
             );
 
-            var connectionContext = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
+            SqlScriptoriaExecutionContext _executionContext = new();
 
-            var activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, connectionContext, CartridgeExperiences.TsqlEditorChat);
+            // we need the current connection context to be able to load the cartridges.  To the connection 
+            // context we add what experience this is being loaded into by the client.
+            _executionContext.LoadExecutionContext(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!);
+
+            var activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, _executionContext);
             activeCartridge.InitializeToolsets();
 
             // Assign the kernel’s plugins and chat service

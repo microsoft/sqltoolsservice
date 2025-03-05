@@ -15,10 +15,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Scriptoria.Common;
+using Microsoft.Scriptoria.Models;
+using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SqlScriptoria;
 using Microsoft.SqlServer.SqlCopilot.Common;
+using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
+using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
 using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
@@ -58,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private static IDictionary<string, string> _connectionContext = new Dictionary<string, string>();
 
         // active cartridge
-        private static Cartridge? _activeCartridge = null;
+        private static CartridgeBase? _activeCartridge = null;
         // private static ChatHistory? _chatHistory = null;
 
         public CopilotConversationManager()
@@ -160,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 // Setup access and tools
                 // var accessChecker = new ExecutionAccessChecker(userSessionKernel);
                 // var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
-               // var currentDbConfig = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
+                // var currentDbConfig = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
 
 
                 // Add tools to kernel
@@ -193,12 +197,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
                 // context we add what experiecnce this is being loaded into by the client.  
-                var connectionContext = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService!).Result;
+                //var connectionContext = CopilotUtilityFunction.GetCurrentDatabaseAndServerInfo(sqlService!).Result;
+
+                SqlScriptoriaExecutionContext _executionContext = new();
+
+                // we need the current connection context to be able to load the cartridges.  To the connection 
+                // context we add what experience this is being loaded into by the client.
+                _executionContext.LoadExecutionContext(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!);
+
 
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 
                 // the 'Experience' and 'Version' properties will deterime which cartridge is loaded.
                 // other configuration values will be used by toolsets in the future as well.
-                _activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, connectionContext, CartridgeExperiences.TsqlEditorChat);
+                _activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, _executionContext);
                 _activeCartridge.InitializeToolsets();
 
                 // inject the preferred style if the user set it in appsettings or via an API call.
@@ -237,7 +248,7 @@ GENERAL REQUIREMENTS:
 
                 chatHistory = new ChatHistory(initialSystemMessage);
                 chatHistory.AddSystemMessage(
-                    $"Configuration information for currently connected database: {connectionContext}");
+                    $"Configuration information for currently connected database: {_executionContext.ContextSettings}");
 
                 // Wire up response handler events
                 responseHandler.OnChatResponse += async (e) =>
