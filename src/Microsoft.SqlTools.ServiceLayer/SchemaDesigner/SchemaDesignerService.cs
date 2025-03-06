@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 SchemaDesignerSession session = sessions[requestParams.SessionId];
                 await requestContext.SendResult(new GetReportResponse()
                 {
-                    Reports = await session.GetReport(requestParams.UpdatedModel)
+                    Reports = await session.GetReport(requestParams.UpdatedSchema)
                 });
             }
             catch (Exception e)

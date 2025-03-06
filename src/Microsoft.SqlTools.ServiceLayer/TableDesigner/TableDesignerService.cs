@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
-                await requestContext.SendResult(await this.tableDesignerManager.GeneratePreviewReport(tableInfo));
+                await requestContext.SendResult(this.tableDesignerManager.GeneratePreviewReport(tableInfo));
             });
         }
 

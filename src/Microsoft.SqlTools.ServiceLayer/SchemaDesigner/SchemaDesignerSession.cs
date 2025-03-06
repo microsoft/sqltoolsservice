@@ -13,6 +13,8 @@ using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using TableViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.TableViewModel;
 using TableColumnViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.TableColumnViewModel;
 using ForeignKeyViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.ForeignKeyViewModel;
+// using Microsoft.SqlServer.Dac.Compare;
+// using Microsoft.SqlServer.Dac.Model;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -25,6 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private string? accessToken;
         private string databaseName;
         private string sessionId;
+        // SchemaCompareDatabaseEndpoint targetDatabase;
+        // private TSqlModel clonedModel;
+
 
         public SchemaDesignerSession(string sessionId, SchemaDesignerModel initialSchema)
         {
@@ -43,6 +48,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             this.sessionId = sessionId;
             TableDesignerCacheManager.StartDatabaseModelInitialization(connectionString, accessToken);
             LoadTableDesignersForInitialSchema();
+            // if (this.accessToken.IsNullOrEmpty())
+            // {
+            //     targetDatabase = new SchemaCompareDatabaseEndpoint(connectionString);
+            //     clonedModel = TSqlModel.LoadFromDatabaseWithAuthProvider(connectionString, new AccessTokenProvider(accessToken));
+
+            // }
+            // else
+            // {
+            //     targetDatabase = new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(accessToken));
+            //     clonedModel = TSqlModel.LoadFromDatabase(connectionString);
+            // }
         }
 
         /// <summary>
@@ -66,20 +82,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             // If the table is present in initial schema, then it is a new table
             // and we need to set the IsNewTable property to true
-            bool isNewTable = this.schema.Tables.Find(t => t.Id == table.Id) != null;
+            bool isNewTable = true;
+            SchemaDesignerTable? oldTable = this.schema.Tables.Find(t => t.Id.ToString() == table.Id.ToString());
 
-            TableInfo tableInfo = new TableInfo()
+            isNewTable = oldTable == null;
+
+            TableInfo tableInfo;
+            if (isNewTable)
             {
-                AccessToken = this.accessToken,
-                ConnectionString = this.connectionString,
-                Database = this.databaseName,
-                Name = table.Name,
-                Schema = table.Schema,
-                Server = connectionInfo.ConnectionDetails.ServerName,
-                Tooltip = $"{connectionInfo.ConnectionDetails.ServerName} - {databaseName} - {table.Name}",
-                IsNewTable = isNewTable,
-                Id = table.Id.ToString(),
-            };
+                tableInfo = new TableInfo()
+                {
+                    AccessToken = this.accessToken,
+                    ConnectionString = this.connectionString,
+                    Database = this.databaseName,
+                    Name = table.Name,
+                    Schema = table.Schema,
+                    Server = connectionInfo.ConnectionDetails.ServerName,
+                    Tooltip = $"{connectionInfo.ConnectionDetails.ServerName} - {databaseName} - {table.Name}",
+                    IsNewTable = isNewTable,
+                    Id = table.Id.ToString(),
+                };
+            }
+            else
+            {
+                tableInfo = new TableInfo()
+                {
+                    AccessToken = this.accessToken,
+                    ConnectionString = this.connectionString,
+                    Database = this.databaseName,
+                    Name = oldTable.Name,
+                    Schema = oldTable.Schema,
+                    Server = connectionInfo.ConnectionDetails.ServerName,
+                    Tooltip = $"{connectionInfo.ConnectionDetails.ServerName} - {databaseName} - {oldTable.Name}",
+                    IsNewTable = isNewTable,
+                    Id = table.Id.ToString(),
+                };
+            }
+
             return tableInfo;
         }
 
@@ -105,11 +144,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             foreach (var table in modifiedSchema.Tables)
             {
                 TableInfo tableInfo = CreateTableInfo(table);
-                TableDesignerInfo designerInfo = tableDesignerManager.InitializeTableDesigner(tableInfo);
-                TableDesignerEditUtils tableDesignerEditUtils = new TableDesignerEditUtils(tableDesignerManager, tableInfo, designerInfo.ViewModel);
+
 
                 if (tableInfo.IsNewTable)
                 {
+                    TableDesignerInfo designerInfo = tableDesignerManager.InitializeTableDesigner(tableInfo);
+                    TableDesignerEditUtils tableDesignerEditUtils = new TableDesignerEditUtils(tableDesignerManager, tableInfo, designerInfo.ViewModel);
                     tableDesignerEditUtils.ProcessNewTable(table);
                 }
                 else
@@ -120,6 +160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         // If the tables are the same, then no need to generate the report
                         continue;
                     }
+                    TableDesignerInfo designerInfo = tableDesignerManager.InitializeTableDesigner(tableInfo);
+                    TableDesignerEditUtils tableDesignerEditUtils = new TableDesignerEditUtils(tableDesignerManager, tableInfo, designerInfo.ViewModel);
                     tableDesignerEditUtils.UpdateTableProperties(table);
 
                     if (oldTable == null)
@@ -209,13 +251,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     }
 
                 }
-
-                GeneratePreviewReportResult previewReport = await tableDesignerManager.GeneratePreviewReport(tableInfo);
-                response.Add(new SchemaDesignerReportObject()
+                try
                 {
-                    TableId = table.Id,
-                    Report = previewReport
-                });
+                    var report = await Task.Run(async () =>
+                        {
+                            return tableDesignerManager.GeneratePreviewReport(tableInfo);
+                        });
+
+                    response.Add(new SchemaDesignerReportObject()
+                    {
+                        TableId = table.Id,
+                        Report = report,
+                    });
+                    tableDesignerManager.DisposeTableDesigner(tableInfo);
+                }
+                catch (Exception e)
+                {
+                    // Log the exception
+                }
+
             }
             return response;
         }
@@ -229,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 foreach (var table in this.schema.Tables)
                 {
-                    if(tableDesignerManager.IsTableDesignerSessionActive(table.Id.ToString()))
+                    if (tableDesignerManager.IsTableDesignerSessionActive(table.Id.ToString()))
                     {
                         tableDesignerManager.DisposeTableDesigner(
                             CreateTableInfo(table)
@@ -406,163 +460,198 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         }
                     });
 
-                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    if (columnViewModel.Length.Enabled && columnViewModel.Length.Value != null)
                     {
-                        TableInfo = this.tableInfo,
-                        TableChangeInfo = new TableDesignerChangeInfo()
+                        PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                         {
-                            Path = new object[] { Columns, index.ToString(), "length" },
-                            Type = DesignerEditType.Update,
-                            Value = columnViewModel.Length.Value
-                        }
-                    });
+                            TableInfo = this.tableInfo,
+                            TableChangeInfo = new TableDesignerChangeInfo()
+                            {
+                                Path = new object[] { Columns, index.ToString(), "length" },
+                                Type = DesignerEditType.Update,
+                                Value = columnViewModel.Length.Value
+                            }
+                        });
+                    }
 
-                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                    if (columnViewModel.Scale.Enabled && columnViewModel.Scale.Value != null)
                     {
-                        TableInfo = this.tableInfo,
-                        TableChangeInfo = new TableDesignerChangeInfo()
+                        PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                         {
-                            Path = new object[] { Columns, index.ToString(), "scale" },
-                            Type = DesignerEditType.Update,
-                            Value = columnViewModel.Scale.Value
-                        }
-                    });
+                            TableInfo = this.tableInfo,
+                            TableChangeInfo = new TableDesignerChangeInfo()
+                            {
+                                Path = new object[] { Columns, index.ToString(), "scale" },
+                                Type = DesignerEditType.Update,
+                                Value = columnViewModel.Scale.Value
+                            }
+                        });
+                    }
 
+                    if (columnViewModel.Precision.Enabled && columnViewModel.Precision.Value != null)
+                    {
+                        PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                        {
+                            TableInfo = this.tableInfo,
+                            TableChangeInfo = new TableDesignerChangeInfo()
+                            {
+                                Path = new object[] { Columns, index.ToString(), "precision" },
+                                Type = DesignerEditType.Update,
+                                Value = columnViewModel.Precision.Value
+                            }
+                        });
+                    }
+                }
+
+                if (columnViewModel.AllowNulls.Enabled)
+                {
                     PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
                         TableInfo = this.tableInfo,
                         TableChangeInfo = new TableDesignerChangeInfo()
                         {
-                            Path = new object[] { Columns, index.ToString(), "precision" },
+                            Path = new object[] { Columns, index.ToString(), "allowNulls" },
                             Type = DesignerEditType.Update,
-                            Value = columnViewModel.Precision.Value
+                            Value = columnViewModel.AllowNulls.Checked
                         }
                     });
                 }
 
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IsPrimaryKey.Enabled)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "allowNulls" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.AllowNulls.Checked
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "isPrimaryKey" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IsPrimaryKey.Checked
+                        }
+                    });
+                }
 
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IsIdentity.Enabled)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "isPrimaryKey" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IsPrimaryKey.Checked
-                    }
-                });
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
-                {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
-                    {
-                        Path = new object[] { Columns, index.ToString(), "isIdentity" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IsIdentity.Checked
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "isIdentity" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IsIdentity.Checked
+                        }
+                    });
+                }
 
                 //identitySeed
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IdentitySeed.Enabled && columnViewModel.IdentitySeed.Value != null)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    // If the column is identity, then set the identitySeed property
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "identitySeed" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IdentitySeed.Value
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "identitySeed" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IdentitySeed.Value
+                        }
+                    });
+                }
 
                 //identityIncrement
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IdentityIncrement.Enabled && columnViewModel.IdentityIncrement.Value != null)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    // If the column is identity, then set the identityIncrement property
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "identityIncrement" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IdentityIncrement.Value
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "identityIncrement" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IdentityIncrement.Value
+                        }
+                    });
+                }
 
                 //isComputed
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IsComputed.Enabled)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    // If the column is computed, then set the isComputed property
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "isComputed" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IsComputed.Checked
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "isComputed" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IsComputed.Checked
+                        }
+                    });
+                }
 
                 //computedFormula
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.ComputedFormula.Enabled && columnViewModel.ComputedFormula.Value != null)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "computedFormula" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.ComputedFormula.Value
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "computedFormula" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.ComputedFormula.Value
+                        }
+                    });
+                }
 
                 //isComputedPersisted
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IsComputedPersisted.Enabled)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "isComputedPersisted" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IsComputedPersisted.Checked
-                    }
-                });
-
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "isComputedPersisted" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IsComputedPersisted.Checked
+                        }
+                    });
+                }
 
                 //isComputedPersistedNullable
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.IsComputedPersistedNullable.Enabled)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "isComputedPersistedNullable" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.IsComputedPersistedNullable.Checked
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "isComputedPersistedNullable" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.IsComputedPersistedNullable.Checked
+                        }
+                    });
+                }
 
                 //defaultConstraintName
-
-                PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
+                if (columnViewModel.DefaultConstraintName.Enabled && columnViewModel.DefaultConstraintName.Value != null)
                 {
-                    TableInfo = this.tableInfo,
-                    TableChangeInfo = new TableDesignerChangeInfo()
+                    PerformTableDesignerEdit(new ProcessTableDesignerEditRequestParams()
                     {
-                        Path = new object[] { Columns, index.ToString(), "defaultConstraintName" },
-                        Type = DesignerEditType.Update,
-                        Value = columnViewModel.DefaultConstraintName.Value
-                    }
-                });
+                        TableInfo = this.tableInfo,
+                        TableChangeInfo = new TableDesignerChangeInfo()
+                        {
+                            Path = new object[] { Columns, index.ToString(), "defaultConstraintName" },
+                            Type = DesignerEditType.Update,
+                            Value = columnViewModel.DefaultConstraintName.Value
+                        }
+                    });
+                }
             }
 
             /// <summary>

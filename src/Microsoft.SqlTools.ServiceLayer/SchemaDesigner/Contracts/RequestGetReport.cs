@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class GetReportRequest
     {
         public string? SessionId { get; set; }
-        public SchemaDesignerModel? UpdatedModel { get; set; }
+        public SchemaDesignerModel? UpdatedSchema { get; set; }
     }
 
     /// <summary>

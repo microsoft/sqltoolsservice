@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -117,7 +116,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             var table = this.GetTableDesigner(tableInfo);
             return table.GenerateScript();
         }
-        public async Task<GeneratePreviewReportResult> GeneratePreviewReport(TableInfo tableInfo)
+        public GeneratePreviewReportResult GeneratePreviewReport(TableInfo tableInfo)
         {
             var generatePreviewReportResult = new GeneratePreviewReportResult();
             try
