@@ -53,14 +53,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 string sessionId = Guid.NewGuid().ToString();
                 await SchemaDesignerQueryExecution.CloneConnection(requestParams.ConnectionUri, sessionId, requestParams.DatabaseName);
 
-                SchemaDesignerModel schema = await SchemaDesignerSchemaFetcher.GetSchemaModel(sessionId);
-                List<string> datatypes = await SchemaDesignerSchemaFetcher.GetDatatypes(sessionId);
-                List<string> schemas = await SchemaDesignerSchemaFetcher.GetSchemas(sessionId);
+                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModel(sessionId);
+                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypes(sessionId);
+                List<string> schemas = await SchemaDesignerModelProvider.GetSchemas(sessionId);
                 
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
                     Schema = schema,
-                    DataTypes = datatypes,
+                    DataTypes = dataTypes,
                     SchemaNames = schemas,
                     SessionId = sessionId,
                 });
@@ -89,8 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 await requestContext.SendResult(new GenerateScriptResponse()
                 {
-                    Scripts = SchemaDesignerUtils.GetCreateAsScriptForSchema(requestParams.UpdatedSchema),
-                    CombinedScript = SchemaDesignerUtils.GetCombinedScriptForSchema(requestParams.UpdatedSchema)
+                    Scripts = SchemaDesignerScriptGenerator.GenerateCreateAsScriptForSchemaTables(requestParams.UpdatedSchema),
+                    CombinedScript = SchemaDesignerScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema)
                 });
             }
             catch (Exception e)

@@ -10,8 +10,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public static class SchemaDesignerSchemaFetcher
+    public static class SchemaDesignerModelProvider
     {
+        /// <summary>
+        /// Get the schema model for the database
+        /// </summary>
+        /// <param name="connectionUri"> The connection URI </param>
+        /// <returns></returns>
         public static async Task<SchemaDesignerModel> GetSchemaModel(string connectionUri)
         {
             SchemaDesignerModel schema = new SchemaDesignerModel();
@@ -21,12 +26,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             for (int i = 0; i < tables.Count; i++)
             {
                 IList<QueryExecution.Contracts.DbCellValue> row = tables[i];
-                string schemaName = row[0].DisplayValue;
-                string tableName = row[1].DisplayValue;
+                string tableName = row[0].DisplayValue;
+                string schemaName = row[1].DisplayValue;
                 string columnName = row[2].DisplayValue;
                 string dataType = row[3].DisplayValue;
-                string isIdentity = row[4].DisplayValue;
-                string isPrimaryKey = row[5].DisplayValue;
+                string maxLength = row[4].DisplayValue;
+                string precision = row[5].DisplayValue;
+                string scale = row[6].DisplayValue;
+                string isNullable = row[7].DisplayValue;
+                string isPrimaryKey = row[8].DisplayValue;
+                string isUnique = row[9].DisplayValue;
+                string collation = row[10].DisplayValue;
                 string key = $"[{schemaName}].[{tableName}]";
                 if (!tableDict.ContainsKey(key))
                 {
@@ -44,11 +54,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     Id = Guid.NewGuid(),
                     Name = columnName,
                     DataType = dataType,
-                    IsIdentity = isIdentity == "1",
-                    IsPrimaryKey = isPrimaryKey == "1"
+                    MaxLength = maxLength == null ? (int?)null : int.Parse(maxLength),
+                    Precision = precision == null ? (int?)null : int.Parse(precision),
+                    Scale = scale == null ? (int?)null : int.Parse(scale),
+                    IsNullable = isNullable == "1",
+                    IsPrimaryKey = isPrimaryKey == "1",
+                    IsUnique = isUnique == "1",
+                    Collation = collation
                 });
             }
-
             for (int i = 0; i < relationships.Count; i++)
             {
                 IList<QueryExecution.Contracts.DbCellValue> row = relationships[i];
@@ -62,6 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 else
                 {
                     SchemaDesignerTable table = tableDict[key];
+                    table.ForeignKeys ??= new List<SchemaDesignerForeignKey>();
                     table.ForeignKeys.Add(new SchemaDesignerForeignKey
                     {
                         Id = Guid.NewGuid(),
@@ -143,46 +158,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public const string TableAndColumnQuery = @"
             SELECT 
-                SCHEMA_NAME(t.schema_id) AS SchemaName,
                 t.name AS TableName,
+                s.name AS SchemaName,
                 c.name AS ColumnName,
-                ty.name AS DataType,
-                c.is_identity AS IsIdentity,
-                CASE 
-                    WHEN pk.column_id IS NOT NULL THEN 1 
-                    ELSE 0 
-                END AS IsPrimaryKey,
-                CASE 
-                    WHEN fk.column_id IS NOT NULL THEN 1 
-                    ELSE 0 
-                END AS IsForeignKey
+                TYPE_NAME(c.user_type_id) AS DataType,
+                c.max_length AS MaxLength,
+                c.precision AS Precision,
+                c.scale AS Scale,
+                c.is_nullable AS IsNullable,
+                CASE WHEN pk.column_id IS NOT NULL THEN 1 ELSE 0 END AS IsPrimaryKey,
+                CASE WHEN uq.column_id IS NOT NULL THEN 1 ELSE 0 END AS IsUnique,
+                c.collation_name AS Collation
             FROM sys.tables t
-            JOIN sys.columns c 
-                ON t.object_id = c.object_id
-            JOIN sys.types ty
-                ON c.user_type_id = ty.user_type_id
+            JOIN sys.schemas s ON t.schema_id = s.schema_id
+            JOIN sys.columns c ON t.object_id = c.object_id
             LEFT JOIN (
-                -- Get primary key columns
-                SELECT 
-                    kc.parent_object_id, 
-                    ic.column_id
-                FROM sys.key_constraints kc
-                JOIN sys.index_columns ic 
-                    ON kc.parent_object_id = ic.object_id AND kc.unique_index_id = ic.index_id
-                WHERE kc.type = 'PK'
-            ) pk 
-                ON t.object_id = pk.parent_object_id AND c.column_id = pk.column_id
+                SELECT ic.object_id, ic.column_id
+                FROM sys.index_columns ic
+                JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+                WHERE i.is_primary_key = 1
+            ) pk ON c.object_id = pk.object_id AND c.column_id = pk.column_id
             LEFT JOIN (
-                -- Get foreign key columns
-                SELECT 
-                    fk.parent_object_id, 
-                    fkc.parent_column_id AS column_id
-                FROM sys.foreign_keys fk
-                JOIN sys.foreign_key_columns fkc 
-                    ON fk.object_id = fkc.constraint_object_id
-            ) fk 
-                ON t.object_id = fk.parent_object_id AND c.column_id = fk.column_id
-            WHERE t.type = 'U'
+                SELECT ic.object_id, ic.column_id
+                FROM sys.index_columns ic
+                JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+                WHERE i.is_unique = 1
+            ) uq ON c.object_id = uq.object_id AND c.column_id = uq.column_id
+            ORDER BY s.name, t.name, c.column_id;
         ";
 
         /// <summary>

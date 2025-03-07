@@ -25,6 +25,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string? DataType { get; set; }
         /// <summary>
+        /// Gets or sets the max length of the column
+        /// </summary>
+        public int? MaxLength { get; set; }
+        /// <summary>
+        /// Gets or sets the precision of the column
+        /// </summary>
+        public int? Precision { get; set; }
+        /// <summary>
+        /// Gets or sets the scale of the column
+        /// </summary>
+        public int? Scale { get; set; }
+        /// <summary>
         /// Gets or sets if the column is a primary key
         /// </summary>
         public bool IsPrimaryKey { get; set; }
@@ -40,5 +52,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Get or sets if the column is has unique constraint
         /// </summary>
         public bool IsUnique { get; set; }
+        /// <summary>
+        /// Gets or sets the default value of the column
+        /// </summary>
+        public string Collation { get; set; }
     }
 }
