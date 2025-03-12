@@ -45,6 +45,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public bool IsIdentity { get; set; }
         /// <summary>
+        /// Gets or sets identity seed of the column
+        /// </summary>
+        public int? IdentitySeed { get; set; }
+        /// <summary>
+        /// Gets or sets identity increment of the column
+        /// </summary>
+        public int? IdentityIncrement { get; set; }
+        /// <summary>
         /// Gets or sets if the column is a nullable column
         /// </summary>
         public bool IsNullable { get; set; }
