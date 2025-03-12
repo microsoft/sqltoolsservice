@@ -37,6 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 string isPrimaryKey = row[8].DisplayValue;
                 string isUnique = row[9].DisplayValue;
                 string collation = row[10].DisplayValue;
+                string isIdentity = row[11].DisplayValue;
                 string key = $"[{schemaName}].[{tableName}]";
                 if (!tableDict.ContainsKey(key))
                 {
@@ -60,7 +61,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     IsNullable = isNullable == "1",
                     IsPrimaryKey = isPrimaryKey == "1",
                     IsUnique = isUnique == "1",
-                    Collation = collation
+                    Collation = collation,
+                    IsIdentity = isIdentity == "1"
                 });
             }
             for (int i = 0; i < relationships.Count; i++)
@@ -157,34 +159,35 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Query to get all tables and columns in the database
         /// </summary>
         public const string TableAndColumnQuery = @"
-            SELECT 
-                t.name AS TableName,
-                s.name AS SchemaName,
-                c.name AS ColumnName,
-                TYPE_NAME(c.user_type_id) AS DataType,
-                c.max_length AS MaxLength,
-                c.precision AS Precision,
-                c.scale AS Scale,
-                c.is_nullable AS IsNullable,
-                CASE WHEN pk.column_id IS NOT NULL THEN 1 ELSE 0 END AS IsPrimaryKey,
-                CASE WHEN uq.column_id IS NOT NULL THEN 1 ELSE 0 END AS IsUnique,
-                c.collation_name AS Collation
-            FROM sys.tables t
-            JOIN sys.schemas s ON t.schema_id = s.schema_id
-            JOIN sys.columns c ON t.object_id = c.object_id
-            LEFT JOIN (
+SELECT
+    t.name AS TableName,
+    s.name AS SchemaName,
+    c.name AS ColumnName,
+    TYPE_NAME(c.user_type_id) AS DataType,
+    c.max_length AS MaxLength,
+    c.precision AS Precision,
+    c.scale AS Scale,
+    c.is_nullable AS IsNullable,
+    CASE WHEN pk.column_id IS NOT NULL THEN 1 ELSE 0 END AS IsPrimaryKey,
+    CASE WHEN uq.column_id IS NOT NULL THEN 1 ELSE 0 END AS IsUnique,
+    c.collation_name AS Collation,
+    c.is_identity AS IsIdentity
+FROM sys.tables t
+    JOIN sys.schemas s ON t.schema_id = s.schema_id
+    JOIN sys.columns c ON t.object_id = c.object_id
+    LEFT JOIN (
                 SELECT ic.object_id, ic.column_id
-                FROM sys.index_columns ic
-                JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
-                WHERE i.is_primary_key = 1
+    FROM sys.index_columns ic
+        JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+    WHERE i.is_primary_key = 1
             ) pk ON c.object_id = pk.object_id AND c.column_id = pk.column_id
-            LEFT JOIN (
+    LEFT JOIN (
                 SELECT ic.object_id, ic.column_id
-                FROM sys.index_columns ic
-                JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
-                WHERE i.is_unique = 1
+    FROM sys.index_columns ic
+        JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+    WHERE i.is_unique = 1
             ) uq ON c.object_id = uq.object_id AND c.column_id = uq.column_id
-            ORDER BY s.name, t.name, c.column_id;
+ORDER BY s.name, t.name, c.column_id;
         ";
 
         /// <summary>

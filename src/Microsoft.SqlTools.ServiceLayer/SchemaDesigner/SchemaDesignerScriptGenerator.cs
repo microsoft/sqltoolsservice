@@ -74,11 +74,41 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             StringBuilder sb = new StringBuilder();
             sb.Append($"[{column.Name}] {column.DataType}");
 
-            if (column.MaxLength.HasValue)
-                sb.Append(column.MaxLength == -1 ? "(MAX)" : $"({column.MaxLength})");
+            // Handle length specification for applicable data types
+            if (column.MaxLength.HasValue && column.MaxLength != -1)
+            {
+                if (IsLengthBasedType(column.DataType))
+                {
+                    if (IsBytePairDatatype(column.DataType))
+                    {
+                        sb.Append($"({column.MaxLength / 2})");
+                    }
+                    else
+                    {
+                        sb.Append($"({column.MaxLength})");
+                    }
+                }
+            }
+            else if (column.MaxLength == -1 && IsLengthBasedType(column.DataType))
+            {
+                sb.Append("(MAX)");
+            }
 
-            if (column.Precision.HasValue && column.Scale.HasValue)
-                sb.Append($"({column.Precision},{column.Scale})");
+            // Handle precision and scale only for decimal/numeric types
+            if (column.Precision.HasValue && IsPrecisionBasedType(column.DataType))
+            {
+                if (column.Scale.HasValue)
+                {
+                    sb.Append($"({column.Precision},{column.Scale})");
+                }
+                else
+                {
+                    sb.Append($"({column.Precision})");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(column.Collation) && column.Collation != "NULL")
+                sb.Append($" COLLATE {column.Collation}");
 
             if (!column.IsNullable)
                 sb.Append(" NOT NULL");
@@ -89,10 +119,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (column.IsIdentity)
                 sb.Append(" IDENTITY(1,1)");
 
-            if (!string.IsNullOrEmpty(column.Collation))
-                sb.Append($" COLLATE {column.Collation}");
-
             return sb.ToString();
+        }
+
+        public static bool IsBytePairDatatype(string dataType)
+        {
+            string[] bytePairTypes = {"nchar", "nvarchar"};
+            return bytePairTypes.Contains(dataType.ToLowerInvariant());
+        }
+
+        // Helper method to check if a data type supports length specification
+        private static bool IsLengthBasedType(string dataType)
+        {
+            string[] lengthBasedTypes = { "char", "varchar", "nchar", "nvarchar", "binary", "varbinary" };
+            return lengthBasedTypes.Contains(dataType.ToLowerInvariant());
+        }
+
+        // Helper method to check if a data type supports precision and scale
+        private static bool IsPrecisionBasedType(string dataType)
+        {
+            string[] precisionBasedTypes = { "decimal", "numeric", "float", "real" };
+            return precisionBasedTypes.Contains(dataType.ToLowerInvariant());
         }
 
         public static string GenerateForeignKeyScripts(List<SchemaDesignerTable> tables)
