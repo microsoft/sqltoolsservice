@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static readonly Lazy<SchemaDesignerService> instance = new Lazy<SchemaDesignerService>(() => new SchemaDesignerService());
         private bool disposed = false;
         private IProtocolEndpoint? serviceHost;
-        private Dictionary<string, SchemaDesignerSession> sessions = new Dictionary<string, SchemaDesignerSession>();
+        private Dictionary<string, SchemaDesignerSession2> sessions = new Dictionary<string, SchemaDesignerSession2>();
 
         /// <summary>
         /// Gets the singleton instance object
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModel(sessionId);
                 List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypes(sessionId);
                 List<string> schemas = await SchemaDesignerModelProvider.GetSchemas(sessionId);
-                
+
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
                     Schema = schema,
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 _ = Task.Run(async () =>
                 {
-                    var session = new SchemaDesignerSession(sessionId, schema);
+                    var session = new SchemaDesignerSession2(sessionId, schema);
                     sessions.Add(sessionId, session);
                     await requestContext.SendEvent(SchemaReady.Type, new SchemaReadyResponse()
                     {
@@ -89,8 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 await requestContext.SendResult(new GenerateScriptResponse()
                 {
-                    Scripts = SchemaDesignerScriptGenerator.GenerateCreateAsScriptForSchemaTables(requestParams.UpdatedSchema),
-                    CombinedScript = SchemaDesignerScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema)
+                    Scripts = SchemaCreationScriptGenerator.GenerateCreateAsScriptForSchemaTables(requestParams.UpdatedSchema),
+                    CombinedScript = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema)
                 });
             }
             catch (Exception e)
@@ -104,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
+                SchemaDesignerSession2 session = sessions[requestParams.SessionId];
                 session.CloseSession();
                 sessions.Remove(requestParams.SessionId);
                 SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
+                SchemaDesignerSession2 session = sessions[requestParams.SessionId];
                 await requestContext.SendResult(new GetReportResponse()
                 {
                     Reports = await session.GetReport(requestParams.UpdatedSchema)

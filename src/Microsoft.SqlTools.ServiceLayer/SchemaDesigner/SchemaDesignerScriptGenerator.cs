@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public static class SchemaDesignerScriptGenerator
+    public static class SchemaCreationScriptGenerator
     {
         public static string GenerateCreateTableScript(SchemaDesignerModel model)
         {
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             return sb.ToString();
         }
 
-        private static string GenerateTableDefinition(SchemaDesignerTable table)
+        public static string GenerateTableDefinition(SchemaDesignerTable table)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"CREATE TABLE [{table.Schema}].[{table.Name}] (");
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 sb.Append(" UNIQUE");
 
             if (column.IsIdentity)
-                sb.Append(" IDENTITY(1,1)");
+                sb.Append($" IDENTITY({column.IdentitySeed},{column.IdentityIncrement})");
 
             return sb.ToString();
         }

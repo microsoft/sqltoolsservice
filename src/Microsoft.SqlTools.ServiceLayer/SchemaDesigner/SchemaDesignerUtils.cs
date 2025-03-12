@@ -51,10 +51,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 && table.Schema == otherTable.Schema
                 && table.Columns != null && otherTable.Columns != null
                 && table.Columns.Count == otherTable.Columns.Count
-                && table.Columns.TrueForAll(c => otherTable.Columns.Exists(oc => DeepCompareColumn(c, oc)))
-                && table.ForeignKeys != null && otherTable.ForeignKeys != null
-                && table.ForeignKeys.Count == otherTable.ForeignKeys.Count
-                && table.ForeignKeys.TrueForAll(fk => otherTable.ForeignKeys.Exists(ofk => DeepCompareForeignKey(fk, ofk)));
+                && table.Columns.TrueForAll(c => otherTable.Columns.Exists(oc => DeepCompareColumn(c, oc)));
+                // && table.ForeignKeys != null && otherTable.ForeignKeys != null
+                // && table.ForeignKeys.Count == otherTable.ForeignKeys.Count
+                // && table.ForeignKeys.TrueForAll(fk => otherTable.ForeignKeys.Exists(ofk => DeepCompareForeignKey(fk, ofk)));
         }
 
         public static bool DeepCompareColumn(SchemaDesignerColumn column, SchemaDesignerColumn otherColumn)
@@ -67,7 +67,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 && column.IsPrimaryKey == otherColumn.IsPrimaryKey
                 && column.IsIdentity == otherColumn.IsIdentity
                 && column.IsNullable == otherColumn.IsNullable
-                && column.IsUnique == otherColumn.IsUnique;
+                && column.IsUnique == otherColumn.IsUnique
+                && column.IsIdentity == otherColumn.IsIdentity
+                && column.IdentitySeed == otherColumn.IdentitySeed
+                && column.IdentityIncrement == otherColumn.IdentityIncrement;
+
         }
 
         public static bool DeepCompareForeignKey(SchemaDesignerForeignKey fk, SchemaDesignerForeignKey otherFk)

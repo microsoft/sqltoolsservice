@@ -20,7 +20,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class SchemaDesignerSession2
+    public class SchemaDesignerSession3
     {
         private readonly string connectionString;
         private TSqlModel clonedModel;
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         ConnectionInfo connectionInfo;
         TableDesignerManager tableDesignerManager = new TableDesignerManager();
 
-        public SchemaDesignerSession2(string connectionString, string? accessToken, string databaseName, ConnectionInfo connectionInfo, string sessionId)
+        public SchemaDesignerSession3(string connectionString, string? accessToken, string databaseName, ConnectionInfo connectionInfo, string sessionId)
         {
             this.connectionString = connectionString;
             this.databaseName = databaseName;

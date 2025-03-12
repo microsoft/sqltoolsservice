@@ -65,8 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     IsUnique = isUnique == "1",
                     Collation = collation,
                     IsIdentity = isIdentity == "1",
-                    IdentitySeed = seedValue == null ? (int?)null : int.Parse(seedValue),
-                    IdentityIncrement = incrementValue == null ? (int?)null : int.Parse(incrementValue)
+                    IdentitySeed = seedValue == "NULL" ? (int?)null : int.Parse(seedValue),
+                    IdentityIncrement = incrementValue == "NULL" ? (int?)null : int.Parse(incrementValue)
                 });
             }
             for (int i = 0; i < relationships.Count; i++)

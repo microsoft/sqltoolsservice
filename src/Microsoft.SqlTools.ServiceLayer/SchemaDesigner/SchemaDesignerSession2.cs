@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
@@ -18,7 +17,7 @@ using ForeignKeyViewModel = Microsoft.SqlTools.SqlCore.TableDesigner.Contracts.F
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class SchemaDesignerSession
+    public class SchemaDesignerSession2
     {
         private SchemaDesignerModel schema;
         private TableDesignerManager tableDesignerManager = new TableDesignerManager();
@@ -31,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         // private TSqlModel clonedModel;
 
 
-        public SchemaDesignerSession(string sessionId, SchemaDesignerModel initialSchema)
+        public SchemaDesignerSession2(string sessionId, SchemaDesignerModel initialSchema)
         {
             ConnectionInfo newConn;
             ConnectionService.Instance.TryFindConnection(sessionId, out newConn);
@@ -124,153 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         public async Task<List<SchemaDesignerReportObject>> GetReport(SchemaDesignerModel modifiedSchema)
         {
-            // Dispose all old table designers
-            foreach (var table in modifiedSchema.Tables)
-            {
-                try
-                {
-                    tableDesignerManager.DisposeTableDesigner(
-                        CreateTableInfo(table)
-                    );
-                }
-                catch (Exception e)
-                {
-                    // Log the exception
-                }
-            }
-
-            List<SchemaDesignerReportObject> response = new List<SchemaDesignerReportObject>();
+            List<SchemaDesignerReportObject> response = SchemaDesignerUpdater.GenerateUpdateScripts(this.schema, modifiedSchema);
             // Initialize the table designer for each table in the schema
-            foreach (var table in modifiedSchema.Tables)
-            {
-                TableInfo tableInfo = CreateTableInfo(table);
-
-
-                if (tableInfo.IsNewTable)
-                {
-                    TableDesignerInfo designerInfo = tableDesignerManager.InitializeTableDesigner(tableInfo);
-                    TableDesignerEditUtils tableDesignerEditUtils = new TableDesignerEditUtils(tableDesignerManager, tableInfo, designerInfo.ViewModel);
-                    tableDesignerEditUtils.ProcessNewTable(table);
-                }
-                else
-                {
-                    SchemaDesignerTable? oldTable = this.schema.Tables.Find(t => t.Id == table.Id);
-                    if (SchemaDesignerUtils.DeepCompareTable(oldTable, table))
-                    {
-                        // If the tables are the same, then no need to generate the report
-                        continue;
-                    }
-                    TableDesignerInfo designerInfo = tableDesignerManager.InitializeTableDesigner(tableInfo);
-                    TableDesignerEditUtils tableDesignerEditUtils = new TableDesignerEditUtils(tableDesignerManager, tableInfo, designerInfo.ViewModel);
-                    tableDesignerEditUtils.UpdateTableProperties(table);
-
-                    if (oldTable == null)
-                    {
-                        // Log the error
-                        continue;
-                    }
-
-                    List<int> columnsToAdd = new List<int>();
-                    Dictionary<int, TableColumnViewModel> columnsToUpdate = new Dictionary<int, TableColumnViewModel>();
-
-                    for (int i = 0; i < table.Columns.Count; i++)
-                    {
-                        SchemaDesignerColumn column = table.Columns[i];
-                        SchemaDesignerColumn? oldColumn = oldTable.Columns.Find(c => c.Id == column.Id);
-
-                        // If the column is not present in the old table, then it is a new column
-                        if (oldColumn == null)
-                        {
-                            columnsToAdd.Add(i);
-                            continue;
-                        }
-                        else
-                        {
-                            int oldColumnIndex = oldTable.Columns.IndexOf(oldColumn);
-                            columnsToUpdate.Add(i, tableDesignerEditUtils.lastViewModel.Columns.Data[oldColumnIndex]);
-                        }
-                    }
-
-                    // Delete all the columns. We will add them back later
-                    for (int i = oldTable.Columns.Count - 1; i >= 0; i--)
-                    {
-                        tableDesignerEditUtils.DeleteColumn(i);
-                    }
-
-                    // Add all the columns
-                    for (int i = 0; i < table.Columns.Count; i++)
-                    {
-                        if (columnsToAdd.Contains(i))
-                        {
-                            tableDesignerEditUtils.AddNewColumn(table.Columns[i], i);
-                        }
-                        else if (columnsToUpdate.ContainsKey(i))
-                        {
-                            tableDesignerEditUtils.AddNewColumn(table.Columns[i], columnsToUpdate[i], i);
-                        }
-                    }
-
-                    List<int> foreignKeysToAdd = new List<int>();
-                    Dictionary<int, ForeignKeyViewModel> foreignKeysToUpdate = new Dictionary<int, ForeignKeyViewModel>();
-
-                    for (int i = 0; i < table.ForeignKeys.Count; i++)
-                    {
-                        SchemaDesignerForeignKey foreignKey = table.ForeignKeys[i];
-                        SchemaDesignerForeignKey? oldForeignKey = oldTable.ForeignKeys.Find(fk => fk.Id == foreignKey.Id);
-
-                        // If the foreign key is not present in the old table, then it is a new foreign key
-                        if (oldForeignKey == null)
-                        {
-                            foreignKeysToAdd.Add(i);
-                            continue;
-                        }
-                        else
-                        {
-                            int oldForeignKeyIndex = oldTable.ForeignKeys.IndexOf(oldForeignKey);
-                            foreignKeysToUpdate.Add(i, tableDesignerEditUtils.lastViewModel.ForeignKeys.Data[oldForeignKeyIndex]);
-                        }
-                    }
-
-                    // Delete all the foreign keys. We will add them back later
-                    for (int i = oldTable.ForeignKeys.Count - 1; i >= 0; i--)
-                    {
-                        tableDesignerEditUtils.DeleteForeignKey(i);
-                    }
-
-                    // Add all the foreign keys
-                    for (int i = 0; i < table.ForeignKeys.Count; i++)
-                    {
-                        if (foreignKeysToAdd.Contains(i))
-                        {
-                            tableDesignerEditUtils.AddForeignKey(table.ForeignKeys[i], i);
-                        }
-                        else if (foreignKeysToUpdate.ContainsKey(i))
-                        {
-                            tableDesignerEditUtils.AddForeignKey(table.ForeignKeys[i], foreignKeysToUpdate[i], i);
-                        }
-                    }
-
-                }
-                try
-                {
-                    var report = await Task.Run(async () =>
-                        {
-                            return tableDesignerManager.GeneratePreviewReport(tableInfo);
-                        });
-
-                    response.Add(new SchemaDesignerReportObject()
-                    {
-                        TableId = table.Id,
-                        //Report = report,
-                    });
-                    tableDesignerManager.DisposeTableDesigner(tableInfo);
-                }
-                catch (Exception e)
-                {
-                    // Log the exception
-                }
-
-            }
             return response;
         }
 
