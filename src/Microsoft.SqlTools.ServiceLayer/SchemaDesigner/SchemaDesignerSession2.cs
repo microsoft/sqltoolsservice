@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
     public class SchemaDesignerSession2
     {
-        private SchemaDesignerModel schema;
+        public SchemaDesignerModel schema;
         private TableDesignerManager tableDesignerManager = new TableDesignerManager();
         private ConnectionInfo connectionInfo;
         private string connectionString;
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         public async Task<List<SchemaDesignerReportObject>> GetReport(SchemaDesignerModel modifiedSchema)
         {
-            List<SchemaDesignerReportObject> response = SchemaDesignerUpdater.GenerateUpdateScripts(this.schema, modifiedSchema);
+            List<SchemaDesignerReportObject> response = new List<SchemaDesignerReportObject>();
             // Initialize the table designer for each table in the schema
             return response;
         }

@@ -11,9 +11,30 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
     public static class SchemaDesignerUpdater
     {
-        public static List<SchemaDesignerReportObject> GenerateUpdateScripts(SchemaDesignerModel initialSchema, SchemaDesignerModel updatedSchema)
+        public static void AddOrRemoveReport(Dictionary<string, SchemaDesignerReportObject> report, SchemaDesignerTable table, SchemaDesignerReportTableState type, string script, string actionPerformed)
         {
-            var reportObjects = new List<SchemaDesignerReportObject>();
+            if (report.ContainsKey(table.Id.ToString()))
+            {
+                report[table.Id.ToString()].ActionsPerformed.Add(actionPerformed);
+                report[table.Id.ToString()].UpdateScript += script;
+            }
+            else
+            {
+                report.Add(table.Id.ToString(), new SchemaDesignerReportObject
+                {
+                    TableId = table.Id,
+                    TableName = $"{table.Schema}.{table.Name}",
+                    UpdateScript = script,
+                    TableState = type,
+                    ActionsPerformed = new List<string> { actionPerformed }
+                });
+            }
+        }
+
+        public static GetReportResponse GenerateUpdateScripts(SchemaDesignerModel initialSchema, SchemaDesignerModel updatedSchema)
+        {
+            Dictionary<string, SchemaDesignerReportObject> report = new Dictionary<string, SchemaDesignerReportObject>();
+            StringBuilder updateScriptResult = new StringBuilder();
             foreach (var table in updatedSchema.Tables)
             {
                 var oldTable = initialSchema.Tables.FirstOrDefault(t => t.Id == table.Id);
@@ -21,46 +42,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 if (oldTable == null)
                 {
                     string creationScript = SchemaCreationScriptGenerator.GenerateTableDefinition(table);
-                    reportObjects.Add(new SchemaDesignerReportObject
-                    {
-                        TableId = table.Id,
-                        UpdateScript = creationScript,
-                        TableState = SchemaDesignerReportTableState.CREATED,
-                        ActionsPerformed = new List<string> { $"Table {table.Name} created." }
-                    });
+                    updateScriptResult.AppendLine(creationScript);
+                    AddOrRemoveReport(report, table, SchemaDesignerReportTableState.CREATED, creationScript, $"Table {table.Name} created.");
                 }
             }
 
-            // Handle dropped tables
-            foreach (var oldTable in initialSchema.Tables)
-            {
-                var newTable = updatedSchema.Tables.FirstOrDefault(t => t.Id == oldTable.Id);
-
-                if (newTable == null)
-                {
-
-                    // Drop foreign keys first
-                    foreach (var foreignKey in oldTable.ForeignKeys)
-                    {
-                        string dropForeignKeyScript = "ALTER TABLE [{oldTable.Schema}].[{oldTable.Name}] DROP CONSTRAINT [{foreignKey.Name}]";
-                        reportObjects.Add(new SchemaDesignerReportObject
-                        {
-                            TableId = oldTable.Id,
-                            UpdateScript = dropForeignKeyScript,
-                            TableState = SchemaDesignerReportTableState.DROPPED,
-                            ActionsPerformed = new List<string> { $"Foreign key {foreignKey.Name} dropped." }
-                        });
-                    }
-                    string dropScript = $"DROP TABLE [{oldTable.Schema}].[{oldTable.Name}]";
-                    reportObjects.Add(new SchemaDesignerReportObject
-                    {
-                        TableId = oldTable.Id,
-                        UpdateScript = dropScript,
-                        TableState = SchemaDesignerReportTableState.DROPPED,
-                        ActionsPerformed = new List<string> { $"Table {oldTable.Name} dropped." }
-                    });
-                }
-            }
+            
 
             // Handle updated tables
             foreach (var oldTable in initialSchema.Tables)
@@ -76,28 +63,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         continue;
                     }
 
+                    // Check table renaming
+                    if (oldTable.Name != newTable.Name)
+                    {
+                        AddOrRemoveReport(report, newTable, SchemaDesignerReportTableState.UPDATED, "", $"Table {oldTable.Name} renamed to {newTable.Name}.");
+                        
+                        updateScript.AppendLine($"EXEC sp_rename '{oldTable.Schema}.{oldTable.Name}', '{newTable.Name}';");
+                    }
 
                     // Check for schema changes
                     if (oldTable.Schema != newTable.Schema)
                     {
+                        AddOrRemoveReport(report, newTable, SchemaDesignerReportTableState.UPDATED, "", $"Table {newTable.Name} schema changed.");
                         updateScript.AppendLine($"ALTER SCHEMA [{newTable.Schema}] TRANSFER [{oldTable.Schema}].[{newTable.Name}];");
                     }
 
-                    // Check table renaming
-                    if (oldTable.Name != newTable.Name)
-                    {
-                        updateScript.AppendLine($"EXEC sp_rename '{oldTable.Schema}.{oldTable.Name}', '{newTable.Name}';");
-                    }
                     // Table is updated
-                    updateScript.AppendLine(GenerateColumnUpdateScripts(oldTable, newTable));
-
-                    reportObjects.Add(new SchemaDesignerReportObject
-                    {
-                        TableId = newTable.Id,
-                        UpdateScript = updateScript.ToString(),
-                        TableState = SchemaDesignerReportTableState.UPDATED,
-                        ActionsPerformed = new List<string> { $"Table {newTable.Name} updated." }
-                    });
+                    updateScript.AppendLine(GenerateColumnUpdateScripts(oldTable, newTable, report));
+                    AddOrRemoveReport(report, newTable, SchemaDesignerReportTableState.UPDATED, updateScript.ToString(), $"Table {newTable.Name} updated.");
+                    updateScriptResult.AppendLine(updateScript.ToString());
                 }
             }
 
@@ -112,13 +96,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     foreach (var foreignKey in table.ForeignKeys)
                     {
                         string foreignKeyScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(table, foreignKey);
-                        reportObjects.Add(new SchemaDesignerReportObject
-                        {
-                            TableId = table.Id,
-                            UpdateScript = foreignKeyScript,
-                            TableState = SchemaDesignerReportTableState.CREATED,
-                            ActionsPerformed = new List<string> { $"Foreign key {foreignKey.Name} created." }
-                        });
+                        AddOrRemoveReport(report, table, SchemaDesignerReportTableState.CREATED, foreignKeyScript, $"Foreign key {foreignKey.Name} created.");
+                        updateScriptResult.AppendLine(foreignKeyScript);
                     }
                 }
             }
@@ -137,37 +116,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         if (oldForeignKey == null)
                         {
                             string foreignKeyScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(table, foreignKey);
-                            reportObjects.Add(new SchemaDesignerReportObject
-                            {
-                                TableId = table.Id,
-                                UpdateScript = foreignKeyScript,
-                                TableState = SchemaDesignerReportTableState.CREATED,
-                                ActionsPerformed = new List<string> { $"Foreign key {foreignKey.Name} created." }
-                            });
+                            AddOrRemoveReport(report, table, SchemaDesignerReportTableState.CREATED, foreignKeyScript, $"Foreign key {foreignKey.Name} created.");
+                            updateScriptResult.AppendLine(foreignKeyScript);
                         }
                         else if (!SchemaDesignerUtils.DeepCompareForeignKey(oldForeignKey, foreignKey))
                         {
-                             // Foreign key exists but has changed
+                            // Foreign key exists but has changed
                             // Drop the old foreign key and create the new one
                             // Note: This is a simplified approach. In a real-world scenario, you might want to check for dependencies and handle them accordingly.
 
                             string dropForeignKeyScript = $"ALTER TABLE [{table.Schema}].[{table.Name}] DROP CONSTRAINT [{oldForeignKey.Name}]";
-                            reportObjects.Add(new SchemaDesignerReportObject
-                            {
-                                TableId = table.Id,
-                                UpdateScript = dropForeignKeyScript,
-                                TableState = SchemaDesignerReportTableState.UPDATED,
-                                ActionsPerformed = new List<string> { $"Foreign key {oldForeignKey.Name} dropped." }
-                            });
+                            AddOrRemoveReport(report, table, SchemaDesignerReportTableState.UPDATED, dropForeignKeyScript, $"Foreign key {oldForeignKey.Name} dropped.");
+                            updateScriptResult.AppendLine(dropForeignKeyScript);
 
                             string foreignKeyScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(table, foreignKey);
-                            reportObjects.Add(new SchemaDesignerReportObject
-                            {
-                                TableId = table.Id,
-                                UpdateScript = foreignKeyScript,
-                                TableState = SchemaDesignerReportTableState.CREATED,
-                                ActionsPerformed = new List<string> { $"Foreign key {foreignKey.Name} created." }
-                            });
+                            AddOrRemoveReport(report, table, SchemaDesignerReportTableState.CREATED, foreignKeyScript, $"Foreign key {foreignKey.Name} created.");
+                            updateScriptResult.AppendLine(foreignKeyScript);
                         }
                     }
 
@@ -177,23 +141,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         if (!table.ForeignKeys.Any(fk => fk.Name == oldForeignKey.Name))
                         {
                             string dropForeignKeyScript = $"ALTER TABLE [{oldTable.Schema}].[{oldTable.Name}] DROP CONSTRAINT [{oldForeignKey.Name}]";
-                            reportObjects.Add(new SchemaDesignerReportObject
-                            {
-                                TableId = oldTable.Id,
-                                UpdateScript = dropForeignKeyScript,
-                                TableState = SchemaDesignerReportTableState.UPDATED,
-                                ActionsPerformed = new List<string> { $"Foreign key {oldForeignKey.Name} dropped." }
-                            });
+                            AddOrRemoveReport(report, oldTable, SchemaDesignerReportTableState.UPDATED, dropForeignKeyScript, $"Foreign key {oldForeignKey.Name} dropped.");
+                            updateScriptResult.AppendLine(dropForeignKeyScript);
                         }
                     }
                 }
             }
 
+            // Handle dropped tables
+            foreach (var oldTable in initialSchema.Tables)
+            {
+                var newTable = updatedSchema.Tables.FirstOrDefault(t => t.Id == oldTable.Id);
 
-            return reportObjects;
+                if (newTable == null)
+                {
+                    // Drop foreign keys first
+                    foreach (var foreignKey in oldTable.ForeignKeys)
+                    {
+                        string dropForeignKeyScript = "ALTER TABLE [{oldTable.Schema}].[{oldTable.Name}] DROP CONSTRAINT [{foreignKey.Name}]";
+                        AddOrRemoveReport(report, oldTable, SchemaDesignerReportTableState.DROPPED, dropForeignKeyScript, $"Foreign key {foreignKey.Name} dropped.");
+                        updateScriptResult.AppendLine(dropForeignKeyScript);
+                    }
+                    string dropScript = $"DROP TABLE [{oldTable.Schema}].[{oldTable.Name}]";
+                    AddOrRemoveReport(report, oldTable, SchemaDesignerReportTableState.DROPPED, dropScript, $"Table {oldTable.Name} dropped.");
+                    updateScriptResult.AppendLine(dropScript);
+                }
+            }
+
+            // Convert the report dictionary to a list of SchemaDesignerReportObject
+            List<SchemaDesignerReportObject> reportObjects = report.Values.ToList();
+
+            return new GetReportResponse() {
+                Reports = reportObjects,
+                UpdateScript = updateScriptResult.ToString()
+            };
         }
 
-        private static string GenerateColumnUpdateScripts(SchemaDesignerTable oldTable, SchemaDesignerTable newTable)
+        private static string GenerateColumnUpdateScripts(SchemaDesignerTable oldTable, SchemaDesignerTable newTable, Dictionary<string, SchemaDesignerReportObject> report)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -203,6 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 if (oldColumn == null)
                 {
+                    AddOrRemoveReport(report, newTable, SchemaDesignerReportTableState.UPDATED, "", $"Column {newColumn.Name} added.");
                     // New column detected
                     sb.AppendLine($"ALTER TABLE [{newTable.Schema}].[{newTable.Name}] ADD {SchemaCreationScriptGenerator.GenerateColumnDefinition(newColumn)};");
                 }
@@ -211,6 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     // Column exists, check for modifications
                     if (HasColumnChanged(oldColumn, newColumn))
                     {
+                        AddOrRemoveReport(report, newTable, SchemaDesignerReportTableState.UPDATED, "", $"Column {newColumn.Name} updated.");
                         sb.AppendLine($"ALTER TABLE [{newTable.Schema}].[{newTable.Name}] ALTER COLUMN {SchemaCreationScriptGenerator.GenerateColumnDefinition(newColumn)};");
                     }
                 }
@@ -221,6 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (!newTable.Columns.Any(c => c.Name == oldColumn.Name))
                 {
+                    AddOrRemoveReport(report, oldTable, SchemaDesignerReportTableState.UPDATED, "", $"Column {oldColumn.Name} dropped.");
                     sb.AppendLine($"ALTER TABLE [{oldTable.Schema}].[{oldTable.Name}] DROP COLUMN [{oldColumn.Name}];");
                 }
             }
@@ -242,10 +229,5 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 oldColumn.IsUnique != newColumn.IsUnique ||
                 oldColumn.Collation != newColumn.Collation;
         }
-
-
-
-
-
     }
 }

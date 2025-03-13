@@ -11,6 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class SchemaDesignerReportObject
     {
         public Guid? TableId { get; set; }
+        public string TableName { get; set; } = string.Empty;
         public string UpdateScript { get; set; } = string.Empty;
         public SchemaDesignerReportTableState TableState { get; set; } = SchemaDesignerReportTableState.CREATED;
         public List<string> ActionsPerformed { get; set; } = new List<string>();

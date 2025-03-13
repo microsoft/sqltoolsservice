@@ -122,10 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             try
             {
                 SchemaDesignerSession2 session = sessions[requestParams.SessionId];
-                await requestContext.SendResult(new GetReportResponse()
-                {
-                    Reports = await session.GetReport(requestParams.UpdatedSchema)
-                });
+                await requestContext.SendResult(SchemaDesignerUpdater.GenerateUpdateScripts(session.schema, requestParams.UpdatedSchema));
             }
             catch (Exception e)
             {
