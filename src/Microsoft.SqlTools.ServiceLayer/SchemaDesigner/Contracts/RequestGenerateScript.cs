@@ -22,6 +22,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
     public class GenerateScript
     {
+        /// <summary>
+        /// Request to generate create script for the schema model
+        /// </summary>
         public static readonly RequestType<GenerateScriptRequest, GenerateScriptResponse> Type = RequestType<GenerateScriptRequest, GenerateScriptResponse>.Create("schemaDesigner/generateScript");
     }
 }

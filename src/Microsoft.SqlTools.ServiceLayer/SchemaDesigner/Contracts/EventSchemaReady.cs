@@ -14,6 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
     public class SchemaReady
     {
+        /// <summary>
+        /// Event to signal that the DACFx model is loaded and ready
+        /// </summary>
         public static readonly
             EventType<SchemaReadyResponse> Type =
             EventType<SchemaReadyResponse>.Create("schemaDesigner/schemaReady");
