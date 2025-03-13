@@ -139,24 +139,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Query to get all relationships in the database
         /// </summary>
         public const string RelationshipQuery = @"
-            SELECT
-                fk.name AS ForeignKeyName,
-                SCHEMA_NAME(tp.schema_id) AS SchemaName,
-                tp.name AS ParentTable,
-                STRING_AGG(cp.name, '|') AS ParentColumns, -- Use | as a separator
-                SCHEMA_NAME(tr.schema_id) AS ReferencedSchema,
-                tr.name AS ReferencedTable,
-                STRING_AGG(cr.name, '|') AS ReferencedColumns, -- Use | as a separator
-                fk.delete_referential_action_desc AS OnDeleteAction,
-                fk.update_referential_action_desc AS OnUpdateAction
-            FROM sys.foreign_keys fk
-                INNER JOIN sys.tables tp ON fk.parent_object_id = tp.object_id
-                INNER JOIN sys.tables tr ON fk.referenced_object_id = tr.object_id
-                INNER JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id
-                INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
-                INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id
-            GROUP BY fk.name, tp.schema_id, tp.name, tr.schema_id, tr.name, 
-                            fk.delete_referential_action_desc, fk.update_referential_action_desc;
+SELECT
+    fk.name AS ForeignKeyName,
+    SCHEMA_NAME(tp.schema_id) AS SchemaName,
+    tp.name AS ParentTable,
+    STRING_AGG(cp.name, '|') AS ParentColumns, -- Use | as a separator
+    SCHEMA_NAME(tr.schema_id) AS ReferencedSchema,
+    tr.name AS ReferencedTable,
+    STRING_AGG(cr.name, '|') AS ReferencedColumns, -- Use | as a separator
+    fk.delete_referential_action_desc AS OnDeleteAction,
+    fk.update_referential_action_desc AS OnUpdateAction
+FROM sys.foreign_keys fk
+    INNER JOIN sys.tables tp ON fk.parent_object_id = tp.object_id
+    INNER JOIN sys.tables tr ON fk.referenced_object_id = tr.object_id
+    INNER JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id
+    INNER JOIN sys.columns cp ON fkc.parent_object_id = cp.object_id AND fkc.parent_column_id = cp.column_id
+    INNER JOIN sys.columns cr ON fkc.referenced_object_id = cr.object_id AND fkc.referenced_column_id = cr.column_id
+GROUP BY fk.name, tp.schema_id, tp.name, tr.schema_id, tr.name, 
+                fk.delete_referential_action_desc, fk.update_referential_action_desc;
         ";
 
         /// <summary>
@@ -201,19 +201,19 @@ ORDER BY s.name, t.name, c.column_id;
         /// Query to get all data types in the database
         /// </summary>
         public const string DataTypesQuery = @"
-            SELECT
-                name
-            FROM sys.types
+SELECT
+    name
+FROM sys.types
         ";
 
         /// <summary>
         /// Query to get all schema names in the database that are not system schemas
         /// </summary>
         public const string SchemaNamesQuery = @"
-            SELECT
-                name
-            FROM sys.schemas
-            WHERE name NOT LIKE 'db_%'
+SELECT
+    name
+FROM sys.schemas
+WHERE name NOT LIKE 'db_%'
         ";
     }
 }

@@ -17,15 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private bool disposed = false;
         private IProtocolEndpoint? serviceHost;
         private Dictionary<string, SchemaDesignerSession2> sessions = new Dictionary<string, SchemaDesignerSession2>();
-
-        /// <summary>
-        /// Gets the singleton instance object
-        /// </summary>
         public static SchemaDesignerService Instance => instance.Value;
-
-        /// <summary>
-        /// Dipose the service
-        /// </summary>
         public void Dispose()
         {
             if (!disposed)
