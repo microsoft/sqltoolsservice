@@ -7,15 +7,11 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class SchemaModel
+    public class SchemaDesignerModel
     {
         /// <summary>
         /// Gets or sets the entities (Table in MSSQL) in the schema
         /// </summary>
-        public List<Entity> Entities { get; set; }
-        /// <summary>
-        /// Gets or sets the relationships in the schema
-        /// </summary>
-        public List<Relationship> Relationships { get; set; }
+        public List<SchemaDesignerTable>? Tables { get; set; }
     }
 }
