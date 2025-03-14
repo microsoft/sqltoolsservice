@@ -96,10 +96,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
             // we need the current connection context to be able to load the cartridges.  To the connection 
             // context we add what experience this is being loaded into by the client.
-            _executionContext.LoadExecutionContext(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!);
+            _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!).GetAwaiter().GetResult();
 
             var activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, _executionContext);
-            activeCartridge.InitializeToolsets();
+            activeCartridge.InitializeToolsetsAsync().GetAwaiter().GetResult();
 
             // Assign the kernel’s plugins and chat service
             kernel = builder.Build();

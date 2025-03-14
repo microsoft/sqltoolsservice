@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 CurrentMessage = string.Empty,
             };
 
-            InitConversation(conversation);
+            await InitConversation(conversation);
             conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
 
             // Start processing in background
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 conversationUri, userText, tool, toolParameters);
         }
 
-        private void InitConversation(CopilotConversation conversation)
+        private async Task InitConversation(CopilotConversation conversation)
         {
             Logger.Verbose("Initializing Chat Session");
 
@@ -203,14 +203,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
                 // context we add what experience this is being loaded into by the client.
-                _executionContext.LoadExecutionContext(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!);
+                await _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!);
 
 
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 
                 // the 'Experience' and 'Version' properties will deterime which cartridge is loaded.
                 // other configuration values will be used by toolsets in the future as well.
                 _activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, _executionContext);
-                _activeCartridge.InitializeToolsets();
+                await _activeCartridge.InitializeToolsetsAsync();
 
                 // inject the preferred style if the user set it in appsettings or via an API call.
                 //if (!string.IsNullOrEmpty(_preferredResponseStyle))
