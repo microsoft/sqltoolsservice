@@ -10,22 +10,27 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
+    /// <summary>
+    /// Provides functionality to retrieve schema model information from a database.
+    /// </summary>
     public static class SchemaDesignerModelProvider
     {
+
         /// <summary>
-        /// Get the schema model for the database
+        /// Retrieves the schema model for the database.
         /// </summary>
-        /// <param name="connectionUri"> The connection URI </param>
-        /// <returns></returns>
-        public static async Task<SchemaDesignerModel> GetSchemaModel(string connectionUri)
+        /// <param name="connectionUri">The connection URI for the database.</param>
+        /// <returns>A task containing the schema model information.</returns>
+        public static async Task<SchemaDesignerModel> GetSchemaModelAsync(string connectionUri)
         {
             SchemaDesignerModel schema = new SchemaDesignerModel();
             Dictionary<string, SchemaDesignerTable> tableDict = new Dictionary<string, SchemaDesignerTable>();
-            List<IList<DbCellValue>> tables = await SchemaDesignerQueryExecution.RunSimpleQuery(connectionUri, TableAndColumnQuery);
-            List<IList<DbCellValue>> relationships = await SchemaDesignerQueryExecution.RunSimpleQuery(connectionUri, RelationshipQuery);
-            for (int i = 0; i < tables.Count; i++)
+
+            List<IList<DbCellValue>> tables = await SchemaDesignerQueryExecution.RunSimpleQueryAsync(connectionUri, TableAndColumnQuery);
+            List<IList<DbCellValue>> relationships = await SchemaDesignerQueryExecution.RunSimpleQueryAsync(connectionUri, RelationshipQuery);
+
+            foreach (var row in tables)
             {
-                IList<QueryExecution.Contracts.DbCellValue> row = tables[i];
                 string tableName = row[0].DisplayValue;
                 string schemaName = row[1].DisplayValue;
                 string columnName = row[2].DisplayValue;
@@ -40,7 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 string isIdentity = row[11].DisplayValue;
                 string seedValue = row[12].DisplayValue;
                 string incrementValue = row[13].DisplayValue;
+
                 string key = $"[{schemaName}].[{tableName}]";
+
                 if (!tableDict.ContainsKey(key))
                 {
                     tableDict[key] = new SchemaDesignerTable
@@ -52,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         ForeignKeys = new List<SchemaDesignerForeignKey>()
                     };
                 }
+
                 tableDict[key].Columns.Add(new SchemaDesignerColumn
                 {
                     Id = Guid.NewGuid(),
@@ -69,74 +77,76 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     IdentityIncrement = incrementValue == "NULL" ? (int?)null : int.Parse(incrementValue)
                 });
             }
-            for (int i = 0; i < relationships.Count; i++)
+
+            foreach (var row in relationships)
             {
-                IList<QueryExecution.Contracts.DbCellValue> row = relationships[i];
                 string schemaName = row[1].DisplayValue;
                 string tableName = row[2].DisplayValue;
                 string key = $"[{schemaName}].[{tableName}]";
+
                 if (!tableDict.ContainsKey(key))
                 {
                     continue;
                 }
-                else
+
+                var table = tableDict[key];
+                table.ForeignKeys ??= new List<SchemaDesignerForeignKey>();
+
+                table.ForeignKeys.Add(new SchemaDesignerForeignKey
                 {
-                    SchemaDesignerTable table = tableDict[key];
-                    table.ForeignKeys ??= new List<SchemaDesignerForeignKey>();
-                    table.ForeignKeys.Add(new SchemaDesignerForeignKey
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = row[0].DisplayValue,
-                        Columns = [.. row[3].DisplayValue.Split('|')],
-                        ReferencedSchemaName = row[4].DisplayValue,
-                        ReferencedTableName = row[5].DisplayValue,
-                        ReferencedColumns = [.. row[6].DisplayValue.Split('|')],
-                        OnDeleteAction = SchemaDesignerUtils.MapOnAction(row[7].DisplayValue),
-                        OnUpdateAction = SchemaDesignerUtils.MapOnAction(row[8].DisplayValue),
-                    });
-                }
+                    Id = Guid.NewGuid(),
+                    Name = row[0].DisplayValue,
+                    Columns = [.. row[3].DisplayValue.Split('|')],
+                    ReferencedSchemaName = row[4].DisplayValue,
+                    ReferencedTableName = row[5].DisplayValue,
+                    ReferencedColumns = [.. row[6].DisplayValue.Split('|')],
+                    OnDeleteAction = SchemaDesignerUtils.MapOnAction(row[7].DisplayValue),
+                    OnUpdateAction = SchemaDesignerUtils.MapOnAction(row[8].DisplayValue),
+                });
             }
 
             schema.Tables = [.. tableDict.Values];
             return schema;
         }
 
-
-
         /// <summary>
-        /// Get all data types in the database
+        /// Retrieves all data types defined in the database.
         /// </summary>
-        /// <param name="connectionUri"> The connection URI </param>
-        /// <returns></returns>
-        public static async Task<List<string>> GetDatatypes(string connectionUri)
+        /// <param name="connectionUri">The connection URI for the database.</param>
+        /// <returns>A task containing a list of data type names.</returns>
+        public static async Task<List<string>> GetDatatypesAsync(string connectionUri)
         {
-            List<IList<DbCellValue>> dataTypes = await SchemaDesignerQueryExecution.RunSimpleQuery(connectionUri, DataTypesQuery);
+            List<IList<DbCellValue>> dataTypes = await SchemaDesignerQueryExecution.RunSimpleQueryAsync(connectionUri, DataTypesQuery);
             List<string> dataTypesList = new List<string>();
+
             foreach (var row in dataTypes)
             {
                 dataTypesList.Add(row[0].DisplayValue);
             }
+
             return dataTypesList;
         }
 
         /// <summary>
-        /// Get all schema names in the database that are not system schemas
+        /// Retrieves all schema names in the database that are not system schemas.
         /// </summary>
-        /// <param name="connectionUri"> The connection URI </param>
-        /// <returns></returns>
-        public static async Task<List<string>> GetSchemas(string connectionUri)
+        /// <param name="connectionUri">The connection URI for the database.</param>
+        /// <returns>A task containing a list of schema names.</returns>
+        public static async Task<List<string>> GetSchemasAsync(string connectionUri)
         {
-            List<IList<DbCellValue>> schemas = await SchemaDesignerQueryExecution.RunSimpleQuery(connectionUri, SchemaNamesQuery);
+            List<IList<DbCellValue>> schemas = await SchemaDesignerQueryExecution.RunSimpleQueryAsync(connectionUri, SchemaNamesQuery);
             List<string> schemaList = new List<string>();
+
             foreach (var row in schemas)
             {
                 schemaList.Add(row[0].DisplayValue);
             }
+
             return schemaList;
         }
 
         /// <summary>
-        /// Query to get all relationships in the database
+        /// Query to retrieve foreign key relationships in the database.
         /// </summary>
         public const string RelationshipQuery = @"
 SELECT
@@ -160,7 +170,7 @@ GROUP BY fk.name, tp.schema_id, tp.name, tr.schema_id, tr.name,
         ";
 
         /// <summary>
-        /// Query to get all tables and columns in the database
+        /// Query to retrieve all tables and columns in the database.
         /// </summary>
         public const string TableAndColumnQuery = @"
 SELECT
@@ -198,7 +208,7 @@ ORDER BY s.name, t.name, c.column_id;
         ";
 
         /// <summary>
-        /// Query to get all data types in the database
+        /// Query to retrieve all data types in the database.
         /// </summary>
         public const string DataTypesQuery = @"
 SELECT
@@ -207,7 +217,7 @@ FROM sys.types
         ";
 
         /// <summary>
-        /// Query to get all schema names in the database that are not system schemas
+        /// Query to retrieve all schema names in the database that are not system schemas.
         /// </summary>
         public const string SchemaNamesQuery = @"
 SELECT

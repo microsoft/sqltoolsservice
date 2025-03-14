@@ -19,6 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             SessionId = sessionId;
         }
 
+        public GetReportResponse GetReport(SchemaDesignerModel updatedSchema)
+        {
+            return SchemaDesignerUpdater.GenerateUpdateScripts(InitialSchema, updatedSchema); 
+        }
+
         public void Dispose()
         {
         }

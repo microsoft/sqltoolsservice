@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static readonly Lazy<SchemaDesignerService> instance = new Lazy<SchemaDesignerService>(() => new SchemaDesignerService());
         private bool disposed = false;
         private IProtocolEndpoint? serviceHost;
-        private Dictionary<string, SchemaDesignerSession2> sessions = new Dictionary<string, SchemaDesignerSession2>();
+        private Dictionary<string, SchemaDesignerSession> sessions = new Dictionary<string, SchemaDesignerSession>();
         public static SchemaDesignerService Instance => instance.Value;
         public void Dispose()
         {
@@ -43,11 +43,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             try
             {
                 string sessionId = Guid.NewGuid().ToString();
-                await SchemaDesignerQueryExecution.CloneConnection(requestParams.ConnectionUri, sessionId, requestParams.DatabaseName);
+                await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, sessionId, requestParams.DatabaseName);
 
-                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModel(sessionId);
-                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypes(sessionId);
-                List<string> schemas = await SchemaDesignerModelProvider.GetSchemas(sessionId);
+                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModelAsync(sessionId);
+                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypesAsync(sessionId);
+                List<string> schemas = await SchemaDesignerModelProvider.GetSchemasAsync(sessionId);
 
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
@@ -59,13 +59,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 _ = Task.Run(async () =>
                 {
-                    var session = new SchemaDesignerSession2(sessionId, schema);
+                    var session = new SchemaDesignerSession(sessionId, schema);
                     sessions.Add(sessionId, session);
                     await requestContext.SendEvent(SchemaReady.Type, new SchemaReadyResponse()
                     {
                         SessionId = sessionId,
                     });
-
                 });
             }
             catch (Exception e)
@@ -96,8 +95,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                SchemaDesignerSession2 session = sessions[requestParams.SessionId];
-                session.CloseSession();
+                SchemaDesignerSession session = sessions[requestParams.SessionId];
+                session.Dispose();
                 sessions.Remove(requestParams.SessionId);
                 SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
                 await requestContext.SendResult(new DisposeSessionResponse());
@@ -113,8 +112,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                SchemaDesignerSession2 session = sessions[requestParams.SessionId];
-                await requestContext.SendResult(SchemaDesignerUpdater.GenerateUpdateScripts(session.schema, requestParams.UpdatedSchema));
+                SchemaDesignerSession session = sessions[requestParams.SessionId];
+                await requestContext.SendResult(session.GetReport(requestParams.UpdatedSchema));
             }
             catch (Exception e)
             {
