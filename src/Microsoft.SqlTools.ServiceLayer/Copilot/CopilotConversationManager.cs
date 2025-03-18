@@ -27,6 +27,7 @@ using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -247,8 +248,9 @@ GENERAL REQUIREMENTS:
 - If a tool has been successfully called, move on to the next step based on the user's query.";
 
                 chatHistory = new ChatHistory(initialSystemMessage);
+                var connectionContextString = JsonConvert.SerializeObject(_executionContext.ContextSettings);
                 chatHistory.AddSystemMessage(
-                    $"Configuration information for currently connected database: {_executionContext.ContextSettings}");
+                    $"Configuration information for currently connected database: {connectionContextString}");
 
                 // Wire up response handler events
                 responseHandler.OnChatResponse += async (e) =>
