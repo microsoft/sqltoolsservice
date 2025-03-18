@@ -6,12 +6,13 @@
 #nullable disable
 
 using System;
-using System.Data;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Scriptoria.Common;
+using Microsoft.Scriptoria.Interfaces;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlScriptoria;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {

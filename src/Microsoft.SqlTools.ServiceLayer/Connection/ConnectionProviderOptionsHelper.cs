@@ -150,8 +150,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         GroupName = GroupNames.Security,
                         CategoryValues =
                         [
-                            new CategoryValue { Name = "Disabled", DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_category_Disabled },
-                            new CategoryValue { Name = "Enabled", DisplayName = SR.ConnectionConfigOptions_columnEncryptionSetting_category_Enabled }
+                            new CategoryValue { Name = "Disabled", DisplayName = SR.ConnectionConfigOptions_common_category_Disabled },
+                            new CategoryValue { Name = "Enabled", DisplayName = SR.ConnectionConfigOptions_common_category_Enabled }
+                        ]
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "secureEnclaves",
+                        DisplayName = SR.ConnectionConfigOptions_secureEnclaves_displayName,
+                        Description = SR.ConnectionConfigOptions_secureEnclaves_description,
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        GroupName = GroupNames.Security,
+                        CategoryValues =
+                        [
+                            new CategoryValue { Name = "Disabled", DisplayName = SR.ConnectionConfigOptions_common_category_Disabled },
+                            new CategoryValue { Name = "Enabled", DisplayName = SR.ConnectionConfigOptions_common_category_Enabled }
                         ]
                     },
                     new ConnectionOption
