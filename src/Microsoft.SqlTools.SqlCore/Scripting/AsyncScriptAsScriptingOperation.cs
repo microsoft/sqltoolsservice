@@ -36,12 +36,11 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             StringBuilder scriptAsTaskProgressError = new StringBuilder();
             scriptAsOperation.CompleteNotification += (sender, args) =>
             {
-                if (args.HasError || !string.IsNullOrEmpty(scriptAsTaskProgressError.ToString()))
+                if (args.HasError) {
+                    scriptAsTaskProgressError.AppendLine(args.ErrorMessage);
+                }
+                if (scriptAsTaskProgressError.Length != 0)
                 {
-                    if (args.HasError)
-                    {
-                        scriptAsTaskProgressError.AppendLine(args.ErrorMessage);
-                    }
                     scriptAsTask.SetException(new Exception(scriptAsTaskProgressError.ToString()));
                 }
                 else
