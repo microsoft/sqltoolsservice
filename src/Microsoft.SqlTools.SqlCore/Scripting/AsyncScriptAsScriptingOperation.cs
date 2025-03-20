@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
