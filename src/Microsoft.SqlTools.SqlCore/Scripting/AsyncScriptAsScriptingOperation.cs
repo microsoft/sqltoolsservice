@@ -33,11 +33,15 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         private static async Task<string> ExecuteScriptAs(ScriptAsScriptingOperation scriptAsOperation)
         {
             TaskCompletionSource<string> scriptAsTask = new TaskCompletionSource<string>();
+            StringBuilder scriptAsTaskProgressError = new StringBuilder();
             scriptAsOperation.CompleteNotification += (sender, args) =>
             {
-                if (args.HasError)
+                if (args.HasError) {
+                    scriptAsTaskProgressError.AppendLine(args.ErrorMessage);
+                }
+                if (scriptAsTaskProgressError.Length != 0)
                 {
-                    scriptAsTask.SetException(new Exception(args.ErrorMessage));
+                    scriptAsTask.SetException(new Exception(scriptAsTaskProgressError.ToString()));
                 }
                 else
                 {
@@ -50,7 +54,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             {
                 if (args.ErrorMessage != null)
                 {
-                    scriptAsTask.SetException(new Exception(args.ErrorMessage));
+                    scriptAsTaskProgressError.AppendLine(args.ErrorMessage);
                 }
             };
 
