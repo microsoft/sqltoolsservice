@@ -86,7 +86,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     // Retry when login attempt failed.
                     // https://learn.microsoft.com/sql/relational-databases/errors-events/mssqlserver-18456-database-engine-error
-                    if (i != databasesToTry.Count - 1 && ex.Number == 18456)
+                    // 40532: Cannot open server "%.*ls" requested by the login. The login failed.
+                    // https://learn.microsoft.com/sql/relational-databases/errors-events/database-engine-events-and-errors-31000-to-41399
+                    if (i != databasesToTry.Count - 1 && (ex.Number == 18456 || ex.Number == 40532))
                     {
                         Logger.Information(string.Format("Failed to get database list from database '{0}', will fallback to original database.", databasesToTry[i]));
                         continue;
