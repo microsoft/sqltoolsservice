@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-//using Microsoft.Data.Tools.Schema.SchemaModel;
+using Microsoft.Data.Tools.Schema.SchemaModel;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects.Count, "Number of loaded projects after creating SDK not as expected");
             Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri), "Loaded project list expected to contain SDK project URI");
             Assert.AreEqual(ProjectType.SdkStyle, service.Projects[sdkProjectUri].SqlProjStyle, "SqlProj style expected to be SDK");
-            //Assert.AreEqual(SqlPlatforms.SqlAzureV12, service.Projects[sdkProjectUri].Properties.TargetSqlPlatform, "Target SQL platform expected to be Azure");
+            Assert.AreEqual(SqlPlatforms.SqlAzureV12, service.Projects[sdkProjectUri].Properties.TargetSqlPlatform, "Target SQL platform expected to be Azure");
             Assert.AreEqual("0.1.7-preview", service.Projects[sdkProjectUri].MicrosoftBuildSqlSdkVersion, "SQL SDK version expected to be 0.1.7-preview");
 
             // Validate creating Legacy-style project
