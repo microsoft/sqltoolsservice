@@ -112,10 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         internal async Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
         {
+            SchemaDesignerSession session = sessions[requestParams.SessionId];
+            var report = await session.GetReport(requestParams.UpdatedSchema);
             try
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
-                await requestContext.SendResult(session.GetReport(requestParams.UpdatedSchema));
+                await requestContext.SendResult(report);
             }
             catch (Exception e)
             {

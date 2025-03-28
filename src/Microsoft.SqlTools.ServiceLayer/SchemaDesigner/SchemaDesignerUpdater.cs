@@ -7,6 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using DacSchemaDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.SchemaDesigner;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -65,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <param name="sourceSchema">The original database schema.</param>
         /// <param name="targetSchema">The target database schema to migrate to.</param>
         /// <returns>A detailed report of all changes and a complete SQL migration script.</returns>
-        public static GetReportResponse GenerateUpdateScripts(SchemaDesignerModel sourceSchema, SchemaDesignerModel targetSchema)
+        public static async Task<GetReportResponse> GenerateUpdateScripts(SchemaDesignerModel sourceSchema, SchemaDesignerModel targetSchema, DacSchemaDesigner sd)
         {
             // Validate inputs
             if (sourceSchema == null) throw new ArgumentNullException(nameof(sourceSchema));
@@ -80,23 +84,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             // 3. Drop constraints and foreign keys that might block other operations
 
             // Step 2: Process table additions and modifications
-            ProcessNewTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            ProcessNewTables(sourceSchema, targetSchema, changeReport, migrationScript, sd);
             ProcessModifiedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Step 3: Process foreign key changes for all tables
             ProcessForeignKeyChanges(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Step 1: First identify tables being dropped and handle their foreign keys
-            ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript, sd);
 
             // Convert the report dictionary to a list
             var reportObjectsList = changeReport.Values.ToList();
 
-            return new GetReportResponse()
+            return await Task.Run(() =>
             {
-                Reports = reportObjectsList,
-                UpdateScript = migrationScript.ToString()
-            };
+                string script = sd.GenerateScript();
+                return new GetReportResponse()
+                {
+                    Reports = reportObjectsList,
+                    UpdateScript = script
+                };
+            });
+
         }
 
         /// <summary>
@@ -107,7 +116,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             SchemaDesignerModel sourceSchema,
             SchemaDesignerModel targetSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
-            StringBuilder migrationScript)
+            StringBuilder migrationScript,
+            DacSchemaDesigner sd)
         {
             foreach (var sourceTable in sourceSchema.Tables)
             {
@@ -134,6 +144,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         }
                     }
 
+                    sd.TablesMarkedForDrop.Add([sourceTable.Schema, sourceTable.Name]);
+
                     // Now drop the table itself
                     string dropTableScript = $"DROP TABLE [{sourceTable.Schema}].[{sourceTable.Name}];\n";
 
@@ -157,7 +169,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             SchemaDesignerModel sourceSchema,
             SchemaDesignerModel targetSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
-            StringBuilder migrationScript)
+            StringBuilder migrationScript,
+            DacSchemaDesigner sd)
         {
             foreach (var targetTable in targetSchema.Tables)
             {
@@ -167,6 +180,81 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 {
                     // This is a new table - create it with all columns and constraints
                     string creationScript = SchemaCreationScriptGenerator.GenerateTableDefinition(targetTable);
+
+                    var newTable = sd.CreateTable(targetTable.Schema, targetTable.Name);
+
+
+                    for (var i = 0; i < targetTable.Columns.Count; i++)
+                    {
+                        var column = targetTable.Columns[i];
+                        TableColumnViewModel sdColumn;
+                        if (i == 0)
+                 {
+                            newTable.TableViewModel.Columns.Clear();
+                        }
+
+                        newTable.TableViewModel.Columns.AddNew();
+                        sdColumn = newTable.TableViewModel.Columns.Items[i];
+
+                        sdColumn.Name = column.Name;
+                        sdColumn.DataType = column.DataType;
+                        if (sdColumn.CanEditLength)
+                        {
+                            sdColumn.Length = column.MaxLength.ToString();
+                        }
+                        if (sdColumn.CanEditPrecision)
+                        {
+                            sdColumn.Precision = column.Precision;
+
+                        }
+                        if (sdColumn.CanEditScale)
+                        {
+                            sdColumn.Scale = column.Scale;
+
+                        }
+                        if (sdColumn.CanEditIsNullable)
+                        {
+                            sdColumn.IsNullable = column.IsNullable;
+
+                        }
+                        if (sdColumn.CanEditIsIdentity && column.IsIdentity)
+                        {
+                            sdColumn.IsIdentity = column.IsIdentity;
+                            sdColumn.IdentitySeed = column.IdentitySeed;
+                            sdColumn.IdentityIncrement = column.IdentityIncrement;
+                        }
+
+                        sdColumn.IsPrimaryKey = column.IsPrimaryKey;
+
+                        if (sdColumn.CanEditDefaultValue)
+                        {
+                            sdColumn.DefaultValue = column.DefaultValue;
+
+                        }
+                    }
+
+                    for (var i = 0; i < targetTable.ForeignKeys.Count; i++)
+                    {
+                        var foreignKey = targetTable.ForeignKeys[i];
+                        ForeignKeyViewModel sdForeignKey;
+                        if (i == 0)
+                        {
+                            sdForeignKey = newTable.TableViewModel.ForeignKeys.Items[0];
+                        }
+                        else
+                        {
+                            newTable.TableViewModel.ForeignKeys.AddNew();
+                            sdForeignKey = newTable.TableViewModel.ForeignKeys.Items[i];
+                        }
+                        sdForeignKey.Name = foreignKey.Name;
+                        sdForeignKey.ForeignTable = $"[{foreignKey.ReferencedSchemaName}].[{foreignKey.ReferencedTableName}]";
+                        sdForeignKey.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnDeleteAction);
+                        sdForeignKey.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnUpdateAction);
+                        sdForeignKey.Columns.Clear();
+                        sdForeignKey.Columns.AddRange(foreignKey.Columns);
+                        sdForeignKey.ForeignColumns.Clear();
+                        sdForeignKey.ForeignColumns.AddRange(foreignKey.ReferencedColumns);
+                    }
 
                     TrackTableChange(
                         changeReport,

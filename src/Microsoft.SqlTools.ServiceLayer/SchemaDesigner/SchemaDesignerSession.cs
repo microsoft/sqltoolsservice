@@ -4,8 +4,10 @@
 //
 
 using System;
-using TableSchemaDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.SchemaDesigner;
+using DacSchemaDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.SchemaDesigner;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using System.Threading.Tasks;
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -13,6 +15,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     {
         private SchemaDesignerModel InitialSchema;
         private string SessionId;
+        DacSchemaDesigner schemaDesigner;
+        private string connectionString;
 
         public SchemaDesignerSession(string sessionId, SchemaDesignerModel initialSchema)
         {
@@ -20,19 +24,34 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 throw new Exception(SR.QueryServiceQueryInvalidOwnerUri);
             }
-            var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+            connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             InitialSchema = initialSchema;
             SessionId = sessionId;
-            var schemaDesigner = new TableSchemaDesigner(connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+            schemaDesigner = new DacSchemaDesigner(connectionString, connInfo.ConnectionDetails.AzureAccountToken);
         }
 
-        public GetReportResponse GetReport(SchemaDesignerModel updatedSchema)
+        private string getAzureToken()
         {
-            return SchemaDesignerUpdater.GenerateUpdateScripts(InitialSchema, updatedSchema);
+            if (ConnectionService.Instance.TryFindConnection(SessionId, out ConnectionInfo connInfo))
+            {
+                return connInfo.ConnectionDetails.AzureAccountToken;
+            }
+            return null;
+        }
+
+        public async Task<GetReportResponse> GetReport(SchemaDesignerModel updatedSchema)
+        {
+            if (schemaDesigner == null)
+            {
+                schemaDesigner.Dispose();
+            }
+            schemaDesigner = new DacSchemaDesigner(connectionString, getAzureToken());
+            return await SchemaDesignerUpdater.GenerateUpdateScripts(InitialSchema, updatedSchema, schemaDesigner);
         }
 
         public void Dispose()
         {
+            TableDesignerCacheManager.InvalidateItem(connectionString);
         }
     }
 }

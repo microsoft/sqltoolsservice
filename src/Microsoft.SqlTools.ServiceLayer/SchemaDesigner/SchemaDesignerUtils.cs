@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -26,6 +27,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 OnAction.SET_NULL => "SET NULL",
                 OnAction.SET_DEFAULT => "SET DEFAULT",
                 _ => "NO ACTION"
+            };
+        }
+
+        public static SqlForeignKeyAction ConvertOnActionToSqlForeignKeyAction(OnAction action)
+        {
+            return action switch
+            {
+                OnAction.CASCADE => SqlForeignKeyAction.Cascade,
+                OnAction.NO_ACTION => SqlForeignKeyAction.NoAction,
+                OnAction.SET_NULL => SqlForeignKeyAction.SetNull,
+                OnAction.SET_DEFAULT => SqlForeignKeyAction.SetDefault,
+                _ => SqlForeignKeyAction.NoAction
             };
         }
 
