@@ -64,5 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Gets or sets the default value of the column
         /// </summary>
         public string Collation { get; set; }
+        /// <summary>
+        /// Gets or sets the default value of the column
+        /// </summary>
+        public string? DefaultValue { get; set; }
     }
 }

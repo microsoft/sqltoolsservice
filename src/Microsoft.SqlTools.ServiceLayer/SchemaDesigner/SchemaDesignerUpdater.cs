@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Identifies and processes tables that have been dropped between schemas.
         /// Handles dropping their foreign keys before dropping the tables themselves.
         /// </summary>
-        private static void ProcessDroppedTables(
+        internal static void ProcessDroppedTables(
             SchemaDesignerModel sourceSchema,
             SchemaDesignerModel targetSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         $"Adding new column '{targetColumn.Name}' of type '{targetColumn.DataType}'"
                     );
                 }
-                else if (SchemaDesignerUtils.DeepCompareColumn(sourceColumn, targetColumn))
+                else if (!SchemaDesignerUtils.DeepCompareColumn(sourceColumn, targetColumn))
                 {
                     // Modified column
                     string alterColumnScript = $"ALTER TABLE [{targetTable.Schema}].[{targetTable.Name}] ALTER COLUMN {SchemaCreationScriptGenerator.GenerateColumnDefinition(targetColumn)};\n";
@@ -483,7 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Generates a descriptive message about what has changed in a column.
         /// </summary>
-        private static string GetColumnChangeDescription(SchemaDesignerColumn source, SchemaDesignerColumn target)
+        internal static string GetColumnChangeDescription(SchemaDesignerColumn source, SchemaDesignerColumn target)
         {
             var changes = new List<string>();
             if (source.DataType != target.DataType)
@@ -547,6 +547,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 string sourceCollation = string.IsNullOrEmpty(source.Collation) ? "NULL" : source.Collation;
                 string targetCollation = string.IsNullOrEmpty(target.Collation) ? "NULL" : target.Collation;
                 changes.Add($"collation changed from {sourceCollation} to {targetCollation}");
+            }
+
+            if (source.DefaultValue != target.DefaultValue)
+            {
+                changes.Add($"default value changed from {source.DefaultValue} to ${target.DefaultValue}");
             }
 
             return string.Join(", ", changes);

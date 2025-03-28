@@ -45,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 string isIdentity = row[11].DisplayValue;
                 string seedValue = row[12].DisplayValue;
                 string incrementValue = row[13].DisplayValue;
+                string defaultValue = row[14].DisplayValue;
 
                 string key = $"[{schemaName}].[{tableName}]";
 
@@ -74,7 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     Collation = collation,
                     IsIdentity = isIdentity == "1",
                     IdentitySeed = seedValue == "NULL" ? (int?)null : int.Parse(seedValue),
-                    IdentityIncrement = incrementValue == "NULL" ? (int?)null : int.Parse(incrementValue)
+                    IdentityIncrement = incrementValue == "NULL" ? (int?)null : int.Parse(incrementValue),
+                    DefaultValue = defaultValue
                 });
             }
 
@@ -188,6 +190,7 @@ SELECT
     c.is_identity AS IsIdentity,
     id.seed_value AS SeedValue,
     id.increment_value AS IncrementValue
+    OBJECT_DEFINITION(dc.object_id) AS DefaultValue
 FROM sys.tables t
     JOIN sys.schemas s ON t.schema_id = s.schema_id
     JOIN sys.columns c ON t.object_id = c.object_id
@@ -204,6 +207,7 @@ FROM sys.tables t
     WHERE i.is_unique = 1
             ) uq ON c.object_id = uq.object_id AND c.column_id = uq.column_id
     LEFT JOIN sys.identity_columns id ON  c.object_id = id.object_id AND c.column_id = id.column_id
+    LEFT JOIN sys.default_constraints dc ON c.object_id = dc.parent_object_id AND c.column_id = dc.parent_column_id
 ORDER BY s.name, t.name, c.column_id;
         ";
 
