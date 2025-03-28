@@ -101,13 +101,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     sessions.Remove(requestParams.SessionId);
                     SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
                 }
-                await requestContext.SendResult(new DisposeSessionResponse());
             }
             catch (Exception e)
             {
                 Logger.Error(e.Message);
-                await requestContext.SendError(e);
             }
+            await requestContext.SendResult(new DisposeSessionResponse());
+
         }
 
         internal async Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
