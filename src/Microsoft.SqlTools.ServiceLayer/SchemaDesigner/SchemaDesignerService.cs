@@ -42,28 +42,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                string sessionId = Guid.NewGuid().ToString();
-                await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, sessionId, requestParams.DatabaseName);
+                string connectionUri = Guid.NewGuid().ToString();
+                var connectionCompleteParams = await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, connectionUri, requestParams.DatabaseName);
 
-                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModelAsync(sessionId);
-                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypesAsync(sessionId);
-                List<string> schemas = await SchemaDesignerModelProvider.GetSchemasAsync(sessionId);
+                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModelAsync(connectionUri);
+                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypesAsync(connectionUri);
+                List<string> schemas = await SchemaDesignerModelProvider.GetSchemasAsync(connectionUri);
 
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
                     Schema = schema,
                     DataTypes = dataTypes,
                     SchemaNames = schemas,
-                    SessionId = sessionId,
+                    SessionId = connectionUri,
                 });
 
                 _ = Task.Run(async () =>
                 {
-                    var session = new SchemaDesignerSession(sessionId, schema);
-                    sessions.Add(sessionId, session);
+                    var session = new SchemaDesignerSession(connectionUri, schema);
+                    sessions.Add(connectionUri, session);
                     await requestContext.SendEvent(SchemaReady.Type, new SchemaReadyResponse()
                     {
-                        SessionId = sessionId,
+                        SessionId = connectionUri,
                     });
                 });
             }
@@ -95,10 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
-                session.Dispose();
-                sessions.Remove(requestParams.SessionId);
-                SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
+                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                {
+                    session.Dispose();
+                    sessions.Remove(requestParams.SessionId);
+                    SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
+                }
                 await requestContext.SendResult(new DisposeSessionResponse());
             }
             catch (Exception e)

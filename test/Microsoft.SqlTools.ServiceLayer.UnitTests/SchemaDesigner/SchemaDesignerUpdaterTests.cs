@@ -1189,7 +1189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaDesigner
             var migrationScript = new StringBuilder();
 
             // Act
-            InvokeProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            SchemaDesignerUpdater.ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Assert
             Assert.That(changeReport.Count, Is.EqualTo(0), "No changes should be reported when no tables are dropped");
@@ -1225,7 +1225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaDesigner
             var migrationScript = new StringBuilder();
 
             // Act
-            InvokeProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            SchemaDesignerUpdater.ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Assert
             Assert.That(changeReport.Count, Is.EqualTo(1), "One change should be reported");
@@ -1273,7 +1273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaDesigner
             var migrationScript = new StringBuilder();
 
             // Act
-            InvokeProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            SchemaDesignerUpdater.ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Assert
             Assert.That(changeReport.Count, Is.EqualTo(1), "One change should be reported");
@@ -1329,7 +1329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaDesigner
             var migrationScript = new StringBuilder();
 
             // Act
-            InvokeProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            SchemaDesignerUpdater.ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Assert
             Assert.That(changeReport.Count, Is.EqualTo(2), "Two changes should be reported");
@@ -1389,7 +1389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaDesigner
             var migrationScript = new StringBuilder();
 
             // Act
-            InvokeProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
+            SchemaDesignerUpdater.ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Assert
             Assert.That(changeReport.Count, Is.EqualTo(1), "One change should be reported");
@@ -1448,7 +1448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaDesigner
             var migrationScript = new StringBuilder();
 
             // Act
-            ProcessForeignKeyChanges(sourceSchema, targetSchema, changeReport, migrationScript);
+            SchemaDesignerUpdater.ProcessDroppedTables(sourceSchema, targetSchema, changeReport, migrationScript);
 
             // Assert
             Assert.That(changeReport.Count, Is.EqualTo(1), "One table change should be reported");

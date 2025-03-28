@@ -189,7 +189,7 @@ SELECT
     c.collation_name AS Collation,
     c.is_identity AS IsIdentity,
     id.seed_value AS SeedValue,
-    id.increment_value AS IncrementValue
+    id.increment_value AS IncrementValue,
     OBJECT_DEFINITION(dc.object_id) AS DefaultValue
 FROM sys.tables t
     JOIN sys.schemas s ON t.schema_id = s.schema_id
