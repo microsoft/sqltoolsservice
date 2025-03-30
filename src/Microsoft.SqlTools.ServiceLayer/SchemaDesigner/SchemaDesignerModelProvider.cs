@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     IsIdentity = isIdentity == "1",
                     IdentitySeed = seedValue == "NULL" ? (int?)null : int.Parse(seedValue),
                     IdentityIncrement = incrementValue == "NULL" ? (int?)null : int.Parse(incrementValue),
-                    DefaultValue = defaultValue
+                    DefaultValue = defaultValue == "NULL" ? string.Empty : defaultValue,
                 });
             }
 
