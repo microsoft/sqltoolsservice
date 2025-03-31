@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             ProcessModifiedTables(initialSchema, updatedSchema, changeReport, migrationScript, sd);
 
             // Step 3: Process foreign key changes for all tables
-            // ProcessForeignKeyChanges(initialSchema, updatedSchema, changeReport, migrationScript, sd);
+            ProcessForeignKeyChanges(initialSchema, updatedSchema, changeReport, migrationScript, sd);
 
             // Step 1: First identify tables being dropped and handle their foreign keys
             ProcessDroppedTables(initialSchema, updatedSchema, changeReport, migrationScript, sd);
@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     string creationScript = SchemaCreationScriptGenerator.GenerateTableDefinition(targetTable);
 
                     var newTable = sd.CreateTable(targetTable.Schema, targetTable.Name);
-
+                    newTable.TableViewModel.Schema = targetTable.Schema;
 
                     for (var i = 0; i < targetTable.Columns.Count; i++)
                     {
@@ -238,28 +238,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         {
                             sdColumn.DefaultValue = column.DefaultValue;
 
-                        }
-                    }
-
-                    for (var i = 0; i < targetTable.ForeignKeys.Count; i++)
-                    {
-                        var foreignKey = targetTable.ForeignKeys[i];
-                        ForeignKeyViewModel sdForeignKey;
-
-                        newTable.TableViewModel.ForeignKeys.AddNew();
-                        sdForeignKey = newTable.TableViewModel.ForeignKeys.Items[i];
-
-                        sdForeignKey.Name = foreignKey.Name;
-                        sdForeignKey.ForeignTable = $"{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}";
-                        sdForeignKey.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnDeleteAction);
-                        sdForeignKey.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnUpdateAction);
-                        sdForeignKey.Columns.Clear();
-
-                        for (var j = 0; j < foreignKey.Columns.Count; j++)
-                        {
-                            sdForeignKey.AddNewColumnMapping();
-                            sdForeignKey.UpdateColumn(0, foreignKey.Columns[j]);
-                            sdForeignKey.UpdateForeignColumn(0, foreignKey.ReferencedColumns[j]);
                         }
                     }
 
@@ -370,37 +348,38 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             DacSchemaDesigner sd)
         {
             // First handle foreign keys for new tables
-            foreach (var targetTable in updatedSchema.Tables)
+            foreach (var updatedTable in updatedSchema.Tables)
             {
-                var sourceTable = initialSchema.Tables.FirstOrDefault(t => t.Id == targetTable.Id);
+                var initialTable = initialSchema.Tables.FirstOrDefault(t => t.Id == updatedTable.Id);
 
-                if (sourceTable == null)
+                if (initialTable == null)
                 {
                     // This is a new table - add all its foreign keys
-                    if (targetTable.ForeignKeys != null)
+                    if (updatedTable.ForeignKeys != null)
                     {
-                        var tableDesigner = sd.GetTableDesigner(targetTable.Schema, targetTable.Name);
-                        foreach (var foreignKey in targetTable.ForeignKeys)
+                        var tableDesigner = sd.GetTableDesigner(updatedTable.Schema, updatedTable.Name);
+                        foreach (var foreignKey in updatedTable.ForeignKeys)
                         {
-                            string fkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(targetTable, foreignKey);
+                            string fkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(updatedTable, foreignKey);
 
                             tableDesigner.TableViewModel.ForeignKeys.AddNew();
 
                             var sdForeignKey = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
                             sdForeignKey.Name = foreignKey.Name;
-                            sdForeignKey.ForeignTable = $"[{foreignKey.ReferencedSchemaName}].[{foreignKey.ReferencedTableName}]";
+                            sdForeignKey.ForeignTable = $"{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}";
                             sdForeignKey.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnDeleteAction);
                             sdForeignKey.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnUpdateAction);
                             sdForeignKey.Columns.Clear();
                             for (var i = 0; i < foreignKey.Columns.Count; i++)
                             {
-                                sdForeignKey.Columns.Add(foreignKey.Columns[i]);
-                                sdForeignKey.ForeignColumns.Add(foreignKey.ReferencedColumns[i]);
+                                sdForeignKey.AddNewColumnMapping();
+                                sdForeignKey.UpdateColumn(i, foreignKey.Columns[i]);
+                                sdForeignKey.UpdateForeignColumn(i, foreignKey.ReferencedColumns[i]);
                             }
 
                             TrackTableChange(
                                 changeReport,
-                                targetTable,
+                                updatedTable,
                                 SchemaDesignerReportTableState.CREATED,
                                 fkScript,
                                 $"Adding foreign key '{foreignKey.Name}' to reference table '{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}'"
@@ -412,94 +391,100 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 }
                 else
                 {
-                    // Clear and re-add foreign keys for existing tables
-                    // This is a modified table - check for foreign key changes
-                    var tableDesigner = sd.GetTableDesigner(targetTable.Schema, targetTable.Name);
-                    if (tableDesigner.TableViewModel.ForeignKeys.Items.Count > 0)
+                    // Remove foreing keys from initial table that are not in updated table
+                    if (initialTable.ForeignKeys != null && initialTable.ForeignKeys.Count > 0)
                     {
-                        tableDesigner.TableViewModel.ForeignKeys.Clear();
-                    }
-                    for (var i = 0; i < targetTable.ForeignKeys.Count; i++)
-                    {
-                        tableDesigner.TableViewModel.ForeignKeys.AddNew();
-                        var sdForeignKey = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
-                        var foreignKey = targetTable.ForeignKeys[i];
-                        sdForeignKey.Name = foreignKey.Name;
-                        sdForeignKey.ForeignTable = $"[{foreignKey.ReferencedSchemaName}].[{foreignKey.ReferencedTableName}]";
-                        sdForeignKey.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnDeleteAction);
-                        sdForeignKey.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnUpdateAction);
-                        sdForeignKey.Columns.Clear();
-                        for (var j = 0; j < foreignKey.Columns.Count; j++)
+                        var tableDesigner = sd.GetTableDesigner(updatedTable.Schema, updatedTable.Name);
+                        int index = 0;
+                        foreach (var sourceForeignKey in initialTable.ForeignKeys)
                         {
-                            sdForeignKey.Columns.Add(foreignKey.Columns[j]);
-                            sdForeignKey.ForeignColumns.Add(foreignKey.ReferencedColumns[j]);
-                        }
-                    }
+                            var targetForeignKey = updatedTable.ForeignKeys?.FirstOrDefault(fk => fk.Id == sourceForeignKey.Id);
 
-
-                    // This is an existing table - find foreign key changes
-                    if (targetTable.ForeignKeys != null)
-                    {
-                        foreach (var targetForeignKey in targetTable.ForeignKeys)
-                        {
-                            var sourceForeignKey = sourceTable.ForeignKeys?.FirstOrDefault(fk => fk.Name == targetForeignKey.Name);
-
-                            if (sourceForeignKey == null)
+                            if (targetForeignKey == null)
                             {
-                                // This is a new foreign key
-                                string fkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(targetTable, targetForeignKey);
+                                // This is a foreign key that has been removed
+                                string dropFkScript = $"ALTER TABLE [{initialTable.Schema}].[{initialTable.Name}] DROP CONSTRAINT [{sourceForeignKey.Name}];\n";
+
+                                tableDesigner.TableViewModel.ForeignKeys.RemoveAt(index);
 
                                 TrackTableChange(
                                     changeReport,
-                                    targetTable,
-                                    SchemaDesignerReportTableState.UPDATED,
-                                    fkScript,
-                                    $"Adding new foreign key '{targetForeignKey.Name}' to reference table '{targetForeignKey.ReferencedSchemaName}.{targetForeignKey.ReferencedTableName}'"
-                                );
-
-
-                                migrationScript.AppendLine(fkScript);
-                            }
-                            else if (!SchemaDesignerUtils.DeepCompareForeignKey(sourceForeignKey, targetForeignKey))
-                            {
-                                // Foreign key exists but has changed - drop and recreate
-                                string dropFkScript = $"ALTER TABLE [{targetTable.Schema}].[{targetTable.Name}] DROP CONSTRAINT [{sourceForeignKey.Name}];\n";
-                                string addFkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(targetTable, targetForeignKey);
-
-                                TrackTableChange(
-                                    changeReport,
-                                    targetTable,
-                                    SchemaDesignerReportTableState.UPDATED,
-                                    dropFkScript + addFkScript,
-                                    $"Modifying foreign key '{targetForeignKey.Name}' ({GetForeignKeyChangeDescription(sourceForeignKey, targetForeignKey)})"
-                                );
-
-                                migrationScript.AppendLine(dropFkScript);
-                                migrationScript.AppendLine(addFkScript);
-                            }
-                        }
-                    }
-
-                    // Find and drop foreign keys that have been removed
-                    if (sourceTable.ForeignKeys != null)
-                    {
-                        foreach (var sourceForeignKey in sourceTable.ForeignKeys)
-                        {
-                            bool foreignKeyExists = targetTable.ForeignKeys?.Any(fk => fk.Name == sourceForeignKey.Name) ?? false;
-
-                            if (!foreignKeyExists)
-                            {
-                                string dropFkScript = $"ALTER TABLE [{sourceTable.Schema}].[{sourceTable.Name}] DROP CONSTRAINT [{sourceForeignKey.Name}];\n";
-
-                                TrackTableChange(
-                                    changeReport,
-                                    targetTable,
+                                    updatedTable,
                                     SchemaDesignerReportTableState.UPDATED,
                                     dropFkScript,
                                     $"Removing foreign key '{sourceForeignKey.Name}' that referenced table '{sourceForeignKey.ReferencedSchemaName}.{sourceForeignKey.ReferencedTableName}'"
                                 );
 
                                 migrationScript.AppendLine(dropFkScript);
+                            }
+                            index++;
+                        }
+
+                        index = 0;
+
+                        foreach (var targetForeignKey in updatedTable.ForeignKeys)
+                        {
+                            var sourceForeignKey = initialTable.ForeignKeys?.FirstOrDefault(fk => fk.Name == targetForeignKey.Name);
+
+                            if (sourceForeignKey == null)
+                            {
+                                // This is a new foreign key
+                                string fkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(updatedTable, targetForeignKey);
+
+                                TrackTableChange(
+                                    changeReport,
+                                    updatedTable,
+                                    SchemaDesignerReportTableState.UPDATED,
+                                    fkScript,
+                                    $"Adding new foreign key '{targetForeignKey.Name}' to reference table '{targetForeignKey.ReferencedSchemaName}.{targetForeignKey.ReferencedTableName}'"
+                                );
+
+                                tableDesigner.TableViewModel.ForeignKeys.AddNew();
+                                var sdForeignKey = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
+                                sdForeignKey.Name = targetForeignKey.Name;
+                                sdForeignKey.ForeignTable = $"{targetForeignKey.ReferencedSchemaName}.{targetForeignKey.ReferencedTableName}";
+                                sdForeignKey.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(targetForeignKey.OnDeleteAction);
+                                sdForeignKey.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(targetForeignKey.OnUpdateAction);
+                                sdForeignKey.Columns.Clear();
+
+                                for (var i = 0; i < targetForeignKey.Columns.Count; i++)
+                                {
+                                    sdForeignKey.AddNewColumnMapping();
+                                    sdForeignKey.UpdateColumn(i, targetForeignKey.Columns[i]);
+                                    sdForeignKey.UpdateForeignColumn(i, targetForeignKey.ReferencedColumns[i]);
+                                }
+
+                                migrationScript.AppendLine(fkScript);
+                            }
+                            else if (!SchemaDesignerUtils.DeepCompareForeignKey(sourceForeignKey, targetForeignKey))
+                            {
+                                // Foreign key exists but has changed - drop and recreate
+                                string dropFkScript = $"ALTER TABLE [{updatedTable.Schema}].[{updatedTable.Name}] DROP CONSTRAINT [{sourceForeignKey.Name}];\n";
+                                string addFkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(updatedTable, targetForeignKey);
+
+                                TrackTableChange(
+                                    changeReport,
+                                    updatedTable,
+                                    SchemaDesignerReportTableState.UPDATED,
+                                    dropFkScript + addFkScript,
+                                    $"Modifying foreign key '{targetForeignKey.Name}' ({GetForeignKeyChangeDescription(sourceForeignKey, targetForeignKey)})"
+                                );
+
+                                var fk = tableDesigner.TableViewModel.ForeignKeys.Items[index];
+                                fk.Name = targetForeignKey.Name;
+                                fk.ForeignTable = $"{targetForeignKey.ReferencedSchemaName}.{targetForeignKey.ReferencedTableName}";
+                                fk.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(targetForeignKey.OnDeleteAction);
+                                fk.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(targetForeignKey.OnUpdateAction);
+                                fk.Columns.Clear();
+                                for (var i = 0; i < targetForeignKey.Columns.Count; i++)
+                                {
+                                    fk.AddNewColumnMapping();
+                                    fk.UpdateColumn(i, targetForeignKey.Columns[i]);
+                                    fk.UpdateForeignColumn(i, targetForeignKey.ReferencedColumns[i]);
+                                }
+
+                                migrationScript.AppendLine(dropFkScript);
+                                migrationScript.AppendLine(addFkScript);
                             }
                         }
                     }
