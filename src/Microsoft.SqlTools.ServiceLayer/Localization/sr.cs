@@ -10247,6 +10247,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_attestationProtocol_category_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_attestationProtocol_category_None);
+            }
+        }
+
         public static string ConnectionConfigOptions_enclaveAttestationUrl_displayName
         {
             get
@@ -14996,6 +15004,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionConfigOptions_attestationProtocol_category_AAS = "ConnectionConfigOptions_attestationProtocol_category_AAS";
+
+
+            public const string ConnectionConfigOptions_attestationProtocol_category_None = "ConnectionConfigOptions_attestationProtocol_category_None";
 
 
             public const string ConnectionConfigOptions_enclaveAttestationUrl_displayName = "ConnectionConfigOptions_enclaveAttestationUrl_displayName";
