@@ -5569,6 +5569,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>Azure Attestation</value>
     <comment></comment>
   </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_None" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionConfigOptions_enclaveAttestationUrl_displayName" xml:space="preserve">
     <value>Enclave Attestation URL</value>
     <comment></comment>

@@ -176,7 +176,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         GroupName = GroupNames.Security,
                         CategoryValues = [
                             new CategoryValue { DisplayName = SR.ConnectionConfigOptions_attestationProtocol_category_HGS, Name = "HGS" },
-                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_attestationProtocol_category_AAS, Name = "AAS" }
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_attestationProtocol_category_AAS, Name = "AAS" },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_attestationProtocol_category_None, Name = "None" }
                         ]
                     },
                     new ConnectionOption
