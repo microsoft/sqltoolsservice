@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class SchemaDesignerReportObject
+    public class SchemaDesignerChangeReport
     {
         public Guid? TableId { get; set; }
         public string TableName { get; set; } = string.Empty;
