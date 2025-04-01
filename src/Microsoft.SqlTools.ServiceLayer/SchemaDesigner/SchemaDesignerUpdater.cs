@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using DacSchemaDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.SchemaDesigner;
@@ -32,7 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             Dictionary<string, SchemaDesignerReportObject> reportDictionary,
             SchemaDesignerTable table,
             SchemaDesignerReportTableState tableState,
-            string sqlScript,
             string changeDescription)
         {
             string tableId = table.Id.ToString();
@@ -48,7 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (reportDictionary.ContainsKey(table.Id.ToString()))
             {
                 reportDictionary[table.Id.ToString()].ActionsPerformed.Add(changeDescription);
-                reportDictionary[table.Id.ToString()].UpdateScript += sqlScript;
             }
             else
             {
@@ -56,7 +53,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 {
                     TableId = table.Id,
                     TableName = $"{table.Schema}.{table.Name}",
-                    UpdateScript = sqlScript,
                     TableState = tableState,
                     ActionsPerformed = new List<string> { changeDescription }
                 });
@@ -80,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (updatedSchema == null) throw new ArgumentNullException(nameof(updatedSchema));
 
             var changeReport = new Dictionary<string, SchemaDesignerReportObject>();
-            var migrationScript = new StringBuilder();
 
             // Process the schema changes in a specific order to maintain dependencies:
             // 1. Process table structure changes (create, rename, alter, drop)
@@ -88,14 +83,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             // 3. Drop constraints and foreign keys that might block other operations
 
             // Step 2: Process table additions and modifications
-            ProcessNewTables(initialSchema, updatedSchema, changeReport, migrationScript, sd);
-            ProcessModifiedTables(initialSchema, updatedSchema, changeReport, migrationScript, sd);
+            ProcessNewTables(initialSchema, updatedSchema, changeReport, sd);
+            ProcessModifiedTables(initialSchema, updatedSchema, changeReport, sd);
 
             // Step 3: Process foreign key changes for all tables
-            ProcessForeignKeyChanges(initialSchema, updatedSchema, changeReport, migrationScript, sd);
+            ProcessForeignKeyChanges(initialSchema, updatedSchema, changeReport, sd);
 
             // Step 1: First identify tables being dropped and handle their foreign keys
-            ProcessDroppedTables(initialSchema, updatedSchema, changeReport, migrationScript, sd);
+            ProcessDroppedTables(initialSchema, updatedSchema, changeReport, sd);
 
             // Convert the report dictionary to a list
             var reportObjectsList = changeReport.Values.ToList();
@@ -117,18 +112,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Handles dropping their foreign keys before dropping the tables themselves.
         /// </summary>
         internal static void ProcessDroppedTables(
-            SchemaDesignerModel sourceSchema,
-            SchemaDesignerModel targetSchema,
+            SchemaDesignerModel initialSchema,
+            SchemaDesignerModel updatedSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
-            StringBuilder migrationScript,
             DacSchemaDesigner sd)
         {
-            if (sourceSchema == null) throw new ArgumentNullException(nameof(sourceSchema));
-            if (targetSchema == null) throw new ArgumentNullException(nameof(targetSchema));
+            if (initialSchema == null) throw new ArgumentNullException(nameof(initialSchema));
+            if (updatedSchema == null) throw new ArgumentNullException(nameof(updatedSchema));
 
-            foreach (var sourceTable in sourceSchema.Tables)
+            if (initialSchema.Tables == null || initialSchema.Tables.Count == 0)
             {
-                var targetTable = targetSchema.Tables.FirstOrDefault(t => t.Id == sourceTable.Id);
+                return;
+            }
+
+            if (updatedSchema.Tables == null || updatedSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var sourceTable in initialSchema.Tables)
+            {
+                var targetTable = updatedSchema.Tables.FirstOrDefault(t => t.Id == sourceTable.Id);
 
                 if (targetTable == null)
                 {
@@ -138,34 +142,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     {
                         foreach (var foreignKey in sourceTable.ForeignKeys)
                         {
-                            string dropForeignKeyScript = $"ALTER TABLE [{sourceTable.Schema}].[{sourceTable.Name}] DROP CONSTRAINT [{foreignKey.Name}];\n";
 
                             TrackTableChange(
                                 changeReport,
                                 sourceTable,
                                 SchemaDesignerReportTableState.DROPPED,
-                                dropForeignKeyScript,
                                 $"Dropping foreign key '{foreignKey.Name}' that referenced table '{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}'"
                             );
 
-                            migrationScript.AppendLine(dropForeignKeyScript);
                         }
                     }
 
                     sd.TablesMarkedForDrop.Add([sourceTable.Schema, sourceTable.Name]);
 
                     // Now drop the table itself
-                    string dropTableScript = $"DROP TABLE [{sourceTable.Schema}].[{sourceTable.Name}];\n";
-
                     TrackTableChange(
                         changeReport,
                         sourceTable,
                         SchemaDesignerReportTableState.DROPPED,
-                        dropTableScript,
                         $"Dropping table '{sourceTable.Schema}.{sourceTable.Name}'"
                     );
-
-                    migrationScript.AppendLine(dropTableScript);
                 }
             }
         }
@@ -177,9 +173,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
-            StringBuilder migrationScript,
             DacSchemaDesigner sd)
         {
+            if (initialSchema == null) throw new ArgumentNullException(nameof(initialSchema));
+            if (updatedSchema == null) throw new ArgumentNullException(nameof(updatedSchema));
+
+            if (initialSchema.Tables == null || initialSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
+            if (updatedSchema.Tables == null || updatedSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
             foreach (var targetTable in updatedSchema.Tables)
             {
                 var sourceTable = initialSchema.Tables.FirstOrDefault(t => t.Id == targetTable.Id);
@@ -191,6 +199,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                     var newTable = sd.CreateTable(targetTable.Schema, targetTable.Name);
                     newTable.TableViewModel.Schema = targetTable.Schema;
+
+                    if (targetTable.Columns == null)
+                    {
+                        continue;
+                    }
 
                     for (var i = 0; i < targetTable.Columns.Count; i++)
                     {
@@ -245,13 +258,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         changeReport,
                         targetTable,
                         SchemaDesignerReportTableState.CREATED,
-                        creationScript,
                         $"Creating new table '{targetTable.Schema}.{targetTable.Name}' with {targetTable.Columns.Count} column(s)"
                     );
-
-                    migrationScript.AppendLine(creationScript);
-
-                    // Note: Foreign keys for new tables will be handled in the dedicated foreign key processing step
                 }
             }
         }
@@ -264,9 +272,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
-            StringBuilder migrationScript,
             DacSchemaDesigner sd)
         {
+            if (initialSchema == null) throw new ArgumentNullException(nameof(initialSchema));
+            if (updatedSchema == null) throw new ArgumentNullException(nameof(updatedSchema));
+
+            if (initialSchema.Tables == null || initialSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
+            if (updatedSchema.Tables == null || updatedSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
             foreach (var initialTable in initialSchema.Tables)
             {
                 var updatedTable = updatedSchema.Tables.FirstOrDefault(t => t.Id == initialTable.Id);
@@ -274,20 +294,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 if (updatedTable != null && !SchemaDesignerUtils.DeepCompareTable(initialTable, updatedTable))
                 {
                     var tableDesigner = sd.GetTableDesigner(initialTable.Schema, initialTable.Name);
-                    var tableUpdateScript = new StringBuilder();
                     bool hasModifications = false;
 
                     // Check for table name change
                     if (initialTable.Name != updatedTable.Name)
                     {
-                        string renameScript = $"EXEC sp_rename '{initialTable.Schema}.{initialTable.Name}', '{updatedTable.Name}';\n";
-                        tableUpdateScript.AppendLine(renameScript);
-
                         TrackTableChange(
                             changeReport,
                             updatedTable,
                             SchemaDesignerReportTableState.UPDATED,
-                            null,
                             $"Renaming table from '{initialTable.Name}' to '{updatedTable.Name}'"
                         );
 
@@ -298,14 +313,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     // Check for schema change
                     if (initialTable.Schema != updatedTable.Schema)
                     {
-                        string schemaChangeScript = $"ALTER SCHEMA [{updatedTable.Schema}] TRANSFER [{initialTable.Schema}].[{updatedTable.Name}];\n";
-                        tableUpdateScript.AppendLine(schemaChangeScript);
-
                         TrackTableChange(
                             changeReport,
                             updatedTable,
                             SchemaDesignerReportTableState.UPDATED,
-                            null,
                             $"Moving table from schema '{initialTable.Schema}' to schema '{updatedTable.Schema}'"
                         );
                         tableDesigner.TableViewModel.Schema = updatedTable.Schema;
@@ -313,12 +324,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     }
 
                     // Process column changes
-                    string columnUpdatesScript = GenerateColumnModificationScripts(initialTable, updatedTable, changeReport, tableDesigner);
-                    if (!string.IsNullOrEmpty(columnUpdatesScript))
-                    {
-                        tableUpdateScript.AppendLine(columnUpdatesScript);
-                        hasModifications = true;
-                    }
+                    GenerateColumnModificationScripts(initialTable, updatedTable, changeReport, tableDesigner);
+
 
                     // If there were any modifications, add them to the migration script
                     if (hasModifications)
@@ -327,11 +334,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                             changeReport,
                             updatedTable,
                             SchemaDesignerReportTableState.UPDATED,
-                            tableUpdateScript.ToString(),
                             $"Updating table structure for '{updatedTable.Schema}.{updatedTable.Name}'"
                         );
 
-                        migrationScript.AppendLine(tableUpdateScript.ToString());
                     }
                 }
             }
@@ -344,9 +349,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
-            StringBuilder migrationScript,
             DacSchemaDesigner sd)
         {
+            if (initialSchema == null) throw new ArgumentNullException(nameof(initialSchema));
+            if (updatedSchema == null) throw new ArgumentNullException(nameof(updatedSchema));
+
+            if (initialSchema.Tables == null || initialSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
+            if (updatedSchema.Tables == null || updatedSchema.Tables.Count == 0)
+            {
+                return;
+            }
+
             // First handle foreign keys for new tables
             foreach (var updatedTable in updatedSchema.Tables)
             {
@@ -370,6 +387,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                             sdForeignKey.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnDeleteAction);
                             sdForeignKey.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(foreignKey.OnUpdateAction);
                             sdForeignKey.Columns.Clear();
+                            if (foreignKey.Columns == null || foreignKey.ReferencedColumns == null)
+                            {
+                                continue;
+                            }
                             for (var i = 0; i < foreignKey.Columns.Count; i++)
                             {
                                 sdForeignKey.AddNewColumnMapping();
@@ -381,11 +402,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                                 changeReport,
                                 updatedTable,
                                 SchemaDesignerReportTableState.CREATED,
-                                fkScript,
                                 $"Adding foreign key '{foreignKey.Name}' to reference table '{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}'"
                             );
 
-                            migrationScript.AppendLine(fkScript);
                         }
                     }
                 }
@@ -402,20 +421,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                             if (targetForeignKey == null)
                             {
-                                // This is a foreign key that has been removed
-                                string dropFkScript = $"ALTER TABLE [{initialTable.Schema}].[{initialTable.Name}] DROP CONSTRAINT [{sourceForeignKey.Name}];\n";
-
                                 tableDesigner.TableViewModel.ForeignKeys.RemoveAt(index);
 
                                 TrackTableChange(
                                     changeReport,
                                     updatedTable,
                                     SchemaDesignerReportTableState.UPDATED,
-                                    dropFkScript,
                                     $"Removing foreign key '{sourceForeignKey.Name}' that referenced table '{sourceForeignKey.ReferencedSchemaName}.{sourceForeignKey.ReferencedTableName}'"
                                 );
 
-                                migrationScript.AppendLine(dropFkScript);
                             }
                             index++;
                         }
@@ -428,14 +442,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                             if (sourceForeignKey == null)
                             {
-                                // This is a new foreign key
-                                string fkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(updatedTable, targetForeignKey);
-
                                 TrackTableChange(
                                     changeReport,
                                     updatedTable,
                                     SchemaDesignerReportTableState.UPDATED,
-                                    fkScript,
                                     $"Adding new foreign key '{targetForeignKey.Name}' to reference table '{targetForeignKey.ReferencedSchemaName}.{targetForeignKey.ReferencedTableName}'"
                                 );
 
@@ -453,20 +463,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                                     sdForeignKey.UpdateColumn(i, targetForeignKey.Columns[i]);
                                     sdForeignKey.UpdateForeignColumn(i, targetForeignKey.ReferencedColumns[i]);
                                 }
-
-                                migrationScript.AppendLine(fkScript);
                             }
                             else if (!SchemaDesignerUtils.DeepCompareForeignKey(sourceForeignKey, targetForeignKey))
                             {
-                                // Foreign key exists but has changed - drop and recreate
-                                string dropFkScript = $"ALTER TABLE [{updatedTable.Schema}].[{updatedTable.Name}] DROP CONSTRAINT [{sourceForeignKey.Name}];\n";
-                                string addFkScript = SchemaCreationScriptGenerator.GenerateForeignKeyScript(updatedTable, targetForeignKey);
-
                                 TrackTableChange(
                                     changeReport,
                                     updatedTable,
                                     SchemaDesignerReportTableState.UPDATED,
-                                    dropFkScript + addFkScript,
                                     $"Modifying foreign key '{targetForeignKey.Name}' ({GetForeignKeyChangeDescription(sourceForeignKey, targetForeignKey)})"
                                 );
 
@@ -482,9 +485,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                                     fk.UpdateColumn(i, targetForeignKey.Columns[i]);
                                     fk.UpdateForeignColumn(i, targetForeignKey.ReferencedColumns[i]);
                                 }
-
-                                migrationScript.AppendLine(dropFkScript);
-                                migrationScript.AppendLine(addFkScript);
                             }
                         }
                     }
@@ -539,14 +539,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <param name="updatedTable">The target table definition.</param>
         /// <param name="changeReport">Report dictionary to update with changes.</param>
         /// <returns>A complete SQL script for all column modifications.</returns>
-        private static string GenerateColumnModificationScripts(
+        private static void GenerateColumnModificationScripts(
             SchemaDesignerTable initialTable,
             SchemaDesignerTable updatedTable,
             Dictionary<string, SchemaDesignerReportObject> changeReport,
             DacTableDesigner tableDesigner)
         {
-            var scriptBuilder = new StringBuilder();
+            if (initialTable == null) throw new ArgumentNullException(nameof(initialTable));
+            if (updatedTable == null) throw new ArgumentNullException(nameof(updatedTable));
 
+            if (initialTable.Columns == null || initialTable.Columns.Count == 0)
+            {
+                return;
+            }
+
+            if (updatedTable.Columns == null || updatedTable.Columns.Count == 0)
+            {
+                return;
+            }
             int index = 0;
             // Process columns to drop first
             foreach (var sourceColumn in initialTable.Columns)
@@ -555,19 +565,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 if (targetColumn == null)
                 {
-                    // Column has been dropped
-                    string dropColumnScript = $"ALTER TABLE [{initialTable.Schema}].[{initialTable.Name}] DROP COLUMN [{sourceColumn.Name}];\n";
-                    scriptBuilder.AppendLine(dropColumnScript);
-
-
                     tableDesigner.TableViewModel.Columns.RemoveAt(index);
-
-
                     TrackTableChange(
                         changeReport,
                         updatedTable,
                         SchemaDesignerReportTableState.UPDATED,
-                        null,
                         $"Dropping column '{sourceColumn.Name}' of type '{sourceColumn.DataType}'"
                     );
                 }
@@ -583,15 +585,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 if (sourceColumn == null && col == null)
                 {
-                    // New column
-                    string addColumnScript = $"ALTER TABLE [{updatedTable.Schema}].[{updatedTable.Name}] ADD {SchemaCreationScriptGenerator.GenerateColumnDefinition(targetColumn)};\n";
-                    scriptBuilder.AppendLine(addColumnScript);
-
                     TrackTableChange(
                         changeReport,
                         updatedTable,
                         SchemaDesignerReportTableState.UPDATED,
-                        null,
                         $"Adding new column '{targetColumn.Name}' of type '{targetColumn.DataType}'"
                     );
 
@@ -629,15 +626,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 }
                 else if (!SchemaDesignerUtils.DeepCompareColumn(sourceColumn, targetColumn))
                 {
-                    // Modified column
-                    string alterColumnScript = $"ALTER TABLE [{updatedTable.Schema}].[{updatedTable.Name}] ALTER COLUMN {SchemaCreationScriptGenerator.GenerateColumnDefinition(targetColumn)};\n";
-                    scriptBuilder.AppendLine(alterColumnScript);
-
                     TrackTableChange(
                         changeReport,
                         updatedTable,
                         SchemaDesignerReportTableState.UPDATED,
-                        null,
                         $"Modifying column '{targetColumn.Name}' ({GetColumnChangeDescription(sourceColumn, targetColumn)})"
                     );
 
@@ -672,8 +664,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     }
                 }
             }
-
-            return scriptBuilder.ToString();
         }
 
         /// <summary>
