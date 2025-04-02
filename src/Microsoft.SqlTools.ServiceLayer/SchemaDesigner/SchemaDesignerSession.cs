@@ -33,15 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         private void CreateOrResetSchemaDesigner()
         {
-            if (schemaDesigner == null)
-            {
-                schemaDesigner = new DacSchemaDesigner(connectionString, getAzureToken());
-            }
-            else
-            {
-                schemaDesigner.Dispose();
-                schemaDesigner = new DacSchemaDesigner(connectionString, getAzureToken());
-            }
+            schemaDesigner = new DacSchemaDesigner(connectionString, getAzureToken());
         }
 
         private SchemaDesignerModel createInitialSchema()
@@ -116,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
             var dataTypes = schemaDesigner.TableDesigners.First().DataTypes.OrderBy(x => x).ToList();
             return dataTypes;
-        } 
+        }
 
         private string getAzureToken()
         {
