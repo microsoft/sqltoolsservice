@@ -194,9 +194,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             viewModel.Name = column.Name;
             viewModel.DataType = column.DataType;
 
-            if (viewModel.CanEditLength && column.MaxLength.HasValue)
+            if (viewModel.CanEditLength && column.MaxLength != null)
             {
-                viewModel.Length = column.MaxLength.ToString();
+                viewModel.Length = column.MaxLength;
             }
 
             if (viewModel.CanEditPrecision && column.Precision.HasValue)
@@ -399,9 +399,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
 
             // Only update other properties if they changed
-            if (viewModel.CanEditLength && sourceColumn.MaxLength != targetColumn.MaxLength && targetColumn.MaxLength.HasValue)
+            if (viewModel.CanEditLength && sourceColumn.MaxLength != targetColumn.MaxLength)
             {
-                viewModel.Length = targetColumn.MaxLength.ToString();
+                viewModel.Length = targetColumn.MaxLength;
             }
 
             if (viewModel.CanEditPrecision && sourceColumn.Precision != targetColumn.Precision && targetColumn.Precision.HasValue)
@@ -485,11 +485,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (source.IsPrimaryKey != target.IsPrimaryKey)
             {
                 changes.Add(target.IsPrimaryKey ? "added to primary key" : "removed from primary key");
-            }
-
-            if (source.IsUnique != target.IsUnique)
-            {
-                changes.Add(target.IsUnique ? "added unique constraint" : "removed unique constraint");
             }
 
             if (source.IsIdentity != target.IsIdentity)

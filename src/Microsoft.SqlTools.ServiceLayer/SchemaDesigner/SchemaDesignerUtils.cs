@@ -42,6 +42,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             };
         }
 
+        public static OnAction ConvertSqlForeignKeyActionToOnAction(SqlForeignKeyAction action)
+        {
+            return action switch
+            {
+                SqlForeignKeyAction.Cascade => OnAction.CASCADE,
+                SqlForeignKeyAction.NoAction => OnAction.NO_ACTION,
+                SqlForeignKeyAction.SetNull => OnAction.SET_NULL,
+                SqlForeignKeyAction.SetDefault => OnAction.SET_DEFAULT,
+                _ => OnAction.NO_ACTION
+            };
+        }
+
         /// <summary>
         /// Maps the string representation of an action to the enum representation.
         /// </summary>
@@ -140,13 +152,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 column.IsNullable == otherColumn.IsNullable &&
                 column.IsPrimaryKey == otherColumn.IsPrimaryKey &&
                 column.IsIdentity == otherColumn.IsIdentity &&
-                column.IsUnique == otherColumn.IsUnique &&
                 column.IdentitySeed == otherColumn.IdentitySeed &&
                 column.IdentityIncrement == otherColumn.IdentityIncrement &&
                 column.MaxLength == otherColumn.MaxLength &&
                 column.Precision == otherColumn.Precision &&
-                column.Scale == otherColumn.Scale &&
-                column.Collation == otherColumn.Collation;
+                column.Scale == otherColumn.Scale;
 
         }
 

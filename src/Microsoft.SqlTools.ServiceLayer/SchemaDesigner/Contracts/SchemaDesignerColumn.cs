@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the max length of the column
         /// </summary>
-        public int? MaxLength { get; set; }
+        public string? MaxLength { get; set; }
         /// <summary>
         /// Gets or sets the precision of the column
         /// </summary>
@@ -47,23 +47,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets identity seed of the column
         /// </summary>
-        public int? IdentitySeed { get; set; }
+        public decimal? IdentitySeed { get; set; }
         /// <summary>
         /// Gets or sets identity increment of the column
         /// </summary>
-        public int? IdentityIncrement { get; set; }
+        public decimal? IdentityIncrement { get; set; }
         /// <summary>
         /// Gets or sets if the column is a nullable column
         /// </summary>
         public bool IsNullable { get; set; }
-        /// <summary>
-        /// Get or sets if the column is has unique constraint
-        /// </summary>
-        public bool IsUnique { get; set; }
-        /// <summary>
-        /// Gets or sets the default value of the column
-        /// </summary>
-        public string Collation { get; set; }
         /// <summary>
         /// Gets or sets the default value of the column
         /// </summary>

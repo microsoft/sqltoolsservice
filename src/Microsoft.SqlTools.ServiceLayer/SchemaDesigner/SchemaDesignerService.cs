@@ -44,27 +44,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 string connectionUri = Guid.NewGuid().ToString();
                 var connectionCompleteParams = await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, connectionUri, requestParams.DatabaseName);
-
-                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModelAsync(connectionUri);
-                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypesAsync(connectionUri);
-                List<string> schemas = await SchemaDesignerModelProvider.GetSchemasAsync(connectionUri);
+                var session = new SchemaDesignerSession(connectionUri);
+                sessions.Add(connectionUri, session);
 
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
-                    Schema = schema,
-                    DataTypes = dataTypes,
-                    SchemaNames = schemas,
+                    Schema = session.InitialSchema,
+                    DataTypes = session.AvailableDataTypes(),
+                    SchemaNames = session.AvailableSchemas(),
                     SessionId = connectionUri,
-                });
-
-                _ = Task.Run(async () =>
-                {
-                    var session = new SchemaDesignerSession(connectionUri, schema);
-                    sessions.Add(connectionUri, session);
-                    await requestContext.SendEvent(SchemaReady.Type, new SchemaReadyResponse()
-                    {
-                        SessionId = connectionUri,
-                    });
                 });
             }
             catch (Exception e)

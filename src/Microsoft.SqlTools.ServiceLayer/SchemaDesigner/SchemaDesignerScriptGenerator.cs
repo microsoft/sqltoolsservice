@@ -105,24 +105,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             StringBuilder sb = new StringBuilder();
             sb.Append($"[{column.Name}] {column.DataType}");
 
-            // Handle length specification for applicable data types
-            if (column.MaxLength.HasValue && column.MaxLength != -1)
+            if (column.MaxLength != null && column.MaxLength == "0")
             {
-                if (IsLengthBasedType(column.DataType))
-                {
-                    if (IsBytePairDatatype(column.DataType))
-                    {
-                        sb.Append($"({column.MaxLength / 2})");
-                    }
-                    else
-                    {
-                        sb.Append($"({column.MaxLength})");
-                    }
-                }
-            }
-            else if (column.MaxLength == -1 && IsLengthBasedType(column.DataType))
-            {
-                sb.Append("(MAX)");
+                sb.Append("(0)");
             }
 
             // Handle precision and scale only for decimal/numeric types
@@ -138,20 +123,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 }
             }
 
-            if (!string.IsNullOrEmpty(column.Collation) && column.Collation != "NULL")
-            {
-                sb.Append($" COLLATE {column.Collation}");
-            }
-
-
             if (!column.IsNullable)
             {
                 sb.Append(" NOT NULL");
-            }
-
-            if (column.IsUnique)
-            {
-                sb.Append(" UNIQUE");
             }
 
             if (column.IsIdentity)
