@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     /// </summary>
     public class GetReportResponse
     {
-        public List<SchemaDesignerReportObject>? Reports { get; set; }
+        public List<SchemaDesignerChangeReport>? Reports { get; set; }
         public string? UpdateScript { get; set; }
     }
 

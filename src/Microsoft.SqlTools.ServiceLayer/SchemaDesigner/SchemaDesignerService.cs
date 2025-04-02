@@ -42,29 +42,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                string sessionId = Guid.NewGuid().ToString();
-                await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, sessionId, requestParams.DatabaseName);
-
-                SchemaDesignerModel schema = await SchemaDesignerModelProvider.GetSchemaModelAsync(sessionId);
-                List<string> dataTypes = await SchemaDesignerModelProvider.GetDatatypesAsync(sessionId);
-                List<string> schemas = await SchemaDesignerModelProvider.GetSchemasAsync(sessionId);
+                string connectionUri = Guid.NewGuid().ToString();
+                var connectionCompleteParams = await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, connectionUri, requestParams.DatabaseName);
+                var session = new SchemaDesignerSession(connectionUri);
+                sessions.Add(connectionUri, session);
 
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
-                    Schema = schema,
-                    DataTypes = dataTypes,
-                    SchemaNames = schemas,
-                    SessionId = sessionId,
-                });
-
-                _ = Task.Run(async () =>
-                {
-                    var session = new SchemaDesignerSession(sessionId, schema);
-                    sessions.Add(sessionId, session);
-                    await requestContext.SendEvent(SchemaReady.Type, new SchemaReadyResponse()
-                    {
-                        SessionId = sessionId,
-                    });
+                    Schema = session.InitialSchema,
+                    DataTypes = session.AvailableDataTypes(),
+                    SchemaNames = session.AvailableSchemas(),
+                    SessionId = connectionUri,
                 });
             }
             catch (Exception e)
@@ -95,25 +83,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             try
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
-                session.Dispose();
-                sessions.Remove(requestParams.SessionId);
-                SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
-                await requestContext.SendResult(new DisposeSessionResponse());
+                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                {
+                    session.Dispose();
+                    sessions.Remove(requestParams.SessionId);
+                    SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
+                }
             }
             catch (Exception e)
             {
                 Logger.Error(e.Message);
-                await requestContext.SendError(e);
             }
+            await requestContext.SendResult(new DisposeSessionResponse());
+
         }
 
         internal async Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
         {
+            SchemaDesignerSession session = sessions[requestParams.SessionId];
+            var report = await session.GetReport(requestParams.UpdatedSchema);
             try
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
-                await requestContext.SendResult(session.GetReport(requestParams.UpdatedSchema));
+                await requestContext.SendResult(report);
             }
             catch (Exception e)
             {
