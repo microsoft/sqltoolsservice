@@ -101,8 +101,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         public List<string> AvailableSchemas()
         {
-            // Filter out db_ schemas from the list of schemas
-            return schemaDesigner.AvailableSchemas.Where(s => !s.StartsWith("db_")).ToList();
+            // Sort schema and move db_ schemas to the end
+            return schemaDesigner.AvailableSchemas
+                .OrderBy(s => s.StartsWith("db_") ? 1 : 0)
+                .ThenBy(s => s)
+                .ToList();
         }
 
         public List<string> AvailableDataTypes()
@@ -111,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 schemaDesigner.CreateTable("dbo", "dummy");
             }
-            var dataTypes = schemaDesigner.TableDesigners.First().DataTypes.ToList();
+            var dataTypes = schemaDesigner.TableDesigners.First().DataTypes.OrderBy(x => x).ToList();
             return dataTypes;
         } 
 
