@@ -828,13 +828,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
-            var insertText = String.Join(String.Format(",{0}", Environment.NewLine), columnNames.ToArray()); // Adding a new line after every column name
+            var insertText = Environment.NewLine +
+            "\t" + String.Join("," + Environment.NewLine + "\t", columnNames.ToArray()) +
+                 Environment.NewLine;
             var completionItems = new CompletionItem[] {
                 new CompletionItem
                 {
                     InsertText = insertText,
                     Label = insertText,
-                    Detail = insertText,
+                    Detail = "Expand * expression into column names",
                     Kind = CompletionItemKind.Text,
                     /*
                     Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
@@ -868,7 +870,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Checking if the current node is a sql select star expression.
-            if (currentNode is SqlSelectStarExpression)
+            if (currentNode is SqlSelectExpression)
             {
                 return currentNode as SqlSelectStarExpression;
             }

@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                         {
                             // push all parent tokens until we hit whitespace
                             int parentIndex = currentIndex;
-                            while (true)
+                            while (true && parentIndex >= 0)
                             {
                                 if (scriptParseInfo.ParseResult.Script.TokenManager.GetToken(parentIndex).Type != "LEX_WHITE")
                                 {
