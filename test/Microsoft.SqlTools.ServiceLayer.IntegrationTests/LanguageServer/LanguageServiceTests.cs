@@ -366,26 +366,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             SELECT * from sys.objects
             --returning
             select * s
-            ", 
-            false, 
+            ",
+            false,
             "Should not detect non-T-SQL in a valid T-SQL script."
         )]
         [TestCase(
             @"
             SELECT * from [returning]
             --returning
-            ", 
-            false, 
+            ",
+            false,
             "Should not detect non-T-SQL in a valid T-SQL script, with a Non-T-SQL keyword as an object name"
         )]
         [TestCase(
-            "CREATE DATABASE ExampleDB; returNING", 
-            true, 
+            "CREATE DATABASE ExampleDB; returNING",
+            true,
             "Should detect non-T-SQL keywords in the script."
         )]
         [TestCase(
-            null, 
-            true, 
+            null,
+            true,
             "Should detect non-T-SQL due to exceeding error limit."
         )]
         public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
@@ -396,22 +396,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
         [Test]
         [TestCase(
-            "LanguageServer\\AdventureWorksDeploymentTestScript.sql", 
-            false, 
+            "LanguageServer\\AdventureWorksDeploymentTestScript.sql",
+            false,
             "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
         )]
         [TestCase(
-            "LanguageServer\\AdventureWorksTestScript.sql", 
-            false, 
+            "LanguageServer\\AdventureWorksTestScript.sql",
+            false,
             "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
         )]
         [TestCase(
-            "LanguageServer\\WWITestScript.sql", 
-            false, 
+            "LanguageServer\\WWITestScript.sql",
+            false,
             "WWI script; should not detect Non-T-SQL syntax"
         )]
         public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
-        {            
+        {
             filePath = Path.Combine(AppContext.BaseDirectory, filePath);
             if (File.Exists(filePath))
             {
@@ -420,12 +420,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 bool result = await CheckForNonTSqlHelper(scriptText);
                 Assert.AreEqual(expectedResult, result, message);
             }
-            else {
+            else
+            {
                 Assert.Fail($"File not found: {filePath}");
             }
         }
 
-        public async Task<bool>CheckForNonTSqlHelper(string scriptText)
+        public async Task<bool> CheckForNonTSqlHelper(string scriptText)
         {
             var connInfo = new ConnectionInfo(null, null, null);
 
@@ -523,6 +524,68 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         //select star query with nested from statement
         [TestCase("select * from (select col2 from wildcard_test_table1) as alias", 0, 8, "CREATE TABLE wildcard_test_table1(col1 int, col2 int)", "[col2]")]
         public async Task ExpandSqlStarExpressionsTest(string sqlStarQuery, int cursorLine, int cursorColumn, string createTableQueries, string expectedStarExpansionInsertText)
+        {
+            var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "WildCardExpansionTest");
+            try
+            {
+                var connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
+
+                var langService = CreateLanguageService(connectionInfoResult.ScriptFile);
+                await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
+                connectionInfoResult.ScriptFile.SetFileContents(sqlStarQuery);
+
+                var textDocumentPosition =
+                    connectionInfoResult.TextDocumentPosition ??
+                    new TextDocumentPosition()
+                    {
+                        TextDocument = new TextDocumentIdentifier
+                        {
+                            Uri = connectionInfoResult.ScriptFile.ClientUri
+                        },
+                        Position = new Position
+                        {
+                            Line = cursorLine,
+                            Character = cursorColumn //Position of the star expression
+                        }
+                    };
+
+                // Now create tables that should show up in the completion list
+                testDb.RunQuery(createTableQueries);
+
+                // And refresh the cache
+                await langService.DoHandleRebuildIntellisenseNotification(
+                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
+                    new TestEventContext());
+
+                // Now we should expect to see the star expansion show up in the completion list
+                var starExpansionCompletionItem = await langService.GetCompletionItems(
+                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
+
+                Assert.AreEqual(expectedStarExpansionInsertText, starExpansionCompletionItem[0].InsertText, "Star expansion not found");
+            }
+            finally
+            {
+                testDb.Cleanup();
+            }
+        }
+
+        [Test]
+        //simple select star with single column in the table
+        [TestCase(
+    "INSERT INTO wildcard_test_table",
+    0,
+    8,
+    @"CREATE TABLE wildcard_test_table(col1 int, col2 int DEFAULT 1, col3 AS (col1 + col2), col4 VARCHAR(10))",
+    "[col1]"
+    )]
+        [TestCase(
+    "INSERT INTO wildcard_test_table (col1, col2) VALUES (1, 2)",
+    0,
+    8,
+    @"CREATE TABLE wildcard_test_table(col1 int, col2 int DEFAULT 1, col3 AS (col1 + col2), col4 VARCHAR(10))",
+    "[col1]"
+        )]
+        public async Task ExpandSqlInsertExpressionsTest(string sqlStarQuery, int cursorLine, int cursorColumn, string createTableQueries, string expectedStarExpansionInsertText)
         {
             var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "WildCardExpansionTest");
             try

@@ -117,5 +117,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// Whether this completion item is preselected or not
         /// </summary>
         public bool? Preselect { get; set; }
+        public NewRangeObject Range { get; set; }
+    }
+
+    public class NewRangeObject
+    {
+        public int EndColumn;
+        public int EndLineNumber;
+        public int StartColumn;
+        public int StartLineNumber;
     }
 }

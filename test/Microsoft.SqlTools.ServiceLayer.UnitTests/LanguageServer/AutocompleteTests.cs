@@ -269,5 +269,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             var starExpressionTest = AutoCompleteHelper.TryGetSelectStarStatement(testFile.ScriptParseInfo.ParseResult.Script, testFile).Sql;
             Assert.AreEqual(expectedStarExpressionSqlText, expectedStarExpressionSqlText, string.Format("correct SelectStarExpression is not returned."));
         }
+
+        [Test]
+        [TestCase("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 10, "a.*")]
+        [TestCase("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 13, "*")]
+        [TestCase("INSERT INTO sys.all_objects (Name) VALUES ('test')", 0, 10, "INSERT INTO sys.all_objects (Name) VALUES ('test')")]
+        public void ExpansionExpressionTest(string sqlQuery, int cursorLine, int cursorColumn, string expectedStarExpressionSqlText)
+        {
+            InitializeTestObjects();
+            var testFile = CreateSqlStarTestFile(sqlQuery, cursorLine, cursorColumn);
+            var  ExpansionExpressionTest = ExpressionExpansionHelper.TryGetSqlExpression(testFile.ScriptParseInfo.ParseResult.Script, testFile);
+            Assert.NotNull(ExpansionExpressionTest, "ExpansionExpressionTest is null.");
+            Assert.AreEqual(ExpansionExpressionTest.codeObject.Sql, expectedStarExpressionSqlText, string.Format("correct SelectStarExpression is not returned."));
+            ExpressionExpansionHelper.ExpandExpression(testFile);
+        }
     }
 }

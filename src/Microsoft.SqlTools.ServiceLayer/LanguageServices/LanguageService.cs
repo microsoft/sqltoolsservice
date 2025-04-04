@@ -1674,10 +1674,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             */
             if (connInfo != null)
             {
-                CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
-                if (starExpansionSuggestion != null)
+                CompletionItem[] insertExpansionSuggestion = ExpressionExpansionHelper.ExpandExpression(scriptDocumentInfo);
+                if (insertExpansionSuggestion != null)
                 {
-                    return starExpansionSuggestion;
+                    return insertExpansionSuggestion;
                 }
             }
 
