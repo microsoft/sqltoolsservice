@@ -55,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             serviceHost.SetRequestHandler(SchemaComparePublishDatabaseChangesRequest.Type, this.HandleSchemaComparePublishDatabaseChangesRequest, true);
             serviceHost.SetRequestHandler(SchemaComparePublishProjectChangesRequest.Type, this.HandleSchemaComparePublishProjectChangesRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest, true);
+            serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeAllNodesRequest.Type, this.HandleSchemaCompareIncludeExcludeAllNodesRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareSaveScmpRequest.Type, this.HandleSchemaCompareSaveScmpRequest, true);
@@ -298,6 +299,44 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 Logger.Error("Failed to select compare schema result node. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                });
+            }
+        }
+
+        // <summary>
+        /// Handles request for exclude incude all nodes in Schema compare result
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareIncludeExcludeAllNodesRequest(SchemaCompareIncludeExcludeAllNodesParams parameters, RequestContext<SchemaCompareIncludeExcludeAllNodesResult> requestContext)
+        {
+            SchemaCompareIncludeExcludeAllNodesOperation operation = null;
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                operation = new SchemaCompareIncludeExcludeAllNodesOperation(parameters, compareResult);
+
+                operation.Execute(parameters.TaskExecutionMode);
+
+                // update the comparison result if the include/exclude was successful
+                if (operation.Success)
+                {
+                    schemaCompareResults.Value[parameters.OperationId] = operation.ComparisonResult;
+                }
+
+                await requestContext.SendResult(new SchemaCompareIncludeExcludeAllNodesResult()
+                {
+                    Success = operation.Success,
+                    ErrorMessage = operation.ErrorMessage,
+                    AllIncludedOrExcludedDifferences = operation.AllIncludedOrExcludedDifferences
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to select compare schema result node. Error: " + e);
+                await requestContext.SendResult(new SchemaCompareIncludeExcludeAllNodesResult()
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
