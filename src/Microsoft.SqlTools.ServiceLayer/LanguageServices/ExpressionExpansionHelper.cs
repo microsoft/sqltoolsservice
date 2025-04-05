@@ -47,12 +47,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int nodeEndLineNumber = node.EndLocation.LineNumber - 1;
 
             bool isStartPositionBeforeCursor =
-                nodeStartLineNumber < scriptDocumentInfo.StartLine ||
+                nodeStartLineNumber <= scriptDocumentInfo.StartLine ||
                 (nodeStartLineNumber == scriptDocumentInfo.StartLine &&
                  node.StartLocation.ColumnNumber <= scriptDocumentInfo.StartColumn);
 
             bool isEndPositionAfterCursor =
-                nodeEndLineNumber > scriptDocumentInfo.StartLine ||
+                nodeEndLineNumber >= scriptDocumentInfo.StartLine ||
                 (nodeEndLineNumber == scriptDocumentInfo.StartLine &&
                  node.EndLocation.ColumnNumber >= scriptDocumentInfo.EndColumn);
 
@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     foreach (var column in table.Columns)
                     {
-                        string columnName = includeTableName 
+                        string columnName = includeTableName
                         ? $"{Utils.MakeSqlBracket(table.Name)}.{Utils.MakeSqlBracket(column.Name)}"
                         : Utils.MakeSqlBracket(column.Name);
                         if (!columnNames.Contains(columnName))
@@ -235,22 +235,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItems;
         }
 
-        public static CompletionItem[] ExpandInsertExpression(ScriptDocumentInfo scriptDocumentInfo, SqlInsertSpecification insertStatement)
+        public static CompletionItem[]? ExpandInsertExpression(ScriptDocumentInfo scriptDocumentInfo, SqlInsertSpecification insertStatement)
         {
             // Find the table reference in the insert statement
-            var tableRef = insertStatement.Target as SqlTableRefExpression;
-            if (tableRef == null)
+            if (!(insertStatement.Target is SqlTableRefExpression tableRef) || tableRef.BoundTable == null)
             {
                 return null;
             }
 
             var boundTable = tableRef.BoundTable;
-
-            if (boundTable == null)
-            {
-                return null;
-            }
-
             var IsCursorAtTableRef = IsCursorInNodeScope(tableRef, scriptDocumentInfo);
 
             if (IsCursorAtTableRef)
@@ -350,6 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             SqlCodeObject currentNode = insertStatement;
+            bool isLastChild = false;
 
             while (currentNode != null)
             {
@@ -363,15 +357,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 var isChildInScope = false;
+                int childIndex = 0;
                 foreach (var child in currentNode.Children)
                 {
                     if (IsCursorInNodeScope(child, scriptDocumentInfo))
                     {
                         currentNode = child;
                         isChildInScope = true;
-                        continue;
+                        
+                        break;
                     }
+                    else
+                    {
+                        if (child is SqlRowConstructorExpression)
+                        {
+                            if (child.EndLocation.LineNumber == scriptDocumentInfo.StartLine && child.EndLocation.ColumnNumber == scriptDocumentInfo.EndColumn)
+                            {
+                                currentNode = child;
+                                isChildInScope = true;
+                                break;
+                            }
+                        }
+                    }
+                    childIndex++;
                 }
+
+                if (isChildInScope && childIndex == currentNode.Children.Count() - 1)
+                {
+                    isLastChild = true;
+                }
+
                 if (!isChildInScope)
                 {
                     break;
@@ -417,7 +432,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             rowValueTextBuilder.Remove(rowValueTextBuilder.Length - 2, 2); // Remove the last comma and space
 
             rowValueTextBuilder.Append(')');
+            if (!isLastChild)
+            {
+                
+            }
             string rowValueText = rowValueTextBuilder.ToString();
+
+            var StartColumn = scriptDocumentInfo.StartColumn;
+            var StartLine = scriptDocumentInfo.StartLine;
+            var EndColumn = scriptDocumentInfo.EndColumn;
+            var EndLine = scriptDocumentInfo.StartLine;
+            var FilterText = rowExpression.Sql;
+            
+            if (scriptDocumentInfo.Token.Text == ",")
+            {
+                StartColumn = scriptDocumentInfo.StartColumn - 1;
+            }
 
             var rowcompletionItem = new CompletionItem
             {
@@ -428,10 +458,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 FilterText = rowExpression.Sql + (scriptDocumentInfo.Token.Text == "," ? "," : ""),
                 Range = new NewRangeObject
                 {
-                    StartLineNumber = rowExpression.StartLocation.LineNumber - 1,
-                    EndLineNumber = rowExpression.EndLocation.LineNumber - 1,
-                    StartColumn = rowExpression.StartLocation.ColumnNumber - 1,
-                    EndColumn = rowExpression.EndLocation.ColumnNumber - 1
+                    StartLineNumber = StartLine,
+                    EndLineNumber = EndLine,
+                    StartColumn = StartColumn,
+                    EndColumn = EndLine
                 },
                 TextEdit = new TextEdit
                 {
@@ -440,13 +470,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         Start = new Workspace.Contracts.Position
                         {
-                            Line = rowExpression.EndLocation.LineNumber - 1,
-                            Character = rowExpression.EndLocation.ColumnNumber - 1
+                            Line = StartLine,
+                            Character = StartColumn
                         },
                         End = new Workspace.Contracts.Position
                         {
-                            Line = rowExpression.EndLocation.LineNumber - 1,
-                            Character = rowExpression.EndLocation.ColumnNumber - 1
+                            Line = EndLine,
+                            Character = EndColumn
                         }
                     }
                 }
