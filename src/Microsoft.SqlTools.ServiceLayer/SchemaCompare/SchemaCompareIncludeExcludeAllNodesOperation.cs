@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Error(string.Format("Schema compare includ/exclude all operation {0} failed with exception {1}", this.OperationId, e.Message));
+                Logger.Error(string.Format("Schema compare include/exclude all operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
 
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private void IncludeExcludeAllDifferences(List<SchemaDifference> schemaDifferences)
         {
             var problematicDifferences = new List<SchemaDifference>();
-            foreach (var difference in schemaDifferences)
+            foreach (SchemaDifference difference in schemaDifferences)
             {
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(difference) : this.ComparisonResult.Exclude(difference);
 
@@ -100,7 +100,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
+        /// <summary>
+        /// The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled 
+        /// </summary>
         public void Cancel()
         {
         }
