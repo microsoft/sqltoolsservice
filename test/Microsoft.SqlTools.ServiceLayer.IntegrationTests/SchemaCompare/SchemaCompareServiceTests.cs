@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -1370,6 +1370,16 @@ WITH VALUES
                 };
 
                 await SchemaCompareService.Instance.HandleSchemaCompareIncludeExcludeNodeRequest(excludeParams, publishRequestContext.Object);
+
+                // Include/Exclude all service call
+                var excludeAllParams = new SchemaCompareIncludeExcludeAllNodesParams
+                {
+                    OperationId = operationId,
+                    IncludeRequest = false
+                };
+
+                await SchemaCompareService.Instance.HandleSchemaCompareIncludeExcludeAllNodesRequest(excludeAllParams, publishRequestContext.Object);
+
 
                 // Save Scmp service call
                 var saveScmpRequestContext = new Mock<RequestContext<ResultStatus>>();

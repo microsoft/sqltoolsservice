@@ -310,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// Handles request for exclude incude all nodes in Schema compare result
         /// </summary>
         /// <returns></returns>
-        public async Task HandleSchemaCompareIncludeExcludeAllNodesRequest(SchemaCompareIncludeExcludeAllNodesParams parameters, RequestContext<SchemaCompareIncludeExcludeAllNodesResult> requestContext)
+        public async Task HandleSchemaCompareIncludeExcludeAllNodesRequest(SchemaCompareIncludeExcludeAllNodesParams parameters, RequestContext<ResultStatus> requestContext)
         {
             SchemaCompareIncludeExcludeAllNodesOperation operation = null;
             try

@@ -33,10 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
-    class SchemaCompareIncludeExcludeAllNodesRequest
+    public class SchemaCompareIncludeExcludeAllNodesRequest
     {
-        public static readonly RequestType<SchemaCompareIncludeExcludeAllNodesParams, SchemaCompareIncludeExcludeAllNodesResult> Type =
-       RequestType<SchemaCompareIncludeExcludeAllNodesParams, SchemaCompareIncludeExcludeAllNodesResult>.Create("schemaCompare/includeExcludeAllNodes");
+        public static readonly RequestType<SchemaCompareIncludeExcludeAllNodesParams, ResultStatus> Type =
+       RequestType<SchemaCompareIncludeExcludeAllNodesParams, ResultStatus>.Create("schemaCompare/includeExcludeAllNodes");
     }
 
     /// <summary>
