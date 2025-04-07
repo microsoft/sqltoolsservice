@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Scriptoria.Common;
+using Microsoft.Scriptoria.Interfaces;
 using Microsoft.Scriptoria.Models;
 using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
@@ -167,24 +168,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 // var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
                 // var currentDbConfig = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
 
-
                 // Add tools to kernel
                 //builder.Plugins.AddFromObject(sqlExecHelper);
 
                 // Setup cartridges
                 var services = new ServiceCollection();
-                services.AddSingleton<CartridgeContentManager>();
+
+                // Register the ScriptoriaTrace as IScriptoriaTrace
+                services.AddSingleton<IScriptoriaTrace, CopilotLogger>();
+                services.AddSingleton<ICartridgeContentManager, CartridgeContentManager>();
+                services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
+                services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
+                services.AddSingleton<IScriptoriaExecutionContext, SqlScriptoriaExecutionContext>();
+                services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
+                services.AddSingleton<IKernelBuilder>((sp) => builder);
 
                 ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
 
                 // initialize the bootstrapper that will discover and find the correct cartridge to use for the current 
                 // connection context
-                var contentManager = services.BuildServiceProvider().GetRequiredService<CartridgeContentManager>();
+                var contentManager = services.BuildServiceProvider().GetRequiredService<ICartridgeContentManager>();
                 contentManager.ContentProviderType = contentLibraryProviderType;
 
                 Logger.Verbose($"SqlScriptoria version: {contentManager.Version}");
-             
-                Bootstrapper cartridgeBootstrapper = new Bootstrapper(sqlService, sqlService, contentManager, new ChatExecutionAccessCheckerFactory());
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                Bootstrapper cartridgeBootstrapper = new Bootstrapper(serviceProvider, new ChatExecutionAccessCheckerFactory());
 
                 //// appsettings.json allows for excluding specific cartridges, toolsets, or tools.  Load these seetings
                 //// into the bootstrapper so it can exclude them from the set of loaded assets
@@ -200,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 // context we add what experiecnce this is being loaded into by the client.  
                 //var connectionContext = CopilotUtilityFunction.GetCurrentDatabaseAndServerInfo(sqlService!).Result;
 
-                SqlScriptoriaExecutionContext _executionContext = new();
+                var _executionContext = serviceProvider.GetRequiredService<IScriptoriaExecutionContext>();
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
                 // context we add what experience this is being loaded into by the client.
@@ -210,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 
                 // the 'Experience' and 'Version' properties will deterime which cartridge is loaded.
                 // other configuration values will be used by toolsets in the future as well.
-                _activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, _executionContext);
+                _activeCartridge = cartridgeBootstrapper.LoadCartridge();
                 await _activeCartridge.InitializeToolsetsAsync();
 
                 // inject the preferred style if the user set it in appsettings or via an API call.

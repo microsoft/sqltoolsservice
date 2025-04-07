@@ -6,17 +6,17 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+// using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
 using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
-using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
-using Microsoft.SqlTools.Connectors.VSCode;
+//using Microsoft.SemanticKernel.ChatCompletion;
+//using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
+//using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
+//using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
-using Microsoft.SqlTools.Utility;
+//using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -26,14 +26,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
     public class ChatExecutionAccessCheckerFactory : IExecutionAccessCheckerFactory
     {
         /// <inheritdoc />
-        public IExecutionAccessChecker Create(Kernel kernel, IList<string> readOnlyProcs)
+        public IExecutionAccessChecker Create(Kernel kernel, IList<string> readOnlyProcs, IScriptoriaTrace scriptoriaTrace)
         {
             // Creates and returns a new ExecutionAccessChecker.
-            return new ChatExecutionAccessChecker(readOnlyProcs);
+            return new ChatExecutionAccessChecker(readOnlyProcs, scriptoriaTrace);
         }
     }
 
 
+#if false
     public interface IKernelFactory
     {
         Kernel Create();
@@ -80,25 +81,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
             // Setup Cartridge system
             _services.AddSingleton<CartridgeContentManager>();
+            _services.AddSingleton<CopilotLogger>();
             var contentManager = _services.BuildServiceProvider().GetRequiredService<CartridgeContentManager>();
             contentManager.ContentProviderType = ContentProviderType.Resource;
 
             Logger.Verbose($"SqlScriptoria version: {contentManager.Version}");
 
+
+            IServiceProvider serviceProvider = _services.BuildServiceProvider();
+
             var cartridgeBootstrapper = new Bootstrapper(
-                sqlService,
-                sqlService,
-                contentManager,
+                serviceProvider,
                 new ChatExecutionAccessCheckerFactory()
             );
 
-            SqlScriptoriaExecutionContext _executionContext = new();
+
+            IScriptoriaTrace copilotLogger = serviceProvider.GetRequiredService<IScriptoriaTrace>();
+
+            SqlScriptoriaExecutionContext _executionContext = new(copilotLogger);
 
             // we need the current connection context to be able to load the cartridges.  To the connection 
             // context we add what experience this is being loaded into by the client.
             _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!).GetAwaiter().GetResult();
 
-            var activeCartridge = cartridgeBootstrapper.LoadCartridge(builder, _executionContext);
+            var activeCartridge = cartridgeBootstrapper.LoadCartridge();
             activeCartridge.InitializeToolsetsAsync().GetAwaiter().GetResult();
 
             // Assign the kernel’s plugins and chat service
@@ -110,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             return kernel;
         }
     }
+#endif
 
     /// <summary>
     /// 
@@ -156,6 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         private string _queryToCheck = string.Empty;
 
+        private IScriptoriaTrace _copilotLogger;
+
 
         /// <summary>
         /// utility class that is used to evaluate a given script and determine 
@@ -170,12 +179,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         /// </summary>
         /// <param name="vanillaKernel"></param>
         /// <param name="readOnlyProcs"></param>
-        public ChatExecutionAccessChecker(IList<string> readOnlyProcs)
+        public ChatExecutionAccessChecker(IList<string> readOnlyProcs, IScriptoriaTrace copilotLogger)
         {
             ExecutionMode = CopilotAccessModes.READ_WRITE_NEVER;
             ActiveExchangeId = string.Empty;
             _listOfProcs = string.Join(",", readOnlyProcs);
-            ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.ChatSessionStart, $"AccessChecker: list of read only procs:{_listOfProcs}");
+            _copilotLogger = copilotLogger;
+            _copilotLogger.WriteInfoEvent(ScriptoriaTraceEvents.ScriptoriaSessionStart, $"AccessChecker: list of read only procs:{_listOfProcs}");
         }
 
         /// <summary>
@@ -197,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public async Task<string> CheckRequiredRoleAsync(string queryToCheck)
         {
             var shortQueryText = queryToCheck.Length > 30 ? $"{queryToCheck.Substring(0, 30)}..." : queryToCheck;
-            ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall,
+            _copilotLogger.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall,
                 $"Access check on query (first 30 chars shown): {shortQueryText}");
 
             // Generate a new conversation URI
@@ -246,7 +256,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             // Extract and return the required role from the response
             var responseText = responseState.Response?.Trim() ?? ScriptExecutionRequirement.UNKNOWN;
 
-            ScriptoriaTrace.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall,
+            _copilotLogger.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall,
                 $"LLM Response received: {responseText}");
 
             // Map the response to expected enum values
