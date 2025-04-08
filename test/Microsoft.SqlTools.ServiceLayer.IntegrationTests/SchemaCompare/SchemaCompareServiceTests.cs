@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -1211,7 +1211,7 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareOpenScmpSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareOpenScmpTarget");
 
-           try
+            try
             {
                 SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(sourceDb, SchemaCompareEndpointType.Database);
                 SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(targetDb, SchemaCompareEndpointType.Project, true);
@@ -1685,6 +1685,65 @@ WITH VALUES
             finally
             {
                 // cleanup
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify that include/exclude all excludes all comparison differences.
+        /// </summary>
+        [Test]
+        public async Task IncludeExcludeAllWithDacpacToDacpacComparison()
+        {
+            // create dacpacs from databases
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            try
+            {
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+                string targetDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(targetDb);
+
+                var sourceInfo = new SchemaCompareEndpointInfo();
+                var targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpacFilePath;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                targetInfo.PackageFilePath = targetDacpacFilePath;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                var schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, null, null);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
+
+                var includeExcludeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    IncludeRequest = false,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                var includeExcludeAllNodesOperation = new SchemaCompareIncludeExcludeAllNodesOperation(includeExcludeAllNodesParams, schemaCompareOperation.ComparisonResult);
+                includeExcludeAllNodesOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(includeExcludeAllNodesOperation.Success, "Include/Exclude all operation should succeed");
+                Assert.True(includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
