@@ -1722,7 +1722,7 @@ WITH VALUES
                 schemaCompareOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.Equals(3, schemaCompareOperation.ComparisonResult.Differences.Count());
                 Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
                 var includeExcludeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
