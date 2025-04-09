@@ -1736,8 +1736,8 @@ WITH VALUES
                 includeExcludeAllNodesOperation.Execute(TaskExecutionMode.Execute);
 
                 Assert.True(includeExcludeAllNodesOperation.Success, "Include/Exclude all operation should succeed");
-                Assert.True(includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
                 Assert.AreEqual(3, includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
+                Assert.True(includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
