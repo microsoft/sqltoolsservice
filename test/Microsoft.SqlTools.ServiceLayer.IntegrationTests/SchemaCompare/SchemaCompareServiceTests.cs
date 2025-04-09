@@ -1725,19 +1725,35 @@ WITH VALUES
                 Assert.AreEqual(3, schemaCompareOperation.ComparisonResult.Differences.Count());
                 Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
-                var includeExcludeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
+                // Exclude all differences
+                var excludeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
                 {
                     OperationId = schemaCompareOperation.OperationId,
                     IncludeRequest = false,
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                var includeExcludeAllNodesOperation = new SchemaCompareIncludeExcludeAllNodesOperation(includeExcludeAllNodesParams, schemaCompareOperation.ComparisonResult);
-                includeExcludeAllNodesOperation.Execute(TaskExecutionMode.Execute);
+                var excludeAllNodesOperation = new SchemaCompareIncludeExcludeAllNodesOperation(excludeAllNodesParams, schemaCompareOperation.ComparisonResult);
+                excludeAllNodesOperation.Execute(TaskExecutionMode.Execute);
 
-                Assert.True(includeExcludeAllNodesOperation.Success, "Include/Exclude all operation should succeed");
-                Assert.AreEqual(3, includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
-                Assert.True(includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
+                Assert.True(excludeAllNodesOperation.Success, "Exclude all operation should succeed");
+                Assert.AreEqual(3, excludeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
+                Assert.True(excludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
+
+                // Include all differences
+                var includeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    IncludeRequest = true,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                var includeAllNodesOperation = new SchemaCompareIncludeExcludeAllNodesOperation(includeAllNodesParams, schemaCompareOperation.ComparisonResult);
+                includeAllNodesOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(excludeAllNodesOperation.Success, "Include all operation should succeed");
+                Assert.AreEqual(3, includeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
+                Assert.True(includeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == true), "All differences should be included");
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
