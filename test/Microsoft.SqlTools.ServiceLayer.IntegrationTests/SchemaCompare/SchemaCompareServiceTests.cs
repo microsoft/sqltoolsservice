@@ -1722,7 +1722,7 @@ WITH VALUES
                 schemaCompareOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-                Assert.Equals(3, schemaCompareOperation.ComparisonResult.Differences.Count());
+                Assert.AreEqual(3, schemaCompareOperation.ComparisonResult.Differences.Count());
                 Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
                 var includeExcludeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
@@ -1737,6 +1737,7 @@ WITH VALUES
 
                 Assert.True(includeExcludeAllNodesOperation.Success, "Include/Exclude all operation should succeed");
                 Assert.True(includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
+                Assert.AreEqual(3, includeExcludeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
