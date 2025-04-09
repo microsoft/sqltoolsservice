@@ -34,6 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             serviceHost.SetRequestHandler(GenerateScript.Type, HandleGetSchemaDesignerScriptRequest);
             serviceHost.SetRequestHandler(DisposeSession.Type, HandleDisposeSchemaDesignerSessionRequest);
             serviceHost.SetRequestHandler(GetReport.Type, HandleGetSchemaDesignerSessionReportRequest);
+            serviceHost.SetRequestHandler(PublishSession.Type, HandlePublishSchemaDesignerSessionRequest);
             Logger.Verbose("Initialized Schema Designer Service");
         }
 
@@ -94,8 +95,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 Logger.Error(e.Message);
             }
             await requestContext.SendResult(new DisposeSessionResponse());
-
         }
+
+        internal async Task HandlePublishSchemaDesignerSessionRequest(PublishSessionRequest requestParams, RequestContext<PublishSessionResponse> requestContext)
+        {
+            try
+            {
+                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                {
+                    session.PublishSchema();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                await requestContext.SendError(e);
+            }
+            await requestContext.SendResult(new PublishSessionResponse());
+        }
+
 
         internal async Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
         {

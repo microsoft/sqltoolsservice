@@ -125,6 +125,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             return await SchemaDesignerUpdater.GenerateUpdateScripts(_initialSchema, updatedSchema, schemaDesigner);
         }
 
+        public void PublishSchema()
+        {
+            schemaDesigner.PublishChanges();
+        }
+
         public void Dispose()
         {
             TableDesignerCacheManager.InvalidateItem(connectionString);
