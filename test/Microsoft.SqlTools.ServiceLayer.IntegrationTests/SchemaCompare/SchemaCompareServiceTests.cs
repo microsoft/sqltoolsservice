@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -53,22 +53,7 @@ CREATE TABLE Products (
 );
 ";
 
-        private const string TargetScriptWithDependency = @"
-
-CREATE TABLE Customers (
-    CustomerID INT PRIMARY KEY,
-    CustomerName NVARCHAR(100) NOT NULL,
-);
-GO
-
--- Create the Orders table with a foreign key referencing the Customers table
-CREATE TABLE Orders (
-    OrderID INT PRIMARY KEY,
-    CustomerID INT,
-    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
-);
-GO
-";
+        private const string TargetEmptyScript = "";
 
         private const string SourceScript = @"CREATE TABLE [dbo].[table1]
 (
@@ -1740,7 +1725,7 @@ WITH VALUES
         {
             // create dacpacs from databases
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScriptWithDependency, "SchemaCompareSource");
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScriptWithDependency, "SchemaCompareTarget");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetEmptyScript, "SchemaCompareTarget");
             try
             {
                 string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
@@ -1800,6 +1785,74 @@ WITH VALUES
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
                 SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        [Test]
+        public async Task IncludeExcludeAllWithDatabaseToDatabaseComparison()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScriptWithDependency, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetEmptyScript, "SchemaCompareTarget");
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
+
+                // Exclude all differences
+                var excludeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    IncludeRequest = false,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                var excludeAllNodesOperation = new SchemaCompareIncludeExcludeAllNodesOperation(excludeAllNodesParams, schemaCompareOperation.ComparisonResult);
+                excludeAllNodesOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(excludeAllNodesOperation.Success, "Exclude all operation should succeed");
+                Assert.AreEqual(3, excludeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
+                Assert.True(excludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
+
+                // Include all differences
+                var includeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    IncludeRequest = true,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                var includeAllNodesOperation = new SchemaCompareIncludeExcludeAllNodesOperation(includeAllNodesParams, schemaCompareOperation.ComparisonResult);
+                includeAllNodesOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(excludeAllNodesOperation.Success, "Include all operation should succeed");
+                Assert.AreEqual(3, includeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
+                Assert.True(includeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == true), "All differences should be included");
             }
             finally
             {
