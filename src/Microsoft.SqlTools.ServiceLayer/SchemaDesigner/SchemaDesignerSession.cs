@@ -5,11 +5,11 @@
 
 using System;
 using DacSchemaDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.SchemaDesigner;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -19,21 +19,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private string SessionId;
         DacSchemaDesigner schemaDesigner;
         private string connectionString;
+        private string? accessToken;
 
-        public SchemaDesignerSession(string sessionId)
+        public SchemaDesignerSession(string connectionString, string? accessToken)
         {
-            if (!ConnectionService.Instance.TryFindConnection(sessionId, out ConnectionInfo connInfo))
-            {
-                throw new Exception(SR.QueryServiceQueryInvalidOwnerUri);
-            }
-            connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-            SessionId = sessionId;
+            var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
+            connectionStringBuilder.ApplicationName = "SchemaDesigner";
+            // Set Access Token only when authentication mode is not specified.
+            accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
+                ? accessToken : null;
+    
+            this.connectionString = connectionStringBuilder.ConnectionString;
+            this.accessToken = accessToken;
+            SessionId = connectionString;
             this._initialSchema = this.createInitialSchema();
         }
 
         private void CreateOrResetSchemaDesigner()
         {
-            schemaDesigner = new DacSchemaDesigner(connectionString, getAzureToken());
+            schemaDesigner = new DacSchemaDesigner(connectionString, accessToken);
         }
 
         private SchemaDesignerModel createInitialSchema()
@@ -108,15 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
             var dataTypes = schemaDesigner.TableDesigners.First().DataTypes.OrderBy(x => x).ToList();
             return dataTypes;
-        }
-
-        private string getAzureToken()
-        {
-            if (ConnectionService.Instance.TryFindConnection(SessionId, out ConnectionInfo connInfo))
-            {
-                return connInfo.ConnectionDetails.AzureAccountToken;
-            }
-            return null;
         }
 
         public SchemaDesignerModel InitialSchema

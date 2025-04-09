@@ -43,8 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             try
             {
                 string connectionUri = Guid.NewGuid().ToString();
-                var connectionCompleteParams = await SchemaDesignerQueryExecution.CloneConnectionAsync(requestParams.ConnectionUri, connectionUri, requestParams.DatabaseName);
-                var session = new SchemaDesignerSession(connectionUri);
+                var session = new SchemaDesignerSession(requestParams.ConnectionString, requestParams.AccessToken); 
                 sessions.Add(connectionUri, session);
 
                 await requestContext.SendResult(new CreateSessionResponse()
