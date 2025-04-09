@@ -28,6 +28,48 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
     public class SchemaCompareServiceTests
     {
+        private const string SourceScriptWithDependency = @"
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    CustomerName NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    Phone NVARCHAR(20)
+);
+
+-- Create the Orders table with a foreign key referencing the Customers table
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE NOT NULL,
+    TotalAmount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100) NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    StockQuantity INT NOT NULL
+);
+";
+
+        private const string TargetScriptWithDependency = @"
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    CustomerName NVARCHAR(100) NOT NULL,
+);
+GO
+
+-- Create the Orders table with a foreign key referencing the Customers table
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+GO
+";
+
         private const string SourceScript = @"CREATE TABLE [dbo].[table1]
 (
     [ID] INT NOT NULL PRIMARY KEY,
@@ -1697,8 +1739,8 @@ WITH VALUES
         public async Task IncludeExcludeAllWithDacpacToDacpacComparison()
         {
             // create dacpacs from databases
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScriptWithDependency, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScriptWithDependency, "SchemaCompareTarget");
             try
             {
                 string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
