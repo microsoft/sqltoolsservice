@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
                 // context we add what experience this is being loaded into by the client.
-                await _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!);
+                await _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat, sqlService!);
 
 
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 
