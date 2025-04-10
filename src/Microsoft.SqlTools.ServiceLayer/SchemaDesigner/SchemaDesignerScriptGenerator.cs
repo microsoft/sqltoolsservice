@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                 sb.Append($" AS {column.ComputedFormula}");
 
-                if (column.ComputedPersisted)
+                if (column.ComputedPersisted == true)
                 {
                     sb.Append(" PERSISTED");
                 }

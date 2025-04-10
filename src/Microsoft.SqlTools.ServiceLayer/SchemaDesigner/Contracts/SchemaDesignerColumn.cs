@@ -71,6 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the persisted value for the computed column
         /// </summary>
-        public bool ComputedPersisted { get; set; }
+        public bool? ComputedPersisted { get; set; }
     }
 }

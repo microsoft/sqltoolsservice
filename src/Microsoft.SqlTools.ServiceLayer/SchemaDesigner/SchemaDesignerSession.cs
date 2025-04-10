@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             // Set Access Token only when authentication mode is not specified.
             accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
                 ? accessToken : null;
-    
+
             this.connectionString = connectionStringBuilder.ConnectionString;
             this.accessToken = accessToken;
             SessionId = connectionString;
@@ -73,6 +73,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         IdentitySeed = column.IdentitySeed,
                         IdentityIncrement = column.IdentityIncrement,
                         DefaultValue = column.DefaultValue,
+                        IsComputed = column.IsComputed,
+                        ComputedFormula = column.ComputedFormula,
+                        ComputedPersisted = column.IsComputedPersisted,
                     });
                 }
 
@@ -122,9 +125,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         public async Task<GetReportResponse> GetReport(SchemaDesignerModel updatedSchema)
         {
-            this._lastRequestSchema = updatedSchema;
             this.CreateOrResetSchemaDesigner();
-            return await SchemaDesignerUpdater.GenerateUpdateScripts(_initialSchema, updatedSchema, schemaDesigner);
+            var report = await SchemaDesignerUpdater.GenerateUpdateScripts(_initialSchema, updatedSchema, schemaDesigner);
+            this._lastRequestSchema = updatedSchema;
+            return report;
         }
 
         public void PublishSchema()

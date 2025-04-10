@@ -82,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 return new GetReportResponse()
                 {
                     Reports = changeReport.Values.ToList(),
+                    DacReport = schemaDesigner.GeneratePreviewReport(),
                     UpdateScript = schemaDesigner.GenerateScript(),
                 };
             });
@@ -192,40 +193,50 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void SetColumnProperties(TableColumnViewModel viewModel, SchemaDesignerColumn column)
         {
             viewModel.Name = column.Name;
-            viewModel.DataType = column.DataType;
 
-            if (viewModel.CanEditLength && column.MaxLength != null)
+            if (viewModel.IsComputed)
             {
-                viewModel.Length = column.MaxLength;
+                viewModel.IsComputed = column.IsComputed;
+                viewModel.ComputedFormula = column.ComputedFormula;
+                viewModel.IsComputedPersisted = column.ComputedPersisted;
             }
-
-            if (viewModel.CanEditPrecision && column.Precision.HasValue)
+            else
             {
-                viewModel.Precision = column.Precision;
-            }
+                viewModel.DataType = column.DataType;
+                if (viewModel.CanEditLength && column.MaxLength != null)
+                {
+                    viewModel.Length = column.MaxLength;
+                }
 
-            if (viewModel.CanEditScale && column.Scale.HasValue)
-            {
-                viewModel.Scale = column.Scale;
+                if (viewModel.CanEditPrecision && column.Precision.HasValue)
+                {
+                    viewModel.Precision = column.Precision;
+                }
+
+                if (viewModel.CanEditScale && column.Scale.HasValue)
+                {
+                    viewModel.Scale = column.Scale;
+                }
+
+                if (viewModel.CanEditIsIdentity && column.IsIdentity)
+                {
+                    viewModel.IsIdentity = column.IsIdentity;
+                    viewModel.IdentitySeed = column.IdentitySeed;
+                    viewModel.IdentityIncrement = column.IdentityIncrement;
+                }
+
+                viewModel.IsPrimaryKey = column.IsPrimaryKey;
+
+                if (viewModel.CanEditDefaultValue)
+                {
+                    viewModel.DefaultValue = column.DefaultValue;
+                }
+
             }
 
             if (viewModel.CanEditIsNullable)
             {
                 viewModel.IsNullable = column.IsNullable;
-            }
-
-            if (viewModel.CanEditIsIdentity && column.IsIdentity)
-            {
-                viewModel.IsIdentity = column.IsIdentity;
-                viewModel.IdentitySeed = column.IdentitySeed;
-                viewModel.IdentityIncrement = column.IdentityIncrement;
-            }
-
-            viewModel.IsPrimaryKey = column.IsPrimaryKey;
-
-            if (viewModel.CanEditDefaultValue)
-            {
-                viewModel.DefaultValue = column.DefaultValue;
             }
         }
 
@@ -454,6 +465,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static string GetColumnChanges(SchemaDesignerColumn source, SchemaDesignerColumn target)
         {
             var changes = new List<string>();
+            if (source.Name != target.Name)
+            {
+                changes.Add($"name changed from '{source.Name}' to '{target.Name}'");
+            }
+
+            if (source.IsComputed != target.IsComputed)
+            {
+                changes.Add(target.IsComputed ? "added computed property" : "removed computed property");
+            }
+
+            if (source.IsComputed && target.IsComputed && source.ComputedFormula != target.ComputedFormula)
+            {
+                changes.Add($"computed formula changed from '{source.ComputedFormula}' to '{target.ComputedFormula}'");
+            }
+
+            if (source.IsComputed && target.IsComputed && source.ComputedPersisted != target.ComputedPersisted)
+            {
+                changes.Add(target.ComputedPersisted == true ? "added persisted property" : "removed persisted property");
+            }
 
             if (source.DataType != target.DataType)
             {
