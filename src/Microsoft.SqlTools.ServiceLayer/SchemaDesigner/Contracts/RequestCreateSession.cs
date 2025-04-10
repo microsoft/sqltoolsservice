@@ -11,9 +11,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class CreateSessionRequest
     {
         /// <summary>
-        /// URI identifying the connection to perform the action on. Generally the connection is picked from an existing OE connection.
+        /// Gets or sets the connection string to the database. This is required to get the schema model for the database.
         /// </summary>
-        public string ConnectionUri { get; set; }
+        public string ConnectionString { get; set; }
+        /// <summary>
+        /// Gets or sets the access token to the database. This is required to get the schema model for the database.
+        /// </summary>
+        public string? AccessToken { get; set; }
         /// <summary>
         /// Gets or sets the name of the database. Database name is required to get the schema model for the database.
         /// </summary>

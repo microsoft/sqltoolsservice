@@ -102,35 +102,92 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <returns>A string containing SQL for the column definition.</returns>
         public static string GenerateColumnDefinition(SchemaDesignerColumn column)
         {
+            if (string.IsNullOrEmpty(column.Name))
+                throw new System.Exception("Column name cannot be null or empty");
+
             StringBuilder sb = new StringBuilder();
-            sb.Append($"[{column.Name}] {column.DataType}");
+            sb.Append($"[{column.Name}]");
 
-            if (column.MaxLength != null && column.MaxLength == "0")
+            if (column.IsComputed)
             {
-                sb.Append("(0)");
-            }
+                if (string.IsNullOrEmpty(column.ComputedFormula))
+                    throw new System.Exception("Computed column must have a formula");
 
-            // Handle precision and scale only for decimal/numeric types
-            if (column.Precision.HasValue && IsPrecisionBasedType(column.DataType))
-            {
-                if (column.Scale.HasValue)
+                sb.Append($" AS {column.ComputedFormula}");
+
+                if (column.ComputedPersisted == true)
                 {
-                    sb.Append($"({column.Precision},{column.Scale})");
+                    sb.Append(" PERSISTED");
                 }
-                else
+
+                // For computed columns, NOT NULL should be after PERSISTED if specified
+                if (!column.IsNullable)
                 {
-                    sb.Append($"({column.Precision})");
+                    sb.Append(" NOT NULL");
                 }
             }
-
-            if (!column.IsNullable)
+            else
             {
-                sb.Append(" NOT NULL");
-            }
+                sb.Append($" {column.DataType}");
 
-            if (column.IsIdentity)
-            {
-                sb.Append($" IDENTITY({column.IdentitySeed},{column.IdentityIncrement})");
+                // Handle length specification for character and binary types
+                if (IsLengthBasedType(column.DataType))
+                {
+                    if (column.MaxLength == "max" || column.MaxLength?.ToLowerInvariant() == "max")
+                    {
+                        sb.Append("(max)");
+                    }
+                    else if (column.MaxLength == "0")
+                    {
+                        sb.Append("(0)");
+                    }
+                    else if (!string.IsNullOrEmpty(column.MaxLength))
+                    {
+                        if (int.TryParse(column.MaxLength, out int length))
+                        {
+                            sb.Append($"({length})");
+                        }
+                    }
+                }
+
+                // Handle precision and scale for numeric types
+                if (IsPrecisionBasedType(column.DataType) && column.Precision.HasValue)
+                {
+                    if (column.Scale.HasValue)
+                    {
+                        sb.Append($"({column.Precision},{column.Scale})");
+                    }
+                    else
+                    {
+                        sb.Append($"({column.Precision})");
+                    }
+                }
+
+                // Handle datetime2, datetimeoffset, and time which need scale specification
+                if (IsTimeBasedWithScale(column.DataType) && column.Scale.HasValue)
+                {
+                    sb.Append($"({column.Scale})");
+                }
+
+                // Default constraint
+                if (!string.IsNullOrEmpty(column.DefaultValue))
+                {
+                    sb.Append($" DEFAULT {column.DefaultValue}");
+                }
+
+                // Nullability
+                if (!column.IsNullable)
+                {
+                    sb.Append(" NOT NULL");
+                }
+
+                // Identity specification
+                if (column.IsIdentity)
+                {
+                    decimal seed = column.IdentitySeed ?? 1;
+                    decimal increment = column.IdentityIncrement ?? 1;
+                    sb.Append($" IDENTITY({seed},{increment})");
+                }
             }
 
             return sb.ToString();
@@ -167,6 +224,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             string[] precisionBasedTypes = { "decimal", "numeric", "float", "real" };
             return precisionBasedTypes.Contains(dataType.ToLowerInvariant());
+        }
+
+        /// <summary>
+        /// Determines if a data type is time-based and requires scale specification.
+        /// </summary>
+        /// <param name="dataType"> The data type to check.</param>
+        /// <returns>>True if the data type is time-based and requires scale specification; otherwise, false.</returns>
+        private static bool IsTimeBasedWithScale(string dataType)
+        {
+            string[] timeBasedTypes = { "datetime2", "datetimeoffset", "time" };
+            return timeBasedTypes.Contains(dataType.ToLowerInvariant());
         }
 
         /// <summary>

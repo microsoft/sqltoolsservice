@@ -47,13 +47,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public enum OnAction
     {
         /// <summary>
-        /// No action. Do not allow the delete or update of the row from the parent table if there are matching rows in the child table.
-        /// </summary>
-        NO_ACTION = 0,
-        /// <summary>
         /// Cascade action. Delete or update the row from the parent table and automatically delete or update the matching rows in the child table.
         /// </summary>
-        CASCADE = 1,
+        CASCADE = 0,
+        /// <summary>
+        /// No action. Do not allow the delete or update of the row from the parent table if there are matching rows in the child table.
+        /// </summary>
+        NO_ACTION = 1,
         /// <summary>
         /// Set null action. Delete or update the row from the parent table and set the foreign key column or columns in the child table to NULL.
         /// </summary>

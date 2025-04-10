@@ -54,6 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 throw new Exception(connectionCompleteParams.Messages);
             }
 
+            await ConnectionService.Instance.TryRequestRefreshAuthToken(newConnectionParams.OwnerUri);
+
             return connectionCompleteParams;
         }
 

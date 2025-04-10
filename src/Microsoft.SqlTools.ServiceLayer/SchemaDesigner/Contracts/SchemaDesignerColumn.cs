@@ -60,5 +60,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// Gets or sets the default value of the column
         /// </summary>
         public string? DefaultValue { get; set; }
+        /// <summary>
+        /// Gets or sets if the column is a computed column
+        /// </summary>
+        public bool IsComputed { get; set; }
+        /// <summary>
+        /// Gets or sets the formula for the computed column
+        /// </summary>
+        public string? ComputedFormula { get; set; }
+        /// <summary>
+        /// Gets or sets the persisted value for the computed column
+        /// </summary>
+        public bool? ComputedPersisted { get; set; }
     }
 }
