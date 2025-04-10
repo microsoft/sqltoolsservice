@@ -16,6 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class SchemaDesignerSession : IDisposable
     {
         private SchemaDesignerModel _initialSchema;
+        private SchemaDesignerModel _lastRequestSchema;
         private string SessionId;
         DacSchemaDesigner schemaDesigner;
         private string connectionString;
@@ -121,6 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         public async Task<GetReportResponse> GetReport(SchemaDesignerModel updatedSchema)
         {
+            this._lastRequestSchema = updatedSchema;
             this.CreateOrResetSchemaDesigner();
             return await SchemaDesignerUpdater.GenerateUpdateScripts(_initialSchema, updatedSchema, schemaDesigner);
         }
@@ -128,6 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         public void PublishSchema()
         {
             schemaDesigner.PublishChanges();
+            this._initialSchema = this._lastRequestSchema;
         }
 
         public void Dispose()
