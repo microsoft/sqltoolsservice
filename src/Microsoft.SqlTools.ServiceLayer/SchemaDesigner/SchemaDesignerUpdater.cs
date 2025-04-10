@@ -194,11 +194,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             viewModel.Name = column.Name;
 
-            if (viewModel.IsComputed)
+            if (column.IsComputed)
             {
                 viewModel.IsComputed = column.IsComputed;
                 viewModel.ComputedFormula = column.ComputedFormula;
                 viewModel.IsComputedPersisted = column.ComputedPersisted;
+                if (viewModel.CanEditIsComputedPersistedNullable)
+                {
+                    viewModel.IsComputedPersistedNullable = column.IsNullable;
+                }
             }
             else
             {
@@ -401,6 +405,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (sourceColumn.Name != targetColumn.Name)
             {
                 viewModel.Name = targetColumn.Name;
+            }
+
+            if (viewModel.CanEditIsComputed && sourceColumn.IsComputed != targetColumn.IsComputed)
+            {
+                viewModel.IsComputed = targetColumn.IsComputed;
+                viewModel.ComputedFormula = targetColumn.ComputedFormula;
+                viewModel.IsComputedPersisted = targetColumn.ComputedPersisted;
+                if (viewModel.CanEditIsComputedPersistedNullable)
+                {
+                    viewModel.IsComputedPersistedNullable = targetColumn.IsNullable;
+                }
+                return;
             }
 
             // Only update data type if it changed
