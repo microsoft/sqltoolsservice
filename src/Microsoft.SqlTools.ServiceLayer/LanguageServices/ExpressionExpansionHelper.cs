@@ -402,7 +402,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             StringBuilder rowValueTextBuilder = new StringBuilder();
 
+            if(scriptDocumentInfo.Token.Text != ","){
             rowValueTextBuilder.Append(",");
+            }
             rowValueTextBuilder.Append(Environment.NewLine);
             rowValueTextBuilder.Append("(");
 
@@ -432,10 +434,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             rowValueTextBuilder.Remove(rowValueTextBuilder.Length - 2, 2); // Remove the last comma and space
 
             rowValueTextBuilder.Append(')');
-            if (!isLastChild)
+            if (!isLastChild && scriptDocumentInfo.Token.Text == ",")
             {
-                
+                rowValueTextBuilder.Append(",");
             }
+
             string rowValueText = rowValueTextBuilder.ToString();
 
             var StartColumn = scriptDocumentInfo.StartColumn;
