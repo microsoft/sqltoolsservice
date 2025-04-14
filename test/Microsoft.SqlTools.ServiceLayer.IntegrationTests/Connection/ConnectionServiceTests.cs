@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
 using NUnit.Framework;
 
@@ -202,6 +203,68 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
             requestContext.VerifyAll();
+        }
+
+        [Test]
+        public async Task ParseConnectionStringRequest()
+        {
+            ConnectionService service = ConnectionService.Instance;
+
+            ConnectionDetails result = null;
+            bool resultSent = false;
+            string error = null;
+            bool errorSent = false;
+            var requestContext = RequestContextMocks.Create<ConnectionDetails>(r => { result = r; resultSent = true; }).AddErrorHandling((msg, code, data) => { error = msg; errorSent = true; });
+
+            // Validate successful parse
+            await service.HandleParseConnectionStringRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;", requestContext.Object);
+
+            Assert.That(result.ServerName, Is.EqualTo("tcp:{servername},1433"), "Valid connection string should return parsed ConnectionDetails object");
+            Assert.That(errorSent, Is.False, "Valid connection string should not return an error");
+            Assert.That(error, Is.Null, "Valid connection string should not throw an error");
+
+            // Validate error thrown on unsuccessful parse
+            result = null;
+            resultSent = false;
+            error = null;
+            errorSent = false;
+
+            await service.HandleParseConnectionStringRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=NotRealAuthType;", requestContext.Object);
+
+            Assert.That(result, Is.Null, "Invalid connection string should not return ConnectionDetails");
+            Assert.That(resultSent, Is.False, "Invalid connection string should not return anything");
+            Assert.That(error, Is.EqualTo("Invalid value for key 'authentication'."), "Invalid connection string should return error message indicating the issue");
+        }
+
+        [Test]
+        public async Task BuildConnectionInfoRequest()
+        {
+            ConnectionService service = ConnectionService.Instance;
+
+            ConnectionDetails result = null;
+            bool resultSent = false;
+            string error = null;
+            bool errorSent = false;
+            var requestContext = RequestContextMocks.Create<ConnectionDetails>(r => { result = r; resultSent = true; }).AddErrorHandling((msg, code, data) => { error = msg; errorSent = true; });
+
+            // Validate successful parse
+            await service.HandleBuildConnectionInfoRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;", requestContext.Object);
+
+            Assert.That(result.ServerName, Is.EqualTo("tcp:{servername},1433"), "Valid connection string should return parsed ConnectionDetails object");
+            Assert.That(errorSent, Is.False, "Valid connection string should not return an error");
+            Assert.That(error, Is.Null, "Valid connection string should not throw an error");
+
+            // Validate null returned instad of error thrown on unsuccessful parse
+            result = null;
+            resultSent = false;
+            error = null;
+            errorSent = false;
+
+            await service.HandleBuildConnectionInfoRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=NotRealAuthType;", requestContext.Object);
+
+            Assert.That(result, Is.Null, "Invalid connection string response should be null");
+            Assert.That(resultSent, Is.True, "Invalid connection string should return null as result");
+            Assert.That(errorSent, Is.False, "Invalid connection string should not throw an error (instead, null result should have been sent");
         }
     }
 }
