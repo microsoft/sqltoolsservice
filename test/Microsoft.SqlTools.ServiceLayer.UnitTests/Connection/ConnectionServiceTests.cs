@@ -1814,6 +1814,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
             Assert.That(details.CommandTimeout, Is.EqualTo(30), "Unexpected CommandTimeout Timeout value");
+            Assert.That(details.AuthenticationType, Is.EqualTo("SqlLogin"));
         }
 
         /// <summary>
@@ -1839,6 +1840,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
             Assert.That(details.CommandTimeout, Is.EqualTo(30), "Unexpected Command Timeout value");
+            Assert.That(details.AuthenticationType, Is.EqualTo("SqlLogin"));
+        }
+
+        [Test]
+        public void ParseConnectionStringTest_AuthTypes()
+        {
+            ConnectionService service = ConnectionService.Instance;
+
+            // Implicit SqlLogin via username and password
+            string connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};User ID={your_username};Password={your_password};";
+            ConnectionDetails details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("SqlLogin"));
+
+            // Explicit SqlLogin
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=SqlPassword;User ID={your_username};Password={your_password};";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("SqlLogin"));
+
+            // Implicit Integrated auth via Integrated Security=true
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Integrated Security=true;";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("Integrated"));
+
+            // AAD auth types boil down to AzureMFA
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryIntegrated;";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("AzureMFA"));
+
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("AzureMFA"));
+
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryDefault;";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("AzureMFA"));
         }
 
         [Test]
