@@ -1135,6 +1135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
             serviceHost.SetRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest, true);
             serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, false);
+            serviceHost.SetRequestHandler(ParseConnectionStringRequest.Type, HandleParseConnectionStringRequest, true);
         }
 
         /// <summary>
@@ -1680,7 +1681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Handles a request to serialize a connection string
+        /// Handles a request to serialize a connection string.  If parsing fails, returns null.
         /// </summary>
         public async Task HandleBuildConnectionInfoRequest(
             string connectionString,
@@ -1697,6 +1698,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // rather than an error.
                 Logger.Error($"BuildConnectionInfoRequest failed with exception: {ex}");
                 await requestContext.SendResult(null);
+            }
+        }
+
+        // DEVNOTE: HandleBuildConnectionInfoRequest is locked down in Azure Data Studio's core,
+        // so instead adding ParseConnectionStringRequest that returns the error message instead of just null.
+
+        /// <summary>
+        /// Handles a request to parse a connection string into a ConnectionDetails object.
+        /// If parsing fails, sends an error.
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        public async Task HandleParseConnectionStringRequest(
+            string connectionString,
+            RequestContext<ConnectionDetails> requestContext)
+        {
+            Logger.Verbose("ParseConnectionStringRequest");
+            try
+            {
+                await requestContext.SendResult(ParseConnectionString(connectionString));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"ParseConnectionStringRequest failed with exception: {ex}");
+                await requestContext.SendError(ex.Message);
             }
         }
 
@@ -1730,8 +1757,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ApplicationName = defaultBuilder.ApplicationName != builder.ApplicationName ? builder.ApplicationName : ApplicationName,
                 AttachDbFilename = defaultBuilder.AttachDBFilename != builder.AttachDBFilename ? builder.AttachDBFilename.ToString() : null,
                 AuthenticationType = builder.IntegratedSecurity ? "Integrated" :
-                    (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive
-                    ? "AzureMFA" : "SqlLogin"),
+                    ((builder.Authentication == SqlAuthenticationMethod.SqlPassword || builder.Authentication == SqlAuthenticationMethod.NotSpecified)
+                    ? "SqlLogin" : "AzureMFA"),
                 ConnectRetryCount = defaultBuilder.ConnectRetryCount != builder.ConnectRetryCount ? builder.ConnectRetryCount : 1,
                 ConnectRetryInterval = defaultBuilder.ConnectRetryInterval != builder.ConnectRetryInterval ? builder.ConnectRetryInterval : 10,
                 ConnectTimeout = defaultBuilder.ConnectTimeout != builder.ConnectTimeout ? builder.ConnectTimeout : 30,
