@@ -496,8 +496,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(connectionResult, Is.Not.Null.Or.Empty, "check that the connection was successful");
         }
 
+        [Test]
+        public void CreateConnectionStringBuilder_AzureAuth()
+        {
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+            SqlConnectionStringBuilder csb = ConnectionService.CreateConnectionStringBuilder(new ConnectionDetails()
+            {
+                ServerName = "testServer",
+                DatabaseName = "testDatabase",
+                AuthenticationType = AzureMFA
+            });
+
+            Assert.That(csb, Is.Not.Null.Or.Empty, $"Should succeed with AzureMFA and no specified user ID");
+            Assert.That(csb.UserID, Is.Null, "User ID should be null");
+            Assert.That(csb.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive), "AzureMFA should be translated correctly");
+        }
+
         static readonly object[] noUserNameOrPassword =
-    {
+        {
             new object[] {null, null},
             new object[] {null, ""},
             new object[] {"", null},
@@ -507,6 +524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {null, "12345678"},
             new object[] {"", "12345678"},
         };
+
         /// <summary>
         /// Verify that when using integrated authentication, the username and/or password can be empty.
         /// </summary>
