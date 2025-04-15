@@ -1431,7 +1431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case AzureMFA:
                         if (Instance.EnableSqlAuthenticationProvider)
                         {
-                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                            if (string.IsNullOrEmpty(connectionBuilder.UserID) && connectionDetails.UserName != null)
                             {
                                 connectionBuilder.UserID = connectionDetails.UserName;
                             }
