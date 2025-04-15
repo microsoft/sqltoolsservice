@@ -509,8 +509,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             });
 
             Assert.That(csb, Is.Not.Null.Or.Empty, $"Should succeed with AzureMFA and no specified user ID");
-            Assert.That(csb.UserID, Is.Null, "User ID should be null");
+            Assert.That(csb.UserID, Is.EqualTo(String.Empty), "User ID should be empty");
             Assert.That(csb.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive), "AzureMFA should be translated correctly");
+            Assert.That(csb.ToString(), Does.Not.Contain("User ID="), "User ID should not be specified in the resulting connection string.");
         }
 
         static readonly object[] noUserNameOrPassword =
