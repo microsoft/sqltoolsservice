@@ -21,6 +21,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
         }
 
+        public string Id
+        {
+            get
+            {
+                return GetOptionValue<string>("id");
+            }
+            set
+            {
+                SetOptionValue("id", value);
+            }
+        }
+
         /// <summary>
         /// Gets or sets the connection password
         /// </summary>

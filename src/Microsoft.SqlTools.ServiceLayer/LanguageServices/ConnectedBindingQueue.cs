@@ -100,6 +100,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 details.AuthenticationType ?? "NULL"
             );
 
+            if (!string.IsNullOrEmpty(details.Id))
+            {
+                key += "_" + details.Id;
+            }
+
             if (!string.IsNullOrEmpty(details.DatabaseDisplayName))
             {
                 key += "_" + details.DatabaseDisplayName;
