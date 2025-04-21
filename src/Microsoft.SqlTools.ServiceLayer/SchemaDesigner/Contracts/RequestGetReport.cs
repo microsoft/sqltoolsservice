@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 /// <summary>
@@ -25,7 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     /// </summary>
     public class GetReportResponse
     {
-        public List<SchemaDesignerReportObject>? Reports { get; set; }
+        public List<SchemaDesignerChangeReport>? Reports { get; set; }
+        public PreviewReport? DacReport { get; set; }
         public string? UpdateScript { get; set; }
     }
 

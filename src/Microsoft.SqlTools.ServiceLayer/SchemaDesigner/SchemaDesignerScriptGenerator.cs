@@ -102,61 +102,92 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <returns>A string containing SQL for the column definition.</returns>
         public static string GenerateColumnDefinition(SchemaDesignerColumn column)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"[{column.Name}] {column.DataType}");
+            if (string.IsNullOrEmpty(column.Name))
+                throw new System.Exception("Column name cannot be null or empty");
 
-            // Handle length specification for applicable data types
-            if (column.MaxLength.HasValue && column.MaxLength != -1)
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"[{column.Name}]");
+
+            if (column.IsComputed)
             {
+                if (string.IsNullOrEmpty(column.ComputedFormula))
+                    throw new System.Exception("Computed column must have a formula");
+
+                sb.Append($" AS {column.ComputedFormula}");
+
+                if (column.ComputedPersisted == true)
+                {
+                    sb.Append(" PERSISTED");
+                }
+
+                // For computed columns, NOT NULL should be after PERSISTED if specified
+                if (!column.IsNullable)
+                {
+                    sb.Append(" NOT NULL");
+                }
+            }
+            else
+            {
+                sb.Append($" {column.DataType}");
+
+                // Handle length specification for character and binary types
                 if (IsLengthBasedType(column.DataType))
                 {
-                    if (IsBytePairDatatype(column.DataType))
+                    if (column.MaxLength == "max" || column.MaxLength?.ToLowerInvariant() == "max")
                     {
-                        sb.Append($"({column.MaxLength / 2})");
+                        sb.Append("(max)");
+                    }
+                    else if (column.MaxLength == "0")
+                    {
+                        sb.Append("(0)");
+                    }
+                    else if (!string.IsNullOrEmpty(column.MaxLength))
+                    {
+                        if (int.TryParse(column.MaxLength, out int length))
+                        {
+                            sb.Append($"({length})");
+                        }
+                    }
+                }
+
+                // Handle precision and scale for numeric types
+                if (IsPrecisionBasedType(column.DataType) && column.Precision.HasValue)
+                {
+                    if (column.Scale.HasValue)
+                    {
+                        sb.Append($"({column.Precision},{column.Scale})");
                     }
                     else
                     {
-                        sb.Append($"({column.MaxLength})");
+                        sb.Append($"({column.Precision})");
                     }
                 }
-            }
-            else if (column.MaxLength == -1 && IsLengthBasedType(column.DataType))
-            {
-                sb.Append("(MAX)");
-            }
 
-            // Handle precision and scale only for decimal/numeric types
-            if (column.Precision.HasValue && IsPrecisionBasedType(column.DataType))
-            {
-                if (column.Scale.HasValue)
+                // Handle datetime2, datetimeoffset, and time which need scale specification
+                if (IsTimeBasedWithScale(column.DataType) && column.Scale.HasValue)
                 {
-                    sb.Append($"({column.Precision},{column.Scale})");
+                    sb.Append($"({column.Scale})");
                 }
-                else
+
+                // Default constraint
+                if (!string.IsNullOrEmpty(column.DefaultValue))
                 {
-                    sb.Append($"({column.Precision})");
+                    sb.Append($" DEFAULT {column.DefaultValue}");
                 }
-            }
 
-            if (!string.IsNullOrEmpty(column.Collation) && column.Collation != "NULL")
-            {
-                sb.Append($" COLLATE {column.Collation}");
-            }
+                // Nullability
+                if (!column.IsNullable)
+                {
+                    sb.Append(" NOT NULL");
+                }
 
-
-            if (!column.IsNullable)
-            {
-                sb.Append(" NOT NULL");
-            }
-
-            if (column.IsUnique)
-            {
-                sb.Append(" UNIQUE");
-            }
-
-            if (column.IsIdentity)
-            {
-                sb.Append($" IDENTITY({column.IdentitySeed},{column.IdentityIncrement})");
+                // Identity specification
+                if (column.IsIdentity)
+                {
+                    decimal seed = column.IdentitySeed ?? 1;
+                    decimal increment = column.IdentityIncrement ?? 1;
+                    sb.Append($" IDENTITY({seed},{increment})");
+                }
             }
 
             return sb.ToString();
@@ -193,6 +224,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             string[] precisionBasedTypes = { "decimal", "numeric", "float", "real" };
             return precisionBasedTypes.Contains(dataType.ToLowerInvariant());
+        }
+
+        /// <summary>
+        /// Determines if a data type is time-based and requires scale specification.
+        /// </summary>
+        /// <param name="dataType"> The data type to check.</param>
+        /// <returns>>True if the data type is time-based and requires scale specification; otherwise, false.</returns>
+        private static bool IsTimeBasedWithScale(string dataType)
+        {
+            string[] timeBasedTypes = { "datetime2", "datetimeoffset", "time" };
+            return timeBasedTypes.Contains(dataType.ToLowerInvariant());
         }
 
         /// <summary>
