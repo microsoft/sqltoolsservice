@@ -157,20 +157,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                     MaxTokens = 1500
                 };
 
-                var builder = Kernel.CreateBuilder();
-                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation));
+                var vanillaBuilder = Kernel.CreateBuilder();
+                vanillaBuilder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation, RequestMessageType.DirectRequest));
 
+                var builder = Kernel.CreateBuilder();
+                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation, RequestMessageType.ToolCallRequest));
                 userSessionKernel = builder.Build();
                 activitySource.StartActivity("Main");
 
-                // Setup access and tools
-                // var accessChecker = new ExecutionAccessChecker(userSessionKernel);
-                // var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
-                // var currentDbConfig = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
-
-                // Add tools to kernel
-                //builder.Plugins.AddFromObject(sqlExecHelper);
-
+              
                 // Setup cartridges
                 var services = new ServiceCollection();
 
@@ -181,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
                 services.AddSingleton<IScriptoriaExecutionContext, SqlScriptoriaExecutionContext>();
                 services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
-                services.AddSingleton<IKernelBuilder>((sp) => builder);
+                services.AddSingleton<IKernelBuilder>((sp) => vanillaBuilder);
 
                 ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
 
