@@ -27,11 +27,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private readonly IList<ChatTool> copilotTools;
         private readonly CopilotConversation conversation;
         private ChatMessage request;
+        private RequestMessageType requestMessageType;
 
         private VSCodeChatCompletionStream(
             CopilotConversation conversation,
             ChatHistory chat,
-            IList<ChatTool> tools)
+            IList<ChatTool> tools,
+            RequestMessageType requestMessageType)
         {
             Debug.Assert(chat is not null);
             Debug.Assert(tools is not null);
@@ -39,7 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             this.copilotTools = tools;
             this.conversation = conversation;
             this.messages = FromChatMessages(chat);
-            this.tools = FromChatTools(tools);  
+            this.tools = FromChatTools(tools);
+            this.requestMessageType = requestMessageType;
         }
 
         private async Task InitializeAsync()
@@ -52,9 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public static async Task<VSCodeChatCompletionStream> CreateAsync(
             CopilotConversation conversation,
             ChatHistory chat,
-            IList<ChatTool> tools)
+            IList<ChatTool> tools,
+            RequestMessageType requestMessageType)
         {
-            var collection = new VSCodeChatCompletionStream(conversation, chat, tools);
+            var collection = new VSCodeChatCompletionStream(conversation, chat, tools, requestMessageType);
             await collection.InitializeAsync();
             return collection;
         }

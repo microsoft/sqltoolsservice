@@ -16,8 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
     internal class VSCodeLanguageModelEndpoint : ILanguageModelEndpoint
     {
         private CopilotConversation conversation;
+        private RequestMessageType requestMessageType;
 
-        public VSCodeLanguageModelEndpoint(CopilotConversation conversation)
+        public VSCodeLanguageModelEndpoint(CopilotConversation conversation, RequestMessageType requestMessageType)
         {
             this.conversation = conversation;
         }
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             ChatHistory chatHistory, 
             IList<ChatTool> tools)
         {
-            return await VSCodeChatCompletionStream.CreateAsync(conversation, chatHistory, tools);
+            return await VSCodeChatCompletionStream.CreateAsync(conversation, chatHistory, tools, this.requestMessageType);
         }
     }
 }

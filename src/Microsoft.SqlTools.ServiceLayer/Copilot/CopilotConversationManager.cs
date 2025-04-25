@@ -29,6 +29,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
+// using static Microsoft.Scriptoria.Interfaces.IKernelBuilderFactory;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -47,6 +48,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public ConversationState State { get; set; }
         public TaskCompletionSource<ConversationState> CompletionSource { get; set; } = new TaskCompletionSource<ConversationState>();
     }
+
+    //public class KernelBuilderFactory : IKernelBuilderFactory
+    //{
+    //    private readonly CopilotConversation conversation;
+
+    //    public KernelBuilderFactory(CopilotConversation conversation)
+    //    {
+    //        this.conversation = conversation ?? throw new ArgumentNullException(nameof(conversation));
+    //    }
+
+    //    public IKernelBuilder Create(KernelType kernelType)
+    //    {
+    //        var builder = Kernel.CreateBuilder();
+
+    //        switch (kernelType)
+    //        {
+    //            case KernelType.Default:
+    //                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(
+    //                    conversation,
+    //                    RequestMessageType.ToolCallRequest));
+    //                break;
+
+    //            case KernelType.Minion:
+    //                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(
+    //                    conversation,
+    //                    RequestMessageType.DirectRequest));
+    //                break;
+
+    //            default:
+    //                throw new ArgumentOutOfRangeException(nameof(kernelType), kernelType, "Invalid kernel type.");
+    //        }
+
+    //        return builder;
+    //    }
+    //}
 
     public class CopilotConversationManager
     {
@@ -158,18 +194,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 };
 
                 var builder = Kernel.CreateBuilder();
-                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation));
-
+                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation, RequestMessageType.ToolCallRequest));
                 userSessionKernel = builder.Build();
+
+                //var kernelBuilderFactory = new KernelBuilderFactory(conversation);
+                //var builder = kernelBuilderFactory.Create(KernelType.Default);
+                //userSessionKernel = builder.Build();
+
                 activitySource.StartActivity("Main");
-
-                // Setup access and tools
-                // var accessChecker = new ExecutionAccessChecker(userSessionKernel);
-                // var sqlExecHelper = new SqlExecAndParse(rpcClient, accessChecker);
-                // var currentDbConfig = UtilityFunctions.GetCurrentDatabaseAndServerInfo(sqlService).Result;
-
-                // Add tools to kernel
-                //builder.Plugins.AddFromObject(sqlExecHelper);
 
                 // Setup cartridges
                 var services = new ServiceCollection();
@@ -196,20 +228,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 Bootstrapper cartridgeBootstrapper = new Bootstrapper(serviceProvider, new ChatExecutionAccessCheckerFactory());
 
-                //// appsettings.json allows for excluding specific cartridges, toolsets, or tools.  Load these seetings
-                //// into the bootstrapper so it can exclude them from the set of loaded assets
-                //if (serverConfiguration != null)
-                //{
-                //    // set exclusion lists read from appsettings.json
-                //    serverConfiguration.GetSection("PackageExclusions:Cartridges").Bind(cartridgeBootstrapper.ExcludedCartridges);
-                //    serverConfiguration.GetSection("PackageExclusions:Toolsets").Bind(cartridgeBootstrapper.ExcludedToolsets);
-                //    serverConfiguration.GetSection("PackageExclusions:Tools").Bind(cartridgeBootstrapper.ExcludedTools);
-                //}
-
-                // we need the current connection context to be able to load the cartridges.  To the connection 
-                // context we add what experiecnce this is being loaded into by the client.  
-                //var connectionContext = CopilotUtilityFunction.GetCurrentDatabaseAndServerInfo(sqlService!).Result;
-
                 var _executionContext = serviceProvider.GetRequiredService<IScriptoriaExecutionContext>();
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
@@ -222,19 +240,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 // other configuration values will be used by toolsets in the future as well.
                 _activeCartridge = cartridgeBootstrapper.LoadCartridge();
                 await _activeCartridge.InitializeToolsetsAsync();
-
-                // inject the preferred style if the user set it in appsettings or via an API call.
-                //if (!string.IsNullOrEmpty(_preferredResponseStyle))
-                //{
-                //    _activeCartridge.PreferredStyle = _preferredResponseStyle;
-                //}
-
-                // load any memorable facts about the current database and user preferences
-                //_factsManager = new FactsManager(connectionContext[CartridgeContextKeys.DatabaseName]);
-                //if (_memorableFactsEnabled)
-                //{
-                //    _factsManager.LoadMemorableFacts();
-                //}
 
                 // rebuild the kernel with the set of plugins for the current database
                 userSessionKernel = builder.Build();
