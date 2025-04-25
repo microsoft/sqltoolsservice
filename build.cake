@@ -288,53 +288,41 @@ Task("DotnetPack")
     }
 });
 
+/// <summary>
+///  Packages projects specified in FxBuildProjects using available Nuspecs, these projects require that publishing be done first. Note that we
+///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
+///  currently.
+/// </summary>
 Task("NugetPackNuspec")
+    .IsDependentOn("DotnetPack")
     .Does(() =>
 {
-    Information("NugetPackNuspec: Skipped.");
+    foreach (var project in buildPlan.FxBuildProjects)
+    {
+        if (project.SkipPack != null && project.SkipPack)
+        {
+            continue;
+        }
+        // For now, putting all nugets in the 1 directory
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);
+        NugetPackNuspec(outputFolder, projectFolder, project.Name);
+    }
 });
 
+/// <summary>
+///  Packages dotnet tool projects specified in DotnetToolProjects.
+/// </summary>
 Task("DotnetPackServiceTools")
     .Does(() =>
 {
-    Information("DotnetPackServiceTools: Skipped.");
+    foreach (var project in buildPlan.DotnetToolProjects)
+    {
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        DotnetPackNoBuild(outputFolder, projectFolder, project);
+    }
 });
-
-
-// /// <summary>
-// ///  Packages projects specified in FxBuildProjects using available Nuspecs, these projects require that publishing be done first. Note that we
-// ///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
-// ///  currently.
-// /// </summary>
-// Task("NugetPackNuspec")
-//     .IsDependentOn("DotnetPack")
-//     .Does(() =>
-// {
-//     foreach (var project in buildPlan.FxBuildProjects)
-//     {
-//         if (project.SkipPack != null && project.SkipPack)
-//         {
-//             continue;
-//         }
-//         // For now, putting all nugets in the 1 directory
-//         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
-//         var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);
-//         NugetPackNuspec(outputFolder, projectFolder, project.Name);
-//     }
-// });
-// /// <summary>
-// ///  Packages dotnet tool projects specified in DotnetToolProjects.
-// /// </summary>
-// Task("DotnetPackServiceTools")
-//     .Does(() =>
-// {
-//     foreach (var project in buildPlan.DotnetToolProjects)
-//     {
-//         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
-//         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-//         DotnetPackNoBuild(outputFolder, projectFolder, project);
-//     }
-// });
 
 /// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
