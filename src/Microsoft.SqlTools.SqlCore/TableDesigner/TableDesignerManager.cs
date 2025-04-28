@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
         public const string TableDesignerApplicationNameSuffix = "TableDesigner";
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
+        private const string GetSchemaNamesQuery = "SELECT NAME FROM SYS.SCHEMAS";
         private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
         public bool AllowDisableAndReenableDdlTriggers { get; set; } = true;
         public TableDesignerInfo InitializeTableDesigner(TableInfo tableInfo)
@@ -136,7 +137,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
 
             return generatePreviewReportResult;
         }
-        
+
         public bool IsTableDesignerSessionActive(string tableId)
         {
             return this.idTableMap.ContainsKey(tableId);
@@ -787,7 +788,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
 
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
-            tableViewModel.Schema.Values = tableDesigner.Schemas.ToList();
+
+            // We manually get schemas, because table designer does not update schema information on server changes
+            // Issue: https://github.com/microsoft/vscode-mssql/issues/18510
+            var connectionString = this.GetConnectionStringBuilderForTable(tableInfo).ToString();
+            tableViewModel.Schema.Values = this.GetSchemaNames(tableInfo, connectionString);
+
             tableViewModel.Description.Value = table.Description;
             var primaryKey = table.PrimaryKey;
             tableViewModel.PrimaryKeyName.Enabled = primaryKey != null;
@@ -1698,15 +1704,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             Dac.TableDesigner tableDesigner;
             if (tableInfo.TableScriptPath == null)
             {
-                var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-                connectionStringBuilder.InitialCatalog = tableInfo.Database;
-                connectionStringBuilder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
+                var connectionStringBuilder = GetConnectionStringBuilderForTable(tableInfo);
                 var connectionString = connectionStringBuilder.ToString();
-                var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: this.AllowDisableAndReenableDdlTriggers);
-
                 // Set Access Token only when authentication mode is not specified.
                 var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
                     ? tableInfo.AccessToken : null;
+                var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: this.AllowDisableAndReenableDdlTriggers);
 
                 try
                 {
@@ -1821,6 +1824,32 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                     cmd.Parameters.Add(tableParameter);
                 });
             }
+        }
+
+        private SqlConnectionStringBuilder GetConnectionStringBuilderForTable(TableInfo tableInfo)
+        {
+            var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+            connectionStringBuilder.InitialCatalog = tableInfo.Database;
+            connectionStringBuilder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
+            return connectionStringBuilder;
+        }
+
+        private List<string> GetSchemaNames(TableInfo tableInfo, string connectionString)
+        {
+            var schemaNames = new List<string>();
+
+            ReliableConnectionHelper.ExecuteReader(connectionString, GetSchemaNamesQuery, (reader) =>
+            {
+                while (reader.Read())
+                {
+                    if (!reader.IsDBNull(0))
+                    {
+                        schemaNames.Add(reader.GetString(0));
+                    }
+                }
+            });
+
+            return schemaNames;
         }
     }
 }
