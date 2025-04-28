@@ -38,6 +38,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="SqlCopilotCommon">
+      <HintPath>..\..\bin\ref\SqlCopilotCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="ScriptoriaCommonDefs">
+      <HintPath>..\..\bin\ref\ScriptoriaCommonDefs.dll</HintPath>
+    </Reference>
+    <Reference Include="Scriptoria">
+      <HintPath>..\..\bin\ref\Scriptoria.dll</HintPath>
+    </Reference>    
+    <Reference Include="SqlScriptoria">
+      <HintPath>..\..\bin\ref\SqlScriptoria.dll</HintPath>
+    </Reference>
+    <Reference Include="SqlScriptoriaCommon">
+      <HintPath>..\..\bin\ref\SqlScriptoriaCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="YamlDotNet">
+      <HintPath>..\..\bin\ref\YamlDotNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.Storage.Blobs" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
@@ -65,12 +86,16 @@
     </PackageReference>
     <PackageReference Include="TextCopy" />
   </ItemGroup>
+  <ItemGroup Label="Package references">
+    <PackageReference Include="Microsoft.SemanticKernel" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.Connectors.VSCode\Microsoft.SqlTools.Connectors.VSCode.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\Notice.txt">

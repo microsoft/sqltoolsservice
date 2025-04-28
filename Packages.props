@@ -55,6 +55,10 @@
     <PackageReference Update="SkiaSharp" Version="2.88.6" />
     <PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
     <PackageReference Update="TextCopy" Version="6.2.1" />
+    <PackageReference Update="Microsoft.SemanticKernel" Version="1.38.0" />
+
+    <PackageReference Update="OpenAI" Version="2.1.0-beta.2" />
+    <PackageReference Update="System.ClientModel" Version="1.2.1" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
@@ -71,7 +75,6 @@
     <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
     <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageReference Update="System.Composition" Version="8.0.0" />
-    <PackageReference Update="System.Configuration.ConfigurationManager" Version="8.0.0" />
     <PackageReference Update="System.Configuration.ConfigurationManager" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Update="System.Drawing.Common" Version="5.0.3" />
     <PackageReference Update="System.IO.Packaging" Version="9.0.0-rc.2.24473.5" />
