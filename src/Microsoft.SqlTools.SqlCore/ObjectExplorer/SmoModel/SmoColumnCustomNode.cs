@@ -195,6 +195,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     case SqlDataType.VarChar:
                     case SqlDataType.NVarChar:
                     case SqlDataType.VarBinary:
+                    case SqlDataType.Vector:
                         typeName += $"({dataType.MaximumLength})";
                         break;
                     case SqlDataType.Numeric:
