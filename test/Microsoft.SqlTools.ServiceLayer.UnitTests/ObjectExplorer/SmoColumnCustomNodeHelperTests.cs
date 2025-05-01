@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
-    internal class SmoColumnCustomNodeHelperTests
+    public class SmoColumnCustomNodeHelperTests
     {
         [Test]
         public void ShouldCalculateTypeLabels()
