@@ -5733,6 +5733,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>Multi subnet failover</value>
     <comment></comment>
   </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_description" xml:space="preserve">
+    <value>If your application is connecting to an AlwaysOn availability group (AG) on different subnets, setting this to true provides faster detection of and connection to the (currently) active server.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionConfigOptions_multipleActiveResultSets_displayName" xml:space="preserve">
     <value>Multiple active result sets</value>
     <comment></comment>

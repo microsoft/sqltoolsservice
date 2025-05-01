@@ -169,6 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "multiSubnetFailover",
                         DisplayName = SR.ConnectionConfigOptions_multiSubnetFailover_displayName,
+                        Description = SR.ConnectionConfigOptions_multiSubnetFailover_description,
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = GroupNames.General
                     },

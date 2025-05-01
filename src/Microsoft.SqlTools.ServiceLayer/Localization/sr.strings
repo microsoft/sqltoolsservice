@@ -2364,6 +2364,7 @@ ConnectionConfigOptions_attachDbFilename_displayName = Attach DB filename
 ConnectionConfigOptions_failoverPartner_displayName = Failover partner
 ConnectionConfigOptions_failoverPartner_description = the name or network address of the instance of SQL Server that acts as a failover partner
 ConnectionConfigOptions_multiSubnetFailover_displayName = Multi subnet failover
+ConnectionConfigOptions_multiSubnetFailover_description = If your application is connecting to an AlwaysOn availability group (AG) on different subnets, setting this to true provides faster detection of and connection to the (currently) active server.
 ConnectionConfigOptions_multipleActiveResultSets_displayName = Multiple active result sets
 ConnectionConfigOptions_multipleActiveResultSets_description = When true, multiple result sets can be returned and read from one connection
 ConnectionConfigOptions_packetSize_displayName = Packet size

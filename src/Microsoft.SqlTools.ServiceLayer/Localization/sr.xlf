@@ -7038,6 +7038,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Failover and Replication</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_multiSubnetFailover_description">
+        <source>If your application is connecting to an AlwaysOn availability group (AG) on different subnets, setting this to true provides faster detection of and connection to the (currently) active server.</source>
+        <target state="new">If your application is connecting to an AlwaysOn availability group (AG) on different subnets, setting this to true provides faster detection of and connection to the (currently) active server.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

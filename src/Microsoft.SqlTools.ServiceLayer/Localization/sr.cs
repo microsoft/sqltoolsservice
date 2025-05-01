@@ -10575,6 +10575,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_multiSubnetFailover_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_multiSubnetFailover_description);
+            }
+        }
+
         public static string ConnectionConfigOptions_multipleActiveResultSets_displayName
         {
             get
@@ -15127,6 +15135,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionConfigOptions_multiSubnetFailover_displayName = "ConnectionConfigOptions_multiSubnetFailover_displayName";
+
+
+            public const string ConnectionConfigOptions_multiSubnetFailover_description = "ConnectionConfigOptions_multiSubnetFailover_description";
 
 
             public const string ConnectionConfigOptions_multipleActiveResultSets_displayName = "ConnectionConfigOptions_multipleActiveResultSets_displayName";
