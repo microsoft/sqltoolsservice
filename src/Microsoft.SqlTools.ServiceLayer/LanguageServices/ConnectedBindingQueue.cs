@@ -125,9 +125,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             foreach (KeyValuePair<string, object> entry in details.Options.OrderBy(entry => entry.Key))
             {
                 // Filter out properties we already have or don't want (password)
-                if (entry.Key != "server" && entry.Key != "database" && entry.Key != "user"
-                && entry.Key != "authenticationType" && entry.Key != "databaseDisplayName"
-                && entry.Key != "groupId" && entry.Key != "password" && entry.Key != "connectionName")
+                if (
+                    // Exclude properties that are already used above
+                    entry.Key != "server" &&
+                    entry.Key != "database" &&
+                    entry.Key != "user" &&
+                    entry.Key != "authenticationType" &&
+                    entry.Key != "databaseDisplayName" &&
+                    // Exclude strictly-organizational properties that have no bearing on the connection
+                    entry.Key != "connectionName" &&
+                    entry.Key != "groupId" &&
+                    // Exclude secrets/credentials that should never be logged or stored in plaintext
+                    entry.Key != "password" && 
+                    entry.Key != "azureAccountToken")
                 {
                     // Boolean values are explicitly labeled true or false instead of undefined.
                     if (entry.Value is bool v)
