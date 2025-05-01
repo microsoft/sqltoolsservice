@@ -6993,14 +6993,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Security and Encryption</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ConnectionConfigOptions_groups_initialization">
-        <source>Database Initialization</source>
-        <target state="new">Database Initialization</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ConnectionConfigOptions_groups_resiliency">
-        <source>Connection Resiliency &amp; Failover</source>
-        <target state="new">Connection Resiliency &amp; Failover</target>
+        <source>Connection Resiliency</source>
+        <target state="new">Connection Resiliency</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionConfigOptions_groups_pooling">
@@ -7036,6 +7031,11 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ConnectionConfigOptions_attestationProtocol_category_None">
         <source>None</source>
         <target state="new">None</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionConfigOptions_failover_and_replication">
+        <source>Failover and Replication</source>
+        <target state="new">Failover and Replication</target>
         <note></note>
       </trans-unit>
     </body>

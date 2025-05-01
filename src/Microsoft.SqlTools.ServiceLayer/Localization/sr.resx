@@ -5421,12 +5421,12 @@ The Query Processor estimates that implementing the following index could improv
     <value>Security and Encryption</value>
     <comment></comment>
   </data>
-  <data name="ConnectionConfigOptions_groups_initialization" xml:space="preserve">
-    <value>Database Initialization</value>
+  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
+    <value>Connection Resiliency</value>
     <comment></comment>
   </data>
-  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
-    <value>Connection Resiliency &amp; Failover</value>
+  <data name="ConnectionConfigOptions_failover_and_replication" xml:space="preserve">
+    <value>Failover and Replication</value>
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_groups_pooling" xml:space="preserve">
