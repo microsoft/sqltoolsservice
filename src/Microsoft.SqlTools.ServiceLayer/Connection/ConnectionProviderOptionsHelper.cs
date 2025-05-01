@@ -18,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private static class GroupNames
         {
             public const string General = "general";
-            public const string Initialization = "initialization";
             public const string Security = "security";
-            public const string Context = "context";
-            public const string Pooling = "pooling";
             public const string Resiliency = "resiliency";
+            public const string Failover = "failover";
+            public const string Pooling = "pooling";
+            public const string Context = "context";
         }
 
         internal static ConnectionProviderOptions BuildConnectionProviderOptions()
@@ -32,11 +32,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 GroupDisplayNames = new()
                 {
                     [GroupNames.General] = SR.ConnectionConfigOptions_groups_general,
-                    [GroupNames.Initialization] = SR.ConnectionConfigOptions_groups_initialization,
                     [GroupNames.Security] = SR.ConnectionConfigOptions_groups_security,
-                    [GroupNames.Context] = SR.ConnectionConfigOptions_groups_context,
-                    [GroupNames.Pooling] = SR.ConnectionConfigOptions_groups_pooling,
                     [GroupNames.Resiliency] = SR.ConnectionConfigOptions_groups_resiliency,
+                    [GroupNames.Failover] = SR.ConnectionConfigOptions_failover_and_replication,
+                    [GroupNames.Pooling] = SR.ConnectionConfigOptions_groups_pooling,
+                    [GroupNames.Context] = SR.ConnectionConfigOptions_groups_context,
+
                 },
 
                 Options =
@@ -104,6 +105,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
+                        Name = "encrypt",
+                        DisplayName = SR.ConnectionConfigOptions_encrypt_displayName,
+                        Description = SR.ConnectionConfigOptions_encrypt_description,
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        GroupName = GroupNames.Security,
+                        CategoryValues =
+                        [
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Optional, Name = "Optional" },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Mandatory, Name = "Mandatory" },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Strict, Name = "Strict" }
+                        ]
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "trustServerCertificate",
+                        DisplayName = SR.ConnectionConfigOptions_trustServerCertificate_displayName,
+                        Description = SR.ConnectionConfigOptions_trustServerCertificate_description,
+                        GroupName = GroupNames.Security,
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+
+                    #region General options
+                    new ConnectionOption
+                    {
+                        Name = "port",
+                        DisplayName = SR.ConnectionConfigOptions_port_displayName,
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        GroupName = GroupNames.General
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "applicationName",
+                        DisplayName = SR.ConnectionConfigOptions_applicationName_displayName,
+                        Description = SR.ConnectionConfigOptions_applicationName_description,
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = GroupNames.General,
+                        SpecialValueType = ConnectionOption.SpecialValueAppName
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "connectTimeout",
+                        DisplayName = SR.ConnectionConfigOptions_connectTimeout_displayName,
+                        Description = SR.ConnectionConfigOptions_connectTimeout_description,
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        DefaultValue = "30",
+                        GroupName = GroupNames.General
+                    },
+                    new ConnectionOption
+                    {
                         Name = "applicationIntent",
                         DisplayName = SR.ConnectionConfigOptions_applicationIntent_displayName,
                         Description = SR.ConnectionConfigOptions_applicationIntent_description,
@@ -113,34 +163,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             new CategoryValue { Name = "ReadWrite", DisplayName = SR.ConnectionConfigOptions_applicationIntent_category_ReadWrite },
                             new CategoryValue { Name = "ReadOnly", DisplayName = SR.ConnectionConfigOptions_applicationIntent_category_ReadOnly }
                         ],
-                        GroupName = GroupNames.Initialization
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "connectTimeout",
-                        DisplayName = SR.ConnectionConfigOptions_connectTimeout_displayName,
-                        Description = SR.ConnectionConfigOptions_connectTimeout_description,
-                        ValueType = ConnectionOption.ValueTypeNumber,
-                        DefaultValue = "15",
                         GroupName = GroupNames.General
                     },
                     new ConnectionOption
                     {
-                        Name = "commandTimeout",
-                        DisplayName = SR.ConnectionConfigOptions_commandTimeout_displayName,
-                        Description = SR.ConnectionConfigOptions_commandTimeout_description,
-                        ValueType = ConnectionOption.ValueTypeNumber,
-                        DefaultValue = "30",
-                        GroupName = GroupNames.Initialization
+                        Name = "multiSubnetFailover",
+                        DisplayName = SR.ConnectionConfigOptions_multiSubnetFailover_displayName,
+                        Description = SR.ConnectionConfigOptions_multiSubnetFailover_description,
+                        ValueType = ConnectionOption.ValueTypeBoolean,
+                        GroupName = GroupNames.General
                     },
-                    new ConnectionOption
-                    {
-                        Name = "currentLanguage",
-                        DisplayName = SR.ConnectionConfigOptions_currentLanguage_displayName,
-                        Description = SR.ConnectionConfigOptions_currentLanguage_description,
-                        ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = GroupNames.Initialization
-                    },
+                    #endregion
+
+                    # region Security options
                     new ConnectionOption
                     {
                         Name = "columnEncryptionSetting",
@@ -190,31 +225,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "encrypt",
-                        DisplayName = SR.ConnectionConfigOptions_encrypt_displayName,
-                        Description = SR.ConnectionConfigOptions_encrypt_description,
-                        ValueType = ConnectionOption.ValueTypeCategory,
-                        GroupName = GroupNames.Security,
-                        CategoryValues =
-                        [
-                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Optional, Name = "Optional" },
-                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Mandatory, Name = "Mandatory" },
-                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_encrypt_category_Strict, Name = "Strict" }
-                        ]
-                    },
-                    new ConnectionOption
-                    {
                         Name = "persistSecurityInfo",
                         DisplayName = SR.ConnectionConfigOptions_persistSecurityInfo_displayName,
                         Description = SR.ConnectionConfigOptions_persistSecurityInfo_description,
-                        GroupName = GroupNames.Security,
-                        ValueType = ConnectionOption.ValueTypeBoolean
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "trustServerCertificate",
-                        DisplayName = SR.ConnectionConfigOptions_trustServerCertificate_displayName,
-                        Description = SR.ConnectionConfigOptions_trustServerCertificate_description,
                         GroupName = GroupNames.Security,
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
@@ -228,18 +241,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "contextConnection",
-                        DisplayName = SR.ConnectionConfigOptions_contextConnection_displayName,
-                        Description = SR.ConnectionConfigOptions_contextConnection_description,
-                        ValueType = ConnectionOption.ValueTypeBoolean,
-                        GroupName = GroupNames.Context
+                        Name = "typeSystemVersion",
+                        DisplayName = SR.ConnectionConfigOptions_typeSystemVersion_displayName,
+                        Description = SR.ConnectionConfigOptions_typeSystemVersion_description,
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = GroupNames.Security
                     },
+                    #endregion
+
+                    # region Resiliency options
                     new ConnectionOption
                     {
-                        Name = "port",
-                        DisplayName = SR.ConnectionConfigOptions_port_displayName,
+                        Name = "commandTimeout",
+                        DisplayName = SR.ConnectionConfigOptions_commandTimeout_displayName,
+                        Description = SR.ConnectionConfigOptions_commandTimeout_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
-                        GroupName = GroupNames.General
+                        DefaultValue = "30",
+                        GroupName = GroupNames.Resiliency
                     },
                     new ConnectionOption
                     {
@@ -260,23 +278,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         GroupName = GroupNames.Resiliency
 
                     },
+                    #endregion
+
+                    #region Failover options
                     new ConnectionOption
                     {
-                        Name = "applicationName",
-                        DisplayName = SR.ConnectionConfigOptions_applicationName_displayName,
-                        Description = SR.ConnectionConfigOptions_applicationName_description,
-                        ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = GroupNames.General,
-                        SpecialValueType = ConnectionOption.SpecialValueAppName
+                        Name = "replication",
+                        DisplayName = SR.ConnectionConfigOptions_replication_displayName,
+                        Description = SR.ConnectionConfigOptions_replication_description,
+                        ValueType = ConnectionOption.ValueTypeBoolean,
+                        GroupName = GroupNames.Failover
                     },
                     new ConnectionOption
                     {
-                        Name = "workstationId",
-                        DisplayName = SR.ConnectionConfigOptions_workstationId_displayName,
-                        Description = SR.ConnectionConfigOptions_workstationId_description,
+                        Name = "failoverPartner",
+                        DisplayName = SR.ConnectionConfigOptions_failoverPartner_displayName,
+                        Description = SR.ConnectionConfigOptions_failoverPartner_description,
                         ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = GroupNames.Context
+                        GroupName = GroupNames.Failover
                     },
+                    #endregion
+
+                    #region Pooling options
                     new ConnectionOption
                     {
                         Name = "pooling",
@@ -287,17 +310,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "maxPoolSize",
-                        DisplayName = SR.ConnectionConfigOptions_maxPoolSize_displayName,
-                        Description = SR.ConnectionConfigOptions_maxPoolSize_description,
+                        Name = "minPoolSize",
+                        DisplayName = SR.ConnectionConfigOptions_minPoolSize_displayName,
+                        Description = SR.ConnectionConfigOptions_minPoolSize_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = GroupNames.Pooling
                     },
                     new ConnectionOption
                     {
-                        Name = "minPoolSize",
-                        DisplayName = SR.ConnectionConfigOptions_minPoolSize_displayName,
-                        Description = SR.ConnectionConfigOptions_minPoolSize_description,
+                        Name = "maxPoolSize",
+                        DisplayName = SR.ConnectionConfigOptions_maxPoolSize_displayName,
+                        Description = SR.ConnectionConfigOptions_maxPoolSize_description,
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = GroupNames.Pooling
                     },
@@ -311,11 +334,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "replication",
-                        DisplayName = SR.ConnectionConfigOptions_replication_displayName,
-                        Description = SR.ConnectionConfigOptions_replication_description,
+                        Name = "packetSize",
+                        DisplayName = SR.ConnectionConfigOptions_packetSize_displayName,
+                        Description = SR.ConnectionConfigOptions_packetSize_description,
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        GroupName = GroupNames.Pooling
+                    },
+                    #endregion
+
+                    #region Context options
+                    new ConnectionOption
+                    {
+                        Name = "contextConnection",
+                        DisplayName = SR.ConnectionConfigOptions_contextConnection_displayName,
+                        Description = SR.ConnectionConfigOptions_contextConnection_description,
                         ValueType = ConnectionOption.ValueTypeBoolean,
-                        GroupName = GroupNames.Resiliency
+                        GroupName = GroupNames.Context
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "workstationId",
+                        DisplayName = SR.ConnectionConfigOptions_workstationId_displayName,
+                        Description = SR.ConnectionConfigOptions_workstationId_description,
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = GroupNames.Context
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "currentLanguage",
+                        DisplayName = SR.ConnectionConfigOptions_currentLanguage_displayName,
+                        Description = SR.ConnectionConfigOptions_currentLanguage_description,
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = GroupNames.Context
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "multipleActiveResultSets",
+                        DisplayName = SR.ConnectionConfigOptions_multipleActiveResultSets_displayName,
+                        Description = SR.ConnectionConfigOptions_multipleActiveResultSets_description,
+                        ValueType = ConnectionOption.ValueTypeBoolean,
+                        GroupName = GroupNames.Context
                     },
                     new ConnectionOption
                     {
@@ -324,45 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = GroupNames.Context
                     },
-                    new ConnectionOption
-                    {
-                        Name = "failoverPartner",
-                        DisplayName = SR.ConnectionConfigOptions_failoverPartner_displayName,
-                        Description = SR.ConnectionConfigOptions_failoverPartner_description,
-                        ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = GroupNames.Resiliency
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "multiSubnetFailover",
-                        DisplayName = SR.ConnectionConfigOptions_multiSubnetFailover_displayName,
-                        ValueType = ConnectionOption.ValueTypeBoolean,
-                        GroupName = GroupNames.General
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "multipleActiveResultSets",
-                        DisplayName = SR.ConnectionConfigOptions_multipleActiveResultSets_displayName,
-                        Description = SR.ConnectionConfigOptions_multipleActiveResultSets_description,
-                        ValueType = ConnectionOption.ValueTypeBoolean,
-                        GroupName = GroupNames.Initialization
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "packetSize",
-                        DisplayName = SR.ConnectionConfigOptions_packetSize_displayName,
-                        Description = SR.ConnectionConfigOptions_packetSize_description,
-                        ValueType = ConnectionOption.ValueTypeNumber,
-                        GroupName = GroupNames.Pooling
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "typeSystemVersion",
-                        DisplayName = SR.ConnectionConfigOptions_typeSystemVersion_displayName,
-                        Description = SR.ConnectionConfigOptions_typeSystemVersion_description,
-                        ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = GroupNames.Security
-                    }
+                    #endregion
                 ]
             };
         }

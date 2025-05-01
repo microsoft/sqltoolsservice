@@ -9951,19 +9951,19 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ConnectionConfigOptions_groups_initialization
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionConfigOptions_groups_initialization);
-            }
-        }
-
         public static string ConnectionConfigOptions_groups_resiliency
         {
             get
             {
                 return Keys.GetString(Keys.ConnectionConfigOptions_groups_resiliency);
+            }
+        }
+
+        public static string ConnectionConfigOptions_failover_and_replication
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_failover_and_replication);
             }
         }
 
@@ -10572,6 +10572,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.ConnectionConfigOptions_multiSubnetFailover_displayName);
+            }
+        }
+
+        public static string ConnectionConfigOptions_multiSubnetFailover_description
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_multiSubnetFailover_description);
             }
         }
 
@@ -14895,10 +14903,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionConfigOptions_groups_security = "ConnectionConfigOptions_groups_security";
 
 
-            public const string ConnectionConfigOptions_groups_initialization = "ConnectionConfigOptions_groups_initialization";
-
-
             public const string ConnectionConfigOptions_groups_resiliency = "ConnectionConfigOptions_groups_resiliency";
+
+
+            public const string ConnectionConfigOptions_failover_and_replication = "ConnectionConfigOptions_failover_and_replication";
 
 
             public const string ConnectionConfigOptions_groups_pooling = "ConnectionConfigOptions_groups_pooling";
@@ -15127,6 +15135,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionConfigOptions_multiSubnetFailover_displayName = "ConnectionConfigOptions_multiSubnetFailover_displayName";
+
+
+            public const string ConnectionConfigOptions_multiSubnetFailover_description = "ConnectionConfigOptions_multiSubnetFailover_description";
 
 
             public const string ConnectionConfigOptions_multipleActiveResultSets_displayName = "ConnectionConfigOptions_multipleActiveResultSets_displayName";
