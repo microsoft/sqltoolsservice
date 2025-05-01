@@ -444,7 +444,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT
     SCHEMA_NAME AS schema_name,
     SCHEMA_NAME AS object_name,
-    CATALOG_NAME AS parent_name,
+    CATALOG_NAME COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
     SCHEMA_NAME AS display_name,
     'Schema' AS object_type,
     NULL AS object_sub_type
@@ -473,7 +473,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT 
       s.name AS schema_name,
       t.name AS object_name,
-      s.name AS parent_name,
+      s.name COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
       t.name AS display_name,
       'Table' AS object_type,
       NULL AS object_sub_type
@@ -489,7 +489,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     SELECT
         c.TABLE_SCHEMA AS schema_name,
         c.COLUMN_NAME AS object_name,
-        c.TABLE_NAME AS parent_name,
+        c.TABLE_NAME COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
         c.COLUMN_NAME + 
         ' (' +
         CASE 
@@ -537,7 +537,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT
     S.name AS schema_name,
     I.name AS object_name,
-    O.name AS parent_name,
+    O.name COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
     I.name + ' (' +
       CASE WHEN I.is_unique = 1 THEN 'Unique' ELSE 'Non-Unique' END + 
       ', ' +
@@ -565,7 +565,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT
     TABLE_SCHEMA AS schema_name,
     TABLE_NAME AS object_name,
-    TABLE_SCHEMA AS parent_name,
+    TABLE_SCHEMA COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
     TABLE_NAME AS display_name,
     'View' AS object_type,
     NULL AS object_sub_type
@@ -581,7 +581,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT
     SPECIFIC_SCHEMA AS schema_name,
     SPECIFIC_NAME AS object_name,
-    SPECIFIC_SCHEMA AS parent_name,
+    SPECIFIC_SCHEMA COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
     SPECIFIC_NAME AS display_name,
     'StoredProcedure' AS object_type,
     NULL AS object_sub_type
@@ -597,7 +597,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
     SELECT
         S.name AS schema_name,
         P.name AS object_name,
-        O.name AS parent_name,
+        O.name COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
         P.name +  ' (' +  TP.name + ', ' +
         CASE WHEN P.is_output = 1 THEN 'Output' ELSE 'Input' END + ', ' +
         CASE WHEN P.has_default_value = 1 THEN 'Default' ELSE 'No default' END + ')'
@@ -618,7 +618,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT
       S.name AS schema_name,
       P.name AS object_name,
-      S.name AS parent_name,
+      S.name COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
       P.name AS display_name,
       'ScalarFunction' AS object_type,
       NULL AS object_sub_type
@@ -635,7 +635,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT
       S.name AS schema_name,
       P.name AS object_name,
-      S.name AS parent_name,
+      S.name COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
       P.name AS display_name,
       'TableValuedFunction' AS object_type,
       NULL AS object_sub_type
@@ -652,7 +652,7 @@ namespace Microsoft.SqlTools.SqlCore.SimpleObjectExplorer
   SELECT 
       s.name AS schema_name,
       t.name AS object_name,
-      s.name AS parent_name,
+      s.name COLLATE SQL_Latin1_General_CP1_CI_AS AS parent_name,
       t.name AS display_name,
       'Shortcut' AS object_type,
       NULL AS object_sub_type
