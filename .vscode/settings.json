@@ -1,6 +1,7 @@
 {
     "sarif-viewer.connectToGithubCodeScanning": "off",
     "csharp.debug.sourceFileMap": {
-      "/_/src/Microsoft.SqlTools.ServiceLayer": "${workspaceFolder}/src/Microsoft.SqlTools.ServiceLayer"
+      "/_/src/Microsoft.SqlTools.ServiceLayer": "${workspaceFolder}/src/Microsoft.SqlTools.ServiceLayer",
+      "/_/src/Microsoft.SqlTools.SqlCore": "${workspaceFolder}/src/Microsoft.SqlTools.SqlCore",
      }
 }
