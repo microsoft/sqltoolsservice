@@ -5421,12 +5421,12 @@ The Query Processor estimates that implementing the following index could improv
     <value>Security and Encryption</value>
     <comment></comment>
   </data>
-  <data name="ConnectionConfigOptions_groups_initialization" xml:space="preserve">
-    <value>Database Initialization</value>
+  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
+    <value>Connection Resiliency</value>
     <comment></comment>
   </data>
-  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
-    <value>Connection Resiliency &amp; Failover</value>
+  <data name="ConnectionConfigOptions_failover_and_replication" xml:space="preserve">
+    <value>Failover and Replication</value>
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_groups_pooling" xml:space="preserve">
@@ -5731,6 +5731,10 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="ConnectionConfigOptions_multiSubnetFailover_displayName" xml:space="preserve">
     <value>Multi subnet failover</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_description" xml:space="preserve">
+    <value>If your application is connecting to an AlwaysOn availability group (AG) on different subnets, setting this to true provides faster detection of and connection to the (currently) active server.</value>
     <comment></comment>
   </data>
   <data name="ConnectionConfigOptions_multipleActiveResultSets_displayName" xml:space="preserve">

@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        private static string GetTypeSpecifierLabel(DataType dataType, UserDefinedDataTypeCollection uddts)
+        internal static string GetTypeSpecifierLabel(DataType dataType, UserDefinedDataTypeCollection uddts)
         {
             string typeName = string.Empty;
             if (dataType != null)
@@ -210,6 +210,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     case SqlDataType.NVarCharMax:
                     case SqlDataType.VarCharMax:
                         typeName += "(max)";
+                        break;
+                    case SqlDataType.Vector:
+                        // Temporary workaround to convert the maxLength to dimensions for vector types
+                        // until SMO is updated to store the actual dimensions of the vector type.
+                        // https://msdata.visualstudio.com/SQLToolsAndLibraries/_workitems/edit/3906463
+                        // dimensions = (length - 8) / 4
+                        // https://learn.microsoft.com/sql/t-sql/data-types/vector-data-type
+                        typeName += $"({(dataType.MaximumLength - 8) / 4})";
                         break;
                 }
             }

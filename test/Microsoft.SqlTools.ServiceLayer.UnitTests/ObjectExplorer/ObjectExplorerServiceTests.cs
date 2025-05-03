@@ -321,19 +321,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             ObjectExplorerService oeService = new();
 
+            string testPassword = "test_password", testAzureToken = "test_azure_account_token";
+
             await oeService.HandleGetSessionIdRequest(new()
             {
                 ServerName = "serverName",
                 DatabaseName = "msdb",
                 AuthenticationType = SqlConstants.ActiveDirectoryPassword,
                 UserName = "TestUser",
-                Password = "test_password",
+                Password = testPassword,
+                AzureAccountToken = testAzureToken,
                 SecureEnclaves = "fakeEnclave"
 
             }, requestContext.Object);
 
             Assert.That(error, Is.Null, "No error should have been sent for an invalid input");
-            Assert.That(result.SessionId, Does.Not.Contain("test_password"), "Password should not appear in SessionId");
+            Assert.That(result.SessionId, Does.Not.Contain(testPassword), "Password should not appear in SessionId");
+            Assert.That(result.SessionId, Does.Not.Contain(testAzureToken), "AzureAccountToken should not appear in SessionId");
             Assert.That(result.SessionId, Is.EqualTo("serverName_msdb_TestUser_ActiveDirectoryPassword_secureEnclaves:fakeEnclave"), "SessionId not as expected");
 
             // reset
