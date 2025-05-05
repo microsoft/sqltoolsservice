@@ -1705,6 +1705,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ConnectionConfigOptions_failover_and_replication" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failover and Replication]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Basculement et réplication]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ConnectionConfigOptions_groups_context" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Data Source & Context]]></Val>
@@ -1723,15 +1732,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";ConnectionConfigOptions_groups_initialization" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Database Initialization]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Initialisation de la base de données]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";ConnectionConfigOptions_groups_pooling" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Pooling Settings]]></Val>
@@ -1743,10 +1743,13 @@
       </Item>
       <Item ItemId=";ConnectionConfigOptions_groups_resiliency" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Connection Resiliency & Failover]]></Val>
+          <Val><![CDATA[Connection Resiliency]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Résilience de la connexion et basculement]]></Val>
+            <Val><![CDATA[Résilience de la connexion]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Connection Resiliency & Failover]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1807,6 +1810,15 @@
       <Item ItemId=";ConnectionConfigOptions_minPoolSize_displayName" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Min pool size]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionConfigOptions_multiSubnetFailover_description" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[If your application is connecting to an AlwaysOn availability group (AG) on different subnets, setting this to true provides faster detection of and connection to the (currently) active server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Si votre application se connecte à un groupe de disponibilité AlwaysOn dans des sous-réseaux différents, le réglage de ce paramètre sur « true » assure une détection plus rapide du serveur (actuellement) actif et une connexion plus rapide à celui-ci.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
