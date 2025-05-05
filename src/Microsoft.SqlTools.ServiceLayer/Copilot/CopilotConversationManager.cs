@@ -29,7 +29,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
-// using static Microsoft.Scriptoria.Interfaces.IKernelBuilderFactory;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -49,41 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public TaskCompletionSource<ConversationState> CompletionSource { get; set; } = new TaskCompletionSource<ConversationState>();
     }
 
-    //public class KernelBuilderFactory : IKernelBuilderFactory
-    //{
-    //    private readonly CopilotConversation conversation;
-
-    //    public KernelBuilderFactory(CopilotConversation conversation)
-    //    {
-    //        this.conversation = conversation ?? throw new ArgumentNullException(nameof(conversation));
-    //    }
-
-    //    public IKernelBuilder Create(KernelType kernelType)
-    //    {
-    //        var builder = Kernel.CreateBuilder();
-
-    //        switch (kernelType)
-    //        {
-    //            case KernelType.Default:
-    //                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(
-    //                    conversation,
-    //                    RequestMessageType.ToolCallRequest));
-    //                break;
-
-    //            case KernelType.Minion:
-    //                builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(
-    //                    conversation,
-    //                    RequestMessageType.DirectRequest));
-    //                break;
-
-    //            default:
-    //                throw new ArgumentOutOfRangeException(nameof(kernelType), kernelType, "Invalid kernel type.");
-    //        }
-
-    //        return builder;
-    //    }
-    //}
-
     public class CopilotConversationManager
     {
         private static StringBuilder responseHistory = new StringBuilder();
@@ -101,7 +65,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         // active cartridge
         private static CartridgeBase? _activeCartridge = null;
-        // private static ChatHistory? _chatHistory = null;
 
         public CopilotConversationManager()
         {
@@ -196,10 +159,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 var builder = Kernel.CreateBuilder();
                 builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(conversation, RequestMessageType.ToolCallRequest));
                 userSessionKernel = builder.Build();
-
-                //var kernelBuilderFactory = new KernelBuilderFactory(conversation);
-                //var builder = kernelBuilderFactory.Create(KernelType.Default);
-                //userSessionKernel = builder.Build();
 
                 activitySource.StartActivity("Main");
 

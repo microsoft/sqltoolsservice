@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             SchemaDesignerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SchemaDesignerService.Instance);
 			
-			CopilotService.Instance.InitializeService(serviceHost);
+            CopilotService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CopilotService.Instance);
 
             serviceHost.InitializeRequestHandlers();

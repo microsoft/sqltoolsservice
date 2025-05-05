@@ -6,17 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-// using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
 using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
-//using Microsoft.SemanticKernel.ChatCompletion;
-//using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
-//using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
-//using Microsoft.SqlTools.Connectors.VSCode;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
-//using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -33,90 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         }
     }
 
-
-#if false
-    public interface IKernelFactory
-    {
-        Kernel Create();
-    }
-
-
-    /// <summary>
-    /// Factory for creating and configuring <see cref="Kernel"/> instances.
-    /// </summary>
-    public class ChatKernelFactory : IKernelFactory
-    {
-        private readonly CopilotConversation _conversation;
-        private readonly ServiceCollection _services;
-
-        public ChatKernelFactory(CopilotConversation conversation)
-        {
-            _conversation = conversation;
-            _services = new ServiceCollection();
-        }
-
-        /// <inheritdoc />
-        public Kernel Create()
-        {
-            Logger.Verbose("Initializing Chat Session Kernel");
-
-            // Initialize services
-            var sqlService = new SqlExecutionService(_conversation.SqlConnection);
-            var responseHandler = new ChatResponseHandler(_conversation);
-            var rpcClient = new SqlToolsRpcClient(sqlService, responseHandler);
-
-            // Configure OpenAI execution settings
-            var openAIPromptExecutionSettings = new VSCodePromptExecutionSettings
-            {
-                Temperature = 0.0,
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-                MaxTokens = 1500
-            };
-
-            // Create the kernel
-            var builder = Kernel.CreateBuilder();
-            builder.AddVSCodeChatCompletion(new VSCodeLanguageModelEndpoint(_conversation));
-
-            var kernel = builder.Build();
-
-            // Setup Cartridge system
-            _services.AddSingleton<CartridgeContentManager>();
-            _services.AddSingleton<CopilotLogger>();
-            var contentManager = _services.BuildServiceProvider().GetRequiredService<CartridgeContentManager>();
-            contentManager.ContentProviderType = ContentProviderType.Resource;
-
-            Logger.Verbose($"SqlScriptoria version: {contentManager.Version}");
-
-
-            IServiceProvider serviceProvider = _services.BuildServiceProvider();
-
-            var cartridgeBootstrapper = new Bootstrapper(
-                serviceProvider,
-                new ChatExecutionAccessCheckerFactory()
-            );
-
-
-            IScriptoriaTrace copilotLogger = serviceProvider.GetRequiredService<IScriptoriaTrace>();
-
-            SqlScriptoriaExecutionContext _executionContext = new(copilotLogger);
-
-            // we need the current connection context to be able to load the cartridges.  To the connection 
-            // context we add what experience this is being loaded into by the client.
-            _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.SSMS_TsqlEditorChat, sqlService!).GetAwaiter().GetResult();
-
-            var activeCartridge = cartridgeBootstrapper.LoadCartridge();
-            activeCartridge.InitializeToolsetsAsync().GetAwaiter().GetResult();
-
-            // Assign the kernel’s plugins and chat service
-            kernel = builder.Build();
-            var userChatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
-
-            Logger.Verbose("Kernel initialization completed");
-
-            return kernel;
-        }
-    }
-#endif
 
     /// <summary>
     /// 

@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot.Contracts
    
 
     /// <summary>
-    /// TODO
+    /// Request to start a conversation with the Copilot service.
     /// </summary>
     public class StartConversationRequest
     {

@@ -289,7 +289,3 @@ docs/metadata
 
 # Designer Files
 *.Designer.cs
-
-# Ignore copilot files
-bin/SqlCopilot
-bin/nuget/*SemanticKernel*
