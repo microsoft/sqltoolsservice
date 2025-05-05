@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions;
 using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Copilot;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
@@ -182,6 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             SchemaDesignerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SchemaDesignerService.Instance);
+			
+            CopilotService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(CopilotService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }
