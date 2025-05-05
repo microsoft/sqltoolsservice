@@ -461,10 +461,20 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                                 column.Scale = GetInt32Value(newValue);
                                 break;
                             case TableColumnPropertyNames.Type:
-                                column.DataType = GetStringValue(newValue);
-                                break;
                             case TableColumnPropertyNames.AdvancedType:
-                                column.AdvancedDataType = GetStringValue(newValue);
+                                var updatedType = GetStringValue(newValue);
+                                if (propertyNameL2 == TableColumnPropertyNames.AdvancedType)
+                                {
+                                    column.AdvancedDataType = updatedType;
+                                }
+                                else
+                                {
+                                    column.DataType = updatedType;
+                                }
+                                if (updatedType == "vector")
+                                {
+                                    column.Length = "1536";
+                                }
                                 break;
                             case TableColumnPropertyNames.Description:
                                 column.Description = GetStringValue(newValue);
