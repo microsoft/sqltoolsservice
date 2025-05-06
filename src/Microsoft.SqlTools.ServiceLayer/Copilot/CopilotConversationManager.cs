@@ -207,21 +207,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 // read-only is the default startup mode
                 _activeCartridge.AccessChecker.ExecutionMode = CopilotAccessModes.READ_WRITE_NEVER;
 
-                // InitializeChatHistory();
-
-
                 // Initialize chat history
-                var initialSystemMessage = @"System message: YOUR ROLE:
-You are an AI copilot assistant running inside Visual Studio Code and connected to a specific SQL Server database.
-Act as a SQL Server and VS Code SME.
-
-GENERAL REQUIREMENTS:
-- Work step-by-step, do not skip any requirements.
-- **Important**: Do not assume a default schema (e.g. dbo) for database objects when calling tool functions.  If an table does not contain a scehema call the GetTableNames tool lookup the schema before calling other tools with the object name.  This is IMPORTANT or other tools will fail.
-- **Important**: Do not re-call the same tool with identical parameters unless specifically prompted.
-- If a tool has been successfully called, move on to the next step based on the user's query.";
-
-                chatHistory = new ChatHistory(initialSystemMessage);
+                chatHistory = new ChatHistory(_activeCartridge.SystemPrompt);
                 var connectionContextString = JsonConvert.SerializeObject(_executionContext.ContextSettings);
                 chatHistory.AddSystemMessage(
                     $"Configuration information for currently connected database: {connectionContextString}");
