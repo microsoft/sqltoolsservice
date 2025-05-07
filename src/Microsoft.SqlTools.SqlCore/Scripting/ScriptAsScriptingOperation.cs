@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
 
                 // Scripting data is not avaialable in the scripter
                 options.ScriptData = false;
-                SetScriptingOptions(options);
+                SetScriptingOptions(server, options);
 
                 switch (this.Parameters.Operation)
                 {
@@ -578,7 +578,39 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
 
         }
 
-        private void SetScriptingOptions(ScriptingOptions scriptingOptions)
+        private static SqlServerVersion GetCompatibilityOptionFromVersion(Version version)
+        {
+            switch(version.Major)
+            {
+                case 8:
+                    return SqlServerVersion.Version80;
+                case 9:
+                    return SqlServerVersion.Version90;
+                case 10:
+                    if (version.Minor == 50)
+                    {
+                        return SqlServerVersion.Version105;
+                    }
+                    return SqlServerVersion.Version100;
+                case 11:
+                    return SqlServerVersion.Version110;
+                case 12:
+                    return SqlServerVersion.Version120;
+                case 13:
+                    return SqlServerVersion.Version130;
+                case 14:
+                    return SqlServerVersion.Version140;
+                case 15:
+                    return SqlServerVersion.Version150;
+                case 16:
+                    return SqlServerVersion.Version160;
+                case 17:
+                default: //Please update the default value to latest version when a new version is released.
+                    return SqlServerVersion.Version170;
+            }
+        }
+
+        private void SetScriptingOptions(Server server, ScriptingOptions scriptingOptions)
         {
             scriptingOptions.AllowSystemObjects = true;
 
@@ -588,7 +620,11 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             //We always want role memberships for users and database roles to be scripted
             scriptingOptions.IncludeDatabaseRoleMemberships = true;
             SqlServerVersion targetServerVersion;
-            if(scriptCompatibilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
+            if (server.ServerVersion != null)
+            {
+                scriptingOptions.TargetServerVersion = GetCompatibilityOptionFromVersion(server.Version);
+            }
+            else if (scriptCompatibilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
             {
                 scriptingOptions.TargetServerVersion = targetServerVersion;
             }
@@ -596,13 +632,17 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             {
                 //If you are getting this assertion fail it means you are working for higher
                 //version of SQL Server. You need to update this part of code.
-                 Logger.Warning("This part of the code is not updated corresponding to latest version change");
+                Logger.Warning("This part of the code is not updated corresponding to latest version change");
             }
 
             // for cloud scripting to work we also have to have Script Compat set to 105.
             // the defaults from scripting options should take care of it
             SqlScriptOptions.ScriptDatabaseEngineType targetDatabaseEngineType;
-            if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineType>(this.Parameters.ScriptOptions.TargetDatabaseEngineType, out targetDatabaseEngineType))
+            if (server.DatabaseEngineType != null)
+            {
+                scriptingOptions.TargetDatabaseEngineType = server.DatabaseEngineType;
+            }
+            else if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineType>(this.Parameters.ScriptOptions.TargetDatabaseEngineType, out targetDatabaseEngineType))
             {
                 switch (targetDatabaseEngineType)
                 {
@@ -616,7 +656,11 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             }
 
             SqlScriptOptions.ScriptDatabaseEngineEdition targetDatabaseEngineEdition;
-            if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineEdition>(this.Parameters.ScriptOptions.TargetDatabaseEngineEdition, out targetDatabaseEngineEdition))
+            if (server.DatabaseEngineEdition != null)
+            {
+                scriptingOptions.TargetDatabaseEngineEdition = server.DatabaseEngineEdition;
+            }
+            else if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineEdition>(this.Parameters.ScriptOptions.TargetDatabaseEngineEdition, out targetDatabaseEngineEdition))
             {
                 switch (targetDatabaseEngineEdition)
                 {
