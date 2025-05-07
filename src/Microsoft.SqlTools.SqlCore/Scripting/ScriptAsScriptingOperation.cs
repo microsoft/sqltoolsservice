@@ -605,9 +605,8 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 case 16:
                     return SqlServerVersion.Version160;
                 case 17:
+                default: //Please update the default value to latest version when a new version is released.
                     return SqlServerVersion.Version170;
-                default:
-                    return SqlServerVersion.Version140;
             }
         }
 
