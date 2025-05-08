@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             string toolParameters)
         {
 
-            Logger.Verbose($"ProcessNextMessage: Conversation '{conversationUri}' for text '{userText}'");
+            Logger.Verbose($"ProcessNextMessage: Conversation '{conversationUri}'");
 
             if (tool != null && HandleToolCallMessage(conversationUri, tool, toolParameters, out var response))
             {

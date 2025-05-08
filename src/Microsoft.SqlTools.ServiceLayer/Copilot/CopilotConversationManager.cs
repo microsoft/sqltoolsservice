@@ -398,7 +398,6 @@ VERSION AWARENESS:
             }
 
             Logger.Verbose( $"User prompt received.");
-            Logger.Verbose($"Prompt: {userPrompt}");
 
             // track this exchange and its cancellation token
             Logger.Verbose($"Tracking exchange {chatExchangeId}.");
