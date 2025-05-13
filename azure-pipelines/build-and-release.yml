@@ -10,7 +10,7 @@ variables:
   value: '7'
   # Patch version number for the release (should be incremented in release branch once one is created)
 - name: Patch
-  value: '0'
+  value: '1'
 
 stages:
 - stage: Build
