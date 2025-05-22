@@ -568,6 +568,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
+            Hover hover = null;
+
             // check if Quick Info hover tooltips are enabled
             if (CurrentWorkspaceSettings.IsQuickInfoEnabled
                 && !ShouldSkipNonMssqlFile(textDocumentPosition))
@@ -575,17 +577,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
 
-                Hover hover = null;
                 if (scriptFile != null)
                 {
                     hover = GetHoverItem(textDocumentPosition, scriptFile);
                 }
-                if (hover != null)
-                {
-                    await requestContext.SendResult(hover);
-                }
             }
-            await requestContext.SendResult(null);
+            await requestContext.SendResult(hover);
         }
 
         #endregion
