@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using Microsoft.SqlTools.Hosting;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 /**
  * !!! IMPORTANT: DO NOT MOVE THIS CLASS OUT OF MICROSOFT.SQLTOOLS.HOSTING ASSEMBLY !!!
@@ -37,6 +39,7 @@ namespace Microsoft.SqlTools.Utility
         public const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
         private static string? logFileFullPath;
+        public static ServiceHostBase ServiceHost;
 
         public static TraceSource? TraceSource { get; set; }
 
@@ -357,6 +360,19 @@ namespace Microsoft.SqlTools.Utility
             LogEvent logEvent,
             string logMessage)
         {
+            if (ServiceHost != null && ServiceHost.MessageDispatcher != null)
+            {
+                ServiceHost.SendEvent(
+                    LogEventNotification.Type,
+                    new LogEventNotificationParams()
+                    {
+                        EventType = eventType,
+                        LogEvent = logEvent,
+                        LogMessage = logMessage
+                    }
+
+                );
+            }
             // If logger is initialized then use TraceSource else use Trace
             if (TraceSource != null)
             {
@@ -547,5 +563,26 @@ namespace Microsoft.SqlTools.Utility
 
         private bool IsEnabled(TraceOptions opt) => TraceOutputOptions.HasFlag(opt);
 
+    }
+
+    /// <summary>
+    /// Parameters for the log event notification
+    /// </summary>
+    public class LogEventNotificationParams
+    {
+        public TraceEventType EventType { get; set; } = TraceEventType.Information;
+        public LogEvent LogEvent { get; set; } = LogEvent.Default;
+        public string LogMessage { get; set; } = string.Empty;
+    }
+
+    
+    /// <summary>
+    /// Expand notification mapping entry 
+    /// </summary>
+    public class LogEventNotification
+    {
+        public static readonly
+            EventType<LogEventNotificationParams> Type =
+            EventType<LogEventNotificationParams>.Create("logger/event");
     }
 }

@@ -72,6 +72,8 @@ namespace Microsoft.SqlTools.ServiceLayer
                     ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
                 }
 
+                Logger.ServiceHost = serviceHost;
+
                 await serviceHost.WaitForExitAsync();
             }
             catch (Exception ex)
