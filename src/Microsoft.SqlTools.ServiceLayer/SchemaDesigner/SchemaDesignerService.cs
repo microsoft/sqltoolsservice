@@ -68,8 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 await requestContext.SendResult(new GenerateScriptResponse()
                 {
-                    Scripts = SchemaCreationScriptGenerator.GenerateCreateAsScriptForSchemaTables(requestParams.UpdatedSchema),
-                    CombinedScript = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema)
+                    Script = await sessions[requestParams.SessionId].GenerateScript()
                 });
             }
             catch (Exception e)

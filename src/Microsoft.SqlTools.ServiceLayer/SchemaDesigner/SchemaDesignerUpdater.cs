@@ -20,37 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public static class SchemaDesignerUpdater
     {
         /// <summary>
-        /// Adds or updates a report entry for a table modification.
-        /// </summary>
-        private static void TrackTableChange(
-            Dictionary<string, SchemaDesignerChangeReport> reportMap,
-            SchemaDesignerTable table,
-            SchemaDesignerReportTableState tableState,
-            string changeDescription)
-        {
-            string tableId = table.Id.ToString();
-
-            if (reportMap.TryGetValue(tableId, out SchemaDesignerChangeReport? existingReport))
-            {
-                if (tableState > existingReport.TableState)
-                {
-                    existingReport.TableState = tableState;
-                }
-                existingReport.ActionsPerformed.Add(changeDescription);
-            }
-            else
-            {
-                reportMap.Add(tableId, new SchemaDesignerChangeReport
-                {
-                    TableId = table.Id,
-                    TableName = $"{table.Schema}.{table.Name}",
-                    TableState = tableState,
-                    ActionsPerformed = new List<string> { changeDescription }
-                });
-            }
-        }
-
-        /// <summary>
         /// Analyzes two schema models, identifies all differences, and generates a comprehensive
         /// migration script with detailed reporting of all changes.
         /// </summary>
@@ -65,25 +34,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (initialSchema == null) throw new ArgumentNullException(nameof(initialSchema));
             if (updatedSchema == null) throw new ArgumentNullException(nameof(updatedSchema));
 
-            var changeReport = new Dictionary<string, SchemaDesignerChangeReport>();
-
             /**
             * 1. Process new tables and modified tables first to ensure that all new structures are in place before adding foreign keys.
             * 2. Process foreign key changes to ensure that all relationships are established correctly.
             * 3. Finally, process dropped tables to remove any deleted tables and their associated foreign keys.
             */
-            ProcessNewTables(initialSchema, updatedSchema, changeReport, schemaDesigner);
-            ProcessModifiedTables(initialSchema, updatedSchema, changeReport, schemaDesigner);
-            ProcessForeignKeyChanges(initialSchema, updatedSchema, changeReport, schemaDesigner);
-            ProcessDroppedTables(initialSchema, updatedSchema, changeReport, schemaDesigner);
+            ProcessNewTables(initialSchema, updatedSchema, schemaDesigner);
+            ProcessModifiedTables(initialSchema, updatedSchema, schemaDesigner);
+            ProcessForeignKeyChanges(initialSchema, updatedSchema, schemaDesigner);
+            ProcessDroppedTables(initialSchema, updatedSchema, schemaDesigner);
 
             return await Task.Run(() =>
             {
+                var hasSchemaChanged = schemaDesigner.TableDesigners.Count != 0;
                 return new GetReportResponse()
                 {
-                    Reports = changeReport.Values.ToList(),
-                    DacReport = schemaDesigner.GeneratePreviewReport(),
-                    UpdateScript = schemaDesigner.GenerateScript(),
+                    HasSchemaChanged = hasSchemaChanged,
+                    DacReport = hasSchemaChanged ? schemaDesigner.GeneratePreviewReport(): null,
                 };
             });
 
@@ -95,7 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         internal static void ProcessDroppedTables(
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
-            Dictionary<string, SchemaDesignerChangeReport> report,
             DacSchemaDesigner schemaDesigner)
         {
             if (initialSchema?.Tables == null || updatedSchema?.Tables == null) return;
@@ -104,31 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (!updatedSchema.Tables.Any(t => t.Id == sourceTable.Id))
                 {
-
-                    // Drop all foreign keys first
-                    if (sourceTable.ForeignKeys?.Count > 0)
-                    {
-                        foreach (var foreignKey in sourceTable.ForeignKeys)
-                        {
-                            TrackTableChange(
-                                report,
-                                sourceTable,
-                                SchemaDesignerReportTableState.DROPPED,
-                                $"Dropping foreign key '{foreignKey.Name}' that referenced table '{foreignKey.ReferencedSchemaName}.{foreignKey.ReferencedTableName}'"
-                            );
-                        }
-                    }
-
                     // Mark for drop in designer
                     schemaDesigner.TablesMarkedForDrop.Add([sourceTable.Schema, sourceTable.Name]);
-
-                    // Log the change
-                    TrackTableChange(
-                        report,
-                        sourceTable,
-                        SchemaDesignerReportTableState.DROPPED,
-                        $"Dropping table '{sourceTable.Schema}.{sourceTable.Name}'"
-                    );
                 }
             }
         }
@@ -139,7 +82,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void ProcessNewTables(
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
-            Dictionary<string, SchemaDesignerChangeReport> report,
             DacSchemaDesigner schemaDesigner)
         {
             if (initialSchema?.Tables == null || updatedSchema?.Tables == null) return;
@@ -157,14 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         // Add columns
                         AddColumnsToTableDesigner(tableDesigner, targetTable.Columns);
                     }
-
-                    // Log the change
-                    TrackTableChange(
-                        report,
-                        targetTable,
-                        SchemaDesignerReportTableState.CREATED,
-                        $"Creating new table '{targetTable.Schema}.{targetTable.Name}' with {targetTable.Columns?.Count ?? 0} column(s)"
-                    );
                 }
             }
         }
@@ -253,7 +187,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void ProcessModifiedTables(
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
-            Dictionary<string, SchemaDesignerChangeReport> changeReport,
             DacSchemaDesigner sd)
         {
             if (initialSchema?.Tables == null || updatedSchema?.Tables == null) return;
@@ -265,51 +198,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 if (updatedTable != null && !SchemaDesignerUtils.DeepCompareTable(initialTable, updatedTable))
                 {
                     var tableDesigner = sd.GetTableDesigner(initialTable.Schema, initialTable.Name);
-                    bool hasChanges = false;
 
                     // Update table name if changed
                     if (initialTable.Name != updatedTable.Name)
                     {
                         tableDesigner.TableViewModel.Name = updatedTable.Name;
-                        TrackTableChange(
-                            changeReport,
-                            updatedTable,
-                            SchemaDesignerReportTableState.UPDATED,
-                            $"Renaming table from '{initialTable.Name}' to '{updatedTable.Name}'"
-                        );
-                        hasChanges = true;
                     }
 
                     // Update table name if changed
                     if (initialTable.Schema != updatedTable.Schema)
                     {
                         tableDesigner.TableViewModel.Schema = updatedTable.Schema;
-                        TrackTableChange(
-                            changeReport,
-                            updatedTable,
-                            SchemaDesignerReportTableState.UPDATED,
-                            $"Moving table from schema '{initialTable.Schema}' to schema '{updatedTable.Schema}'"
-                        );
-                        hasChanges = true;
                     }
 
                     // Process column changes
-                    if (UpdateTableColumns(initialTable, updatedTable, changeReport, tableDesigner))
-                    {
-                        hasChanges = true;
-                    }
-
-                    // If there were any modifications, add them to the migration script
-                    if (hasChanges)
-                    {
-                        TrackTableChange(
-                            changeReport,
-                            updatedTable,
-                            SchemaDesignerReportTableState.UPDATED,
-                            $"Updating table structure for '{updatedTable.Schema}.{updatedTable.Name}'"
-                        );
-
-                    }
+                    UpdateTableColumns(initialTable, updatedTable, tableDesigner);
                 }
             }
         }
@@ -317,15 +220,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Update columns in an existing table
         /// </summary>
-        private static bool UpdateTableColumns(
+        private static void UpdateTableColumns(
             SchemaDesignerTable initialTable,
             SchemaDesignerTable updatedTable,
-            Dictionary<string, SchemaDesignerChangeReport> report,
             DacTableDesigner tableDesigner)
         {
-            if (initialTable.Columns == null || updatedTable.Columns == null) return false;
+            if (initialTable.Columns == null || updatedTable.Columns == null) return;
 
-            bool hasChanges = false;
             int index = 0;
 
             // First drop columns that don't exist in the target
@@ -334,14 +235,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 if (!updatedTable.Columns.Any(c => c.Id == sourceColumn.Id))
                 {
                     tableDesigner.TableViewModel.Columns.RemoveAt(index);
-
-                    TrackTableChange(
-                        report,
-                        updatedTable,
-                        SchemaDesignerReportTableState.UPDATED,
-                        $"Dropping column '{sourceColumn.Name}' of type '{sourceColumn.DataType}'"
-                    );
-                    hasChanges = true;
                 }
                 else
                 {
@@ -361,15 +254,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     tableDesigner.TableViewModel.Columns.AddNew();
                     var newCol = tableDesigner.TableViewModel.Columns.Items.Last();
                     SetColumnProperties(newCol, targetColumn);
-
-                    TrackTableChange(
-                        report,
-                        updatedTable,
-                        SchemaDesignerReportTableState.UPDATED,
-                        $"Adding new column '{targetColumn.Name}' of type '{targetColumn.DataType}'"
-                    );
-
-                    hasChanges = true;
                 }
                 else if (sourceColumn != null && !SchemaDesignerUtils.DeepCompareColumn(sourceColumn, targetColumn))
                 {
@@ -378,19 +262,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                     // Only update properties that have changed
                     UpdateColumnProperties(viewModel, sourceColumn, targetColumn);
-
-                    TrackTableChange(
-                        report,
-                        updatedTable,
-                        SchemaDesignerReportTableState.UPDATED,
-                        $"Modifying column '{targetColumn.Name}' ({GetColumnChanges(sourceColumn, targetColumn)})"
-                    );
-
-                    hasChanges = true;
                 }
             }
-
-            return hasChanges;
         }
 
         /// <summary>
@@ -476,90 +349,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         }
 
         /// <summary>
-        /// Creates a description of column changes
-        /// </summary>
-        private static string GetColumnChanges(SchemaDesignerColumn source, SchemaDesignerColumn target)
-        {
-            var changes = new List<string>();
-            if (source.Name != target.Name)
-            {
-                changes.Add($"name changed from '{source.Name}' to '{target.Name}'");
-            }
-
-            if (source.IsComputed != target.IsComputed)
-            {
-                changes.Add(target.IsComputed ? "added computed property" : "removed computed property");
-            }
-
-            if (source.IsComputed && target.IsComputed && source.ComputedFormula != target.ComputedFormula)
-            {
-                changes.Add($"computed formula changed from '{source.ComputedFormula}' to '{target.ComputedFormula}'");
-            }
-
-            if (source.IsComputed && target.IsComputed && source.ComputedPersisted != target.ComputedPersisted)
-            {
-                changes.Add(target.ComputedPersisted == true ? "added persisted property" : "removed persisted property");
-            }
-
-            if (source.DataType != target.DataType)
-            {
-                changes.Add($"type changed from '{source.DataType}' to '{target.DataType}'");
-            }
-
-            if (source.MaxLength != target.MaxLength)
-            {
-                string sourceLength = source.MaxLength?.ToString() ?? "NULL";
-                string targetLength = target.MaxLength?.ToString() ?? "NULL";
-                changes.Add($"length changed from {sourceLength} to {targetLength}");
-            }
-
-            if (source.Precision != target.Precision || source.Scale != target.Scale)
-            {
-                string sourcePrecision = source.Precision?.ToString() ?? "NULL";
-                string sourceScale = source.Scale.HasValue ? $",{source.Scale}" : "";
-                string targetPrecision = target.Precision?.ToString() ?? "NULL";
-                string targetScale = target.Scale.HasValue ? $",{target.Scale}" : "";
-
-                changes.Add($"precision/scale changed from ({sourcePrecision}{sourceScale}) to ({targetPrecision}{targetScale})");
-            }
-
-            if (source.IsNullable != target.IsNullable)
-            {
-                changes.Add($"nullability changed from {(source.IsNullable ? "NULL" : "NOT NULL")} to {(target.IsNullable ? "NULL" : "NOT NULL")}");
-            }
-
-            if (source.IsPrimaryKey != target.IsPrimaryKey)
-            {
-                changes.Add(target.IsPrimaryKey ? "added to primary key" : "removed from primary key");
-            }
-
-            if (source.IsIdentity != target.IsIdentity)
-            {
-                changes.Add(target.IsIdentity ? "added identity property" : "removed identity property");
-            }
-            else if (source.IsIdentity && target.IsIdentity &&
-                    (source.IdentitySeed != target.IdentitySeed || source.IdentityIncrement != target.IdentityIncrement))
-            {
-                changes.Add($"identity values changed from ({source.IdentitySeed},{source.IdentityIncrement}) to ({target.IdentitySeed},{target.IdentityIncrement})");
-            }
-
-            if (source.DefaultValue != target.DefaultValue)
-            {
-                string sourceDefault = string.IsNullOrEmpty(source.DefaultValue) ? "NULL" : source.DefaultValue;
-                string targetDefault = string.IsNullOrEmpty(target.DefaultValue) ? "NULL" : target.DefaultValue;
-                changes.Add($"default value changed from {sourceDefault} to {targetDefault}");
-            }
-
-            return string.Join(", ", changes);
-        }
-
-        /// <summary>
         /// Processes all foreign key changes across schemas - adding new, modifying existing, and dropping removed foreign keys.
         /// </summary>
         private static void ProcessForeignKeyChanges(
             SchemaDesignerModel initialSchema,
             SchemaDesignerModel updatedSchema,
-            Dictionary<string, SchemaDesignerChangeReport> changeReport,
             DacSchemaDesigner schemaDesigner)
         {
             if (initialSchema?.Tables == null || updatedSchema?.Tables == null) return;
@@ -575,13 +369,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     if (targetTable.ForeignKeys?.Count > 0)
                     {
                         var tableDesigner = schemaDesigner.GetTableDesigner(targetTable.Schema, targetTable.Name);
-                        AddForeignKeysToTableDesigner(tableDesigner, targetTable, targetTable.ForeignKeys, changeReport);
+                        AddForeignKeysToTableDesigner(tableDesigner, targetTable, targetTable.ForeignKeys);
                     }
                 }
                 else
                 {
                     // For existing tables, process foreign key changes
-                    UpdateTableForeignKeys(sourceTable, targetTable, changeReport, schemaDesigner);
+                    UpdateTableForeignKeys(sourceTable, targetTable, schemaDesigner);
                 }
             }
         }
@@ -592,21 +386,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void AddForeignKeysToTableDesigner(
             DacTableDesigner tableDesigner,
             SchemaDesignerTable table,
-            List<SchemaDesignerForeignKey> foreignKeys,
-            Dictionary<string, SchemaDesignerChangeReport> report)
+            List<SchemaDesignerForeignKey> foreignKeys)
         {
             foreach (var fk in foreignKeys)
             {
                 tableDesigner.TableViewModel.ForeignKeys.AddNew();
                 var sdForeignKey = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
                 SetForeignKeyProperties(sdForeignKey, fk);
-
-                TrackTableChange(
-                    report,
-                    table,
-                    SchemaDesignerReportTableState.CREATED,
-                    $"Adding foreign key '{fk.Name}' to reference table '{fk.ReferencedSchemaName}.{fk.ReferencedTableName}'"
-                );
             }
         }
 
@@ -639,12 +425,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void UpdateTableForeignKeys(
             SchemaDesignerTable initialTable,
             SchemaDesignerTable updatedTable,
-            Dictionary<string, SchemaDesignerChangeReport> report,
             DacSchemaDesigner designer)
         {
             if (initialTable.ForeignKeys == null && updatedTable.ForeignKeys == null) return;
-
-            var tableDesigner = designer.GetTableDesigner(updatedTable.Schema, updatedTable.Name);
 
             // Remove foreign keys that don't exist in the target
             if (initialTable.ForeignKeys != null)
@@ -654,14 +437,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     var sourceFk = initialTable.ForeignKeys[i];
                     if (updatedTable.ForeignKeys == null || !updatedTable.ForeignKeys.Any(fk => fk.Id == sourceFk.Id))
                     {
+                        var tableDesigner = designer.GetTableDesigner(updatedTable.Schema, updatedTable.Name);
                         tableDesigner.TableViewModel.ForeignKeys.RemoveAt(i);
-
-                        TrackTableChange(
-                            report,
-                            updatedTable,
-                            SchemaDesignerReportTableState.UPDATED,
-                            $"Removing foreign key '{sourceFk.Name}' that referenced table '{sourceFk.ReferencedSchemaName}.{sourceFk.ReferencedTableName}'"
-                        );
                     }
                 }
             }
@@ -675,86 +452,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                     if (sourceFk == null)
                     {
+                        var tableDesigner = designer.GetTableDesigner(updatedTable.Schema, updatedTable.Name);
                         // Add new foreign key
                         tableDesigner.TableViewModel.ForeignKeys.AddNew();
                         var newFk = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
                         SetForeignKeyProperties(newFk, targetFk);
-
-                        TrackTableChange(
-                            report,
-                            updatedTable,
-                            SchemaDesignerReportTableState.UPDATED,
-                            $"Adding new foreign key '{targetFk.Name}' to reference table '{targetFk.ReferencedSchemaName}.{targetFk.ReferencedTableName}'"
-                        );
                     }
                     else if (!SchemaDesignerUtils.DeepCompareForeignKey(sourceFk, targetFk))
                     {
+                        var tableDesigner = designer.GetTableDesigner(updatedTable.Schema, updatedTable.Name);
                         // Update existing foreign key
                         int index = tableDesigner.TableViewModel.ForeignKeys.Items.ToList().FindIndex(fk => fk.Name == sourceFk.Name);
                         if (index >= 0)
                         {
                             var viewModel = tableDesigner.TableViewModel.ForeignKeys.Items[index];
                             SetForeignKeyProperties(viewModel, targetFk);
-
-                            TrackTableChange(
-                                report,
-                                updatedTable,
-                                SchemaDesignerReportTableState.UPDATED,
-                                $"Modifying foreign key '{targetFk.Name}' ({GetForeignKeyChanges(sourceFk, targetFk)})"
-                            );
                         }
                     }
                 }
             }
         }
-
-        /// <summary>
-        /// Creates a description of foreign key changes
-        /// </summary>
-        private static string GetForeignKeyChanges(SchemaDesignerForeignKey source, SchemaDesignerForeignKey target)
-        {
-            var changes = new List<string>();
-
-            if (source.ReferencedTableName != target.ReferencedTableName ||
-                source.ReferencedSchemaName != target.ReferencedSchemaName)
-            {
-                changes.Add($"reference changed from '{source.ReferencedSchemaName}.{source.ReferencedTableName}' to '{target.ReferencedSchemaName}.{target.ReferencedTableName}'");
-            }
-
-            if (!SequenceEqual(source.Columns, target.Columns))
-            {
-                changes.Add($"columns changed from ({JoinStrings(source.Columns)}) to ({JoinStrings(target.Columns)})");
-            }
-
-            if (!SequenceEqual(source.ReferencedColumns, target.ReferencedColumns))
-            {
-                changes.Add($"referenced columns changed from ({JoinStrings(source.ReferencedColumns)}) to ({JoinStrings(target.ReferencedColumns)})");
-            }
-
-            if (source.OnDeleteAction != target.OnDeleteAction)
-            {
-                changes.Add($"ON DELETE action changed from {source.OnDeleteAction} to {target.OnDeleteAction}");
-            }
-
-            if (source.OnUpdateAction != target.OnUpdateAction)
-            {
-                changes.Add($"ON UPDATE action changed from {source.OnUpdateAction} to {target.OnUpdateAction}");
-            }
-
-            return string.Join(", ", changes);
-        }
-
-        private static bool SequenceEqual<T>(List<T> list1, List<T> list2)
-        {
-            if (list1 == null && list2 == null) return true;
-            if (list1 == null || list2 == null) return false;
-            return list1.SequenceEqual(list2);
-        }
-
-        private static string JoinStrings(List<string> strings)
-        {
-            return strings == null ? "" : string.Join(", ", strings);
-        }
-
     }
 }
