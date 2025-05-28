@@ -43,25 +43,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return this.HandleRequest<CreateSessionResponse>(requestContext, async () =>
             {
-                try
-                {
-                    string connectionUri = Guid.NewGuid().ToString();
-                    var session = new SchemaDesignerSession(requestParams.ConnectionString, requestParams.AccessToken);
-                    sessions.Add(connectionUri, session);
+                string connectionUri = Guid.NewGuid().ToString();
+                var session = new SchemaDesignerSession(requestParams.ConnectionString, requestParams.AccessToken);
+                sessions.Add(connectionUri, session);
 
-                    await requestContext.SendResult(new CreateSessionResponse()
-                    {
-                        Schema = session.InitialSchema,
-                        DataTypes = session.AvailableDataTypes(),
-                        SchemaNames = session.AvailableSchemas(),
-                        SessionId = connectionUri,
-                    });
-                }
-                catch (Exception e)
+                await requestContext.SendResult(new CreateSessionResponse()
                 {
-                    Logger.Error(e.Message);
-                    await requestContext.SendError(e);
-                }
+                    Schema = session.InitialSchema,
+                    DataTypes = session.AvailableDataTypes(),
+                    SchemaNames = session.AvailableSchemas(),
+                    SessionId = connectionUri,
+                });
             });
 
         }
@@ -70,19 +62,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return this.HandleRequest<GenerateScriptResponse>(requestContext, async () =>
             {
-                try
+                await requestContext.SendResult(new GenerateScriptResponse()
                 {
-                    await requestContext.SendResult(new GenerateScriptResponse()
-                    {
-                        Scripts = SchemaCreationScriptGenerator.GenerateCreateAsScriptForSchemaTables(requestParams.UpdatedSchema),
-                        CombinedScript = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema)
-                    });
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e.Message);
-                    await requestContext.SendError(e);
-                }
+                    Scripts = SchemaCreationScriptGenerator.GenerateCreateAsScriptForSchemaTables(requestParams.UpdatedSchema),
+                    CombinedScript = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema)
+                });
             });
 
         }
@@ -113,17 +97,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return this.HandleRequest<PublishSessionResponse>(requestContext, async () =>
             {
-                try
+                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
                 {
-                    if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
-                    {
-                        session.PublishSchema();
-                    }
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e.Message);
-                    await requestContext.SendError(e);
+                    session.PublishSchema();
                 }
                 await requestContext.SendResult(new PublishSessionResponse());
             });
@@ -136,15 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 SchemaDesignerSession session = sessions[requestParams.SessionId];
                 var report = await session.GetReport(requestParams.UpdatedSchema);
-                try
-                {
-                    await requestContext.SendResult(report);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e.Message);
-                    await requestContext.SendError(e);
-                }
+                await requestContext.SendResult(report);
             });
         }
 
@@ -160,6 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 }
                 catch (Exception e)
                 {
+                    Logger.Error(e.Message);
                     await requestContext.SendError(e);
                 }
             });
