@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.SqlCore.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -70,27 +71,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return Task.FromResult(0);
         }
 
-        private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
-        {
-            // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
-            // For any specific table designer instance, ADS UI can make sure there are at most one request being processed at any given time, so we don't have to worry about race conditions.
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await action();
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(e);
-                }
-            });
-            return Task.CompletedTask;
-        }
-
         private Task HandleInitializeTableDesignerRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
         {
-            return this.HandleRequest<TableDesignerInfo>(requestContext, async () =>
+            return Utils.HandleRequest<TableDesignerInfo>(requestContext, async () =>
             {
                 await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo));
             });
@@ -98,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)
         {
-            return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
+            return Utils.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
                 await requestContext.SendResult(this.tableDesignerManager.TableDesignerEdit(requestParams));
             });
@@ -106,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Task HandlePublishTableChangesRequest(TableInfo tableInfo, RequestContext<PublishTableChangesResponse> requestContext)
         {
-            return this.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
+            return Utils.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
                 await requestContext.SendResult(this.tableDesignerManager.PublishTableChanges(tableInfo));
             });
@@ -114,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Task HandleGenerateScriptRequest(TableInfo tableInfo, RequestContext<string> requestContext)
         {
-            return this.HandleRequest<string>(requestContext, async () =>
+            return Utils.HandleRequest<string>(requestContext, async () =>
             {
                 await requestContext.SendResult(this.tableDesignerManager.GenerateScript(tableInfo));
             });
@@ -122,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<GeneratePreviewReportResult> requestContext)
         {
-            return this.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
+            return Utils.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
                 await requestContext.SendResult(this.tableDesignerManager.GeneratePreviewReport(tableInfo));
             });
@@ -130,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
         {
-            return this.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
+            return Utils.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
             {
                 this.tableDesignerManager.DisposeTableDesigner(tableInfo);
                 await requestContext.SendResult(new DisposeTableDesignerResponse());

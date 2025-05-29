@@ -11,6 +11,9 @@ using System.Globalization;
 using Microsoft.SqlServer.Management.Common;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.SqlCore.Utility;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
@@ -255,6 +258,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             CultureInfo currentCulture = System.Threading.Thread.CurrentThread.CurrentCulture;
             return currentCulture.DateTimeFormat.Calendar.MaxSupportedDateTime;
+        }
+
+        /// <summary>
+        // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
+        // The caller needs to handle the race conditions where multiple requests are being processed at the same time.
+        /// </summary>
+        public static Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await action();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e.Message);
+                    await requestContext.SendError(e);
+                }
+            });
+            return Task.CompletedTask;
         }
     }
 
@@ -552,7 +576,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return sqlerror.Number;
         }
 
-        
+
 
         /// <summary>
         /// Get the windows login name with the domain portion in all-caps
