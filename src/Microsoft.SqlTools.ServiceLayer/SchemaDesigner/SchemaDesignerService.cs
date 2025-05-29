@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
@@ -30,20 +31,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             Logger.Verbose("Initializing Schema Designer Service");
             this.serviceHost = serviceHost;
-            serviceHost.SetRequestHandler(CreateSession.Type, HandleGetSchemaModelRequest);
-            serviceHost.SetRequestHandler(GetDefinition.Type, HandleGetDefinitionRequest);
-            serviceHost.SetRequestHandler(GenerateScript.Type, HandleGetSchemaDesignerScriptRequest);
-            serviceHost.SetRequestHandler(GetReport.Type, HandleGetSchemaDesignerSessionReportRequest);
-            serviceHost.SetRequestHandler(PublishSession.Type, HandlePublishSchemaDesignerSessionRequest);
-            serviceHost.SetRequestHandler(DisposeSession.Type, HandleDisposeSchemaDesignerSessionRequest);
+            serviceHost.SetRequestHandler(CreateSession.Type, HandleGetSchemaModelRequest, true);
+            serviceHost.SetRequestHandler(GetDefinition.Type, HandleGetDefinitionRequest, true);
+            serviceHost.SetRequestHandler(GenerateScript.Type, HandleGenerateScriptRequest, true);
+            serviceHost.SetRequestHandler(GetReport.Type, HandleGetSchemaDesignerSessionReportRequest, true);
+            serviceHost.SetRequestHandler(PublishSession.Type, HandlePublishSchemaDesignerSessionRequest, true);
+            serviceHost.SetRequestHandler(DisposeSession.Type, HandleDisposeSchemaDesignerSessionRequest, true);
 
             Logger.Verbose("Initialized Schema Designer Service");
         }
 
 
-        internal async Task HandleGetSchemaModelRequest(CreateSessionRequest requestParams, RequestContext<CreateSessionResponse> requestContext)
+        internal Task HandleGetSchemaModelRequest(CreateSessionRequest requestParams, RequestContext<CreateSessionResponse> requestContext)
         {
-            try
+            return Utils.HandleRequest<CreateSessionResponse>(requestContext, async () =>
             {
                 string connectionUri = Guid.NewGuid().ToString();
                 var session = new SchemaDesignerSession(requestParams.ConnectionString, requestParams.AccessToken);
@@ -56,102 +57,78 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     SchemaNames = session.AvailableSchemas(),
                     SessionId = connectionUri,
                 });
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                await requestContext.SendError(e);
-            }
+            });
         }
 
-        internal async Task HandleGetDefinitionRequest(GetDefinitionRequest requestParams, RequestContext<GetDefinitionResponse> requestContext)
+        internal Task HandleGetDefinitionRequest(GetDefinitionRequest requestParams, RequestContext<GetDefinitionResponse> requestContext)
         {
-            try
+            return Utils.HandleRequest<GetDefinitionResponse>(requestContext, async () =>
             {
                 await requestContext.SendResult(new GetDefinitionResponse()
                 {
                     Script = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema),
                 });
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                await requestContext.SendError(e);
-            }
+            });
         }
 
-        internal async Task HandleGetSchemaDesignerScriptRequest(GenerateScriptRequest requestParams, RequestContext<GenerateScriptResponse> requestContext)
+        internal Task HandleGenerateScriptRequest(GenerateScriptRequest requestParams, RequestContext<GenerateScriptResponse> requestContext)
         {
-            try
+            return Utils.HandleRequest<GenerateScriptResponse>(requestContext, async () =>
             {
                 if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
                 {
-                    string script = await session.GenerateScript();
+                    session.PublishSchema();
+
                     await requestContext.SendResult(new GenerateScriptResponse()
                     {
-                        Script = script,
+                        Script = await session.GenerateScript(),
                     });
                 }
-                else
-                {
-                    throw new InvalidOperationException($"Session with ID {requestParams.SessionId} does not exist.");
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                await requestContext.SendError(e);
-            }
+            });
         }
 
-        internal async Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
+        internal Task HandlePublishSchemaDesignerSessionRequest(PublishSessionRequest requestParams, RequestContext<PublishSessionResponse> requestContext)
         {
-            SchemaDesignerSession session = sessions[requestParams.SessionId];
-            var report = await session.GetReport(requestParams.UpdatedSchema);
-            try
-            {
-                await requestContext.SendResult(report);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                await requestContext.SendError(e);
-            }
-        }
-
-        internal async Task HandlePublishSchemaDesignerSessionRequest(PublishSessionRequest requestParams, RequestContext<PublishSessionResponse> requestContext)
-        {
-            try
+            return Utils.HandleRequest<PublishSessionResponse>(requestContext, async () =>
             {
                 if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
                 {
                     session.PublishSchema();
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                await requestContext.SendError(e);
-            }
-            await requestContext.SendResult(new PublishSessionResponse());
+                await requestContext.SendResult(new PublishSessionResponse());
+            });
         }
 
-        internal async Task HandleDisposeSchemaDesignerSessionRequest(DisposeSessionRequest requestParams, RequestContext<DisposeSessionResponse> requestContext)
+        internal Task HandleDisposeSchemaDesignerSessionRequest(DisposeSessionRequest requestParams, RequestContext<DisposeSessionResponse> requestContext)
         {
-            try
+            return Utils.HandleRequest<DisposeSessionResponse>(requestContext, async () =>
             {
-                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                try
                 {
-                    session.Dispose();
-                    sessions.Remove(requestParams.SessionId);
-                    SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
+                    if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                    {
+                        session.Dispose();
+                        sessions.Remove(requestParams.SessionId);
+                        SchemaDesignerQueryExecution.Disconnect(requestParams.SessionId);
+                    }
                 }
-            }
-            catch (Exception e)
+                catch (Exception e)
+                {
+                    Logger.Error(e.Message);
+                }
+                await requestContext.SendResult(new DisposeSessionResponse());
+            });
+
+        }
+
+        internal Task HandleGetSchemaDesignerSessionReportRequest(GetReportRequest requestParams, RequestContext<GetReportResponse> requestContext)
+        {
+            return Utils.HandleRequest<GetReportResponse>(requestContext, async () =>
             {
-                Logger.Error(e.Message);
-            }
-            await requestContext.SendResult(new DisposeSessionResponse());
+                SchemaDesignerSession session = sessions[requestParams.SessionId];
+                var report = await session.GetReport(requestParams.UpdatedSchema);
+                await requestContext.SendResult(report);
+            });
         }
     }
 }
