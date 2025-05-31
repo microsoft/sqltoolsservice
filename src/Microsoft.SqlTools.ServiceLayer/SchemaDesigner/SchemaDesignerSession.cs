@@ -46,20 +46,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             CreateOrResetSchemaDesigner();
             SchemaDesignerModel schema = new SchemaDesignerModel();
             schema.Tables = new List<SchemaDesignerTable>();
-            foreach (var td in schemaDesigner.TableDesigners)
+            for (int i = 0; i < schemaDesigner.SimpleSchema.Tables.Count; i++)
             {
-                SchemaDesignerTable table = new SchemaDesignerTable()
+                var table = schemaDesigner.SimpleSchema.Tables[i];
+                SchemaDesignerTable schemaTable = new SchemaDesignerTable()
                 {
                     Id = Guid.NewGuid(),
-                    Name = td.TableViewModel.Name,
-                    Schema = td.TableViewModel.Schema,
+                    Name = table.Name,
+                    Schema = table.SchemaName,
                     Columns = new List<SchemaDesignerColumn>(),
                     ForeignKeys = new List<SchemaDesignerForeignKey>(),
                 };
 
-                foreach (var column in td.TableViewModel.Columns.Items)
+                for (int j = 0; j < table.Columns.Count; j++)
                 {
-                    table.Columns.Add(new SchemaDesignerColumn()
+                    var column = table.Columns[j];
+                    schemaTable.Columns.Add(new SchemaDesignerColumn()
                     {
                         Id = Guid.NewGuid(),
                         Name = column.Name,
@@ -75,26 +77,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         DefaultValue = column.DefaultValue,
                         IsComputed = column.IsComputed,
                         ComputedFormula = column.ComputedFormula,
-                        ComputedPersisted = column.IsComputedPersisted,
+                        ComputedPersisted = column.ComputedPersisted,
                     });
                 }
 
-                foreach (var fk in td.TableViewModel.ForeignKeys.Items)
+                foreach (var fk in table.ForeignKeys)
                 {
-                    table.ForeignKeys.Add(new SchemaDesignerForeignKey()
+                    schemaTable.ForeignKeys.Add(new SchemaDesignerForeignKey()
                     {
                         Id = Guid.NewGuid(),
                         Name = fk.Name,
-                        Columns = fk.Columns.ToList(),
-                        ReferencedColumns = fk.ForeignColumns.ToList(),
-                        ReferencedTableName = fk.ForeignTable.Split('.').Last().Replace("]", "").Replace("[", ""),
-                        ReferencedSchemaName = fk.ForeignTable.Split('.').First().Replace("]", "").Replace("[", ""),
+                        Columns = fk.Columns,
+                        ReferencedColumns = fk.ReferencedColumns,
+                        ReferencedTableName = fk.ReferencedTableName,
+                        ReferencedSchemaName = fk.ReferencedTableSchema,
                         OnDeleteAction = SchemaDesignerUtils.ConvertSqlForeignKeyActionToOnAction(fk.OnDeleteAction),
                         OnUpdateAction = SchemaDesignerUtils.ConvertSqlForeignKeyActionToOnAction(fk.OnUpdateAction),
                     });
                 }
 
-                schema.Tables.Add(table);
+                schema.Tables.Add(schemaTable);
             }
             return schema;
         }
@@ -129,6 +131,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             var report = await SchemaDesignerUpdater.GenerateUpdateScripts(_initialSchema, updatedSchema, schemaDesigner);
             this._lastRequestSchema = updatedSchema;
             return report;
+        }
+
+        public async Task<string> GenerateScript()
+        {
+            return await Task.Run(() =>
+            {
+                return schemaDesigner.GenerateScript();
+            });
         }
 
         public void PublishSchema()
