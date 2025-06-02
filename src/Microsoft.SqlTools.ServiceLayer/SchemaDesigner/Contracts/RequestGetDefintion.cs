@@ -7,21 +7,22 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
-    public class GenerateScriptRequest
+    public class GetDefinitionRequest
     {
         public string? SessionId { get; set; }
+        public SchemaDesignerModel? UpdatedSchema { get; set; }
     }
 
-    public class GenerateScriptResponse
+    public class GetDefinitionResponse
     {
         public string? Script { get; set; }
     }
 
-    public class GenerateScript
+    public class GetDefinition
     {
         /// <summary>
         /// Request to generate create script for the schema model
         /// </summary>
-        public static readonly RequestType<GenerateScriptRequest, GenerateScriptResponse> Type = RequestType<GenerateScriptRequest, GenerateScriptResponse>.Create("schemaDesigner/generateScript");
+        public static readonly RequestType<GetDefinitionRequest, GetDefinitionResponse> Type = RequestType<GetDefinitionRequest, GetDefinitionResponse>.Create("schemaDesigner/getDefinition");
     }
 }

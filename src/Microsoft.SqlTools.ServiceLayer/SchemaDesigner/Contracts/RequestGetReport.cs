@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
 using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
@@ -26,9 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     /// </summary>
     public class GetReportResponse
     {
-        public List<SchemaDesignerChangeReport>? Reports { get; set; }
+        public bool HasSchemaChanged { get; set; }
         public PreviewReport? DacReport { get; set; }
-        public string? UpdateScript { get; set; }
     }
 
     /// <summary>
