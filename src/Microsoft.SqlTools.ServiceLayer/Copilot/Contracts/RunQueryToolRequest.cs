@@ -10,33 +10,35 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Copilot.Contracts
 {
     /// <summary>
-    /// Parameters to the <see cref="StartConversationRequest"/>.
+    /// Parameters to the <see cref="RunQueryToolRequest"/>.
     /// </summary>
-    public class StartConversationParams
+    public class RunQueryToolParams
     {
-        public string ConversationUri { get; set; }
-
         public string ConnectionUri { get; set; }
 
-        public string UserText { get; set; }
+        public string Query { get; set; }
     }
 
-    public class StartConversationResponse
+    public class RunQueryToolResponse
     {
         /// <summary>
-        /// Flag indicating whether the conversation was successfully started.
+        /// Flag indicating whether the query tool was successfully run.
         /// </summary>
         public bool Success { get; set; }
+
+        /// <summary>
+        /// The result of the query tool execution.
+        /// </summary>
+        public string Result { get; set; }
     }
    
-
     /// <summary>
     /// Request to start a conversation with the Copilot service.
     /// </summary>
-    public class StartConversationRequest
+    public class RunQueryToolRequest
     {
         public static readonly
-            RequestType<StartConversationParams, StartConversationResponse> Type =
-            RequestType<StartConversationParams, StartConversationResponse>.Create("copilot/startconversation");
+            RequestType<RunQueryToolParams, RunQueryToolResponse> Type =
+            RequestType<RunQueryToolParams, RunQueryToolResponse>.Create("copilot/tools/runquery");
     }
 }
