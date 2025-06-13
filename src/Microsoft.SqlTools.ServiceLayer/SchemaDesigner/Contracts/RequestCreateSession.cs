@@ -11,6 +11,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class CreateSessionRequest
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="CreateSessionRequest"/> class.
+        /// </summary>
+        public string ConnectionUri { get; set; }
+        /// <summary>
         /// Gets or sets the connection string to the database. This is required to get the schema model for the database.
         /// </summary>
         public string ConnectionString { get; set; }

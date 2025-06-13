@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private string connectionString;
         private string? accessToken;
 
-        public SchemaDesignerSession(string connectionString, string? accessToken)
+        public SchemaDesignerSession(string connectionString, SchemaDesignerModel initialSchema, string? accessToken)
         {
             var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
             connectionStringBuilder.ApplicationName = "SchemaDesigner";
@@ -33,7 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             this.connectionString = connectionStringBuilder.ConnectionString;
             this.accessToken = accessToken;
             SessionId = connectionString;
-            this._initialSchema = this.createInitialSchema();
+            CreateOrResetSchemaDesigner();
+            this._initialSchema = initialSchema;
         }
 
         private void CreateOrResetSchemaDesigner()

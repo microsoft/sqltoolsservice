@@ -5,6 +5,7 @@
 
 using System;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -72,6 +73,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 "NO_ACTION" => OnAction.NO_ACTION,
                 "SET_NULL" => OnAction.SET_NULL,
                 "SET_DEFAULT" => OnAction.SET_DEFAULT,
+                _ => OnAction.NO_ACTION
+            };
+        }
+
+        public static OnAction MapForeignKeyActionToOnAction(ForeignKeyAction action)
+        {
+            return action switch
+            {
+                ForeignKeyAction.Cascade => OnAction.CASCADE,
+                ForeignKeyAction.NoAction => OnAction.NO_ACTION,
+                ForeignKeyAction.SetNull => OnAction.SET_NULL,
+                ForeignKeyAction.SetDefault => OnAction.SET_DEFAULT,
                 _ => OnAction.NO_ACTION
             };
         }
