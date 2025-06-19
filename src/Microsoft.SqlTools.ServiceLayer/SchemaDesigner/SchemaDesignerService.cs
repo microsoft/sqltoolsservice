@@ -73,12 +73,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     return;
                 }
 
-                Database? database = new Database(server, requestParams.DatabaseName);
+                Database? database = server.Databases[requestParams.DatabaseName];
                 if (database == null)
                 {
                     requestContext.SendError($"Database '{requestParams.DatabaseName}' not found in connection URI '{requestParams.ConnectionUri}'.");
                     return;
                 }
+                server.SetDefaultInitFields(typeof(Table), "Name", "Schema", "IsSystemObject");
+                server.SetDefaultInitFields(typeof(Column), "Name", "DataType", "Nullable", "InPrimaryKey", "Identity", "IdentitySeed", "IdentityIncrement", "DefaultConstraint", "Computed", "ComputedText", "IsPersisted");
+                server.SetDefaultInitFields(typeof(ForeignKey), "Name", "ReferencedTable", "ReferencedTableSchema", "DeleteAction", "UpdateAction");
+                server.SetDefaultInitFields(typeof(ForeignKeyColumn), "Name", "ReferencedColumn");
+
+                database.Tables.Refresh();
 
                 List<SchemaDesignerTable> tables = new List<SchemaDesignerTable>();
                 foreach (Table table in database.Tables)
@@ -91,6 +97,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         Columns = new List<SchemaDesignerColumn>(),
                         ForeignKeys = new List<SchemaDesignerForeignKey>()
                     };
+
+                    table.Columns.Refresh();
+                    table.ForeignKeys.Refresh();
 
                     foreach (Column column in table.Columns)
                     {
@@ -147,6 +156,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                             OnDeleteAction = SchemaDesignerUtils.MapForeignKeyActionToOnAction(foreignKey.DeleteAction),
                             OnUpdateAction = SchemaDesignerUtils.MapForeignKeyActionToOnAction(foreignKey.UpdateAction),
                         };
+
+                        foreignKey.Columns.Refresh();
 
                         foreach (ForeignKeyColumn fkColumn in foreignKey.Columns)
                         {
