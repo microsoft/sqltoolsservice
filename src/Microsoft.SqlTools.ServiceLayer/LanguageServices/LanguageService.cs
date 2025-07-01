@@ -1664,9 +1664,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
-
-            string sql = scriptParseInfo.ParseResult.Script.Sql;
-
             /*
              Expanding star expressions in query only when the script is connected to a database
              as the parser requires a connection to determine column names
