@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         /// <summary>
         /// TCP prefix for server names
         /// </summary>
-        const string TCP_PREFIX = "TCP:";
+        const string TCP_PREFIX = "tcp:";
 
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
