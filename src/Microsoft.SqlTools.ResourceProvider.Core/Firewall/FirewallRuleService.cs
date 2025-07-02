@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         /// <summary>
         /// Finds Azure resource for the given subscription and server name
         /// </summary>
-        internal async Task<IAzureSqlServerResource> FindAzureResourceForSubscriptionAsync(
+        private async Task<IAzureSqlServerResource> FindAzureResourceForSubscriptionAsync(
             string serverName,
             IAzureResourceManagementSession session)
         {
