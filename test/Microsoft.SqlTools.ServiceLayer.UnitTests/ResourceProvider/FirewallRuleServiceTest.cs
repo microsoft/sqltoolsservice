@@ -242,6 +242,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         [Test]
+        public async Task CreateShouldFindTheRightResourceWithTcpPrefix()
+        {
+            ServiceTestContext testContext = new ServiceTestContext();
+            var resources = new List<IAzureSqlServerResource>
+            {
+                ServiceTestContext.CreateAzureSqlServer(testContext.ServerName),
+            };
+            testContext.SubscriptionToResourcesMap[testContext.ValidSubscription.Subscription.SubscriptionId] = resources;
+
+            testContext = CreateMocks(testContext);
+
+            await VerifyCreateAsync(testContext, "tcp:" + testContext.ServerName, testContext.ServerName);
+        }
+
+        [Test]
         public void CreateThrowExceptionIfResourceNotFound()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -305,16 +320,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             testContext = CreateMocks(testContext);
 
             await VerifyCreateAsync(testContext, testContext.ServerName);
-        }        
+        }
 
-        private async Task<FirewallRuleResponse> VerifyCreateAsync(ServiceTestContext testContext, string serverName, bool verifyFirewallRuleCreated = true)
+        private Task<FirewallRuleResponse> VerifyCreateAsync(ServiceTestContext testContext, string serverName, bool verifyFirewallRuleCreated = true)
+        {
+            return VerifyCreateAsync(testContext, serverName, serverName, verifyFirewallRuleCreated);
+        }
+
+        private async Task<FirewallRuleResponse> VerifyCreateAsync(ServiceTestContext testContext, string firewallServerName, string azureServerName, bool verifyFirewallRuleCreated = true)
         {
             try
             {
                 FirewallRuleService service = new FirewallRuleService();
                 CreateFirewallRuleParams createFirewallRuleParams = new CreateFirewallRuleParams()
                 {
-                    ServerName = serverName,
+                    ServerName = firewallServerName,
                     StartIpAddress = testContext.StartIpAddress,
                     EndIpAddress = testContext.EndIpAddress
                 };
@@ -325,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
                 {
                     testContext.AzureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
                             It.Is<IAzureResourceManagementSession>(s => s.SubscriptionContext.Subscription.SubscriptionId == testContext.ValidSubscription.Subscription.SubscriptionId),
-                            It.Is<IAzureSqlServerResource>(r => r.FullyQualifiedDomainName == serverName),
+                            It.Is<IAzureSqlServerResource>(r => r.FullyQualifiedDomainName == azureServerName),
                             It.Is<FirewallRuleRequest>(y => y.EndIpAddress.ToString().Equals(testContext.EndIpAddress) && y.StartIpAddress.ToString().Equals(testContext.StartIpAddress))),
                             Times.AtLeastOnce);
                 }
@@ -333,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
                 {
                     testContext.AzureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
                            It.Is<IAzureResourceManagementSession>(s => s.SubscriptionContext.Subscription.SubscriptionId == testContext.ValidSubscription.Subscription.SubscriptionId),
-                           It.Is<IAzureSqlServerResource>(r => r.FullyQualifiedDomainName == serverName),
+                           It.Is<IAzureSqlServerResource>(r => r.FullyQualifiedDomainName == firewallServerName),
                            It.Is<FirewallRuleRequest>(y => y.EndIpAddress.ToString().Equals(testContext.EndIpAddress) && y.StartIpAddress.ToString().Equals(testContext.StartIpAddress))),
                         Times.Never);
                 }
