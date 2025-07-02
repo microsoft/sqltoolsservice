@@ -53,6 +53,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
     /// </summary>
     public class FirewallRuleService : IFirewallRuleService
     {
+
+        /// <summary>
+        /// TCP prefix for server names
+        /// </summary>
+        const string TCP_PREFIX = "TCP:";
+
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
         /// </summary>
@@ -245,7 +251,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         /// <summary>
         /// Finds Azure resource for the given subscription and server name
         /// </summary>
-        private async Task<IAzureSqlServerResource> FindAzureResourceForSubscriptionAsync(
+        internal async Task<IAzureSqlServerResource> FindAzureResourceForSubscriptionAsync(
             string serverName,
             IAzureResourceManagementSession session)
         {
@@ -257,6 +263,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                 {
                     return null;
                 }
+
+                if (serverName.StartsWith(TCP_PREFIX, StringComparison.OrdinalIgnoreCase))
+                {
+                    serverName = serverName.Substring(TCP_PREFIX.Length);
+                }
+
                 foreach (IAzureSqlServerResource resource in resources)
                 {
                     if (serverName.Equals(resource.FullyQualifiedDomainName, StringComparison.OrdinalIgnoreCase))
