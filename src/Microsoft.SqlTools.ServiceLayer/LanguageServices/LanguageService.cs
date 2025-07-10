@@ -1644,13 +1644,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return resultCompletionItems;
             }
 
-            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
-
             // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 await ParseAndBind(scriptFile, connInfo);
             }
+
+            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
 
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
@@ -1664,7 +1664,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
-
+            
             /*
              Expanding star expressions in query only when the script is connected to a database
              as the parser requires a connection to determine column names

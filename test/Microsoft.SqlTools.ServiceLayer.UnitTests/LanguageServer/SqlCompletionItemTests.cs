@@ -261,7 +261,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
                 Assert.AreEqual(declarationTitle, completionItem.Label);
-                Assert.AreEqual($"{declarationTitle}()", completionItem.InsertText);
+                if (word.StartsWith("@@"))
+                {
+                    // Global variable functions should not have parentheses
+                    Assert.AreEqual(declarationTitle, completionItem.InsertText);
+                }
+                else
+                {
+                    // Other functions should have parentheses
+                    Assert.AreEqual($"{declarationTitle}()", completionItem.InsertText);
+                }
                 Assert.AreEqual(declarationTitle, completionItem.Detail);
             }
 
