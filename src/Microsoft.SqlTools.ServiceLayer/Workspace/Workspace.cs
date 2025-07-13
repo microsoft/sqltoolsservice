@@ -28,12 +28,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         #region Private Fields
 
         private const string UntitledScheme = "untitled";
-        private static readonly HashSet<string> fileUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) 
+        private static readonly HashSet<string> fileUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "file",
             UntitledScheme,
             "tsqloutput",
-            "vscode-notebook-cell"
+            "vscode-notebook-cell",
+            "gist"
         };
 
         private ConcurrentDictionary<string, ScriptFile> workspaceFiles = new ConcurrentDictionary<string, ScriptFile>();
@@ -94,10 +95,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public virtual ScriptFile GetFile(string filePath)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
-            if (IsNonFileUri(filePath))
-            {
-                return null;
-            }
+            // if (IsNonFileUri(filePath))
+            // {
+            //     return null;
+            // }
             
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
