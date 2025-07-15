@@ -22,7 +22,6 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
-		<PackageReference Include="Azure.Core" Version="1.41.0" />
 		<PackageReference Include="Microsoft.SqlServer.Migration.SqlTargetProvisioning" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
