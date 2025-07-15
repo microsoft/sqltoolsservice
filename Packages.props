@@ -72,6 +72,7 @@
 
   <!-- The following packages always need to be updated to the current .NET SDK version. -->
   <ItemGroup>
+    <PackageReference Update="Azure.Core" Version="1.41.0" />
     <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
     <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageReference Update="System.Composition" Version="8.0.0" />
