@@ -39,6 +39,7 @@
 		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Azure.Core" Version="1.41.0" />
 		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
