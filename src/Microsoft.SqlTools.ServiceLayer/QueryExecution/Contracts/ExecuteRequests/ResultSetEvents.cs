@@ -50,6 +50,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         public string ExecutionPlanErrorMessage { get; set; }
     }
 
+    /// <summary>
+    /// Parameters to return when a result set chunk is streamed
+    /// </summary>
+    public class ResultSetStreamedEventParams : ResultSetEventParams
+    {
+        /// <summary>
+        /// Starting row index of the streamed chunk
+        /// </summary>
+        public long ChunkStartRow { get; set; }
+        
+        /// <summary>
+        /// Number of rows in the streamed chunk
+        /// </summary>
+        public int ChunkRowCount { get; set; }
+        
+        /// <summary>
+        /// Indicates if this is the final chunk for the result set
+        /// </summary>
+        public bool IsFinalChunk { get; set; }
+        
+        /// <summary>
+        /// Total rows processed so far (may include rows from previous chunks)
+        /// </summary>
+        public long TotalRowsProcessed { get; set; }
+    }
+
     public class ResultSetCompleteEvent
     {
         public static string MethodName { get; } = "query/resultSetComplete";
@@ -75,6 +101,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         public static readonly
             EventType<ResultSetUpdatedEventParams> Type =
             EventType<ResultSetUpdatedEventParams>.Create(MethodName);
+    }
+
+    public class ResultSetStreamedEvent
+    {
+        public static string MethodName { get; } = "query/resultSetStreamed";
+
+        public static readonly
+            EventType<ResultSetStreamedEventParams> Type =
+            EventType<ResultSetStreamedEventParams>.Create(MethodName);
     }
 
 }

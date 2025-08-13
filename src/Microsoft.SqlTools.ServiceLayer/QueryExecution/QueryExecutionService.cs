@@ -1092,6 +1092,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
             query.ResultSetUpdated += resultUpdatedCallback;
 
+            // Setup the ResultSet streaming callback
+            ResultSet.ResultSetAsyncEventHandler resultStreamedCallback = async r =>
+            {
+                ResultSetStreamedEventParams eventParams = new ResultSetStreamedEventParams
+                {
+                    ResultSetSummary = r.Summary,
+                    OwnerUri = ownerUri,
+                    ChunkStartRow = 0, // Will be updated by the result set implementation
+                    ChunkRowCount = (int)r.RowCount, // Current total rows available
+                    IsFinalChunk = r.Summary.Complete,
+                    TotalRowsProcessed = r.RowCount
+                };
+
+                Logger.Information($"Streaming {r.RowCount} rows for result set {r.Id} on query '{ownerUri}'");
+                await eventSender.SendEvent(ResultSetStreamedEvent.Type, eventParams);
+            };
+            query.ResultSetStreamed += resultStreamedCallback;
+
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCompleteCallback = async r =>
             {

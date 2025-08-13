@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 return new GetReportResponse()
                 {
                     HasSchemaChanged = hasSchemaChanged,
-                    DacReport = hasSchemaChanged ? schemaDesigner.GeneratePreviewReport(): null,
+                    DacReport = hasSchemaChanged ? schemaDesigner.GeneratePreviewReport() : null,
                 };
             });
 
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     var viewModel = tableDesigner.TableViewModel.Columns.Items.First(c => c.Name == sourceColumn.Name);
 
                     // Only update properties that have changed
-                    UpdateColumnProperties(viewModel, sourceColumn, targetColumn);
+                    UpdateColumnProperties(viewModel, sourceColumn, targetColumn, tableDesigner);
                 }
             }
         }
@@ -272,7 +272,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void UpdateColumnProperties(
             TableColumnViewModel viewModel,
             SchemaDesignerColumn sourceColumn,
-            SchemaDesignerColumn targetColumn)
+            SchemaDesignerColumn targetColumn,
+            DacTableDesigner tableDesigner)
         {
             // Only update name if it changed
             if (sourceColumn.Name != targetColumn.Name)
@@ -340,6 +341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (sourceColumn.IsPrimaryKey != targetColumn.IsPrimaryKey)
             {
                 viewModel.IsPrimaryKey = targetColumn.IsPrimaryKey;
+
             }
 
             if (viewModel.CanEditDefaultValue && sourceColumn.DefaultValue != targetColumn.DefaultValue)

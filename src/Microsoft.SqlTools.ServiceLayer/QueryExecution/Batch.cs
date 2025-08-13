@@ -153,6 +153,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
 
         /// <summary>
+        /// Event that will be called when a chunk of the result set has been streamed. It will not be
+        /// called from the Batch but from the ResultSet instance.
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetStreamed;
+
+        /// <summary>
         /// Event that will be called when additional rows in the result set are available (rowCount available has increased). It will not be
         /// called from the Batch but from the ResultSet instance.
         /// </summary>
@@ -456,6 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
                         resultSet.ResultAvailable += ResultSetAvailable;
                         resultSet.ResultUpdated += ResultSetUpdated;
+                        resultSet.ResultStreamed += ResultSetStreamed;
                         resultSet.ResultCompletion += ResultSetCompletion;
 
                         // Add the result set to the results of the query

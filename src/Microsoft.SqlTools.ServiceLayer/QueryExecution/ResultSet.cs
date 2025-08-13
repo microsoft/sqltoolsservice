@@ -7,6 +7,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System;
@@ -158,6 +159,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
         /// </summary>
         public event ResultSetAsyncEventHandler ResultUpdated;
+
+        /// <summary>
+        /// Event that will be called when a chunk of the result set has been streamed
+        /// </summary>
+        public event ResultSetAsyncEventHandler ResultStreamed;
 
 
         #endregion
@@ -358,6 +364,96 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="dbDataReader">The data reader for getting results from the db</param>
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
         public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
+        {
+            // Check if progressive streaming is enabled in the file stream factory settings
+            var querySettings = fileStreamFactory.QueryExecutionSettings;
+            bool isStreamingEnabled = querySettings?.ProgressiveStreaming ?? false;
+            
+            if (isStreamingEnabled)
+            {
+                await ReadResultToEndWithStreaming(dbDataReader, cancellationToken, querySettings);
+            }
+            else
+            {
+                await ReadResultToEndLegacy(dbDataReader, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Progressive streaming implementation that reads and streams results in chunks
+        /// </summary>
+        /// <param name="dbDataReader">The data reader for getting results from the db</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
+        /// <param name="querySettings">Query execution settings containing streaming configuration</param>
+        private async Task ReadResultToEndWithStreaming(DbDataReader dbDataReader, CancellationToken cancellationToken, QueryExecutionSettings querySettings)
+        {
+            Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
+
+            Task availableTask = null;
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var dataReader = new StorageDataReader(dbDataReader);
+                var fileWriter = fileStreamFactory.GetWriter(outputFileName, null);
+                
+                using (fileWriter)
+                {
+                    if (!dataReader.DbDataReader.CanGetColumnSchema())
+                    {
+                        throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
+                    }
+                    
+                    Columns = dataReader.Columns;
+                    SingleColumnXmlJsonResultSet();
+                    hasStartedRead = true;
+
+                    availableTask = SendCurrentResults();
+
+                    int chunkSize = querySettings.StreamingChunkSize;
+                    int streamingInterval = querySettings.StreamingIntervalMs;
+                    int rowsProcessed = 0;
+                    DateTime lastUpdateTime = DateTime.UtcNow;
+
+                    while (dataReader.Read())
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        
+                        fileOffsets.Add(totalBytesWritten);
+                        totalBytesWritten += fileWriter.WriteRow(dataReader);
+                        rowsProcessed++;
+
+                        // Stream results progressively in chunks
+                        if (rowsProcessed % chunkSize == 0 || 
+                            (DateTime.UtcNow - lastUpdateTime).TotalMilliseconds >= streamingInterval)
+                        {
+                            await SendCurrentResults();
+                            await (ResultStreamed?.Invoke(this) ?? Task.CompletedTask);
+                            lastUpdateTime = DateTime.UtcNow;
+                            
+                            // Small delay to prevent overwhelming the client
+                            await Task.Delay(1, cancellationToken);
+                        }
+                    }
+                    
+                    CheckForIsJson();
+                }
+            }
+            finally
+            {
+                await availableTask;
+                hasCompletedRead = true;
+                await SendCurrentResults();
+                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
+            }
+        }
+
+        /// <summary>
+        /// Legacy implementation that reads all results before streaming (backward compatibility)
+        /// </summary>
+        /// <param name="dbDataReader">The data reader for getting results from the db</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
+        private async Task ReadResultToEndLegacy(DbDataReader dbDataReader, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we got a reader
             //

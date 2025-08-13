@@ -222,6 +222,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
+
+        /// <summary>
+        /// Event that will be called when a chunk of the result set has been streamed
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetStreamed;
         #endregion
 
         #region Properties
@@ -489,6 +494,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.ResultSetCompletion += ResultSetCompleted;
                     b.ResultSetAvailable += ResultSetAvailable;
                     b.ResultSetUpdated += ResultSetUpdated;
+                    b.ResultSetStreamed += ResultSetStreamed;
 
                     await ExecuteBatch(b);
                 }

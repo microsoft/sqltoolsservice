@@ -174,6 +174,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private bool DefaultAlwaysEncryptedParameterizationValue = false;
 
+        /// <summary>
+        /// Default value for enabling progressive result streaming
+        /// </summary>
+        private const bool DefaultProgressiveStreaming = true;
+
+        /// <summary>
+        /// Default streaming chunk size in rows
+        /// </summary>
+        private const int DefaultStreamingChunkSize = 1000;
+
+        /// <summary>
+        /// Default streaming interval in milliseconds
+        /// </summary>
+        private const int DefaultStreamingIntervalMs = 100;
+
         #endregion
 
         #region Member Variables
@@ -675,6 +690,54 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             }
         }
 
+        /// <summary>
+        /// Enable progressive streaming of result sets instead of waiting for complete results
+        /// </summary>
+        [JsonProperty("progressiveStreaming")]
+        public bool ProgressiveStreaming
+        {
+            get
+            {
+                return GetOptionValue<bool>("progressiveStreaming", DefaultProgressiveStreaming);
+            }
+            set
+            {
+                SetOptionValue("progressiveStreaming", value);
+            }
+        }
+
+        /// <summary>
+        /// Number of rows to stream at once when progressive streaming is enabled
+        /// </summary>
+        [JsonProperty("streamingChunkSize")]
+        public int StreamingChunkSize
+        {
+            get
+            {
+                return GetOptionValue<int>("streamingChunkSize", DefaultStreamingChunkSize);
+            }
+            set
+            {
+                SetOptionValue("streamingChunkSize", Math.Max(1, value));
+            }
+        }
+
+        /// <summary>
+        /// Interval in milliseconds between streaming chunks
+        /// </summary>
+        [JsonProperty("streamingIntervalMs")]
+        public int StreamingIntervalMs
+        {
+            get
+            {
+                return GetOptionValue<int>("streamingIntervalMs", DefaultStreamingIntervalMs);
+            }
+            set
+            {
+                SetOptionValue("streamingIntervalMs", Math.Max(1, value));
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -714,6 +777,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             AnsiNulls = newSettings.AnsiNulls;
             IsSqlCmdMode = newSettings.IsSqlCmdMode;
             IsAlwaysEncryptedParameterizationEnabled = newSettings.IsAlwaysEncryptedParameterizationEnabled;
+            ProgressiveStreaming = newSettings.ProgressiveStreaming;
+            StreamingChunkSize = newSettings.StreamingChunkSize;
+            StreamingIntervalMs = newSettings.StreamingIntervalMs;
         }
 
         #endregion
