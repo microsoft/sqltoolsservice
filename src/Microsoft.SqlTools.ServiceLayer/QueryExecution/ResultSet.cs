@@ -62,6 +62,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal bool hasStartedRead = false;
 
         /// <summary>
+        /// Whether we have sent the initial ResultSetAvailable event.
+        /// This helps prevent sending the event before we have actual data.
+        /// </summary>
+        private bool hasNotifiedAvailable = false;
+
+        /// <summary>
         /// Set when all results have been read for this resultSet from the server
         /// </summary>
         private bool hasCompletedRead = false;
@@ -391,16 +397,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     //
                     hasStartedRead = true;
 
-                    // Invoke the SendCurrentResults() asynchronously that will send the results available notification
-                    //   and also trigger the timer to send periodic updates.
-                    //
-                    availableTask = SendCurrentResults();
 
                     while (dataReader.Read())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
+
+                        // Send ResultSetAvailable event after first row is written
+                        if (!hasNotifiedAvailable)
+                        {
+                            hasNotifiedAvailable = true;
+                            availableTask = SendCurrentResults();
+                        }
                     }
                     CheckForIsJson();
                 }
