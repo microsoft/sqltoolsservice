@@ -5,7 +5,7 @@
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
-#tool "nuget:?package=Mono.TextTransform"
+#tool "nuget:?package=Mono.TextTransform&version=1.0.0"
 
 using System.ComponentModel;
 using System.Net;
