@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Whether we have sent the initial ResultSetAvailable event.
         /// This helps prevent sending the event before we have actual data.
         /// </summary>
-        private bool hasNotifiedAvailable = false;
+        private bool hasNotifiedResultSetAvailable = false;
 
         /// <summary>
         /// Set when all results have been read for this resultSet from the server
@@ -405,9 +405,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
 
                         // Send ResultSetAvailable event after first row is written
-                        if (!hasNotifiedAvailable)
+                        if (!hasNotifiedResultSetAvailable)
                         {
-                            hasNotifiedAvailable = true;
+                            hasNotifiedResultSetAvailable = true;
                             availableTask = SendCurrentResults();
                         }
                     }
