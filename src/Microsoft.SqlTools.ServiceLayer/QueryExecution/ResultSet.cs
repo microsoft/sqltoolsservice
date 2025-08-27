@@ -411,6 +411,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             availableTask = SendCurrentResults();
                         }
                     }
+                    
+                    // If no rows were processed, we still need to send the ResultSetAvailable event
+                    if (!hasNotifiedResultSetAvailable)
+                    {
+                        hasNotifiedResultSetAvailable = true;
+                        availableTask = SendCurrentResults();
+                    }
                     CheckForIsJson();
                 }
             }
