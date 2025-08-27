@@ -1,6 +1,6 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
-#addin "mssql.ResX"
-#addin "mssql.XliffParser"
+#addin "nuget:?package=mssql.ResX&version=0.0.3"
+#addin "nuget:?package=mssql.XliffParser&version=8.0.1"
 
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
