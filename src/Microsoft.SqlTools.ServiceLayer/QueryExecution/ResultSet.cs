@@ -62,12 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal bool hasStartedRead = false;
 
         /// <summary>
-        /// Whether we have sent the initial ResultSetAvailable event.
-        /// This helps prevent sending the event before we have actual data.
-        /// </summary>
-        private bool hasNotifiedResultSetAvailable = false;
-
-        /// <summary>
         /// Set when all results have been read for this resultSet from the server
         /// </summary>
         private bool hasCompletedRead = false;
@@ -393,10 +387,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     //
                     SingleColumnXmlJsonResultSet();
 
-                    // Mark that read of result has started
-                    //
-                    hasStartedRead = true;
+                    // Whether we have sent the initial ResultSetAvailable event.
+                    bool hasNotifiedResultSetAvailable = false;
 
+                    // Mark that read of result has started
+                    hasStartedRead = true;
 
                     while (dataReader.Read())
                     {
