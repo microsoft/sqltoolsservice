@@ -1,11 +1,11 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
-#addin "nuget:?package=mssql.ResX&version=0.0.3"
-#addin "nuget:?package=mssql.XliffParser&version=8.0.1"
+#addin "mssql.ResX"
+#addin "mssql.XliffParser"
 
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
-#tool "nuget:?package=Mono.TextTransform&version=1.0.0"
+#tool "nuget:?package=Mono.TextTransform"
 
 using System.ComponentModel;
 using System.Net;
