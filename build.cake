@@ -7,6 +7,9 @@
 #load "scripts/artifacts.cake"
 #tool "nuget:?package=Mono.TextTransform&version=1.0.0"
 
+// Use the nuget.config file to ensure private feed is used
+NuGetAddInSettings.UseNuGetSourceConfigFile = true;
+
 using System.ComponentModel;
 using System.Net;
 using Newtonsoft.Json;
