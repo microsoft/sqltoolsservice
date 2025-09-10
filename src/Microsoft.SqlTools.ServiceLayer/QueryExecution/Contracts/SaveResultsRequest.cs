@@ -182,6 +182,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public string Encoding { get; set; }
     }
+
+    /// <summary>
+    /// Parameters to save results as INSERT statements
+    /// </summary>
+    public class SaveResultsAsInsertRequestParams : SaveResultsRequestParams
+    {
+        /// <summary>
+        /// The target table name for INSERT statements
+        /// </summary>
+        public string TableName { get; set; }
+
+        /// <summary>
+        /// Include column names in INSERT statement
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+
+        /// <summary>
+        /// Encoding of the SQL file
+        /// </summary>
+        public string Encoding { get; set; }
+    }
     
     /// <summary>
     /// Parameters for the save results result
@@ -242,6 +263,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public static readonly
             RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult> Type =
                 RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult>.Create("query/saveXml");
+    }
+
+    /// <summary>
+    /// Request type to save results as INSERT statements
+    /// </summary>
+    public class SaveResultsAsInsertRequest
+    {
+        public static readonly
+            RequestType<SaveResultsAsInsertRequestParams, SaveResultRequestResult> Type =
+                RequestType<SaveResultsAsInsertRequestParams, SaveResultRequestResult>.Create("query/saveInsert");
     }
 
 }
