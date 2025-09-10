@@ -25,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly string tableName;
         private readonly bool includeHeaders;
         private readonly string[] columnNames;
+        private readonly List<string> batchedRows;
+        private const int BatchSize = 1000;
 
         #endregion
 
@@ -44,6 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             encoding = ParseEncoding(requestParams.Encoding, Encoding.UTF8);
             tableName = requestParams.TableName ?? "TableName";
             includeHeaders = requestParams.IncludeHeaders;
+            batchedRows = new List<string>();
 
             // Get the column names for the selected columns
             columnNames = columns.Skip(ColumnStartIndex)
@@ -53,13 +56,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Writes a row of data as an INSERT statement.
+        /// Writes a row of data as part of a batched INSERT statement.
         /// </summary>
         /// <param name="row">The data of the row to output to the file</param>
         /// <param name="columns">The columns for the row to output</param>
         public override void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
-            // Build the INSERT statement
+            // Format the values for this row
+            var selectedCells = row.Skip(ColumnStartIndex)
+                .Take(ColumnCount)
+                .Select(FormatValue);
+            
+            string rowValues = "(" + string.Join(", ", selectedCells) + ")";
+            batchedRows.Add(rowValues);
+
+            // Write batch if we've reached the batch size
+            if (batchedRows.Count >= BatchSize)
+            {
+                WriteBatch();
+            }
+        }
+
+        /// <summary>
+        /// Writes the current batch of rows as a single INSERT statement
+        /// </summary>
+        private void WriteBatch()
+        {
+            if (batchedRows.Count == 0)
+                return;
+
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("INSERT INTO ");
             stringBuilder.Append(EscapeIdentifier(tableName));
@@ -72,20 +97,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 stringBuilder.Append(")");
             }
 
-            stringBuilder.Append(" VALUES (");
-
-            // Add the values
-            var selectedCells = row.Skip(ColumnStartIndex)
-                .Take(ColumnCount)
-                .Select(FormatValue);
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("VALUES");
             
-            stringBuilder.Append(string.Join(", ", selectedCells));
-            stringBuilder.Append(");");
+            // Add all batched rows with proper indentation
+            for (int i = 0; i < batchedRows.Count; i++)
+            {
+                stringBuilder.Append("    ");  // 4-space indentation
+                stringBuilder.Append(batchedRows[i]);
+                if (i < batchedRows.Count - 1)
+                {
+                    stringBuilder.AppendLine(",");
+                }
+                else
+                {
+                    stringBuilder.AppendLine(";");
+                }
+            }
+            
             stringBuilder.AppendLine();
 
             // Write to the stream
             byte[] insertBytes = encoding.GetBytes(stringBuilder.ToString());
             FileStream.Write(insertBytes, 0, insertBytes.Length);
+
+            // Clear the batch
+            batchedRows.Clear();
         }
 
         /// <summary>
@@ -141,6 +178,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             return identifier;
+        }
+
+        /// <summary>
+        /// Override dispose to ensure any remaining batched rows are written
+        /// </summary>
+        /// <param name="disposing">Whether the object is being disposed</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Write any remaining rows before disposing
+                WriteBatch();
+            }
+            base.Dispose(disposing);
         }
     }
 }
