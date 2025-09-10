@@ -119,6 +119,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal IFileStreamFactory XmlFileFactory { get; set; }
 
         /// <summary>
+        /// File factory to be used to create INSERT statements files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory InsertFileFactory { get; set; }
+
+        /// <summary>
         /// The collection of active queries
         /// </summary>
         internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
@@ -203,6 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest, true);
             serviceHost.SetRequestHandler(SaveResultsAsMarkdownRequest.Type, this.HandleSaveResultsAsMarkdownRequest, true);
             serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest, true);
+            serviceHost.SetRequestHandler(SaveResultsAsInsertRequest.Type, HandleSaveResultsAsInsertRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest, true);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
@@ -591,6 +598,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, xmlFactory);
+        }
+
+        /// <summary>
+        /// Process request to save a resultSet to a file in INSERT statements format
+        /// </summary>
+        internal async Task HandleSaveResultsAsInsertRequest(SaveResultsAsInsertRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // Use the default INSERT file factory if we haven't overridden it
+            IFileStreamFactory insertFactory = InsertFileFactory ?? new SaveAsInsertFileStreamFactory
+            {
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
+            };
+            await SaveResultsHelper(saveParams, requestContext, insertFactory);
         }
 
         #endregion
