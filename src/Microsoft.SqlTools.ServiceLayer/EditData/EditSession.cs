@@ -391,10 +391,31 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
+        /// Generates the scripts of all pending edits.
+        /// </summary>
+        /// <returns>The generated edit scripts</returns>
+        public string[] ScriptEdits()
+        {
+            ThrowIfNotInitialized();
+
+            var scripts = new List<string>();
+
+            List<RowEditBase> editOperations = EditCache.Values.ToList();
+            editOperations.Sort();
+
+            foreach (var rowEdit in editOperations)
+            {
+                scripts.Add(rowEdit.GetScript());
+            }
+
+            return scripts.ToArray();
+        }
+
+        /// <summary>
         /// Generates a single script file with all the pending edits scripted.
         /// </summary>
         /// <param name="outputPath">The path to output the script to</param>
-        /// <returns></returns>
+        /// <returns>The path to the generated script</returns>
         public string ScriptEdits(string outputPath)
         {
             ThrowIfNotInitialized();

@@ -86,6 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, true);
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, true);
             serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, true);
+            serviceHost.SetRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest, true);
         }
 
         #region Request Handlers
@@ -226,6 +227,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             catch (Exception e)
             {
                 await failureHandler(e);
+            }
+        }
+
+        internal async Task HandleEditScriptRequest(EditScriptParams scriptParams, RequestContext<EditScriptResult> requestContext)
+        {
+            try
+            {
+                EditSession session = GetActiveSessionOrThrow(scriptParams.OwnerUri);
+                string[] scripts = session.ScriptEdits();
+                var result = new EditScriptResult() { Scripts = scripts };
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+
+                await requestContext.SendError(e.Message);
             }
         }
 
