@@ -10,18 +10,18 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Scriptoria.API;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
 using Microsoft.Scriptoria.Models;
-using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
 using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
 using Microsoft.SqlTools.Connectors.VSCode;
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private static IDictionary<string, string> _connectionContext = new Dictionary<string, string>();
 
         // active cartridge
-        private static CartridgeBase? _activeCartridge = null;
+        private static ICartridge? _activeCartridge = null;
 
         public CopilotConversationManager()
         {
@@ -167,11 +167,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 // Register the ScriptoriaTrace as IScriptoriaTrace
                 services.AddSingleton<IScriptoriaTrace, CopilotLogger>();
-                services.AddSingleton<ICartridgeContentManager, CartridgeContentManager>();
+                services.AddSingleton<ICartridgeContentManagerFactory, CartridgeContentManagerFactory>();
                 services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
                 services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
                 services.AddSingleton<IScriptoriaExecutionContext, SqlScriptoriaExecutionContext>();
-                services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
+                // services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
                 services.AddSingleton<IKernelBuilder>((sp) => builder);
 
                 ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
@@ -185,27 +185,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-                Bootstrapper cartridgeBootstrapper = new Bootstrapper(serviceProvider, new ChatExecutionAccessCheckerFactory());
+                var scriptoriaTrace = serviceProvider.GetRequiredService<IScriptoriaTrace>();
+                var cartridgeBootstrapper = new ScriptoriaCartridgeBootstrapper<SqlCartridge>(scriptoriaTrace, ScriptoriaPackages.AssemblyNames.ToList());
 
                 var _executionContext = serviceProvider.GetRequiredService<IScriptoriaExecutionContext>();
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
                 // context we add what experience this is being loaded into by the client.
-                await _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat, sqlService!);
+                var cartridgeContextSettings = new CartridgeContextSettings
+                {
+                    CartridgeExperience = CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat,
+                    ContextSettings = new Dictionary<string, string>()
+                };
+                await _executionContext.LoadExecutionContextAsync(cartridgeContextSettings, sqlService!, CancellationToken.None);
 
 
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 
                 // the 'Experience' and 'Version' properties will deterime which cartridge is loaded.
                 // other configuration values will be used by toolsets in the future as well.
-                _activeCartridge = cartridgeBootstrapper.LoadCartridge();
+                _activeCartridge = cartridgeBootstrapper.LoadCartridge(serviceProvider, _executionContext);
                 await _activeCartridge.InitializeToolsetsAsync();
 
                 // rebuild the kernel with the set of plugins for the current database
                 userSessionKernel = builder.Build();
                 userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
 
+                var cartridgeContentManager = serviceProvider.GetRequiredService<ICartridgeContentManager>();
                 // read-only is the default startup mode
-                _activeCartridge.AccessChecker.ExecutionMode = CopilotAccessModes.READ_WRITE_NEVER;
+                // TODO _activeCartridge.AccessChecker = new ChatExecutionAccessChecker(cartridgeContentManager.ReadOnlyProcs, scriptoriaTrace);
+                _activeCartridge.AccessChecker.ExecutionMode = AccessModes.READ_WRITE_NEVER;
 
                 // use a hardcoded system prompt until we can tune the SqlScriptoria system prompt construction
                 var systemPrompt = @"
@@ -373,20 +381,20 @@ VERSION AWARENESS:
             }
         }
 
-        private async Task<RpcResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
+        private async Task<ScriptoriaResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
         {
             if (chatHistory == null)
             {
                 var errorMessage = "Chat history not initialized.  Call InitializeAsync first.";
                 Logger.Error($"Prompt Received Error: {errorMessage}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
             if (userChatCompletionService == null) // || _plannerChatCompletionService == null || _databaseQueryChatCompletionService == null)
             {
                 var errorMessage = "Chat completion service not initialized.  Call InitializeAsync first.";
                 Logger.Error($"Prompt Received Error: {errorMessage}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
             var sqlExecuteRpcParent = rpcClients[chatExchangeId];
@@ -394,7 +402,7 @@ VERSION AWARENESS:
             {
                 var errorMessage = "Communication channel not configured.  Call InitializeAsync first.";
                 Logger.Error($"Prompt Received Error: {errorMessage}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
             Logger.Verbose( $"User prompt received.");
@@ -408,7 +416,7 @@ VERSION AWARENESS:
             await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeStartedAsync", chatExchangeId);
 
             // setup the default response
-            RpcResponse<string> promptResponse = new RpcResponse<string>("Success");
+            ScriptoriaResponse<string> promptResponse = new ScriptoriaResponse<string>("Success");
 
             try
             {
@@ -449,7 +457,7 @@ VERSION AWARENESS:
                     await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeCanceledAsync", chatExchangeId);
 
                     // change the prompt response to indicate the cancellation
-                    promptResponse = new RpcResponse<string>(SqlCopilotRpcReturnCodes.TaskCancelled, "Request canceled by client.");
+                    promptResponse = new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, "Request canceled by client.");
                 }
                 else
                 {
@@ -463,7 +471,7 @@ VERSION AWARENESS:
             catch (HttpOperationException e)
             {
                 Logger.Error($"Copilot Server Exception: {e.Message}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.ApiException, e.Message);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, e.Message);
             }
             finally
             {

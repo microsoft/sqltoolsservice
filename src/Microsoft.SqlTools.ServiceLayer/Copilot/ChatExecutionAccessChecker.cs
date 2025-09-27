@@ -5,29 +5,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
-using Microsoft.Scriptoria.Services;
-using Microsoft.SemanticKernel;
 using Microsoft.SqlTools.ServiceLayer.Copilot.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
-    /// <summary>
-    /// A factory for creating instances of <see cref="ExecutionAccessChecker"/>.
-    /// </summary>
-    public class ChatExecutionAccessCheckerFactory : IExecutionAccessCheckerFactory
-    {
-        /// <inheritdoc />
-        public IExecutionAccessChecker Create(Kernel kernel, IList<string> readOnlyProcs, IScriptoriaTrace scriptoriaTrace)
-        {
-            // Creates and returns a new ExecutionAccessChecker.
-            return new ChatExecutionAccessChecker(readOnlyProcs, scriptoriaTrace);
-        }
-    }
-
-
     /// <summary>
     /// 
     /// </summary>
@@ -79,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         /// <summary>
         /// utility class that is used to evaluate a given script and determine 
         /// the required access it needs.  It evaluates the script and will return
-        /// a role (access mode) from CopilotAccessModes.
+        /// a role (access mode) from AccessModes.
         /// 
         /// This is not an actual permissions check, true permissions are still the 
         /// sql permissions in the engine.  This layer is a behavioral role that the user
@@ -91,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         /// <param name="readOnlyProcs"></param>
         public ChatExecutionAccessChecker(IList<string> readOnlyProcs, IScriptoriaTrace copilotLogger)
         {
-            ExecutionMode = CopilotAccessModes.READ_WRITE_NEVER;
+            ExecutionMode = AccessModes.READ_WRITE_NEVER;
             ActiveExchangeId = string.Empty;
             _listOfProcs = string.Join(",", readOnlyProcs);
             _copilotLogger = copilotLogger;
@@ -100,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         /// <summary>
         /// what execution mode the copilot is currently running in.
-        /// This will be a value from CopilotAccessModes
+        /// This will be a value from AccessModes
         /// </summary>
         public string ExecutionMode { get; set; }
 
@@ -114,7 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         /// </summary>
         /// <param name="queryToCheck"></param>
         /// <returns>the access level required to execute the provided script</returns> 
-        public async Task<string> CheckRequiredRoleAsync(string queryToCheck)
+
+        public async Task<string> CheckRequiredRoleAsync(string queryToCheck, CancellationToken cancellationToken)
         {
             var shortQueryText = queryToCheck.Length > 30 ? $"{queryToCheck.Substring(0, 30)}..." : queryToCheck;
             _copilotLogger.WriteInfoEvent(ScriptoriaTraceEvents.KernelFunctionCall,
@@ -180,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
         public string CheckRequiredRole(string queryToCheck)
         {
-            return Task.Run(async () => await CheckRequiredRoleAsync(queryToCheck)).Result;
+            return Task.Run(async () => await CheckRequiredRoleAsync(queryToCheck, CancellationToken.None)).Result;
         }
 
         /// <summary>
@@ -193,8 +179,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 switch (ExecutionMode)
                 {
                     // both write modes have the same instructions.  the approval is handled by the client API without the LLM knowing the difference.
-                    case CopilotAccessModes.READ_WRITE_APPROVAL:
-                    case CopilotAccessModes.READ_WRITE:
+                    case AccessModes.READ_WRITE_APPROVAL:
+                    case AccessModes.READ_WRITE:
                         return @"
                             YOUR QUERY EXECUTION MODE: 
                                 You are running in read-write mode.
@@ -202,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                                 ";
 
                     // default is read-only
-                    case CopilotAccessModes.READ_WRITE_NEVER:
+                    case AccessModes.READ_WRITE_NEVER:
                     default:
                         return @"
                             YOUR QUERY EXECUTION MODE: 

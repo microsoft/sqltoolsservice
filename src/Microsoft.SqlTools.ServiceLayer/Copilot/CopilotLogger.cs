@@ -17,6 +17,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
     {
         public TraceSource Source => Logger.TraceSource!;
 
+        //TODO
+        public string LogFilePath => throw new NotImplementedException();
+
+
         public void WriteInfoEvent(int eventId, string message)
         {
             Logger.Information(FormatMessage(eventId, message));

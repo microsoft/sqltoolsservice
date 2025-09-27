@@ -8,11 +8,16 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
+using Microsoft.Scriptoria.Models;
 using Microsoft.SqlTools.Utility;
+using ScriptoriaCommonDefs;
 
 namespace Microsoft.SqlTools.ServiceLayer.Copilot
 {
@@ -129,11 +134,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             object[] sqlParams = parameters.Length > 2 ?
                 (object[])parameters[2] : Array.Empty<object>();
 
-            var result = await _sqlService.ExecuteSqlQueryAsync(
-                query, isStoredProc, sqlParams);
+            var result = await _sqlService.ExecuteQueryAsync(
+                new QueryContentDescriptor { 
+                    Query = query, 
+                    ExecuteStoredProcedure = isStoredProc,
+                    QueryParameters = sqlParams.Select(p => p.ToString()).ToList()
+                }, CancellationToken.None);
 
             return typeof(T) == typeof(string)
-                ? (T)(object)result
+                ? (T)(object)result.Result  // Extract string result from QueryResult
                 : throw new InvalidCastException("Invalid return type");
         }
 
@@ -195,8 +204,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             _sqlConnection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        public async Task<string> ExecuteSqlQueryAsync(string query, bool execSP, params object[] parameters)
+        public async Task<QueryResult> ExecuteQueryAsync(QueryContentDescriptor queryContentDescriptor, CancellationToken cancellationToken)
         {
+            // Extract parameters from the new interface
+            string query = queryContentDescriptor?.Query ?? throw new ArgumentNullException(nameof(queryContentDescriptor));
+            object[] parameters = queryContentDescriptor.QueryParameters?.ToArray() ?? new object[0];
+            bool execSP = queryContentDescriptor.ExecuteStoredProcedure;
+            
             if (_sqlConnection != null && _sqlConnection.State == ConnectionState.Open)
             {
                 // create a command to execute the sql
@@ -219,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 try
                 {
                     // execute the query async and then process the results, returning them as a string
-                    using (var reader = await command.ExecuteReaderAsync())
+                    using (var reader = await command.ExecuteReaderAsync(cancellationToken))
                     {
                         var result = new System.Text.StringBuilder();
                         do
@@ -234,19 +248,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                             _ = result.Append("\n");
                         } while (reader.NextResult());
 
-                        return result.ToString();
+                        // Wrap string result in QueryResult
+                        return new QueryResult(result.ToString(), null, null);
                     }
                 }
                 catch (Exception e)
                 {
                     // return the error to the LLM
                     System.Diagnostics.Debug.WriteLine(e.Message);
-                    return $"The following error occured querying the database: {e.Message}";
+                    // Wrap error result in QueryResult
+                    return new QueryResult($"The following error occured querying the database: {e.Message}", e, null);
                 }
             }
             else
             {
-                return "Not connected to a database";
+                // Wrap connection error in QueryResult
+                return new QueryResult("Not connected to a database", null, null);
             }
         }
 
@@ -273,6 +290,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         {
             // not used in the evaluation framework
             return Task.FromResult(string.Empty);
+        }
+
+        public async Task<HttpResponseMessage> ExecuteHttpRequestAsync(HttpRequestDescriptor httpRequestDescriptor, CancellationToken cancellationToken)
+        {
+            // For now, return a not implemented response
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotImplemented)
+            {
+                Content = new System.Net.Http.StringContent("HTTP requests not supported in this context")
+            };
+            return await Task.FromResult(response);
         }
     }
 }
