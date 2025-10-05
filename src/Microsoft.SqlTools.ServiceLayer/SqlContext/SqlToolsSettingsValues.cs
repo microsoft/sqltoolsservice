@@ -61,6 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         public TableDesignerSettings TableDesigner { get; set; }
 
         /// <summary>
+        /// Gets or sets the save as CSV settings
+        /// </summary>
+        [JsonProperty("saveAsCsv")]
+        public SaveAsCsvSettings SaveAsCsv { get; set; }
+
+        /// <summary>
         /// Gets or sets the setting to enable PII Logging.
         /// </summary>
         [JsonProperty("piiLogging")]

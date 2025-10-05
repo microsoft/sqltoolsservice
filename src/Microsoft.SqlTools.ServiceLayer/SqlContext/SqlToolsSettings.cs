@@ -14,11 +14,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// </summary>
     public class SqlToolsSettings
     {
-        private ISqlToolsSettingsValues sqlTools = null; 
-        private SqlToolsSettingsValues mssqlTools = null; 
-        private SqlToolsSettingsValues allSqlTools = null; 
+        private ISqlToolsSettingsValues sqlTools = null;
+        private SqlToolsSettingsValues mssqlTools = null;
+        private SqlToolsSettingsValues allSqlTools = null;
         private TelemetrySettingsValues telemetrySettings = null;
         private QueryEditorSettingsValues queryEditorSettings = null;
+        private FilesSettings filesSettings = null;
 
         public ISqlToolsSettingsValues SqlTools 
         { 
@@ -102,11 +103,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
+        /// Gets or sets the files settings value object
+        /// </summary>
+        [JsonProperty("files")]
+        public FilesSettings FilesSettings
+        {
+            get
+            {
+                this.filesSettings ??= new FilesSettings();
+                return this.filesSettings;
+            }
+            set
+            {
+                this.filesSettings = value;
+            }
+        }
+
+        /// <summary>
         /// Query execution settings forwarding property
         /// </summary>
-        public QueryExecutionSettings QueryExecutionSettings 
-        { 
-            get { return this.SqlTools.QueryExecutionSettings; } 
+        public QueryExecutionSettings QueryExecutionSettings
+        {
+            get { return this.SqlTools.QueryExecutionSettings; }
         }
 
         /// <summary>

@@ -13,6 +13,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -138,7 +139,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The collection of query session execution options tracking flags
         /// </summary>
         internal ConcurrentDictionary<string, bool> QuerySessionSettingsApplied => querySessionSettingsApplied.Value;
-        
+
+        /// <summary>
+        /// Cancellation token sources for ongoing copy/summary operations
+        /// </summary>
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> activeCopyOperations = new ConcurrentDictionary<string, CancellationTokenSource>();
+
         /// <summary>
         /// Internal task for testability
         /// </summary>
@@ -200,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest, true);
             // Parallel Message processing must be disabled for Subset Request, as the requests must be adhered to in order of when they arrive.
             // Executing in parallel can lead to randomly ordered results, for this reason we should keep it false.
-            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, false);
+            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, true);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest, true);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest, true);
             serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
@@ -214,6 +220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
             serviceHost.SetRequestHandler(CopyResultsRequest.Type, HandleCopyResultsRequest, true);
+            serviceHost.SetRequestHandler(GridSelectionSummaryRequest.Type, HandleGridSelectionSummaryRequest, true);
+            serviceHost.SetRequestHandler(CopyResults2Request.Type, HandleCopyResults2Request, true);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -896,6 +904,789 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             await ClipboardService.SetTextAsync(builder.ToString());
             await requestContext.SendResult(new CopyResultsRequestResult());
+        }
+
+        /// <summary>
+        /// Handles the copy results with format.
+        /// </summary>
+        internal async Task HandleCopyResults2Request(CopyResults2RequestParams requestParams, RequestContext<CopyResults2RequestResult> requestContext)
+        {
+            // Cancel any ongoing copy operation for this owner URI
+            var operationKey = $"copy_{requestParams.OwnerUri}";
+            CancelOngoingOperation(operationKey);
+
+            // Create new cancellation token for this operation
+            var cts = new CancellationTokenSource();
+            activeCopyOperations[operationKey] = cts;
+
+            try
+            {
+                var columnRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+                var rowRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromRow, End = selection.ToRow }).ToList());
+                var pageSize = 200;
+
+                // Get query and columns
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+                Query query;
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                // Get column information
+                var allColumns = query.Batches[requestParams.BatchIndex].ResultSets[requestParams.ResultSetIndex].Columns;
+                var selectedColumnIndices = new List<int>();
+                for (int i = 0; i < allColumns.Length; i++)
+                {
+                    if (columnRanges.Any(range => i >= range.Start && i <= range.End))
+                    {
+                        selectedColumnIndices.Add(i);
+                    }
+                }
+
+                // Collect all rows
+                var allRows = new List<DbCellValue[]>();
+                for (int rowRangeIndex = 0; rowRangeIndex < rowRanges.Count; rowRangeIndex++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+
+                    var rowRange = rowRanges[rowRangeIndex];
+                    var pageStartRowIndex = rowRange.Start;
+
+                    do
+                    {
+                        cts.Token.ThrowIfCancellationRequested();
+
+                        var rowsToFetch = Math.Min(pageSize, rowRange.End - pageStartRowIndex + 1);
+                        ResultSetSubset subset = await InterServiceResultSubset(new SubsetParams()
+                        {
+                            OwnerUri = requestParams.OwnerUri,
+                            ResultSetIndex = requestParams.ResultSetIndex,
+                            BatchIndex = requestParams.BatchIndex,
+                            RowsStartIndex = pageStartRowIndex,
+                            RowsCount = rowsToFetch
+                        });
+
+                        for (int rowIndex = 0; rowIndex < subset.Rows.Length; rowIndex++)
+                        {
+                            var row = subset.Rows[rowIndex];
+
+                            // Filter cells based on selection
+                            var selectedCells = new List<DbCellValue>();
+                            foreach (var colIdx in selectedColumnIndices)
+                            {
+                                if (requestParams.Selections.Any(selection =>
+                                    selection.FromRow <= rowIndex + pageStartRowIndex &&
+                                    selection.ToRow >= rowIndex + pageStartRowIndex &&
+                                    selection.FromColumn <= colIdx &&
+                                    selection.ToColumn >= colIdx))
+                                {
+                                    selectedCells.Add(row != null && row[colIdx] != null ? row[colIdx] : new DbCellValue { IsNull = true });
+                                }
+                            }
+
+                            if (selectedCells.Count > 0)
+                            {
+                                allRows.Add(selectedCells.ToArray());
+                            }
+                        }
+                        pageStartRowIndex += rowsToFetch;
+                    } while (pageStartRowIndex <= rowRange.End);
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                // Get selected column metadata
+                var selectedColumns = selectedColumnIndices.Select(i => allColumns[i]).ToArray();
+
+                // Format based on copy type
+                string result = FormatCopyResults(requestParams.CopyType, requestParams.IncludeHeaders, selectedColumns, allRows);
+
+                await ClipboardService.SetTextAsync(result);
+                await requestContext.SendResult(new CopyResults2RequestResult());
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, don't send error
+            }
+            finally
+            {
+                // Clean up the cancellation token
+                activeCopyOperations.TryRemove(operationKey, out _);
+                cts.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Formats the copy results based on the specified copy type.
+        /// </summary>
+        private string FormatCopyResults(CopyType copyType, bool includeHeaders, DbColumnWrapper[] columns, List<DbCellValue[]> rows)
+        {
+            switch (copyType)
+            {
+                case CopyType.Text:
+                    return FormatAsText(false, columns, rows);
+                case CopyType.TextWithHeaders:
+                    return FormatAsText(true, columns, rows);
+                case CopyType.JSON:
+                    return FormatAsJson(columns, rows);
+                case CopyType.CSV:
+                    return FormatAsCsv(includeHeaders, columns, rows);
+                case CopyType.INSERT:
+                    return FormatAsInsert(includeHeaders, columns, rows);
+                case CopyType.IN:
+                    return FormatAsIn(columns, rows);
+                default:
+                    return FormatAsText(includeHeaders, columns, rows);
+            }
+        }
+
+        /// <summary>
+        /// Formats data as tab-separated text.
+        /// </summary>
+        private string FormatAsText(bool includeHeaders, DbColumnWrapper[] columns, List<DbCellValue[]> rows)
+        {
+            var builder = new StringBuilder();
+            var valueSeparator = "\t";
+            var lineSeparator = GetLineSeparator();
+
+            // Add headers if requested
+            if (includeHeaders)
+            {
+                builder.Append(string.Join(valueSeparator, columns.Select(c => c.ColumnName)));
+                builder.Append(lineSeparator);
+            }
+
+            // Add rows
+            foreach (var row in rows)
+            {
+                var values = new List<string>();
+                for (int i = 0; i < row.Length; i++)
+                {
+                    var cell = row[i];
+                    if (cell != null && !cell.IsNull && cell.DisplayValue != null)
+                    {
+                        values.Add(Settings?.QueryEditorSettings?.Results?.CopyRemoveNewLine ?? true
+                            ? cell.DisplayValue.ReplaceLineEndings(" ")
+                            : cell.DisplayValue);
+                    }
+                    else
+                    {
+                        values.Add(string.Empty);
+                    }
+                }
+                builder.Append(string.Join(valueSeparator, values));
+                builder.Append(lineSeparator);
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Formats data as JSON array.
+        /// </summary>
+        private string FormatAsJson(DbColumnWrapper[] columns, List<DbCellValue[]> rows)
+        {
+            using (var stringWriter = new StringWriter())
+            using (var jsonWriter = new Newtonsoft.Json.JsonTextWriter(stringWriter))
+            {
+                jsonWriter.Formatting = Newtonsoft.Json.Formatting.Indented;
+
+                // Write the array start
+                jsonWriter.WriteStartArray();
+
+                // Write each row as an object
+                for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
+                {
+                    var row = rows[rowIdx];
+                    jsonWriter.WriteStartObject();
+
+                    for (int i = 0; i < columns.Length && i < row.Length; i++)
+                    {
+                        jsonWriter.WritePropertyName(columns[i].ColumnName);
+
+                        if (row[i] == null || row[i].IsNull || row[i].RawObject == null)
+                        {
+                            jsonWriter.WriteNull();
+                        }
+                        else
+                        {
+                            // Try converting to column type
+                            try
+                            {
+                                var value = Convert.ChangeType(row[i].DisplayValue, columns[i].DataType);
+                                jsonWriter.WriteValue(value);
+                            }
+                            // Default column type as string
+                            catch
+                            {
+                                jsonWriter.WriteValue(row[i].DisplayValue);
+                            }
+                        }
+                    }
+
+                    jsonWriter.WriteEndObject();
+                }
+
+                // Write the array end
+                jsonWriter.WriteEndArray();
+
+                jsonWriter.Flush();
+                return stringWriter.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Formats data as CSV.
+        /// </summary>
+        private string FormatAsCsv(bool includeHeaders, DbColumnWrapper[] columns, List<DbCellValue[]> rows)
+        {
+            var builder = new StringBuilder();
+
+            // Get settings with defaults
+            var csvSettings = Settings?.MssqlTools?.SaveAsCsv;
+            var delimiter = csvSettings?.Delimiter ?? ",";
+            var lineSeparator = csvSettings?.LineSeparator ?? GetLineSeparator();
+            var textIdentifier = csvSettings?.TextIdentifier ?? "\"";
+            var useHeaders = csvSettings?.IncludeHeaders ?? includeHeaders;
+
+            // Add headers if requested
+            if (useHeaders)
+            {
+                builder.Append(string.Join(delimiter, columns.Select(c => EncodeCsvFieldWithSettings(c.ColumnName, textIdentifier))));
+                builder.Append(lineSeparator);
+            }
+
+            // Add rows
+            foreach (var row in rows)
+            {
+                var values = new List<string>();
+                for (int i = 0; i < row.Length; i++)
+                {
+                    var cell = row[i];
+                    values.Add(EncodeCsvFieldWithSettings(cell?.DisplayValue, textIdentifier));
+                }
+                builder.Append(string.Join(delimiter, values));
+                builder.Append(lineSeparator);
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Formats data as INSERT statement.
+        /// </summary>
+        private string FormatAsInsert(bool includeHeaders, DbColumnWrapper[] columns, List<DbCellValue[]> rows)
+        {
+            var builder = new StringBuilder();
+            var tableName = "TableName";
+            var lineSeparator = GetLineSeparator();
+            const int batchSize = 1000;
+
+            // Process rows in batches
+            for (int batchStart = 0; batchStart < rows.Count; batchStart += batchSize)
+            {
+                int batchEnd = Math.Min(batchStart + batchSize, rows.Count);
+
+                // Add INSERT statement header
+                builder.Append("INSERT INTO ");
+                builder.Append(EscapeSqlIdentifier(tableName));
+
+                if (includeHeaders)
+                {
+                    builder.Append(" (");
+                    builder.Append(string.Join(", ", columns.Select(c => EscapeSqlIdentifier(c.ColumnName))));
+                    builder.Append(")");
+                }
+
+                builder.Append(lineSeparator);
+                builder.Append("VALUES");
+                builder.Append(lineSeparator);
+
+                // Add rows for this batch
+                for (int rowIdx = batchStart; rowIdx < batchEnd; rowIdx++)
+                {
+                    var row = rows[rowIdx];
+                    var values = new List<string>();
+
+                    for (int i = 0; i < row.Length; i++)
+                    {
+                        values.Add(FormatSqlValue(row[i]));
+                    }
+
+                    builder.Append("    (");
+                    builder.Append(string.Join(", ", values));
+                    builder.Append(")");
+
+                    if (rowIdx < batchEnd - 1)
+                    {
+                        builder.Append(",");
+                        builder.Append(lineSeparator);
+                    }
+                    else
+                    {
+                        builder.Append(";");
+                        builder.Append(lineSeparator);
+                    }
+                }
+
+                // Add a blank line between batches
+                if (batchEnd < rows.Count)
+                {
+                    builder.Append(lineSeparator);
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Formats data as IN clause.
+        /// </summary>
+        private string FormatAsIn(DbColumnWrapper[] columns, List<DbCellValue[]> rows)
+        {
+            var builder = new StringBuilder();
+            var lineSeparator = GetLineSeparator();
+
+            builder.Append("IN");
+            builder.Append(lineSeparator);
+            builder.Append("(");
+            builder.Append(lineSeparator);
+
+            for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
+            {
+                var row = rows[rowIdx];
+
+                // Format values from the same row on the same line, comma-separated
+                builder.Append("    ");
+                var values = new List<string>();
+                for (int i = 0; i < row.Length; i++)
+                {
+                    values.Add(FormatSqlValue(row[i]));
+                }
+                builder.Append(string.Join(", ", values));
+
+                if (rowIdx < rows.Count - 1)
+                {
+                    builder.Append(",");
+                    builder.Append(lineSeparator);
+                }
+                else
+                {
+                    builder.Append(lineSeparator);
+                }
+            }
+
+            builder.Append(")");
+            builder.Append(lineSeparator);
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Encodes a CSV field by escaping quotes and wrapping in quotes if needed.
+        /// </summary>
+        private string EncodeCsvField(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+            // If the value contains comma, quote, or newline, wrap in quotes and escape quotes
+            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
+            {
+                return "\"" + value.Replace("\"", "\"\"") + "\"";
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Escapes a JSON string.
+        /// </summary>
+        private string EscapeJsonString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+            return value
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\t", "\\t");
+        }
+
+        /// <summary>
+        /// Escapes a SQL identifier.
+        /// </summary>
+        private string EscapeSqlIdentifier(string identifier)
+        {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                return identifier;
+            }
+
+            // Check if the identifier needs escaping
+            if (identifier.Contains(" ") || identifier.Contains("-") || !char.IsLetter(identifier[0]))
+            {
+                return $"[{identifier.Replace("]", "]]")}]";
+            }
+
+            return identifier;
+        }
+
+        /// <summary>
+        /// Formats a SQL value for use in INSERT or IN statements.
+        /// </summary>
+        private string FormatSqlValue(DbCellValue cellValue)
+        {
+            if (cellValue == null || cellValue.IsNull || cellValue.DisplayValue == null)
+            {
+                return "NULL";
+            }
+
+            string value = cellValue.DisplayValue;
+
+            // Check if value needs quoting (not a number or boolean)
+            if (!decimal.TryParse(value, out _) && !bool.TryParse(value, out _))
+            {
+                return "'" + value.Replace("'", "''") + "'";
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Determines if a value needs quoting in JSON.
+        /// </summary>
+        private bool NeedsQuotingForJson(object value)
+        {
+            if (value == null) return false;
+
+            var type = value.GetType();
+            return !(type == typeof(int) || type == typeof(long) || type == typeof(short) ||
+                     type == typeof(byte) || type == typeof(decimal) || type == typeof(double) ||
+                     type == typeof(float) || type == typeof(bool));
+        }
+
+        /// <summary>
+        /// Gets the line separator from settings or uses OS default.
+        /// </summary>
+        private string GetLineSeparator()
+        {
+            // Check files.eol setting first
+            var filesEol = Settings?.FilesSettings?.Eol;
+            if (!string.IsNullOrEmpty(filesEol))
+            {
+                switch (filesEol)
+                {
+                    case "\n":
+                        return "\n";
+                    case "\r\n":
+                        return "\r\n";
+                    case "auto":
+                    default:
+                        return Environment.NewLine;
+                }
+            }
+
+            // Fall back to OS default
+            return Environment.NewLine;
+        }
+
+        /// <summary>
+        /// Cancels an ongoing copy or summary operation if one exists.
+        /// </summary>
+        private void CancelOngoingOperation(string operationKey)
+        {
+            if (activeCopyOperations.TryRemove(operationKey, out var existingCts))
+            {
+                try
+                {
+                    existingCts.Cancel();
+                    existingCts.Dispose();
+                }
+                catch
+                {
+                    // Ignore any exceptions during cancellation
+                }
+            }
+        }
+
+        /// <summary>
+        /// Encodes a CSV field with custom text identifier.
+        /// </summary>
+        private string EncodeCsvFieldWithSettings(string value, string textIdentifier)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+            // Get the delimiter from settings
+            var csvSettings = Settings?.MssqlTools?.SaveAsCsv;
+            var delimiter = csvSettings?.Delimiter ?? ",";
+
+            // If the value contains delimiter, text identifier, or newline, wrap in text identifier and escape text identifier
+            if (value.Contains(delimiter) || value.Contains(textIdentifier) || value.Contains("\n") || value.Contains("\r"))
+            {
+                return textIdentifier + value.Replace(textIdentifier, textIdentifier + textIdentifier) + textIdentifier;
+            }
+
+            return value;
+        }
+
+        internal async Task HandleGridSelectionSummaryRequest(GridSelectionSummaryRequestParams requestParams, RequestContext<GridSelectionSummaryResponse> requestContext)
+        {
+            // Cancel any ongoing summary operation for this owner URI
+            var operationKey = $"summary_{requestParams.OwnerUri}";
+            CancelOngoingOperation(operationKey);
+
+            // Create new cancellation token for this operation
+            var cts = new CancellationTokenSource();
+            activeCopyOperations[operationKey] = cts;
+
+            try
+            {
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+
+                // Get the query
+                Query query;
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                var columnRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+                var rowRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromRow, End = selection.ToRow }).ToList());
+                var pageSize = 200;
+
+            long count = 0;
+            long nullCount = 0;
+            var distinctValues = new HashSet<string>();
+
+            // Track numeric statistics
+            decimal sum = 0;
+            double? min = null;
+            double? max = null;
+            long numericValueCount = 0;
+            bool hasOverflow = false;
+
+                for (int rowRangeIndex = 0; rowRangeIndex < rowRanges.Count; rowRangeIndex++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+
+                    var rowRange = rowRanges[rowRangeIndex];
+                    var pageStartRowIndex = rowRange.Start;
+
+                    do
+                    {
+                        cts.Token.ThrowIfCancellationRequested();
+
+                        var rowsToFetch = Math.Min(pageSize, rowRange.End - pageStartRowIndex + 1);
+                        ResultSetSubset subset = await InterServiceResultSubset(new SubsetParams()
+                    {
+                        OwnerUri = requestParams.OwnerUri,
+                        ResultSetIndex = requestParams.ResultSetIndex,
+                        BatchIndex = requestParams.BatchIndex,
+                        RowsStartIndex = pageStartRowIndex,
+                        RowsCount = rowsToFetch
+                    });
+
+                    for (int rowIndex = 0; rowIndex < subset.Rows.Length; rowIndex++)
+                    {
+                        var row = subset.Rows[rowIndex];
+                        for (int columnRangeIndex = 0; columnRangeIndex < columnRanges.Count; columnRangeIndex++)
+                        {
+                            var columnRange = columnRanges[columnRangeIndex];
+                            for (int columnIndex = columnRange.Start; columnIndex <= columnRange.End; columnIndex++)
+                            {
+                                // Check if this cell is in the selection
+                                if (requestParams.Selections.Any(selection =>
+                                    selection.FromRow <= rowIndex + pageStartRowIndex &&
+                                    selection.ToRow >= rowIndex + pageStartRowIndex &&
+                                    selection.FromColumn <= columnIndex &&
+                                    selection.ToColumn >= columnIndex))
+                                {
+                                    count++;
+
+                                    if (row != null && row[columnIndex] != null)
+                                    {
+                                        var cell = row[columnIndex];
+
+                                        // Check if null
+                                        if (cell.IsNull)
+                                        {
+                                            nullCount++;
+                                        }
+                                        else
+                                        {
+                                            // Track distinct values
+                                            string displayValue = cell.DisplayValue ?? string.Empty;
+                                            distinctValues.Add(displayValue);
+
+                                            // Try to parse as numeric for sum, min, max, average calculations
+                                            if (TryGetNumericValue(cell.RawObject, out double numericValue))
+                                            {
+                                                numericValueCount++;
+
+                                                // Update min/max
+                                                if (!min.HasValue || numericValue < min.Value)
+                                                {
+                                                    min = numericValue;
+                                                }
+                                                if (!max.HasValue || numericValue > max.Value)
+                                                {
+                                                    max = numericValue;
+                                                }
+
+                                                // Try to add to sum with overflow checking
+                                                if (!hasOverflow)
+                                                {
+                                                    try
+                                                    {
+                                                        checked
+                                                        {
+                                                            sum += (decimal)numericValue;
+                                                        }
+                                                    }
+                                                    catch (OverflowException)
+                                                    {
+                                                        hasOverflow = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nullCount++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                        pageStartRowIndex += rowsToFetch;
+                    } while (pageStartRowIndex <= rowRange.End);
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                // Calculate average if we have numeric values
+                double? average = null;
+                if (numericValueCount > 0 && !hasOverflow)
+                {
+                    average = (double)sum / numericValueCount;
+                }
+
+                // If no numeric values were processed, set sum/min/max/average to null
+                var response = new GridSelectionSummaryResponse
+                {
+                    Count = count,
+                    NullCount = nullCount,
+                    DistinctCount = distinctValues.Count,
+                    Sum = numericValueCount > 0 && !hasOverflow ? sum : 0,
+                    Average = numericValueCount > 0 ? average : null,
+                    Min = numericValueCount > 0 ? min : null,
+                    Max = numericValueCount > 0 ? max : null
+                };
+
+                await requestContext.SendResult(response);
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, don't send error
+            }
+            finally
+            {
+                // Clean up the cancellation token
+                activeCopyOperations.TryRemove(operationKey, out _);
+                cts.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Helper method to try to extract a numeric value from a cell's raw object
+        /// </summary>
+        private bool TryGetNumericValue(object rawValue, out double numericValue)
+        {
+            numericValue = 0;
+
+            if (rawValue == null)
+            {
+                return false;
+            }
+
+            // Handle different numeric types
+            try
+            {
+                if (rawValue is byte b)
+                {
+                    numericValue = b;
+                    return true;
+                }
+                if (rawValue is short s)
+                {
+                    numericValue = s;
+                    return true;
+                }
+                if (rawValue is int i)
+                {
+                    numericValue = i;
+                    return true;
+                }
+                if (rawValue is long l)
+                {
+                    numericValue = l;
+                    return true;
+                }
+                if (rawValue is float f)
+                {
+                    numericValue = f;
+                    return true;
+                }
+                if (rawValue is double d)
+                {
+                    numericValue = d;
+                    return true;
+                }
+                if (rawValue is decimal m)
+                {
+                    numericValue = (double)m;
+                    return true;
+                }
+                if (rawValue is bool boolVal)
+                {
+                    numericValue = boolVal ? 1 : 0;
+                    return true;
+                }
+
+                // Try parsing string values as numbers
+                if (rawValue is string str && !string.IsNullOrWhiteSpace(str))
+                {
+                    if (double.TryParse(str, out double parsedValue))
+                    {
+                        numericValue = parsedValue;
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                // If any conversion fails, treat as non-numeric
+                return false;
+            }
+
+            return false;
         }
 
         #endregion
