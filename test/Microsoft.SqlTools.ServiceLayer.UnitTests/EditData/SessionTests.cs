@@ -603,9 +603,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[0] = mockEdit;
 
             // If: I revert the row that has a pending update
-            s.RevertRow(0);
+            EditRow revertedRow = await s.RevertRow(0);
 
+            // Then:
+            // ... The edit cache should not contain a pending edit for the row
             Assert.That(s.EditCache.Keys, Has.No.Zero, "The edit cache should not contain a pending edit for the row");
+
+            // ... The reverted row should be returned
+            Assert.NotNull(revertedRow, "The reverted row should be returned");
+            Assert.AreEqual(0, revertedRow.Id, "The reverted row should have the correct ID");
+            Assert.AreEqual(EditRow.EditRowState.Clean, revertedRow.State, "The reverted row should be clean");
         }
 
         [Test]

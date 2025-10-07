@@ -189,7 +189,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask to revert a row that has a pending edit
             var efv = new EventFlowValidator<EditRevertRowResult>()
-                .AddResultValidation(Assert.NotNull)
+                .AddResultValidation(result =>
+                {
+                    Assert.NotNull(result);
+                    Assert.NotNull(result.Row, "The result should contain the reverted row");
+                    Assert.AreEqual(0, result.Row.Id, "The reverted row should have the correct ID");
+                })
                 .Complete();
             await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
 
