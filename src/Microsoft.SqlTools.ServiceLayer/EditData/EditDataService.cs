@@ -173,14 +173,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 session => session.RevertCell(revertParams.RowId, revertParams.ColumnId));
         }
 
-        internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,
+        internal async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
-            return HandleSessionRequest(revertParams, requestContext, session =>
+            try
             {
-                session.RevertRow(revertParams.RowId);
-                return new EditRevertRowResult();
-            });
+                EditSession editSession = GetActiveSessionOrThrow(revertParams.OwnerUri);
+
+                // Revert the row and get the reverted row data
+                EditRow revertedRow = await editSession.RevertRow(revertParams.RowId);
+
+                // Return the result with the reverted row data
+                await requestContext.SendResult(new EditRevertRowResult
+                {
+                    Row = revertedRow
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal async Task HandleSubsetRequest(EditSubsetParams subsetParams,

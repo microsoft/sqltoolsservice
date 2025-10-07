@@ -366,13 +366,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
-        /// Removes a pending row update from the update cache.
+        /// Removes a pending row update from the update cache and returns the reverted row.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">
         /// If a pending row update with the given row ID does not exist.
         /// </exception>
         /// <param name="rowId">The internal ID of the row to reset</param>
-        public void RevertRow(long rowId)
+        /// <returns>The row after the revert was applied</returns>
+        public async Task<EditRow> RevertRow(long rowId)
         {
             ThrowIfNotInitialized();
 
@@ -388,6 +389,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 NextRowId--;
             }
+
+            // Get the reverted row data
+            EditRow[] rows = await GetRows(rowId, 1);
+            return rows.Length > 0 ? rows[0] : null;
         }
 
         /// <summary>
