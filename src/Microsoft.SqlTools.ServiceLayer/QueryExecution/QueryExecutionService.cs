@@ -30,6 +30,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using TextCopy;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -138,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The collection of query session execution options tracking flags
         /// </summary>
         internal ConcurrentDictionary<string, bool> QuerySessionSettingsApplied => querySessionSettingsApplied.Value;
-        
+
         /// <summary>
         /// Internal task for testability
         /// </summary>
@@ -150,6 +151,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private ConnectionService ConnectionService { get; }
 
         private WorkspaceService<SqlToolsSettings> WorkspaceService { get; }
+
+
+        /// <summary>
+        /// Cancellation token sources for ongoing operations
+        /// </summary>
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> activeCopyOperations = new ConcurrentDictionary<string, CancellationTokenSource>();
 
         /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
@@ -214,6 +221,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
             serviceHost.SetRequestHandler(CopyResultsRequest.Type, HandleCopyResultsRequest, true);
+            serviceHost.SetRequestHandler(GridSelectionSummaryRequest.Type, HandleGridSelectionSummaryRequest, true);
+            serviceHost.SetEventHandler(GridSelectionSummaryCancelEvent.Type, HandleGridSelectionSummaryCancelNotification);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -792,7 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private Task OnNewConnection(ConnectionInfo info)
         {
             this.QuerySessionSettingsApplied.AddOrUpdate(info.OwnerUri, false, (key, oldValue) => false);
-    
+
             return Task.CompletedTask;
         }
 
@@ -898,9 +907,209 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await requestContext.SendResult(new CopyResultsRequestResult());
         }
 
+        /// <summary>
+        /// Handles the grid selection summary request.
+        /// </summary>
+        internal async Task HandleGridSelectionSummaryRequest(GridSelectionSummaryRequestParams requestParams, RequestContext<GridSelectionSummaryResponse> requestContext)
+        {
+            // Cancel any ongoing summary operation for this owner URI
+            var operationKey = $"summary_{requestParams.OwnerUri}";
+            CancelOngoingOperation(operationKey);
+
+            // Create new cancellation token for this operation
+            var cts = new CancellationTokenSource();
+            activeCopyOperations[operationKey] = cts;
+
+            try
+            {
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+
+                // Get the query
+                Query query;
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                var columnRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+                var rowRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromRow, End = selection.ToRow }).ToList());
+                var pageSize = 200;
+
+                long count = 0;
+                long nullCount = 0;
+                var distinctValues = new HashSet<string>();
+
+                // Track numeric statistics
+                decimal sum = 0;
+                double? min = null;
+                double? max = null;
+                long numericValueCount = 0;
+                bool hasOverflow = false;
+
+                for (int rowRangeIndex = 0; rowRangeIndex < rowRanges.Count; rowRangeIndex++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+
+                    var rowRange = rowRanges[rowRangeIndex];
+                    var pageStartRowIndex = rowRange.Start;
+
+                    do
+                    {
+                        cts.Token.ThrowIfCancellationRequested();
+
+                        var rowsToFetch = Math.Min(pageSize, rowRange.End - pageStartRowIndex + 1);
+                        ResultSetSubset subset = await InterServiceResultSubset(new SubsetParams()
+                        {
+                            OwnerUri = requestParams.OwnerUri,
+                            ResultSetIndex = requestParams.ResultSetIndex,
+                            BatchIndex = requestParams.BatchIndex,
+                            RowsStartIndex = pageStartRowIndex,
+                            RowsCount = rowsToFetch
+                        });
+
+                        for (int rowIndex = 0; rowIndex < subset.Rows.Length; rowIndex++)
+                        {
+                            var row = subset.Rows[rowIndex];
+                            for (int columnRangeIndex = 0; columnRangeIndex < columnRanges.Count; columnRangeIndex++)
+                            {
+                                var columnRange = columnRanges[columnRangeIndex];
+                                for (int columnIndex = columnRange.Start; columnIndex <= columnRange.End; columnIndex++)
+                                {
+                                    // Check if this cell is in the selection
+                                    if (requestParams.Selections.Any(selection =>
+                                        selection.FromRow <= rowIndex + pageStartRowIndex &&
+                                        selection.ToRow >= rowIndex + pageStartRowIndex &&
+                                        selection.FromColumn <= columnIndex &&
+                                        selection.ToColumn >= columnIndex))
+                                    {
+                                        count++;
+
+                                        if (row != null && row[columnIndex] != null)
+                                        {
+                                            var cell = row[columnIndex];
+
+                                            // Check if null
+                                            if (cell.IsNull)
+                                            {
+                                                nullCount++;
+                                            }
+                                            else
+                                            {
+                                                // Track distinct values
+                                                string displayValue = cell.DisplayValue ?? string.Empty;
+                                                distinctValues.Add(displayValue);
+
+                                                // Try to parse as numeric for sum, min, max, average calculations
+                                                if (TryGetNumericValue(cell.RawObject, out double numericValue))
+                                                {
+                                                    numericValueCount++;
+
+                                                    // Update min/max
+                                                    if (!min.HasValue || numericValue < min.Value)
+                                                    {
+                                                        min = numericValue;
+                                                    }
+                                                    if (!max.HasValue || numericValue > max.Value)
+                                                    {
+                                                        max = numericValue;
+                                                    }
+
+                                                    // Try to add to sum with overflow checking
+                                                    if (!hasOverflow)
+                                                    {
+                                                        try
+                                                        {
+                                                            checked
+                                                            {
+                                                                sum += (decimal)numericValue;
+                                                            }
+                                                        }
+                                                        catch (OverflowException)
+                                                        {
+                                                            hasOverflow = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            nullCount++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        pageStartRowIndex += rowsToFetch;
+                    } while (pageStartRowIndex <= rowRange.End);
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                // Calculate average if we have numeric values
+                double? average = null;
+                if (numericValueCount > 0 && !hasOverflow)
+                {
+                    average = (double)sum / numericValueCount;
+                }
+
+                // If no numeric values were processed, set sum/min/max/average to null
+                var response = new GridSelectionSummaryResponse
+                {
+                    Count = count,
+                    NullCount = nullCount,
+                    DistinctCount = distinctValues.Count,
+                    Sum = numericValueCount > 0 && !hasOverflow ? sum : 0,
+                    Average = numericValueCount > 0 ? average : null,
+                    Min = numericValueCount > 0 ? min : null,
+                    Max = numericValueCount > 0 ? max : null
+                };
+
+                await requestContext.SendResult(response);
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, don't send error
+            }
+            finally
+            {
+                // Clean up the cancellation token
+                activeCopyOperations.TryRemove(operationKey, out _);
+                cts.Dispose();
+            }
+        }
+
+        public async Task HandleGridSelectionSummaryCancelNotification(GridSelectionSummaryCancelParams eventParams, EventContext eventContext)
+        {
+            var operationKey = $"summary_{eventParams.OwnerUri}";
+            CancelOngoingOperation(operationKey);
+            await Task.CompletedTask;
+        }
+
         #endregion
 
         #region Private Helpers
+
+        /// <summary>
+        /// Cancels an ongoing copy or summary operation if one exists.
+        /// </summary>
+        private void CancelOngoingOperation(string operationKey)
+        {
+            if (activeCopyOperations.TryRemove(operationKey, out var existingCts))
+            {
+                try
+                {
+                    existingCts.Cancel();
+                }
+                catch
+                {
+                    // Ignore any exceptions during cancellation
+                }
+            }
+        }
 
         private bool StringBuilderEndsWith(StringBuilder sb, string target)
         {
@@ -911,6 +1120,77 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Calling ToString like this only converts the last few characters of the StringBuilder to a string
             return sb.ToString(sb.Length - target.Length, target.Length).EndsWith(target);
+        }
+
+        /// <summary>
+        /// Helper method to try to extract a numeric value from a cell's raw object
+        /// </summary>
+        private bool TryGetNumericValue(object rawValue, out double numericValue)
+        {
+            numericValue = 0;
+
+            if (rawValue == null)
+            {
+                return false;
+            }
+
+            // Checking for common numeric types instead of always parsing as double, 
+            // since TryParse and exception handling add unnecessary performance overhead.
+            try
+            {
+                if (rawValue is byte b)
+                {
+                    numericValue = b;
+                    return true;
+                }
+                if (rawValue is short s)
+                {
+                    numericValue = s;
+                    return true;
+                }
+                if (rawValue is int i)
+                {
+                    numericValue = i;
+                    return true;
+                }
+                if (rawValue is long l)
+                {
+                    numericValue = l;
+                    return true;
+                }
+                if (rawValue is float f)
+                {
+                    numericValue = f;
+                    return true;
+                }
+                if (rawValue is double d)
+                {
+                    numericValue = d;
+                    return true;
+                }
+                if (rawValue is decimal m)
+                {
+                    numericValue = (double)m;
+                    return true;
+                }
+
+                // Try parsing string values as numbers
+                if (rawValue is string str && !string.IsNullOrWhiteSpace(str))
+                {
+                    if (double.TryParse(str, out double parsedValue))
+                    {
+                        numericValue = parsedValue;
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                // If any conversion fails, treat as non-numeric
+                return false;
+            }
+
+            return false;
         }
 
         private Query CreateQuery(
@@ -1257,7 +1537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             public int Start { get; set; }
             public int End { get; set; }
 
-            public override string ToString() 
+            public override string ToString()
                 => $"{nameof(Range)} ({nameof(Start)}: {Start}, {nameof(End)}: {End})";
         }
 
@@ -1331,10 +1611,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
             if (reliableSqlConnection != null)
             {
-                using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection())) 
+                using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection()))
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.ExecuteNonQuery(); 
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
