@@ -486,6 +486,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return result;
         }
 
+        /// <summary>
+        /// Gets the column names for the associated result set
+        /// </summary>
+        /// <returns>Array of column names</returns>
+        public string[] GetColumnNames()
+        {
+            ThrowIfNotInitialized();
+            return associatedResultSet?.Columns?.Select(c => c.ColumnName).ToArray() ?? new string[0];
+        }
+
         #endregion
 
         #region Private Helpers

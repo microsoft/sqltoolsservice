@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
             }
 
-            context.ResultSetHandler = (ResultSetEventParams resultSetEventParams) => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
+            context.ResultSetHandler = resultSetEventParams => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
 
             // Initialize the session
             session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
@@ -192,7 +192,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             EditSubsetResult result = new EditSubsetResult
             {
                 RowCount = rows.Length,
-                Subset = rows
+                Subset = rows,
+                ColumnNames = session.GetColumnNames()
             };
 
             await requestContext.SendResult(result);

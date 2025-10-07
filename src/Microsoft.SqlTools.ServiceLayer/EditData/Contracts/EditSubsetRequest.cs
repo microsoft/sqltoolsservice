@@ -43,6 +43,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// The requested subset of rows, with information about whether or not the rows are dirty
         /// </summary>
         public EditRow[] Subset { get; set; }
+
+        /// <summary>
+        /// The column names for the result set
+        /// </summary>
+        public string[] ColumnNames { get; set; }
     }
 
     public class EditSubsetRequest
