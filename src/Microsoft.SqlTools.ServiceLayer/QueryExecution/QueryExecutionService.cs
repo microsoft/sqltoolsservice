@@ -10,8 +10,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlTypes;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -1093,6 +1096,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
+        private static readonly HashSet<TypeCode> NumericTypeCodes = new HashSet<TypeCode>
+        {
+            TypeCode.Byte,
+            TypeCode.SByte,
+            TypeCode.Int16,
+            TypeCode.UInt16,
+            TypeCode.Int32,
+            TypeCode.UInt32,
+            TypeCode.Int64,
+            TypeCode.UInt64,
+            TypeCode.Single,
+            TypeCode.Double,
+            TypeCode.Decimal
+        };
+
         /// <summary>
         /// Cancels an ongoing copy or summary operation if one exists.
         /// </summary>
@@ -1134,60 +1152,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return false;
             }
 
-            // Checking for common numeric types instead of always parsing as double, 
-            // since TryParse and exception handling add unnecessary performance overhead.
-            try
+            if (rawValue is IConvertible convertible)
             {
-                if (rawValue is byte b)
+                TypeCode typeCode = convertible.GetTypeCode();
+                if (NumericTypeCodes.Contains(typeCode))
                 {
-                    numericValue = b;
-                    return true;
-                }
-                if (rawValue is short s)
-                {
-                    numericValue = s;
-                    return true;
-                }
-                if (rawValue is int i)
-                {
-                    numericValue = i;
-                    return true;
-                }
-                if (rawValue is long l)
-                {
-                    numericValue = l;
-                    return true;
-                }
-                if (rawValue is float f)
-                {
-                    numericValue = f;
-                    return true;
-                }
-                if (rawValue is double d)
-                {
-                    numericValue = d;
-                    return true;
-                }
-                if (rawValue is decimal m)
-                {
-                    numericValue = (double)m;
-                    return true;
-                }
-
-                // Try parsing string values as numbers
-                if (rawValue is string str && !string.IsNullOrWhiteSpace(str))
-                {
-                    if (double.TryParse(str, out double parsedValue))
+                    try
                     {
-                        numericValue = parsedValue;
+                        numericValue = convertible.ToDouble(CultureInfo.InvariantCulture);
+                        return true;
+                    }
+                    catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
+                    {
+                    }
+                }
+            }
+
+            if (rawValue is INullable sqlValue && !sqlValue.IsNull)
+            {
+                PropertyInfo valueProperty = rawValue.GetType().GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
+                if (valueProperty != null)
+                {
+                    object underlyingValue = valueProperty.GetValue(rawValue);
+                    if (TryGetNumericValue(underlyingValue, out numericValue))
+                    {
                         return true;
                     }
                 }
             }
-            catch
+
+            if (rawValue is string str && !string.IsNullOrWhiteSpace(str))
             {
-                // If any conversion fails, treat as non-numeric
-                return false;
+                if (double.TryParse(str, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out double parsedValue) ||
+                    double.TryParse(str, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out parsedValue))
+                {
+                    numericValue = parsedValue;
+                    return true;
+                }
             }
 
             return false;
