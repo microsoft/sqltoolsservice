@@ -127,9 +127,24 @@ steps:
     reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura"
   displayName: Create Code coverage report
 
-- script: |
-    dotnet tool install --global CodecovUploader
-    codecov -t $(CODECOV_TOKEN) -f $(Agent.TempDirectory)/coverlet/reports/Cobertura.xml
+
+- powershell: |
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
+    gpg.exe --import codecov.asc
+
+    Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
+    Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM -Outfile codecov.exe.SHA256SUM
+    Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM.sig -Outfile codecov.exe.SHA256SUM.sig
+
+    gpg.exe --verify codecov.exe.SHA256SUM.sig codecov.exe.SHA256SUM
+    If ($(Compare-Object -ReferenceObject  $(($(certUtil -hashfile codecov.exe SHA256)[1], "codecov.exe") -join "  ") -DifferenceObject $(Get-Content codecov.exe.SHA256SUM)).length -eq 0) {
+        echo "codecov.exe SHASUM verified"
+    } Else {
+        exit 1
+    }
+
+    .\codecov.exe -t $(CODECOV_TOKEN) -f $(Agent.TempDirectory)/coverlet/reports/Cobertura.xml
   displayName: Upload Code coverage report to CodeCov
 
 - task: PublishCodeCoverageResults@2
