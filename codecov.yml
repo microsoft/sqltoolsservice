@@ -11,3 +11,6 @@ coverage:
 comment: #Layout of the PR comment
   layout: "reach, diff, files"
   behavior: default
+parsers:
+  cobertura:
+    partials_as_hits: true
