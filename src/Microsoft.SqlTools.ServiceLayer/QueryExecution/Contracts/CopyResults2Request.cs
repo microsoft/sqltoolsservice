@@ -67,7 +67,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
-    /// Copy Results Request
+    /// Copy Results Request. This API is named "copy2" to avoid conflict with the existing
+    /// "copy" API which is currently in used by Azure Data Studio.
     /// </summary>
     public class CopyResults2Request
     {
