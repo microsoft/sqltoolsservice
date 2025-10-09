@@ -143,9 +143,11 @@ steps:
     } Else {
         exit 1
     }
+    
+    echo "Params $(Build.SourceVersion) ${env:CODECOV_TOKEN} $(Agent.TempDirectory)/coverlet/reports/Cobertura.xml"
 
     #CODECOV_TOKEN needs to be added as a pipeline variable in ADO
-    .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t ${env:CODECOV_TOKEN} -f '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
+    .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t ${env:CODECOV_TOKEN} -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
   displayName: Upload Code coverage report to CodeCov
 
 - task: PublishCodeCoverageResults@2
