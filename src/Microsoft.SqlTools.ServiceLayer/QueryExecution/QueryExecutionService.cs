@@ -224,8 +224,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
             serviceHost.SetRequestHandler(CopyResultsRequest.Type, HandleCopyResultsRequest, true);
+            serviceHost.SetRequestHandler(CopyResults2Request.Type, HandleCopyResults2Request, true);
+            serviceHost.SetEventHandler(Copy2CancelEvent.Type, HandleCopy2CancelEvent);
             serviceHost.SetRequestHandler(GridSelectionSummaryRequest.Type, HandleGridSelectionSummaryRequest, true);
-            serviceHost.SetEventHandler(GridSelectionSummaryCancelEvent.Type, HandleGridSelectionSummaryCancelNotification);
+            serviceHost.SetEventHandler(GridSelectionSummaryCancelEvent.Type, HandleGridSelectionSummaryCancelEvent);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -898,7 +900,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!StringBuilderEndsWith(builder, Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!CopyTextBuilder.StringBuilderEndsWith(builder, Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
                         {
                             builder.Append(Environment.NewLine);
                         }
@@ -908,6 +910,78 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             await ClipboardService.SetTextAsync(builder.ToString());
             await requestContext.SendResult(new CopyResultsRequestResult());
+        }
+
+        internal async Task HandleCopyResults2Request(CopyResults2RequestParams requestParams, RequestContext<CopyResults2RequestResult> requestContext)
+        {
+            // At a given time only one copy operation can be active so we use a constant key
+            var operationKey = "copy_results2";
+            CancelOngoingOperation(operationKey);
+
+            var cts = new CancellationTokenSource();
+            activeCopyOperations[operationKey] = cts;
+
+            try
+            {
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+
+                if (requestParams.Selections == null || requestParams.Selections.Length == 0)
+                {
+                    await requestContext.SendResult(new CopyResults2RequestResult());
+                    return;
+                }
+
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out var query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                requestParams.LineSeparator = requestParams.LineSeparator ?? Environment.NewLine;
+
+                var columnRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+                var rowRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromRow, End = selection.ToRow }).ToList());
+
+                if (columnRanges.Count == 0 || rowRanges.Count == 0)
+                {
+                    await requestContext.SendError("Copy operation requires a valid selection range.");
+                    return;
+                }
+
+                var columnIndexes = ExpandColumnRanges(columnRanges);
+                var resultSet = query.Batches[requestParams.BatchIndex].ResultSets[requestParams.ResultSetIndex];
+                var selectedColumns = columnIndexes.Select(index => resultSet.Columns[index]).ToList();
+                var lastRowIndex = rowRanges.Last().End;
+
+                string content = await CopyTextBuilder.BuildCopyContentAsync(requestParams, query, selectedColumns, columnIndexes, rowRanges, lastRowIndex, cts.Token);
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                await ClipboardService.SetTextAsync(content);
+                await requestContext.SendResult(new CopyResults2RequestResult());
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, do not send an error back to the client.
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.Message);
+            }
+            finally
+            {
+                activeCopyOperations.TryRemove(operationKey, out _);
+                cts.Dispose();
+            }
+        }
+
+        public async Task HandleCopy2CancelEvent(Copy2CancelEventParams eventParams, EventContext eventContext)
+        {
+            var operationKey = $"copy_results2";
+            CancelOngoingOperation(operationKey);
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -1085,7 +1159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        public async Task HandleGridSelectionSummaryCancelNotification(GridSelectionSummaryCancelParams eventParams, EventContext eventContext)
+        public async Task HandleGridSelectionSummaryCancelEvent(GridSelectionSummaryCancelParams eventParams, EventContext eventContext)
         {
             var operationKey = $"summary_{eventParams.OwnerUri}";
             CancelOngoingOperation(operationKey);
@@ -1111,6 +1185,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             TypeCode.Decimal
         };
 
+
+        /// <summary>
+        /// Expands a list of column ranges into a list of individual column indexes.
+        /// </summary>
+        /// <param name="columnRanges">The list of column ranges to expand.</param>
+        /// <returns>A list of individual column indexes.</returns>
+        private static List<int> ExpandColumnRanges(List<Range> columnRanges)
+        {
+            var indexes = new List<int>();
+            foreach (var range in columnRanges)
+            {
+                for (int i = range.Start; i <= range.End; i++)
+                {
+                    indexes.Add(i);
+                }
+            }
+            return indexes;
+        }
+
         /// <summary>
         /// Cancels an ongoing copy or summary operation if one exists.
         /// </summary>
@@ -1127,17 +1220,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Ignore any exceptions during cancellation
                 }
             }
-        }
-
-        private bool StringBuilderEndsWith(StringBuilder sb, string target)
-        {
-            if (sb.Length < target.Length)
-            {
-                return false;
-            }
-
-            // Calling ToString like this only converts the last few characters of the StringBuilder to a string
-            return sb.ToString(sb.Length - target.Length, target.Length).EndsWith(target);
         }
 
         /// <summary>
@@ -1533,7 +1615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Task.FromResult(0);
         }
 
-        internal class Range
+        public class Range
         {
             public int Start { get; set; }
             public int End { get; set; }

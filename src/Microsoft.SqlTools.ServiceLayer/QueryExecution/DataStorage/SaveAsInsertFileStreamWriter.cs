@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly string[] columnNames;
         private readonly List<string> batchedRows;
         private const int BatchSize = 1000;
+        private readonly string lineSeparator;
 
         #endregion
 
@@ -40,10 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// The entire list of columns for the result set. They will be filtered down as per the
         /// request params.
         /// </param>
-        public SaveAsInsertFileStreamWriter(Stream stream, SaveResultsAsInsertRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+        public SaveAsInsertFileStreamWriter(Stream stream, SaveResultsAsInsertRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns, string overrideLineSeparator = null)
             : base(stream, requestParams, columns)
         {
             encoding = ParseEncoding(requestParams.Encoding, Encoding.UTF8);
+            lineSeparator = overrideLineSeparator ?? Environment.NewLine;
             tableName = requestParams.TableName ?? "TableName";
             includeHeaders = requestParams.IncludeHeaders;
             batchedRows = new List<string>();
@@ -65,8 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Format the values for this row
             var selectedCells = row.Skip(ColumnStartIndex)
                 .Take(ColumnCount)
-                .Select(FormatValue);
-            
+                .Select(SqlValueFormatter.FormatValue);
+
             string rowValues = "(" + string.Join(", ", selectedCells) + ")";
             batchedRows.Add(rowValues);
 
@@ -87,18 +90,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("INSERT INTO ");
-            stringBuilder.Append(EscapeIdentifier(tableName));
-            
+            stringBuilder.Append(SqlValueFormatter.EscapeIdentifier(tableName));
+
             // Add column names if requested
             if (includeHeaders)
             {
                 stringBuilder.Append(" (");
-                stringBuilder.Append(string.Join(", ", columnNames.Select(EscapeIdentifier)));
+                stringBuilder.Append(string.Join(", ", columnNames.Select(SqlValueFormatter.EscapeIdentifier)));
                 stringBuilder.Append(")");
             }
 
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine("VALUES");
+            stringBuilder.Append(lineSeparator);
+            stringBuilder.Append("VALUES");
+            stringBuilder.Append(lineSeparator);
             
             // Add all batched rows with proper indentation
             for (int i = 0; i < batchedRows.Count; i++)
@@ -107,15 +111,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 stringBuilder.Append(batchedRows[i]);
                 if (i < batchedRows.Count - 1)
                 {
-                    stringBuilder.AppendLine(",");
+                    stringBuilder.Append(",");
+                    stringBuilder.Append(lineSeparator);
                 }
                 else
                 {
-                    stringBuilder.AppendLine(";");
+                    stringBuilder.Append(";");
+                    stringBuilder.Append(lineSeparator);
                 }
             }
             
-            stringBuilder.AppendLine();
+            stringBuilder.Append(lineSeparator);
 
             // Write to the stream
             byte[] insertBytes = encoding.GetBytes(stringBuilder.ToString());
@@ -123,61 +129,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // Clear the batch
             batchedRows.Clear();
-        }
-
-        /// <summary>
-        /// Formats a database cell value for insertion into an INSERT statement
-        /// </summary>
-        /// <param name="cellValue">The cell value to format</param>
-        /// <returns>Formatted string representation of the value</returns>
-        private string FormatValue(DbCellValue cellValue)
-        {
-            if (cellValue == null || cellValue.IsNull || cellValue.DisplayValue == null)
-            {
-                return "NULL";
-            }
-
-            string value = cellValue.DisplayValue;
-
-            // For string values, wrap in single quotes and escape single quotes
-            if (NeedsQuoting(value))
-            {
-                return "'" + value.Replace("'", "''") + "'";
-            }
-
-            return value;
-        }
-
-        /// <summary>
-        /// Determines if a value needs to be quoted (i.e., if it's not a number)
-        /// </summary>
-        /// <param name="value">The value to check</param>
-        /// <returns>True if the value needs quoting, false otherwise</returns>
-        private bool NeedsQuoting(string value)
-        {
-            // Simple heuristic: if it's not a number (int, float, decimal), it needs quoting
-            return !decimal.TryParse(value, out _) && !bool.TryParse(value, out _);
-        }
-
-        /// <summary>
-        /// Escapes SQL identifiers by wrapping them in square brackets if they contain special characters
-        /// </summary>
-        /// <param name="identifier">The identifier to escape</param>
-        /// <returns>Escaped identifier</returns>
-        private string EscapeIdentifier(string identifier)
-        {
-            if (string.IsNullOrEmpty(identifier))
-            {
-                return identifier;
-            }
-
-            // Check if the identifier needs escaping (contains spaces or special characters)
-            if (identifier.Contains(" ") || identifier.Contains("-") || !char.IsLetter(identifier[0]))
-            {
-                return $"[{identifier.Replace("]", "]]")}]";
-            }
-
-            return identifier;
         }
 
         /// <summary>
