@@ -145,7 +145,7 @@ steps:
     }
 
     #CODECOV_TOKEN needs to be added as a pipeline variable in ADO
-    .\codecov.exe -t ${env:CODECOV_TOKEN} -f $(Agent.TempDirectory)/coverlet/reports/Cobertura.xml
+    .\codecov.exe --verbose upload-process -t ${env:CODECOV_TOKEN} -f $(Agent.TempDirectory)/coverlet/reports/Cobertura.xml
   displayName: Upload Code coverage report to CodeCov
 
 - task: PublishCodeCoverageResults@2
