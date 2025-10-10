@@ -45,9 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         public EditRow[] Subset { get; set; }
 
         /// <summary>
-        /// The column names for the result set
+        /// The column information including name and editability for the result set
         /// </summary>
-        public string[] ColumnNames { get; set; }
+        public EditColumnInfo[] ColumnInfo { get; set; }
     }
 
     public class EditSubsetRequest

@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 RowCount = rows.Length,
                 Subset = rows,
-                ColumnNames = session.GetColumnNames()
+                ColumnInfo = session.GetColumnInfo()
             };
 
             await requestContext.SendResult(result);

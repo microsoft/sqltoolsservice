@@ -492,13 +492,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
-        /// Gets the column names for the associated result set
+        /// Gets the column information including name and editability for the associated result set
         /// </summary>
-        /// <returns>Array of column names</returns>
-        public string[] GetColumnNames()
+        /// <returns>Array of column information</returns>
+        public EditColumnInfo[] GetColumnInfo()
         {
             ThrowIfNotInitialized();
-            return associatedResultSet?.Columns?.Select(c => c.ColumnName).ToArray() ?? new string[0];
+            return associatedResultSet?.Columns?.Select(c => new EditColumnInfo
+            {
+                Name = c.ColumnName,
+                IsEditable = c.IsUpdatable
+            }).ToArray() ?? new EditColumnInfo[0];
         }
 
         #endregion
