@@ -1,3 +1,6 @@
+# Prerequisites
+# - For the step 'Upload Code coverage report to CodeCov', CODECOV_TOKEN needs to be added as a pipeline variable in ADO
+#   To obtain value for CODECOV_TOKEN see 'Code Coverage' section in https://msdata.visualstudio.com/SQLToolsAndLibraries/_git/VSCode-MSSQL
 parameters:
   - name: platforms
     type: object
@@ -144,7 +147,7 @@ steps:
         exit 1
     }
 
-    #CODECOV_TOKEN needs to be added as a pipeline variable in ADO
+    # For configuring CODECOV_TOKEN see 'Prerequisites' section above
     .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t $(CODECOV_TOKEN) -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
   displayName: Upload Code coverage report to CodeCov
 
