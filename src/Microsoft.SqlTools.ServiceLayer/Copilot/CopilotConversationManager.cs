@@ -20,6 +20,7 @@ using Microsoft.Scriptoria.API;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
 using Microsoft.Scriptoria.Models;
+using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
@@ -170,16 +171,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 services.AddSingleton<ICartridgeContentManagerFactory, CartridgeContentManagerFactory>();
                 services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
                 services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
-                services.AddSingleton<IScriptoriaExecutionContext, SqlScriptoriaExecutionContext>();
+                services.AddSingleton<ITokenRateLimiter, TokenRateLimiter>();
+                services.AddSingleton<ILLMInvoker, SemanticKernelInvoker>();
+                
+                // Create AI service settings - using dummy/minimal configuration since we're using VSCode LLM
+                var aiServiceSettings = new AIServiceSettings
+                {
+                    ModelToUse = "gpt-4",
+                    AzureOpenAIDeploymentName = "dummy-deployment",
+                    AzureOpenAIEndpoint = "https://dummy-endpoint.openai.azure.com"
+                };
+                services.AddSingleton<IScriptoriaExecutionContext>((sp) => 
+                {
+                    var trace = sp.GetRequiredService<IScriptoriaTrace>();
+                    return new SqlScriptoriaExecutionContext(trace, aiServiceSettings);
+                });
                 // services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
                 services.AddSingleton<IKernelBuilder>((sp) => builder);
 
                 ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
 
                 // initialize the bootstrapper that will discover and find the correct cartridge to use for the current 
-                // connection context
-                var contentManager = services.BuildServiceProvider().GetRequiredService<ICartridgeContentManager>();
-                contentManager.ContentProviderType = contentLibraryProviderType;
+                // connection context  
+                var factory = services.BuildServiceProvider().GetRequiredService<ICartridgeContentManagerFactory>();
+                // The factory Create method returns the manager with the appropriate assembly and config file
+                var scriptoriaAssembly = typeof(SqlCartridge).Assembly;
+                var contentManager = factory.Create<CartridgeContentManagerConfig>(
+                    contentLibraryProviderType, 
+                    scriptoriaAssembly, 
+                    SqlCartridgeContentDefs.CONFIGURATION_FILE);
+                
+                // Register the content manager in services
+                services.AddSingleton<ICartridgeContentManager>(contentManager);
 
                 Logger.Verbose($"SqlScriptoria version: {contentManager.Version}");
 
@@ -210,7 +233,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 userSessionKernel = builder.Build();
                 userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
 
-                var cartridgeContentManager = serviceProvider.GetRequiredService<ICartridgeContentManager>();
+                var cartridgeContentManagerFactory = serviceProvider.GetRequiredService<ICartridgeContentManagerFactory>();
+                var cartridgeContentManager = cartridgeContentManagerFactory.Create<CartridgeContentManagerConfig>(
+                    contentLibraryProviderType, 
+                    scriptoriaAssembly, 
+                    SqlCartridgeContentDefs.CONFIGURATION_FILE);
                 // read-only is the default startup mode
                 // TODO _activeCartridge.AccessChecker = new ChatExecutionAccessChecker(cartridgeContentManager.ReadOnlyProcs, scriptoriaTrace);
                 _activeCartridge.AccessChecker.ExecutionMode = AccessModes.READ_WRITE_NEVER;
@@ -405,7 +432,7 @@ VERSION AWARENESS:
                 return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
-            Logger.Verbose( $"User prompt received.");
+            Logger.Verbose($"User prompt received.");
 
             // track this exchange and its cancellation token
             Logger.Verbose($"Tracking exchange {chatExchangeId}.");
@@ -420,6 +447,9 @@ VERSION AWARENESS:
 
             try
             {
+                // Load the supplemental knowledge based on the user prompt
+                await GetSupplementalKnowledgeAsync(userPrompt, chatHistory, CancellationToken.None);
+
                 chatHistory.AddUserMessage(userPrompt);
                 StringBuilder completeResponse = new StringBuilder();
 
@@ -427,7 +457,7 @@ VERSION AWARENESS:
                     executionSettings: openAIPromptExecutionSettings,
                     kernel: userSessionKernel,
                     cts.Token);
-                Logger.Verbose( $"Prompt submitted to kernel.");
+                Logger.Verbose($"Prompt submitted to kernel.");
 
                 // loop on the IAsyncEnumerable to get the results
                 Logger.Verbose("Response Generated:");
@@ -477,11 +507,33 @@ VERSION AWARENESS:
             {
 
                 // remove this exchange ID from the active conversations
-                Logger.Verbose( $"Removing exchange {chatExchangeId} from active conversations.");
+                Logger.Verbose($"Removing exchange {chatExchangeId} from active conversations.");
                 activeConversations.Remove(chatExchangeId, out cts);
             }
 
             return promptResponse;
+        }
+
+        private async Task GetSupplementalKnowledgeAsync(string userPrompt, ChatHistory chatHistory, CancellationToken cancellationToken)
+        {
+            // first check for any relevant knowledge that should be added to the conversation context
+            var searchContextData = new Dictionary<string, string>
+        {
+            { "SearchContext", KnowledgeSearchContext.UserPrompt.ToString() }
+        };
+
+            var knowledgeDictionary = await _activeCartridge.FindRelevantKnowledgeAsync(userPrompt, searchContextData, chatHistory, cancellationToken);
+
+            if (knowledgeDictionary.Count > 0)
+            {
+                foreach (var knowledgeItem in knowledgeDictionary)
+                {
+                    // some relevant supplemental knowledge was found relevant.  Add this to the chat history
+                    // as a system message to help the LLM answer this upcoming user prompt
+                    chatHistory.AddAssistantMessage(knowledgeItem.Value);
+                    Logger.Information($"Knowledge item found: {knowledgeItem.Key} - {knowledgeItem.Value}");
+                }
+            }
         }
     }
 
