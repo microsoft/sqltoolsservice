@@ -115,6 +115,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
             conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
         }
 
+        public void RemoveConversation(string conversationUri)
+        {
+            conversations.TryRemove(conversationUri, out _);
+        }
+
         public async Task<ChatMessage> QueueLLMRequest(
             string conversationUri,
             RequestMessageType type,
@@ -167,12 +172,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 var services = new ServiceCollection();
 
                 // Register the ScriptoriaTrace as IScriptoriaTrace
-                services.AddSingleton<IScriptoriaTrace, CopilotLogger>();
+                var scriptoriaTrace = new CopilotLogger();
+                services.AddSingleton<IScriptoriaTrace>(scriptoriaTrace);
                 services.AddSingleton<ICartridgeContentManagerFactory, CartridgeContentManagerFactory>();
                 services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
                 services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
                 services.AddSingleton<ITokenRateLimiter, TokenRateLimiter>();
-                services.AddSingleton<ILLMInvoker, SemanticKernelInvoker>();
+                
+                // Register VS Code-specific minion LLM invoker that uses DirectRequest to prevent streaming to users
+                // This is used by minions (AccessChecker, KnowledgeLibrarian, etc.) via dependency injection
+                // Main user session uses userChatCompletionService directly, not ILLMInvoker
+                var minionLLMInvoker = new VSCodeMinionLLMInvoker(conversation, scriptoriaTrace);
+                services.AddSingleton<ILLMInvoker>(minionLLMInvoker);
+                services.AddSingleton<IKernelBuilder>((sp) => builder);
                 
                 // Create AI service settings - using dummy/minimal configuration since we're using VSCode LLM
                 var aiServiceSettings = new AIServiceSettings
@@ -186,7 +198,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                     var trace = sp.GetRequiredService<IScriptoriaTrace>();
                     return new SqlScriptoriaExecutionContext(trace, aiServiceSettings);
                 });
-                // services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
                 services.AddSingleton<IKernelBuilder>((sp) => builder);
 
                 ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
@@ -208,7 +219,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-                var scriptoriaTrace = serviceProvider.GetRequiredService<IScriptoriaTrace>();
                 var cartridgeBootstrapper = new ScriptoriaCartridgeBootstrapper<SqlCartridge>(scriptoriaTrace, ScriptoriaPackages.AssemblyNames.ToList());
 
                 var _executionContext = serviceProvider.GetRequiredService<IScriptoriaExecutionContext>();
@@ -239,7 +249,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                     scriptoriaAssembly, 
                     SqlCartridgeContentDefs.CONFIGURATION_FILE);
                 // read-only is the default startup mode
-                // TODO _activeCartridge.AccessChecker = new ChatExecutionAccessChecker(cartridgeContentManager.ReadOnlyProcs, scriptoriaTrace);
                 _activeCartridge.AccessChecker.ExecutionMode = AccessModes.READ_WRITE_NEVER;
 
                 // use a hardcoded system prompt until we can tune the SqlScriptoria system prompt construction
