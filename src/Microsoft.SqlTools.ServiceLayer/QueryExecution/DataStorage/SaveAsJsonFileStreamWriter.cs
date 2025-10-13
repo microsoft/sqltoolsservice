@@ -39,12 +39,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// The entire list of columns for the result set. They will be filtered down as per the
         /// request params.
         /// </param>
-        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns, string lineSeparator = null)
             : base(stream, requestParams, columns)
         {
             // Setup the internal state
             streamWriter = new StreamWriter(stream);
-            jsonWriter = new JsonTextWriter(streamWriter);
+            jsonWriter = new CustomLineSeparatorJsonWriter(streamWriter, lineSeparator ?? Environment.NewLine);
             jsonWriter.Formatting = Formatting.Indented;
 
             // Write the header of the file
@@ -110,6 +110,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
             disposed = true;
             base.Dispose(disposing);
+        }
+    }
+
+    public class CustomLineSeparatorJsonWriter : JsonTextWriter
+    {
+        private readonly string _lineSeparator;
+
+        public CustomLineSeparatorJsonWriter(TextWriter textWriter, string lineSeparator)
+            : base(textWriter)
+        {
+            _lineSeparator = lineSeparator;
+        }
+
+        protected override void WriteIndent()
+        {
+            if (Formatting != Formatting.Indented)
+            {
+                // Base implementation writes nothing here; keep that behavior.
+                return;
+            }
+
+            // Write ONLY the custom line separator (no extra newline)
+            WriteRaw(_lineSeparator);
+
+            // Then write the correct number of indent chars (same logic as base)
+            int currentIndentCount = Top * Indentation;
+            if (currentIndentCount > 0)
+            {
+                WriteRaw(new string(IndentChar, currentIndentCount));
+            }
         }
     }
 }
