@@ -101,10 +101,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             await requestContext.SendResult(result);
         }
 
-        internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
+        internal async Task HandleCreateRowRequest(EditCreateRowParams createParams,
             RequestContext<EditCreateRowResult> requestContext)
         {
-            return HandleSessionRequest(createParams, requestContext, s => s.CreateRow());
+            try
+            {
+                EditSession editSession = GetActiveSessionOrThrow(createParams.OwnerUri);
+
+                // Create the row
+                EditCreateRowResult result = editSession.CreateRow();
+
+                // Get the newly created row to include in the result
+                EditRow[] rows = await editSession.GetRows(result.NewRowId, 1);
+                result.Row = rows.Length > 0 ? rows[0] : null;
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
