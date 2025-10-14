@@ -276,6 +276,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
             }
 
+            // Check if there's already a pending edit for this row
+            if (EditCache.TryGetValue(rowId, out RowEditBase existingEdit))
+            {
+                // If it's a newly created row that hasn't been committed, just remove it
+                if (existingEdit is RowCreate)
+                {
+                    if (EditCache.TryRemove(rowId, out _))
+                    {
+                        NextRowId--;
+                    }
+                    return;
+                }
+                
+                // Otherwise, there's an update pending and we can't delete
+                throw new InvalidOperationException(SR.EditDataUpdatePending);
+            }
+
             // Create a new row delete update and add to cache
             RowDelete deleteRow = new RowDelete(rowId, associatedResultSet, objectMetadata);
             if (!EditCache.TryAdd(rowId, deleteRow))
