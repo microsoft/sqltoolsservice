@@ -58,14 +58,14 @@
     <PackageReference Update="Microsoft.SemanticKernel" Version="1.46.0" />
 
     <PackageReference Update="OpenAI" Version="2.1.0-beta.2" />
-    <PackageReference Update="System.ClientModel" Version="1.4.0-beta.1" />
+    <PackageReference Update="System.ClientModel" Version="1.5.1" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
     <PackageReference Update="Azure.Identity" Version="1.12.0" />
-    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.6" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="172.64.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
