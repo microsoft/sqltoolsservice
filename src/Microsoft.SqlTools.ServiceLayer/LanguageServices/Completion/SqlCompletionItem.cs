@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System.Collections.Generic;
@@ -223,7 +224,135 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 }
             };
 
+            if (string.IsNullOrEmpty(item.FilterText))
+            {
+                string filterText = BuildFilterText(label);
+                if (!string.IsNullOrEmpty(filterText))
+                {
+                    item.FilterText = filterText;
+                }
+            }
+
+            if (string.IsNullOrEmpty(item.SortText) && !string.IsNullOrEmpty(label))
+            {
+                string sortText = NormalizeIdentifier(GetUnqualifiedName(label));
+                if (!string.IsNullOrEmpty(sortText))
+                {
+                    item.SortText = sortText;
+                }
+            }
+
             return item;
+        }
+
+        internal static string BuildFilterText(string label)
+        {
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                return label;
+            }
+
+            string unqualified = GetUnqualifiedName(label);
+            string normalizedUnqualified = NormalizeIdentifier(unqualified);
+
+            if (string.IsNullOrEmpty(normalizedUnqualified) ||
+                string.Equals(unqualified, label, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return label;
+            }
+
+            var parts = new List<string>();
+            var seen = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+            AddPart(normalizedUnqualified);
+            AddPart(unqualified);
+
+            string bracketedUnqualified = Utils.MakeSqlBracket(normalizedUnqualified);
+            if (!string.Equals(bracketedUnqualified, unqualified, System.StringComparison.Ordinal))
+            {
+                AddPart(bracketedUnqualified);
+            }
+
+            AddPart(label);
+
+            return parts.Count == 0 ? label : string.Join(" ", parts);
+
+            void AddPart(string text)
+            {
+                if (!string.IsNullOrWhiteSpace(text) && seen.Add(text))
+                {
+                    parts.Add(text);
+                }
+            }
+        }
+
+        internal static string GetUnqualifiedName(string identifier)
+        {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                return identifier;
+            }
+
+            int lastSeparator = -1;
+            bool insideSquareBrackets = false;
+            bool insideDoubleQuotes = false;
+
+            for (int i = 0; i < identifier.Length; i++)
+            {
+                char current = identifier[i];
+
+                if (current == '[' && !insideDoubleQuotes)
+                {
+                    insideSquareBrackets = true;
+                }
+                else if (current == ']' && !insideDoubleQuotes)
+                {
+                    insideSquareBrackets = false;
+                }
+                else if (current == '"')
+                {
+                    if (insideDoubleQuotes && i + 1 < identifier.Length && identifier[i + 1] == '"')
+                    {
+                        i++;
+                    }
+                    else
+                    {
+                        insideDoubleQuotes = !insideDoubleQuotes;
+                    }
+                }
+                else if (current == '.' && !insideSquareBrackets && !insideDoubleQuotes)
+                {
+                    lastSeparator = i;
+                }
+            }
+
+            if (lastSeparator >= 0 && lastSeparator + 1 < identifier.Length)
+            {
+                return identifier.Substring(lastSeparator + 1);
+            }
+
+            return identifier;
+        }
+
+        internal static string NormalizeIdentifier(string identifier)
+        {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                return identifier;
+            }
+
+            if (identifier.Length >= 2 && identifier[0] == '[' && identifier[identifier.Length - 1] == ']')
+            {
+                return identifier.Substring(1, identifier.Length - 2);
+            }
+
+            if (identifier.Length >= 2 && identifier[0] == '"' && identifier[identifier.Length - 1] == '"')
+            {
+                string inner = identifier.Substring(1, identifier.Length - 2);
+                return inner.Replace("\"\"", "\"");
+            }
+
+            return identifier;
         }
 
         private bool HasDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)

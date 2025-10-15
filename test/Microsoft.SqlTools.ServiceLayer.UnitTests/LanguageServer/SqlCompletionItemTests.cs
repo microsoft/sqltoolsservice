@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -312,6 +312,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 Assert.AreEqual($"[{declarationTitle}]", completionItem.InsertText);
                 Assert.AreEqual(declarationTitle, completionItem.Detail);
             }
+        }
+
+        [Test]
+        public void FilterTextShouldIncludeUnqualifiedNameForQualifiedLabel()
+        {
+            string declarationTitle = "Sales.OrderItem";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, DeclarationType.Table, "Ord");
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+            Assert.AreEqual("OrderItem [OrderItem] Sales.OrderItem", completionItem.FilterText);
+            Assert.AreEqual("OrderItem", completionItem.SortText);
+        }
+
+        [Test]
+        public void FilterTextShouldPreserveBracketedQualifiedNames()
+        {
+            string declarationTitle = "[Sales].[Order Item]";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, DeclarationType.Table, "Ord");
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+            Assert.AreEqual("Order Item [Order Item] [Sales].[Order Item]", completionItem.FilterText);
+            Assert.AreEqual("Order Item", completionItem.SortText);
         }
 
         [Test]
