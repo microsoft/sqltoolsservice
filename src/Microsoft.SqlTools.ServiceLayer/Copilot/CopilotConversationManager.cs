@@ -210,7 +210,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 var contentManager = factory.Create<CartridgeContentManagerConfig>(
                     contentLibraryProviderType, 
                     scriptoriaAssembly, 
-                    SqlCartridgeContentDefs.CONFIGURATION_FILE);
+                    SqlCartridgeContentDefs.CONFIGURATION_FILE,
+                    null);
                 
                 // Register the content manager in services
                 services.AddSingleton<ICartridgeContentManager>(contentManager);
@@ -247,7 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 var cartridgeContentManager = cartridgeContentManagerFactory.Create<CartridgeContentManagerConfig>(
                     contentLibraryProviderType, 
                     scriptoriaAssembly, 
-                    SqlCartridgeContentDefs.CONFIGURATION_FILE);
+                    SqlCartridgeContentDefs.CONFIGURATION_FILE,
+                    null);
                 // read-only is the default startup mode
                 _activeCartridge.AccessChecker.ExecutionMode = AccessModes.READ_WRITE_NEVER;
 
