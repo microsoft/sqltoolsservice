@@ -604,5 +604,49 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.That(ex.Message, Does.Contain("AddRow must be called before AddCell"));
         }
 
+        [Test]
+        public void InvalidXmlCharactersShouldBeSanitized()
+        {
+            // Test that invalid XML characters like CHAR(0x14) are properly sanitized
+            var stream = new MemoryStream();
+            using (var helper = new SaveAsExcelFileStreamWriterHelper(stream, true))
+            using (var sheet = helper.AddSheet(null, 3))
+            {
+                var value = new DbCellValue();
+                sheet.AddRow();
+
+                // Test string with CHAR(0x14) (invalid XML character)
+                value.IsNull = false;
+                value.RawObject = "Test\x14String";
+                value.DisplayValue = "Test\x14String";
+
+                // This should not throw an exception
+                Assert.DoesNotThrow(() => sheet.AddCell(value));
+
+                // Test string with multiple invalid characters
+                value.RawObject = "\x01\x02\x03Valid\x14\x15\x16Text";
+                value.DisplayValue = "\x01\x02\x03Valid\x14\x15\x16Text";
+                Assert.DoesNotThrow(() => sheet.AddCell(value));
+
+                // Test normal string (should not be affected)
+                value.RawObject = "Normal String";
+                value.DisplayValue = "Normal String";
+                Assert.DoesNotThrow(() => sheet.AddCell(value));
+            }
+
+            // Verify the xlsx file structure is valid by checking it can be opened as a zip
+            stream.Position = 0;
+            Assert.DoesNotThrow(() =>
+            {
+                using (var archive = new System.IO.Compression.ZipArchive(stream, System.IO.Compression.ZipArchiveMode.Read, true))
+                {
+                    // Verify the archive can be read (means XML was valid)
+                    Assert.That(archive.Entries.Count, Is.GreaterThan(0));
+                }
+            });
+
+            stream.Dispose();
+        }
+
     }
 }

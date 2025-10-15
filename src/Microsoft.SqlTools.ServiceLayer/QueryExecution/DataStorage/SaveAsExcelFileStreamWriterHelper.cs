@@ -9,6 +9,7 @@ using System.Data.SqlTypes;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Xml;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
@@ -57,6 +58,49 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
     internal sealed class SaveAsExcelFileStreamWriterHelper : IDisposable
     {
+        /// <summary>
+        /// Sanitizes a string by removing invalid XML characters that would cause Excel export to fail.
+        /// Per XML 1.0 spec, valid characters are: 0x09, 0x0A, 0x0D, 0x20-0xD7FF, 0xE000-0xFFFD, 0x10000-0x10FFFF
+        /// </summary>
+        /// <param name="value">The string to sanitize</param>
+        /// <returns>A sanitized string with invalid XML characters removed</returns>
+        private static string SanitizeForXml(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            // Check if sanitization is needed
+            bool needsSanitization = false;
+            foreach (char c in value)
+            {
+                if (!IsValidXmlChar(c))
+                {
+                    needsSanitization = true;
+                    break;
+                }
+            }
+
+            if (!needsSanitization)
+            {
+                return value;
+            }
+
+            // Filter out invalid characters
+            return new string(value.Where(IsValidXmlChar).ToArray());
+        }
+
+        /// <summary>
+        /// Checks if a character is valid in XML 1.0
+        /// </summary>
+        private static bool IsValidXmlChar(char c)
+        {
+            return c == 0x09 || c == 0x0A || c == 0x0D ||
+                   (c >= 0x20 && c <= 0xD7FF) ||
+                   (c >= 0xE000 && c <= 0xFFFD);
+        }
+
         /// <summary>
         /// Present a Excel sheet
         /// </summary>
@@ -156,7 +200,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 writer.WriteStartElement("is");
                 writer.WriteStartElement("t");
-                writer.WriteValue(value);
+                // Sanitize the value to remove invalid XML characters
+                writer.WriteValue(SanitizeForXml(value));
                 writer.WriteEndElement();   // <t>
                 writer.WriteEndElement();   // <is>
 
@@ -416,7 +461,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 referenceManager.WriteAndIncreaseColumnReference();
 
                 writer.WriteStartElement("v");
-                writer.WriteValue(number);
+                // Sanitize if it's a string (e.g., SqlDecimal/SqlMoney DisplayValue)
+                if (number is string str)
+                {
+                    writer.WriteValue(SanitizeForXml(str));
+                }
+                else
+                {
+                    writer.WriteValue(number);
+                }
                 writer.WriteEndElement();   // <v>
 
                 writer.WriteEndElement();   // <c>
