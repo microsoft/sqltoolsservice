@@ -244,12 +244,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 userSessionKernel = builder.Build();
                 userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
 
-                var cartridgeContentManagerFactory = serviceProvider.GetRequiredService<ICartridgeContentManagerFactory>();
-                var cartridgeContentManager = cartridgeContentManagerFactory.Create<CartridgeContentManagerConfig>(
-                    contentLibraryProviderType, 
-                    scriptoriaAssembly, 
-                    SqlCartridgeContentDefs.CONFIGURATION_FILE,
-                    null);
                 // read-only is the default startup mode
                 _activeCartridge.AccessChecker.ExecutionMode = AccessModes.READ_WRITE_NEVER;
 
