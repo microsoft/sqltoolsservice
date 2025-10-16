@@ -529,9 +529,9 @@ VERSION AWARENESS:
         {
             // first check for any relevant knowledge that should be added to the conversation context
             var searchContextData = new Dictionary<string, string>
-        {
-            { "SearchContext", KnowledgeSearchContext.UserPrompt.ToString() }
-        };
+            {
+                { "SearchContext", KnowledgeSearchContext.UserPrompt.ToString() }
+            };
 
             var knowledgeDictionary = await _activeCartridge.FindRelevantKnowledgeAsync(userPrompt, searchContextData, chatHistory, cancellationToken);
 
