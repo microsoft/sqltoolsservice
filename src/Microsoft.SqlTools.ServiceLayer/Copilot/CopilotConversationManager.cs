@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -220,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-                var cartridgeBootstrapper = new ScriptoriaCartridgeBootstrapper<SqlCartridge>(scriptoriaTrace, ScriptoriaPackages.AssemblyNames.ToList());
+                var cartridgeBootstrapper = new ScriptoriaCartridgeBootstrapper<SqlCartridge>(scriptoriaTrace, [ScriptoriaPackages.SqlScriptoriaAssemblyName]);
 
                 var _executionContext = serviceProvider.GetRequiredService<IScriptoriaExecutionContext>();
 
