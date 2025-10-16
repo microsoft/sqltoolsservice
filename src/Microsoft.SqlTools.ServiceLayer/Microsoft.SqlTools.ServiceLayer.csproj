@@ -53,6 +53,9 @@
     <Reference Include="SqlScriptoriaCommon">
       <HintPath>..\..\bin\ref\SqlScriptoriaCommon.dll</HintPath>
     </Reference>
+    <Reference Include="YamlDotNet">
+      <HintPath>..\..\bin\ref\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
