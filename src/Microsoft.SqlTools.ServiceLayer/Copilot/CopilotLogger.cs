@@ -17,6 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
     {
         public TraceSource Source => Logger.TraceSource!;
 
+        public string LogFilePath => Logger.LogFileFullPath;
+
         public void WriteInfoEvent(int eventId, string message)
         {
             Logger.Information(FormatMessage(eventId, message));
