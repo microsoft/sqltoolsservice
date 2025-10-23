@@ -107,11 +107,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             try
             {
                 EditSession editSession = GetActiveSessionOrThrow(createParams.OwnerUri);
-
-                // Create the row
                 EditCreateRowResult result = editSession.CreateRow();
 
-                // Get the newly created row to include in the result
                 EditRow[] rows = await editSession.GetRows(result.NewRowId, 1);
                 result.Row = rows.Length > 0 ? rows[0] : null;
 
@@ -195,11 +192,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             try
             {
                 EditSession editSession = GetActiveSessionOrThrow(revertParams.OwnerUri);
-
-                // Revert the row and get the reverted row data
                 EditRow revertedRow = await editSession.RevertRow(revertParams.RowId);
 
-                // Return the result with the reverted row data
                 await requestContext.SendResult(new EditRevertRowResult
                 {
                     Row = revertedRow

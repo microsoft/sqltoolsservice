@@ -289,7 +289,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     return;
                 }
                 
-                // Otherwise, there's an update pending and we can't delete
                 throw new InvalidOperationException(SR.EditDataUpdatePending);
             }
 
