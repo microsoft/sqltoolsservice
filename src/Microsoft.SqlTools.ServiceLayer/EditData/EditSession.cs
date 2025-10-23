@@ -366,6 +366,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             ThrowIfNotInitialized();
 
+            // Sanity check the row ID
+            if (rowId >= NextRowId || rowId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
+            }
+
             // Attempt to get the row edit with the given ID
             RowEditBase pendingEdit;
             if (!EditCache.TryGetValue(rowId, out pendingEdit))
@@ -392,6 +398,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public async Task<EditRow> RevertRow(long rowId)
         {
             ThrowIfNotInitialized();
+
+            // Sanity check the row ID
+            if (rowId >= NextRowId || rowId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
+            }
 
             // Attempt to remove the row with the given ID
             RowEditBase removedEdit;

@@ -243,14 +243,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         [Test]
         [TestCaseSource(nameof(RowIdOutOfRangeData))]
-        public async Task RowIdOutOfRange(long rowId, Action<EditSession, long> testAction)
+        public async Task RowIdOutOfRange(long rowId, Func<EditSession, long, Task> testAction, bool isAsync)
         {
             // Setup: Create a session with a proper query and metadata
             EditSession s = await GetBasicSession();
 
             // If: I delete a row that is out of range for the result set
             // Then: I should get an exception
-            Assert.Throws<ArgumentOutOfRangeException>(() => testAction(s, rowId));
+            if (isAsync)
+            {
+                Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await testAction(s, rowId));
+            }
+            else
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => testAction(s, rowId).GetAwaiter().GetResult());
+            }
         }
 
         public static IEnumerable<object[]> RowIdOutOfRangeData
@@ -258,30 +265,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             get
             {
                 // Delete Row
-                Action<EditSession, long> delAction = (s, l) => s.DeleteRow(l);
-                yield return new object[] { -1L, delAction };
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, delAction};
-                yield return new object[] { 100L, delAction };
+                Func<EditSession, long, Task> delAction = (s, l) => { s.DeleteRow(l); return Task.CompletedTask; };
+                yield return new object[] { -1L, delAction, false };
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, delAction, false};
+                yield return new object[] { 100L, delAction, false };
 
                 // Update Cell
-                Action<EditSession, long> upAction = (s, l) => s.UpdateCell(l, 0, null);
-                yield return new object[] { -1L, upAction };
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, upAction};
-                yield return new object[] { 100L, upAction };
+                Func<EditSession, long, Task> upAction = (s, l) => { s.UpdateCell(l, 0, null); return Task.CompletedTask; };
+                yield return new object[] { -1L, upAction, false };
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, upAction, false};
+                yield return new object[] { 100L, upAction, false };
 
                 // Revert Row
-                Action<EditSession, long> revertRowAction = (s, l) => s.RevertRow(l);
-                yield return new object[] {-1L, revertRowAction};
-                yield return new object[] {0L, revertRowAction};    // This is invalid b/c there isn't an edit pending for this row
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction};
-                yield return new object[] {100L, revertRowAction};
+                Func<EditSession, long, Task> revertRowAction = (s, l) => s.RevertRow(l);
+                yield return new object[] {-1L, revertRowAction, true};
+                yield return new object[] {0L, revertRowAction, true};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction, true};
+                yield return new object[] {100L, revertRowAction, true};
 
                 // Revert Cell
-                Action<EditSession, long> revertCellAction = (s, l) => s.RevertCell(l, 0);
-                yield return new object[] {-1L, revertCellAction};
-                yield return new object[] {0L, revertCellAction};    // This is invalid b/c there isn't an edit pending for this row
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertCellAction};
-                yield return new object[] {100L, revertCellAction};
+                Func<EditSession, long, Task> revertCellAction = (s, l) => { s.RevertCell(l, 0); return Task.CompletedTask; };
+                yield return new object[] {-1L, revertCellAction, false};
+                yield return new object[] {0L, revertCellAction, false};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertCellAction, false};
+                yield return new object[] {100L, revertCellAction, false};
             }
         }
 
