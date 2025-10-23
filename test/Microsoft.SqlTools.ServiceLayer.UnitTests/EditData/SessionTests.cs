@@ -595,7 +595,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask to revert a row without initializing
             // Then: I should get an exception
-            Assert.Throws<InvalidOperationException>(() => s.RevertRow(0));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await s.RevertRow(0));
         }
 
         [Test]
