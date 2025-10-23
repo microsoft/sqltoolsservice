@@ -1146,6 +1146,33 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     }
 
     [Export(typeof(SmoQuerier))]
+    internal partial class SqlUserDefinedFunctionParameterQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(UserDefinedFunctionParameter) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        {
+            Logger.Verbose("Begin query UserDefinedFunctionParameter");
+            UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
+            if (parentUserDefinedFunction != null)
+            {
+                Logger.Verbose("Parent of type `UserDefinedFunction` found");
+                var retValue = parentUserDefinedFunction.Parameters;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedFunctionParameter, UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
+                    Logger.Verbose("End query UserDefinedFunctionParameter");
+                    return ret;
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
     internal partial class SqlUserDefinedAggregateQuerier: SmoQuerier
     {
         Type[] supportedTypes = new Type[] { typeof(UserDefinedAggregate) };
@@ -1187,6 +1214,33 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<UserDefinedAggregate, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedAggregate");
+                    return ret;
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlUserDefinedAggregateParameterQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(UserDefinedAggregateParameter) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        {
+            Logger.Verbose("Begin query UserDefinedAggregateParameter");
+            UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
+            if (parentUserDefinedAggregate != null)
+            {
+                Logger.Verbose("Parent of type `UserDefinedAggregate` found");
+                var retValue = parentUserDefinedAggregate.Parameters;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedAggregateParameter, UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
+                    Logger.Verbose("End query UserDefinedAggregateParameter");
                     return ret;
                 }
             }
@@ -2084,15 +2138,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     }
 
     [Export(typeof(SmoQuerier))]
-    internal partial class SqlSubroutineParameterQuerier: SmoQuerier
+    internal partial class SqlStoredProcedureParameterQuerier: SmoQuerier
     {
-        Type[] supportedTypes = new Type[] { typeof(Parameter) };
+        Type[] supportedTypes = new Type[] { typeof(StoredProcedureParameter) };
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            Logger.Verbose("Begin query Parameter");
+            Logger.Verbose("Begin query StoredProcedureParameter");
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
             {
@@ -2102,33 +2156,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<StoredProcedureParameter, StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
-                    Logger.Verbose("End query Parameter");
-                    return ret;
-                }
-            }
-            UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
-            if (parentUserDefinedAggregate != null)
-            {
-                Logger.Verbose("Parent of type `UserDefinedAggregate` found");
-                var retValue = parentUserDefinedAggregate.Parameters;
-                if (retValue != null)
-                {
-                    retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedAggregateParameter, UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
-                    Logger.Verbose("End query Parameter");
-                    return ret;
-                }
-            }
-            UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
-            if (parentUserDefinedFunction != null)
-            {
-                Logger.Verbose("Parent of type `UserDefinedFunction` found");
-                var retValue = parentUserDefinedFunction.Parameters;
-                if (retValue != null)
-                {
-                    retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedFunctionParameter, UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
-                    Logger.Verbose("End query Parameter");
+                    Logger.Verbose("End query StoredProcedureParameter");
                     return ret;
                 }
             }
