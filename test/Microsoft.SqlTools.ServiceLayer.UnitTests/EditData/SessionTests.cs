@@ -612,11 +612,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I revert the row that has a pending update
             EditRow revertedRow = await s.RevertRow(0);
 
-            // Then:
-            // ... The edit cache should not contain a pending edit for the row
             Assert.That(s.EditCache.Keys, Has.No.Zero, "The edit cache should not contain a pending edit for the row");
 
-            // ... The reverted row should be returned
             Assert.NotNull(revertedRow, "The reverted row should be returned");
             Assert.AreEqual(0, revertedRow.Id, "The reverted row should have the correct ID");
             Assert.AreEqual(EditRow.EditRowState.Clean, revertedRow.State, "The reverted row should be clean");
@@ -1038,25 +1035,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void ScriptEditsNoParamNotInitialized()
         {
             // Setup:
-            //      Create a session without initializing
             var emf = new Mock<IEditMetadataFactory>();
             var s = new EditSession(emf.Object);
 
-            // If: I ask to script edits without initializing
-            // Then: I should get an exception
+            // Assert:
             Assert.Throws<InvalidOperationException>(() => s.ScriptEdits());
         }
 
         [Test]
         public async Task ScriptEditsNoParamNoEdits()
         {
-            // Setup: Create a session with a proper query and metadata
+            // Setup:
             EditSession s = await GetBasicSession();
 
-            // If: I script the edit cache with no edits
+            // Action:
             string[] scripts = s.ScriptEdits();
 
-            // Then: The script should be empty
+            // Assert:
             Assert.That(scripts, Is.Empty);
         }
 
@@ -1064,19 +1059,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task ScriptEditsNoParamSingleEdit()
         {
             // Setup:
-            //      Create a session with a proper query and metadata
             EditSession s = await GetBasicSession();
 
-            // ... Add one mock edit that will generate a script
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.GetScript()).Returns("INSERT statement");
             s.EditCache[0] = edit.Object;
 
-            // If: I script the edit cache
+            // Action:
             string[] scripts = s.ScriptEdits();
 
-            // Then:
-            // ... The script should contain the edit script
+            // Assert:
             Assert.That(scripts, Does.Contain("INSERT statement"));
         }
 
@@ -1084,10 +1076,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task ScriptEditsNoParamMultipleEdits()
         {
             // Setup:
-            //      Create a session with a proper query and metadata
             EditSession s = await GetBasicSession();
 
-            // ... Add multiple mock edits that will generate scripts
             var insert = new Mock<RowEditBase>();
             insert.Setup(e => e.GetScript()).Returns("INSERT statement");
 
@@ -1101,11 +1091,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[1] = update.Object;
             s.EditCache[2] = delete.Object;
 
-            // If: I script the edit cache
+            // Action:
             string[] scripts = s.ScriptEdits();
 
-            // Then:
-            // ... The script should contain all edit scripts
+            // Assert:
             Assert.That(scripts, Does.Contain("INSERT statement"));
             Assert.That(scripts, Does.Contain("UPDATE statement"));
             Assert.That(scripts, Does.Contain("DELETE statement"));
