@@ -77,15 +77,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest, true);
-            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest, true);
-            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest, true);
-            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest, true);
-            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest, true);
-            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest, true);
-            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, true);
-            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, true);
-            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, true);
+            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest, isParallelProcessingSupported: true);
         }
 
         #region Request Handlers
@@ -93,17 +94,49 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleSessionRequest<TResult>(SessionOperationParams sessionParams,
             RequestContext<TResult> requestContext, Func<EditSession, TResult> sessionOperation)
         {
-            EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
+            try
+            {
+                EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
 
-            // Get the result from execution of the editSession operation
-            TResult result = sessionOperation(editSession);
-            await requestContext.SendResult(result);
+                // Get the result from execution of the editSession operation
+                TResult result = sessionOperation(editSession);
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+        internal async Task HandleSessionRequestAsync<TResult>(SessionOperationParams sessionParams,
+            RequestContext<TResult> requestContext, Func<EditSession, Task<TResult>> sessionOperationAsync)
+        {
+            try
+            {
+                EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
+
+                // Get the result from execution of the async editSession operation
+                TResult result = await sessionOperationAsync(editSession);
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
             RequestContext<EditCreateRowResult> requestContext)
         {
-            return HandleSessionRequest(createParams, requestContext, s => s.CreateRow());
+            return HandleSessionRequestAsync(createParams, requestContext, async session =>
+            {
+                EditCreateRowResult result = session.CreateRow();
+
+                EditRow[] rows = await session.GetRows(result.NewRowId, rowCount: 1);
+                result.Row = rows.Length > 0 ? rows[0] : null;
+
+                return result;
+            });
         }
 
         internal Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
@@ -156,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
             }
 
-            context.ResultSetHandler = (ResultSetEventParams resultSetEventParams) => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
+            context.ResultSetHandler = resultSetEventParams => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
 
             // Initialize the session
             session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
@@ -175,26 +208,31 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
-            return HandleSessionRequest(revertParams, requestContext, session =>
+            return HandleSessionRequestAsync(revertParams, requestContext, async session =>
             {
-                session.RevertRow(revertParams.RowId);
-                return new EditRevertRowResult();
+                EditRow revertedRow = await session.RevertRow(revertParams.RowId);
+
+                return new EditRevertRowResult
+                {
+                    Row = revertedRow
+                };
             });
         }
 
-        internal async Task HandleSubsetRequest(EditSubsetParams subsetParams,
+        internal Task HandleSubsetRequest(EditSubsetParams subsetParams,
             RequestContext<EditSubsetResult> requestContext)
         {
-            EditSession session = GetActiveSessionOrThrow(subsetParams.OwnerUri);
-
-            EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
-            EditSubsetResult result = new EditSubsetResult
+            return HandleSessionRequestAsync(subsetParams, requestContext, async session =>
             {
-                RowCount = rows.Length,
-                Subset = rows
-            };
-
-            await requestContext.SendResult(result);
+                EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
+                
+                return new EditSubsetResult
+                {
+                    RowCount = rows.Length,
+                    Subset = rows,
+                    ColumnInfo = session.GetColumnInfo()
+                };
+            });
         }
 
         internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
@@ -227,6 +265,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 await failureHandler(e);
             }
+        }
+
+        internal Task HandleEditScriptRequest(EditScriptParams scriptParams, RequestContext<EditScriptResult> requestContext)
+        {
+            return HandleSessionRequest(scriptParams, requestContext, session =>
+            {
+                string[] scripts = session.ScriptEdits();
+                return new EditScriptResult { Scripts = scripts };
+            });
         }
 
         #endregion

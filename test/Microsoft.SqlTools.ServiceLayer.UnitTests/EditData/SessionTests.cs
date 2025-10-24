@@ -243,14 +243,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         [Test]
         [TestCaseSource(nameof(RowIdOutOfRangeData))]
-        public async Task RowIdOutOfRange(long rowId, Action<EditSession, long> testAction)
+        public async Task RowIdOutOfRange(long rowId, Func<EditSession, long, Task> testAction, bool isAsync)
         {
             // Setup: Create a session with a proper query and metadata
             EditSession s = await GetBasicSession();
 
             // If: I delete a row that is out of range for the result set
             // Then: I should get an exception
-            Assert.Throws<ArgumentOutOfRangeException>(() => testAction(s, rowId));
+            if (isAsync)
+            {
+                Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await testAction(s, rowId));
+            }
+            else
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => testAction(s, rowId).GetAwaiter().GetResult());
+            }
         }
 
         public static IEnumerable<object[]> RowIdOutOfRangeData
@@ -258,30 +265,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             get
             {
                 // Delete Row
-                Action<EditSession, long> delAction = (s, l) => s.DeleteRow(l);
-                yield return new object[] { -1L, delAction };
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, delAction};
-                yield return new object[] { 100L, delAction };
+                Func<EditSession, long, Task> delAction = (s, l) => { s.DeleteRow(l); return Task.CompletedTask; };
+                yield return new object[] { -1L, delAction, false };
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, delAction, false};
+                yield return new object[] { 100L, delAction, false };
 
                 // Update Cell
-                Action<EditSession, long> upAction = (s, l) => s.UpdateCell(l, 0, null);
-                yield return new object[] { -1L, upAction };
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, upAction};
-                yield return new object[] { 100L, upAction };
+                Func<EditSession, long, Task> upAction = (s, l) => { s.UpdateCell(l, 0, null); return Task.CompletedTask; };
+                yield return new object[] { -1L, upAction, false };
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, upAction, false};
+                yield return new object[] { 100L, upAction, false };
 
                 // Revert Row
-                Action<EditSession, long> revertRowAction = (s, l) => s.RevertRow(l);
-                yield return new object[] {-1L, revertRowAction};
-                yield return new object[] {0L, revertRowAction};    // This is invalid b/c there isn't an edit pending for this row
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction};
-                yield return new object[] {100L, revertRowAction};
+                Func<EditSession, long, Task> revertRowAction = (s, l) => s.RevertRow(l);
+                yield return new object[] {-1L, revertRowAction, true};
+                yield return new object[] {0L, revertRowAction, true};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction, true};
+                yield return new object[] {100L, revertRowAction, true};
 
                 // Revert Cell
-                Action<EditSession, long> revertCellAction = (s, l) => s.RevertCell(l, 0);
-                yield return new object[] {-1L, revertCellAction};
-                yield return new object[] {0L, revertCellAction};    // This is invalid b/c there isn't an edit pending for this row
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertCellAction};
-                yield return new object[] {100L, revertCellAction};
+                Func<EditSession, long, Task> revertCellAction = (s, l) => { s.RevertCell(l, 0); return Task.CompletedTask; };
+                yield return new object[] {-1L, revertCellAction, false};
+                yield return new object[] {0L, revertCellAction, false};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertCellAction, false};
+                yield return new object[] {100L, revertCellAction, false};
             }
         }
 
@@ -588,7 +595,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask to revert a row without initializing
             // Then: I should get an exception
-            Assert.Throws<InvalidOperationException>(() => s.RevertRow(0));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await s.RevertRow(0));
         }
 
         [Test]
@@ -603,9 +610,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[0] = mockEdit;
 
             // If: I revert the row that has a pending update
-            s.RevertRow(0);
+            EditRow revertedRow = await s.RevertRow(0);
 
             Assert.That(s.EditCache.Keys, Has.No.Zero, "The edit cache should not contain a pending edit for the row");
+
+            Assert.NotNull(revertedRow, "The reverted row should be returned");
+            Assert.AreEqual(0, revertedRow.Id, "The reverted row should have the correct ID");
+            Assert.AreEqual(EditRow.EditRowState.Clean, revertedRow.State, "The reverted row should be clean");
         }
 
         [Test]
@@ -1018,6 +1029,75 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 // ... The written file should have two lines, one for each edit
                 Assert.AreEqual(2, File.ReadAllLines(outputPath).Length);
             }
+        }
+
+        [Test]
+        public void ScriptEditsNoParamNotInitialized()
+        {
+            // Setup:
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
+
+            // Assert:
+            Assert.Throws<InvalidOperationException>(() => s.ScriptEdits());
+        }
+
+        [Test]
+        public async Task ScriptEditsNoParamNoEdits()
+        {
+            // Setup:
+            EditSession s = await GetBasicSession();
+
+            // Action:
+            string[] scripts = s.ScriptEdits();
+
+            // Assert:
+            Assert.That(scripts, Is.Empty);
+        }
+
+        [Test]
+        public async Task ScriptEditsNoParamSingleEdit()
+        {
+            // Setup:
+            EditSession s = await GetBasicSession();
+
+            var edit = new Mock<RowEditBase>();
+            edit.Setup(e => e.GetScript()).Returns("INSERT statement");
+            s.EditCache[0] = edit.Object;
+
+            // Action:
+            string[] scripts = s.ScriptEdits();
+
+            // Assert:
+            Assert.That(scripts, Does.Contain("INSERT statement"));
+        }
+
+        [Test]
+        public async Task ScriptEditsNoParamMultipleEdits()
+        {
+            // Setup:
+            EditSession s = await GetBasicSession();
+
+            var insert = new Mock<RowEditBase>();
+            insert.Setup(e => e.GetScript()).Returns("INSERT statement");
+
+            var update = new Mock<RowEditBase>();
+            update.Setup(e => e.GetScript()).Returns("UPDATE statement");
+
+            var delete = new Mock<RowEditBase>();
+            delete.Setup(e => e.GetScript()).Returns("DELETE statement");
+
+            s.EditCache[0] = insert.Object;
+            s.EditCache[1] = update.Object;
+            s.EditCache[2] = delete.Object;
+
+            // Action:
+            string[] scripts = s.ScriptEdits();
+
+            // Assert:
+            Assert.That(scripts, Does.Contain("INSERT statement"));
+            Assert.That(scripts, Does.Contain("UPDATE statement"));
+            Assert.That(scripts, Does.Contain("DELETE statement"));
         }
 
         #endregion
