@@ -16,7 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         public string Name { get; set; }
 
         /// <summary>
-        /// Whether or not the column can be edited
+        /// Whether or not the column can be edited. Columns may not be editable for several reasons,
+        /// such as being computed columns, identity columns, or columns that are part of a primary key.
         /// </summary>
         public bool IsEditable { get; set; }
     }
