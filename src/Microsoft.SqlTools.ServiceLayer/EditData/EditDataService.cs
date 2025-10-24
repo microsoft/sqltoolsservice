@@ -267,21 +267,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        internal async Task HandleEditScriptRequest(EditScriptParams scriptParams, RequestContext<EditScriptResult> requestContext)
+        internal Task HandleEditScriptRequest(EditScriptParams scriptParams, RequestContext<EditScriptResult> requestContext)
         {
-            try
+            return HandleSessionRequest(scriptParams, requestContext, session =>
             {
-                EditSession session = GetActiveSessionOrThrow(scriptParams.OwnerUri);
                 string[] scripts = session.ScriptEdits();
-                var result = new EditScriptResult() { Scripts = scripts };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-
-                await requestContext.SendError(e.Message);
-            }
+                return new EditScriptResult { Scripts = scripts };
+            });
         }
 
         #endregion
