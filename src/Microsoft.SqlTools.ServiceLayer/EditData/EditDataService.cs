@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -94,30 +94,50 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleSessionRequest<TResult>(SessionOperationParams sessionParams,
             RequestContext<TResult> requestContext, Func<EditSession, TResult> sessionOperation)
         {
-            EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
-
-            // Get the result from execution of the editSession operation
-            TResult result = sessionOperation(editSession);
-            await requestContext.SendResult(result);
-        }
-
-        internal async Task HandleCreateRowRequest(EditCreateRowParams createParams,
-            RequestContext<EditCreateRowResult> requestContext)
-        {
             try
             {
-                EditSession editSession = GetActiveSessionOrThrow(createParams.OwnerUri);
-                EditCreateRowResult result = editSession.CreateRow();
+                EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
 
-                EditRow[] rows = await editSession.GetRows(result.NewRowId, 1);
-                result.Row = rows.Length > 0 ? rows[0] : null;
-
+                // Get the result from execution of the editSession operation
+                TResult result = sessionOperation(editSession);
                 await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e.Message);
             }
+        }
+
+        internal async Task HandleSessionRequestAsync<TResult>(SessionOperationParams sessionParams,
+            RequestContext<TResult> requestContext, Func<EditSession, Task<TResult>> sessionOperationAsync)
+        {
+            try
+            {
+                EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
+
+                // Get the result from execution of the async editSession operation
+                TResult result = await sessionOperationAsync(editSession);
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+        internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
+            RequestContext<EditCreateRowResult> requestContext)
+        {
+            return HandleSessionRequestAsync(createParams, requestContext, async session =>
+            {
+                EditCreateRowResult result = session.CreateRow();
+
+                const int singleRowCount = 1;
+                EditRow[] rows = await session.GetRows(result.NewRowId, singleRowCount);
+                result.Row = rows.Length > 0 ? rows[0] : null;
+
+                return result;
+            });
         }
 
         internal Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
@@ -186,39 +206,34 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 session => session.RevertCell(revertParams.RowId, revertParams.ColumnId));
         }
 
-        internal async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
+        internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
-            try
+            return HandleSessionRequestAsync(revertParams, requestContext, async session =>
             {
-                EditSession editSession = GetActiveSessionOrThrow(revertParams.OwnerUri);
-                EditRow revertedRow = await editSession.RevertRow(revertParams.RowId);
+                EditRow revertedRow = await session.RevertRow(revertParams.RowId);
 
-                await requestContext.SendResult(new EditRevertRowResult
+                return new EditRevertRowResult
                 {
                     Row = revertedRow
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
+                };
+            });
         }
 
-        internal async Task HandleSubsetRequest(EditSubsetParams subsetParams,
+        internal Task HandleSubsetRequest(EditSubsetParams subsetParams,
             RequestContext<EditSubsetResult> requestContext)
         {
-            EditSession session = GetActiveSessionOrThrow(subsetParams.OwnerUri);
-
-            EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
-            EditSubsetResult result = new EditSubsetResult
+            return HandleSessionRequestAsync(subsetParams, requestContext, async session =>
             {
-                RowCount = rows.Length,
-                Subset = rows,
-                ColumnInfo = session.GetColumnInfo()
-            };
-
-            await requestContext.SendResult(result);
+                EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
+                
+                return new EditSubsetResult
+                {
+                    RowCount = rows.Length,
+                    Subset = rows,
+                    ColumnInfo = session.GetColumnInfo()
+                };
+            });
         }
 
         internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
