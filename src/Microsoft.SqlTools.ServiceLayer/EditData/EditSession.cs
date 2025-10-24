@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -421,7 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             List<RowEditBase> editOperations = EditCache.Values.ToList();
             editOperations.Sort();
 
-            foreach (var rowEdit in editOperations)
+            foreach (RowEditBase rowEdit in editOperations)
             {
                 scripts.Add(rowEdit.GetScript());
             }
@@ -509,6 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return associatedResultSet?.Columns?.Select(c => new EditColumnInfo
             {
                 Name = c.ColumnName,
+                // IsEditable provides a clearer public API name than IsUpdatable
                 IsEditable = c.IsUpdatable
             }).ToArray() ?? new EditColumnInfo[0];
         }
@@ -581,9 +582,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // @TODO: Add support for transactional commits
 
                 // Trust the RowEdit to sort itself appropriately
-                var editOperations = EditCache.Values.ToList();
+                List<RowEditBase> editOperations = EditCache.Values.ToList();
                 editOperations.Sort();
-                foreach (var editOperation in editOperations)
+                foreach (RowEditBase editOperation in editOperations)
                 {
                     try
                     {
