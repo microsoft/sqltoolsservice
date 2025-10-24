@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -269,12 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void DeleteRow(long rowId)
         {
             ThrowIfNotInitialized();
-
-            // Sanity check the row ID
-            if (rowId >= NextRowId || rowId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
-            }
+            ValidateRowId(rowId);
 
             // Check if there's already a pending edit for this row
             if (EditCache.TryGetValue(rowId, out RowEditBase existingEdit))
@@ -365,12 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public EditRevertCellResult RevertCell(long rowId, int columnId)
         {
             ThrowIfNotInitialized();
-
-            // Sanity check the row ID
-            if (rowId >= NextRowId || rowId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
-            }
+            ValidateRowId(rowId);
 
             // Attempt to get the row edit with the given ID
             RowEditBase pendingEdit;
@@ -398,12 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public async Task<EditRow> RevertRow(long rowId)
         {
             ThrowIfNotInitialized();
-
-            // Sanity check the row ID
-            if (rowId >= NextRowId || rowId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
-            }
+            ValidateRowId(rowId);
 
             // Attempt to remove the row with the given ID
             RowEditBase removedEdit;
@@ -498,12 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public EditUpdateCellResult UpdateCell(long rowId, int columnId, string newValue)
         {
             ThrowIfNotInitialized();
-
-            // Sanity check to make sure that the row ID is in the range of possible values
-            if (rowId >= NextRowId || rowId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
-            }
+            ValidateRowId(rowId);
 
             // Attempt to get the row that is being edited, create a new update object if one
             // doesn't exist
@@ -536,6 +516,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #endregion
 
         #region Private Helpers
+
+        /// <summary>
+        /// Validates that a row ID is within the valid range
+        /// </summary>
+        /// <param name="rowId">The row ID to validate</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the row ID is out of range</exception>
+        private void ValidateRowId(long rowId)
+        {
+            if (rowId >= NextRowId || rowId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
+            }
+        }
 
         private async Task InitializeInternal(EditInitializeParams initParams, Connector connector,
             QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> failureHandler)
