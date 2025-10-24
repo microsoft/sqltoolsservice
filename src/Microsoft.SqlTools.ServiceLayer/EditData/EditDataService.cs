@@ -132,8 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 EditCreateRowResult result = session.CreateRow();
 
-                const int singleRowCount = 1;
-                EditRow[] rows = await session.GetRows(result.NewRowId, singleRowCount);
+                EditRow[] rows = await session.GetRows(result.NewRowId, rowCount: 1);
                 result.Row = rows.Length > 0 ? rows[0] : null;
 
                 return result;
