@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -77,16 +77,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest, true);
-            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest, true);
-            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest, true);
-            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest, true);
-            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest, true);
-            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest, true);
-            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, true);
-            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, true);
-            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, true);
-            serviceHost.SetRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest, true);
+            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest, isParallelProcessingSupported: true);
         }
 
         #region Request Handlers
