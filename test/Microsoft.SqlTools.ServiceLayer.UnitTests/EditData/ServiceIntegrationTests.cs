@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region EditSession Operation Helper Tests
 
         [Test]
-        public void NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
+        public async Task NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
         {
             // Setup: 
             // ... Create a edit data service
@@ -36,10 +36,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Create a session params that returns the provided session ID
             var mockParams = new EditCreateRowParams {OwnerUri = sessionId};
-            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
+            
+            // ... Create a context mock that will capture the error
+            string errorMessage = null;
+            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null)
+                .AddErrorHandling((msg, code, data) => errorMessage = msg);
+
             // If: I ask to perform an action that requires a session
-            // Then: I should get an error from it
-            Assert.That(() => eds.HandleSessionRequest(mockParams, contextMock.Object, session => null), Throws.Exception);
+            // Then: An error should have been sent
+            await eds.HandleSessionRequest(mockParams, contextMock.Object, session => null);
+            Assert.That(errorMessage, Is.Not.Null, "An error message should have been sent");
         }
 
         [Test]
@@ -52,10 +58,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Create a session param that returns the common owner uri
             var mockParams = new EditCreateRowParams { OwnerUri = Common.OwnerUri };
-            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
-            // If: I ask to perform an action that requires a session
-            // Then: I should get an error from it
-            Assert.That(() => eds.HandleSessionRequest(mockParams, contextMock.Object, s => { throw new Exception(); }), Throws.Exception);
+            
+            // ... Create a context mock that will capture the error
+            string errorMessage = null;
+            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null)
+                .AddErrorHandling((msg, code, data) => errorMessage = msg);
+
+            // If: I ask to perform an action that throws an exception
+            // Then: An error should have been sent
+            await eds.HandleSessionRequest(mockParams, contextMock.Object, s => { throw new Exception(); });
+            Assert.That(errorMessage, Is.Not.Null, "An error message should have been sent");
         }
 
 
@@ -73,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I ask to perform an action that requires a session
             // Then: I should get an error from it
             var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
-            Assert.That(() => eds.HandleDisposeRequest(new EditDisposeParams { OwnerUri = sessionId }, contextMock.Object), Throws.Exception);
+            Assert.That(() => eds.HandleDisposeRequest(new EditDisposeParams { OwnerUri = sessionId }, contextMock.Object).Wait(), Throws.Exception);
         }
 
         [Test]
