@@ -527,6 +527,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             if (rowId >= NextRowId || rowId < 0)
             {
+                string errorMessage = $"Invalid row ID {rowId} provided. Valid range is 0 to {NextRowId - 1} (NextRowId: {NextRowId})";
+                Logger.Warning(errorMessage);
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
             }
         }
