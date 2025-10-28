@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     result.Steps = jobSteps.ToArray();
 
                     // Add schedules to the job if any
-                    JobScheduleCollection schedules = jobs[parameters.JobName].JobSchedules;
+                    JobScheduleCollection<Job> schedules = jobs[parameters.JobName].JobSchedules;
                     var jobSchedules = new List<AgentScheduleInfo>();
                     foreach (JobSchedule schedule in schedules)
                     {
@@ -1480,7 +1480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             result.Steps = jobSteps.ToArray();
 
             // add schedules to the job if any
-            JobScheduleCollection schedules = jobs[jobName].JobSchedules;
+            JobScheduleCollection<Job> schedules = jobs[jobName].JobSchedules;
             var jobSchedules = new List<AgentScheduleInfo>();
             foreach (JobSchedule schedule in schedules)
             {

@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 				XmlElement nodeElement = GetNodeElement(xmlFile, nodeName);
 				IList<string> parents = GetParents(nodeElement, xmlFile, nodeName);
 				string nodeType = GetNodeType(nodeElement, nodeName);
+				string collectionParentType = GetCollectionParentType(nodeElement, xmlFile, nodeName);
 				var validFor = nodeElement.GetAttribute("ValidFor");
 
 				string queryBaseClass = "SmoQuerier";
@@ -131,7 +132,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 								WriteLine("retValue.ClearAndInitialize(filter, extraProperties);");
 								if (string.IsNullOrEmpty(subField) )
 								{
-										WriteLine("var ret = new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar);
+										WriteLine("var ret = new SmoCollectionWrapper<{0}, {1}>(retValue).Where(c => PassesFinalFilters({2}, c));", nodeType, collectionParentType ?? parentType, parentVar);
 										WriteLine("Logger.Verbose(\"End query {0}\");", nodeType);
 										WriteLine("return ret;");
 								}
@@ -285,6 +286,20 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
 				// default to assuming a type is under Database
 				return new string[] { "Database" };
+		}
+
+		public static string GetCollectionParentType(XmlElement nodeElement, string xmlFile, string parentName)
+		{
+			var collectionParentAttr = nodeElement.GetAttribute("CollectionParent");
+				
+			if (!string.IsNullOrEmpty(collectionParentAttr))
+			{
+					return collectionParentAttr;
+			}
+			else
+			{
+				return null;
+			}
 		}
 
 		public static List<XmlElement> GetChildren(string xmlFile, string parentName, string childNode)
