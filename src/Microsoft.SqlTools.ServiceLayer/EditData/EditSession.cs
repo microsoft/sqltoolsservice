@@ -269,11 +269,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void DeleteRow(long rowId)
         {
             ThrowIfNotInitialized();
+            ValidateRowId(rowId);
 
-            // Sanity check the row ID
-            if (rowId >= NextRowId || rowId < 0)
+            // Check if there's already a pending edit for this row
+            if (EditCache.TryGetValue(rowId, out RowEditBase existingEdit))
             {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
+                // If it's a newly created row that hasn't been committed, just remove it
+                if (existingEdit is RowCreate)
+                {
+                    if (EditCache.TryRemove(rowId, out _))
+                    {
+                        NextRowId--;
+                    }
+                    return;
+                }
+                
+                throw new InvalidOperationException(SR.EditDataUpdatePending);
             }
 
             // Create a new row delete update and add to cache
@@ -349,6 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public EditRevertCellResult RevertCell(long rowId, int columnId)
         {
             ThrowIfNotInitialized();
+            ValidateRowId(rowId);
 
             // Attempt to get the row edit with the given ID
             RowEditBase pendingEdit;
@@ -366,15 +378,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
-        /// Removes a pending row update from the update cache.
+        /// Removes a pending row update from the update cache and returns the reverted row.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">
         /// If a pending row update with the given row ID does not exist.
         /// </exception>
         /// <param name="rowId">The internal ID of the row to reset</param>
-        public void RevertRow(long rowId)
+        /// <returns>The row after the revert was applied</returns>
+        public async Task<EditRow> RevertRow(long rowId)
         {
             ThrowIfNotInitialized();
+            ValidateRowId(rowId);
 
             // Attempt to remove the row with the given ID
             RowEditBase removedEdit;
@@ -388,13 +402,38 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 NextRowId--;
             }
+
+            // Get the reverted row data
+            EditRow[] rows = await GetRows(rowId, 1);
+            return rows.Length > 0 ? rows[0] : null;
+        }
+
+        /// <summary>
+        /// Generates the scripts of all pending edits.
+        /// </summary>
+        /// <returns>The generated edit scripts</returns>
+        public string[] ScriptEdits()
+        {
+            ThrowIfNotInitialized();
+
+            var scripts = new List<string>();
+
+            List<RowEditBase> editOperations = EditCache.Values.ToList();
+            editOperations.Sort();
+
+            foreach (RowEditBase rowEdit in editOperations)
+            {
+                scripts.Add(rowEdit.GetScript());
+            }
+
+            return scripts.ToArray();
         }
 
         /// <summary>
         /// Generates a single script file with all the pending edits scripted.
         /// </summary>
         /// <param name="outputPath">The path to output the script to</param>
-        /// <returns></returns>
+        /// <returns>The path to the generated script</returns>
         public string ScriptEdits(string outputPath)
         {
             ThrowIfNotInitialized();
@@ -444,12 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public EditUpdateCellResult UpdateCell(long rowId, int columnId, string newValue)
         {
             ThrowIfNotInitialized();
-
-            // Sanity check to make sure that the row ID is in the range of possible values
-            if (rowId >= NextRowId || rowId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
-            }
+            ValidateRowId(rowId);
 
             // Attempt to get the row that is being edited, create a new update object if one
             // doesn't exist
@@ -465,9 +499,39 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return result;
         }
 
+        /// <summary>
+        /// Gets the column information including name and editability for the associated result set
+        /// </summary>
+        /// <returns>Array of column information</returns>
+        public EditColumnInfo[] GetColumnInfo()
+        {
+            ThrowIfNotInitialized();
+            return associatedResultSet?.Columns?.Select(c => new EditColumnInfo
+            {
+                Name = c.ColumnName,
+                // IsEditable provides a clearer public API name than IsUpdatable
+                IsEditable = c.IsUpdatable
+            }).ToArray() ?? new EditColumnInfo[0];
+        }
+
         #endregion
 
         #region Private Helpers
+
+        /// <summary>
+        /// Validates that a row ID is within the valid range
+        /// </summary>
+        /// <param name="rowId">The row ID to validate</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the row ID is out of range</exception>
+        private void ValidateRowId(long rowId)
+        {
+            if (rowId >= NextRowId || rowId < 0)
+            {
+                string errorMessage = $"Invalid row ID {rowId} provided. Valid range is 0 to {NextRowId - 1} (NextRowId: {NextRowId})";
+                Logger.Warning(errorMessage);
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
+            }
+        }
 
         private async Task InitializeInternal(EditInitializeParams initParams, Connector connector,
             QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> failureHandler)
@@ -520,9 +584,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // @TODO: Add support for transactional commits
 
                 // Trust the RowEdit to sort itself appropriately
-                var editOperations = EditCache.Values.ToList();
+                List<RowEditBase> editOperations = EditCache.Values.ToList();
                 editOperations.Sort();
-                foreach (var editOperation in editOperations)
+                foreach (RowEditBase editOperation in editOperations)
                 {
                     try
                     {

@@ -31,6 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// The internal ID of the newly created row
         /// </summary>
         public long NewRowId { get; set; }
+
+        /// <summary>
+        /// The newly created row with all cell data and state information
+        /// </summary>
+        public EditRow Row { get; set; }
     }
 
     public class EditCreateRowRequest
