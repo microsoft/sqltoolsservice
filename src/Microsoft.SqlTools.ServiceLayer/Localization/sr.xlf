@@ -990,8 +990,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataComputedColumnPlaceholder">
-        <source>&lt;TBD&gt;</source>
-        <target state="new">&lt;TBD&gt;</target>
+        <source>&lt;auto-generated&gt;</source>
+        <target state="new">&lt;auto-generated&gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataTimeOver24Hrs">
