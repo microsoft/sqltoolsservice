@@ -141,8 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             RunTask(requestContext, operation);
 
-            // If ReturnScriptAsEvent is enabled, return operation ID immediately
-            if (parameters.ReturnScriptAsEvent)
+            // If ReturnScriptAsynchronously is enabled, return operation ID immediately
+            if (parameters.ReturnScriptAsynchronously)
             {
                 return requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
             }
@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                                                                SmoScriptingOperation operation, ScriptingParams scriptingParams)
         {
             // If ReturnScriptAsEvent is enabled, include script in the complete event
-            if (scriptingParams.ReturnScriptAsEvent && parameters is ScriptingCompleteParams completeParams)
+            if (scriptingParams.ReturnScriptAsynchronously && parameters is ScriptingCompleteParams completeParams)
             {
                 completeParams.Script = operation.ScriptText;
             }
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             await requestContext.SendEvent(eventType, parameters);
 
             // If ReturnScriptAsEvent is enabled, we already sent the result with operation ID earlier
-            if (scriptingParams.ReturnScriptAsEvent)
+            if (scriptingParams.ReturnScriptAsynchronously)
             {
                 return;
             }
