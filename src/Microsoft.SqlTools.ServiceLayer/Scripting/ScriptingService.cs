@@ -189,19 +189,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters,
                                                                SmoScriptingOperation operation, ScriptingParams scriptingParams)
         {
-            // If ReturnScriptAsEvent is enabled, include script in the complete event
+            // If ReturnScriptAsynchronously is enabled, include script in the complete event
             if (scriptingParams.ReturnScriptAsynchronously && parameters is ScriptingCompleteParams completeParams)
             {
                 completeParams.Script = operation.ScriptText;
+                await requestContext.SendEvent(eventType, parameters);
+                return;
             }
 
             await requestContext.SendEvent(eventType, parameters);
-
-            // If ReturnScriptAsEvent is enabled, we already sent the result with operation ID earlier
-            if (scriptingParams.ReturnScriptAsynchronously)
-            {
-                return;
-            }
 
             switch (scriptingParams.ScriptDestination)
             {
