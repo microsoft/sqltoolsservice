@@ -464,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(er.IsDirty);
             Assert.AreEqual(EditRow.EditRowState.DirtyInsert, er.State);
             
-            // ... The row should have a TBD for the identity column
+            // ... The row should have a auto-generated for the identity column
             Assert.AreEqual(rc.newCells.Length, er.Cells.Length);
             Assert.AreEqual(SR.EditDataComputedColumnPlaceholder, er.Cells[0].DisplayValue);
             Assert.False(er.Cells[0].IsNull);

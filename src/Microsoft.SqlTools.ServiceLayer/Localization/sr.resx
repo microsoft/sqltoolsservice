@@ -622,7 +622,7 @@
     <comment></comment>
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
-    <value>&lt;TBD&gt;</value>
+    <value>&lt;auto-generated&gt;</value>
     <comment></comment>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
