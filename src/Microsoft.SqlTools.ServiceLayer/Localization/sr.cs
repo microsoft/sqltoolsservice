@@ -359,14 +359,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string QueryServiceQueryExecutionCompletedWithErrors
-        {
-            get
-            {
-                return Keys.GetString(Keys.QueryServiceQueryExecutionCompletedWithErrors);
-            }
-        }
-
         public static string QueryServiceSaveAsResultSetNotComplete
         {
             get
@@ -11144,9 +11136,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetTooLarge = "QueryServiceResultSetTooLarge";
-
-
-            public const string QueryServiceQueryExecutionCompletedWithErrors = "QueryServiceQueryExecutionCompletedWithErrors";
 
 
             public const string QueryServiceUnsupportedSqlVariantType = "QueryServiceUnsupportedSqlVariantType";
