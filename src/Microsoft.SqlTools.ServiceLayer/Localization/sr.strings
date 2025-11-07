@@ -126,6 +126,8 @@ QueryServiceErrorFormat(int msg, int lvl, int state, int line, string newLine, s
 
 QueryServiceQueryFailed(string message) = Query failed: {0}
 
+QueryServiceQueryExecutionCompletedWithErrors = Query execution completed with errors
+
 QueryServiceColumnNull = (No column name)
 
 QueryServiceCellNull = NULL
