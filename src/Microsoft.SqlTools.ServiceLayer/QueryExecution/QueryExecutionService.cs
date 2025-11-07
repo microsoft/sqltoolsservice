@@ -342,7 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             else
                             {
                                 // Fallback message if we somehow didn't collect messages
-                                await requestContext.SendError("SR.QueryServiceQueryExecutionCompletedWithErrors");
+                                await requestContext.SendError(SR.QueryServiceQueryExecutionCompletedWithErrors);
                             }
                             return;
                         }

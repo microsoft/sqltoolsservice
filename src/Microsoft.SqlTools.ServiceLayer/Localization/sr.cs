@@ -287,6 +287,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceQueryExecutionCompletedWithErrors
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceQueryExecutionCompletedWithErrors);
+            }
+        }
+
         public static string QueryServiceColumnNull
         {
             get
@@ -11109,6 +11117,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceQueryFailed = "QueryServiceQueryFailed";
+
+
+            public const string QueryServiceQueryExecutionCompletedWithErrors = "QueryServiceQueryExecutionCompletedWithErrors";
 
 
             public const string QueryServiceColumnNull = "QueryServiceColumnNull";
