@@ -347,11 +347,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             return;
                         }
 
-                        // check to make sure any results were recieved
+                        // check to make sure any results were received
                         if (query.Batches.Length == 0
                             || query.Batches[0].ResultSets.Count == 0)
                         {
-                            await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                            // No result sets - return empty result with no columns
+                            SimpleExecuteResult emptyResult = new SimpleExecuteResult
+                            {
+                                RowCount = 0,
+                                ColumnInfo = new DbColumnWrapper[0],
+                                Rows = new DbCellValue[0][]
+                            };
+                            await requestContext.SendResult(emptyResult);
                             return;
                         }
 
