@@ -341,6 +341,10 @@
     <value>Result set has too many rows to be safely loaded</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceQueryExecutionCompletedWithErrors" xml:space="preserve">
+    <value>Query execution completed with errors</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
     <value>The underlying type &quot;{0}&quot; for sql variant column &quot;{1}&quot; could not be resolved.</value>
     <comment>.

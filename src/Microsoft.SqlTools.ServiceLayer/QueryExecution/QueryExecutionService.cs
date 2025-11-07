@@ -323,11 +323,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
 
+                // Collect error messages during execution using thread-safe ordered collection
+                var errorMessages = new System.Collections.Concurrent.ConcurrentQueue<string>();
+
                 // handle sending event back when the query completes
                 Query.QueryAsyncEventHandler queryComplete = async query =>
                 {
                     try
                     {
+                        // Check if the batch has errors (SQL errors that didn't throw exceptions)
+                        if (query.Batches.Length > 0 && query.Batches[0].HasError)
+                        {
+                            // If we collected error messages, send those
+                            if (errorMessages.Count > 0)
+                            {
+                                await requestContext.SendError(string.Join(Environment.NewLine, errorMessages));
+                            }
+                            else
+                            {
+                                // Fallback message if we somehow didn't collect messages
+                                await requestContext.SendError(SR.QueryServiceQueryExecutionCompletedWithErrors);
+                            }
+                            return;
+                        }
+
                         // check to make sure any results were recieved
                         if (query.Batches.Length == 0
                             || query.Batches[0].ResultSets.Count == 0)
@@ -388,7 +407,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(e);
                 };
 
-                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+                // Collect batch messages (errors) during query execution
+                Batch.BatchAsyncMessageHandler messageHandler = async (message) =>
+                {
+                    if (message.IsError)
+                    {
+                        errorMessages.Enqueue(message.Message);
+                    }
+                };
+
+                // Execute query with message collection
+                Query createdQuery = null;
+                Func<Query, Task<bool>> queryCreateSuccess = async (q) =>
+                {
+                    createdQuery = q;
+                    // Subscribe to batch messages to collect errors
+                    q.BatchMessageSent += messageHandler;
+                    return true;
+                };
+
+                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, queryCreateSuccess, queryCreateFailureAction, queryComplete, queryFail);
             });
 
             ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
