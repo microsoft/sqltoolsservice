@@ -165,5 +165,83 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 
             return subsetResult.ResultSubset;
         }
+
+        /// <summary>
+        /// Test that SimpleExecuteRequest collects and returns SQL error messages for queries with errors
+        /// </summary>
+        [Test]
+        public async Task SimpleExecuteRequestReturnsErrorMessages()
+        {
+            // Establish a new connection
+            ConnectionService.Instance.OwnerToConnectionMap.Clear();
+            ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
+
+            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
+            ManualResetEvent errorEvent = new ManualResetEvent(false);
+            string? errorMessage = null;
+
+            requestContext.Setup(x => x.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+                .Callback<string, int, string>((error, code, data) =>
+                {
+                    errorMessage = error;
+                    errorEvent.Set();
+                })
+                .Returns(Task.FromResult(new object()));
+
+            var executeParams = new SimpleExecuteParams
+            {
+                OwnerUri = connectionInfo.OwnerUri,
+                QueryString = "SELECT * FROM NonExistentTable123456;"
+            };
+
+            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+
+            // Wait for error to be sent
+            bool gotError = errorEvent.WaitOne(TimeSpan.FromSeconds(10));
+            Assert.IsTrue(gotError, "Expected error message was not received");
+            Assert.IsNotNull(errorMessage, "Error message should not be null");
+            Assert.IsTrue(errorMessage!.Contains("NonExistentTable123456") || errorMessage!.Contains("Invalid object name"),
+                $"Error message should contain table name or invalid object error. Got: {errorMessage}");
+        }
+
+        /// <summary>
+        /// Test that SimpleExecuteRequest returns success with empty columns for queries with no result sets (UPDATE, DELETE, etc.)
+        /// </summary>
+        [Test]
+        public async Task SimpleExecuteRequestSucceedsForNoResultSetQueries()
+        {
+            // Establish a new connection
+            ConnectionService.Instance.OwnerToConnectionMap.Clear();
+            ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
+
+            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
+            ManualResetEvent resultEvent = new ManualResetEvent(false);
+            SimpleExecuteResult? result = null;
+
+            requestContext.Setup(x => x.SendResult(It.IsAny<SimpleExecuteResult>()))
+                .Callback<SimpleExecuteResult>(r =>
+                {
+                    result = r;
+                    resultEvent.Set();
+                })
+                .Returns(Task.FromResult(new object()));
+
+            // Use a query that doesn't return a result set - DECLARE creates a variable
+            var executeParams = new SimpleExecuteParams
+            {
+                OwnerUri = connectionInfo.OwnerUri,
+                QueryString = "DECLARE @TestVar INT; SET @TestVar = 1;"
+            };
+
+            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+
+            // Wait for result to be sent
+            bool gotResult = resultEvent.WaitOne(TimeSpan.FromSeconds(10));
+            Assert.IsTrue(gotResult, "Expected result was not received");
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.AreEqual(0, result!.RowCount, "Row count should be 0 for queries without result sets");
+            Assert.IsNotNull(result!.ColumnInfo, "Column info should not be null");
+            Assert.AreEqual(0, result!.ColumnInfo.Length, "Column info should be empty for queries without result sets");
+        }
     }
 }
