@@ -305,6 +305,10 @@
     <comment>.
  Parameters: 0 - message (string) </comment>
   </data>
+  <data name="QueryServiceQueryExecutionCompletedWithErrors" xml:space="preserve">
+    <value>Query execution completed with errors</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(No column name)</value>
     <comment></comment>
