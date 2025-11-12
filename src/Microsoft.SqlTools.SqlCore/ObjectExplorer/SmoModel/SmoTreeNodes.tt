@@ -665,7 +665,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xmlFile);
 			var node = doc.SelectSingleNode(
-        		$"/ServerExplorerTree/FilterProperties[@NodeName='{nodeType}']"
+        		string.Format("/ServerExplorerTree/FilterProperties[@NodeName='{0}']", nodeType)
     		) as XmlElement;
 
 			if (node == null)
@@ -677,7 +677,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
 			// Attribute may not exist for most nodes
 			var attr = node.GetAttributeNode("SettingsFlag");
-			return attr?.Value ?? string.Empty;
+			return attr != null ? attr.Value : string.Empty;
 		}
 
         public static Dictionary<string, List<XmlElement>> GetAllNodeFilterProperties(string xmlFile)
