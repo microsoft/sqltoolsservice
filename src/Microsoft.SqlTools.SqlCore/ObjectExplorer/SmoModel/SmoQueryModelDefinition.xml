@@ -43,7 +43,7 @@
 
   <Node Name="SqlErrorMessage" Type="UserDefinedMessage" Parent="Server" />
 
-  <Node Name="SqlTable">
+  <Node Name="SqlTable" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="Tables" />
@@ -53,11 +53,11 @@
   </Node>
 
   
-  <Node Name="SqlHistoryTable" Type="Table" Parent="Table" >
+  <Node Name="SqlHistoryTable" Type="Table" Parent="Table" CollectionParent="Database">
     <NavigationPath Parent="Table" Type="Table" Field="Parent.Tables" />
   </Node>
   
-  <Node Name="SqlView">
+  <Node Name="SqlView" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="Views" />
@@ -66,7 +66,7 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlSynonym" ValidFor="NotSqlDw">
+  <Node Name="SqlSynonym" ValidFor="NotSqlDw" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="Synonyms" />
@@ -75,12 +75,12 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlColumn" Parent="TableViewTableTypeBase"/>
-  <Node Name="SqlIndex" Parent="TableViewTableTypeBase">
+  <Node Name="SqlColumn" Parent="TableViewTableTypeBase" CollectionParent="SqlSmoObject"/>
+  <Node Name="SqlIndex" Parent="TableViewTableTypeBase" CollectionParent="ScriptSchemaObjectBase">
     <NavigationPath Parent="TableViewTableTypeBase" Field="Indexes" />
   </Node>
 
-  <Node Name="SqlCheck" Parent="Table"/>
+  <Node Name="SqlCheck" Parent="Table" CollectionParent="SqlSmoObject"/>
   <Node Name="SqlForeignKeyConstraint" Type="ForeignKey" Parent="Table" />
   <Node Name="SqlDefaultConstraint" Collection="True" >
     <Parent>Table</Parent>
@@ -88,7 +88,7 @@
     <NavigationPath Parent="Table" Field="Columns" SubField="DefaultConstraint" FieldType="Column" />
     <NavigationPath Parent="UserDefinedTableType" Field="Columns" SubField="DefaultConstraint" FieldType="Column" />
   </Node>
-  <Node Name="SqlDmlTrigger" Type="Trigger" ValidFor="NotSqlDw">
+  <Node Name="SqlDmlTrigger" Type="Trigger" ValidFor="NotSqlDw" CollectionParent="TableViewBase">
     <Parent>Table</Parent>
     <Parent>View</Parent>
   </Node>
@@ -106,7 +106,7 @@
   <Node Name="SqlRule" Parent="Database" />
   <Node Name="SqlDefault" Parent="Database" />
   -->
-  <Node Name="SqlSequence">
+  <Node Name="SqlSequence" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="Sequences" />
@@ -115,7 +115,7 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlUserDefinedDataType" ValidFor="NotSqlDw">
+  <Node Name="SqlUserDefinedDataType" ValidFor="NotSqlDw" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="UserDefinedDataTypes" />
@@ -124,7 +124,7 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlUserDefinedTableType">
+  <Node Name="SqlUserDefinedTableType" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="UserDefinedTableTypes" />
@@ -133,7 +133,7 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlXmlSchemaCollection">
+  <Node Name="SqlXmlSchemaCollection" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="XmlSchemaCollections" />
@@ -142,7 +142,7 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlUserDefinedType">
+  <Node Name="SqlUserDefinedType" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="UserDefinedTypes" />
@@ -151,22 +151,28 @@
     </NavigationPath>
   </Node>
 
-  <Node Name="SqlUserDefinedFunction">
+  <Node Name="SqlUserDefinedFunction" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <Navigation Path="Database" Field="UserDefinedFunctions" />
     <NavigationPath Parent="Schema" Field="Parent.UserDefinedFunctions">
       <Filter Property="Schema" Field="Name" Type="string"/>
-  </NavigationPath>
+    </NavigationPath>
+  </Node>
+  <Node Name="SqlUserDefinedFunctionParameter" Type="UserDefinedFunctionParameter" Parent="UserDefinedFunction">
+    <NavigationPath Parent="UserDefinedFunction" Field="Parameters" />
   </Node>
 
-  <Node Name="SqlUserDefinedAggregate">
+  <Node Name="SqlUserDefinedAggregate" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="UserDefinedAggregates" />
     <NavigationPath Parent="Schema" Field="Parent.UserDefinedAggregates">
         <Filter Property="Schema" Field="Name" Type="string"/>
     </NavigationPath>
+  </Node>
+  <Node Name="SqlUserDefinedAggregateParameter" Type="UserDefinedAggregateParameter" Parent="UserDefinedAggregate">
+    <NavigationPath Parent="UserDefinedAggregate" Field="Parameters" />
   </Node>
 
   <Node Name="SqlFileGroup" />
@@ -217,7 +223,7 @@
   <Node Name="SqlExternalDataSource" />
   <Node Name="SqlExternalFileFormat" />
 
-  <Node Name="SqlProcedure" Type="StoredProcedure">
+  <Node Name="SqlProcedure" Type="StoredProcedure" CollectionParent="Database">
     <Parent>Database</Parent>
     <Parent>Schema</Parent>
     <NavigationPath Parent="Database" Field="StoredProcedures" />
@@ -226,15 +232,13 @@
     </NavigationPath>
   </Node>
   <Node Name="SqlExtendedStoredProcedure" />
-  <Node Name="SqlSubroutineParameter" Type="Parameter" >
-    <Parent>StoredProcedure</Parent>
-    <Parent>UserDefinedAggregate</Parent>
-    <Parent>UserDefinedFunction</Parent>
+  <Node Name="SqlStoredProcedureParameter" Type="StoredProcedureParameter" Parent="StoredProcedure">
+    <NavigationPath Parent="StoredProcedure" Field="Parameters" />
   </Node>
 
   <Node Name="SqlPartitionFunctionParameter" Parent="PartitionFunction" />
 
-  <Node Name="SqlBuiltInType" Type="SystemDataType" Parent="Database">
+  <Node Name="SqlBuiltInType" Type="SystemDataType" Parent="Database" CollectionParent="Server">
     <NavigationPath Parent="Database" Field="Parent.SystemDataTypes" FieldForUrn="Parent" />
   </Node>
   <!-- TODO Enable all types

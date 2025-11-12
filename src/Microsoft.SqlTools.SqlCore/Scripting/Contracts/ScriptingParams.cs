@@ -77,5 +77,13 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
         /// </summary>
         public ScriptingOperationType Operation { get; set; } = ScriptingOperationType.Create;
 
+        /// <summary>
+        /// Gets or sets whether to return the operation ID immediately and deliver the script via the complete event.
+        /// When true, the script request returns immediately with an operation ID,
+        /// and the script content is delivered later via the scriptComplete event.
+        /// When false (default), the request waits for completion and returns both operation ID and script together.
+        /// </summary>
+        public bool ReturnScriptAsynchronously { get; set; }
+
     }
 }

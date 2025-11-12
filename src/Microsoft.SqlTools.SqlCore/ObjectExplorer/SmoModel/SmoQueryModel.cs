@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Database, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query Database");
                     return ret;
                 }
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<LinkedServer, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query LinkedServer");
                     return ret;
                 }
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Login, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query Login");
                     return ret;
                 }
@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<ServerRole, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query ServerRole");
                     return ret;
                 }
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Credential, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query Credential");
                     return ret;
                 }
@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<CryptographicProvider, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query CryptographicProvider");
                     return ret;
                 }
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Audit, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query Audit");
                     return ret;
                 }
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<ServerAuditSpecification, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query ServerAuditSpecification");
                     return ret;
                 }
@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Endpoint, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query Endpoint");
                     return ret;
                 }
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<LinkedServer, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query LinkedServer");
                     return ret;
                 }
@@ -311,7 +311,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<ServerDdlTrigger, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query ServerDdlTrigger");
                     return ret;
                 }
@@ -338,7 +338,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedMessage, Server>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     Logger.Verbose("End query UserDefinedMessage");
                     return ret;
                 }
@@ -365,7 +365,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Table, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query Table");
                     return ret;
                 }
@@ -387,7 +387,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<Table, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query Table");
                     return ret;
                 }
@@ -414,7 +414,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<Table, Database>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     Logger.Verbose("End query Table");
                     return ret;
                 }
@@ -441,7 +441,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<View, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query View");
                     return ret;
                 }
@@ -463,7 +463,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<View, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query View");
                     return ret;
                 }
@@ -493,7 +493,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Synonym, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query Synonym");
                     return ret;
                 }
@@ -515,7 +515,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<Synonym, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query Synonym");
                     return ret;
                 }
@@ -542,7 +542,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
+                    var ret = new SmoCollectionWrapper<Column, SqlSmoObject>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
                     Logger.Verbose("End query Column");
                     return ret;
                 }
@@ -569,7 +569,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
+                    var ret = new SmoCollectionWrapper<Index, ScriptSchemaObjectBase>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
                     Logger.Verbose("End query Index");
                     return ret;
                 }
@@ -596,7 +596,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<Check, SqlSmoObject>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     Logger.Verbose("End query Check");
                     return ret;
                 }
@@ -623,7 +623,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<ForeignKey, Table>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     Logger.Verbose("End query ForeignKey");
                     return ret;
                 }
@@ -711,7 +711,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<Trigger, TableViewBase>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     Logger.Verbose("End query Trigger");
                     return ret;
                 }
@@ -724,7 +724,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentView, c));
+                    var ret = new SmoCollectionWrapper<Trigger, TableViewBase>(retValue).Where(c => PassesFinalFilters(parentView, c));
                     Logger.Verbose("End query Trigger");
                     return ret;
                 }
@@ -782,7 +782,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c));
+                    var ret = new SmoCollectionWrapper<Statistic, TableViewBase>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c));
                     Logger.Verbose("End query Statistic");
                     return ret;
                 }
@@ -812,7 +812,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseDdlTrigger, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query DatabaseDdlTrigger");
                     return ret;
                 }
@@ -839,7 +839,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SqlAssembly, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query SqlAssembly");
                     return ret;
                 }
@@ -866,7 +866,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Sequence, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query Sequence");
                     return ret;
                 }
@@ -888,7 +888,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<Sequence, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query Sequence");
                     return ret;
                 }
@@ -918,7 +918,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedDataType, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query UserDefinedDataType");
                     return ret;
                 }
@@ -940,7 +940,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedDataType, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedDataType");
                     return ret;
                 }
@@ -967,7 +967,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedTableType, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query UserDefinedTableType");
                     return ret;
                 }
@@ -989,7 +989,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedTableType, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedTableType");
                     return ret;
                 }
@@ -1016,7 +1016,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<XmlSchemaCollection, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query XmlSchemaCollection");
                     return ret;
                 }
@@ -1038,7 +1038,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<XmlSchemaCollection, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query XmlSchemaCollection");
                     return ret;
                 }
@@ -1065,7 +1065,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedType, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query UserDefinedType");
                     return ret;
                 }
@@ -1087,7 +1087,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedType, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedType");
                     return ret;
                 }
@@ -1114,7 +1114,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedFunction, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query UserDefinedFunction");
                     return ret;
                 }
@@ -1136,8 +1136,35 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedFunction, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedFunction");
+                    return ret;
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlUserDefinedFunctionParameterQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(UserDefinedFunctionParameter) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        {
+            Logger.Verbose("Begin query UserDefinedFunctionParameter");
+            UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
+            if (parentUserDefinedFunction != null)
+            {
+                Logger.Verbose("Parent of type `UserDefinedFunction` found");
+                var retValue = parentUserDefinedFunction.Parameters;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedFunctionParameter, UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
+                    Logger.Verbose("End query UserDefinedFunctionParameter");
                     return ret;
                 }
             }
@@ -1163,7 +1190,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedAggregate, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query UserDefinedAggregate");
                     return ret;
                 }
@@ -1185,8 +1212,35 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedAggregate, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedAggregate");
+                    return ret;
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlUserDefinedAggregateParameterQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(UserDefinedAggregateParameter) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        {
+            Logger.Verbose("Begin query UserDefinedAggregateParameter");
+            UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
+            if (parentUserDefinedAggregate != null)
+            {
+                Logger.Verbose("Parent of type `UserDefinedAggregate` found");
+                var retValue = parentUserDefinedAggregate.Parameters;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedAggregateParameter, UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
+                    Logger.Verbose("End query UserDefinedAggregateParameter");
                     return ret;
                 }
             }
@@ -1212,7 +1266,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<FileGroup, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query FileGroup");
                     return ret;
                 }
@@ -1239,7 +1293,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c));
+                    var ret = new SmoCollectionWrapper<DataFile, FileGroup>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c));
                     Logger.Verbose("End query DataFile");
                     return ret;
                 }
@@ -1266,7 +1320,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<FullTextCatalog, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query FullTextCatalog");
                     return ret;
                 }
@@ -1293,7 +1347,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<FullTextStopList, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query FullTextStopList");
                     return ret;
                 }
@@ -1320,7 +1374,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<PartitionFunction, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query PartitionFunction");
                     return ret;
                 }
@@ -1347,7 +1401,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<PartitionScheme, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query PartitionScheme");
                     return ret;
                 }
@@ -1374,7 +1428,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SearchPropertyList, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query SearchPropertyList");
                     return ret;
                 }
@@ -1401,7 +1455,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<User, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query User");
                     return ret;
                 }
@@ -1428,7 +1482,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Schema, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query Schema");
                     return ret;
                 }
@@ -1455,7 +1509,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<AsymmetricKey, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query AsymmetricKey");
                     return ret;
                 }
@@ -1482,7 +1536,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Certificate, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query Certificate");
                     return ret;
                 }
@@ -1509,7 +1563,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SymmetricKey, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query SymmetricKey");
                     return ret;
                 }
@@ -1592,7 +1646,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseAuditSpecification, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query DatabaseAuditSpecification");
                     return ret;
                 }
@@ -1619,7 +1673,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SecurityPolicy, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query SecurityPolicy");
                     return ret;
                 }
@@ -1646,7 +1700,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseScopedCredential, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query DatabaseScopedCredential");
                     return ret;
                 }
@@ -1673,7 +1727,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseRole, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query DatabaseRole");
                     return ret;
                 }
@@ -1700,7 +1754,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ApplicationRole, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ApplicationRole");
                     return ret;
                 }
@@ -1727,7 +1781,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ColumnMasterKey, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ColumnMasterKey");
                     return ret;
                 }
@@ -1754,7 +1808,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ColumnEncryptionKey, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ColumnEncryptionKey");
                     return ret;
                 }
@@ -1809,7 +1863,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<BrokerService, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     Logger.Verbose("End query BrokerService");
                     return ret;
                 }
@@ -1836,7 +1890,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<ServiceContract, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     Logger.Verbose("End query ServiceContract");
                     return ret;
                 }
@@ -1863,7 +1917,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<ServiceQueue, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     Logger.Verbose("End query ServiceQueue");
                     return ret;
                 }
@@ -1890,7 +1944,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<RemoteServiceBinding, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     Logger.Verbose("End query RemoteServiceBinding");
                     return ret;
                 }
@@ -1917,7 +1971,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<BrokerPriority, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     Logger.Verbose("End query BrokerPriority");
                     return ret;
                 }
@@ -1944,7 +1998,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<MessageType, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     Logger.Verbose("End query MessageType");
                     return ret;
                 }
@@ -1971,7 +2025,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ExternalDataSource, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ExternalDataSource");
                     return ret;
                 }
@@ -1998,7 +2052,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ExternalFileFormat, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ExternalFileFormat");
                     return ret;
                 }
@@ -2025,7 +2079,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<StoredProcedure, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query StoredProcedure");
                     return ret;
                 }
@@ -2047,7 +2101,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    var ret = new SmoCollectionWrapper<StoredProcedure, Database>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query StoredProcedure");
                     return ret;
                 }
@@ -2074,7 +2128,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ExtendedStoredProcedure, Database>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ExtendedStoredProcedure");
                     return ret;
                 }
@@ -2084,15 +2138,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     }
 
     [Export(typeof(SmoQuerier))]
-    internal partial class SqlSubroutineParameterQuerier: SmoQuerier
+    internal partial class SqlStoredProcedureParameterQuerier: SmoQuerier
     {
-        Type[] supportedTypes = new Type[] { typeof(Parameter) };
+        Type[] supportedTypes = new Type[] { typeof(StoredProcedureParameter) };
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            Logger.Verbose("Begin query Parameter");
+            Logger.Verbose("Begin query StoredProcedureParameter");
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
             {
@@ -2101,34 +2155,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
-                    Logger.Verbose("End query Parameter");
-                    return ret;
-                }
-            }
-            UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
-            if (parentUserDefinedAggregate != null)
-            {
-                Logger.Verbose("Parent of type `UserDefinedAggregate` found");
-                var retValue = parentUserDefinedAggregate.Parameters;
-                if (retValue != null)
-                {
-                    retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
-                    Logger.Verbose("End query Parameter");
-                    return ret;
-                }
-            }
-            UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
-            if (parentUserDefinedFunction != null)
-            {
-                Logger.Verbose("Parent of type `UserDefinedFunction` found");
-                var retValue = parentUserDefinedFunction.Parameters;
-                if (retValue != null)
-                {
-                    retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
-                    Logger.Verbose("End query Parameter");
+                    var ret = new SmoCollectionWrapper<StoredProcedureParameter, StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
+                    Logger.Verbose("End query StoredProcedureParameter");
                     return ret;
                 }
             }
@@ -2154,7 +2182,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c));
+                    var ret = new SmoCollectionWrapper<PartitionFunctionParameter, PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c));
                     Logger.Verbose("End query PartitionFunctionParameter");
                     return ret;
                 }
@@ -2181,7 +2209,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SystemDataType, Server>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query SystemDataType");
                     return ret;
                 }

@@ -305,6 +305,10 @@
     <comment>.
  Parameters: 0 - message (string) </comment>
   </data>
+  <data name="QueryServiceQueryExecutionCompletedWithErrors" xml:space="preserve">
+    <value>Query execution completed with errors</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(No column name)</value>
     <comment></comment>
@@ -622,7 +626,7 @@
     <comment></comment>
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
-    <value>&lt;TBD&gt;</value>
+    <value>&lt;auto-generated&gt;</value>
     <comment></comment>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">

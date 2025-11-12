@@ -21,6 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// </summary>
     public class EditRevertRowResult
     {
+        /// <summary>
+        /// The row after the revert was applied, representing the original, unedited state
+        /// </summary>
+        public EditRow Row { get; set; }
     }
 
     public class EditRevertRowRequest
