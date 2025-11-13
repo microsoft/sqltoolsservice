@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 db.Refresh();
             }
             CacheInfoFromModel(db);
+            this.FilterProperties = NodeFilterPropertyHelper.GetFilterProperties(this.GetContext(), NodeTypes.Database);
         }
 
         /// <summary>
