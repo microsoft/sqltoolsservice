@@ -212,7 +212,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                         typeName += "(max)";
                         break;
                     case SqlDataType.Vector:
-                        typeName += $"({dataType.VectorDimensions})";
+                        // Temporary workaround to convert the maxLength to dimensions for vector types
+                        // until SMO is updated to store the actual dimensions of the vector type.
+                        // https://msdata.visualstudio.com/SQLToolsAndLibraries/_workitems/edit/3906463
+                        // dimensions = (length - 8) / 4
+                        // https://learn.microsoft.com/sql/t-sql/data-types/vector-data-type
+                        typeName += $"({(dataType.MaximumLength - 8) / 4})";
                         break;
                 }
             }
