@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // load the data
             if (job != null)
             {
-                JobScheduleCollection<Job> schedules = job.JobSchedules;
+                JobScheduleCollection schedules = job.JobSchedules;
                 
                 for (int i = 0; i < schedules.Count; i++)
                 {
