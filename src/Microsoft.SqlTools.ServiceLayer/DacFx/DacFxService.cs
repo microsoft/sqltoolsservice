@@ -376,7 +376,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     {
                         OperationId = operation.OperationId,
                         Success = operation.SqlTask.TaskStatus == SqlTaskStatus.Succeeded,
-                        ErrorMessage = string.Empty
+                        ErrorMessage = string.Empty,
+                        OperationType = operation.GetType().Name
                     });
                 }
                 catch (Exception e)
@@ -385,7 +386,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     {
                         OperationId = operation.OperationId,
                         Success = false,
-                        ErrorMessage = e.Message
+                        ErrorMessage = e.Message,
+                        OperationType = operation.GetType().Name
                     });
                 }
             });
