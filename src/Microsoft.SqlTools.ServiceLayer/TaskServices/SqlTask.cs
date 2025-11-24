@@ -477,6 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskExecutionMode = TaskMetadata.TaskExecutionMode,
                 IsCancelable = this.TaskToCancel != null,
                 TargetLocation = TaskMetadata.TargetLocation,
+                OperationName = TaskMetadata.OperationName
             };
         }
 
