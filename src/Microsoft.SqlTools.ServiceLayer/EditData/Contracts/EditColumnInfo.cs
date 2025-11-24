@@ -20,5 +20,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// such as being computed columns, identity columns, or columns that are part of a primary key.
         /// </summary>
         public bool IsEditable { get; set; }
+
+        /// <summary>
+        /// Whether or not the column allows null values
+        /// </summary>
+        public bool? IsNullable { get; set; }
     }
 }
