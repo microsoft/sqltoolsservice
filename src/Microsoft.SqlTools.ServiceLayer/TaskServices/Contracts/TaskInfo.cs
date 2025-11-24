@@ -43,6 +43,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public string TargetLocation { get; set; }
 
         /// <summary>
+        /// Target operation name for this task, used to distinguish between operations 
+        /// so invokers can get actions based on the type being performed
+        /// </summary>
+        public string OperationName { get; set; }
+
+        /// <summary>
         /// Task name which defines the type of the task (e.g. CreateDatabase, Backup)
         /// </summary>
         public string Name { get; set; }
