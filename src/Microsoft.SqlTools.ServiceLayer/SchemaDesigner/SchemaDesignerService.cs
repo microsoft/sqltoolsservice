@@ -77,8 +77,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
                 {
-                    session.PublishSchema();
-
                     await requestContext.SendResult(new GenerateScriptResponse()
                     {
                         Script = await session.GenerateScript(),
