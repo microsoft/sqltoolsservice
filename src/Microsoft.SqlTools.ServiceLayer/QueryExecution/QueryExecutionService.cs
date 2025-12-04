@@ -1007,7 +1007,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 try
                 {
                     await ClipboardService.SetTextAsync(content);
-                    await requestContext.SendResult(new CopyResults2RequestResult{ Content = content });
+                    await requestContext.SendResult(new CopyResults2RequestResult());
                 }
                 catch (Exception)
                 {
