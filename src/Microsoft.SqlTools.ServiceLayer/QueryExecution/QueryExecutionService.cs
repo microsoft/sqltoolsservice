@@ -1004,8 +1004,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 cts.Token.ThrowIfCancellationRequested();
 
-                await ClipboardService.SetTextAsync(content);
-                await requestContext.SendResult(new CopyResults2RequestResult());
+                try
+                {
+                    await ClipboardService.SetTextAsync(content);
+                    await requestContext.SendResult(new CopyResults2RequestResult());
+                }
+                catch (Exception)
+                {
+                    // If clipboard copy fails (e.g. missing xsel on Linux), send content back to client
+                    await requestContext.SendResult(new CopyResults2RequestResult { Content = content });
+                }
             }
             catch (OperationCanceledException)
             {
