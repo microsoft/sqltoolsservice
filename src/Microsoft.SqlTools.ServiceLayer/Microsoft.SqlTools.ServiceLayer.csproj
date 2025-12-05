@@ -70,6 +70,7 @@
     <PackageReference Include="Microsoft.SqlServer.Assessment" />
     <PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
+    <PackageReference Include="Microsoft.SqlPackage" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />

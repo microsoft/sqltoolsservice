@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using NUnit.Framework;
 
@@ -45,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -76,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -103,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -131,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -161,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -194,16 +192,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var deploymentOptions = new DacFx.Contracts.DeploymentOptions();
+            var deploymentOptions = new DeploymentOptions();
             deploymentOptions.BooleanOptionsDictionary["IgnoreWhitespace"] = 
-                new DacFx.Contracts.DeploymentOptionProperty<bool>(true, "", "");
+                new DeploymentOptionProperty<bool>(true, "", "");
             deploymentOptions.BooleanOptionsDictionary["DropObjectsNotInSource"] = 
-                new DacFx.Contracts.DeploymentOptionProperty<bool>(false, "", "");
+                new DeploymentOptionProperty<bool>(false, "", "");
 
             var parameters = new GeneratePublishCommandParams
             {
@@ -229,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -257,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
@@ -284,13 +282,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         {
             // Arrange
             var requestContext = new Mock<RequestContext<GeneratePublishCommandResult>>();
-            GeneratePublishCommandResult capturedResult = null;
+            GeneratePublishCommandResult? capturedResult = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<GeneratePublishCommandResult>()))
                 .Callback<GeneratePublishCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var deploymentOptions = new DacFx.Contracts.DeploymentOptions();
-            deploymentOptions.ExcludeObjectTypes = new DacFx.Contracts.DeploymentOptionProperty<string[]>(
+            var deploymentOptions = new DeploymentOptions();
+            deploymentOptions.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(
                 new string[] { "Logins", "Users", "ServerRoles" }, "", "");
 
             var parameters = new GeneratePublishCommandParams
