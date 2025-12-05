@@ -20,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Copilot;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
+using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
@@ -135,6 +136,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             DacFxService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(DacFxService.Instance);
+
+            SqlPackageService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SqlPackageService.Instance);
 
             CmsService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CmsService.Instance);
