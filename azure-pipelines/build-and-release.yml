@@ -14,6 +14,9 @@ variables:
 
 stages:
 - stage: IntegrationTests
+  variables:
+  - name: buildConfiguration
+    value: 'Release'
   jobs:
   - job: IntegrationTests
     pool:
