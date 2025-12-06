@@ -55,13 +55,8 @@ steps:
     Write-Host "##vso[task.setvariable variable=SettingsFileName]$settingsPath"
   displayName: 'Setup Docker image for integration tests'
 
-- task: DotNetCoreCLI@2
+- script: dotnet restore test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj --configfile nuget.config
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
-  inputs:
-    command: restore
-    projects: test/Microsoft.SqlTools.ServiceLayer.IntegrationTests
-    feedsToUse: 'config'
-    nugetConfigPath: 'nuget.config'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
