@@ -1749,22 +1749,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-            bool isAzureMFA = builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive; // Azure Multi-Factor Authentication
-            bool isSqlLogin = builder.Authentication == SqlAuthenticationMethod.SqlPassword;// SQL username/password
-            bool isIntegrated = builder.IntegratedSecurity; // Windows Integrated Security
-            string Authenticationtype = null;
 
-            if (isAzureMFA)
+            string mappedAuthenticationType;
+            if (builder.IntegratedSecurity)
             {
-                Authenticationtype = "AzureMFA";
+                mappedAuthenticationType = "Integrated";
+            } else if (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive)
+            {
+                mappedAuthenticationType = "AzureMFA";
             }
-            else if(isSqlLogin)
+            else if (builder.Authentication == SqlAuthenticationMethod.SqlPassword || builder.Authentication == SqlAuthenticationMethod.NotSpecified)
             {
-                Authenticationtype = "SqlLogin";
+                mappedAuthenticationType = "SqlLogin";
             }
-            else if (isIntegrated)
+            else
             {
-                Authenticationtype = "Integrated";
+                mappedAuthenticationType = builder.Authentication.ToString();
             }
 
             // Set defaults as per MSSQL connection property defaults, not SqlClient's Connection string buider defaults
@@ -1773,7 +1773,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ApplicationIntent = defaultBuilder.ApplicationIntent != builder.ApplicationIntent ? builder.ApplicationIntent.ToString() : null,
                 ApplicationName = defaultBuilder.ApplicationName != builder.ApplicationName ? builder.ApplicationName : ApplicationName,
                 AttachDbFilename = defaultBuilder.AttachDBFilename != builder.AttachDBFilename ? builder.AttachDBFilename.ToString() : null,
-                AuthenticationType = Authenticationtype,
+                AuthenticationType = mappedAuthenticationType,
                 ConnectRetryCount = defaultBuilder.ConnectRetryCount != builder.ConnectRetryCount ? builder.ConnectRetryCount : 1,
                 ConnectRetryInterval = defaultBuilder.ConnectRetryInterval != builder.ConnectRetryInterval ? builder.ConnectRetryInterval : 10,
                 ConnectTimeout = defaultBuilder.ConnectTimeout != builder.ConnectTimeout ? builder.ConnectTimeout : 30,
