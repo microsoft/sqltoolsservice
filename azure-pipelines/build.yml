@@ -79,6 +79,18 @@ steps:
 
 - pwsh: |
     # setup docker image for SQL 2025
+
+    # Switch to Linux containers if currently on Windows
+    $currentOs = docker version --format '{{.Server.Os}}'
+    Write-Host "Current Docker OS: $currentOs"
+
+    if ($currentOs -match "windows") {
+        Write-Host "Switching to Linux containers..."
+        & DockerCli.exe -SwitchDaemon
+        Start-Sleep -Seconds 10
+        Write-Host "New Docker OS: $(docker version --format '{{.Server.Os}}')"
+    }
+
     # generate random password of 24 characters, save to a script variable
     $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#%^&*()'
     $password = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
