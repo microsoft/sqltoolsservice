@@ -33,9 +33,6 @@ steps:
         }
     } while ($true)
 
-    # Verify connection and print version
-    docker exec sql2025 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$password" -Q "SELECT @@VERSION"
-
     # Create settings.json for tests
     $settingsContent = @"
     {
