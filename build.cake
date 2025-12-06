@@ -1,11 +1,11 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
-#addin "mssql.ResX"
-#addin "mssql.XliffParser"
+#addin nuget:?package=fmdev.ResX&version=0.3.2
+#addin nuget:?package=fmdev.XliffParser&version=0.5.6
 
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
-#tool "nuget:?package=Mono.TextTransform"
+#tool "nuget:?package=Mono.TextTransform&version=1.0.0"
 
 using System.ComponentModel;
 using System.Net;
@@ -736,7 +736,7 @@ Task("SRGen")
             .ExceptionOnError("Failed to run SRGen.");
 
             // Update XLF file from new Resx file
-            var doc = new XliffParser.XlfDocument(outputXlf);
+            var doc = new XlfDocument(outputXlf);
             doc.UpdateFromSource();
             var outputXlfFile = doc.Files.Single();
             foreach (var unit in outputXlfFile.TransUnits)
@@ -750,12 +750,12 @@ Task("SRGen")
             foreach(var docName in xlfDocNames)
             {
                 // load our language XLIFF
-                var xlfDoc = new XliffParser.XlfDocument(docName);
+                var xlfDoc = new XlfDocument(docName);
                 var xlfFile = xlfDoc.Files.Single();
 
                 // load a language template
                 var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
-                var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
+                var templateDoc = new XlfDocument(templateFileLocation);
                 var templateFile = templateDoc.Files.Single();
 
                 // iterate through our tranlation units and prune invalid units

@@ -10,8 +10,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlTypes;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -30,6 +33,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using TextCopy;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -119,6 +123,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal IFileStreamFactory XmlFileFactory { get; set; }
 
         /// <summary>
+        /// File factory to be used to create INSERT statements files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory InsertFileFactory { get; set; }
+
+        /// <summary>
         /// The collection of active queries
         /// </summary>
         internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
@@ -132,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The collection of query session execution options tracking flags
         /// </summary>
         internal ConcurrentDictionary<string, bool> QuerySessionSettingsApplied => querySessionSettingsApplied.Value;
-        
+
         /// <summary>
         /// Internal task for testability
         /// </summary>
@@ -144,6 +154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private ConnectionService ConnectionService { get; }
 
         private WorkspaceService<SqlToolsSettings> WorkspaceService { get; }
+
+
+        /// <summary>
+        /// Cancellation token sources for ongoing operations
+        /// </summary>
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> activeCopyOperations = new ConcurrentDictionary<string, CancellationTokenSource>();
 
         /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
@@ -203,10 +219,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest, true);
             serviceHost.SetRequestHandler(SaveResultsAsMarkdownRequest.Type, this.HandleSaveResultsAsMarkdownRequest, true);
             serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest, true);
+            serviceHost.SetRequestHandler(SaveResultsAsInsertRequest.Type, HandleSaveResultsAsInsertRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest, true);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
             serviceHost.SetRequestHandler(CopyResultsRequest.Type, HandleCopyResultsRequest, true);
+            serviceHost.SetRequestHandler(CopyResults2Request.Type, HandleCopyResults2Request, true);
+            serviceHost.SetEventHandler(Copy2CancelEvent.Type, HandleCopy2CancelEvent);
+            serviceHost.SetRequestHandler(GridSelectionSummaryRequest.Type, HandleGridSelectionSummaryRequest, true);
+            serviceHost.SetEventHandler(GridSelectionSummaryCancelEvent.Type, HandleGridSelectionSummaryCancelEvent);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -302,16 +323,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
 
+                // Collect error messages during execution using thread-safe ordered collection
+                var errorMessages = new System.Collections.Concurrent.ConcurrentQueue<string>();
+
                 // handle sending event back when the query completes
                 Query.QueryAsyncEventHandler queryComplete = async query =>
                 {
                     try
                     {
-                        // check to make sure any results were recieved
+                        // Check if the batch has errors (SQL errors that didn't throw exceptions)
+                        if (query.Batches.Length > 0 && query.Batches[0].HasError)
+                        {
+                            // If we collected error messages, send those
+                            if (errorMessages.Count > 0)
+                            {
+                                await requestContext.SendError(string.Join(Environment.NewLine, errorMessages));
+                            }
+                            else
+                            {
+                                // Fallback message if we somehow didn't collect messages
+                                await requestContext.SendError(SR.QueryServiceQueryExecutionCompletedWithErrors);
+                            }
+                            return;
+                        }
+
+                        // check to make sure any results were received
                         if (query.Batches.Length == 0
                             || query.Batches[0].ResultSets.Count == 0)
                         {
-                            await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                            // No result sets - return empty result with no columns
+                            SimpleExecuteResult emptyResult = new SimpleExecuteResult
+                            {
+                                RowCount = 0,
+                                ColumnInfo = new DbColumnWrapper[0],
+                                Rows = new DbCellValue[0][]
+                            };
+                            await requestContext.SendResult(emptyResult);
                             return;
                         }
 
@@ -367,7 +414,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(e);
                 };
 
-                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+                // Collect batch messages (errors) during query execution
+                Batch.BatchAsyncMessageHandler messageHandler = async (message) =>
+                {
+                    if (message.IsError)
+                    {
+                        errorMessages.Enqueue(message.Message);
+                    }
+                };
+
+                // Execute query with message collection
+                Query createdQuery = null;
+                Func<Query, Task<bool>> queryCreateSuccess = async (q) =>
+                {
+                    createdQuery = q;
+                    // Subscribe to batch messages to collect errors
+                    q.BatchMessageSent += messageHandler;
+                    return true;
+                };
+
+                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, queryCreateSuccess, queryCreateFailureAction, queryComplete, queryFail);
             });
 
             ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
@@ -593,6 +659,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await SaveResultsHelper(saveParams, requestContext, xmlFactory);
         }
 
+        /// <summary>
+        /// Process request to save a resultSet to a file in INSERT statements format
+        /// </summary>
+        internal async Task HandleSaveResultsAsInsertRequest(SaveResultsAsInsertRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // Use the default INSERT file factory if we haven't overridden it
+            IFileStreamFactory insertFactory = InsertFileFactory ?? new SaveAsInsertFileStreamFactory
+            {
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
+            };
+            await SaveResultsHelper(saveParams, requestContext, insertFactory);
+        }
+
         #endregion
 
         #region Inter-Service API Handlers
@@ -770,7 +851,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private Task OnNewConnection(ConnectionInfo info)
         {
             this.QuerySessionSettingsApplied.AddOrUpdate(info.OwnerUri, false, (key, oldValue) => false);
-    
+
             return Task.CompletedTask;
         }
 
@@ -864,7 +945,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!StringBuilderEndsWith(builder, Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!CopyTextBuilder.StringBuilderEndsWith(builder, Environment.NewLine) || (!Settings?.QueryEditorSettings?.Results?.SkipNewLineAfterTrailingLineBreak ?? true)))
                         {
                             builder.Append(Environment.NewLine);
                         }
@@ -876,19 +957,376 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await requestContext.SendResult(new CopyResultsRequestResult());
         }
 
+        internal async Task HandleCopyResults2Request(CopyResults2RequestParams requestParams, RequestContext<CopyResults2RequestResult> requestContext)
+        {
+            // At a given time only one copy operation can be active so we use a constant key
+            var operationKey = "copy_results2";
+            CancelOngoingOperation(operationKey);
+
+            var cts = new CancellationTokenSource();
+            activeCopyOperations[operationKey] = cts;
+
+            try
+            {
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+
+                if (requestParams.Selections == null || requestParams.Selections.Length == 0)
+                {
+                    await requestContext.SendResult(new CopyResults2RequestResult());
+                    return;
+                }
+
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out var query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                requestParams.LineSeparator = requestParams.LineSeparator ?? Environment.NewLine;
+
+                var columnRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+                var rowRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromRow, End = selection.ToRow }).ToList());
+
+                if (columnRanges.Count == 0 || rowRanges.Count == 0)
+                {
+                    await requestContext.SendError("Copy operation requires a valid selection range.");
+                    return;
+                }
+
+                var columnIndexes = ExpandColumnRanges(columnRanges);
+                var resultSet = query.Batches[requestParams.BatchIndex].ResultSets[requestParams.ResultSetIndex];
+                var selectedColumns = columnIndexes.Select(index => resultSet.Columns[index]).ToList();
+                var lastRowIndex = rowRanges.Last().End;
+
+                string content = await CopyTextBuilder.BuildCopyContentAsync(requestParams, query, selectedColumns, columnIndexes, rowRanges, lastRowIndex, cts.Token);
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                try
+                {
+                    await ClipboardService.SetTextAsync(content);
+                    await requestContext.SendResult(new CopyResults2RequestResult());
+                }
+                catch (Exception)
+                {
+                    // If clipboard copy fails (e.g. missing xsel on Linux), send content back to client
+                    await requestContext.SendResult(new CopyResults2RequestResult { Content = content });
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, do not send an error back to the client.
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.Message);
+            }
+            finally
+            {
+                activeCopyOperations.TryRemove(operationKey, out _);
+                cts.Dispose();
+            }
+        }
+
+        public async Task HandleCopy2CancelEvent(Copy2CancelEventParams eventParams, EventContext eventContext)
+        {
+            var operationKey = $"copy_results2";
+            CancelOngoingOperation(operationKey);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Handles the grid selection summary request.
+        /// </summary>
+        internal async Task HandleGridSelectionSummaryRequest(GridSelectionSummaryRequestParams requestParams, RequestContext<GridSelectionSummaryResponse> requestContext)
+        {
+            // Cancel any ongoing summary operation for this owner URI
+            var operationKey = $"summary_{requestParams.OwnerUri}";
+            CancelOngoingOperation(operationKey);
+
+            // Create new cancellation token for this operation
+            var cts = new CancellationTokenSource();
+            activeCopyOperations[operationKey] = cts;
+
+            try
+            {
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+
+                // Get the query
+                Query query;
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                var columnRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+                var rowRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromRow, End = selection.ToRow }).ToList());
+                var pageSize = 200;
+
+                long count = 0;
+                long nullCount = 0;
+                var distinctValues = new HashSet<string>();
+
+                // Track numeric statistics
+                decimal sum = 0;
+                double? min = null;
+                double? max = null;
+                long numericValueCount = 0;
+                bool hasOverflow = false;
+
+                for (int rowRangeIndex = 0; rowRangeIndex < rowRanges.Count; rowRangeIndex++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+
+                    var rowRange = rowRanges[rowRangeIndex];
+                    var pageStartRowIndex = rowRange.Start;
+
+                    do
+                    {
+                        cts.Token.ThrowIfCancellationRequested();
+
+                        var rowsToFetch = Math.Min(pageSize, rowRange.End - pageStartRowIndex + 1);
+                        ResultSetSubset subset = await InterServiceResultSubset(new SubsetParams()
+                        {
+                            OwnerUri = requestParams.OwnerUri,
+                            ResultSetIndex = requestParams.ResultSetIndex,
+                            BatchIndex = requestParams.BatchIndex,
+                            RowsStartIndex = pageStartRowIndex,
+                            RowsCount = rowsToFetch
+                        });
+
+                        for (int rowIndex = 0; rowIndex < subset.Rows.Length; rowIndex++)
+                        {
+                            var row = subset.Rows[rowIndex];
+                            for (int columnRangeIndex = 0; columnRangeIndex < columnRanges.Count; columnRangeIndex++)
+                            {
+                                var columnRange = columnRanges[columnRangeIndex];
+                                for (int columnIndex = columnRange.Start; columnIndex <= columnRange.End; columnIndex++)
+                                {
+                                    // Check if this cell is in the selection
+                                    if (requestParams.Selections.Any(selection =>
+                                        selection.FromRow <= rowIndex + pageStartRowIndex &&
+                                        selection.ToRow >= rowIndex + pageStartRowIndex &&
+                                        selection.FromColumn <= columnIndex &&
+                                        selection.ToColumn >= columnIndex))
+                                    {
+                                        count++;
+
+                                        if (row != null && row[columnIndex] != null)
+                                        {
+                                            var cell = row[columnIndex];
+
+                                            // Check if null
+                                            if (cell.IsNull)
+                                            {
+                                                nullCount++;
+                                            }
+                                            else
+                                            {
+                                                // Track distinct values
+                                                string displayValue = cell.DisplayValue ?? string.Empty;
+                                                distinctValues.Add(displayValue);
+
+                                                // Try to parse as numeric for sum, min, max, average calculations
+                                                if (TryGetNumericValue(cell.RawObject, out double numericValue))
+                                                {
+                                                    numericValueCount++;
+
+                                                    // Update min/max
+                                                    if (!min.HasValue || numericValue < min.Value)
+                                                    {
+                                                        min = numericValue;
+                                                    }
+                                                    if (!max.HasValue || numericValue > max.Value)
+                                                    {
+                                                        max = numericValue;
+                                                    }
+
+                                                    // Try to add to sum with overflow checking
+                                                    if (!hasOverflow)
+                                                    {
+                                                        try
+                                                        {
+                                                            checked
+                                                            {
+                                                                sum += (decimal)numericValue;
+                                                            }
+                                                        }
+                                                        catch (OverflowException)
+                                                        {
+                                                            hasOverflow = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            nullCount++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        pageStartRowIndex += rowsToFetch;
+                    } while (pageStartRowIndex <= rowRange.End);
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+
+                // Calculate average if we have numeric values
+                double? average = null;
+                if (numericValueCount > 0 && !hasOverflow)
+                {
+                    average = (double)sum / numericValueCount;
+                }
+
+                // If no numeric values were processed, set sum/min/max/average to null
+                var response = new GridSelectionSummaryResponse
+                {
+                    Count = count,
+                    NullCount = nullCount,
+                    DistinctCount = distinctValues.Count,
+                    Sum = numericValueCount > 0 && !hasOverflow ? sum : 0,
+                    Average = numericValueCount > 0 ? average : null,
+                    Min = numericValueCount > 0 ? min : null,
+                    Max = numericValueCount > 0 ? max : null
+                };
+
+                await requestContext.SendResult(response);
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, don't send error
+            }
+            finally
+            {
+                // Clean up the cancellation token
+                activeCopyOperations.TryRemove(operationKey, out _);
+                cts.Dispose();
+            }
+        }
+
+        public async Task HandleGridSelectionSummaryCancelEvent(GridSelectionSummaryCancelParams eventParams, EventContext eventContext)
+        {
+            var operationKey = $"summary_{eventParams.OwnerUri}";
+            CancelOngoingOperation(operationKey);
+            await Task.CompletedTask;
+        }
+
         #endregion
 
         #region Private Helpers
 
-        private bool StringBuilderEndsWith(StringBuilder sb, string target)
+        private static readonly HashSet<TypeCode> NumericTypeCodes = new HashSet<TypeCode>
         {
-            if (sb.Length < target.Length)
+            TypeCode.Byte,
+            TypeCode.SByte,
+            TypeCode.Int16,
+            TypeCode.UInt16,
+            TypeCode.Int32,
+            TypeCode.UInt32,
+            TypeCode.Int64,
+            TypeCode.UInt64,
+            TypeCode.Single,
+            TypeCode.Double,
+            TypeCode.Decimal
+        };
+
+
+        /// <summary>
+        /// Expands a list of column ranges into a list of individual column indexes.
+        /// </summary>
+        /// <param name="columnRanges">The list of column ranges to expand.</param>
+        /// <returns>A list of individual column indexes.</returns>
+        private static List<int> ExpandColumnRanges(List<Range> columnRanges)
+        {
+            var indexes = new List<int>();
+            foreach (var range in columnRanges)
+            {
+                for (int i = range.Start; i <= range.End; i++)
+                {
+                    indexes.Add(i);
+                }
+            }
+            return indexes;
+        }
+
+        /// <summary>
+        /// Cancels an ongoing copy or summary operation if one exists.
+        /// </summary>
+        private void CancelOngoingOperation(string operationKey)
+        {
+            if (activeCopyOperations.TryRemove(operationKey, out var existingCts))
+            {
+                try
+                {
+                    existingCts.Cancel();
+                }
+                catch
+                {
+                    // Ignore any exceptions during cancellation
+                }
+            }
+        }
+
+        /// <summary>
+        /// Helper method to try to extract a numeric value from a cell's raw object
+        /// </summary>
+        private bool TryGetNumericValue(object rawValue, out double numericValue)
+        {
+            numericValue = 0;
+
+            if (rawValue == null)
             {
                 return false;
             }
 
-            // Calling ToString like this only converts the last few characters of the StringBuilder to a string
-            return sb.ToString(sb.Length - target.Length, target.Length).EndsWith(target);
+            if (rawValue is IConvertible convertible)
+            {
+                TypeCode typeCode = convertible.GetTypeCode();
+                if (NumericTypeCodes.Contains(typeCode))
+                {
+                    try
+                    {
+                        numericValue = convertible.ToDouble(CultureInfo.InvariantCulture);
+                        return true;
+                    }
+                    catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
+                    {
+                    }
+                }
+            }
+
+            if (rawValue is INullable sqlValue && !sqlValue.IsNull)
+            {
+                PropertyInfo valueProperty = rawValue.GetType().GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
+                if (valueProperty != null)
+                {
+                    object underlyingValue = valueProperty.GetValue(rawValue);
+                    if (TryGetNumericValue(underlyingValue, out numericValue))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (rawValue is string str && !string.IsNullOrWhiteSpace(str))
+            {
+                if (double.TryParse(str, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out double parsedValue) ||
+                    double.TryParse(str, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out parsedValue))
+                {
+                    numericValue = parsedValue;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private Query CreateQuery(
@@ -1230,12 +1668,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Task.FromResult(0);
         }
 
-        internal class Range
+        public class Range
         {
             public int Start { get; set; }
             public int End { get; set; }
 
-            public override string ToString() 
+            public override string ToString()
                 => $"{nameof(Range)} ({nameof(Start)}: {Start}, {nameof(End)}: {End})";
         }
 
@@ -1309,10 +1747,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
             if (reliableSqlConnection != null)
             {
-                using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection())) 
+                using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection()))
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.ExecuteNonQuery(); 
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

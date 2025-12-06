@@ -87,6 +87,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                         Role = MessageRole.System
                     });
                 }
+                else if (message.Role == AuthorRole.Assistant)
+                {
+                    // Handle assistant messages (including knowledge items)
+                    // Send as System role since VS Code handler treats all system context uniformly
+                    result.Add(new LanguageModelRequestMessage
+                    {
+                        Text = message.Content,
+                        Role = MessageRole.System
+                    });
+                }
                 else if (message.Role == AuthorRole.User)
                 {
                     if (message.Items is { Count: 1 } &&

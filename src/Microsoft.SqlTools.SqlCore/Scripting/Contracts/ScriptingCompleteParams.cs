@@ -34,5 +34,10 @@ namespace Microsoft.SqlTools.SqlCore.Scripting.Contracts
         /// Get or sets a value to indicate the scripting operation successfully completed.
         /// </summary>
         public bool Success { get; set; }
+
+        /// <summary>
+        /// Gets or sets the script text when ReturnScriptAsEvent is enabled.
+        /// </summary>
+        public string Script { get; set; }
     }
 }

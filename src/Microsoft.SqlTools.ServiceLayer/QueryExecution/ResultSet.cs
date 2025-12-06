@@ -387,20 +387,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     //
                     SingleColumnXmlJsonResultSet();
 
-                    // Mark that read of result has started
-                    //
-                    hasStartedRead = true;
+                    // Whether we have sent the initial ResultSetAvailable event.
+                    bool hasNotifiedResultSetAvailable = false;
 
-                    // Invoke the SendCurrentResults() asynchronously that will send the results available notification
-                    //   and also trigger the timer to send periodic updates.
-                    //
-                    availableTask = SendCurrentResults();
+                    // Mark that read of result has started
+                    hasStartedRead = true;
 
                     while (dataReader.Read())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
+
+                        // Send ResultSetAvailable event after first row is written
+                        if (!hasNotifiedResultSetAvailable)
+                        {
+                            hasNotifiedResultSetAvailable = true;
+                            availableTask = SendCurrentResults();
+                        }
+                    }
+                    
+                    // If no rows were processed, we still need to send the ResultSetAvailable event
+                    if (!hasNotifiedResultSetAvailable)
+                    {
+                        hasNotifiedResultSetAvailable = true;
+                        availableTask = SendCurrentResults();
                     }
                     CheckForIsJson();
                 }

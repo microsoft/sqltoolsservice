@@ -1,3 +1,6 @@
+# Prerequisites
+# - For the step 'Upload Code coverage report to CodeCov', CODECOV_TOKEN needs to be added as a pipeline variable in ADO
+#   To obtain value for CODECOV_TOKEN see 'Code Coverage' section in https://msdata.visualstudio.com/SQLToolsAndLibraries/_git/VSCode-MSSQL
 parameters:
   - name: platforms
     type: object
@@ -127,7 +130,28 @@ steps:
     reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura"
   displayName: Create Code coverage report
 
-- task: PublishCodeCoverageResults@1
+
+- powershell: |
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
+    gpg.exe --import codecov.asc
+
+    Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
+    Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM -Outfile codecov.exe.SHA256SUM
+    Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM.sig -Outfile codecov.exe.SHA256SUM.sig
+
+    gpg.exe --verify codecov.exe.SHA256SUM.sig codecov.exe.SHA256SUM
+    If ($(Compare-Object -ReferenceObject  $(($(certUtil -hashfile codecov.exe SHA256)[1], "codecov.exe") -join "  ") -DifferenceObject $(Get-Content codecov.exe.SHA256SUM)).length -eq 0) {
+        echo "codecov.exe SHASUM verified"
+    } Else {
+        exit 1
+    }
+
+    # For configuring CODECOV_TOKEN see 'Prerequisites' section above
+    .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t $(CODECOV_TOKEN) -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
+  displayName: Upload Code coverage report to CodeCov
+
+- task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'

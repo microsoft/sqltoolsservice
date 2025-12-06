@@ -15,13 +15,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Scriptoria.API;
 using Microsoft.Scriptoria.Common;
 using Microsoft.Scriptoria.Interfaces;
 using Microsoft.Scriptoria.Models;
 using Microsoft.Scriptoria.Services;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SqlServer.SqlCopilot.Common;
 using Microsoft.SqlServer.SqlCopilot.SqlScriptoria;
 using Microsoft.SqlServer.SqlCopilot.SqlScriptoriaCommon;
 using Microsoft.SqlTools.Connectors.VSCode;
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         private static IDictionary<string, string> _connectionContext = new Dictionary<string, string>();
 
         // active cartridge
-        private static CartridgeBase? _activeCartridge = null;
+        private static ICartridge? _activeCartridge = null;
 
         public CopilotConversationManager()
         {
@@ -112,6 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public void AddOrUpdateConversation(string conversationUri, CopilotConversation conversation)
         {
             conversations.AddOrUpdate(conversationUri, conversation, (_, _) => conversation);
+        }
+
+        public void RemoveConversation(string conversationUri)
+        {
+            conversations.TryRemove(conversationUri, out _);
         }
 
         public async Task<ChatMessage> QueueLLMRequest(
@@ -166,38 +171,72 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 var services = new ServiceCollection();
 
                 // Register the ScriptoriaTrace as IScriptoriaTrace
-                services.AddSingleton<IScriptoriaTrace, CopilotLogger>();
-                services.AddSingleton<ICartridgeContentManager, CartridgeContentManager>();
+                var scriptoriaTrace = new CopilotLogger();
+                services.AddSingleton<IScriptoriaTrace>(scriptoriaTrace);
+                services.AddSingleton<ICartridgeContentManagerFactory, CartridgeContentManagerFactory>();
                 services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
                 services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
-                services.AddSingleton<IScriptoriaExecutionContext, SqlScriptoriaExecutionContext>();
-                services.AddSingleton<IExecutionAccessCheckerFactory, ChatExecutionAccessCheckerFactory>();
+                services.AddSingleton<ITokenRateLimiter, TokenRateLimiter>();
+                
+                // Register VS Code-specific minion LLM invoker that uses DirectRequest to prevent streaming to users
+                // This is used by minions (AccessChecker, KnowledgeLibrarian, etc.) via dependency injection
+                // Main user session uses userChatCompletionService directly, not ILLMInvoker
+                var minionLLMInvoker = new VSCodeMinionLLMInvoker(conversation, scriptoriaTrace);
+                services.AddSingleton<ILLMInvoker>(minionLLMInvoker);
+                services.AddSingleton<IKernelBuilder>((sp) => builder);
+                
+                // Create AI service settings - using dummy/minimal configuration since we're using VSCode LLM
+                var aiServiceSettings = new AIServiceSettings
+                {
+                    ModelToUse = "gpt-4",
+                    AzureOpenAIDeploymentName = "dummy-deployment",
+                    AzureOpenAIEndpoint = "https://dummy-endpoint.openai.azure.com"
+                };
+                services.AddSingleton<IScriptoriaExecutionContext>((sp) => 
+                {
+                    var trace = sp.GetRequiredService<IScriptoriaTrace>();
+                    return new SqlScriptoriaExecutionContext(trace, aiServiceSettings);
+                });
                 services.AddSingleton<IKernelBuilder>((sp) => builder);
 
                 ContentProviderType contentLibraryProviderType = ContentProviderType.Resource;
 
                 // initialize the bootstrapper that will discover and find the correct cartridge to use for the current 
-                // connection context
-                var contentManager = services.BuildServiceProvider().GetRequiredService<ICartridgeContentManager>();
-                contentManager.ContentProviderType = contentLibraryProviderType;
+                // connection context  
+                var factory = services.BuildServiceProvider().GetRequiredService<ICartridgeContentManagerFactory>();
+                // The factory Create method returns the manager with the appropriate assembly and config file
+                var scriptoriaAssembly = typeof(SqlCartridge).Assembly;
+                var contentManager = factory.Create<CartridgeContentManagerConfig>(
+                    contentLibraryProviderType, 
+                    scriptoriaAssembly, 
+                    SqlCartridgeContentDefs.CONFIGURATION_FILE,
+                    null);
+                
+                // Register the content manager in services
+                services.AddSingleton<ICartridgeContentManager>(contentManager);
 
                 Logger.Verbose($"SqlScriptoria version: {contentManager.Version}");
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-                Bootstrapper cartridgeBootstrapper = new Bootstrapper(serviceProvider, new ChatExecutionAccessCheckerFactory());
+                var cartridgeBootstrapper = new ScriptoriaCartridgeBootstrapper<SqlCartridge>(scriptoriaTrace, [ScriptoriaPackages.SqlScriptoriaAssemblyName]);
 
                 var _executionContext = serviceProvider.GetRequiredService<IScriptoriaExecutionContext>();
 
                 // we need the current connection context to be able to load the cartridges.  To the connection 
                 // context we add what experience this is being loaded into by the client.
-                await _executionContext.LoadExecutionContextAsync(CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat, sqlService!);
+                var cartridgeContextSettings = new CartridgeContextSettings
+                {
+                    CartridgeExperience = CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat,
+                    ContextSettings = new Dictionary<string, string>()
+                };
+                await _executionContext.LoadExecutionContextAsync(cartridgeContextSettings, sqlService!, CancellationToken.None);
 
 
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 
                 // the 'Experience' and 'Version' properties will deterime which cartridge is loaded.
                 // other configuration values will be used by toolsets in the future as well.
-                _activeCartridge = cartridgeBootstrapper.LoadCartridge();
+                _activeCartridge = cartridgeBootstrapper.LoadCartridge(serviceProvider, _executionContext);
                 await _activeCartridge.InitializeToolsetsAsync();
 
                 // rebuild the kernel with the set of plugins for the current database
@@ -205,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 userChatCompletionService = userSessionKernel.GetRequiredService<IChatCompletionService>();
 
                 // read-only is the default startup mode
-                _activeCartridge.AccessChecker.ExecutionMode = CopilotAccessModes.READ_WRITE_NEVER;
+                _activeCartridge.AccessChecker.ExecutionMode = AccessModes.READ_WRITE_NEVER;
 
                 // use a hardcoded system prompt until we can tune the SqlScriptoria system prompt construction
                 var systemPrompt = @"
@@ -373,20 +412,20 @@ VERSION AWARENESS:
             }
         }
 
-        private async Task<RpcResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
+        private async Task<ScriptoriaResponse<string>> SendUserPromptStreamingAsync(string userPrompt, string chatExchangeId)
         {
             if (chatHistory == null)
             {
                 var errorMessage = "Chat history not initialized.  Call InitializeAsync first.";
                 Logger.Error($"Prompt Received Error: {errorMessage}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
             if (userChatCompletionService == null) // || _plannerChatCompletionService == null || _databaseQueryChatCompletionService == null)
             {
                 var errorMessage = "Chat completion service not initialized.  Call InitializeAsync first.";
                 Logger.Error($"Prompt Received Error: {errorMessage}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
             var sqlExecuteRpcParent = rpcClients[chatExchangeId];
@@ -394,10 +433,10 @@ VERSION AWARENESS:
             {
                 var errorMessage = "Communication channel not configured.  Call InitializeAsync first.";
                 Logger.Error($"Prompt Received Error: {errorMessage}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.GeneralError, errorMessage);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, errorMessage);
             }
 
-            Logger.Verbose( $"User prompt received.");
+            Logger.Verbose($"User prompt received.");
 
             // track this exchange and its cancellation token
             Logger.Verbose($"Tracking exchange {chatExchangeId}.");
@@ -408,10 +447,13 @@ VERSION AWARENESS:
             await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeStartedAsync", chatExchangeId);
 
             // setup the default response
-            RpcResponse<string> promptResponse = new RpcResponse<string>("Success");
+            ScriptoriaResponse<string> promptResponse = new ScriptoriaResponse<string>("Success");
 
             try
             {
+                // Load the supplemental knowledge based on the user prompt
+                await GetSupplementalKnowledgeAsync(userPrompt, chatHistory, CancellationToken.None);
+
                 chatHistory.AddUserMessage(userPrompt);
                 StringBuilder completeResponse = new StringBuilder();
 
@@ -419,7 +461,7 @@ VERSION AWARENESS:
                     executionSettings: openAIPromptExecutionSettings,
                     kernel: userSessionKernel,
                     cts.Token);
-                Logger.Verbose( $"Prompt submitted to kernel.");
+                Logger.Verbose($"Prompt submitted to kernel.");
 
                 // loop on the IAsyncEnumerable to get the results
                 Logger.Verbose("Response Generated:");
@@ -449,7 +491,7 @@ VERSION AWARENESS:
                     await sqlExecuteRpcParent.InvokeAsync<string>("ChatExchangeCanceledAsync", chatExchangeId);
 
                     // change the prompt response to indicate the cancellation
-                    promptResponse = new RpcResponse<string>(SqlCopilotRpcReturnCodes.TaskCancelled, "Request canceled by client.");
+                    promptResponse = new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, "Request canceled by client.");
                 }
                 else
                 {
@@ -463,17 +505,39 @@ VERSION AWARENESS:
             catch (HttpOperationException e)
             {
                 Logger.Error($"Copilot Server Exception: {e.Message}");
-                return new RpcResponse<string>(SqlCopilotRpcReturnCodes.ApiException, e.Message);
+                return new ScriptoriaResponse<string>(ScriptoriaResponseCode.GeneralError, e.Message);
             }
             finally
             {
 
                 // remove this exchange ID from the active conversations
-                Logger.Verbose( $"Removing exchange {chatExchangeId} from active conversations.");
+                Logger.Verbose($"Removing exchange {chatExchangeId} from active conversations.");
                 activeConversations.Remove(chatExchangeId, out cts);
             }
 
             return promptResponse;
+        }
+
+        private async Task GetSupplementalKnowledgeAsync(string userPrompt, ChatHistory chatHistory, CancellationToken cancellationToken)
+        {
+            // first check for any relevant knowledge that should be added to the conversation context
+            var searchContextData = new Dictionary<string, string>
+            {
+                { "SearchContext", KnowledgeSearchContext.UserPrompt.ToString() }
+            };
+
+            var knowledgeDictionary = await _activeCartridge.FindRelevantKnowledgeAsync(userPrompt, searchContextData, chatHistory, cancellationToken);
+
+            if (knowledgeDictionary.Count > 0)
+            {
+                foreach (var knowledgeItem in knowledgeDictionary)
+                {
+                    // some relevant supplemental knowledge was found relevant.  Add this to the chat history
+                    // as a system message to help the LLM answer this upcoming user prompt
+                    chatHistory.AddAssistantMessage(knowledgeItem.Value);
+                    Logger.Information($"Knowledge item found: {knowledgeItem.Key} - {knowledgeItem.Value}");
+                }
+            }
         }
     }
 

@@ -137,9 +137,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
             operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
-            operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+            operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters);
 
             RunTask(requestContext, operation);
+
+            // If ReturnScriptAsynchronously is enabled, return operation ID immediately
+            if (parameters.ReturnScriptAsynchronously)
+            {
+                return requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+            }
+
             return Task.CompletedTask;
         }
 
@@ -180,10 +187,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters,
-                                                               SmoScriptingOperation operation, string scriptDestination)
+                                                               SmoScriptingOperation operation, ScriptingParams scriptingParams)
         {
+            // If ReturnScriptAsynchronously is enabled, include script in the complete event
+            if (scriptingParams.ReturnScriptAsynchronously && parameters is ScriptingCompleteParams completeParams)
+            {
+                completeParams.Script = operation.ScriptText;
+                await requestContext.SendEvent(eventType, parameters);
+                return;
+            }
+
             await requestContext.SendEvent(eventType, parameters);
-            switch (scriptDestination)
+
+            switch (scriptingParams.ScriptDestination)
             {
                 case "ToEditor":
                     await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });

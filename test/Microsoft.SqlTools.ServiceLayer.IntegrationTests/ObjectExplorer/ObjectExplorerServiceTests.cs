@@ -378,7 +378,67 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2") == false, "table['^__']2 node should not be found in tables node");
                 Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable") == false, "testTable node should not be found in tables node");
                 Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2") == false, "table['^%%2 node should not be found in tables node");
-                
+
+            });
+        }
+
+        [Test]
+        public async Task VerifyDatabaseNodeFilterPropertiesWithGroupBySchemaEnabled()
+        {
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, "", "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+
+                // Create a new session to pick up the GroupBySchema setting
+                var newSession = await CreateSession(testDbName);
+                try
+                {
+                    var databaseNode = new NodeInfo(newSession.Root);
+
+                    // Verify DatabaseTreeNode has correct filter properties when GroupBySchema is enabled
+                    Assert.That(databaseNode.FilterableProperties, Is.Not.Null, "Database node should have filterable properties");
+                    Assert.That(databaseNode.FilterableProperties.Length, Is.EqualTo(2), "Database node should have exactly 2 filter properties when GroupBySchema is enabled");
+
+                    var nameProperty = databaseNode.FilterableProperties.FirstOrDefault(p => p.Name == "Name");
+                    Assert.That(nameProperty, Is.Not.Null, "Database node should have Name filter property");
+                    Assert.That(nameProperty.Type, Is.EqualTo(NodeFilterPropertyDataType.String), "Name property should be of type String");
+
+                    var ownerProperty = databaseNode.FilterableProperties.FirstOrDefault(p => p.Name == "Owner");
+                    Assert.That(ownerProperty, Is.Not.Null, "Database node should have Owner filter property");
+                    Assert.That(ownerProperty.Type, Is.EqualTo(NodeFilterPropertyDataType.String), "Owner property should be of type String");
+                }
+                finally
+                {
+                    CloseSession(newSession.Uri);
+                    WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+                }
+            });
+        }
+
+        [Test]
+        public async Task VerifyDatabaseNodeFilterPropertiesWithGroupBySchemaDisabled()
+        {
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, "", "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+
+                // Create a new session to pick up the GroupBySchema setting
+                var newSession = await CreateSession(testDbName);
+                try
+                {
+                    var databaseNode = new NodeInfo(newSession.Root);
+
+                    // Verify DatabaseTreeNode has no filter properties when GroupBySchema is disabled
+                    Assert.That(databaseNode.FilterableProperties, Is.Not.Null.Or.Empty, "Database node filter properties should be empty or not null");
+                    Assert.That(databaseNode.FilterableProperties.Length, Is.EqualTo(0), "Database node should have no filter properties when GroupBySchema is disabled");
+                }
+                finally
+                {
+                    CloseSession(newSession.Uri);
+                    WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+                }
             });
         }
 
