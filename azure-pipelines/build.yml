@@ -86,9 +86,44 @@ steps:
 
     if ($currentOs -match "windows") {
         Write-Host "Switching to Linux containers..."
-        & DockerCli.exe -SwitchDaemon
-        Start-Sleep -Seconds 10
-        Write-Host "New Docker OS: $(docker version --format '{{.Server.Os}}')"
+        
+        $dockerCli = "DockerCli.exe"
+        $found = $false
+        
+        # Check PATH
+        Write-Host "Checking for DockerCli.exe in PATH..."
+        if (Get-Command $dockerCli -ErrorAction SilentlyContinue) {
+            Write-Host "Found DockerCli.exe in PATH."
+            $found = $true
+        } else {
+            Write-Host "DockerCli.exe not found in PATH."
+        }
+
+        # Check relative to docker.exe
+        if (-not $found) {
+            $dockerPath = (Get-Command docker).Source
+            Write-Host "docker.exe found at: $dockerPath"
+            $dockerDir = Split-Path $dockerPath
+            # Check 2 levels up
+            $potentialPath = Join-Path (Split-Path (Split-Path $dockerDir)) "DockerCli.exe"
+            
+            Write-Host "Checking for DockerCli.exe at: $potentialPath"
+            if (Test-Path $potentialPath) {
+                Write-Host "Found DockerCli.exe at $potentialPath"
+                $dockerCli = $potentialPath
+                $found = $true
+            } else {
+                Write-Host "DockerCli.exe not found at $potentialPath"
+            }
+        }
+        
+        if ($found) {
+            & $dockerCli -SwitchDaemon
+            Start-Sleep -Seconds 10
+            Write-Host "New Docker OS: $(docker version --format '{{.Server.Os}}')"
+        } else {
+            Write-Error "Could not find DockerCli.exe to switch to Linux containers."
+        }
     }
 
     # generate random password of 24 characters, save to a script variable
