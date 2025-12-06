@@ -32,6 +32,30 @@ steps:
             exit 1
         }
     } while ($true)
+
+    # Verify connection and print version
+    docker exec sql2025 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$password" -Q "SELECT @@VERSION"
+
+    # Create settings.json for tests
+    $settingsContent = @"
+    {
+        "mssql.connections": [
+            {
+                "server": "localhost",
+                "authenticationType": "SqlLogin",
+                "user": "sa",
+                "password": "$password",
+                "serverType": "OnPrem"
+            }
+        ]
+    }
+    "@
+    $settingsPath = Join-Path "$(Agent.TempDirectory)" "settings.json"
+    Set-Content -Path $settingsPath -Value $settingsContent
+    Write-Host "Created settings.json at $settingsPath"
+    
+    # Set environment variable for tests
+    Write-Host "##vso[task.setvariable variable=SettingsFileName]$settingsPath"
   displayName: 'Setup Docker image for integration tests'
 
 - task: DotNetCoreCLI@2
@@ -39,6 +63,8 @@ steps:
   inputs:
     command: restore
     projects: test/Microsoft.SqlTools.ServiceLayer.IntegrationTests
+    feedsToUse: 'config'
+    nugetConfigPath: 'nuget.config'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
