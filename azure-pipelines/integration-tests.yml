@@ -1,0 +1,52 @@
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET sdk'
+  inputs:
+    useGlobalJson: true
+
+- pwsh: |
+    # setup docker image for SQL 2025
+    # generate random password of 24 characters, save to a script variable
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#%^&*()'
+    $password = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
+    Write-Host "##vso[task.setvariable variable=SqlPassword;issecret=true]$password"
+
+    # pull docker image for SQL 2025
+    docker pull mcr.microsoft.com/mssql/server:2025-latest
+
+    # set up docker container for SQL 2025 using that password
+    docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$password" -p 1433:1433 --name sql2025 -d mcr.microsoft.com/mssql/server:2025-latest
+
+    # Wait for SQL Server to be ready
+    $start = Get-Date
+    $timeout = New-TimeSpan -Seconds 60
+    do {
+        Start-Sleep -Seconds 2
+        $logs = docker logs sql2025 2>&1
+        if ($logs -match "SQL Server is now ready for client connections") {
+            Write-Host "SQL Server is ready."
+            break
+        }
+        if ((Get-Date) - $start -gt $timeout) {
+            Write-Error "Timeout waiting for SQL Server to start."
+            exit 1
+        }
+    } while ($true)
+
+    # Verify connection and print version
+    docker exec sql2025 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$password" -Q "SELECT @@VERSION"
+  displayName: 'Setup Docker image for integration tests'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.SqlTools.ServiceLayer.IntegrationTests
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
+  inputs:
+    command: test
+    projects: test/Microsoft.SqlTools.ServiceLayer.IntegrationTests
+    testRunTitle: SqlTools.ServiceLayer.IntegrationTests
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
