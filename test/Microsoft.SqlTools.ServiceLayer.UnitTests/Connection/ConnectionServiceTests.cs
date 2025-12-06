@@ -1863,18 +1863,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details = service.ParseConnectionString(connectionString);
             Assert.That(details.AuthenticationType, Is.EqualTo("Integrated"));
 
-            // AAD auth types boil down to AzureMFA
-            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryIntegrated;";
-            details = service.ParseConnectionString(connectionString);
-            Assert.That(details.AuthenticationType, Is.EqualTo("AzureMFA"));
-
+            // AAD auth types
+            // ActiveDirectoryInteractive is mapped to to AzureMFA
             connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;";
             details = service.ParseConnectionString(connectionString);
             Assert.That(details.AuthenticationType, Is.EqualTo("AzureMFA"));
 
+            // Other AAD types are unchanged
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryIntegrated;";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("ActiveDirectoryIntegrated"));
+
             connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryDefault;";
             details = service.ParseConnectionString(connectionString);
-            Assert.That(details.AuthenticationType, Is.EqualTo("AzureMFA"));
+            Assert.That(details.AuthenticationType, Is.EqualTo("ActiveDirectoryDefault"));
+
+            // Invalid throws
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=InvalidAuthType;";
+            Assert.Throws<ArgumentException>(() => service.ParseConnectionString(connectionString), "Invalid value for key 'authentication'.");
         }
 
         [Test]
