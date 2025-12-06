@@ -32,9 +32,6 @@ steps:
             exit 1
         }
     } while ($true)
-
-    # Verify connection and print version
-    docker exec sql2025 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$password" -Q "SELECT @@VERSION"
   displayName: 'Setup Docker image for integration tests'
 
 - task: DotNetCoreCLI@2
