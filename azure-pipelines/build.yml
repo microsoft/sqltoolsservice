@@ -99,21 +99,46 @@ steps:
             Write-Host "DockerCli.exe not found in PATH."
         }
 
+        # Check standard installation path
+        if (-not $found) {
+            $standardPath = "C:\Program Files\Docker\Docker\DockerCli.exe"
+            Write-Host "Checking for DockerCli.exe at: $standardPath"
+            if (Test-Path $standardPath) {
+                Write-Host "Found DockerCli.exe at $standardPath"
+                $dockerCli = $standardPath
+                $found = $true
+            } else {
+                Write-Host "DockerCli.exe not found at $standardPath"
+            }
+        }
+
         # Check relative to docker.exe
         if (-not $found) {
             $dockerPath = (Get-Command docker).Source
             Write-Host "docker.exe found at: $dockerPath"
             $dockerDir = Split-Path $dockerPath
-            # Check 2 levels up
-            $potentialPath = Join-Path (Split-Path (Split-Path $dockerDir)) "DockerCli.exe"
-            
-            Write-Host "Checking for DockerCli.exe at: $potentialPath"
-            if (Test-Path $potentialPath) {
-                Write-Host "Found DockerCli.exe at $potentialPath"
-                $dockerCli = $potentialPath
+
+            # Check same directory
+            $sameDirPath = Join-Path $dockerDir "DockerCli.exe"
+            Write-Host "Checking for DockerCli.exe at: $sameDirPath"
+            if (Test-Path $sameDirPath) {
+                Write-Host "Found DockerCli.exe at $sameDirPath"
+                $dockerCli = $sameDirPath
                 $found = $true
-            } else {
-                Write-Host "DockerCli.exe not found at $potentialPath"
+            }
+
+            # Check 2 levels up
+            if (-not $found) {
+                $potentialPath = Join-Path (Split-Path (Split-Path $dockerDir)) "DockerCli.exe"
+                
+                Write-Host "Checking for DockerCli.exe at: $potentialPath"
+                if (Test-Path $potentialPath) {
+                    Write-Host "Found DockerCli.exe at $potentialPath"
+                    $dockerCli = $potentialPath
+                    $found = $true
+                } else {
+                    Write-Host "DockerCli.exe not found at $potentialPath"
+                }
             }
         }
         
