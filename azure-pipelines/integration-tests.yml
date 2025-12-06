@@ -65,6 +65,8 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
+  env:
+    SettingsFileName: $(SettingsFileName)
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.IntegrationTests
