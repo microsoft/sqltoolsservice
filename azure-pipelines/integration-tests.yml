@@ -55,6 +55,11 @@ steps:
     Write-Host "##vso[task.setvariable variable=SettingsFileName]$settingsPath"
   displayName: 'Setup Docker image for integration tests'
 
+- task: Bash@3
+  displayName: 'Create Loc Directories'
+  inputs:
+    filePath: ./azure-pipelines/createBuildDirectories.sh
+
 - script: dotnet restore test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj --configfile nuget.config
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.IntegrationTests'
 
