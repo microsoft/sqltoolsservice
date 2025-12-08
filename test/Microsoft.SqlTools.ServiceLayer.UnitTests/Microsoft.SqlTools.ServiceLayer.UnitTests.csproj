@@ -22,7 +22,10 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
-		<PackageReference Include="Microsoft.SqlPackage" PrivateAssets="all" />
+		<Reference Include="sqlpackage">
+			<HintPath>..\..\packages\lib\Microsoft.SqlPackage\$(SqlPackageWorkaroundVersion)\lib\net8.0\sqlpackage.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
 		<PackageReference Include="Moq" />
 		<PackageReference Include="nunit.console" />
 		<PackageReference Include="nunit" />
