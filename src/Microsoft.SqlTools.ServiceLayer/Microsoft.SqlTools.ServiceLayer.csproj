@@ -70,8 +70,9 @@
     <PackageReference Include="Microsoft.SqlServer.Assessment" />
     <PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
+    <PackageReference Include="Microsoft.SqlPackage" GeneratePathProperty="true" IncludeAssets="none" />
     <Reference Include="sqlpackage">
-      <HintPath>..\..\packages\lib\Microsoft.SqlPackage\$(SqlPackageWorkaroundVersion)\lib\net8.0\sqlpackage.dll</HintPath>
+      <HintPath>$(PkgMicrosoft_SqlPackage)\tools\net8.0\any\sqlpackage.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />

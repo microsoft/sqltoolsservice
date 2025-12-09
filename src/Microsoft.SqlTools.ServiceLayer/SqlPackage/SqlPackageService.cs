@@ -75,12 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                         throw new ArgumentException($"Unsupported action: {parameters.Action}. Supported actions are: Publish, Extract, Script, Export, Import");
                 }
 
-                // Add or remove executable name based on parameter
-                if (!parameters.IncludeExecutableName && command.StartsWith("sqlpackage ", StringComparison.OrdinalIgnoreCase))
-                {
-                    command = command.Substring("sqlpackage ".Length);
-                }
-                else if (parameters.IncludeExecutableName && !command.StartsWith("sqlpackage ", StringComparison.OrdinalIgnoreCase))
+                // Always include executable name
+                if (!command.StartsWith("sqlpackage ", StringComparison.OrdinalIgnoreCase))
                 {
                     command = "sqlpackage " + command;
                 }
