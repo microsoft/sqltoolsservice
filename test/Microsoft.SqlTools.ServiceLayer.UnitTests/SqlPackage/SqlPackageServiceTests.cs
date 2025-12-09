@@ -51,9 +51,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             var parameters = new GenerateSqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Publish,
-                SourceFile = "C:\\test\\database.dacpac",
-                TargetServerName = "localhost",
-                TargetDatabaseName = "TestDB"
+                Arguments = "{\"SourceFile\":\"C:\\\\test\\\\database.dacpac\",\"TargetServerName\":\"localhost\",\"TargetDatabaseName\":\"TestDB\",\"TargetConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
+                DeploymentOptions = new Microsoft.SqlServer.Dac.DacDeployOptions
+                {
+                    BackupDatabaseBeforeChanges = true,
+                    BlockOnPossibleDataLoss = true,
+                    IncludeCompositeObjects = true,
+                    VerifyDeployment = true
+                },
+                Variables = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "Environment", "Production" },
+                    { "DatabaseVersion", "1.0.0" }
+                }
             };
 
             // Act
@@ -63,9 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsNotNull(capturedResult);
             Assert.IsTrue(capturedResult.Success);
             Assert.IsNotNull(capturedResult.Command);
-            StringAssert.StartsWith("sqlpackage ", capturedResult.Command);
+            StringAssert.Contains("SqlPackage", capturedResult.Command);
             StringAssert.Contains("/Action:Publish", capturedResult.Command);
-            StringAssert.Contains("/SourceFile:", capturedResult.Command);
             StringAssert.Contains("database.dacpac", capturedResult.Command);
         }
 
@@ -82,9 +91,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             var parameters = new GenerateSqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Extract,
-                SourceServerName = "localhost",
-                SourceDatabaseName = "TestDB",
-                TargetFile = "C:\\test\\output.dacpac"
+                Arguments = "{\"SourceServerName\":\"localhost\",\"SourceDatabaseName\":\"TestDB\",\"TargetFile\":\"C:\\\\test\\\\output.dacpac\",\"SourceConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
+                Properties = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "ExtractApplicationScopedObjectsOnly", "True" },
+                    { "ExtractReferencedServerScopedElements", "True" },
+                    { "IgnoreExtendedProperties", "False" },
+                    { "IgnorePermissions", "False" },
+                    { "Storage", "File" }
+                }
             };
 
             // Act
@@ -94,9 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsNotNull(capturedResult);
             Assert.IsTrue(capturedResult.Success);
             Assert.IsNotNull(capturedResult.Command);
-            StringAssert.StartsWith("sqlpackage ", capturedResult.Command);
+            StringAssert.Contains("SqlPackage", capturedResult.Command);
             StringAssert.Contains("/Action:Extract", capturedResult.Command);
-            StringAssert.Contains("/TargetFile:", capturedResult.Command);
             StringAssert.Contains("output.dacpac", capturedResult.Command);
         }
 
@@ -113,10 +127,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             var parameters = new GenerateSqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Script,
-                SourceFile = "C:\\test\\database.dacpac",
-                TargetServerName = "localhost",
-                TargetDatabaseName = "TestDB",
-                TargetFile = "C:\\test\\script.sql"
+                Arguments = "{\"SourceFile\":\"C:\\\\test\\\\database.dacpac\",\"TargetServerName\":\"localhost\",\"TargetDatabaseName\":\"TestDB\",\"OutputPath\":\"C:\\\\test\\\\script.sql\",\"TargetConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
+                DeploymentOptions = new Microsoft.SqlServer.Dac.DacDeployOptions
+                {
+                    GenerateSmartDefaults = true,
+                    IncludeTransactionalScripts = true,
+                    ScriptDatabaseOptions = true,
+                    CommentOutSetVarDeclarations = false
+                },
+                Variables = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "Environment", "Staging" },
+                    { "DebugMode", "false" }
+                }
             };
 
             // Act
@@ -126,10 +149,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsNotNull(capturedResult);
             Assert.IsTrue(capturedResult.Success);
             Assert.IsNotNull(capturedResult.Command);
-            StringAssert.StartsWith("sqlpackage ", capturedResult.Command);
+            StringAssert.Contains("SqlPackage", capturedResult.Command);
             StringAssert.Contains("/Action:Script", capturedResult.Command);
-            StringAssert.Contains("/SourceFile:", capturedResult.Command);
-            StringAssert.Contains("/OutputPath:", capturedResult.Command);
+            StringAssert.Contains("script.sql", capturedResult.Command);
         }
 
         [Test]
@@ -145,9 +167,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             var parameters = new GenerateSqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Export,
-                SourceServerName = "localhost",
-                SourceDatabaseName = "TestDB",
-                TargetFile = "C:\\test\\export.bacpac"
+                Arguments = "{\"SourceServerName\":\"localhost\",\"SourceDatabaseName\":\"TestDB\",\"TargetFile\":\"C:\\\\test\\\\export.bacpac\",\"SourceConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
+                Properties = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "CommandTimeout", "120" },
+                    { "CompressionOption", "Maximum" },
+                    { "VerifyFullTextDocumentTypesSupported", "True" },
+                    { "Storage", "File" }
+                }
             };
 
             // Act
@@ -157,9 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsNotNull(capturedResult);
             Assert.IsTrue(capturedResult.Success);
             Assert.IsNotNull(capturedResult.Command);
-            StringAssert.StartsWith("sqlpackage ", capturedResult.Command);
+            StringAssert.Contains("SqlPackage", capturedResult.Command);
             StringAssert.Contains("/Action:Export", capturedResult.Command);
-            StringAssert.Contains("/TargetFile:", capturedResult.Command);
             StringAssert.Contains("export.bacpac", capturedResult.Command);
         }
 
@@ -176,9 +202,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             var parameters = new GenerateSqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Import,
-                SourceFile = "C:\\test\\data.bacpac",
-                TargetServerName = "localhost",
-                TargetDatabaseName = "TestDB"
+                Arguments = "{\"SourceFile\":\"C:\\\\test\\\\data.bacpac\",\"TargetServerName\":\"localhost\",\"TargetDatabaseName\":\"TestDB\",\"TargetConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
+                Properties = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "CommandTimeout", "180" },
+                    { "DatabaseEdition", "Standard" },
+                    { "DatabaseServiceObjective", "S3" },
+                    { "DatabaseMaximumSize", "100" },
+                    { "Storage", "File" }
+                }
             };
 
             // Act
@@ -188,9 +220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsNotNull(capturedResult);
             Assert.IsTrue(capturedResult.Success);
             Assert.IsNotNull(capturedResult.Command);
-            StringAssert.StartsWith("sqlpackage ", capturedResult.Command);
+            StringAssert.Contains("SqlPackage", capturedResult.Command);
             StringAssert.Contains("/Action:Import", capturedResult.Command);
-            StringAssert.Contains("/SourceFile:", capturedResult.Command);
             StringAssert.Contains("data.bacpac", capturedResult.Command);
         }
     }

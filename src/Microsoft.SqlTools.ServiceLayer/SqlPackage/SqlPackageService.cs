@@ -15,9 +15,6 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
 {
-    /// <summary>
-    /// Main class for SqlPackage service
-    /// </summary>
     public class SqlPackageService
     {
         private static readonly Lazy<SqlPackageService> instance = new Lazy<SqlPackageService>(() => new SqlPackageService());
@@ -31,17 +28,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         }
 
         /// <summary>
-        /// Initializes the service instance
+        /// Initializes the SqlPackage service by registering request handlers with the service host.
+        /// This method sets up the handler for generating SqlPackage CLI command strings.
         /// </summary>
-        /// <param name="serviceHost"></param>
+        /// <param name="serviceHost">The service host that manages RPC communication with clients</param>
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(GenerateSqlPackageCommandRequest.Type, this.HandleGenerateSqlPackageCommandRequest, true);
         }
 
         /// <summary>
-        /// Handles request to generate a SqlPackage command string based on action
+        /// Handles requests to generate SqlPackage CLI command strings for various database operations.
+        /// Supports Publish, Extract, Script, Export, and Import actions. The method routes to the appropriate
+        /// command generator based on the specified action and uses the SqlPackage API to build properly formatted
+        /// command strings with all necessary parameters and options.
         /// </summary>
+        /// <param name="parameters">Parameters containing the action type and operation-specific settings (connection strings, file paths, deployment options, etc.)</param>
+        /// <param name="requestContext">The request context for sending the command result back to the client</param>
+        /// <returns>A task representing the asynchronous operation</returns>
         public async Task HandleGenerateSqlPackageCommandRequest(GenerateSqlPackageCommandParams parameters, RequestContext<SqlPackageCommandResult> requestContext)
         {
             try
@@ -93,78 +97,78 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             }
         }
 
+        /// <summary>
+        /// Generates a SqlPackage Publish command string that deploys a .dacpac file to a target database.
+        /// </summary>
+        /// <param name="parameters">Parameters including serialized Arguments, DeploymentOptions, and Variables</param>
+        /// <returns>A formatted SqlPackage Publish command string with all specified options</returns>
         private string GeneratePublishCommand(GenerateSqlPackageCommandParams parameters)
         {
-            DacDeployOptions? dacOptions = null;
+            DacDeployOptions dacOptions = null;
             if (parameters.DeploymentOptions != null)
             {
                 dacOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions);
             }
 
             return SqlPackageCommandBuilder.GeneratePublishCommand(
-                sourceFile: parameters.SourceFile,
-                targetConnectionString: parameters.TargetConnectionString,
-                targetServerName: parameters.TargetServerName,
-                targetDatabaseName: parameters.TargetDatabaseName,
-                profilePath: parameters.ProfilePath,
-                deployOptions: dacOptions,
-                variables: parameters.Variables
-            );
+                parameters.Arguments,
+                dacOptions,
+                parameters.Variables);
         }
 
+        /// <summary>
+        /// Generates a SqlPackage Extract command string that creates a .dacpac file from a live database.
+        /// </summary>
+        /// <param name="parameters">Parameters including serialized Arguments and Properties</param>
+        /// <returns>A formatted SqlPackage Extract command string with all specified options</returns>
         private string GenerateExtractCommand(GenerateSqlPackageCommandParams parameters)
         {
             return SqlPackageCommandBuilder.GenerateExtractCommand(
-                sourceConnectionString: parameters.SourceConnectionString,
-                targetFile: parameters.TargetFile,
-                sourceServerName: parameters.SourceServerName,
-                sourceDatabaseName: parameters.SourceDatabaseName,
-                applicationName: parameters.ApplicationName,
-                applicationVersion: parameters.ApplicationVersion,
-                properties: parameters.Properties
-            );
+                parameters.Arguments,
+                parameters.Properties);
         }
 
+        /// <summary>
+        /// Generates a SqlPackage Script command string that creates a SQL deployment script without executing it.
+        /// </summary>
+        /// <param name="parameters">Parameters including serialized Arguments, DeploymentOptions, and Variables</param>
+        /// <returns>A formatted SqlPackage Script command string with all specified options</returns>
         private string GenerateScriptCommand(GenerateSqlPackageCommandParams parameters)
         {
-            DacDeployOptions? dacOptions = null;
+            DacDeployOptions dacOptions = null;
             if (parameters.DeploymentOptions != null)
             {
                 dacOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions);
             }
 
             return SqlPackageCommandBuilder.GenerateScriptCommand(
-                sourceFile: parameters.SourceFile,
-                targetFile: parameters.TargetFile,
-                targetConnectionString: parameters.TargetConnectionString,
-                targetServerName: parameters.TargetServerName,
-                targetDatabaseName: parameters.TargetDatabaseName,
-                profilePath: parameters.ProfilePath,
-                deployOptions: dacOptions,
-                variables: parameters.Variables
-            );
+                parameters.Arguments,
+                dacOptions,
+                parameters.Variables);
         }
 
+        /// <summary>
+        /// Generates a SqlPackage Export command string that creates a .bacpac file from a live database.
+        /// </summary>
+        /// <param name="parameters">Parameters including serialized Arguments and Properties</param>
+        /// <returns>A formatted SqlPackage Export command string with all specified options</returns>
         private string GenerateExportCommand(GenerateSqlPackageCommandParams parameters)
         {
             return SqlPackageCommandBuilder.GenerateExportCommand(
-                sourceConnectionString: parameters.SourceConnectionString,
-                targetFile: parameters.TargetFile,
-                sourceServerName: parameters.SourceServerName,
-                sourceDatabaseName: parameters.SourceDatabaseName,
-                properties: parameters.Properties
-            );
+                parameters.Arguments,
+                parameters.Properties);
         }
 
+        /// <summary>
+        /// Generates a SqlPackage Import command string that restores a .bacpac file to a target database.
+        /// </summary>
+        /// <param name="parameters">Parameters including serialized Arguments and Properties</param>
+        /// <returns>A formatted SqlPackage Import command string with all specified options</returns>
         private string GenerateImportCommand(GenerateSqlPackageCommandParams parameters)
         {
             return SqlPackageCommandBuilder.GenerateImportCommand(
-                sourceFile: parameters.SourceFile,
-                targetConnectionString: parameters.TargetConnectionString,
-                targetServerName: parameters.TargetServerName,
-                targetDatabaseName: parameters.TargetDatabaseName,
-                properties: parameters.Properties
-            );
+                parameters.Arguments,
+                parameters.Properties);
         }
     }
 }
