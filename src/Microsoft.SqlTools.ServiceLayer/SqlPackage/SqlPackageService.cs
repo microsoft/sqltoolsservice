@@ -47,38 +47,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             try
             {
                 string command;
-                string action = parameters.Action?.ToLowerInvariant() ?? string.Empty;
 
-                switch (action)
+                switch (parameters.Action)
                 {
-                    case "publish":
+                    case CommandLineToolAction.Publish:
                         command = GeneratePublishCommand(parameters);
                         break;
 
-                    case "extract":
+                    case CommandLineToolAction.Extract:
                         command = GenerateExtractCommand(parameters);
                         break;
 
-                    case "script":
+                    case CommandLineToolAction.Script:
                         command = GenerateScriptCommand(parameters);
                         break;
 
-                    case "export":
+                    case CommandLineToolAction.Export:
                         command = GenerateExportCommand(parameters);
                         break;
 
-                    case "import":
+                    case CommandLineToolAction.Import:
                         command = GenerateImportCommand(parameters);
                         break;
 
                     default:
-                        throw new ArgumentException($"Unsupported action: {parameters.Action}. Supported actions are: Publish, Extract, Script, Export, Import");
-                }
-
-                // Always include executable name
-                if (!command.StartsWith("sqlpackage ", StringComparison.OrdinalIgnoreCase))
-                {
-                    command = "sqlpackage " + command;
+                        throw new ArgumentException($"Unsupported action: {parameters.Action}");
                 }
 
                 await requestContext.SendResult(new SqlPackageCommandResult()

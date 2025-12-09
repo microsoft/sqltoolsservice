@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 
@@ -17,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// <summary>
         /// Action to perform: Publish, Extract, Script, Export, or Import
         /// </summary>
-        public string Action { get; set; }
+        public CommandLineToolAction Action { get; set; }
 
         /// <summary>
         /// Source file path (for Publish, Script, Import operations)

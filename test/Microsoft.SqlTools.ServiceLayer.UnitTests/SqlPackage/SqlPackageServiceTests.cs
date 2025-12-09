@@ -4,6 +4,7 @@
 //
 
 using System.Threading.Tasks;
+using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
@@ -49,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new GenerateSqlPackageCommandParams
             {
-                Action = "Publish",
+                Action = CommandLineToolAction.Publish,
                 SourceFile = "C:\\test\\database.dacpac",
                 TargetServerName = "localhost",
                 TargetDatabaseName = "TestDB"
@@ -80,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new GenerateSqlPackageCommandParams
             {
-                Action = "Extract",
+                Action = CommandLineToolAction.Extract,
                 SourceServerName = "localhost",
                 SourceDatabaseName = "TestDB",
                 TargetFile = "C:\\test\\output.dacpac"
@@ -111,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new GenerateSqlPackageCommandParams
             {
-                Action = "Script",
+                Action = CommandLineToolAction.Script,
                 SourceFile = "C:\\test\\database.dacpac",
                 TargetServerName = "localhost",
                 TargetDatabaseName = "TestDB",
@@ -143,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new GenerateSqlPackageCommandParams
             {
-                Action = "Export",
+                Action = CommandLineToolAction.Export,
                 SourceServerName = "localhost",
                 SourceDatabaseName = "TestDB",
                 TargetFile = "C:\\test\\export.bacpac"
@@ -174,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new GenerateSqlPackageCommandParams
             {
-                Action = "Import",
+                Action = CommandLineToolAction.Import,
                 SourceFile = "C:\\test\\data.bacpac",
                 TargetServerName = "localhost",
                 TargetDatabaseName = "TestDB"
