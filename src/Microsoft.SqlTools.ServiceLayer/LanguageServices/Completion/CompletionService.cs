@@ -62,11 +62,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             {
                 try
                 {
-                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    //QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
 
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-                    var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
+                    //// wait for the queue item
+                    //queueItem.ItemProcessed.WaitOne();
+                    //var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
+                    var completionResult = CreateCompletionsFromSqlParser(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, new ConnectedBindingContext().MetadataDisplayInfoProvider);
                     if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                     {
                         result = completionResult;

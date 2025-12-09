@@ -70,6 +70,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
         }
 
+        [Test]
+        public void CompletionColumnNameShouldNotBeCast()
+        {
+            ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+            ScriptDocumentInfo docInfo = CreateDynamicColumnScript();
+            CompletionService completionService = new CompletionService(bindingQueue);
+            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, null);
+            bool useLowerCaseSuggestions = true;
+            List<Declaration> declarations = new List<Declaration>();
+            CompletionItem[] defaultCompletionList = AutoCompleteHelper.GetDefaultCompletionItems(docInfo, useLowerCaseSuggestions);
+
+            //var sqlParserWrapper = new Mock<ISqlParserWrapper>();
+            //sqlParserWrapper.Setup(x => x.FindCompletions(docInfo.ScriptParseInfo.ParseResult, docInfo.ParserLine, docInfo.ParserColumn,
+            //    It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(LanguageService.BindingTimeout + 100)).Returns(declarations);
+            //completionService.SqlParserWrapper = sqlParserWrapper.Object;
+
+            AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+            Assert.NotNull(result);
+            Assert.AreEqual(result.CompletionItems.Length, defaultCompletionList.Length);
+            Thread.Sleep(3000);
+            Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
+        }
+
         private ScriptDocumentInfo CreateScriptDocumentInfo()
         {
             TextDocumentPosition doc = new TextDocumentPosition()
@@ -87,6 +110,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ScriptFile scriptFile = new ScriptFile()
             {
                 Contents = "Select * from sys.all_objects"
+            };
+
+            ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { IsConnected = true };
+            ScriptDocumentInfo docInfo = new ScriptDocumentInfo(doc, scriptFile, scriptParseInfo);
+
+            return docInfo;
+        }
+
+        private ScriptDocumentInfo CreateDynamicColumnScript()
+        {
+            TextDocumentPosition doc = new TextDocumentPosition()
+            {
+                TextDocument = new TextDocumentIdentifier
+                {
+                    Uri = "dynamic column script file"
+                },
+                Position = new Position()
+                {
+                    Line = 3,
+                    Character = 33
+                }
+            };
+            ScriptFile scriptFile = new ScriptFile()
+            {
+                Contents = "SELECT CAST(1 AS bit) AS N'This is a test' INTO #Test\n" +
+                    "SELECT * FROM #Test WHERE #Test. = 1\n" +
+                    "DROP TABLE #Test"
             };
 
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { IsConnected = true };

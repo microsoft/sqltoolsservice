@@ -108,6 +108,49 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.True(completions.Length > 0);
         }
 
+        [Test]
+        public async Task AutoCompleteColumnWithSpaces()
+        {
+            var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
+            LiveConnectionHelper.TestConnectionResult? connectionInfoResult = null;
+            try
+            {
+                connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
+
+                var langService = CreateLanguageService(connectionInfoResult.ScriptFile);
+
+                await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
+                var queryText = "SELECT CAST(1 AS bit) AS N'This is a test' INTO #Test\n" +
+                    "SELECT * FROM #Test WHERE #Test.";
+                connectionInfoResult.ScriptFile.SetFileContents(queryText);
+
+                var textDocumentPosition =
+                    connectionInfoResult.TextDocumentPosition ??
+                    new TextDocumentPosition()
+                    {
+                        TextDocument = new TextDocumentIdentifier
+                        {
+                            Uri = connectionInfoResult.ScriptFile.ClientUri
+                        },
+                        Position = new Position
+                        {
+                            Line = 1,
+                            Character = "SELECT * FROM #Test WHERE #Test.".Length
+                        }
+                    };
+
+                // First check that we don't have any items in the completion list as expected
+                var initialCompletionItems = await langService.GetCompletionItems(
+                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
+
+                Assert.True(initialCompletionItems.Length == 0, $"Should not have any completion items initially. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
+            }
+            finally
+            {
+                testDb.Cleanup();
+            }
+        }
+
         public static string AssemblyDirectory
         {
             get
