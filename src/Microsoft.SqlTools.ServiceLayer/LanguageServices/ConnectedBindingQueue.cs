@@ -259,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
                         bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
                         bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                            this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                            this.CurrentSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase
                                 ? CasingStyle.Lowercase : CasingStyle.Uppercase;
                         bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
                     }         
