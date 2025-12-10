@@ -119,13 +119,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// <summary>
         /// Generates a SqlPackage Extract command string that creates a .dacpac file from a live database.
         /// </summary>
-        /// <param name="parameters">Parameters including serialized Arguments and Properties</param>
+        /// <param name="parameters">Parameters including serialized Arguments and ExtractOptions</param>
         /// <returns>A formatted SqlPackage Extract command string with all specified options</returns>
         private string GenerateExtractCommand(GenerateSqlPackageCommandParams parameters)
         {
             return SqlPackageCommandBuilder.GenerateExtractCommand(
                 parameters.Arguments,
-                parameters.Properties);
+                parameters.ExtractOptions);
         }
 
         /// <summary>
@@ -150,25 +150,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// <summary>
         /// Generates a SqlPackage Export command string that creates a .bacpac file from a live database.
         /// </summary>
-        /// <param name="parameters">Parameters including serialized Arguments and Properties</param>
+        /// <param name="parameters">Parameters including serialized Arguments and ExportOptions</param>
         /// <returns>A formatted SqlPackage Export command string with all specified options</returns>
         private string GenerateExportCommand(GenerateSqlPackageCommandParams parameters)
         {
             return SqlPackageCommandBuilder.GenerateExportCommand(
                 parameters.Arguments,
-                parameters.Properties);
+                parameters.ExportOptions);
         }
 
         /// <summary>
         /// Generates a SqlPackage Import command string that restores a .bacpac file to a target database.
         /// </summary>
-        /// <param name="parameters">Parameters including serialized Arguments and Properties</param>
+        /// <param name="parameters">Parameters including serialized Arguments and ImportOptions</param>
         /// <returns>A formatted SqlPackage Import command string with all specified options</returns>
         private string GenerateImportCommand(GenerateSqlPackageCommandParams parameters)
         {
             return SqlPackageCommandBuilder.GenerateImportCommand(
                 parameters.Arguments,
-                parameters.Properties);
+                parameters.ImportOptions);
         }
     }
 }

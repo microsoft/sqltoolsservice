@@ -92,13 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             {
                 Action = CommandLineToolAction.Extract,
                 Arguments = "{\"SourceServerName\":\"localhost\",\"SourceDatabaseName\":\"TestDB\",\"TargetFile\":\"C:\\\\test\\\\output.dacpac\",\"SourceConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
-                Properties = new System.Collections.Generic.Dictionary<string, string>
+                ExtractOptions = new Microsoft.SqlServer.Dac.DacExtractOptions
                 {
-                    { "ExtractApplicationScopedObjectsOnly", "True" },
-                    { "ExtractReferencedServerScopedElements", "True" },
-                    { "IgnoreExtendedProperties", "False" },
-                    { "IgnorePermissions", "False" },
-                    { "Storage", "File" }
+                    ExtractApplicationScopedObjectsOnly = true,
+                    ExtractReferencedServerScopedElements = Microsoft.SqlServer.Dac.DacSchemaModelStorageType.Memory,
+                    IgnoreExtendedProperties = false,
+                    IgnorePermissions = false
                 }
             };
 
@@ -168,12 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             {
                 Action = CommandLineToolAction.Export,
                 Arguments = "{\"SourceServerName\":\"localhost\",\"SourceDatabaseName\":\"TestDB\",\"TargetFile\":\"C:\\\\test\\\\export.bacpac\",\"SourceConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
-                Properties = new System.Collections.Generic.Dictionary<string, string>
+                ExportOptions = new Microsoft.SqlServer.Dac.DacExportOptions
                 {
-                    { "CommandTimeout", "120" },
-                    { "CompressionOption", "Maximum" },
-                    { "VerifyFullTextDocumentTypesSupported", "True" },
-                    { "Storage", "File" }
+                    CommandTimeout = 120,
+                    VerifyFullTextDocumentTypesSupported = true
                 }
             };
 
@@ -203,13 +200,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             {
                 Action = CommandLineToolAction.Import,
                 Arguments = "{\"SourceFile\":\"C:\\\\test\\\\data.bacpac\",\"TargetServerName\":\"localhost\",\"TargetDatabaseName\":\"TestDB\",\"TargetConnectionString\":\"Server=localhost;Database=TestDB;Integrated Security=true;\"}",
-                Properties = new System.Collections.Generic.Dictionary<string, string>
+                ImportOptions = new Microsoft.SqlServer.Dac.DacImportOptions
                 {
-                    { "CommandTimeout", "180" },
-                    { "DatabaseEdition", "Standard" },
-                    { "DatabaseServiceObjective", "S3" },
-                    { "DatabaseMaximumSize", "100" },
-                    { "Storage", "File" }
+                    CommandTimeout = 180,
+                    DatabaseEdition = Microsoft.SqlServer.Dac.DacAzureDatabaseSpecification.Standard,
+                    DatabaseServiceObjective = "S3",
+                    DatabaseMaximumSize = 100
                 }
             };
 

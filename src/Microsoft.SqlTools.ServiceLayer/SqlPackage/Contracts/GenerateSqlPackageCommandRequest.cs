@@ -32,9 +32,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         public DacDeployOptions DeploymentOptions { get; set; }
 
         /// <summary>
-        /// Additional properties (for Extract, Export, Import operations)
+        /// Extract options (for Extract operation)
         /// </summary>
-        public Dictionary<string, string> Properties { get; set; }
+        public DacExtractOptions ExtractOptions { get; set; }
+
+        /// <summary>
+        /// Export options (for Export operation)
+        /// </summary>
+        public DacExportOptions ExportOptions { get; set; }
+
+        /// <summary>
+        /// Import options (for Import operation)
+        /// </summary>
+        public DacImportOptions ImportOptions { get; set; }
 
         /// <summary>
         /// SQLCMD variables (for Publish, Script operations)
