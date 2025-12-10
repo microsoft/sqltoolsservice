@@ -1630,7 +1630,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
-            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
+            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
