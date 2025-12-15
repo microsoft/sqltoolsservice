@@ -54,27 +54,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
     }
 
     /// <summary>
-    /// Result for SqlPackage command generation operations
-    /// </summary>
-    public class SqlPackageCommandResult
-    {
-        /// <summary>
-        /// Gets or sets the generated command string
-        /// </summary>
-        public string Command { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether the operation was successful
-        /// </summary>
-        public bool Success { get; set; }
-
-        /// <summary>
-        /// Gets or sets the error message if the operation failed
-        /// </summary>
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
     /// Request to generate SqlPackage command based on action
     /// </summary>
     public class GenerateSqlPackageCommandRequest
