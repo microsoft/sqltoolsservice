@@ -244,6 +244,39 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
         }
 
+        [Test]
+        public void AutoCompleteCasingTest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+
+            result.TextDocumentPosition.Position.Character = 7;
+            result.ScriptFile.Contents = "select ";
+
+            var autoCompleteServiceLowerCase = CreateLanguageService(result.ScriptFile, true);
+            var completionsLower = autoCompleteServiceLowerCase.GetCompletionItems(
+                result.TextDocumentPosition,
+                result.ScriptFile,
+                result.ConnectionInfo).Result;
+
+            Assert.True(completionsLower.Length > 0);
+            Assert.True(completionsLower.All(completion => 
+                !string.IsNullOrEmpty(completion.Label) && 
+                completion.Label == completion.Label.ToLowerInvariant()),
+                "All completion labels should be lowercase");
+
+            var autoCompleteServiceUpperCase = CreateLanguageService(result.ScriptFile, false);
+            var completionsUpper = autoCompleteServiceUpperCase.GetCompletionItems(
+                result.TextDocumentPosition,
+                result.ScriptFile,
+                result.ConnectionInfo).Result;
+
+            Assert.True(completionsUpper.Length > 0);
+            Assert.True(completionsUpper.All(completion =>
+                !string.IsNullOrEmpty(completion.Label) &&
+                completion.Label == completion.Label.ToUpperInvariant()),
+                "All completion labels should be uppercase");
+        }
+
         /// <summary>
         /// Make a copy of a file and update the last modified time
         /// </summary>
@@ -616,7 +649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// </summary>
         /// <param name="scriptFile">The initial script file to initialize in the workspace</param>
         /// <returns></returns>
-        private LanguageService CreateLanguageService(ScriptFile scriptFile)
+        private LanguageService CreateLanguageService(ScriptFile scriptFile, bool lowerCaseSuggestions = true)
         {
             var langService = new LanguageService()
             {
@@ -627,6 +660,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             };
             langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            langService.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing = 
+                lowerCaseSuggestions ?
+                Formatter.CasingOptions.Lowercase :
+                Formatter.CasingOptions.Uppercase;
             return langService;
         }
     }

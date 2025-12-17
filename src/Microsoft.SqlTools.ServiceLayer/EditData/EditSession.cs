@@ -277,13 +277,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // If it's a newly created row that hasn't been committed, just remove it
                 if (existingEdit is RowCreate)
                 {
-                    if (EditCache.TryRemove(rowId, out _))
-                    {
-                        NextRowId--;
-                    }
+                    EditCache.TryRemove(rowId, out _);
+                    // Note: We intentionally do NOT decrement NextRowId here.
+                    // Row IDs are monotonically increasing identifiers (like DB auto-increment).
+                    // Decrementing would break validation for other new rows with higher IDs.
                     return;
                 }
-                
+
                 throw new InvalidOperationException(SR.EditDataUpdatePending);
             }
 
@@ -384,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// If a pending row update with the given row ID does not exist.
         /// </exception>
         /// <param name="rowId">The internal ID of the row to reset</param>
-        /// <returns>The row after the revert was applied</returns>
+        /// <returns>The row after the revert was applied, or null if the row was a new row that was removed</returns>
         public async Task<EditRow> RevertRow(long rowId)
         {
             ThrowIfNotInitialized();
@@ -394,14 +394,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             RowEditBase removedEdit;
             if (!EditCache.TryRemove(rowId, out removedEdit))
             {
+                // For row IDs that are beyond the original result set (newly created rows),
+                // if they're not in the cache, they may have already been reverted/removed.
+                // In this case, we can safely return null since the end result is the same.
+                if (rowId >= associatedResultSet.RowCount)
+                {
+                    Logger.Warning($"RevertRow: Row ID {rowId} not found in EditCache but is beyond original row count ({associatedResultSet.RowCount}). Treating as already reverted.");
+                    return null;
+                }
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
             }
 
-            // Remove the increment of the NextRow ID if we're reverting a CreateRow, as we are not actually adding a row.
-            if (typeof(RowCreate) == removedEdit.GetType())
-            {
-                NextRowId--;
-            }
+            // Note: We intentionally do NOT decrement NextRowId when reverting a RowCreate.
+            // Row IDs are monotonically increasing identifiers (like DB auto-increment).
+            // Decrementing would break validation for other new rows with higher IDs.
 
             // Get the reverted row data
             EditRow[] rows = await GetRows(rowId, 1);
@@ -510,7 +516,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 Name = c.ColumnName,
                 // IsEditable provides a clearer public API name than IsUpdatable
-                IsEditable = c.IsUpdatable
+                IsEditable = c.IsUpdatable,
+                IsNullable = c.AllowDBNull
             }).ToArray() ?? new EditColumnInfo[0];
         }
 
