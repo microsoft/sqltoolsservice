@@ -347,6 +347,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 });
             var sessionFactory = new Mock<IXEventSessionFactory>();
             sessionFactory.Setup(s => s.GetXEventSession(It.IsAny<string>(), It.IsAny<ConnectionInfo>()))
+                .Returns(mockSession.Object);
+            sessionFactory.Setup(s => s.OpenLiveStreamSession(It.IsAny<string>(), It.IsAny<ConnectionInfo>()))
                 .Returns(mockSession.Object)
                 .Verifiable();
             var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };

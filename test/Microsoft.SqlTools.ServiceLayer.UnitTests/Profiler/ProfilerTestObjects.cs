@@ -7,6 +7,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
@@ -429,5 +432,172 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             throw new NotImplementedException();
         }
+
+        public IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo)
+        {
+            // Return an observable live stream session for testing
+            var events = new[]
+            {
+                new TestXEvent("existing_connection", DateTimeOffset.Parse("2017-09-08T07:46:53.579Z"),
+                    new Dictionary<string, object> { { "session_id", "1" }, { "event_sequence", "1" } })
+            };
+            var fetcher = new TestLiveEventFetcher(events);
+            return new LiveStreamXEventSession(
+                () => fetcher,
+                new SessionId($"testsession_{sessionNum}", sessionNum),
+                maxReconnectAttempts: 0);
+        }
     }
+
+    #region Live Streaming Test Helpers
+
+    /// <summary>
+    /// Test implementation of IXEvent for live streaming tests.
+    /// </summary>
+    public class TestXEvent : IXEvent
+    {
+        public string Name { get; }
+        public Guid UUID { get; } = Guid.NewGuid();
+        public DateTimeOffset Timestamp { get; }
+        public IReadOnlyDictionary<string, object> Fields { get; }
+        public IReadOnlyDictionary<string, object> Actions { get; }
+
+        public TestXEvent(string name, DateTimeOffset timestamp, Dictionary<string, object> fields, Dictionary<string, object> actions = null)
+        {
+            Name = name;
+            Timestamp = timestamp;
+            Fields = fields;
+            Actions = actions;
+        }
+    }
+
+    /// <summary>
+    /// Test implementation of IXEventFetcher for live streaming tests.
+    /// Simulates XELite's XELiveEventStreamer behavior.
+    /// </summary>
+    public class TestLiveEventFetcher : IXEventFetcher
+    {
+        private readonly IEnumerable<IXEvent> events;
+        private readonly bool failImmediately;
+        private readonly int failAfterEvents;
+        private readonly Exception exceptionToThrow;
+        private readonly TimeSpan delayBetweenEvents;
+
+        public TestLiveEventFetcher(
+            IEnumerable<IXEvent> events,
+            bool failImmediately = false,
+            Exception exceptionToThrow = null,
+            TimeSpan? delayBetweenEvents = null,
+            int failAfterEvents = -1)
+        {
+            this.events = events ?? Array.Empty<IXEvent>();
+            this.failImmediately = failImmediately;
+            this.failAfterEvents = failAfterEvents;
+            this.exceptionToThrow = exceptionToThrow ?? new Exception("Simulated stream failure");
+            this.delayBetweenEvents = delayBetweenEvents ?? TimeSpan.Zero;
+        }
+
+        public Task ReadEventStream(HandleXEvent eventCallback, CancellationToken cancellationToken)
+        {
+            if (failImmediately)
+            {
+                return Task.FromException(exceptionToThrow);
+            }
+
+            return Task.Run(async () =>
+            {
+                int eventCount = 0;
+                foreach (var evt in events)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (delayBetweenEvents > TimeSpan.Zero)
+                    {
+                        await Task.Delay(delayBetweenEvents, cancellationToken);
+                    }
+
+                    await eventCallback(evt);
+                    eventCount++;
+
+                    // Fail after delivering specified number of events
+                    if (failAfterEvents > 0 && eventCount >= failAfterEvents)
+                    {
+                        throw exceptionToThrow;
+                    }
+                }
+            }, cancellationToken);
+        }
+
+        public Task ReadEventStream(HandleMetadata metadataCallback, HandleXEvent eventCallback, CancellationToken cancellationToken)
+        {
+            // For testing, we ignore metadata callback and just use events
+            return ReadEventStream(eventCallback, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Test factory for creating LiveStreamXEventSession instances with controlled fetchers.
+    /// </summary>
+    public class TestLiveStreamSessionFactory : IXEventSessionFactory
+    {
+        private readonly Queue<IXEventFetcher> fetcherQueue;
+        private readonly int maxReconnectAttempts;
+        private readonly TimeSpan reconnectDelay;
+
+        public SessionId LastSessionId { get; private set; }
+        public int FetchersCreated { get; private set; }
+
+        public TestLiveStreamSessionFactory(
+            IEnumerable<IXEventFetcher> fetchers,
+            int maxReconnectAttempts = 3,
+            TimeSpan? reconnectDelay = null)
+        {
+            fetcherQueue = new Queue<IXEventFetcher>(fetchers ?? Array.Empty<IXEventFetcher>());
+            this.maxReconnectAttempts = maxReconnectAttempts;
+            this.reconnectDelay = reconnectDelay ?? TimeSpan.FromMilliseconds(10);
+        }
+
+        public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
+        {
+            return CreateLiveStreamSession(sessionName);
+        }
+
+        public IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo)
+        {
+            return CreateLiveStreamSession(sessionName);
+        }
+
+        public IXEventSession OpenLocalFileSession(string filePath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo)
+        {
+            return CreateLiveStreamSession(sessionName);
+        }
+
+        private LiveStreamXEventSession CreateLiveStreamSession(string sessionName)
+        {
+            LastSessionId = new SessionId($"test_{sessionName}_{FetchersCreated}");
+            FetchersCreated++;
+
+            return new LiveStreamXEventSession(
+                GetNextFetcher,
+                LastSessionId,
+                maxReconnectAttempts,
+                reconnectDelay);
+        }
+
+        private IXEventFetcher GetNextFetcher()
+        {
+            if (fetcherQueue.Count == 0)
+            {
+                throw new InvalidOperationException("No more test fetchers available");
+            }
+            return fetcherQueue.Dequeue();
+        }
+    }
+
+    #endregion
 }

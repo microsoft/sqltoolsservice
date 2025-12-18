@@ -48,8 +48,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.xEventSession = xEventSession;
             if (xEventSession is IObservableXEventSession observableSession)
             {
-                observerDisposable = observableSession.ObservableSessionEvents?.Subscribe(sessionObserver = new SessionObserver());
+                // For push-based sessions, subscribe to the event stream and trigger immediate polling
+                // when events arrive. This minimizes latency while keeping the existing monitor architecture.
+                observerDisposable = observableSession.ObservableSessionEvents?.Subscribe(
+                    sessionObserver = new SessionObserver(OnPushEventReceived));
             }
+        }
+
+        /// <summary>
+        /// Callback when a push-based event is received. Triggers immediate polling to deliver events.
+        /// </summary>
+        private void OnPushEventReceived()
+        {
+            pollImmediately = true;
         }    
 
         /// <summary>
@@ -153,21 +164,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Filter the event list to not include previously seen events,
         /// and to exclude events that happened before the profiling session began.
+        /// For push-based sessions, events are already deduplicated by XELite, so we keep all events.
         /// </summary>
         public void FilterOldEvents(List<ProfilerEvent> events)
         {
             this.eventsLost = false;
             
+            // For push-based sessions (observable), events are streamed directly and don't need deduplication
+            if (sessionObserver != null)
+            {
+                return;
+            }
+
+            // For ring-buffer polling sessions, filter based on event_sequence
             if (lastSeenId != -1)
             {
                 // find the last event we've previously seen
                 bool foundLastEvent = false;
                 int idx = events.Count;
+                
+                // Guard against missing event_sequence field
+                if (!events.LastOrDefault()?.Values?.ContainsKey("event_sequence") == true)
+                {
+                    return;
+                }
+                
                 int earliestSeenEventId = int.Parse(events.LastOrDefault().Values["event_sequence"]);
                 while (--idx >= 0)
                 {
+                    // Guard against missing event_sequence in individual events
+                    if (!events[idx].Values.TryGetValue("event_sequence", out var seqValue))
+                    {
+                        continue;
+                    }
+                    
                     // update the furthest back event we've found so far
-                    earliestSeenEventId = Math.Min(earliestSeenEventId, int.Parse(events[idx].Values["event_sequence"]));
+                    earliestSeenEventId = Math.Min(earliestSeenEventId, int.Parse(seqValue));
 
                     if (events[idx].Equals(lastSeenEvent))
                     {
@@ -192,7 +224,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();
-                    lastSeenId = int.Parse(lastSeenEvent.Values["event_sequence"]);
+                    if (lastSeenEvent?.Values?.TryGetValue("event_sequence", out var lastSeq) == true)
+                    {
+                        lastSeenId = int.Parse(lastSeq);
+                    }
                 }
             }
             else    // first poll at start of session, all data is old
@@ -201,10 +236,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();
-                    lastSeenId = int.Parse(lastSeenEvent.Values["event_sequence"]);
+                    if (lastSeenEvent?.Values?.TryGetValue("event_sequence", out var lastSeq) == true)
+                    {
+                        lastSeenId = int.Parse(lastSeq);
+                    }
                 }
 
-                // ignore all events before the session began
+                // ignore all events before the session began (ring buffer contains history)
                 events.Clear();
             }
         }
@@ -303,6 +341,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         private List<ProfilerEvent> writeBuffer = new List<ProfilerEvent>();
         private Int64 eventCount = 0;
+        private readonly Action onEventReceived;
+
+        public SessionObserver(Action onEventReceived = null)
+        {
+            this.onEventReceived = onEventReceived;
+        }
+
         public void OnCompleted()
         {
             Completed = true;
@@ -317,6 +362,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             writeBuffer.Add(value);
             eventCount++;
+            // Notify that a new event has arrived (triggers immediate polling)
+            onEventReceived?.Invoke();
         }
 
         public bool Completed { get; private set; }

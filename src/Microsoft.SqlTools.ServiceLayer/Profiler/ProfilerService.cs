@@ -389,6 +389,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Opens a live streaming session using XELite's XELiveEventStreamer for push-based
+        /// event delivery. This replaces SMO ring-buffer polling with direct event streaming.
+        /// </summary>
+        public IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
+            BaseXEStore store = CreateXEventStore(connInfo, connection);
+            Session session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
+
+            // Ensure the session is running
+            if (!session.IsRunning)
+            {
+                session.Start();
+            }
+
+            // Build connection string for XELite
+            var connectionString = sqlConnection.ConnectionString;
+
+            // Create the live streaming session
+            var liveSession = new LiveStreamXEventSession(
+                connectionString,
+                sessionName,
+                new SessionId(session.ID.ToString()),
+                maxReconnectAttempts: 3,
+                reconnectDelay: TimeSpan.FromSeconds(1));
+
+            // Set the SMO session for target XML retrieval
+            liveSession.Session = session;
+
+            return liveSession;
+        }
+
+        /// <summary>
         /// Callback when profiler events are available
         /// </summary>
         public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
