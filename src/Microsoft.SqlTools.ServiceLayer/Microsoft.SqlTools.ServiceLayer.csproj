@@ -70,11 +70,7 @@
     <PackageReference Include="Microsoft.SqlServer.Assessment" />
     <PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
-    <PackageReference Include="Microsoft.SqlPackage" GeneratePathProperty="true" IncludeAssets="none" />
-    <Reference Include="sqlpackage">
-      <HintPath>$(PkgMicrosoft_SqlPackage)\tools\$(TargetFramework)\any\sqlpackage.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <PackageReference Include="Microsoft.SqlPackage.Core" />
     <PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />

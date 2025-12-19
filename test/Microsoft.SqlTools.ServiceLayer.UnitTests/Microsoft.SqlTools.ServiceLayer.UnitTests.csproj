@@ -20,14 +20,10 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-	<PackageReference Include="Microsoft.Data.SqlClient" />
-	<PackageReference Include="Microsoft.NET.Test.Sdk" />
-	<PackageReference Include="Microsoft.SqlPackage" GeneratePathProperty="true" IncludeAssets="none" />
-	<Reference Include="sqlpackage">
-		<HintPath>$(PkgMicrosoft_SqlPackage)\tools\$(TargetFramework)\any\sqlpackage.dll</HintPath>
-		<Private>true</Private>
-	</Reference>
-	<PackageReference Include="Moq" />
+		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="Microsoft.SqlPackage.Core" />
+		<PackageReference Include="Moq" />
 		<PackageReference Include="nunit.console" />
 		<PackageReference Include="nunit" />
 		<PackageReference Include="nunit3testadapter" />
