@@ -907,8 +907,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
-            //return Task.Run(() =>
-            //{
+            return Task.Run(() =>
+            {
                 if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
                     try
@@ -939,12 +939,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         else
                         {
-                            //QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                            //    key: parseInfo.ConnectionKey,
-                            //    bindingTimeout: LanguageService.BindingTimeout,
-                            //    bindOperation: (bindingContext, cancelToken) =>
-                            //    {
-                            var bindingContext = this.BindingQueue.BindingContextMap[parseInfo.ConnectionKey];
+                            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                                key: parseInfo.ConnectionKey,
+                                bindingTimeout: LanguageService.BindingTimeout,
+                                bindOperation: (bindingContext, cancelToken) =>
+                                {
                                     try
                                     {
                                         ParseResult parseResult = Parser.IncrementalParse(
@@ -977,10 +976,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         Logger.Error("Unknown exception during parsing " + ex.ToString());
                                     }
 
-                            //        return null;
-                            //    });
+                                    return null;
+                                });
 
-                            //queueItem.ItemProcessed.WaitOne();
+                            queueItem.ItemProcessed.WaitOne();
                         }
                     }
                     catch (Exception ex)
@@ -999,8 +998,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Logger.Warning("Binding metadata lock timeout in ParseAndBind");
                 }
 
-                return Task.FromResult(parseInfo.ParseResult);
-            //});
+                return parseInfo.ParseResult;
+            });
         }
 
         /// <summary>
