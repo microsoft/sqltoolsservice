@@ -10,8 +10,8 @@
     <!-- Deprecated: TODO Migrate to Azure.Core -->
     <PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
 
-    <PackageReference Update="Microsoft.Identity.Client" Version="4.73.1" />
-    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.73.1" />
+    <PackageReference Update="Microsoft.Identity.Client" Version="4.61.3" />
+    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.3" />
 
     <!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
     <PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
@@ -22,7 +22,7 @@
     <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.18.0" />
     <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.2.70" />
-    <PackageReference Update="Microsoft.SqlPackage.Core" Version="170.3.0" />
+    <PackageReference Update="Microsoft.SqlPackage.Core" Version="0.1.0-preview" />
     <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.5.2-preview" />
     <PackageReference Update="Microsoft.Azure.Kusto.Data" Version="12.2.3" />
     <PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
@@ -65,8 +65,8 @@
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
-    <PackageReference Update="Azure.Identity" Version="1.14.2" />
-    <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.3" />
+    <PackageReference Update="Azure.Identity" Version="1.12.0" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.7" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="172.64.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
@@ -77,18 +77,17 @@
     <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
     <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageReference Update="System.Composition" Version="8.0.0" />
-    <PackageReference Update="System.Configuration.ConfigurationManager" Version="9.0.4" />
+    <PackageReference Update="System.Configuration.ConfigurationManager" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Update="System.Drawing.Common" Version="5.0.3" />
     <PackageReference Update="System.IO.Packaging" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Update="System.Runtime.Caching" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Update="System.Security.Permissions" Version="8.0.0" />
     <PackageReference Update="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Update="System.Text.Encodings.Web" Version="9.0.5" />
-    <PackageReference Update="System.Text.Json" Version="9.0.5" />
+    <PackageReference Update="System.Text.Encodings.Web" Version="8.0.0" />
+    <PackageReference Update="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
   </ItemGroup>
 </Project>
-
