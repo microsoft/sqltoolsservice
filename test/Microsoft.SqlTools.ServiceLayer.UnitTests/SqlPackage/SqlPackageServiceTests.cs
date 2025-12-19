@@ -5,9 +5,11 @@
 
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -35,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             var instance2 = SqlPackageService.Instance;
 
             // Assert
-            Assert.AreSame(instance1, instance2);
+            Assert.AreSame(instance1, instance2, "Service should be a singleton");
         }
 
 
@@ -49,23 +51,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 .Callback<SqlPackageCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var parameters = new GenerateSqlPackageCommandParams
+            var parameters = new SqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Publish,
                 Arguments = JsonConvert.SerializeObject(new
                 {
                     SourceFile = "C:\\test\\database.dacpac",
                     TargetServerName = "localhost",
-                    TargetDatabaseName = "TestDB",
-                    TargetConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
+                    TargetDatabaseName = "TestDB"
                 }),
-                DeploymentOptions = new Microsoft.SqlServer.Dac.DacDeployOptions
-                {
-                    BackupDatabaseBeforeChanges = true,
-                    BlockOnPossibleDataLoss = true,
-                    IncludeCompositeObjects = true,
-                    VerifyDeployment = true
-                },
+                DeploymentOptions = new DeploymentOptions(),
                 Variables = new System.Collections.Generic.Dictionary<string, string>
                 {
                     { "Environment", "Production" },
@@ -73,16 +68,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 }
             };
 
+            // Set deployment options via BooleanOptionsDictionary
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.BackupDatabaseBeforeChanges)].Value = true;
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = false;
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeCompositeObjects)].Value = true;
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.VerifyDeployment)].Value = false;
+            parameters.DeploymentOptions.ExcludeObjectTypes.Value = ["ServerTriggers", "ExternalStreamingJobs"];
+
             // Act
             await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
 
             // Assert
-            Assert.IsNotNull(capturedResult);
-            Assert.IsTrue(capturedResult.Success);
-            Assert.IsNotNull(capturedResult.Command);
-            StringAssert.Contains("SqlPackage", capturedResult.Command);
-            StringAssert.Contains("/Action:Publish", capturedResult.Command);
-            StringAssert.Contains("database.dacpac", capturedResult.Command);
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("SqlPackage", capturedResult.Command, "Sqlpacakge command should have SqlPackage");
+            StringAssert.Contains("/Action:Publish", capturedResult.Command, "Command should have publish action");
+            StringAssert.Contains("/SourceFile:\"C:\\test\\database.dacpac\"", capturedResult.Command, "command should have the sourceFile");
+            StringAssert.Contains("/p:ExcludeObjectTypes=ServerTriggers;ExternalStreamingJobs", capturedResult.Command, "Command should return exclude object types");
         }
 
         [Test]
@@ -95,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 .Callback<SqlPackageCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var parameters = new GenerateSqlPackageCommandParams
+            var parameters = new SqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Extract,
                 Arguments = JsonConvert.SerializeObject(new
@@ -116,12 +119,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
 
             // Assert
-            Assert.IsNotNull(capturedResult);
-            Assert.IsTrue(capturedResult.Success);
-            Assert.IsNotNull(capturedResult.Command);
-            StringAssert.Contains("SqlPackage", capturedResult.Command);
-            StringAssert.Contains("/Action:Extract", capturedResult.Command);
-            StringAssert.Contains("output.dacpac", capturedResult.Command);
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Extract", capturedResult.Command, "Command should have extract action");
+            StringAssert.Contains("output.dacpac", capturedResult.Command, "Command should contain output file path");
         }
 
         [Test]
@@ -134,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 .Callback<SqlPackageCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var parameters = new GenerateSqlPackageCommandParams
+            var parameters = new SqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Script,
                 Arguments = JsonConvert.SerializeObject(new
@@ -145,13 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                     OutputPath = "C:\\test\\script.sql",
                     TargetConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
                 }),
-                DeploymentOptions = new Microsoft.SqlServer.Dac.DacDeployOptions
-                {
-                    GenerateSmartDefaults = true,
-                    IncludeTransactionalScripts = true,
-                    ScriptDatabaseOptions = true,
-                    CommentOutSetVarDeclarations = false
-                },
+                DeploymentOptions = new DeploymentOptions(),
                 Variables = new System.Collections.Generic.Dictionary<string, string>
                 {
                     { "Environment", "Staging" },
@@ -159,16 +156,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 }
             };
 
+            // Set deployment options via BooleanOptionsDictionary
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.GenerateSmartDefaults)].Value = true;
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeTransactionalScripts)].Value = true;
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.ScriptDatabaseOptions)].Value = true;
+            parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.CommentOutSetVarDeclarations)].Value = false;
+
             // Act
             await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
 
             // Assert
-            Assert.IsNotNull(capturedResult);
-            Assert.IsTrue(capturedResult.Success);
-            Assert.IsNotNull(capturedResult.Command);
-            StringAssert.Contains("SqlPackage", capturedResult.Command);
-            StringAssert.Contains("/Action:Script", capturedResult.Command);
-            StringAssert.Contains("script.sql", capturedResult.Command);
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Script", capturedResult.Command, "Command should have script action");
+            StringAssert.Contains("script.sql", capturedResult.Command, "Command should contain output script path");
         }
 
         [Test]
@@ -181,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 .Callback<SqlPackageCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var parameters = new GenerateSqlPackageCommandParams
+            var parameters = new SqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Export,
                 Arguments = JsonConvert.SerializeObject(new
@@ -194,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 ExportOptions = new Microsoft.SqlServer.Dac.DacExportOptions
                 {
                     CommandTimeout = 120,
-                    VerifyFullTextDocumentTypesSupported = true
+                        VerifyFullTextDocumentTypesSupported = true
                 }
             };
 
@@ -202,12 +205,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
 
             // Assert
-            Assert.IsNotNull(capturedResult);
-            Assert.IsTrue(capturedResult.Success);
-            Assert.IsNotNull(capturedResult.Command);
-            StringAssert.Contains("SqlPackage", capturedResult.Command);
-            StringAssert.Contains("/Action:Export", capturedResult.Command);
-            StringAssert.Contains("export.bacpac", capturedResult.Command);
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Export", capturedResult.Command, "Command should have export action");
+            StringAssert.Contains("export.bacpac", capturedResult.Command, "Command should contain export file path");
         }
 
         [Test]
@@ -220,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 .Callback<SqlPackageCommandResult>(r => capturedResult = r)
                 .Returns(Task.CompletedTask);
 
-            var parameters = new GenerateSqlPackageCommandParams
+            var parameters = new SqlPackageCommandParams
             {
                 Action = CommandLineToolAction.Import,
                 Arguments = JsonConvert.SerializeObject(new
@@ -240,12 +243,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
 
             // Assert
-            Assert.IsNotNull(capturedResult);
-            Assert.IsTrue(capturedResult.Success);
-            Assert.IsNotNull(capturedResult.Command);
-            StringAssert.Contains("SqlPackage", capturedResult.Command);
-            StringAssert.Contains("/Action:Import", capturedResult.Command);
-            StringAssert.Contains("data.bacpac", capturedResult.Command);
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Import", capturedResult.Command, "Command should have import action");
+            StringAssert.Contains("data.bacpac", capturedResult.Command, "Command should contain import file path");
         }
     }
 }
