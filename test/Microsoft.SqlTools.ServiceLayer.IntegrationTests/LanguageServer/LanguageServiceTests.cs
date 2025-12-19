@@ -108,49 +108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.True(completions.Length > 0);
         }
 
-        [Test]
-        public async Task AutoCompleteColumnWithSpaces()
-        {
-            var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
-            LiveConnectionHelper.TestConnectionResult? connectionInfoResult = null;
-            try
-            {
-                connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
-
-                var langService = CreateLanguageService(connectionInfoResult.ScriptFile);
-
-                await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
-                var queryText = "SELECT CAST(1 AS bit) AS N'This is a test' INTO #Test\n" +
-                    "SELECT * FROM #Test WHERE #Test.";
-                connectionInfoResult.ScriptFile.SetFileContents(queryText);
-
-                var textDocumentPosition =
-                    connectionInfoResult.TextDocumentPosition ??
-                    new TextDocumentPosition()
-                    {
-                        TextDocument = new TextDocumentIdentifier
-                        {
-                            Uri = connectionInfoResult.ScriptFile.ClientUri
-                        },
-                        Position = new Position
-                        {
-                            Line = 1,
-                            Character = "SELECT * FROM #Test WHERE #Test.".Length
-                        }
-                    };
-
-                // First check that we don't have any items in the completion list as expected
-                var initialCompletionItems = await langService.GetCompletionItems(
-                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
-
-                Assert.True(initialCompletionItems.Length == 0, $"Should not have any completion items initially. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
-            }
-            finally
-            {
-                testDb.Cleanup();
-            }
-        }
-
         public static string AssemblyDirectory
         {
             get
@@ -406,6 +363,54 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', afterTableCreationCompletionItems.Select(ci => ci.Label))}]");
                 Assert.True(afterTableCreationCompletionItems[0].InsertText == "foo", $"Expected single completion item 'foo'. Actual : [{string.Join(',', afterTableCreationCompletionItems.Select(ci => ci.Label))}]");
+            }
+            finally
+            {
+                testDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Check if column names with escape sequences are un-escaped correctly in completion items
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task AutoCompleteColumnNameWithEscapeSequence()
+        {
+            var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
+            LiveConnectionHelper.TestConnectionResult? connectionInfoResult = null;
+            try
+            {
+                connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
+
+                var langService = CreateLanguageService(connectionInfoResult.ScriptFile);
+
+                await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
+                var queryText = "SELECT CAST(1 AS bit) AS N'This is a test' INTO #Test\n" +
+                    "SELECT * FROM #Test WHERE #Test.";
+                connectionInfoResult.ScriptFile.SetFileContents(queryText);
+
+                var textDocumentPosition =
+                    connectionInfoResult.TextDocumentPosition ??
+                    new TextDocumentPosition()
+                    {
+                        TextDocument = new TextDocumentIdentifier
+                        {
+                            Uri = connectionInfoResult.ScriptFile.ClientUri
+                        },
+                        Position = new Position
+                        {
+                            Line = 1,
+                            Character = "SELECT * FROM #Test WHERE #Test.".Length
+                        }
+                    };
+
+                // Call languageservice to get completion items
+                var completionItems = await langService.GetCompletionItems(
+                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
+
+                Assert.True(completionItems.Length == 1, $"Should only have a single column as completion item. Actual : [{string.Join(',', completionItems.Select(ci => ci.Label))}]");
+                Assert.True(completionItems[0].InsertText == "[This is a test]", $"Expected single completion item '[This is a test]'. Actual : [{string.Join(',', completionItems.Select(ci => ci.Label))}]");
             }
             finally
             {
