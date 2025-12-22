@@ -4,8 +4,6 @@
 //
 
 #nullable disable
-
-using System;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
