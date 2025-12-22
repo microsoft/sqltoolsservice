@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets or sets the copy remove new line setting.
         /// </summary>
-        public bool CopyRemoveNewLine
+        public Boolean CopyRemoveNewLine
         {
             get => priorityList.Select((settings) => settings.CopyRemoveNewLine).FirstOrDefault();
             set => priorityList[0].CopyRemoveNewLine = value;

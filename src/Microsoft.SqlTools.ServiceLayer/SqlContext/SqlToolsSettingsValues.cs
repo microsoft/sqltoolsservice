@@ -70,6 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Gets or sets whether to remove the line break from cell values when copying results.
         /// </summary>
         [JsonProperty("copyRemoveNewLine")]
-        public bool CopyRemoveNewLine { get; set; } = true;
+        public Boolean CopyRemoveNewLine { get; set; } = true;
     }
 }

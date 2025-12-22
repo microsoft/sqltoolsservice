@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -174,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Priority: mssql.copyRemoveNewLine > queryEditor.results.copyRemoveNewLine > default (true)
         /// </summary>
         /// <returns>True if newlines should be removed when copying, false otherwise. Defaults to true.</returns>
-        public bool GetCopyRemoveNewLineSetting()
+        public Boolean GetCopyRemoveNewLineSetting()
         {
             // Priority 1: Check mssql.copyRemoveNewLine
             if (this.mssqlTools != null)
