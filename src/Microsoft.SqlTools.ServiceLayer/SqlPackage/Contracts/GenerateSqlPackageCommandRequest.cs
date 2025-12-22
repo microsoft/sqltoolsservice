@@ -4,7 +4,6 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
@@ -16,15 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
     public class SqlPackageCommandParams
     {
         /// <summary>
-        /// Action to perform: Publish, Extract, Script, Export, or Import
+        /// Command-line arguments containing source/target paths, connection strings, etc.
+        /// Populated from the publish dialog or other UI interactions in VSCode
         /// </summary>
-        public CommandLineToolAction Action { get; set; }
-
-        /// <summary>
-        /// Serialized command-line arguments string containing source/target paths, connection strings, etc.
-        /// JSON-serialized from VSCode and deserialized by SqlPackage API
-        /// </summary>
-        public string Arguments { get; set; }
+        public CommandLineArguments CommandLineArguments { get; set; }
 
         /// <summary>
         /// Deployment options from VSCode (for Publish, Script operations)

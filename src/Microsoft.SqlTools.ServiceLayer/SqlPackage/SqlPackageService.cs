@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
 {
@@ -53,16 +54,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 // Import/Export/Extract use their own option types (DacImportOptions, DacExportOptions, DacExtractOptions) 
                 // which don't have this override issue, so no normalization is needed.
                 if (parameters.DeploymentOptions != null && 
-                    (parameters.Action == CommandLineToolAction.Publish || parameters.Action == CommandLineToolAction.Script))
+                    (parameters.CommandLineArguments.Action == CommandLineToolAction.Publish || parameters.CommandLineArguments.Action == CommandLineToolAction.Script))
                 {
                     parameters.DeploymentOptions.NormalizePublishDefaults();
                 }
 
-                // Create API parameters with converted DeploymentOptions
+                // Convert STS CommandLineArguments to DacFx CommandLineArguments via JSON serialization
+                // Our STS model is a subset of DacFx's CommandLineArguments, so we serialize and deserialize
+                // to properly map to the DacFx type expected by the SqlPackage API
+                string commandLineArgsJson = JsonConvert.SerializeObject(parameters.CommandLineArguments);
+                var dacfxCommandLineArgs = JsonConvert.DeserializeObject<Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments>(commandLineArgsJson);
+
+                // Create API parameters with DacFx CommandLineArguments and converted DeploymentOptions
                 var apiParams = new GenerateSqlPackageCommandParams
                 {
-                    Action = parameters.Action,
-                    Arguments = parameters.Arguments,
+                    CommandLineArguments = dacfxCommandLineArgs,
                     DeploymentOptions = parameters.DeploymentOptions != null ? DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions) : null,
                     ExtractOptions = parameters.ExtractOptions,
                     ExportOptions = parameters.ExportOptions,
@@ -71,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 };
                 
                 // Delegate to unified SqlPackage API method
-                string command = SqlPackageCommandBuilder.GenerateSqlPackageCommand(apiParams);
+                string command = SqlPackageCommandGenerator.GenerateSqlPackageCommand(apiParams);
 
                 await requestContext.SendResult(new SqlPackageCommandResult()
                 {

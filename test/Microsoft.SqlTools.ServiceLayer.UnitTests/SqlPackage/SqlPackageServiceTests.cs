@@ -11,7 +11,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
@@ -53,13 +52,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                Action = CommandLineToolAction.Publish,
-                Arguments = JsonConvert.SerializeObject(new
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
                 {
+                    Action = CommandLineToolAction.Publish,
                     SourceFile = "C:\\test\\database.dacpac",
                     TargetServerName = "localhost",
                     TargetDatabaseName = "TestDB"
-                }),
+                },
                 DeploymentOptions = new DeploymentOptions(),
                 Variables = new System.Collections.Generic.Dictionary<string, string>
                 {
@@ -100,12 +99,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                Action = CommandLineToolAction.Extract,
-                Arguments = JsonConvert.SerializeObject(new
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
                 {
+                    Action = CommandLineToolAction.Extract,
                     TargetFile = "C:\\test\\output.dacpac",
                     SourceConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
-                }),
+                },
                 ExtractOptions = new Microsoft.SqlServer.Dac.DacExtractOptions
                 {
                     ExtractApplicationScopedObjectsOnly = false,
@@ -139,15 +138,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                Action = CommandLineToolAction.Script,
-                Arguments = JsonConvert.SerializeObject(new
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
                 {
+                    Action = CommandLineToolAction.Script,
                     SourceFile = "C:\\test\\database.dacpac",
                     TargetServerName = "localhost",
                     TargetDatabaseName = "TestDB",
                     OutputPath = "C:\\test\\script.sql",
                     TargetConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
-                }),
+                },
                 DeploymentOptions = new DeploymentOptions(),
                 Variables = new System.Collections.Generic.Dictionary<string, string>
                 {
@@ -186,14 +185,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                Action = CommandLineToolAction.Export,
-                Arguments = JsonConvert.SerializeObject(new
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
                 {
+                    Action = CommandLineToolAction.Export,
                     SourceServerName = "localhost",
                     SourceDatabaseName = "TestDB",
                     TargetFile = "C:\\test\\export.bacpac",
                     SourceConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
-                }),
+                },
                 ExportOptions = new Microsoft.SqlServer.Dac.DacExportOptions
                 {
                     CommandTimeout = 120,
@@ -225,14 +224,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                Action = CommandLineToolAction.Import,
-                Arguments = JsonConvert.SerializeObject(new
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
                 {
+                    Action = CommandLineToolAction.Import,
                     SourceFile = "C:\\test\\data.bacpac",
                     TargetServerName = "localhost",
                     TargetDatabaseName = "TestDB",
                     TargetConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
-                }),
+                },
                 ImportOptions = new Microsoft.SqlServer.Dac.DacImportOptions
                 {
                     CommandTimeout = 180,
