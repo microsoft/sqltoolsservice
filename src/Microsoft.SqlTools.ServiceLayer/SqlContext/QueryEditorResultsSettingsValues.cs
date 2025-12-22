@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Whether to remove the line break from cell values when copying results.
         /// </summary>
-        public Boolean CopyRemoveNewLine { get; set; } = true;
+        public bool CopyRemoveNewLine { get; set; } = true;
 
         /// <summary>
         /// Whether to skip adding a line break between rows when copying results when the previous row already has a trailing line break.
