@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 
         /// <summary>
         /// Gets the CopyRemoveNewLine setting with backwards compatibility support.
-        /// Priority: mssql.copyRemoveNewLine > sql.copyRemoveNewLine > queryEditor.results.copyRemoveNewLine > default (true)
+        /// Priority: mssql.copyRemoveNewLine > queryEditor.results.copyRemoveNewLine > default (true)
         /// </summary>
         /// <returns>True if newlines should be removed when copying, false otherwise. Defaults to true.</returns>
         public bool GetCopyRemoveNewLineSetting()
