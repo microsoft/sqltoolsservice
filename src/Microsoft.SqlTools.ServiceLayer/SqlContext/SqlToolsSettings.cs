@@ -4,7 +4,6 @@
 //
 
 #nullable disable
-
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -167,6 +166,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             {
                 return this.SqlTools.IntelliSense.EnableIntellisense;
             }
+        }
+
+        /// <summary>
+        /// Gets the CopyRemoveNewLine setting with backwards compatibility support.
+        /// Priority: mssql.copyRemoveNewLine > queryEditor.results.copyRemoveNewLine > default (true)
+        /// </summary>
+        /// <returns>True if newlines should be removed when copying, false otherwise. Defaults to true.</returns>
+        public bool GetCopyRemoveNewLineSetting()
+        {
+            // Priority 1: Check mssql.copyRemoveNewLine
+            if (this.mssqlTools != null)
+            {
+                return this.MssqlTools.CopyRemoveNewLine;
+            }
+
+            // Priority 2: Fall back to queryEditor.results.copyRemoveNewLine for ads compatibility
+            if (this.queryEditorSettings?.Results != null)
+            {
+                return this.QueryEditorSettings.Results.CopyRemoveNewLine;
+            }
+
+            // Default to true (remove newlines)
+            return true;
         }
     }
 }
