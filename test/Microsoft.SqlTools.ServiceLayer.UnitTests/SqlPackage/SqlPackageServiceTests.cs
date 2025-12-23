@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
                 {
                     Action = CommandLineToolAction.Publish,
                     SourceFile = "C:\\test\\database.dacpac",
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
                 {
                     Action = CommandLineToolAction.Extract,
                     TargetFile = "C:\\test\\output.dacpac",
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
                 {
                     Action = CommandLineToolAction.Script,
                     SourceFile = "C:\\test\\database.dacpac",
@@ -185,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
                 {
                     Action = CommandLineToolAction.Export,
                     SourceServerName = "localhost",
@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             var parameters = new SqlPackageCommandParams
             {
-                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.CommandLineArguments
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
                 {
                     Action = CommandLineToolAction.Import,
                     SourceFile = "C:\\test\\data.bacpac",

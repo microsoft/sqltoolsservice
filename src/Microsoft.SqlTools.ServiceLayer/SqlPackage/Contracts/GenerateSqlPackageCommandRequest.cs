@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// Command-line arguments containing source/target paths, connection strings, etc.
         /// Populated from the publish dialog or other UI interactions in VSCode
         /// </summary>
-        public CommandLineArguments CommandLineArguments { get; set; }
+        public SqlPackageCommandLineArguments CommandLineArguments { get; set; }
 
         /// <summary>
         /// Deployment options from VSCode (for Publish, Script operations)

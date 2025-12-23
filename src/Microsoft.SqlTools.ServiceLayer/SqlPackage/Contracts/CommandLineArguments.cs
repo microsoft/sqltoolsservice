@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
     /// Command-line arguments for SqlPackage operations containing source/target paths, connection strings, etc.
     /// These parameters are typically populated from the publish dialog or other UI interactions.
     /// </summary>
-    public class CommandLineArguments
+    public class SqlPackageCommandLineArguments
     {
         /// <summary>
         /// Action to perform: Publish, Extract, Script, Export, or Import
