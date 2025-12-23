@@ -1006,7 +1006,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 await requestContext.SendResult(new CopyResults2RequestResult
                 {
-                    Context = content
+                    Content = content
                 });
             }
             catch (OperationCanceledException)
