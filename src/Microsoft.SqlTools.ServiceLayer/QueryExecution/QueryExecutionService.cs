@@ -924,7 +924,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                     {
                                         if (row[columnIndex] != null && row[columnIndex].DisplayValue != null)
                                         {
-                                            builder.Append(Settings?.QueryEditorSettings?.Results?.CopyRemoveNewLine ?? true ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
+                                            builder.Append((Settings?.GetCopyRemoveNewLineSetting() ?? true) ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
                                         }
                                         else
                                         {
@@ -1004,16 +1004,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 cts.Token.ThrowIfCancellationRequested();
 
-                try
+                await requestContext.SendResult(new CopyResults2RequestResult
                 {
-                    await ClipboardService.SetTextAsync(content);
-                    await requestContext.SendResult(new CopyResults2RequestResult());
-                }
-                catch (Exception)
-                {
-                    // If clipboard copy fails (e.g. missing xsel on Linux), send content back to client
-                    await requestContext.SendResult(new CopyResults2RequestResult { Content = content });
-                }
+                    Content = content
+                });
             }
             catch (OperationCanceledException)
             {
