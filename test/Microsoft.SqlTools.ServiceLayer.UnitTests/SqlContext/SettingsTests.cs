@@ -28,7 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableSuggestions);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo);
-            Assert.False(sqlToolsSettings.SqlTools.IntelliSense.LowerCaseSuggestions);            
         }
 
         /// <summary>

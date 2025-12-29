@@ -38,5 +38,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// PII Logging setting
         /// </summary>
         Boolean PiiLogging { get; set; }
+
+        /// <summary>
+        /// Remove line breaks setting
+        /// </summary>
+        Boolean CopyRemoveNewLine { get; set; }
     }
 }

@@ -924,7 +924,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                     {
                                         if (row[columnIndex] != null && row[columnIndex].DisplayValue != null)
                                         {
-                                            builder.Append(Settings?.QueryEditorSettings?.Results?.CopyRemoveNewLine ?? true ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
+                                            builder.Append((Settings?.GetCopyRemoveNewLineSetting() ?? true) ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
                                         }
                                         else
                                         {
@@ -1004,8 +1004,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 cts.Token.ThrowIfCancellationRequested();
 
-                await ClipboardService.SetTextAsync(content);
-                await requestContext.SendResult(new CopyResults2RequestResult());
+                await requestContext.SendResult(new CopyResults2RequestResult
+                {
+                    Content = content
+                });
             }
             catch (OperationCanceledException)
             {

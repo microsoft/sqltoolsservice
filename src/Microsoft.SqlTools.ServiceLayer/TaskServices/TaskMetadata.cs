@@ -59,6 +59,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public string OwnerUri { get; set; }
 
         /// <summary>
+        /// Operation name for this task, used to distinguish between operations
+        /// so invokers can get actions based on the type being performed
+        /// </summary>
+        public string OperationName { get; internal set; }
+
+        /// <summary>
         /// Creates task metadata given the request parameters
         /// </summary>
         /// <param name="requestParam">Request parameters</param>
