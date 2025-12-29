@@ -34,38 +34,76 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 if (parameters == null) throw new ArgumentNullException(nameof(parameters));
                 if (parameters.CommandLineArguments == null) throw new ArgumentNullException(nameof(parameters.CommandLineArguments));
 
-                // Normalize STS-overridden defaults ONLY for Publish/Script (keeps /p: clean)
-                var action = parameters.CommandLineArguments.Action;
-                if (parameters.DeploymentOptions != null &&
-                    (action == CommandLineToolAction.Publish || action == CommandLineToolAction.Script))
-                {
-                    parameters.DeploymentOptions.NormalizePublishDefaults();
-                }
-
                 // Reflective mapping — STS DTO → DacFx fields (single pass, no hardcoded names)
                 var dacfxArgs = MapStsArgsToDacFx(parameters.CommandLineArguments);
 
-                var apiParams = new Microsoft.Data.Tools.Schema.CommandLineTool.GenerateSqlPackageCommandParams
-                {
-                    CommandLineArguments = dacfxArgs,
-                    DeploymentOptions = parameters.DeploymentOptions != null
-                        ? DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions)
-                        : null,
-                    ExtractOptions = parameters.ExtractOptions,
-                    ExportOptions = parameters.ExportOptions,
-                    ImportOptions = parameters.ImportOptions,
-                    Variables = parameters.Variables
-                };
+                // Use builder pattern directly - fluent API for command construction
+                var builder = new SqlPackageCommandBuilder()
+                    .WithArguments(dacfxArgs)
+                    .WithVariables(parameters.Variables);
 
-                // DacFx will run ValidationUtil.ValidateArgs inside the generator
-                var command = Microsoft.Data.Tools.Schema.CommandLineTool.SqlPackageCommandGenerator
-                    .GenerateSqlPackageCommand(apiParams);
+                // Add options based on action type
+                var action = parameters.CommandLineArguments.Action;
+                switch (action)
+                {
+                    case CommandLineToolAction.Publish:
+                    case CommandLineToolAction.Script:
+                        if (parameters.DeploymentOptions != null)
+                        {
+                            // Normalize STS-overridden defaults for Publish/Script (keeps /p: clean)
+                            parameters.DeploymentOptions.NormalizePublishDefaults();
+                            builder.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions));
+                        }
+                        break;
+
+                    case CommandLineToolAction.DeployReport:
+                        if (parameters.DeploymentOptions != null)
+                        {
+                            builder.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions));
+                        }
+                        break;
+
+                    case CommandLineToolAction.Extract:
+                        if (parameters.ExtractOptions != null)
+                        {
+                            builder.WithExtractOptions(parameters.ExtractOptions);
+                        }
+                        break;
+
+                    case CommandLineToolAction.Export:
+                        if (parameters.ExportOptions != null)
+                        {
+                            builder.WithExportOptions(parameters.ExportOptions);
+                        }
+                        break;
+
+                    case CommandLineToolAction.Import:
+                        if (parameters.ImportOptions != null)
+                        {
+                            builder.WithImportOptions(parameters.ImportOptions);
+                        }
+                        break;
+                }
+
+                // Build command - validation errors are automatically collected in exception by default
+                var command = builder.Build().ToString();
 
                 await requestContext.SendResult(new SqlPackageCommandResult
                 {
                     Command = command,
                     Success = true,
                     ErrorMessage = string.Empty
+                });
+            }
+            catch (SqlPackageCommandException ex)
+            {
+                // SqlPackageCommandException contains detailed validation errors by default
+                Logger.Error($"SqlPackage command validation failed: {ex.Message}");
+                await requestContext.SendResult(new SqlPackageCommandResult
+                {
+                    Command = null,
+                    Success = false,
+                    ErrorMessage = ex.Message
                 });
             }
             catch (Exception e)
@@ -133,6 +171,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 // Skip empty strings to keep CLI clean
                 var s = valTmp as string;
                 if (s != null && string.IsNullOrWhiteSpace(s)) continue;
+
+                // Skip default values to keep CLI clean
+                if (valTmp is int && (int)valTmp == 0) continue;
+                if (valTmp is bool && (bool)valTmp == false) continue;
+                
+                // Skip default enum values (first enum value = 0)
+                if (prop.PropertyType.IsEnum && System.Convert.ToInt32(valTmp) == 0) continue;
 
                 try
                 {

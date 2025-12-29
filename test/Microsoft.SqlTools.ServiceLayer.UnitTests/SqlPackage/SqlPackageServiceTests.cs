@@ -3,13 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Moq;
 using NUnit.Framework;
 
@@ -102,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
                 {
                     Action = CommandLineToolAction.Extract,
-                    TargetFile = "C:\\test\\output.dacpac",
+                    TargetFile = Path.Combine(Path.GetTempPath(), "output.dacpac"),
                     SourceConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
                 },
                 ExtractOptions = new Microsoft.SqlServer.Dac.DacExtractOptions
@@ -144,8 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                     SourceFile = "C:\\test\\database.dacpac",
                     TargetServerName = "localhost",
                     TargetDatabaseName = "TestDB",
-                    OutputPath = "C:\\test\\script.sql",
-                    TargetConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
+                    OutputPath = Path.Combine(Path.GetTempPath(), "script.sql")
                 },
                 DeploymentOptions = new DeploymentOptions(),
                 Variables = new System.Collections.Generic.Dictionary<string, string>
@@ -190,13 +190,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                     Action = CommandLineToolAction.Export,
                     SourceServerName = "localhost",
                     SourceDatabaseName = "TestDB",
-                    TargetFile = "C:\\test\\export.bacpac",
-                    SourceConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
+                    TargetFile = Path.Combine(Path.GetTempPath(), "temp.bacpac")
                 },
                 ExportOptions = new Microsoft.SqlServer.Dac.DacExportOptions
                 {
                     CommandTimeout = 120,
-                        VerifyFullTextDocumentTypesSupported = true
+                    VerifyFullTextDocumentTypesSupported = true
                 }
             };
 
@@ -209,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
             StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
             StringAssert.Contains("/Action:Export", capturedResult.Command, "Command should have export action");
-            StringAssert.Contains("export.bacpac", capturedResult.Command, "Command should contain export file path");
+            StringAssert.Contains("temp.bacpac", capturedResult.Command, "Command should contain export file path");
         }
 
         [Test]
@@ -229,8 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
                     Action = CommandLineToolAction.Import,
                     SourceFile = "C:\\test\\data.bacpac",
                     TargetServerName = "localhost",
-                    TargetDatabaseName = "TestDB",
-                    TargetConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
+                    TargetDatabaseName = "TestDB"
                 },
                 ImportOptions = new Microsoft.SqlServer.Dac.DacImportOptions
                 {
