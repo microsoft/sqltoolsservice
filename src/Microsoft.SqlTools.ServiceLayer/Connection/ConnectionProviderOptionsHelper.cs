@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         ValueType = ConnectionOption.ValueTypePassword,
                         SpecialValueType = ConnectionOption.SpecialValuePasswordName,
                         IsIdentity = true,
-                        IsRequired = true,
+                        IsRequired = false,
                         GroupName = GroupNames.General,
                     },
                     new ConnectionOption
