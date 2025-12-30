@@ -16,16 +16,31 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
 {
+    /// <summary>
+    /// Service for generating SqlPackage command-line strings from structured parameters.
+    /// </summary>
     public class SqlPackageService
     {
         private static readonly Lazy<SqlPackageService> instance = new Lazy<SqlPackageService>(() => new SqlPackageService());
         public static SqlPackageService Instance => instance.Value;
 
+        /// <summary>
+        /// Initializes the SqlPackage service by registering request handlers with the service host.
+        /// </summary>
+        /// <param name="serviceHost">The service host to register handlers with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(GenerateSqlPackageCommandRequest.Type, this.HandleGenerateSqlPackageCommandRequest, isParallelProcessingSupported: true);
         }
 
+        /// <summary>
+        /// Handles requests to generate SqlPackage command-line strings.
+        /// Maps STS command-line arguments to DacFx types, applies action-specific options,
+        /// and builds the final command string using SqlPackageCommandBuilder.
+        /// </summary>
+        /// <param name="parameters">Parameters containing command-line arguments and action-specific options</param>
+        /// <param name="requestContext">Context for sending the result back to the client</param>
+        /// <returns>Task representing the async operation</returns>
         public async Task HandleGenerateSqlPackageCommandRequest(
             SqlPackageCommandParams parameters,
             RequestContext<SqlPackageCommandResult> requestContext)
@@ -127,29 +142,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 var prop = srcProps[i];
                 if (!prop.CanRead) continue;
 
-                // Null-safe read
+                // Read property value with null safety
                 object? value;
                 try { value = prop.GetValue(source, index: null); }
                 catch { continue; }
 
+                // Skip null, empty strings, default values (0, false, empty arrays, enum=0) to keep CLI clean
                 if (DefaultValuePolicy.ShouldSkip(prop.PropertyType, value))
                     continue;
 
+                // Skip if destination doesn't have a matching field (name-based mapping)
                 FieldInfo? destField;
                 if (!destByName.TryGetValue(prop.Name, out destField) || destField == null)
                     continue;
 
                 try
                 {
+                    // Try type-compatible assignment or enum conversions (int→enum, string→enum)
+                    // Skip incompatible types; builder validation will catch missing required fields
                     if (TypeConversion.TryAssign(dest, destField, prop.PropertyType, value))
                     {
                         continue;
                     }
-                    // If conversion fails, skip; downstream validation will handle it.
                 }
                 catch
                 {
-                    // Defensive: avoid throwing for incompatible assignments.
                     continue;
                 }
             }
@@ -171,6 +188,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             return dest;
         }
 
+        /// <summary>
+        /// Gets public instance properties for a type with caching to avoid repeated reflection calls.
+        /// </summary>
         private static PropertyInfo[] GetPublicInstanceProperties(Type t)
         {
             PropertyInfo[]? props;
@@ -180,6 +200,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             return props;
         }
 
+        /// <summary>
+        /// Gets public instance fields for a type with caching to avoid repeated reflection calls.
+        /// </summary>
         private static FieldInfo[] GetPublicInstanceFields(Type t)
         {
             FieldInfo[]? fields;
@@ -352,14 +375,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 },
             };
 
+        /// <summary>
+        /// Applies action-specific options to the SqlPackageCommandBuilder.
+        /// Uses strategy pattern to call the appropriate With*Options() method based on action type:
+        /// - Publish/Script → b.WithDeployOptions(deployOptions)
+        /// - Extract → b.WithExtractOptions(extractOptions)
+        /// - Export → b.WithExportOptions(exportOptions)
+        /// - Import → b.WithImportOptions(importOptions)
+        /// </summary>
         public static void Apply(CommandLineToolAction action, SqlPackageCommandParams p, SqlPackageCommandBuilder b)
         {
-            Action<SqlPackageCommandParams, SqlPackageCommandBuilder> applier;
+            Action<SqlPackageCommandParams, SqlPackageCommandBuilder>? applier;
             if (_appliers.TryGetValue(action, out applier))
             {
                 applier(p, b);
             }
-            // If action not found, do nothing; builder/validation will handle it.
         }
     }
 }
