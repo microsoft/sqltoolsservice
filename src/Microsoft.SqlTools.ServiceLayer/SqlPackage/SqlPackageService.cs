@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(GenerateSqlPackageCommandRequest.Type, this.HandleGenerateSqlPackageCommandRequest, true);
+            serviceHost.SetRequestHandler(GenerateSqlPackageCommandRequest.Type, this.HandleGenerateSqlPackageCommandRequest, isParallelProcessingSupported: true);
         }
 
         public async Task HandleGenerateSqlPackageCommandRequest(
@@ -34,58 +35,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 if (parameters == null) throw new ArgumentNullException(nameof(parameters));
                 if (parameters.CommandLineArguments == null) throw new ArgumentNullException(nameof(parameters.CommandLineArguments));
 
-                // Reflective mapping — STS DTO → DacFx fields (single pass, no hardcoded names)
-                var dacfxArgs = MapStsArgsToDacFx(parameters.CommandLineArguments);
+                // Map STS DTO → DacFx fields with no hardcoded names (cached reflection)
+                var dacfxArgs = ReflectionMapper.MapByName(
+                    source: parameters.CommandLineArguments,
+                    destinationFactory: () => new Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments(),
+                    configure: dest =>
+                    {
+                        // Ensure nested object exists; avoids NREs downstream
+                        dest.CommandLineProperties = dest.CommandLineProperties ?? new CommandLineProperty();
 
-                // Use builder pattern directly - fluent API for command construction
+                        // Action first so validation has it
+                        dest.Action = parameters.CommandLineArguments.Action;
+                    });
+
+                // Builder fluent API
                 var builder = new SqlPackageCommandBuilder()
                     .WithArguments(dacfxArgs)
                     .WithVariables(parameters.Variables);
 
-                // Add options based on action type
-                var action = parameters.CommandLineArguments.Action;
-                switch (action)
-                {
-                    case CommandLineToolAction.Publish:
-                    case CommandLineToolAction.Script:
-                        if (parameters.DeploymentOptions != null)
-                        {
-                            // Normalize STS-overridden defaults for Publish/Script (keeps /p: clean)
-                            parameters.DeploymentOptions.NormalizePublishDefaults();
-                            builder.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions));
-                        }
-                        break;
+                // Action-specific options via strategy table (no switch noise)
+                ActionOptions.Apply(parameters.CommandLineArguments.Action, parameters, builder);
 
-                    case CommandLineToolAction.DeployReport:
-                        if (parameters.DeploymentOptions != null)
-                        {
-                            builder.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions));
-                        }
-                        break;
-
-                    case CommandLineToolAction.Extract:
-                        if (parameters.ExtractOptions != null)
-                        {
-                            builder.WithExtractOptions(parameters.ExtractOptions);
-                        }
-                        break;
-
-                    case CommandLineToolAction.Export:
-                        if (parameters.ExportOptions != null)
-                        {
-                            builder.WithExportOptions(parameters.ExportOptions);
-                        }
-                        break;
-
-                    case CommandLineToolAction.Import:
-                        if (parameters.ImportOptions != null)
-                        {
-                            builder.WithImportOptions(parameters.ImportOptions);
-                        }
-                        break;
-                }
-
-                // Build command - validation errors are automatically collected in exception by default
+                // Build command — validation exceptions are collected by builder
                 var command = builder.Build().ToString();
 
                 await requestContext.SendResult(new SqlPackageCommandResult
@@ -97,7 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             }
             catch (SqlPackageCommandException ex)
             {
-                // SqlPackageCommandException contains detailed validation errors by default
                 Logger.Error($"SqlPackage command validation failed: {ex.Message}");
                 await requestContext.SendResult(new SqlPackageCommandResult
                 {
@@ -117,127 +87,279 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 });
             }
         }
+    }
 
+    /// <summary>
+    /// Maps source properties -> destination fields by name, with cached reflection and
+    /// centralized skip/default policies. No hardcoded member names.
+    /// </summary>
+    internal static class ReflectionMapper
+    {
+        private static readonly Dictionary<Type, PropertyInfo[]> _propCache = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new Dictionary<Type, FieldInfo[]>();
 
-        private static Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments
-            MapStsArgsToDacFx(Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments sts)
+        public static TDestination MapByName<TSource, TDestination>(
+            TSource source,
+            Func<TDestination> destinationFactory,
+            Action<TDestination> configure = null)
         {
-            if (sts == null) throw new ArgumentNullException(nameof(sts));
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
-            // DacFx model (public fields)
-            var dac = new Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments();
+            var dest = destinationFactory != null ? destinationFactory() : Activator.CreateInstance<TDestination>();
+            configure?.Invoke(dest);
 
-            // Set Action first so ValidationUtil has it
-            dac.Action = sts.Action;
+            var srcType = typeof(TSource);
+            var dstType = typeof(TDestination);
 
-            // Ensure nested object exists so downstream reflection in the builder never NREs
-            dac.CommandLineProperties = dac.CommandLineProperties ?? new CommandLineProperty();
+            var srcProps = GetPublicInstanceProperties(srcType);
+            var dstFields = GetPublicInstanceFields(dstType);
 
-            // Reflect STS *properties* (your DTO)
-            var stsType = typeof(Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments);
-            var stsProps = stsType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            // Reflect DacFx *fields*
-            var dacType = typeof(Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments);
-            var dacFields = dacType.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-            // Index DacFx fields by name
-            var destByName = new System.Collections.Generic.Dictionary<string, FieldInfo>(System.StringComparer.Ordinal);
-            for (int i = 0; i < dacFields.Length; i++)
+            // Index destination fields by name (Ordinal)
+            var destByName = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
+            for (int i = 0; i < dstFields.Length; i++)
             {
-                var f = dacFields[i];
+                var f = dstFields[i];
                 destByName[f.Name] = f;
             }
 
-            // Map STS properties → DacFx fields with the same name
-            for (int i = 0; i < stsProps.Length; i++)
+            for (int i = 0; i < srcProps.Length; i++)
             {
-                var prop = stsProps[i];
+                var prop = srcProps[i];
                 if (!prop.CanRead) continue;
 
-                // Skip Action (already set)
-                if (prop.Name == nameof(sts.Action)) continue;
-
-                FieldInfo? dest;
-                if (!destByName.TryGetValue(prop.Name, out dest) || dest == null)
-                    continue; // name didn't match a DacFx field — skip
-
                 // Null-safe read
-                object? valTmp;
-                try { valTmp = prop.GetValue(sts, null); }
+                object? value;
+                try { value = prop.GetValue(source, index: null); }
                 catch { continue; }
-                if (valTmp == null) continue;
 
-                // Skip empty strings to keep CLI clean
-                var s = valTmp as string;
-                if (s != null && string.IsNullOrWhiteSpace(s)) continue;
+                if (DefaultValuePolicy.ShouldSkip(prop.PropertyType, value))
+                    continue;
 
-                // Skip default values to keep CLI clean
-                if (valTmp is int && (int)valTmp == 0) continue;
-                if (valTmp is bool && (bool)valTmp == false) continue;
-                
-                // Skip default enum values (first enum value = 0)
-                if (prop.PropertyType.IsEnum && System.Convert.ToInt32(valTmp) == 0) continue;
+                FieldInfo? destField;
+                if (!destByName.TryGetValue(prop.Name, out destField) || destField == null)
+                    continue;
 
                 try
                 {
-                    // If types are compatible, assign directly
-                    if (dest.FieldType.IsAssignableFrom(prop.PropertyType))
+                    if (TypeConversion.TryAssign(dest, destField, prop.PropertyType, value))
                     {
-                        dest.SetValue(dac, valTmp);
                         continue;
                     }
-
-                    // Enum flexibility (int → enum, string → enum name)
-                    if (dest.FieldType.IsEnum)
-                    {
-                        if (valTmp is int)
-                        {
-                            dest.SetValue(dac, System.Enum.ToObject(dest.FieldType, (int)valTmp));
-                            continue;
-                        }
-                        if (valTmp is string)
-                        {
-                            object? parsed = null;
-                            try { parsed = System.Enum.Parse(dest.FieldType, (string)valTmp, ignoreCase: true); } catch { }
-                            if (parsed != null)
-                            {
-                                dest.SetValue(dac, parsed);
-                                continue;
-                            }
-                        }
-                    }
-
-                    // If you later add nullable primitives in STS (e.g., int?, bool?), add small conversions here.
+                    // If conversion fails, skip; downstream validation will handle it.
                 }
                 catch
                 {
-                    // Defensive: skip incompatible assignments; DacFx will validate later.
+                    // Defensive: avoid throwing for incompatible assignments.
                     continue;
                 }
             }
 
-            // Safety: if Action defaulted to 0 somewhere, restore from STS
-            if (dac.Action == 0) dac.Action = sts.Action;
+            // Safety: if Action defaulted somewhere, restore from source (if present)
+            var actionProp = srcType.GetProperty(nameof(Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments.Action));
+            var actionField = dstType.GetField(nameof(Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments.Action));
+            if (actionProp != null && actionField != null)
+            {
+                var srcAction = actionProp.GetValue(source, null);
+                var destAction = actionField.GetValue(dest);
+                // Treat 0 as default for enums
+                if (srcAction != null && Convert.ToInt32(destAction) == 0)
+                {
+                    actionField.SetValue(dest, srcAction);
+                }
+            }
 
-            return dac;
+            return dest;
         }
 
+        private static PropertyInfo[] GetPublicInstanceProperties(Type t)
+        {
+            PropertyInfo[]? props;
+            if (_propCache.TryGetValue(t, out props)) return props;
+            props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            _propCache[t] = props;
+            return props;
+        }
+
+        private static FieldInfo[] GetPublicInstanceFields(Type t)
+        {
+            FieldInfo[]? fields;
+            if (_fieldCache.TryGetValue(t, out fields)) return fields;
+            fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            _fieldCache[t] = fields;
+            return fields;
+        }
+    }
+
+    /// <summary>
+    /// Central policy for deciding whether a value should be skipped to keep CLI clean.
+    /// </summary>
+    internal static class DefaultValuePolicy
+    {
+        public static bool ShouldSkip(Type type, object value)
+        {
+            if (value == null) return true;
+
+            // Skip empty strings
+            var s = value as string;
+            if (s != null && string.IsNullOrWhiteSpace(s)) return true;
+
+            // Skip empty arrays
+            if (type.IsArray)
+            {
+                var array = value as Array;
+                if (array != null && array.Length == 0) return true;
+            }
+
+            // Skip 0 for ints
+            if (type == typeof(int) && (int)value == 0) return true;
+
+            // Skip false for bools
+            if (type == typeof(bool) && ((bool)value) == false) return true;
+
+            // Skip default enum (0)
+            if (type.IsEnum && Convert.ToInt32(value) == 0) return true;
+
+            // Extend here for nullable primitives if you add them later (int?, bool?, etc.)
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Handles compatible assignment and flexible enum conversions (int->enum, string->enum name).
+    /// </summary>
+    internal static class TypeConversion
+    {
+        public static bool TryAssign(object destinationInstance, FieldInfo destField, Type sourceType, object value)
+        {
+            var destType = destField.FieldType;
+
+            // Direct assignable
+            if (destType.IsAssignableFrom(sourceType))
+            {
+                destField.SetValue(destinationInstance, value);
+                return true;
+            }
+
+            // Enum conversions
+            if (destType.IsEnum)
+            {
+                // int -> enum
+                if (sourceType == typeof(int))
+                {
+                    destField.SetValue(destinationInstance, Enum.ToObject(destType, (int)value));
+                    return true;
+                }
+
+                // string -> enum by name (case-insensitive)
+                if (sourceType == typeof(string))
+                {
+                    object parsed;
+                    if (EnumTryParse(destType, (string)value, out parsed))
+                    {
+                        destField.SetValue(destinationInstance, parsed);
+                        return true;
+                    }
+                }
+            }
+
+            // Add small conversions here when you introduce nullable primitives on source
+            // e.g., int? -> int, bool? -> bool
+
+            return false;
+        }
 
         // C# 7.3-friendly enum parse helper
-        private static bool EnumTryParse(Type enumType, string s, out object value)
+        private static bool EnumTryParse(Type enumType, string s, out object parsed)
         {
-            value = null;
+            parsed = null;
             if (string.IsNullOrEmpty(s)) return false;
             try
             {
-                value = Enum.Parse(enumType, s, ignoreCase: true);
+                parsed = Enum.Parse(enumType, s, ignoreCase: true);
                 return true;
             }
             catch
             {
                 return false;
             }
+        }
+    }
+
+    /// <summary>
+    /// Action-specific options (Publish/Script/Extract/Export/Import) applied via strategy table.
+    /// Keeps logic localized without switch blocks or hardcoded field names.
+    /// </summary>
+    internal static class ActionOptions
+    {
+        private static readonly IDictionary<CommandLineToolAction, Action<SqlPackageCommandParams, SqlPackageCommandBuilder>> _appliers
+            = new Dictionary<CommandLineToolAction, Action<SqlPackageCommandParams, SqlPackageCommandBuilder>>
+            {
+                {
+                    CommandLineToolAction.Publish, (p, b) =>
+                    {
+                        if (p.DeploymentOptions != null)
+                        {
+                            p.DeploymentOptions.NormalizePublishDefaults();
+                            b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions));
+                        }
+                    }
+                },
+                {
+                    CommandLineToolAction.Script, (p, b) =>
+                    {
+                        if (p.DeploymentOptions != null)
+                        {
+                            p.DeploymentOptions.NormalizePublishDefaults();
+                            b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions));
+                        }
+                    }
+                },
+                {
+                    CommandLineToolAction.DeployReport, (p, b) =>
+                    {
+                        if (p.DeploymentOptions != null)
+                        {
+                            b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions));
+                        }
+                    }
+                },
+                {
+                    CommandLineToolAction.Extract, (p, b) =>
+                    {
+                        if (p.ExtractOptions != null)
+                        {
+                            b.WithExtractOptions(p.ExtractOptions);
+                        }
+                    }
+                },
+                {
+                    CommandLineToolAction.Export, (p, b) =>
+                    {
+                        if (p.ExportOptions != null)
+                        {
+                            b.WithExportOptions(p.ExportOptions);
+                        }
+                    }
+                },
+                {
+                    CommandLineToolAction.Import, (p, b) =>
+                    {
+                        if (p.ImportOptions != null)
+                        {
+                            b.WithImportOptions(p.ImportOptions);
+                        }
+                    }
+                },
+            };
+
+        public static void Apply(CommandLineToolAction action, SqlPackageCommandParams p, SqlPackageCommandBuilder b)
+        {
+            Action<SqlPackageCommandParams, SqlPackageCommandBuilder> applier;
+            if (_appliers.TryGetValue(action, out applier))
+            {
+                applier(p, b);
+            }
+            // If action not found, do nothing; builder/validation will handle it.
         }
     }
 }
