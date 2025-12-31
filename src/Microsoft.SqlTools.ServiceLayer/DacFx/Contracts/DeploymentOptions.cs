@@ -283,5 +283,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
             return result;
         }
+
+        /// <summary>
+        /// Normalizes the 7 overridden options for Publish/Script SqlPackage command generation.
+        /// Resets them to DacFx native defaults so they won't appear as unnecessary /p: parameters.
+        /// Works because: if user changed a value, they changed it to the opposite (which is the DacFx default).
+        /// </summary>
+        public void NormalizePublishDefaults()
+        {
+            // Simply set the 7 STS-overridden options to DacFx defaults
+            BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = false;
+            BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = false;
+            BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
+            BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = false;
+            BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = false;
+            BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = true;
+            BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = true;
+        }
     }
 }
