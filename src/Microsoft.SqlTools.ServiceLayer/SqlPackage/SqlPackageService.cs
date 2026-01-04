@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
+using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -67,6 +68,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 var builder = new SqlPackageCommandBuilder()
                     .WithArguments(dacfxArgs)
                     .WithVariables(parameters.Variables);
+
+                // Apply masking configuration from parameters
+                if (parameters.MaskMode != default(MaskMode))
+                {
+                    builder.WithMasking(parameters.MaskMode);
+                }
 
                 // Action-specific options via strategy table (no switch noise)
                 ActionOptions.Apply(parameters.CommandLineArguments.Action, parameters, builder);

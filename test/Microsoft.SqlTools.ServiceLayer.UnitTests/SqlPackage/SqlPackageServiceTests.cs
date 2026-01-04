@@ -6,6 +6,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
+using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -246,6 +247,107 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
             StringAssert.Contains("/Action:Import", capturedResult.Command, "Command should have import action");
             StringAssert.Contains("data.bacpac", capturedResult.Command, "Command should contain import file path");
+        }
+
+        [Test]
+        public async Task GeneratePublishCommand_WithUnmaskedData_ShouldIncludeUnmaskedFlag()
+        {
+            // Arrange
+            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
+            SqlPackageCommandResult? capturedResult = null;
+            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
+                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
+                .Returns(Task.CompletedTask);
+
+            var parameters = new SqlPackageCommandParams
+            {
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
+                {
+                    Action = CommandLineToolAction.Publish,
+                    SourceFile = "C:\\test\\database.dacpac",
+                    TargetServerName = "localhost",
+                    TargetDatabaseName = "TestDB"
+                },
+                DeploymentOptions = new DeploymentOptions(),
+                MaskMode = MaskMode.Unmasked  // Set to Unmasked to enable unmasked data
+            };
+
+            // Act
+            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+
+            // Assert
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("/Action:Publish", capturedResult.Command, "Command should have publish action");
+            StringAssert.Contains("/Unmasked", capturedResult.Command, "Command should contain unmasked flag when Masked is false");
+        }
+
+        [Test]
+        public async Task GeneratePublishCommand_WithMaskedData_ShouldNotIncludeUnmaskedFlag()
+        {
+            // Arrange
+            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
+            SqlPackageCommandResult? capturedResult = null;
+            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
+                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
+                .Returns(Task.CompletedTask);
+
+            var parameters = new SqlPackageCommandParams
+            {
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
+                {
+                    Action = CommandLineToolAction.Publish,
+                    SourceFile = "C:\\test\\database.dacpac",
+                    TargetServerName = "localhost",
+                    TargetDatabaseName = "TestDB"
+                },
+                DeploymentOptions = new DeploymentOptions(),
+                MaskMode = MaskMode.Masked  // Set to Masked for masked data (explicit)
+            };
+
+            // Act
+            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+
+            // Assert
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("/Action:Publish", capturedResult.Command, "Command should have publish action");
+            Assert.IsFalse(capturedResult.Command.Contains("/Unmasked"), "Command should not contain unmasked flag when Masked is true");
+        }
+
+        [Test]
+        public async Task GenerateExtractCommand_WithUnmaskedData_ShouldIncludeUnmaskedFlag()
+        {
+            // Arrange
+            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
+            SqlPackageCommandResult? capturedResult = null;
+            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
+                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
+                .Returns(Task.CompletedTask);
+
+            var parameters = new SqlPackageCommandParams
+            {
+                CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
+                {
+                    Action = CommandLineToolAction.Extract,
+                    TargetFile = Path.Combine(Path.GetTempPath(), "output.dacpac"),
+                    SourceConnectionString = "Server=localhost;Database=TestDB;Integrated Security=true;"
+                },
+                ExtractOptions = new Microsoft.SqlServer.Dac.DacExtractOptions(),
+                MaskMode = MaskMode.Unmasked  // Unmasked data
+            };
+
+            // Act
+            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+
+            // Assert
+            Assert.IsNotNull(capturedResult, "Result should not be null");
+            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
+            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
+            StringAssert.Contains("/Action:Extract", capturedResult.Command, "Command should have extract action");
+            StringAssert.Contains("/Unmasked", capturedResult.Command, "Command should contain unmasked flag when Masked is false");
         }
     }
 }

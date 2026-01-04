@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
@@ -45,6 +46,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// SQLCMD variables (for Publish, Script operations)
         /// </summary>
         public Dictionary<string, string> Variables { get; set; }
+
+        /// <summary>
+        /// Specifies the masking mode for data operations.
+        /// Values: Masked(Default), Unmasked
+        /// </summary>
+        public MaskMode MaskMode { get; set; }
     }
 
     /// <summary>
