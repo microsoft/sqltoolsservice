@@ -9,7 +9,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
 {
     /// <summary>
     /// Command-line arguments for SqlPackage operations containing source/target paths, connection strings, etc.
-    /// These parameters are typically populated from the publish dialog or other UI interactions.
+    /// These arguments are copied from the DacFx/Source/SqlPackage/CommandLineArguments.cs
     /// </summary>
     public class SqlPackageCommandLineArguments
     {

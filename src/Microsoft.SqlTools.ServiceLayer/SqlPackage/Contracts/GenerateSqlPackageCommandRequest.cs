@@ -11,19 +11,19 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
 {
     /// <summary>
-    /// Parameters for generating SqlPackage command
+    /// Parameters for generating SqlPackage command-line strings.
     /// </summary>
     public class SqlPackageCommandParams
     {
         /// <summary>
         /// Command-line arguments containing source/target paths, connection strings, etc.
-        /// Populated from the publish dialog or other UI interactions in VSCode
+        /// Populated from UI interactions in the client application.
         /// </summary>
         public SqlPackageCommandLineArguments CommandLineArguments { get; set; }
 
         /// <summary>
-        /// Deployment options from VSCode (for Publish, Script operations)
-        /// Will be converted to DacDeployOptions using DacFxUtils.CreateDeploymentOptions
+        /// Deployment options (for Publish, Script operations).
+        /// Converted to DacDeployOptions using DacFxUtils.CreateDeploymentOptions.
         /// </summary>
         public DacFx.Contracts.DeploymentOptions DeploymentOptions { get; set; }
 
