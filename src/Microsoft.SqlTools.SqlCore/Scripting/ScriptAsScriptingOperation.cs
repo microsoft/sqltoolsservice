@@ -474,6 +474,22 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                     }
                 }
 
+                // For system-versioned (temporal) tables, use Table.Script() directly to ensure
+                // constraints are scripted inline with CREATE TABLE. This is required because temporal
+                // tables need the primary key to exist before SYSTEM_VERSIONING can be enabled.
+                // The Scripter.Script(urns) pipeline scripts indexes/constraints as separate ALTER
+                // statements which fails for temporal tables. (see GitHub issue azuredatastudio#20315)
+                if (urns.Count == 1 && this.Parameters.Operation == ScriptingOperationType.Create)
+                {
+                    SqlSmoObject smoObject = server.GetSmoObject(urns[0]);
+                    if (smoObject is Table table && table.IsSystemVersioned)
+                    {
+                        var resultVersioned = table.Script(options);
+                        resultScript = GetScript(options, resultVersioned);
+                        return resultScript;
+                    }
+                }
+
                 scripter.Options = options;
                 scripter.ScriptingError += ScripterScriptingError;
                 var result = scripter.Script(urns);
