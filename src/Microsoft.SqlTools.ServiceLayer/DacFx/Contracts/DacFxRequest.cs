@@ -41,5 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DacFxResult : ResultStatus
     {
         public string OperationId { get; set; }
+        public string OperationType { get; internal set; }
     }
 }
