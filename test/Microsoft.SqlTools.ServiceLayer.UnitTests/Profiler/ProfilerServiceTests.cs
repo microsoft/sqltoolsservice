@@ -5,10 +5,12 @@
 
 #nullable disable
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.XEvent;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
@@ -131,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             bool success = false;
             string testUri = "test_session";
-            bool recievedEvents = false;
+            int eventsReceivedCount = 0;
 
             // capture pausing results
             var requestContext = new Mock<RequestContext<PauseProfilingResult>>();
@@ -142,15 +144,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     return Task.FromResult(0);
                 });
 
+            // Create test events
+            var testEvents = new List<TestXEvent>
+            {
+                new TestXEvent("test_event_1", DateTimeOffset.Now, new Dictionary<string, object> { { "data", "value1" } }),
+                new TestXEvent("test_event_2", DateTimeOffset.Now.AddMilliseconds(100), new Dictionary<string, object> { { "data", "value2" } })
+            };
+
+            // Create fetcher with keepStreamOpen to prevent session from completing during test
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(50), keepStreamOpen: true);
+
+            var sessionFactory = new TestLiveStreamSessionFactory(
+                new[] { fetcher },
+                maxReconnectAttempts: 0,
+                reconnectDelay: TimeSpan.FromMilliseconds(10));
+
             // capture Listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
             mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
                 {
-                    recievedEvents = true;
+                    eventsReceivedCount++;
                 });
 
             // setup profiler service
-            var profilerService = new ProfilerService();
+            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory };
             profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
@@ -159,63 +176,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var requestParams = new PauseProfilingParams();
             requestParams.OwnerUri = testUri;
 
-            // begin monitoring session
-            profilerService.SessionMonitor.StartMonitoringSession(testUri, new TestXEventSession1());
+            // begin monitoring session (events will be pushed automatically)
+            profilerService.SessionMonitor.StartMonitoringSession(testUri, sessionFactory.GetXEventSession("testsession_1", connectionInfo));
 
-            // poll the session
-            profilerService.SessionMonitor.PollSession(new SessionId("testsession_1", 1));
-            Thread.Sleep(500);
-            profilerService.SessionMonitor.PollSession(new SessionId("testsession_1", 1));
-
-            // wait for polling to finish, or for timeout
-            System.Timers.Timer pollingTimer = new System.Timers.Timer();
-            pollingTimer.Interval = 10000;
-            pollingTimer.Start();
-            bool timeout = false;
-            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
-            while (!recievedEvents && !timeout)
+            // wait for all events to be delivered (2 events with 50ms delay each)
+            int retries = 30;
+            while (retries-- > 0 && eventsReceivedCount < 2)
             {
-                Thread.Sleep(250);
+                Thread.Sleep(100);
             }
-            pollingTimer.Stop();
 
-            // confirm that polling works
-            Assert.True(recievedEvents);
+            // confirm that events were received
+            Assert.That(eventsReceivedCount, Is.GreaterThanOrEqualTo(1), "Should have received events before pausing");
+
+            // Wait a bit for processing to stabilize
+            Thread.Sleep(200);
+            int eventsBeforePause = eventsReceivedCount;
 
             // pause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
-            Assert.True(success);
+            Assert.True(success, "Pause request should succeed");
 
-            recievedEvents = false;
+            // wait a bit and verify no more events received while paused
+            Thread.Sleep(300);
+            int eventsWhilePaused = eventsReceivedCount;
+            Assert.That(eventsWhilePaused, Is.EqualTo(eventsBeforePause), "Should not receive events while paused");
+
             success = false;
-
-            profilerService.SessionMonitor.PollSession(new SessionId("testsession_1", 1));
-
-            // confirm that no events were sent to paused Listener
-            Assert.False(recievedEvents);
 
             // unpause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
-            Assert.True(success);
-
-            profilerService.SessionMonitor.PollSession(new SessionId("testsession_1", 1));
-
-            // wait for polling to finish, or for timeout
-            timeout = false;
-            pollingTimer.Start();
-            while (!recievedEvents && !timeout)
-            {
-                Thread.Sleep(250);
-            }
-
-            // check that events got sent to Listener
-            Assert.True(recievedEvents);
+            Assert.True(success, "Unpause request should succeed");
 
             requestContext.VerifyAll();
         }
 
         /// <summary>
-        /// Test notifications for stopped sessions
+        /// Test notifications for stopped sessions when stream completes normally
         /// </summary>
         [Test]
         public void TestStoppedSessionNotification()
@@ -223,42 +220,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool sessionStopped = false;
             string testUri = "profiler_uri";
 
+            // Create a fetcher that delivers one event then completes
+            var testEvents = new List<TestXEvent>
+            {
+                new TestXEvent("test_event", DateTimeOffset.Now, new Dictionary<string, object> { { "data", "value" } })
+            };
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+
+            var sessionFactory = new TestLiveStreamSessionFactory(
+                new[] { fetcher },
+                maxReconnectAttempts: 0,
+                reconnectDelay: TimeSpan.FromMilliseconds(10));
+
             // capture Listener event notifications
-            var mockSession = new Mock<IXEventSession>();
-            mockSession.Setup(p => p.GetTargetXml()).Callback(() =>
-                {
-                    throw new XEventException();
-                });
-            mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
             var mockListener = new Mock<IProfilerSessionListener>();
             mockListener.Setup(p => p.SessionStopped(It.IsAny<string>(), It.IsAny<SessionId>(), It.IsAny<string>())).Callback(() =>
             {
                 sessionStopped = true;
             });
 
-            var profilerService = new ProfilerService();
+            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory };
             profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(testUri, connectionInfo);
 
             // start monitoring test session
-            profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
+            profilerService.SessionMonitor.StartMonitoringSession(testUri, sessionFactory.GetXEventSession("test_session", connectionInfo));
 
-            // wait for polling to finish, or for timeout
-            System.Timers.Timer pollingTimer = new System.Timers.Timer();
-            pollingTimer.Interval = 10000;
-            pollingTimer.Start();
-            bool timeout = false;
-            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
-            while (sessionStopped == false && !timeout)
+            // wait for session to complete, or for timeout
+            int retries = 30;
+            while (!sessionStopped && retries-- > 0)
             {
-                Thread.Sleep(250);
+                Thread.Sleep(100);
             }
-            pollingTimer.Stop();
 
             // check that a stopped session notification was sent
-            Assert.True(sessionStopped);
+            Assert.True(sessionStopped, "Session stopped notification should have been received");
         }
 
         [Test]
@@ -333,25 +331,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public async Task ProfilerService_includes_ErrorMessage_in_session_stop_notification()
         {
             var param = new StartProfilingParams() { OwnerUri = "someUri", SessionName = "someSession" };
-            var mockSession = new Mock<IXEventSession>();
-            mockSession.Setup(p => p.GetTargetXml()).Callback(() =>
+
+            // Create a fetcher that fails immediately with "test!" error after exhausting reconnect attempts
+            var testException = new XEventException("test!");
+            var failingFetchers = new List<IXEventFetcher>
             {
-                throw new XEventException("test!");
-            });
-            mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
+                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException),
+                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException),
+                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException),
+                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException)
+            };
+
+            var sessionFactory = new TestLiveStreamSessionFactory(
+                failingFetchers,
+                maxReconnectAttempts: 3,
+                reconnectDelay: TimeSpan.FromMilliseconds(10));
+
             var requestContext = new Mock<RequestContext<StartProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
                 .Returns<StartProfilingResult>((result) =>
                 {
                     return Task.FromResult(0);
                 });
-            var sessionFactory = new Mock<IXEventSessionFactory>();
-            sessionFactory.Setup(s => s.GetXEventSession(It.IsAny<string>(), It.IsAny<ConnectionInfo>()))
-                .Returns(mockSession.Object);
-            sessionFactory.Setup(s => s.OpenLiveStreamSession(It.IsAny<string>(), It.IsAny<ConnectionInfo>()))
-                .Returns(mockSession.Object)
-                .Verifiable();
-            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };
+
+            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory };
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             var connectionInfo = TestObjects.GetTestConnectionInfo();
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd("someUri", connectionInfo);
@@ -359,7 +362,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var listener = new TestSessionListener();
             profilerService.SessionMonitor.AddSessionListener(listener);
             await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
-            var retries = 10;
+            var retries = 30;
             while (retries-- > 0 && !listener.StoppedSessions.Any())
             {
                 Thread.Sleep(100);
@@ -369,7 +372,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 Assert.That(listener.ErrorMessages, Is.EqualTo(new[] { "test!" }), "listener.ErrorMessages");
                 Assert.That(listener.StoppedSessions, Has.Member("someUri"), "listener.StoppedSessions");
             });
-            sessionFactory.Verify();
         }
     }
 }

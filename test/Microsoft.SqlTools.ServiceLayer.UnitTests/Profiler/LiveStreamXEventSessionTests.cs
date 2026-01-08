@@ -287,10 +287,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             liveSession.Start();
             Thread.Sleep(200); // Allow events to be delivered
 
-            // Assert - profilerSession should have pollImmediately set via callback
-            // We can verify by checking if polling would be allowed immediately
-            Assert.That(profilerSession.TryEnterPolling(), Is.True, "Should allow immediate polling after push event");
-            profilerSession.IsPolling = false;
+            // Assert - profilerSession should allow processing after push event
+            Assert.That(profilerSession.TryEnterProcessing(), Is.True, "Should allow processing after push event");
+            profilerSession.ExitProcessing();
         }
 
         [Test]
@@ -316,6 +315,77 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // Assert - events should not be filtered for push-based sessions
             Assert.That(pushEvents.Count, Is.EqualTo(2), "Push events should not be filtered");
+        }
+
+        [Test]
+        public void ProfilerSessionMonitor_notifies_listeners_when_server_closes_session()
+        {
+            // Arrange - simulate a session that delivers events then completes (server closes the session)
+            var testEvents = CreateTestEvents(2);
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            var sessionFactory = new TestLiveStreamSessionFactory(
+                new[] { fetcher },
+                maxReconnectAttempts: 0,
+                reconnectDelay: TimeSpan.FromMilliseconds(10));
+            
+            var monitor = new ProfilerSessionMonitor();
+            var testListener = new TestSessionListener();
+            monitor.AddSessionListener(testListener);
+            
+            string testViewerId = "test_viewer";
+            var session = sessionFactory.CreateLiveStreamSession("server_closed_session");
+
+            // Act - start monitoring the session
+            monitor.StartMonitoringSession(testViewerId, session);
+
+            // Wait for session to complete (server closes it after delivering all events)
+            int retries = 50;
+            while (testListener.StoppedSessions.Count == 0 && retries-- > 0)
+            {
+                Thread.Sleep(100);
+            }
+
+            // Assert - listener should be notified when server closes the session
+            Assert.That(testListener.StoppedSessions, Has.Count.EqualTo(1), "Listener should be notified when server closes session");
+            Assert.That(testListener.StoppedSessions[0], Is.EqualTo(testViewerId), "Notified viewer ID should match");
+        }
+
+        [Test]
+        public void ProfilerSessionMonitor_notifies_listeners_with_error_when_server_disconnects()
+        {
+            // Arrange - simulate a session that fails with an error (server disconnects unexpectedly)
+            var serverDisconnectError = new Exception("Server disconnected unexpectedly");
+            var fetcher = new TestLiveEventFetcher(
+                CreateTestEvents(1),
+                failAfterEvents: 1,
+                exceptionToThrow: serverDisconnectError,
+                delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            
+            var sessionFactory = new TestLiveStreamSessionFactory(
+                new[] { fetcher },
+                maxReconnectAttempts: 0,
+                reconnectDelay: TimeSpan.FromMilliseconds(10));
+            
+            var monitor = new ProfilerSessionMonitor();
+            var testListener = new TestSessionListener();
+            monitor.AddSessionListener(testListener);
+            
+            var session = sessionFactory.CreateLiveStreamSession("disconnected_session");
+
+            // Act - start monitoring the session
+            monitor.StartMonitoringSession("test_viewer", session);
+
+            // Wait for session to fail
+            int retries = 50;
+            while (testListener.StoppedSessions.Count == 0 && retries-- > 0)
+            {
+                Thread.Sleep(100);
+            }
+
+            // Assert - listener should be notified with error message when server disconnects
+            Assert.That(testListener.StoppedSessions, Has.Count.EqualTo(1), "Listener should be notified when server disconnects");
+            Assert.That(testListener.ErrorMessages[0], Does.Contain("Server disconnected"), 
+                "Error message should indicate server disconnection");
         }
 
         #endregion

@@ -31,14 +31,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <param name="filePath"></param>
         /// <returns></returns>
         IXEventSession OpenLocalFileSession(string filePath);
-
-        /// <summary>
-        /// Opens a live streaming session using XELite's XELiveEventStreamer for push-based
-        /// event delivery. This replaces SMO ring-buffer polling with direct event streaming.
-        /// </summary>
-        /// <param name="sessionName">Name of the XEvent session to stream from</param>
-        /// <param name="connInfo">Connection information for the SQL Server</param>
-        /// <returns>A live streaming XEvent session</returns>
-        IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo);
     }
 }

@@ -5,8 +5,6 @@
 
 #nullable disable
 
-using System;
-using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using NUnit.Framework;
@@ -127,39 +125,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         }
 
         /// <summary>
-        /// Test the TryEnterPolling method
+        /// Test the TryEnterProcessing method for concurrent access control
         /// </summary>
         [Test]
-        public void TestTryEnterPolling()
+        public void TestTryEnterProcessing()
         {
-            DateTime startTime = DateTime.Now;
-
             // create new profiler session
             var profilerSession = new ProfilerSession(new XEventSession());
-            
-            // enter the polling block
-            Assert.True(profilerSession.TryEnterPolling());
-            Assert.True(profilerSession.IsPolling);
 
-            // verify we can't enter again
-            Assert.False(profilerSession.TryEnterPolling());
+            // enter the processing block
+            Assert.True(profilerSession.TryEnterProcessing());
+            Assert.True(profilerSession.IsProcessing);
 
-            // set polling to false to exit polling block
-            profilerSession.IsPolling = false;
+            // verify we can't enter again while processing
+            Assert.False(profilerSession.TryEnterProcessing());
 
-            bool outsideDelay = DateTime.Now.Subtract(startTime) >= profilerSession.PollingDelay;
+            // exit processing
+            profilerSession.ExitProcessing();
+            Assert.False(profilerSession.IsProcessing);
 
-            // verify we can only enter again if we're outside polling delay interval
-            Assert.AreEqual(profilerSession.TryEnterPolling(), outsideDelay);
+            // verify we can enter again after exiting
+            Assert.True(profilerSession.TryEnterProcessing());
+            Assert.True(profilerSession.IsProcessing);
 
-            // reset IsPolling in case the delay has elasped on slow machine or while debugging
-            profilerSession.IsPolling = false;
-
-            // wait for the polling delay to elapse
-            Thread.Sleep(profilerSession.PollingDelay);
-
-            // verify we can enter the polling block again
-            Assert.True(profilerSession.TryEnterPolling());
+            // clean up
+            profilerSession.ExitProcessing();
         }
     }
 }

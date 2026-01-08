@@ -326,30 +326,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Gets an XEvent session with the given name per the IXEventSessionFactory contract
-        /// Also starts the session if it isn't currently running
+        /// Gets an XEvent session with the given name per the IXEventSessionFactory contract.
+        /// Uses XELite's XELiveEventStreamer for push-based event delivery.
+        /// Also starts the session if it isn't currently running.
         /// </summary>
         public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
         {
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
-            Session session = store.Sessions[sessionName] ?? throw new Exception(SR.SessionNotFound);
+            Session session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
 
-            // start the session if it isn't already running
-
-            session = session ?? throw new ProfilerException(SR.SessionNotFound);
-
-            var xeventSession = new XEventSession()
-            {
-                Session = session
-            };
-
+            // Ensure the session is running
             if (!session.IsRunning)
             {
-                xeventSession.Start();
+                session.Start();
             }
-            return xeventSession;
+
+            // Build connection string for XELite
+            var connectionString = sqlConnection.ConnectionString;
+
+            // Create the live streaming session using XELite
+            var liveSession = new LiveStreamXEventSession(
+                connectionString,
+                sessionName,
+                new SessionId(session.ID.ToString()),
+                maxReconnectAttempts: 3,
+                reconnectDelay: TimeSpan.FromSeconds(1));
+
+            // Set the SMO session for target XML retrieval
+            liveSession.Session = session;
+
+            return liveSession;
         }
 
         /// <summary>
@@ -381,34 +389,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.Start();
             }
 
-            // create xevent session wrapper
-            return new XEventSession()
-            {
-                Session = store.Sessions[sessionName]
-            };
-        }
-
-        /// <summary>
-        /// Opens a live streaming session using XELite's XELiveEventStreamer for push-based
-        /// event delivery. This replaces SMO ring-buffer polling with direct event streaming.
-        /// </summary>
-        public IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo)
-        {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-            BaseXEStore store = CreateXEventStore(connInfo, connection);
-            Session session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
-
-            // Ensure the session is running
-            if (!session.IsRunning)
-            {
-                session.Start();
-            }
-
             // Build connection string for XELite
             var connectionString = sqlConnection.ConnectionString;
 
-            // Create the live streaming session
+            // Create the live streaming session using XELite
             var liveSession = new LiveStreamXEventSession(
                 connectionString,
                 sessionName,

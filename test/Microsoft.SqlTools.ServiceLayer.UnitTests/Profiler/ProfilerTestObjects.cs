@@ -432,21 +432,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             throw new NotImplementedException();
         }
-
-        public IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo)
-        {
-            // Return an observable live stream session for testing
-            var events = new[]
-            {
-                new TestXEvent("existing_connection", DateTimeOffset.Parse("2017-09-08T07:46:53.579Z"),
-                    new Dictionary<string, object> { { "session_id", "1" }, { "event_sequence", "1" } })
-            };
-            var fetcher = new TestLiveEventFetcher(events);
-            return new LiveStreamXEventSession(
-                () => fetcher,
-                new SessionId($"testsession_{sessionNum}", sessionNum),
-                maxReconnectAttempts: 0);
-        }
     }
 
     #region Live Streaming Test Helpers
@@ -482,19 +467,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         private readonly int failAfterEvents;
         private readonly Exception exceptionToThrow;
         private readonly TimeSpan delayBetweenEvents;
+        private readonly bool keepStreamOpen;
 
         public TestLiveEventFetcher(
             IEnumerable<IXEvent> events,
             bool failImmediately = false,
             Exception exceptionToThrow = null,
             TimeSpan? delayBetweenEvents = null,
-            int failAfterEvents = -1)
+            int failAfterEvents = -1,
+            bool keepStreamOpen = false)
         {
             this.events = events ?? Array.Empty<IXEvent>();
             this.failImmediately = failImmediately;
             this.failAfterEvents = failAfterEvents;
             this.exceptionToThrow = exceptionToThrow ?? new Exception("Simulated stream failure");
             this.delayBetweenEvents = delayBetweenEvents ?? TimeSpan.Zero;
+            this.keepStreamOpen = keepStreamOpen;
         }
 
         public Task ReadEventStream(HandleXEvent eventCallback, CancellationToken cancellationToken)
@@ -524,6 +512,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     {
                         throw exceptionToThrow;
                     }
+                }
+
+                // If keepStreamOpen is true, wait indefinitely until cancellation
+                if (keepStreamOpen)
+                {
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
                 }
             }, cancellationToken);
         }
@@ -572,12 +566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             throw new NotImplementedException();
         }
 
-        public IXEventSession OpenLiveStreamSession(string sessionName, ConnectionInfo connInfo)
-        {
-            return CreateLiveStreamSession(sessionName);
-        }
-
-        private LiveStreamXEventSession CreateLiveStreamSession(string sessionName)
+        public LiveStreamXEventSession CreateLiveStreamSession(string sessionName)
         {
             LastSessionId = new SessionId($"test_{sessionName}_{FetchersCreated}");
             FetchersCreated++;

@@ -21,18 +21,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSession : IDisposable
     {
-        private static readonly TimeSpan DefaultPollingDelay = TimeSpan.FromSeconds(1);
         private object pollingLock = new object();
         private bool isPolling = false;
-        private DateTime lastPollTime = DateTime.Now.Subtract(DefaultPollingDelay);
         private ProfilerEvent lastSeenEvent = null;
         private readonly SessionObserver sessionObserver;
         private readonly IXEventSession xEventSession;
         private readonly IDisposable observerDisposable;
+        private readonly Action<ProfilerSession> onSessionActivity;
         private bool eventsLost = false;
         int lastSeenId = -1;
-
-        public bool pollImmediately = false;
 
         /// <summary>
         /// Connection to use for the session
@@ -42,25 +39,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Constructs a new ProfilerSession to watch the given IXeventSession's incoming events
         /// </summary>
-        /// <param name="xEventSession"></param>
-        public ProfilerSession(IXEventSession xEventSession)
+        /// <param name="xEventSession">The XEvent session to monitor</param>
+        /// <param name="onSessionActivity">Optional callback invoked when events arrive or session completes/errors</param>
+        public ProfilerSession(IXEventSession xEventSession, Action<ProfilerSession> onSessionActivity = null)
         {
             this.xEventSession = xEventSession;
+            this.onSessionActivity = onSessionActivity;
             if (xEventSession is IObservableXEventSession observableSession)
             {
-                // For push-based sessions, subscribe to the event stream and trigger immediate polling
-                // when events arrive. This minimizes latency while keeping the existing monitor architecture.
+                // For push-based sessions, subscribe to the event stream
                 observerDisposable = observableSession.ObservableSessionEvents?.Subscribe(
-                    sessionObserver = new SessionObserver(OnPushEventReceived));
+                    sessionObserver = new SessionObserver(OnSessionActivity));
             }
         }
 
         /// <summary>
-        /// Callback when a push-based event is received. Triggers immediate polling to deliver events.
+        /// Callback when session activity occurs (events received, completed, or error).
         /// </summary>
-        private void OnPushEventReceived()
+        private void OnSessionActivity()
         {
-            pollImmediately = true;
+            onSessionActivity?.Invoke(this);
         }    
 
         /// <summary>
@@ -69,49 +67,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public IXEventSession XEventSession => xEventSession;
 
         /// <summary>
-        /// Try to set the session into polling mode if criteria is meet
+        /// Try to enter processing mode (prevents concurrent processing of same session)
         /// </summary>
-        /// <returns>True if session set to polling mode, False otherwise</returns>
-        public bool TryEnterPolling()
+        /// <returns>True if entered processing mode, False if already processing</returns>
+        public bool TryEnterProcessing()
         {
             lock (this.pollingLock)
             {
-                if (pollImmediately || (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= PollingDelay))
+                if (!this.isPolling)
                 {
                     this.isPolling = true;
-                    this.lastPollTime = DateTime.Now;
-                    this.pollImmediately = false;
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
         }
 
         /// <summary>
-        /// Is the session currently being polled
+        /// Exit processing mode
         /// </summary>
-        public bool IsPolling
+        public void ExitProcessing()
+        {
+            lock (this.pollingLock)
+            {
+                this.isPolling = false;
+            }
+        }
+
+        /// <summary>
+        /// Is the session currently being processed
+        /// </summary>
+        public bool IsProcessing
         {
             get
             {
-                return this.isPolling;
-            }
-            set
-            {
                 lock (this.pollingLock)
                 {
-                    this.isPolling  = value;
+                    return this.isPolling;
                 }
             }
         }
-
-        /// <summary>
-        /// The delay between session polls
-        /// </summary>
-        public TimeSpan PollingDelay { get; } = DefaultPollingDelay;
 
         /// <summary>
         /// Could events have been lost in the last poll
@@ -351,11 +346,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void OnCompleted()
         {
             Completed = true;
+            onEventReceived?.Invoke();
         }
 
         public void OnError(Exception error)
         {
             Error = error;
+            Completed = true;
+            onEventReceived?.Invoke();
         }
 
         public void OnNext(ProfilerEvent value)
