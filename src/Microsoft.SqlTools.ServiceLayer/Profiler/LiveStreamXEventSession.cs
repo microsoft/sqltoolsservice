@@ -16,7 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
     /// XEvent session that uses XELite's XELiveEventStreamer for push-based live event streaming.
-    /// This replaces SMO ring-buffer polling with direct event delivery via XELite's event_stream target.
     /// </summary>
     public class LiveStreamXEventSession : XEventSession, IObservableXEventSession
     {
