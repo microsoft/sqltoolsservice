@@ -29,11 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Stops XEvent session
         /// </summary>
         void Stop();
-
-        /// <summary>
-        /// Reads XEvent XML from the default session target
-        /// </summary>
-        string GetTargetXml();
     }
 
     public interface IObservableXEventSession : IXEventSession
