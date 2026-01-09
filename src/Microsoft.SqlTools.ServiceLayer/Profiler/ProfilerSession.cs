@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Xml;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
@@ -23,13 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         private object pollingLock = new object();
         private bool isPolling = false;
-        private ProfilerEvent lastSeenEvent = null;
         private readonly SessionObserver sessionObserver;
         private readonly IXEventSession xEventSession;
         private readonly IDisposable observerDisposable;
         private readonly Action<ProfilerSession> onSessionActivity;
-        private bool eventsLost = false;
-        int lastSeenId = -1;
 
         /// <summary>
         /// Connection to use for the session
@@ -59,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private void OnSessionActivity()
         {
             onSessionActivity?.Invoke(this);
-        }    
+        }
 
         /// <summary>
         /// Underlying XEvent session wrapper
@@ -108,139 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        /// <summary>
-        /// Could events have been lost in the last poll
-        /// </summary>
-        public bool EventsLost
-        {
-            get
-            {
-                return this.eventsLost;
-            }
-        }
 
-        /// <summary>
-        /// Determine if an event was caused by the XEvent polling queries
-        /// </summary>
-        private bool IsProfilerEvent(ProfilerEvent currentEvent)
-        {
-            if (string.IsNullOrWhiteSpace(currentEvent.Name) ||  currentEvent.Values == null)
-            {
-                return false;
-            }
-
-            if ((currentEvent.Name.Equals("sql_batch_completed")
-                || currentEvent.Name.Equals("sql_batch_starting"))
-                && currentEvent.Values.TryGetValue("batch_text", out string value))
-            {
-                return value.Contains("SELECT target_data FROM sys.dm_xe_session_targets")
-                    || currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_database_session_targets");
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Removed profiler polling events from event list
-        /// </summary>
-        public List<ProfilerEvent> FilterProfilerEvents(List<ProfilerEvent> events)
-        {
-            int idx = events.Count;
-            while (--idx >= 0)
-            {
-                if (IsProfilerEvent(events[idx]))
-                {
-                    events.RemoveAt(idx);
-                }
-            }
-            return events;
-        }
-
-        /// <summary>
-        /// Filter the event list to not include previously seen events,
-        /// and to exclude events that happened before the profiling session began.
-        /// For push-based sessions, events are already deduplicated by XELite, so we keep all events.
-        /// </summary>
-        public void FilterOldEvents(List<ProfilerEvent> events)
-        {
-            this.eventsLost = false;
-            
-            // For push-based sessions (observable), events are streamed directly and don't need deduplication
-            if (sessionObserver != null)
-            {
-                return;
-            }
-
-            // For ring-buffer polling sessions, filter based on event_sequence
-            if (lastSeenId != -1)
-            {
-                // find the last event we've previously seen
-                bool foundLastEvent = false;
-                int idx = events.Count;
-                
-                // Guard against missing event_sequence field
-                if (!events.LastOrDefault()?.Values?.ContainsKey("event_sequence") == true)
-                {
-                    return;
-                }
-                
-                int earliestSeenEventId = int.Parse(events.LastOrDefault().Values["event_sequence"]);
-                while (--idx >= 0)
-                {
-                    // Guard against missing event_sequence in individual events
-                    if (!events[idx].Values.TryGetValue("event_sequence", out var seqValue))
-                    {
-                        continue;
-                    }
-                    
-                    // update the furthest back event we've found so far
-                    earliestSeenEventId = Math.Min(earliestSeenEventId, int.Parse(seqValue));
-
-                    if (events[idx].Equals(lastSeenEvent))
-                    {
-                        foundLastEvent = true;
-                        break;
-                    }
-                }
-
-                // remove all the events we've seen before
-                if (foundLastEvent)
-                {
-                    events.RemoveRange(0, idx + 1);
-                }
-                else if(earliestSeenEventId > (lastSeenId + 1))
-                {
-                    // if there's a gap between the expected next event sequence
-                    // and the furthest back event seen, we know we've lost events
-                    this.eventsLost = true;
-                }
-
-                // save the last event so we know where to clean-up the list from next time
-                if (events.Count > 0)
-                {
-                    lastSeenEvent = events.LastOrDefault();
-                    if (lastSeenEvent?.Values?.TryGetValue("event_sequence", out var lastSeq) == true)
-                    {
-                        lastSeenId = int.Parse(lastSeq);
-                    }
-                }
-            }
-            else    // first poll at start of session, all data is old
-            {
-                // save the last event as the beginning of the profiling session
-                if (events.Count > 0)
-                {
-                    lastSeenEvent = events.LastOrDefault();
-                    if (lastSeenEvent?.Values?.TryGetValue("event_sequence", out var lastSeq) == true)
-                    {
-                        lastSeenId = int.Parse(lastSeq);
-                    }
-                }
-
-                // ignore all events before the session began (ring buffer contains history)
-                events.Clear();
-            }
-        }
 
         /// <summary>
         /// Indicates if the current session has completed processing and will provide no new events
@@ -249,80 +113,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             get
             {
-                return (sessionObserver != null) ? sessionObserver.Completed : error != null;
+                return sessionObserver?.Completed ?? false;
             }
         }
 
-        private Exception error;
         /// <summary>
         /// Provides any fatal error encountered when processing a session
         /// </summary>
-        public Exception Error
-        {
-            get
-            {
-                return sessionObserver?.Error ?? error;
-            }
-        }
+        public Exception Error => sessionObserver?.Error;
 
-        /// Returns the current set of events in the session buffer.
-        /// For RingBuffer sessions, returns the content of the session ring buffer by querying the server.
-        /// For LiveTarget and LocalFile sessions, returns the events buffered in memory since the last call to GetCurrentEvents.
+        /// <summary>
+        /// Returns the current set of events buffered in memory since the last call.
+        /// Events are pushed by XELite and buffered in the SessionObserver.
         /// </summary>
-        /// <returns></returns>
         public IEnumerable<ProfilerEvent> GetCurrentEvents()
         {
-            if (XEventSession == null && sessionObserver == null)
+            if (sessionObserver == null)
             {
                 return Enumerable.Empty<ProfilerEvent>();
             }
-            if (sessionObserver == null)
-            {
-                try
-                {
-                    var targetXml = XEventSession.GetTargetXml();
-
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(targetXml);
-
-                    var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
-                    var rawEvents = nodes.Cast<XmlNode>().Select(ParseProfilerEvent).ToList();
-                    FilterOldEvents(rawEvents);
-                    return rawEvents;
-                }
-                catch (Exception e)
-                {
-                    error ??= e;
-                    return Enumerable.Empty<ProfilerEvent>();
-                }
-            }
             return sessionObserver.CurrentEvents;
-        }
-
-        /// <summary>
-        /// Parse a single event node from XEvent XML
-        /// </summary>
-        private static ProfilerEvent ParseProfilerEvent(XmlNode node)
-        {
-            var name = node.Attributes["name"];
-            var timestamp = node.Attributes["timestamp"];
-
-            var profilerEvent = new ProfilerEvent(name.InnerText, timestamp.InnerText);
-
-            foreach (XmlNode childNode in node.ChildNodes)
-            {
-                var childName = childNode.Attributes["name"];
-                XmlNode typeNode = childNode.SelectSingleNode("type");
-                var typeName = typeNode.Attributes["name"];
-                XmlNode valueNode = childNode.SelectSingleNode("value");
-
-                if (!profilerEvent.Values.ContainsKey(childName.InnerText))
-                {
-                    profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
-                }
-            }
-
-            return profilerEvent;
         }
 
         public void Dispose()
@@ -360,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             writeBuffer.Add(value);
             eventCount++;
-            // Notify that a new event has arrived (triggers immediate polling)
+            // Notify that a new event has arrived
             onEventReceived?.Invoke();
         }
 

@@ -84,11 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             observableSession.Close();
             // Note: We don't stop the SMO session here since other clients may be using it
         }
-
-        /// <summary>
-        /// Live streaming does not use target XML polling - returns empty string.
-        /// </summary>
-        public override string GetTargetXml() => string.Empty;
     }
 
     /// <summary>
@@ -303,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (syncObj)
             {
-                return new List<IObserver<ProfilerEvent>>(observers);
+                return [.. observers];
             }
         }
 

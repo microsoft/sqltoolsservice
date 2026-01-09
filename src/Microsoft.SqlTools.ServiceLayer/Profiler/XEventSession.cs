@@ -5,7 +5,6 @@
 
 #nullable disable
 
-using System.Linq;
 using Microsoft.SqlServer.Management.XEvent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
@@ -27,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             return new SessionId($"{Session.Parent.Name}_{Session.ID}", Session?.ID);
         }
+
         public virtual void Start()
         {
             this.Session.Start();
@@ -35,18 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public virtual void Stop()
         {
             this.Session.Stop();
-        }
-
-        public virtual string GetTargetXml()
-        {
-            if (this.Session == null)
-            {
-                return string.Empty;
-            }
-
-            // try to read events from the first target
-            Target defaultTarget = this.Session.Targets.FirstOrDefault();
-            return defaultTarget != null ? defaultTarget.GetTargetData() : string.Empty;
         }
     }
 }

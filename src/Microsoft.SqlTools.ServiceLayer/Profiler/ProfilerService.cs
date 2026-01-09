@@ -409,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Callback when profiler events are available
         /// </summary>
-        public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
         {
             // pass the profiler events on to the client
             this.ServiceHost.SendEvent(
@@ -417,8 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 new ProfilerEventsAvailableParams()
                 {
                     OwnerUri = sessionId,
-                    Events = events,
-                    EventsLost = eventsLost
+                    Events = events
                 });
         }
 

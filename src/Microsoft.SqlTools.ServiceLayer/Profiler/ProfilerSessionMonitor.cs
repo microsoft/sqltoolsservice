@@ -196,9 +196,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             hasMoreEvents = false;
                             var events = GetSessionEvents(session);
-                            bool eventsLost = session.EventsLost;
 
-                            if (events.Count > 0 || eventsLost)
+                            if (events.Count > 0)
                             {
                                 hasMoreEvents = true;
                                 // notify all active viewers for the session
@@ -210,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                                         {
                                             if (allViewers.TryGetValue(viewerId, out var viewer) && viewer.active)
                                             {
-                                                SendEventsToListeners(viewerId, events, eventsLost);
+                                                SendEventsToListeners(viewerId, events);
                                             }
                                         }
                                     }
@@ -243,8 +242,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
 
             events.AddRange(session.GetCurrentEvents());
-            
-            return session.FilterProfilerEvents(events);
+
+            return events;
         }
 
         /// <summary>
@@ -270,13 +269,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Notify listeners when new profiler events are available
         /// </summary>
-        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events, bool eventsLost)
+        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events)
         {
             lock (listenersLock)
             {
                 foreach (var listener in this.listeners)
                 {
-                    listener.EventsAvailable(sessionId, events, eventsLost);
+                    listener.EventsAvailable(sessionId, events);
                 }
             }
         }

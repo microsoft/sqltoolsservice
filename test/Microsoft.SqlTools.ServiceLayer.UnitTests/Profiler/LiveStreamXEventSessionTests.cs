@@ -124,17 +124,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.That(observer.Completed, Is.True, "Observer should be completed after stop");
         }
 
-        [Test]
-        public void LiveStreamXEventSession_GetTargetXml_returns_empty_string()
-        {
-            // Arrange
-            var fetcher = new TestLiveEventFetcher(Array.Empty<TestXEvent>());
-            var session = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
-
-            // Act & Assert - live streaming doesn't use XML polling
-            Assert.That(session.GetTargetXml(), Is.EqualTo(string.Empty));
-        }
-
         #endregion
 
         #region LiveStreamObservable Reconnection Tests
@@ -290,31 +279,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // Assert - profilerSession should allow processing after push event
             Assert.That(profilerSession.TryEnterProcessing(), Is.True, "Should allow processing after push event");
             profilerSession.ExitProcessing();
-        }
-
-        [Test]
-        public void ProfilerSession_FilterOldEvents_skips_filtering_for_observable_sessions()
-        {
-            // Arrange
-            var testEvents = CreateTestEvents(1);
-            var fetcher = new TestLiveEventFetcher(testEvents);
-            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
-            var profilerSession = new ProfilerSession(liveSession);
-
-            // Create events without event_sequence (as push events don't need it)
-            var pushEvents = new List<ProfilerEvent>
-            {
-                new ProfilerEvent("event1", DateTimeOffset.Now.ToString()),
-                new ProfilerEvent("event2", DateTimeOffset.Now.ToString())
-            };
-
-            // Act - FilterOldEvents should not remove events for observable sessions
-            liveSession.Start();
-            Thread.Sleep(100);
-            profilerSession.FilterOldEvents(pushEvents);
-
-            // Assert - events should not be filtered for push-based sessions
-            Assert.That(pushEvents.Count, Is.EqualTo(2), "Push events should not be filtered");
         }
 
         [Test]

@@ -95,8 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     stopped = true;
                 });
 
-            mockSession.Setup(p => p.GetTargetXml()).Returns("<RingBufferTarget/>");
-
             mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
             var sessionListener = new TestSessionListener();
             var profilerService = new ProfilerService();
@@ -161,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // capture Listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
-            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
+            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>())).Callback(() =>
                 {
                     eventsReceivedCount++;
                 });
@@ -272,10 +270,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var filePath = @"c:\folder\file.xel";
             var param = new StartProfilingParams() { OwnerUri = "someUri", SessionType = ProfilingSessionType.LocalFile, SessionName =  filePath};
             var mockSession = new Mock<IObservableXEventSession>();
-            mockSession.Setup(p => p.GetTargetXml()).Callback(() =>
-            {
-                throw new XEventException();
-            });
             mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
             var requestContext = new Mock<RequestContext<StartProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
