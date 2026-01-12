@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
@@ -210,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         do
                         {
                             hasMoreEvents = false;
-                            var events = GetSessionEvents(session);
+                            var events = session.GetCurrentEvents().ToList();
 
                             if (events.Count > 0)
                             {
@@ -246,19 +247,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                 });
             }
-        }
-
-        private List<ProfilerEvent> GetSessionEvents(ProfilerSession session)
-        {
-            var events = new List<ProfilerEvent>();
-            if (session == null || session.XEventSession == null)
-            {
-                return events;
-            }
-
-            events.AddRange(session.GetCurrentEvents());
-
-            return events;
         }
 
         /// <summary>

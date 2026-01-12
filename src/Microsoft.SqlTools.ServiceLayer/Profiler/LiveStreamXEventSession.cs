@@ -82,7 +82,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public override void Stop()
         {
             observableSession.Close();
-            // Note: We don't stop the SMO session here since other clients may be using it
         }
     }
 

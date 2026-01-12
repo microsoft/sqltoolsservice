@@ -141,24 +141,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
     }
 
+    /// <summary>
+    /// Observer that receives profiler events from an IObservable stream and buffers them
+    /// for immediate delivery to the ProfilerSessionMonitor.
+    /// Implements the observer pattern to support push-based XELite streaming, where events
+    /// are delivered to clients as soon as they arrive.
+    /// </summary>
     [DebuggerDisplay("SessionObserver. Current:{writeBuffer.Count} Total:{eventCount}")]
     class SessionObserver : IObserver<ProfilerEvent>
     {
+        /// <summary>
+        /// Buffer that accumulates incoming events until they are retrieved via CurrentEvents.
+        /// Uses lock-free swap pattern for thread-safe access.
+        /// </summary>
         private List<ProfilerEvent> writeBuffer = new List<ProfilerEvent>();
+
+        /// <summary>
+        /// Total count of events received since the observer was created (for diagnostics).
+        /// </summary>
         private Int64 eventCount = 0;
+
+        /// <summary>
+        /// Optional callback invoked when events arrive, complete, or error occurs.
+        /// Triggers immediate processing in the ProfilerSessionMonitor (push-based delivery).
+        /// </summary>
         private readonly Action onEventReceived;
 
+        /// <summary>
+        /// Creates a new SessionObserver.
+        /// </summary>
+        /// <param name="onEventReceived">Optional callback invoked when events are available or stream ends</param>
         public SessionObserver(Action onEventReceived = null)
         {
             this.onEventReceived = onEventReceived;
         }
 
+        /// <summary>
+        /// Called when the observable stream completes normally (e.g., session stopped).
+        /// Marks the observer as completed and notifies the polling loop.
+        /// </summary>
         public void OnCompleted()
         {
             Completed = true;
             onEventReceived?.Invoke();
         }
 
+        /// <summary>
+        /// Called when the observable stream encounters an error (e.g., connection lost after max retries).
+        /// Stores the error, marks completion, and notifies the polling loop.
+        /// </summary>
+        /// <param name="error">The exception that caused the stream to fail</param>
         public void OnError(Exception error)
         {
             Error = error;
@@ -166,6 +198,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             onEventReceived?.Invoke();
         }
 
+        /// <summary>
+        /// Called for each profiler event received from the XELite stream.
+        /// Adds the event to the write buffer and notifies the polling loop.
+        /// </summary>
+        /// <param name="value">The profiler event received from the stream</param>
         public void OnNext(ProfilerEvent value)
         {
             writeBuffer.Add(value);
@@ -174,10 +211,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             onEventReceived?.Invoke();
         }
 
+        /// <summary>
+        /// Indicates whether the observable stream has completed (normally or with error).
+        /// </summary>
         public bool Completed { get; private set; }
 
+        /// <summary>
+        /// Contains the error if the stream terminated due to an exception, null otherwise.
+        /// </summary>
         public Exception Error { get; private set; }
 
+        /// <summary>
+        /// Retrieves and clears all buffered events using a lock-free swap pattern.
+        /// A new empty buffer is swapped in atomically, and the old buffer's contents are returned.
+        /// This allows concurrent writes (OnNext) and reads (CurrentEvents) without blocking.
+        /// </summary>
         public IEnumerable<ProfilerEvent> CurrentEvents
         {
             get

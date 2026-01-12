@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             BaseXEStore store = CreateXEventStore(connInfo, connection);
             Session session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
 
-            // Ensure the session is running
+            // Ensure the session is not running before starting it
             if (!session.IsRunning)
             {
                 session.Start();
@@ -391,11 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var statement = createStatement.Replace("{sessionName}", sessionName);
             connection.ServerConnection.ExecuteNonQuery(statement);
             store.Refresh();
-            session = store.Sessions[sessionName];
-            if (session == null)
-            {
-                throw new ProfilerException(SR.SessionNotFound);
-            }
+            session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
             if (!session.IsRunning)
             {
                 session.Start();
@@ -412,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 maxReconnectAttempts: 3,
                 reconnectDelay: TimeSpan.FromSeconds(1));
 
-            // Set the SMO session for target XML retrieval
+            // Set the session for session management
             liveSession.Session = session;
 
             return liveSession;
