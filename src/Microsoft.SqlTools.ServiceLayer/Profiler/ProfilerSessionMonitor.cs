@@ -140,13 +140,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Toggle the pause state for the viewer
         /// </summary>
-        public void PauseViewer(string viewerId)
+        /// <param name="viewerId">The viewer identifier</param>
+        /// <param name="isPaused">When successful, contains the new pause state (true = paused, false = active)</param>
+        /// <returns>True if the viewer was found and toggled, false otherwise</returns>
+        public bool PauseViewer(string viewerId, out bool isPaused)
         {
+            isPaused = false;
+
+            if (string.IsNullOrEmpty(viewerId))
+            {
+                return false;
+            }
+
             lock (this.sessionsLock)
             {
-                Viewer v = this.allViewers[viewerId];
-                v.active = !v.active;
-                this.allViewers[viewerId] = v;
+                if (this.allViewers.TryGetValue(viewerId, out Viewer v))
+                {
+                    v.active = !v.active;
+                    this.allViewers[viewerId] = v;
+                    isPaused = !v.active; // active=false means paused=true
+                    return true;
+                }
+                return false;
             }
         }
 

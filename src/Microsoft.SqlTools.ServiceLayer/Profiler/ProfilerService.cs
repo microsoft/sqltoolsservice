@@ -245,13 +245,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Handle request to pause a profiling session
+        /// Handle request to pause or resume a profiling session
+        /// calling on a running session will pause the profiling session
+        /// and calling on a paused session will resume the profiling session
         /// </summary>
         internal async Task HandlePauseProfilingRequest(PauseProfilingParams parameters, RequestContext<PauseProfilingResult> requestContext)
         {
-            monitor.PauseViewer(parameters.OwnerUri);
+            if (parameters == null || string.IsNullOrEmpty(parameters.OwnerUri))
+            {
+                await requestContext.SendError(new ProfilerException(SR.SessionNotFound));
+                return;
+            }
 
-            await requestContext.SendResult(new PauseProfilingResult { });
+            if (!monitor.PauseViewer(parameters.OwnerUri, out bool isPaused))
+            {
+                await requestContext.SendError(new ProfilerException(SR.SessionNotFound));
+                return;
+            }
+
+            await requestContext.SendResult(new PauseProfilingResult { IsPaused = isPaused });
         }
 
         /// <summary>

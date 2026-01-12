@@ -130,6 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public async Task TestPauseProfilingRequest()
         {
             bool success = false;
+            bool? lastPauseState = null;
             string testUri = "test_session";
             int eventsReceivedCount = 0;
 
@@ -139,6 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 .Returns<PauseProfilingResult>((result) =>
                 {
                     success = true;
+                    lastPauseState = result.IsPaused;
                     return Task.FromResult(0);
                 });
 
@@ -194,6 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // pause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
             Assert.True(success, "Pause request should succeed");
+            Assert.True(lastPauseState == true, "IsPaused should be true after pausing");
 
             // wait a bit and verify no more events received while paused
             Thread.Sleep(300);
@@ -205,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // unpause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
             Assert.True(success, "Unpause request should succeed");
+            Assert.True(lastPauseState == false, "IsPaused should be false after unpausing");
 
             requestContext.VerifyAll();
         }
