@@ -12,7 +12,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
@@ -116,23 +115,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                     return;
                 }
 
-                // Map STS DTO → DacFx fields with reflection
-                var dacfxArgs = ReflectionMapper.MapByName(
-                    source: parameters.CommandLineArguments,
-                    destinationFactory: () => new Microsoft.Data.Tools.Schema.CommandLineTool.CommandLineArguments(),
-                    configure: dest =>
-                    {
-                        // Ensure nested object exists; avoids NREs downstream
-                        dest.CommandLineProperties = dest.CommandLineProperties ?? new CommandLineProperty();
+                // Ensure nested object exists; avoids NREs downstream
+                parameters.CommandLineArguments.CommandLineProperties = 
+                    parameters.CommandLineArguments.CommandLineProperties ?? new CommandLineProperty();
 
-                        // Action first so validation has it
-                        dest.Action = parameters.CommandLineArguments.Action;
-                    },
-                    ActionFieldName);
-
-                // Builder fluent API
+                // Builder fluent API - no mapping needed since SqlPackageCommandLineArguments inherits from DacFx type
                 var builder = new SqlPackageCommandBuilder()
-                    .WithArguments(dacfxArgs)
+                    .WithArguments(parameters.CommandLineArguments)
                     .WithVariables(parameters.Variables);
 
                 // Apply masking configuration from parameters
