@@ -44,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for Microsoft Entra tokens
 
+        public const int MaxApplicationNameLength = 128; // Maximum length for Application Name in SQL Connection String
+
         // SQL Error Code Constants
         // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
         private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
@@ -474,8 +476,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Truncate the Application Name to 128 characters; if it is longer, the SQL Client will throw this error: 
             // "The value's length for key 'Application Name' exceeds its limit of '128'."
             // at Microsoft.Data.SqlClient.SqlConnectionString.ValidateValueLength(String value, Int32 limit, String key)\r\n ....
-            const int MaxApplicationNameLength = 128;
-
             if (!string.IsNullOrEmpty(appNameWithFeature) &&
                 appNameWithFeature.Length > MaxApplicationNameLength)
             {
