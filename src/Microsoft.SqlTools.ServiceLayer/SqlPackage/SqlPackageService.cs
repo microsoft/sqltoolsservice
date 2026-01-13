@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                     await requestContext.SendResult(new SqlPackageCommandResult
                     {
                         Success = false,
-                        ErrorMessage = "Invalid request parameters"
+                        ErrorMessage = SR.SqlPackageInvalidRequestParameters
                     });
                     return;
                 }

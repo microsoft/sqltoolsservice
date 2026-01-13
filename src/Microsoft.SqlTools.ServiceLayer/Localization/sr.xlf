@@ -7048,6 +7048,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Query execution completed with errors</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlPackageInvalidRequestParameters">
+        <source>Invalid request parameters</source>
+        <target state="new">Invalid request parameters</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
