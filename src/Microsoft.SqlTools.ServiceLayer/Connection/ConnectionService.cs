@@ -461,13 +461,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             string appNameWithFeature = applicationName;
             // Connection Service will not set custom application name if connection pooling is enabled on service.
-            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
+            // Make sure the application name does not already contain the feature name to avoid appending it multiple times.
+            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.Contains(featureName))
             {
                 int appNameStartIndex = applicationName.IndexOf(ApplicationName);
                 string originalAppName = appNameStartIndex != -1
                     ? applicationName.Substring(0, appNameStartIndex + ApplicationName.Length)
                     : applicationName; // Reset to default if azdata not found.
                 appNameWithFeature = $"{originalAppName}-{featureName}";
+            }
+
+            // Truncate the Application Name to 128 characters; if it is longer, the SQL Client will throw this error: 
+            // "The value's length for key 'Application Name' exceeds its limit of '128'."
+            // at Microsoft.Data.SqlClient.SqlConnectionString.ValidateValueLength(String value, Int32 limit, String key)\r\n ....
+            const int MaxApplicationNameLength = 128;
+
+            if (!string.IsNullOrEmpty(appNameWithFeature) &&
+                appNameWithFeature.Length > MaxApplicationNameLength)
+            {
+                appNameWithFeature = appNameWithFeature.Substring(0, MaxApplicationNameLength);
             }
 
             return appNameWithFeature;
