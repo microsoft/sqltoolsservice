@@ -1173,6 +1173,10 @@
     <value>Adding SQL bindings is not supported for .NET 5</value>
     <comment></comment>
   </data>
+  <data name="SqlPackageInvalidRequestParameters" xml:space="preserve">
+    <value>Invalid request parameters</value>
+    <comment></comment>
+  </data>
   <data name="Statement" xml:space="preserve">
     <value>Statement</value>
     <comment> Statement</comment>

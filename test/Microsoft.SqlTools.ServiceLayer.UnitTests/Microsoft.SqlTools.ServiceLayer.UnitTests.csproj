@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup Label="Configuration">
 		<OutputType>Exe</OutputType>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -22,6 +22,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="Microsoft.SqlPackage.Core" />
 		<PackageReference Include="Moq" />
 		<PackageReference Include="nunit.console" />
 		<PackageReference Include="nunit" />
