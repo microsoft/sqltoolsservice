@@ -368,6 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             // Set the SMO session for target XML retrieval
             liveSession.Session = session;
+            liveSession.SqlConnection = sqlConnection;
 
             return liveSession;
         }
@@ -410,6 +411,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             // Set the session for session management
             liveSession.Session = session;
+            liveSession.SqlConnection = sqlConnection;
 
             return liveSession;
         }

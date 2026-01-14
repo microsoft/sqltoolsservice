@@ -227,12 +227,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                                 {
                                     if (this.sessionViewers.TryGetValue(session.XEventSession.Id, out var viewerIds))
                                     {
-                                        foreach (string viewerId in viewerIds)
+                                        foreach (string viewerId in viewerIds.Where(id => allViewers.TryGetValue(id, out var viewer) && viewer.active))
                                         {
-                                            if (allViewers.TryGetValue(viewerId, out var viewer) && viewer.active)
-                                            {
-                                                SendEventsToListeners(viewerId, events);
-                                            }
+                                            SendEventsToListeners(viewerId, events);
                                         }
                                     }
                                 }

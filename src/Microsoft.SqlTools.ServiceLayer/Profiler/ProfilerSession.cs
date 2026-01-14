@@ -206,6 +206,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Called for each profiler event received from the XELite stream.
         /// Adds the event to the write buffer and notifies the polling loop.
+        /// Note: XELite guarantees sequential event delivery on a single thread,
+        /// so no synchronization is needed for writeBuffer access in this method.
         /// </summary>
         /// <param name="value">The profiler event received from the stream</param>
         public void OnNext(ProfilerEvent value)

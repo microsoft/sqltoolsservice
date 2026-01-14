@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
             var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
             Action<ProfilerSession> callback = session => callbackCount++;
-            var profilerSession = new ProfilerSession(liveSession, onSessionActivity: callback);
+            _ = new ProfilerSession(liveSession, onSessionActivity: callback);
 
             // Act
             liveSession.Start();

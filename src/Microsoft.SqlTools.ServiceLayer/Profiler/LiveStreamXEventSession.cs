@@ -29,6 +29,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public Session Session { get; set; }
 
         /// <summary>
+        /// Gets or sets the SQL connection used for SMO operations.
+        /// This connection is disposed when the session is stopped.
+        /// </summary>
+        public Microsoft.Data.SqlClient.SqlConnection SqlConnection { get; set; }
+
+        /// <summary>
         /// Gets the unique identifier for this XEvent session.
         /// </summary>
         public SessionId Id => sessionId;
@@ -92,6 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             observableSession.Close();
             Session?.Stop();
+            SqlConnection?.Dispose();
         }
     }
 
@@ -286,12 +293,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private void ScheduleReconnect()
         {
             currentReconnectAttempt++;
-            
-            // Exponential backoff with jitter
+
+            // Exponential backoff with jitter (using thread-safe Random.Shared)
             var delay = TimeSpan.FromMilliseconds(
-                baseReconnectDelay.TotalMilliseconds * Math.Pow(2, currentReconnectAttempt - 1) * 
-                (0.5 + new Random().NextDouble() * 0.5));
-            
+                baseReconnectDelay.TotalMilliseconds * Math.Pow(2, currentReconnectAttempt - 1) *
+                (0.5 + Random.Shared.NextDouble() * 0.5));
+
             var token = cancellationTokenSource?.Token ?? CancellationToken.None;
             
             Task.Delay(delay, token).ContinueWith(t =>
