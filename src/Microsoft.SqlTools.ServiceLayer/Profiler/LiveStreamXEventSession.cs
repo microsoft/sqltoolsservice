@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
@@ -17,10 +18,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// <summary>
     /// XEvent session that uses XELite's XELiveEventStreamer for push-based live event streaming.
     /// </summary>
-    public class LiveStreamXEventSession : XEventSession, IObservableXEventSession
+    public class LiveStreamXEventSession : IObservableXEventSession
     {
         private readonly LiveStreamObservable observableSession;
         private readonly SessionId sessionId;
+
+        /// <summary>
+        /// Gets or sets the underlying SMO XEvent Session object (optional, for session management).
+        /// </summary>
+        public Session Session { get; set; }
+
+        /// <summary>
+        /// Gets the unique identifier for this XEvent session.
+        /// </summary>
+        public SessionId Id => sessionId;
 
         /// <summary>
         /// Gets the observable stream of profiler events for push-based delivery.
@@ -61,12 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 reconnectDelay);
         }
 
-        protected override SessionId GetSessionId() => sessionId;
-
         /// <summary>
         /// Starts the live event stream. The underlying XEvent session should already be running.
         /// </summary>
-        public override void Start()
+        public void Start()
         {
             // Ensure the underlying SMO session is running before starting the stream
             if (Session != null && !Session.IsRunning)
@@ -79,9 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Stops the live event stream and optionally the underlying session.
         /// </summary>
-        public override void Stop()
+        public void Stop()
         {
             observableSession.Close();
+            Session?.Stop();
         }
     }
 
@@ -89,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// Observable wrapper for XELiveEventStreamer that provides push-based event delivery
     /// with automatic reconnection on transient failures.
     /// </summary>
-    public class LiveStreamObservable : IObservable<ProfilerEvent>
+    internal class LiveStreamObservable : IObservable<ProfilerEvent>
     {
         private readonly object syncObj = new object();
         private readonly List<IObserver<ProfilerEvent>> observers = new List<IObserver<ProfilerEvent>>();

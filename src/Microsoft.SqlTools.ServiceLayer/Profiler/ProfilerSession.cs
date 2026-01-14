@@ -123,6 +123,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public Exception Error => sessionObserver?.Error;
 
         /// <summary>
+        /// Indicates whether there are pending events in the buffer that haven't been retrieved yet.
+        /// </summary>
+        public bool HasPendingEvents => sessionObserver?.HasPendingEvents ?? false;
+
+        /// <summary>
         /// Returns the current set of events buffered in memory since the last call.
         /// Events are pushed by XELite and buffered in the SessionObserver.
         /// </summary>
@@ -220,6 +225,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Contains the error if the stream terminated due to an exception, null otherwise.
         /// </summary>
         public Exception Error { get; private set; }
+
+        /// <summary>
+        /// Indicates whether there are pending events in the buffer that haven't been retrieved yet.
+        /// </summary>
+        public bool HasPendingEvents => writeBuffer.Count > 0;
 
         /// <summary>
         /// Retrieves and clears all buffered events using a lock-free swap pattern.

@@ -207,15 +207,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     try
                     {
-                        bool hasMoreEvents;
-                        do
+                        int totalEventsSent = 0;
+                        int emptyReadsInARow = 0;
+
+                        // Keep processing until the session is complete and all events are drained.
+                        // We use a counter to handle the race condition where events might still be
+                        // arriving while we're checking for completion.
+                        while (true)
                         {
-                            hasMoreEvents = false;
                             var events = session.GetCurrentEvents().ToList();
 
                             if (events.Count > 0)
                             {
-                                hasMoreEvents = true;
+                                totalEventsSent += events.Count;
+                                emptyReadsInARow = 0;
+
                                 // notify all active viewers for the session
                                 lock (this.sessionsLock)
                                 {
@@ -231,15 +237,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                                     }
                                 }
                             }
-
-                            if (session.Completed)
+                            else
                             {
-                                SendStoppedSessionInfoToListeners(session.XEventSession.Id, session.Error?.Message);
-                                RemoveSession(session.XEventSession.Id, out ProfilerSession tempSession);
-                                tempSession?.Dispose();
-                                return; // Exit after handling completion
+                                emptyReadsInARow++;
+
+                                if (session.Completed)
+                                {
+                                    // Session completed - check one more time for any late events
+                                    // before signaling completion (to handle race conditions)
+                                    if (emptyReadsInARow >= 2)
+                                    {
+                                        // Two empty reads in a row after completion - safe to exit
+                                        SendStoppedSessionInfoToListeners(session.XEventSession.Id, session.Error?.Message);
+                                        RemoveSession(session.XEventSession.Id, out ProfilerSession tempSession);
+                                        tempSession?.Dispose();
+                                        return;
+                                    }
+                                    // First empty read after completion - loop once more to be safe
+                                }
+                                else
+                                {
+                                    // No events and not completed - exit and wait for callback
+                                    break;
+                                }
                             }
-                        } while (hasMoreEvents); // Keep processing if more events arrived during processing
+                        }
                     }
                     finally
                     {

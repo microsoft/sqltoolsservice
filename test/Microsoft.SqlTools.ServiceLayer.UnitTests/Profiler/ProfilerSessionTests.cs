@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public void TestTryEnterProcessing()
         {
             // create new profiler session
-            var profilerSession = new ProfilerSession(new XEventSession());
+            var profilerSession = new ProfilerSession(new TestXEventSession());
 
             // enter the processing block
             Assert.True(profilerSession.TryEnterProcessing());
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void TestXEventSessionProperty()
         {
-            var xeSession = new XEventSession();
+            var xeSession = new TestXEventSession();
             var profilerSession = new ProfilerSession(xeSession);
 
             Assert.That(profilerSession.XEventSession, Is.SameAs(xeSession));
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void TestCompleted_ReturnsFalse_ForNonObservableSession()
         {
-            var profilerSession = new ProfilerSession(new XEventSession());
+            var profilerSession = new ProfilerSession(new TestXEventSession());
 
             Assert.That(profilerSession.Completed, Is.False);
         }
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void TestError_ReturnsNull_ForNonObservableSession()
         {
-            var profilerSession = new ProfilerSession(new XEventSession());
+            var profilerSession = new ProfilerSession(new TestXEventSession());
 
             Assert.That(profilerSession.Error, Is.Null);
         }
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void TestGetCurrentEvents_ReturnsEmpty_ForNonObservableSession()
         {
-            var profilerSession = new ProfilerSession(new XEventSession());
+            var profilerSession = new ProfilerSession(new TestXEventSession());
 
             var events = profilerSession.GetCurrentEvents();
 
@@ -185,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void TestDispose_CanBeCalledSafely()
         {
-            var profilerSession = new ProfilerSession(new XEventSession());
+            var profilerSession = new ProfilerSession(new TestXEventSession());
 
             // Should not throw
             Assert.DoesNotThrow(profilerSession.Dispose);

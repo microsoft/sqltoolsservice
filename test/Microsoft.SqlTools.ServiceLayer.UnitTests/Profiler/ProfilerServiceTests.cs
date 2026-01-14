@@ -320,6 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.Multiple(() =>
             {
                 Assert.That(listener.StoppedSessions, Has.Member(viewerId), "session should have been stopped after reading the file");
+                Assert.That(listener.ErrorMessages.FirstOrDefault(), Is.Null, "no error should have been reported");
                 Assert.That(listener.AllEvents.Keys, Has.Member(viewerId), "session should have events logged for it");
                 Assert.That(listener.AllEvents[viewerId]?.Count, Is.EqualTo(149), "all events from the xel should be in the buffer");
             });
