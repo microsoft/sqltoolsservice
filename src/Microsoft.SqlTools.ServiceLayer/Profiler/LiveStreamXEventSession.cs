@@ -248,7 +248,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             // Use the XEvent UUID if available, otherwise generate a new one
             var uuid = xEvent.UUID != Guid.Empty ? xEvent.UUID : Guid.NewGuid();
-            var profilerEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString(), uuid);
+
+            // Extract event_sequence from actions if available
+            long? eventSequence = null;
+            if (xEvent.Actions != null && 
+                xEvent.Actions.TryGetValue("event_sequence", out var seqValue) && 
+                seqValue != null &&
+                long.TryParse(seqValue.ToString(), out var seq))
+            {
+                eventSequence = seq;
+            }
+
+            var profilerEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString(), uuid, eventSequence);
 
             // Add fields
             foreach (var kvp in xEvent.Fields)
