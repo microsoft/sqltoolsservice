@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -56,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             string connectionString,
             string sessionName,
             SessionId sessionId,
-            int maxReconnectAttempts = 3,
+            int maxReconnectAttempts = ProfilerConstants.DefaultMaxReconnectAttempts,
             TimeSpan? reconnectDelay = null)
             : this(() => new XELiveEventStreamer(connectionString, sessionName), sessionId, maxReconnectAttempts, reconnectDelay)
         {
@@ -68,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public LiveStreamXEventSession(
             Func<IXEventFetcher> streamerFactory,
             SessionId sessionId,
-            int maxReconnectAttempts = 3,
+            int maxReconnectAttempts = ProfilerConstants.DefaultMaxReconnectAttempts,
             TimeSpan? reconnectDelay = null)
         {
             this.sessionId = sessionId ?? throw new ArgumentNullException(nameof(sessionId));
@@ -125,12 +123,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <param name="baseReconnectDelay">Base delay between reconnection attempts (uses exponential backoff)</param>
         public LiveStreamObservable(
             Func<IXEventFetcher> streamerFactory,
-            int maxReconnectAttempts = 3,
+            int maxReconnectAttempts = ProfilerConstants.DefaultMaxReconnectAttempts,
             TimeSpan? baseReconnectDelay = null)
         {
             this.streamerFactory = streamerFactory ?? throw new ArgumentNullException(nameof(streamerFactory));
             this.maxReconnectAttempts = Math.Max(0, maxReconnectAttempts);
-            this.baseReconnectDelay = baseReconnectDelay ?? TimeSpan.FromSeconds(1);
+            this.baseReconnectDelay = baseReconnectDelay ?? ProfilerConstants.DefaultReconnectDelay;
         }
 
         /// <summary>
@@ -184,19 +182,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private void StartStreamInternal()
         {
-            IXEventFetcher fetcher = null;
+            IXEventFetcher fetcher;
             try
             {
                 fetcher = streamerFactory();
+            }
+            catch (Exception ex)
+            {
+                // Handle synchronous exceptions from factory - no fetcher to dispose
+                HandleFactoryException(ex);
+                return;
+            }
+
+            try
+            {
                 var token = cancellationTokenSource.Token;
                 var streamTask = fetcher.ReadEventStream(OnEventReceived, token);
                 streamTask.ContinueWith(t => OnStreamEnded(t, fetcher), TaskScheduler.Default);
             }
             catch (Exception ex)
             {
-                // Handle synchronous exceptions from factory
-                Task.FromException(ex).ContinueWith(t => OnStreamEnded(t, fetcher), TaskScheduler.Default);
+                // Handle synchronous exceptions from ReadEventStream
+                (fetcher as IDisposable)?.Dispose();
+                HandleFactoryException(ex);
             }
+        }
+
+        private void HandleFactoryException(Exception ex)
+        {
+            if (currentReconnectAttempt < maxReconnectAttempts)
+            {
+                ScheduleReconnect();
+                return;
+            }
+
+            // Max retries exceeded - notify error and complete
+            NotifyError(ex);
+            NotifyCompleted();
         }
 
         private Task OnEventReceived(IXEvent xEvent)

@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 // Occasionally we might see the InvalidOperationException due to a read is 
                 // in progress, add the following retry logic will solve the problem.
-                int remainingAttempts = 3;
+                int remainingAttempts = ProfilerConstants.StopSessionMaxRetryAttempts;
                 while (true)
                 {
                     try
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             throw;
                         }
-                        await Task.Delay(500);
+                        await Task.Delay(ProfilerConstants.StopSessionRetryDelay);
                     }
                 }
             }
@@ -363,8 +363,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 connectionString,
                 sessionName,
                 new SessionId(session.ID.ToString()),
-                maxReconnectAttempts: 3,
-                reconnectDelay: TimeSpan.FromSeconds(1));
+                maxReconnectAttempts: ProfilerConstants.DefaultMaxReconnectAttempts,
+                reconnectDelay: ProfilerConstants.DefaultReconnectDelay);
 
             // Set the SMO session for target XML retrieval
             liveSession.Session = session;
@@ -406,8 +406,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 connectionString,
                 sessionName,
                 new SessionId(session.ID.ToString()),
-                maxReconnectAttempts: 3,
-                reconnectDelay: TimeSpan.FromSeconds(1));
+                maxReconnectAttempts: ProfilerConstants.DefaultMaxReconnectAttempts,
+                reconnectDelay: ProfilerConstants.DefaultReconnectDelay);
 
             // Set the session for session management
             liveSession.Session = session;
