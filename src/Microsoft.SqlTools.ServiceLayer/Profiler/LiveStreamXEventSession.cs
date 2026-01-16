@@ -246,8 +246,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private static ProfilerEvent ConvertToProfilerEvent(IXEvent xEvent)
         {
-            var profilerEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            
+            // Use the XEvent UUID if available, otherwise generate a new one
+            var uuid = xEvent.UUID != Guid.Empty ? xEvent.UUID : Guid.NewGuid();
+            var profilerEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString(), uuid);
+
             // Add fields
             foreach (var kvp in xEvent.Fields)
             {
