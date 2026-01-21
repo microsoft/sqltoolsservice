@@ -345,15 +345,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
         /// <summary>
-        /// Handles request to create default deployment options as per DacFx
+        /// Handles request to create default deployment options as per DacFx.
+        /// Used by both Schema Compare and Publish operations.
         /// </summary>
+        /// <param name="parameters">Parameters including normalization flag</param>
+        /// <param name="requestContext">Request context for sending response</param>
         /// <returns></returns>
         public async Task HandleSchemaCompareGetDefaultOptionsRequest(SchemaCompareGetOptionsParams parameters, RequestContext<SchemaCompareOptionsResult> requestContext)
         {
             try
             {
                 // this does not need to be an async operation since this only creates and returns the default object
-                DeploymentOptions options = DeploymentOptions.GetDefaultSchemaCompareOptions();
+                DeploymentOptions options = DeploymentOptions.GetDefaultSchemaCompareOptions(parameters.NormalizeToNativeDefaults);
 
                 await requestContext.SendResult(new SchemaCompareOptionsResult()
                 {

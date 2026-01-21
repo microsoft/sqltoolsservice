@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -406,6 +406,58 @@ END
 
             SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
             await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
+        }
+
+        /// <summary>
+        /// Verify that NormalizeToNativeDefaults parameter controls STS overrides vs native defaults
+        /// </summary>
+        [Test]
+        public async Task ValidateSchemaCompareGetOptionsWithNormalizationFlag()
+        {
+            var requestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();
+            SchemaCompareOptionsResult schemaCompareResult = null;
+            SchemaCompareOptionsResult publishResult = null;
+
+            requestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>()))
+                .Returns(Task.FromResult(new object()));
+
+            // Test Schema Compare (NormalizeToNativeDefaults = false) - should have STS overrides
+            SchemaCompareGetOptionsParams schemaCompareParams = new SchemaCompareGetOptionsParams { NormalizeToNativeDefaults = false };
+            requestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>()))
+                .Callback<SchemaCompareOptionsResult>(r => schemaCompareResult = r)
+                .Returns(Task.FromResult(new object()));
+            
+            await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(schemaCompareParams, requestContext.Object);
+            
+            Assert.That(schemaCompareResult, Is.Not.Null, "Schema Compare result should not be null");
+            Assert.That(schemaCompareResult.Success, Is.True, "Schema Compare request should succeed");
+            
+            // Verify STS overrides are applied (opposite of DacFx defaults)
+            Assert.That(schemaCompareResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (STS override)");
+            Assert.That(schemaCompareResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value, 
+                Is.True, "DropObjectsNotInSource should be true for Schema Compare (STS override)");
+            Assert.That(schemaCompareResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value, 
+                Is.False, "IgnoreKeywordCasing should be false for Schema Compare (STS override)");
+
+            // Test Publish (NormalizeToNativeDefaults = true) - should have DacFx native defaults
+            SchemaCompareGetOptionsParams publishParams = new SchemaCompareGetOptionsParams { NormalizeToNativeDefaults = true };
+            requestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>()))
+                .Callback<SchemaCompareOptionsResult>(r => publishResult = r)
+                .Returns(Task.FromResult(new object()));
+            
+            await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(publishParams, requestContext.Object);
+            
+            Assert.That(publishResult, Is.Not.Null, "Publish result should not be null");
+            Assert.That(publishResult.Success, Is.True, "Publish request should succeed");
+            
+            // Verify DacFx native defaults are used (opposite of STS overrides)
+            Assert.That(publishResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.False, "AllowDropBlockingAssemblies should be false for Publish (DacFx native default)");
+            Assert.That(publishResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value, 
+                Is.False, "DropObjectsNotInSource should be false for Publish (DacFx native default)");
+            Assert.That(publishResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value, 
+                Is.True, "IgnoreKeywordCasing should be true for Publish (DacFx native default)");
         }
     }
 }

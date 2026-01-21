@@ -13,10 +13,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Defines paramaters for Get default options call
-    /// No parameters required so far
     /// </summary>
     public class SchemaCompareGetOptionsParams
     {
+        /// <summary>
+        /// When true, normalizes the 7 STS-overridden options back to DacFx native defaults.
+        /// This should be true for Publish operations, false for Schema Compare operations.
+        /// Defaults to false for backward compatibility.
+        /// </summary>
+        public bool NormalizeToNativeDefaults { get; set; } = false;
     }
 
     /// <summary>
@@ -29,6 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
     /// <summary>
     /// Defines the Schema Compare request type
+    /// TODO: Consider renaming to a more generic name (e.g., "dacfx/getDefaultDeploymentOptions")
+    /// since this endpoint is now used by both Schema Compare and Publish operations.
     /// </summary>
     class SchemaCompareGetDefaultOptionsRequest
     {
