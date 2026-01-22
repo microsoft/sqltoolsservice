@@ -240,17 +240,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                                 if (session.Completed)
                                 {
-                                    // Session completed - check one more time for any late events
-                                    // before signaling completion (to handle race conditions)
+                                    // Race condition guard: When session.Completed becomes true (set by XELite
+                                    // stream completion), there may still be events in the buffer that were
+                                    // added between our last read and the completion signal. We require two
+                                    // consecutive empty reads after completion to ensure all buffered events
+                                    // have been drained before cleanup.
+                                    //
+                                    // This is NOT an XELite API contract - it's a defensive pattern to handle
+                                    // the timing gap between event buffering and completion notification.
                                     if (emptyReadsInARow >= 2)
                                     {
-                                        // Two empty reads in a row after completion - safe to exit
+                                        // Two consecutive empty reads after completion - buffer is fully drained
                                         SendStoppedSessionInfoToListeners(session.XEventSession.Id, session.Error?.Message);
                                         RemoveSession(session.XEventSession.Id, out ProfilerSession tempSession);
                                         tempSession?.Dispose();
                                         return;
                                     }
-                                    // First empty read after completion - loop once more to be safe
+                                    // First empty read after completion - loop once more to catch any late events
                                 }
                                 else
                                 {
