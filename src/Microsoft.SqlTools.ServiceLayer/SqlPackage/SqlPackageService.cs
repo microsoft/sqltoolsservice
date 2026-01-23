@@ -30,13 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             = new Dictionary<CommandLineToolAction, Action<SqlPackageCommandParams, SqlPackageCommandBuilder>>
             {
                 {
-                    CommandLineToolAction.Publish, (p, b) => ApplyDeployOptions(p, b, false)
+                    CommandLineToolAction.Publish, (p, b) => ApplyDeployOptions(p, b)
                 },
                 {
-                    CommandLineToolAction.Script, (p, b) => ApplyDeployOptions(p, b, false)
+                    CommandLineToolAction.Script, (p, b) => ApplyDeployOptions(p, b)
                 },
                 {
-                    CommandLineToolAction.DeployReport, (p, b) => ApplyDeployOptions(p, b, true)
+                    CommandLineToolAction.DeployReport, (p, b) => ApplyDeployOptions(p, b)
                 },
                 {
                     CommandLineToolAction.Extract, (p, b) =>
@@ -72,12 +72,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// </summary>
         /// <param name="p">Parameters containing deployment options</param>
         /// <param name="b">Builder to apply options to</param>
-        /// <param name="applySTSOverrides">Whether to apply STS-specific overrides (true) or use DacFx native defaults (false)</param>
-        private static void ApplyDeployOptions(SqlPackageCommandParams p, SqlPackageCommandBuilder b, bool applySTSOverrides)
+        private static void ApplyDeployOptions(SqlPackageCommandParams p, SqlPackageCommandBuilder b)
         {
             if (p.DeploymentOptions != null)
             {
-                b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions, applySTSOverrides));
+                b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions));
             }
         }
 

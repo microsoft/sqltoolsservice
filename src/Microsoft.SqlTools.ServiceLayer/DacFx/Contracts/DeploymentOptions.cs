@@ -129,10 +129,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             InitializeBooleanTypeOptions(options);
         }
 
-        public DeploymentOptions() : this(useSchemaCompareDefaults: true)
-        {
-        }
-
         public DeploymentOptions(DacDeployOptions options)
         {
             SetOptions(options);
