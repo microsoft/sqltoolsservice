@@ -290,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 // this does not need to be an async operation since this only creates and returns the default object
-                DeploymentOptions options = DeploymentOptions.GetDeploymentOptions(parameters.Scenario);
+                DeploymentOptions options = new DeploymentOptions(parameters.Scenario);
 
                 await requestContext.SendResult(new GetDeploymentOptionsResult()
                 {
