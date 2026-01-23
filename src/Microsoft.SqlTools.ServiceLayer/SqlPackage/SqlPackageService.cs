@@ -30,13 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             = new Dictionary<CommandLineToolAction, Action<SqlPackageCommandParams, SqlPackageCommandBuilder>>
             {
                 {
-                    CommandLineToolAction.Publish, (p, b) => ApplyDeployOptions(p, b)
+                    CommandLineToolAction.Publish, ApplyDeployOptions
                 },
                 {
-                    CommandLineToolAction.Script, (p, b) => ApplyDeployOptions(p, b)
+                    CommandLineToolAction.Script, ApplyDeployOptions
                 },
                 {
-                    CommandLineToolAction.DeployReport, (p, b) => ApplyDeployOptions(p, b)
+                    CommandLineToolAction.DeployReport, ApplyDeployOptions
                 },
                 {
                     CommandLineToolAction.Extract, (p, b) =>
