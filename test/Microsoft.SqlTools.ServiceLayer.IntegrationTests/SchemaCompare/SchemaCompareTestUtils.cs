@@ -11,7 +11,6 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using System;
@@ -186,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             VerifyBooleanOptionsDictionary(deploymentOptions.BooleanOptionsDictionary, dacDeployOptions);
         }
 
-        internal static bool ValidateOptionsEqualsDefault(SchemaCompareOptionsResult options)
+        internal static bool ValidateOptionsEqualsDefault(GetDeploymentOptionsResult options)
         {
             DeploymentOptions defaultOpt = new DeploymentOptions();
             DeploymentOptions actualOpt = options.DefaultDeploymentOptions;
@@ -215,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 }
             }
 
-            // Verify the default booleanOptionsDictionary with the SchemaCompareOptionsResult options property values
+            // Verify the default booleanOptionsDictionary with the GetDeploymentOptionsResult options property values
             DacFxServiceTests dacFxServiceTests = new DacFxServiceTests();
             dacFxServiceTests.VerifyExpectedAndActualBooleanOptionsDictionary(defaultOpt.BooleanOptionsDictionary, options.DefaultDeploymentOptions.BooleanOptionsDictionary);
 
