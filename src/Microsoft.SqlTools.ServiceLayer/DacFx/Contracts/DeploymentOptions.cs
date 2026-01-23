@@ -100,18 +100,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         #endregion
 
         /// <summary>
-        /// Creates DeploymentOptions with appropriate defaults based on the operation type.
+        /// Creates DeploymentOptions with appropriate defaults based on the deployment scenario.
+        /// Deployment: Uses DacFx native defaults without any modifications.
         /// Schema Compare: Uses modified defaults that match SSMS behavior (7 specific overrides).
-        /// Publish: Uses DacFx native defaults without any modifications.
         /// </summary>
-        /// <param name="useSchemaCompareDefaults">When true, applies 7 SSMS-matching overrides for Schema Compare operations. When false, uses pure DacFx native defaults for Publish operations.</param>
-        internal DeploymentOptions(bool useSchemaCompareDefaults)
+        /// <param name="scenario">The deployment scenario</param>
+        internal DeploymentOptions(DeploymentScenario scenario)
         {
             DacDeployOptions options = new DacDeployOptions();
 
-            // Schema Compare: Apply 7 SSMS-matching overrides
-            // Publish: Use DacFx native defaults (no overrides)
-            if (useSchemaCompareDefaults)
+            // Apply SSMS-matching overrides for Schema Compare scenario
+            if (scenario == DeploymentScenario.SchemaCompare)
             {
                 // SSMS has different defaults compared to DacFx. We are overriding these 7 defaults to match SSMS behavior.
                 // SSMS defaults are defined in DeployModel.cs at .../DACWizard/DeployWizard/DeployModel.cs
@@ -123,6 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 options.IgnoreKeywordCasing = false;
                 options.IgnoreSemicolonBetweenStatements = false;
             }
+            // Deployment scenario uses DacFx native defaults (no overrides needed)
 
             // Initializing the default boolean type options to the BooleanOptionsDictionary
             // Not considering DacFx default ExcludeObjectTypes, as it has some STS defaults which needs to be considered here, DacFx defaults are only considered for InitializeFromProfile(), where options are loading from profile
@@ -282,20 +282,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Gets default deployment options for Schema Compare operations.
-        /// By default, returns Schema Compare defaults (modified to match SSMS behavior).
+        /// Gets deployment options for the specified scenario.
         /// </summary>
-        /// <param name="useNativeDefaults">When true, returns pure DacFx native defaults instead of SSMS-matching modified defaults. Typically false for Schema Compare operations.</param>
-        /// <returns>DeploymentOptions configured for Schema Compare (default) or with DacFx native defaults if specified</returns>
-        public static DeploymentOptions GetDefaultSchemaCompareOptions(bool useNativeDefaults = false)
+        /// <param name="scenario">The deployment scenario - Deployment (default) for DacFx native defaults, SchemaCompare for SSMS-matching defaults</param>
+        /// <returns>DeploymentOptions configured for the specified scenario</returns>
+        public static DeploymentOptions GetDeploymentOptions(DeploymentScenario scenario = DeploymentScenario.Deployment)
         {
-            return new DeploymentOptions(useSchemaCompareDefaults: !useNativeDefaults);
+            return new DeploymentOptions(scenario);
         }
 
+        /// <summary>
+        /// Gets default deployment options for Publish operations.
+        /// Returns DacFx native defaults.
+        /// </summary>
+        /// <returns>DeploymentOptions configured for Publish</returns>
         public static DeploymentOptions GetDefaultPublishOptions()
         {
             // Publish operations use DacFx native defaults (no SSMS-matching overrides)
-            DeploymentOptions result = new DeploymentOptions(useSchemaCompareDefaults: false);
+            DeploymentOptions result = GetDeploymentOptions(DeploymentScenario.Deployment);
 
             result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != Enum.GetName(ObjectType.DatabaseScopedCredentials)).ToArray(); // re-include database-scoped credentials
 

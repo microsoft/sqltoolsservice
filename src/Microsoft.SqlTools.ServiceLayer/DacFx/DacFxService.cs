@@ -290,8 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 // this does not need to be an async operation since this only creates and returns the default object
-                bool useNativeDefaults = parameters.Scenario == DeploymentScenario.Deployment;
-                DeploymentOptions options = DeploymentOptions.GetDefaultSchemaCompareOptions(useNativeDefaults);
+                DeploymentOptions options = DeploymentOptions.GetDeploymentOptions(parameters.Scenario);
 
                 await requestContext.SendResult(new GetDeploymentOptionsResult()
                 {

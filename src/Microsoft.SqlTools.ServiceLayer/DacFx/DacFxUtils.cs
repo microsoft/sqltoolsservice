@@ -16,7 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         /// <summary>
         /// Converts DeploymentOptions used in STS and ADS to DacDeployOptions which can be passed to the DacFx apis.
-        /// The caller must provide properly configured DeploymentOptions (use GetDefaultSchemaCompareOptions() or GetDefaultPublishOptions()).
         /// </summary>
         /// <param name="deploymentOptions">DeploymentOptions to convert. Must not be null.</param>
         /// <returns>DacDeployOptions</returns>
