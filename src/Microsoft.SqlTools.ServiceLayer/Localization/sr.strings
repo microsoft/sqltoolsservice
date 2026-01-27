@@ -2238,6 +2238,7 @@ compatibilityLevel_sql15 = SQL Server 2016 (130)
 compatibilityLevel_sql2017 = SQL Server 2017 (140)
 compatibilityLevel_sqlv150 = SQL Server 2019 (150)
 compatibilityLevel_sqlv160 = SQL Server 2022 (160)
+compatibilityLevel_sqlv170 = SQL Server 2025 (170)
 general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
