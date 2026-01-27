@@ -17,14 +17,14 @@
                 <dependency id="Microsoft.Data.SqlClient" version="5.1.6" />
                 <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="172.64.0" />
                 <dependency id="Newtonsoft.Json" version="13.0.3" />
-                <dependency id="System.Configuration.ConfigurationManager" version="7.0.0" />
+                <dependency id="System.Configuration.ConfigurationManager" version="10.0.0" />
             </group>
-            <group targetFramework="net8.0">
+            <group targetFramework="net10.0">
                 <dependency id="Azure.Identity" version="1.12.0" />
                 <dependency id="Microsoft.Data.SqlClient" version="5.1.6" />
                 <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="172.64.0" />
                 <dependency id="Newtonsoft.Json" version="13.0.3" />
-                <dependency id="System.Configuration.ConfigurationManager" version="7.0.0" />
+                <dependency id="System.Configuration.ConfigurationManager" version="10.0.0" />
             </group>
         </dependencies>
     </metadata>
@@ -44,19 +44,19 @@
         <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net472" />
         <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net472" />
 
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\de" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\es" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\fr" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\it" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ja" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ko" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\pt-br" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\ru" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\zh-hans" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net8.0\zh-hant" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\de" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\es" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\fr" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\it" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\ja" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\ko" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\pt-br" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\ru" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\zh-hans" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net10.0\zh-hant" />
 
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net8.0" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net8.0" />
-        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net8.0\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net8.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net10.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net10.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net10.0\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net10.0" />
     </files>
 </package>

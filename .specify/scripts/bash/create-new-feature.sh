@@ -92,7 +92,9 @@ get_branch_prefix() {
     fi
     
     # Return prefix with trailing slash if set, empty string otherwise
+    # Remove any existing trailing slash first to avoid double slashes
     if [ -n "$prefix" ]; then
+        prefix="${prefix%/}"
         echo "${prefix}/"
     else
         echo ""

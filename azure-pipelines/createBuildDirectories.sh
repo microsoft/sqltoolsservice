@@ -39,7 +39,7 @@ dotnetProjectArray=(
 )
 
 # Please update the framework vars when updating target framework for the projects
-framework8="/bin/Debug/net8.0/"
+framework8="/bin/Debug/net10.0/"
 
 requiredLocDirectories=(
     "pt-br"

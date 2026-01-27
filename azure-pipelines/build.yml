@@ -211,10 +211,10 @@ steps:
     - task: ArchiveFiles@1
       displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
       inputs:
-        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net8.0'
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net10.0'
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
-        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net8.0.${{ platform.archiveFileFormat }}'
+        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net10.0.${{ platform.archiveFileFormat }}'
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'

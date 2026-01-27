@@ -9,23 +9,23 @@
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.SqlTools.Authentication.UnitTests": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
-      "net8.0"
+      "net10.0"
     ]
   },
   "Frameworks": [
-    "net8.0"
+    "net10.0"
   ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
@@ -40,7 +40,7 @@
       "Name": "Microsoft.SqlTools.ManagedBatchParser",
       "Frameworks": [
         "net472",
-        "net8.0"
+        "net10.0"
       ]
     }
   ],

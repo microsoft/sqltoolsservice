@@ -4,10 +4,10 @@ pr: none
 variables:
   # Major version number for the release
 - name: Major
-  value: '5'
+  value: '6'
   # Minor version number for the release (should be incremented post a stable release)
 - name: Minor
-  value: '8'
+  value: '0'
   # Patch version number for the release (should be incremented in release branch once one is created)
 - name: Patch
   value: '0'
@@ -18,7 +18,7 @@ stages:
   - name: buildConfiguration
     value: 'Release'
   - name: ManagedBatchParserMajor
-    value: '4'
+    value: '5'
   - name: ManagedBatchParserMinor
     value: '0'
     # Set to true to build a stable release.

@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Token class used by the lexer in Batch Parser
         /// </summary>
-        internal Token(LexerTokenType tokenType, PositionStruct begin, PositionStruct end, string text, string filename)
+        public Token(LexerTokenType tokenType, PositionStruct begin, PositionStruct end, string text, string filename)
         {
             TokenType = tokenType;
             Begin = begin;

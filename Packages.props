@@ -73,17 +73,17 @@
   <!-- The following packages always need to be updated to the current .NET SDK version. -->
   <ItemGroup>
     <PackageReference Update="Azure.Core" Version="1.41.0" />
-    <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
-    <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
-    <PackageReference Update="System.Composition" Version="8.0.0" />
-    <PackageReference Update="System.Configuration.ConfigurationManager" Version="9.0.0-rc.2.24473.5" />
-    <PackageReference Update="System.Drawing.Common" Version="5.0.3" />
-    <PackageReference Update="System.IO.Packaging" Version="9.0.0-rc.2.24473.5" />
-    <PackageReference Update="System.Runtime.Caching" Version="9.0.0-rc.2.24473.5" />
-    <PackageReference Update="System.Security.Permissions" Version="8.0.0" />
-    <PackageReference Update="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Update="System.Text.Encodings.Web" Version="8.0.0" />
-    <PackageReference Update="System.Text.Json" Version="8.0.5" />
+    <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="10.0.0" />
+    <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.0" />
+    <PackageReference Update="System.Composition" Version="10.0.0" />
+    <PackageReference Update="System.Configuration.ConfigurationManager" Version="10.0.0" />
+    <PackageReference Update="System.Drawing.Common" Version="10.0.0" />
+    <PackageReference Update="System.IO.Packaging" Version="10.0.0" />
+    <PackageReference Update="System.Runtime.Caching" Version="10.0.0" />
+    <PackageReference Update="System.Security.Permissions" Version="10.0.0" />
+    <PackageReference Update="System.Text.Encoding.CodePages" Version="10.0.0" />
+    <PackageReference Update="System.Text.Encodings.Web" Version="10.0.0" />
+    <PackageReference Update="System.Text.Json" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
