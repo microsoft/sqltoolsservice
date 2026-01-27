@@ -16,12 +16,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public enum DeploymentScenario
     {
         /// <summary>
-        /// Deployment/Publish scenario - uses DacFx native defaults (this is the default)
+        /// Deployment/Publish scenario - uses DacFx native defaults
         /// </summary>
         Deployment = 0,
 
         /// <summary>
-        /// Schema Compare scenario - uses modified defaults that match SSMS behavior
+        /// Schema Compare scenario - uses modified defaults
         /// </summary>
         SchemaCompare = 1
     }
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// Specifies the scenario for which to retrieve default deployment options.
         /// Deployment (default): Returns DacFx native defaults (for Publish operations).
-        /// SchemaCompare: Returns modified defaults that match SSMS behavior.
+        /// SchemaCompare: Returns modified defaults.
         /// </summary>
         public DeploymentScenario Scenario { get; set; } = DeploymentScenario.Deployment;
     }

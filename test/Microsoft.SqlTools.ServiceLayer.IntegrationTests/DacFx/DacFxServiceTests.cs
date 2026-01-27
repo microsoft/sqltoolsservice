@@ -808,36 +808,24 @@ FROM MissingEdgeHubInputStream'";
             DacFxService service = new DacFxService();
 
             // Test Deployment scenario (default) - should return DacFx native defaults
-            var deploymentRequestContext = new Mock<RequestContext<GetDeploymentOptionsResult>>();
+            MockRequest<GetDeploymentOptionsResult> deploymentRequestMock = new();
             GetDeploymentOptionsParams deploymentParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.Deployment };
-            GetDeploymentOptionsResult deploymentResult = null;
 
-            deploymentRequestContext.Setup(x => x.SendResult(It.IsAny<GetDeploymentOptionsResult>()))
-                .Callback<GetDeploymentOptionsResult>(r => deploymentResult = r)
-                .Returns(Task.FromResult(new object()));
+            await service.HandleGetDeploymentOptionsRequest(deploymentParams, deploymentRequestMock.Object);
 
-            await service.HandleGetDeploymentOptionsRequest(deploymentParams, deploymentRequestContext.Object);
-
-            Assert.That(deploymentResult, Is.Not.Null, "Deployment result should not be null");
-            Assert.That(deploymentResult.Success, Is.True, "Deployment request should succeed");
-            Assert.That(deploymentResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+            deploymentRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "Deployment");
+            Assert.That(deploymentRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
                 Is.False, "AllowDropBlockingAssemblies should be false for Deployment (DacFx native default)");
 
-            // Test Schema Compare scenario - should return SSMS-matching modified defaults
-            var schemaCompareRequestContext = new Mock<RequestContext<GetDeploymentOptionsResult>>();
+            // Test Schema Compare scenario - should return with modified defaults
+            MockRequest<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
             GetDeploymentOptionsParams schemaCompareParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.SchemaCompare };
-            GetDeploymentOptionsResult schemaCompareResult = null;
 
-            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<GetDeploymentOptionsResult>()))
-                .Callback<GetDeploymentOptionsResult>(r => schemaCompareResult = r)
-                .Returns(Task.FromResult(new object()));
+            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestMock.Object);
 
-            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestContext.Object);
-
-            Assert.That(schemaCompareResult, Is.Not.Null, "Schema Compare result should not be null");
-            Assert.That(schemaCompareResult.Success, Is.True, "Schema Compare request should succeed");
-            Assert.That(schemaCompareResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
-                Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (SSMS-matching default)");
+            schemaCompareRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "SchemaCompare");
+            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (modified default)");
         }
 
         /// <summary>
