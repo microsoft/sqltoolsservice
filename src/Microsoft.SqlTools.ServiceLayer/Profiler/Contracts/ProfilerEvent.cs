@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
@@ -17,10 +18,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         /// <summary>
         /// Initialize a new ProfilerEvent with required parameters
         /// </summary>
-        public ProfilerEvent(string name, string timestamp)
+        public ProfilerEvent(string name, string timestamp, Guid uuid = default, long? eventSequence = null)
         {
             this.Name = name;
             this.Timestamp = timestamp;
+            this.UUID = uuid;
+            this.EventSequence = eventSequence;
             this.Values = new Dictionary<string, string>();
         }
 
@@ -33,6 +36,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         /// Profiler event timestamp
         /// </summary>
         public string Timestamp { get; private set; }
+
+        /// <summary>
+        /// Unique identifier for the profiler event
+        /// </summary>
+        public Guid UUID { get; private set; }
+
+        /// <summary>
+        /// Event sequence number from the XEvent session (if available)
+        /// </summary>
+        public long? EventSequence { get; private set; }
 
         /// <summary>
         /// Profiler event values collection
@@ -52,6 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
 
             return this.Name == p.Name
                 && this.Timestamp == p.Timestamp
+                && this.UUID == p.UUID
+                && this.EventSequence == p.EventSequence
                 && this.Values.Count == p.Values.Count;
         }
 
@@ -72,6 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
                 hashCode ^= this.Timestamp.GetHashCode();
             }
 
+            hashCode ^= this.UUID.GetHashCode();
+            hashCode ^= this.EventSequence.GetHashCode();
             hashCode ^= this.Values.Count.GetHashCode();
 
             return hashCode;

@@ -6,9 +6,11 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
@@ -17,149 +19,229 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
     /// Tests for ProfilerSession class
     /// </summary>
     public class ProfilerSessionTests
-    {   
-        /// <summary>
-        /// Test the FilterOldEvents method
-        /// </summary>
-        [Test]
-        public void TestFilterOldEvents()
+    {
+        private static TestXEvent CreateTestEvent(string name = "test_event")
         {
-            // create a profiler session and get some test events
-            var profilerSession = new ProfilerSession(new XEventSession());
-            var allEvents = ProfilerTestObjects.TestProfilerEvents;
-            var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
-
-            // filter all the results from the first poll
-            // these events happened before the profiler began
-            profilerSession.FilterOldEvents(profilerEvents);
-            Assert.AreEqual(0, profilerEvents.Count);
-
-            // add a new event
-            var newEvent = new ProfilerEvent("new event", "1/1/2017");
-            newEvent.Values.Add("event_sequence", "4");
-            allEvents.Add(newEvent);
-
-            // poll all events
-            profilerEvents.AddRange(allEvents);
-
-            // filtering should leave only the new event
-            profilerSession.FilterOldEvents(profilerEvents);
-            Assert.AreEqual(1, profilerEvents.Count);
-            Assert.True(profilerEvents[0].Equals(newEvent));
-
-            //poll again with no new events
-            profilerEvents.AddRange(allEvents);
-
-            // filter should now filter all the events since they've been seen before
-            profilerSession.FilterOldEvents(profilerEvents);
-            Assert.AreEqual(0, profilerEvents.Count);
+            return new TestXEvent(name, DateTimeOffset.UtcNow, new Dictionary<string, object>());
         }
 
         /// <summary>
-        /// Test the FilterProfilerEvents method
+        /// Test the TryEnterProcessing method for concurrent access control
         /// </summary>
         [Test]
-        public void TestFilterProfilerEvents()
+        public void TestTryEnterProcessing()
         {
-            // create a profiler session and get some test events
-            var profilerSession = new ProfilerSession(new XEventSession());
-            var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
-                        
-            int expectedEventCount = profilerEvents.Count;
-                        
-            // add a new "Profiler Polling" event
-            var newEvent = new ProfilerEvent("sql_batch_completed", "1/1/2017");
-            newEvent.Values.Add("batch_text", "SELECT target_data FROM sys.dm_xe_session_targets");
-            newEvent.Values.Add("event_sequence", "4");
-            profilerEvents.Add(newEvent);
-
-            // verify that the polling event is removed
-            Assert.AreEqual(profilerEvents.Count, expectedEventCount + 1);
-            var newProfilerEvents = profilerSession.FilterProfilerEvents(profilerEvents);
-            Assert.AreEqual(newProfilerEvents.Count, expectedEventCount);           
-        }
-
-        /// <summary>
-        /// Test notifications for lost events
-        /// </summary>
-        [Test]
-        public void TestEventsLost()
-        {
-            // create a profiler session and get some test events
-            var profilerSession = new ProfilerSession(new XEventSession());
-            var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
-
-            // filter all the results from the first poll
-            // these events happened before the profiler began
-            profilerSession.FilterOldEvents(profilerEvents);
-            Assert.AreEqual(0, profilerEvents.Count);
-            // No events should be lost
-            Assert.False(profilerSession.EventsLost);
-
-            // test all events are overwritten, but no events are lost
-            profilerEvents.Clear();
-            ProfilerEvent newEvent = new ProfilerEvent("event4", "6/18/2018");
-            newEvent.Values.Add("event_sequence", "4");
-
-            profilerEvents.Add(newEvent);         
-            profilerSession.FilterOldEvents(profilerEvents);
-
-            // should not show event loss
-            Assert.False(profilerSession.EventsLost);
-
-            // test all events are overwritten, and events are lost
-            profilerEvents.Clear();
-            newEvent = new ProfilerEvent("event7", "6/18/2018");
-            newEvent.Values.Add("event_sequence", "7");
-
-            profilerEvents.Add(newEvent);         
-            profilerSession.FilterOldEvents(profilerEvents);
-
-            // should show event loss
-            Assert.True(profilerSession.EventsLost);
-
-            //poll again with previously seen events
-            profilerEvents.Add(newEvent);
-
-            // old events were seen, no event loss occured
-            profilerSession.FilterOldEvents(profilerEvents);           
-            Assert.False(profilerSession.EventsLost);    
-        }
-
-        /// <summary>
-        /// Test the TryEnterPolling method
-        /// </summary>
-        [Test]
-        public void TestTryEnterPolling()
-        {
-            DateTime startTime = DateTime.Now;
-
             // create new profiler session
-            var profilerSession = new ProfilerSession(new XEventSession());
-            
-            // enter the polling block
-            Assert.True(profilerSession.TryEnterPolling());
-            Assert.True(profilerSession.IsPolling);
+            var profilerSession = new ProfilerSession(new TestXEventSession());
 
-            // verify we can't enter again
-            Assert.False(profilerSession.TryEnterPolling());
+            // enter the processing block
+            Assert.True(profilerSession.TryEnterProcessing());
+            Assert.True(profilerSession.IsProcessing);
 
-            // set polling to false to exit polling block
-            profilerSession.IsPolling = false;
+            // verify we can't enter again while processing
+            Assert.False(profilerSession.TryEnterProcessing());
 
-            bool outsideDelay = DateTime.Now.Subtract(startTime) >= profilerSession.PollingDelay;
+            // exit processing
+            profilerSession.ExitProcessing();
+            Assert.False(profilerSession.IsProcessing);
 
-            // verify we can only enter again if we're outside polling delay interval
-            Assert.AreEqual(profilerSession.TryEnterPolling(), outsideDelay);
+            // verify we can enter again after exiting
+            Assert.True(profilerSession.TryEnterProcessing());
+            Assert.True(profilerSession.IsProcessing);
 
-            // reset IsPolling in case the delay has elasped on slow machine or while debugging
-            profilerSession.IsPolling = false;
+            // clean up
+            profilerSession.ExitProcessing();
+        }
 
-            // wait for the polling delay to elapse
-            Thread.Sleep(profilerSession.PollingDelay);
+        /// <summary>
+        /// Test XEventSession property returns the wrapped session
+        /// </summary>
+        [Test]
+        public void TestXEventSessionProperty()
+        {
+            var xeSession = new TestXEventSession();
+            var profilerSession = new ProfilerSession(xeSession);
 
-            // verify we can enter the polling block again
-            Assert.True(profilerSession.TryEnterPolling());
+            Assert.That(profilerSession.XEventSession, Is.SameAs(xeSession));
+        }
+
+        /// <summary>
+        /// Test that Completed returns false for non-observable sessions
+        /// </summary>
+        [Test]
+        public void TestCompleted_ReturnsFalse_ForNonObservableSession()
+        {
+            var profilerSession = new ProfilerSession(new TestXEventSession());
+
+            Assert.That(profilerSession.Completed, Is.False);
+        }
+
+        /// <summary>
+        /// Test that Error returns null for non-observable sessions
+        /// </summary>
+        [Test]
+        public void TestError_ReturnsNull_ForNonObservableSession()
+        {
+            var profilerSession = new ProfilerSession(new TestXEventSession());
+
+            Assert.That(profilerSession.Error, Is.Null);
+        }
+
+        /// <summary>
+        /// Test that GetCurrentEvents returns empty for non-observable sessions
+        /// </summary>
+        [Test]
+        public void TestGetCurrentEvents_ReturnsEmpty_ForNonObservableSession()
+        {
+            var profilerSession = new ProfilerSession(new TestXEventSession());
+
+            var events = profilerSession.GetCurrentEvents();
+
+            Assert.That(events, Is.Empty);
+        }
+
+        /// <summary>
+        /// Test that GetCurrentEvents returns buffered events from observable session
+        /// </summary>
+        [Test]
+        public void TestGetCurrentEvents_ReturnsBufferedEvents_FromObservableSession()
+        {
+            // Arrange - create an observable session that delivers events
+            var testEvents = new List<IXEvent>
+            {
+                CreateTestEvent("event1"),
+                CreateTestEvent("event2"),
+                CreateTestEvent("event3")
+            };
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var profilerSession = new ProfilerSession(liveSession);
+
+            // Act - start the session and wait for events
+            liveSession.Start();
+            Thread.Sleep(200); // Allow events to be delivered
+
+            var events = profilerSession.GetCurrentEvents().ToList();
+
+            // Assert
+            Assert.That(events, Has.Count.EqualTo(3), "Should receive all 3 events");
+        }
+
+        /// <summary>
+        /// Test that GetCurrentEvents clears the buffer (atomic swap)
+        /// </summary>
+        [Test]
+        public void TestGetCurrentEvents_ClearsBuffer_AfterRetrieving()
+        {
+            // Arrange - create an observable session that delivers events
+            var testEvents = new List<IXEvent>
+            {
+                CreateTestEvent("event1"),
+                CreateTestEvent("event2")
+            };
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var profilerSession = new ProfilerSession(liveSession);
+
+            // Act - start the session and wait for events
+            liveSession.Start();
+            Thread.Sleep(200);
+
+            // First call should return events
+            var firstCall = profilerSession.GetCurrentEvents().ToList();
+            // Second call should return empty (buffer was swapped)
+            var secondCall = profilerSession.GetCurrentEvents().ToList();
+
+            // Assert
+            Assert.That(firstCall, Has.Count.EqualTo(2), "First call should return events");
+            Assert.That(secondCall, Is.Empty, "Second call should return empty (buffer cleared)");
+        }
+
+        /// <summary>
+        /// Test that onSessionActivity callback is invoked when events arrive
+        /// </summary>
+        [Test]
+        public void TestOnSessionActivityCallback_InvokedOnEvents()
+        {
+            // Arrange
+            int callbackCount = 0;
+            var testEvents = new List<IXEvent> { CreateTestEvent("event1") };
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            Action<ProfilerSession> callback = session => callbackCount++;
+            _ = new ProfilerSession(liveSession, onSessionActivity: callback);
+
+            // Act
+            liveSession.Start();
+            Thread.Sleep(200);
+
+            // Assert - callback should be invoked at least once (for event + completion)
+            Assert.That(callbackCount, Is.GreaterThan(0), "Callback should be invoked when events arrive");
+        }
+
+        /// <summary>
+        /// Test that Dispose can be called safely
+        /// </summary>
+        [Test]
+        public void TestDispose_CanBeCalledSafely()
+        {
+            var profilerSession = new ProfilerSession(new TestXEventSession());
+
+            // Should not throw
+            Assert.DoesNotThrow(profilerSession.Dispose);
+
+            // Should be safe to call multiple times
+            Assert.DoesNotThrow(profilerSession.Dispose);
+        }
+
+        /// <summary>
+        /// Test that Completed becomes true when observable session completes
+        /// </summary>
+        [Test]
+        public void TestCompleted_BecomesTrue_WhenSessionCompletes()
+        {
+            // Arrange - session that completes after delivering events
+            var testEvents = new List<IXEvent> { CreateTestEvent("event1") };
+            var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var profilerSession = new ProfilerSession(liveSession);
+
+            Assert.That(profilerSession.Completed, Is.False, "Should not be completed before start");
+
+            // Act
+            liveSession.Start();
+            Thread.Sleep(300); // Allow session to complete
+
+            // Assert
+            Assert.That(profilerSession.Completed, Is.True, "Should be completed after stream ends");
+        }
+
+        /// <summary>
+        /// Test that Error is populated when observable session encounters an error
+        /// </summary>
+        [Test]
+        public void TestError_IsPopulated_WhenSessionErrors()
+        {
+            // Arrange - session that fails with an error
+            var expectedError = new Exception("Test error");
+            var fetcher = new TestLiveEventFetcher(
+                new List<IXEvent> { CreateTestEvent("event1") },
+                failAfterEvents: 1,
+                exceptionToThrow: expectedError,
+                delayBetweenEvents: TimeSpan.FromMilliseconds(10));
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var profilerSession = new ProfilerSession(liveSession);
+
+            Assert.That(profilerSession.Error, Is.Null, "Should not have error before start");
+
+            // Act
+            liveSession.Start();
+            Thread.Sleep(300); // Allow session to error
+
+            // Assert
+            Assert.That(profilerSession.Error, Is.Not.Null, "Should have error after stream fails");
+            Assert.That(profilerSession.Error.Message, Does.Contain("Test error"));
+            Assert.That(profilerSession.Completed, Is.True, "Should be completed after error");
         }
     }
 }

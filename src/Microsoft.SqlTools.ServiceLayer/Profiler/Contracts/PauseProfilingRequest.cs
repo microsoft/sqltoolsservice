@@ -18,7 +18,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         public string OwnerUri { get; set; }
     }
 
-    public class PauseProfilingResult{}
+    /// <summary>
+    /// Pause Profiling result
+    /// </summary>
+    public class PauseProfilingResult
+    {
+        /// <summary>
+        /// Indicates whether the profiler session is currently paused after the toggle operation
+        /// </summary>
+        public bool IsPaused { get; set; }
+    }
 
     /// <summary>
     /// Pause Profile request type
