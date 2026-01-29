@@ -100,12 +100,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         #endregion
 
         /// <summary>
+        /// Parameterless constructor for JSON deserialization.
+        /// Uses DacFx native defaults (Deployment scenario).
+        /// </summary>
+        public DeploymentOptions() : this(DeploymentScenario.Deployment)
+        {
+        }
+
+        /// <summary>
         /// Creates DeploymentOptions with appropriate defaults based on the deployment scenario.
         /// Deployment: Uses DacFx native defaults without any modifications.
         /// Schema Compare: Uses modified defaults that match SSMS behavior (7 specific overrides).
         /// </summary>
         /// <param name="scenario">The deployment scenario</param>
-        public DeploymentOptions(DeploymentScenario scenario = DeploymentScenario.Deployment)
+        public DeploymentOptions(DeploymentScenario scenario)
         {
             DacDeployOptions options = new DacDeployOptions();
 
