@@ -1,17 +1,17 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 #nullable disable
-using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlServer.Dac;
-using Moq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -399,13 +399,55 @@ END
         [Test]
         public async Task ValidateSchemaCompareGetDefaultOptionsCallFromService()
         {
-            DeploymentOptions deployOptions = new DeploymentOptions();
-            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();
-            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>())).Returns(Task.FromResult(new object()));
-            schemaCompareRequestContext.Setup((RequestContext<SchemaCompareOptionsResult> x) => x.SendResult(It.Is<SchemaCompareOptionsResult>((options) => SchemaCompareTestUtils.ValidateOptionsEqualsDefault(options) == true))).Returns(Task.FromResult(new object()));
+            MockRequest<GetDeploymentOptionsResult> requestMock = new();
+            GetDeploymentOptionsParams p = new GetDeploymentOptionsParams();
+            DacFxService service = new DacFxService();
 
-            SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
-            await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
+            await service.HandleGetDeploymentOptionsRequest(p, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest));
+            Assert.IsTrue(SchemaCompareTestUtils.ValidateOptionsEqualsDefault(requestMock.Result), "Options should equal to modified defaults for Schema Compare");
+        }
+
+        /// <summary>
+        /// Verify that Scenario parameter controls whether Schema Compare or Deployment defaults are used
+        /// </summary>
+        [Test]
+        public async Task ValidateSchemaCompareGetOptionsWithScenarioParameter()
+        {
+            DacFxService service = new DacFxService();
+
+            // Test Schema Compare scenario - should have modified defaults
+            MockRequest<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
+            GetDeploymentOptionsParams schemaCompareParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.SchemaCompare };
+
+            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestMock.Object);
+
+            schemaCompareRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "SchemaCompare");
+            
+            // Verify modified defaults are applied
+            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (modified default)");
+            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value, 
+                Is.True, "DropObjectsNotInSource should be true for Schema Compare (modified default)");
+            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value, 
+                Is.False, "IgnoreKeywordCasing should be false for Schema Compare (modified default)");
+
+            // Test Deployment/Publish scenario - should have DacFx native defaults
+            MockRequest<GetDeploymentOptionsResult> publishRequestMock = new();
+            GetDeploymentOptionsParams publishParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.Deployment };
+
+            await service.HandleGetDeploymentOptionsRequest(publishParams, publishRequestMock.Object);
+
+            publishRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "Deployment");
+            
+            // Verify DacFx native defaults are used
+            Assert.That(publishRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.False, "AllowDropBlockingAssemblies should be false for Deployment (DacFx native default)");
+            Assert.That(publishRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value, 
+                Is.False, "DropObjectsNotInSource should be false for Deployment (DacFx native default)");
+            Assert.That(publishRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value, 
+                Is.True, "IgnoreKeywordCasing should be true for Deployment (DacFx native default)");
         }
     }
 }

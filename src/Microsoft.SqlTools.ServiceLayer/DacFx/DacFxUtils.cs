@@ -15,15 +15,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     internal static class DacFxUtils
     {
         /// <summary>
-        /// Converts DeploymentOptions used in STS and ADS to DacDeployOptions which can be passed to the DacFx apis
+        /// Converts DeploymentOptions used in STS and ADS to DacDeployOptions which can be passed to the DacFx apis.
         /// </summary>
-        /// <param name="deploymentOptions"></param>
-        /// <returns>DacDeployOptions</returns
-        internal static DacDeployOptions CreateDeploymentOptions(DeploymentOptions? deploymentOptions = null)
+        /// <param name="deploymentOptions">DeploymentOptions to convert. Must not be null.</param>
+        /// <returns>DacDeployOptions</returns>
+        internal static DacDeployOptions CreateDeploymentOptions(DeploymentOptions deploymentOptions)
         {
             try
             {
-                deploymentOptions = deploymentOptions ?? new DeploymentOptions();
                 PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
                 DacDeployOptions dacOptions = new DacDeployOptions();

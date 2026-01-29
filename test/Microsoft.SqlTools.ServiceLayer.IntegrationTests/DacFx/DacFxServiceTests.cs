@@ -800,6 +800,35 @@ FROM MissingEdgeHubInputStream'";
         }
 
         /// <summary>
+        /// Verify the deployment options endpoint with different scenarios
+        /// </summary>
+        [Test]
+        public async Task ValidateGetDeploymentOptionsWithScenarios()
+        {
+            DacFxService service = new DacFxService();
+
+            // Test Deployment scenario (default) - should return DacFx native defaults
+            MockRequest<GetDeploymentOptionsResult> deploymentRequestMock = new();
+            GetDeploymentOptionsParams deploymentParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.Deployment };
+
+            await service.HandleGetDeploymentOptionsRequest(deploymentParams, deploymentRequestMock.Object);
+
+            deploymentRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "Deployment");
+            Assert.That(deploymentRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.False, "AllowDropBlockingAssemblies should be false for Deployment (DacFx native default)");
+
+            // Test Schema Compare scenario - should return with modified defaults
+            MockRequest<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
+            GetDeploymentOptionsParams schemaCompareParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.SchemaCompare };
+
+            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestMock.Object);
+
+            schemaCompareRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "SchemaCompare");
+            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+                Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (modified default)");
+        }
+
+        /// <summary>
         /// Verify that streaming job
         /// </summary>
         /// <returns></returns>

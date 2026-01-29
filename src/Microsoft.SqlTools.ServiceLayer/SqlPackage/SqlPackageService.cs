@@ -30,13 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             = new Dictionary<CommandLineToolAction, Action<SqlPackageCommandParams, SqlPackageCommandBuilder>>
             {
                 {
-                    CommandLineToolAction.Publish, (p, b) => ApplyDeployOptions(p, b, true)
+                    CommandLineToolAction.Publish, ApplyDeployOptions
                 },
                 {
-                    CommandLineToolAction.Script, (p, b) => ApplyDeployOptions(p, b, true)
+                    CommandLineToolAction.Script, ApplyDeployOptions
                 },
                 {
-                    CommandLineToolAction.DeployReport, (p, b) => ApplyDeployOptions(p, b, false)
+                    CommandLineToolAction.DeployReport, ApplyDeployOptions
                 },
                 {
                     CommandLineToolAction.Extract, (p, b) =>
@@ -72,12 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// </summary>
         /// <param name="p">Parameters containing deployment options</param>
         /// <param name="b">Builder to apply options to</param>
-        /// <param name="normalizeDefaults">Whether to normalize STS-overridden defaults to DacFx native defaults</param>
-        private static void ApplyDeployOptions(SqlPackageCommandParams p, SqlPackageCommandBuilder b, bool normalizeDefaults)
+        private static void ApplyDeployOptions(SqlPackageCommandParams p, SqlPackageCommandBuilder b)
         {
             if (p.DeploymentOptions != null)
             {
-                if (normalizeDefaults) p.DeploymentOptions.NormalizePublishDefaults();
                 b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions));
             }
         }

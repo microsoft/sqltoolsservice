@@ -61,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest, true);
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest, true);
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest, true);
+            serviceHost.SetRequestHandler(GetDeploymentOptionsRequest.Type, this.HandleGetDeploymentOptionsRequest, true);
             serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest, true);
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
@@ -275,6 +276,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 await requestContext.SendResult(new DacFxOptionsResult()
                 {
                     DeploymentOptions = null,
+                    Success = false,
+                    ErrorMessage = e.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Gets deployment options based on the specified scenario
+        /// </summary>
+        public async Task HandleGetDeploymentOptionsRequest(GetDeploymentOptionsParams parameters, RequestContext<GetDeploymentOptionsResult> requestContext)
+        {
+            try
+            {
+                DeploymentOptions options = new DeploymentOptions(parameters.Scenario);
+
+                await requestContext.SendResult(new GetDeploymentOptionsResult()
+                {
+                    DefaultDeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new GetDeploymentOptionsResult()
+                {
+                    DefaultDeploymentOptions = null,
                     Success = false,
                     ErrorMessage = e.Message
                 });

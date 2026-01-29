@@ -99,19 +99,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public Dictionary<string, string> ObjectTypesDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         #endregion
 
-        public DeploymentOptions()
+        /// <summary>
+        /// Creates DeploymentOptions with appropriate defaults based on the deployment scenario.
+        /// Deployment: Uses DacFx native defaults without any modifications.
+        /// Schema Compare: Uses modified defaults that match SSMS behavior (7 specific overrides).
+        /// </summary>
+        /// <param name="scenario">The deployment scenario</param>
+        public DeploymentOptions(DeploymentScenario scenario = DeploymentScenario.Deployment)
         {
             DacDeployOptions options = new DacDeployOptions();
 
-            // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
-            // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
-            options.AllowDropBlockingAssemblies = true;
-            options.AllowIncompatiblePlatform = true;
-            options.DropObjectsNotInSource = true;
-            options.DropPermissionsNotInSource = true;
-            options.DropRoleMembersNotInSource = true;
-            options.IgnoreKeywordCasing = false;
-            options.IgnoreSemicolonBetweenStatements = false;
+            // Apply SSMS-matching overrides for Schema Compare scenario
+            if (scenario == DeploymentScenario.SchemaCompare)
+            {
+                // SSMS has different defaults compared to DacFx. We are overriding these 7 defaults to match SSMS behavior.
+                // SSMS defaults are defined in DeployModel.cs at .../DACWizard/DeployWizard/DeployModel.cs
+                options.AllowDropBlockingAssemblies = true;
+                options.AllowIncompatiblePlatform = true;
+                options.DropObjectsNotInSource = true;
+                options.DropPermissionsNotInSource = true;
+                options.DropRoleMembersNotInSource = true;
+                options.IgnoreKeywordCasing = false;
+                options.IgnoreSemicolonBetweenStatements = false;
+            }
+            // Deployment scenario uses DacFx native defaults (no overrides needed)
 
             // Initializing the default boolean type options to the BooleanOptionsDictionary
             // Not considering DacFx default ExcludeObjectTypes, as it has some STS defaults which needs to be considered here, DacFx defaults are only considered for InitializeFromProfile(), where options are loading from profile
@@ -270,35 +281,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             return excludeObjectTypes.Select(t => t.ToString()).ToArray();
         }
 
-        public static DeploymentOptions GetDefaultSchemaCompareOptions()
-        {
-            return new DeploymentOptions();
-        }
-
+        /// <summary>
+        /// Gets default deployment options for Publish operations.
+        /// Returns DacFx native defaults.
+        /// </summary>
+        /// <returns>DeploymentOptions configured for Publish</returns>
         public static DeploymentOptions GetDefaultPublishOptions()
         {
-            DeploymentOptions result = new DeploymentOptions();
+            // Publish operations use DacFx native defaults (no SSMS-matching overrides)
+            DeploymentOptions result = new DeploymentOptions(DeploymentScenario.Deployment);
 
             result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != Enum.GetName(ObjectType.DatabaseScopedCredentials)).ToArray(); // re-include database-scoped credentials
 
             return result;
-        }
-
-        /// <summary>
-        /// Normalizes the 7 overridden options for Publish/Script SqlPackage command generation.
-        /// Resets them to DacFx native defaults so they won't appear as unnecessary /p: parameters.
-        /// Works because: if user changed a value, they changed it to the opposite (which is the DacFx default).
-        /// </summary>
-        public void NormalizePublishDefaults()
-        {
-            // Simply set the 7 STS-overridden options to DacFx defaults
-            BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = true;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = true;
         }
     }
 }
