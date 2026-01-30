@@ -10663,6 +10663,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";compatibilityLevel_sqlv170" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[SQL Server 2025 (170)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2025 (170)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";compatibilityLevel_yukon" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2005 (90)]]></Val>
