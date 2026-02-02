@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     }
 
     /// <summary>
-    /// Profiler Session stopped notification mapping entry 
+    /// Extended Events session stopped notification mapping entry 
     /// </summary>
     public class ProfilerSessionStoppedNotification
     {
