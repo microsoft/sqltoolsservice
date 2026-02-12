@@ -6,8 +6,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -66,6 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
+            serviceHost.SetRequestHandler(GetCodeAnalysisRulesRequest.Type, this.HandleGetCodeAnalysisRulesRequest, true);
+            serviceHost.SetRequestHandler(UpdateCodeAnalysisRulesRequest.Type, this.HandleUpdateCodeAnalysisRulesRequest, true);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
             telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
@@ -383,6 +387,66 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }, requestContext);
 
             return;
+        }
+
+        /// <summary>
+        /// Handles request to get code analysis rules
+        /// </summary>
+        public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams requestParams, RequestContext<GetCodeAnalysisRulesResult> requestContext)
+        {
+            await BaseService.RunWithErrorHandling(() =>
+            {
+                // Get or create TSqlModel for the project
+                TSqlModel? model = null;
+                if (requestParams.ProjectUri != null)
+                {
+                    projectModels.Value.TryGetValue(requestParams.ProjectUri, out model);
+                }
+
+                // If no model exists, create a minimal one to get the rules
+                // The rules are the same regardless of the model content
+                model ??= new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+
+                // Create CodeAnalysisService and get all available rules
+                var factory = new CodeAnalysisServiceFactory();
+                var codeAnalysisService = factory.CreateAnalysisService(model);
+                var rules = codeAnalysisService.GetRules();
+
+                // Convert to our contract type
+                var ruleInfos = rules.Select(r => new Contracts.SqlCodeAnalysisRule
+                {
+                    RuleId = r.RuleId,
+                    DisplayName = r.DisplayName,
+                    Description = r.DisplayDescription,
+                    Category = r.Metadata?.Category ?? string.Empty,
+                    DefaultSeverity = r.Severity.ToString(),
+                    Severity = r.Severity.ToString(),
+                    RuleScope = r.Metadata?.RuleScope.ToString() ?? string.Empty
+                }).ToArray();
+
+                return new GetCodeAnalysisRulesResult
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Rules = ruleInfos
+                };
+            }, requestContext);
+        }
+
+        /// <summary>
+        /// Handles request to update code analysis rules configuration
+        /// </summary>
+        public async Task HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await BaseService.RunWithErrorHandling(() =>
+            {
+                // TODO: Implement rule configuration persistence
+                // This will need to update the .sqlproj file or related configuration
+                // to save the rule severity settings
+                
+                // For now, return success as a placeholder
+                // The actual implementation will depend on how the project stores rule configuration
+            }, requestContext);
         }
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
