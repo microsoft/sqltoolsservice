@@ -325,6 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Collect error messages during execution using thread-safe ordered collection
                 var errorMessages = new System.Collections.Concurrent.ConcurrentQueue<string>();
+                var allMessages = new System.Collections.Concurrent.ConcurrentQueue<ResultMessage>();
 
                 // handle sending event back when the query completes
                 Query.QueryAsyncEventHandler queryComplete = async query =>
@@ -356,7 +357,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 RowCount = 0,
                                 ColumnInfo = new DbColumnWrapper[0],
-                                Rows = new DbCellValue[0][]
+                                Rows = new DbCellValue[0][],
+                                Messages = allMessages.ToArray()
                             };
                             await requestContext.SendResult(emptyResult);
                             return;
@@ -374,7 +376,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             RowCount = rowCount,
                             ColumnInfo = query.Batches[0].ResultSets[0].Columns,
-                            Rows = new DbCellValue[0][]
+                            Rows = new DbCellValue[0][],
+                            Messages = allMessages.ToArray()
                         };
 
                         if (rowCount > 0)
@@ -414,9 +417,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(e);
                 };
 
-                // Collect batch messages (errors) during query execution
+                // Collect batch messages (errors and info/PRINT) during query execution
                 Batch.BatchAsyncMessageHandler messageHandler = async (message) =>
                 {
+                    allMessages.Enqueue(message);
                     if (message.IsError)
                     {
                         errorMessages.Enqueue(message.Message);
