@@ -31,6 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string RuleId { get; set; }
 
         /// <summary>
+        /// The short identifier for the rule (e.g., "SR0001")
+        /// </summary>
+        public string ShortRuleId { get; set; }
+
+        /// <summary>
         /// The display name of the rule
         /// </summary>
         public string DisplayName { get; set; }

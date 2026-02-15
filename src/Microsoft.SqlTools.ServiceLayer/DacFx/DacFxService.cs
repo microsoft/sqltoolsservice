@@ -416,6 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 var ruleInfos = rules.Select(r => new Contracts.SqlCodeAnalysisRule
                 {
                     RuleId = r.RuleId,
+                    ShortRuleId = r.ShortRuleId,
                     DisplayName = r.DisplayName,
                     Description = r.DisplayDescription,
                     Category = r.Metadata?.Category ?? string.Empty,
