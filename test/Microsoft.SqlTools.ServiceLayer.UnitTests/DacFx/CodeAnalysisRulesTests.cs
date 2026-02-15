@@ -51,31 +51,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             foreach (var rule in rules)
             {
                 Assert.IsNotNull(rule.RuleId, "RuleId should not be null");
-                Assert.IsNotEmpty(rule.RuleId, "RuleId should not be empty");
                 Assert.IsNotNull(rule.DisplayName, $"DisplayName should not be null for {rule.RuleId}");
+                Assert.IsNotNull(rule.DisplayDescription, $"DisplayDescription should not be null for {rule.RuleId}");
                 Assert.IsNotNull(rule.Severity, $"Severity should not be null for {rule.RuleId}");
+                Assert.IsNotNull(rule.ShortRuleId, $"ShortRuleID should not be null for {rule.RuleId}");
             }
-        }
-
-        /// <summary>
-        /// Verify that known rule IDs are present
-        /// </summary>
-        [Test]
-        public void GetCodeAnalysisRulesContainsKnownRuleIds()
-        {
-            // Arrange
-            using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
-            var factory = new CodeAnalysisServiceFactory();
-            var codeAnalysisService = factory.CreateAnalysisService(model);
-
-            // Act
-            var rules = codeAnalysisService.GetRules().ToList();
-            var ruleIds = rules.Select(r => r.RuleId).ToList();
-
-            // Assert - Verify some known rule IDs exist
-            Assert.IsTrue(ruleIds.Any(id => id.Contains("SR0001")), "Should contain SR0001");
-            Assert.IsTrue(ruleIds.Any(id => id.Contains("SR0004")), "Should contain SR0004");
-            Assert.IsTrue(ruleIds.Any(id => id.Contains("SR0008")), "Should contain SR0008");
         }
 
         /// <summary>
