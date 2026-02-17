@@ -21,8 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         [Test]
         public void GetCodeAnalysisRulesReturnsAll14Rules()
         {
-            // Arrange - Create minimal model
-            using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+            // Arrange
+            using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
             var factory = new CodeAnalysisServiceFactory();
             var codeAnalysisService = factory.CreateAnalysisService(model);
 
@@ -40,7 +40,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         public void GetCodeAnalysisRulesReturnsValidRuleProperties()
         {
             // Arrange
-            using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+            using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
+            var factory = new CodeAnalysisServiceFactory();
+            var codeAnalysisService = factory.CreateAnalysisService(model);
+
+            // Act
+            var rules = codeAnalysisService.GetRules().ToList();
+
+            // Assert - every rule must have its key properties populated
+            foreach (var rule in rules)
+            {
+                Assert.IsNotNull(rule.RuleId, "RuleId should not be null");
+                Assert.IsNotNull(rule.ShortRuleId, $"ShortRuleId should not be null for {rule.RuleId}");
+                Assert.IsNotNull(rule.DisplayName, $"DisplayName should not be null for {rule.RuleId}");
+                Assert.IsNotNull(rule.DisplayDescription, $"DisplayDescription should not be null for {rule.RuleId}");
+                Assert.IsNotNull(rule.Severity, $"Severity should not be null for {rule.RuleId}");
+            }
+        }
+
+        /// <summary>
+        /// Verify that rules have metadata with category and scope information
+        /// </summary>
+        [Test]
+        public void GetCodeAnalysisRulesContainsMetadata()
+        {
+            // Arrange
+            using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
             var factory = new CodeAnalysisServiceFactory();
             var codeAnalysisService = factory.CreateAnalysisService(model);
 
@@ -48,33 +73,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             var rules = codeAnalysisService.GetRules().ToList();
 
             // Assert
-            foreach (var rule in rules)
-            {
-                Assert.IsNotNull(rule.RuleId, "RuleId should not be null");
-                Assert.IsNotNull(rule.DisplayName, $"DisplayName should not be null for {rule.RuleId}");
-                Assert.IsNotNull(rule.DisplayDescription, $"DisplayDescription should not be null for {rule.RuleId}");
-                Assert.IsNotNull(rule.Severity, $"Severity should not be null for {rule.RuleId}");
-                Assert.IsNotNull(rule.ShortRuleId, $"ShortRuleID should not be null for {rule.RuleId}");
-            }
-        }
-
-        /// <summary>
-        /// Verify rule metadata contains category and scope information
-        /// </summary>
-        [Test]
-        public void GetCodeAnalysisRulesContainsMetadata()
-        {
-            // Arrange
-            using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
-            var factory = new CodeAnalysisServiceFactory();
-            var codeAnalysisService = factory.CreateAnalysisService(model);
-
-            // Act
-            var rules = codeAnalysisService.GetRules().ToList();
-
-            // Assert - At least some rules should have metadata
             var rulesWithCategory = rules.Where(r => r.Metadata?.Category != null).ToList();
             Assert.IsTrue(rulesWithCategory.Count > 0, "At least some rules should have a category");
+
+            var rulesWithScope = rules.Where(r => r.Metadata?.RuleScope != null).ToList();
+            Assert.IsTrue(rulesWithScope.Count > 0, "At least some rules should have a rule scope");
         }
     }
 }

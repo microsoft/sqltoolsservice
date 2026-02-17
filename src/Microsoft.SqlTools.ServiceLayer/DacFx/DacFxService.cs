@@ -389,22 +389,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Handles request to get code analysis rules
+        /// Handles request to get all available built-in SQL code analysis rules.
+        /// Creates a minimal TSqlModel to enumerate rules from DacFx CodeAnalysisService.
+        /// The rules are static and do not depend on model content or SQL Server version.
         /// </summary>
-        public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams requestParams, RequestContext<GetCodeAnalysisRulesResult> requestContext)
+        public async Task HandleGetCodeAnalysisRulesRequest(object requestParams, RequestContext<GetCodeAnalysisRulesResult> requestContext)
         {
             await BaseService.RunWithErrorHandling(() =>
             {
-                // Create a minimal model to get the rules
-                // The rules are the same regardless of the model content
-                using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
-
-                // Create CodeAnalysisService and get all available rules
+                using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
                 var factory = new CodeAnalysisServiceFactory();
                 var codeAnalysisService = factory.CreateAnalysisService(model);
                 var rules = codeAnalysisService.GetRules();
 
-                // Convert to our contract type
                 var ruleInfos = rules.Select(r => new Contracts.SqlCodeAnalysisRule
                 {
                     RuleId = r.RuleId,
@@ -412,7 +409,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DisplayName = r.DisplayName,
                     Description = r.DisplayDescription,
                     Category = r.Metadata?.Category ?? string.Empty,
-                    DefaultSeverity = r.Severity.ToString(),
                     Severity = r.Severity.ToString(),
                     RuleScope = r.Metadata?.RuleScope.ToString() ?? string.Empty
                 }).ToArray();

@@ -10,24 +10,17 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Parameters for getting code analysis rules
-    /// </summary>
-    public class GetCodeAnalysisRulesParams
-    {
-    }
-
-    /// <summary>
-    /// Represents a SQL code analysis rule
+    /// Represents a SQL code analysis rule with its metadata
     /// </summary>
     public class SqlCodeAnalysisRule
     {
         /// <summary>
-        /// The unique identifier for the rule (e.g., "SR0001")
+        /// The full rule identifier (e.g., "Microsoft.Rules.Data.SR0001")
         /// </summary>
         public string RuleId { get; set; }
 
         /// <summary>
-        /// The short identifier for the rule (e.g., "SR0001")
+        /// The short rule identifier (e.g., "SR0001")
         /// </summary>
         public string ShortRuleId { get; set; }
 
@@ -47,12 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string Category { get; set; }
 
         /// <summary>
-        /// The default severity of the rule (Error, Warning, None)
-        /// </summary>
-        public string DefaultSeverity { get; set; }
-
-        /// <summary>
-        /// The current configured severity of the rule
+        /// The severity of the rule (Error, Warning, None)
         /// </summary>
         public string Severity { get; set; }
 
@@ -63,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Result containing code analysis rules
+    /// Result containing the list of available code analysis rules
     /// </summary>
     public class GetCodeAnalysisRulesResult : ResultStatus
     {
@@ -74,11 +62,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Request to get code analysis rules for a SQL project
+    /// Request to get all available built-in SQL code analysis rules from DacFx
     /// </summary>
     class GetCodeAnalysisRulesRequest
     {
-        public static readonly RequestType<GetCodeAnalysisRulesParams, GetCodeAnalysisRulesResult> Type =
-            RequestType<GetCodeAnalysisRulesParams, GetCodeAnalysisRulesResult>.Create("dacfx/getCodeAnalysisRules");
+        public static readonly RequestType<object, GetCodeAnalysisRulesResult> Type =
+            RequestType<object, GetCodeAnalysisRulesResult>.Create("dacfx/getCodeAnalysisRules");
     }
 }
