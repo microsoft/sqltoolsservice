@@ -397,6 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             await BaseService.RunWithErrorHandling(() =>
             {
+                // Version doesn't affect the rules returned; a model is only needed to obtain a CodeAnalysisService instance.
                 using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
                 var factory = new CodeAnalysisServiceFactory();
                 var codeAnalysisService = factory.CreateAnalysisService(model);
