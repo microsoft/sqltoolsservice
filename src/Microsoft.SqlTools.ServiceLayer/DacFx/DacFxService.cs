@@ -69,7 +69,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
             serviceHost.SetRequestHandler(GetCodeAnalysisRulesRequest.Type, this.HandleGetCodeAnalysisRulesRequest, true);
-            serviceHost.SetRequestHandler(UpdateCodeAnalysisRulesRequest.Type, this.HandleUpdateCodeAnalysisRulesRequest, true);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
             telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
@@ -396,16 +395,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             await BaseService.RunWithErrorHandling(() =>
             {
-                // Get or create TSqlModel for the project
-                TSqlModel? model = null;
-                if (requestParams.ProjectUri != null)
-                {
-                    projectModels.Value.TryGetValue(requestParams.ProjectUri, out model);
-                }
-
-                // If no model exists, create a minimal one to get the rules
+                // Create a minimal model to get the rules
                 // The rules are the same regardless of the model content
-                model ??= new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+                using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
 
                 // Create CodeAnalysisService and get all available rules
                 var factory = new CodeAnalysisServiceFactory();
@@ -434,21 +426,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }, requestContext);
         }
 
-        /// <summary>
-        /// Handles request to update code analysis rules configuration
-        /// </summary>
-        public async Task HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams, RequestContext<ResultStatus> requestContext)
-        {
-            await BaseService.RunWithErrorHandling(() =>
-            {
-                // TODO: Implement rule configuration persistence
-                // This will need to update the .sqlproj file or related configuration
-                // to save the rule severity settings
-                
-                // For now, return success as a placeholder
-                // The actual implementation will depend on how the project stores rule configuration
-            }, requestContext);
-        }
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {

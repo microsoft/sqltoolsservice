@@ -14,10 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class GetCodeAnalysisRulesParams
     {
-        /// <summary>
-        /// URI of the SQL project file
-        /// </summary>
-        public string ProjectUri { get; set; }
     }
 
     /// <summary>
