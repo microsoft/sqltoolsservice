@@ -10,6 +10,13 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
+    /// Parameters for a get code analysis rules request.
+    /// </summary>
+    public class GetCodeAnalysisRulesParams
+    {
+    }
+
+    /// <summary>
     /// Represents a SQL code analysis rule with its metadata
     /// </summary>
     public class SqlCodeAnalysisRule
@@ -66,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     class GetCodeAnalysisRulesRequest
     {
-        public static readonly RequestType<object, GetCodeAnalysisRulesResult> Type =
-            RequestType<object, GetCodeAnalysisRulesResult>.Create("dacfx/getCodeAnalysisRules");
+        public static readonly RequestType<GetCodeAnalysisRulesParams, GetCodeAnalysisRulesResult> Type =
+            RequestType<GetCodeAnalysisRulesParams, GetCodeAnalysisRulesResult>.Create("dacfx/getCodeAnalysisRules");
     }
 }

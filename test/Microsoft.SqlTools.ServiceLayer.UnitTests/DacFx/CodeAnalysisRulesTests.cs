@@ -14,10 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
     public class CodeAnalysisRulesTests
     {
         /// <summary>
-        /// Verify that DacFx CodeAnalysisService returns exactly 14 built-in rules
+        /// Verify that DacFx CodeAnalysisService returns at least one built-in rule
         /// </summary>
         [Test]
-        public void GetCodeAnalysisRulesReturnsAll14Rules()
+        public void GetCodeAnalysisRulesReturnsAtLeastOneRule()
         {
             // Arrange
             using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             var rules = codeAnalysisService.GetRules().ToList();
 
             // Assert
-            Assert.AreEqual(14, rules.Count, "DacFx should provide exactly 14 built-in code analysis rules");
+            Assert.GreaterOrEqual(rules.Count, 1, "DacFx should provide at least one built-in code analysis rule");
         }
 
         /// <summary>

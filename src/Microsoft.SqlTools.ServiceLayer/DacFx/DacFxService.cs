@@ -393,7 +393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Creates a minimal TSqlModel to enumerate rules from DacFx CodeAnalysisService.
         /// The rules are static and do not depend on model content or SQL Server version.
         /// </summary>
-        public async Task HandleGetCodeAnalysisRulesRequest(object requestParams, RequestContext<GetCodeAnalysisRulesResult> requestContext)
+        public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams parameters, RequestContext<GetCodeAnalysisRulesResult> requestContext)
         {
             await BaseService.RunWithErrorHandling(() =>
             {
