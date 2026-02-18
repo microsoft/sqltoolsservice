@@ -23,6 +23,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
     public partial class ServiceBufferReaderWriterTests
     {
+        private sealed class PositionDriftMemoryStream : MemoryStream
+        {
+            private bool driftOnNextRead = true;
+
+            public PositionDriftMemoryStream(byte[] buffer)
+                : base(buffer, writable: false)
+            {
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                int bytesRead = base.Read(buffer, offset, count);
+                if (driftOnNextRead)
+                {
+                    driftOnNextRead = false;
+                    Position = Length;
+                }
+
+                return bytesRead;
+            }
+        }
+
         [Test]
         public void ReaderStreamNull()
         {
@@ -584,6 +606,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
                     (writer, val) => writer.WriteGuid(testValue),
                     (reader, rowId) => reader.ReadGuid(0, rowId));
+            }
+        }
+
+        [Test]
+        public void GuidTestWithStreamPositionDriftAfterLengthRead()
+        {
+            QueryExecutionSettings settings = new QueryExecutionSettings();
+            Guid value = Guid.NewGuid();
+            byte[] storage = new byte[128];
+
+            using (var writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), settings))
+            {
+                writer.WriteGuid(value);
+            }
+
+            using (var reader = new ServiceBufferFileStreamReader(new PositionDriftMemoryStream(storage), settings))
+            {
+                FileStreamReadResult outValue = reader.ReadGuid(0, 42);
+                Assert.AreEqual(value, outValue.Value.RawObject);
+                Assert.AreEqual(42, outValue.Value.RowId);
             }
         }
 

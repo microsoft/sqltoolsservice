@@ -260,7 +260,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 AssureBufferLength(length.ValueLength);
-                fileStream.Read(buffer, 0, length.ValueLength);
+                fileStream.Seek(offset + length.LengthLength, SeekOrigin.Begin);
+
+                int totalBytesRead = 0;
+                while (totalBytesRead < length.ValueLength)
+                {
+                    int bytesRead = fileStream.Read(buffer, totalBytesRead, length.ValueLength - totalBytesRead);
+                    if (bytesRead <= 0)
+                    {
+                        throw new EndOfStreamException($"Unexpected end of stream while reading cell data. Expected {length.ValueLength} bytes but only read {totalBytesRead} bytes.");
+                    }
+
+                    totalBytesRead += bytesRead;
+                }
+
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
