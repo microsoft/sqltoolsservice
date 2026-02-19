@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \".\\build.ps1 -target=CodeGen\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
