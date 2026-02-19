@@ -709,12 +709,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Verbose("HandleRebuildIntelliSenseNotification");
 
-                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                // what the document events are sent in as.
-                var escapedOwnerUri = Uri.EscapeDataString(rebuildParams.OwnerUri);
                 // Skip closing this file if the file doesn't exist
-                var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
+                var scriptFile = this.CurrentWorkspace.GetFile(rebuildParams.OwnerUri);
                 if (scriptFile == null)
                 {
                     return;
@@ -1070,10 +1066,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (scriptInfo.IsConnected)
             {
-                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                // what the document events are sent in as.
-                var fileUri = Uri.EscapeUriString(info.OwnerUri);
+                var fileUri = info.OwnerUri;
                 var scriptFile = CurrentWorkspace.GetFile(fileUri);
                 if (scriptFile == null)
                 {
