@@ -829,6 +829,30 @@ FROM MissingEdgeHubInputStream'";
         }
 
         /// <summary>
+        /// Verify the code analysis rules endpoint returns rules through the request context
+        /// </summary>
+        [Test]
+        public async Task ValidateGetCodeAnalysisRulesCallFromService()
+        {
+            DacFxService service = new DacFxService();
+            MockRequest<GetCodeAnalysisRulesResult> requestMock = new();
+            GetCodeAnalysisRulesParams parameters = new GetCodeAnalysisRulesParams();
+
+            await service.HandleGetCodeAnalysisRulesRequest(parameters, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleGetCodeAnalysisRulesRequest));
+            Assert.That(requestMock.Result.Rules, Is.Not.Null, "Rules should be returned");
+            Assert.That(requestMock.Result.Rules.Length, Is.GreaterThan(0), "At least one code analysis rule should be returned");
+            Assert.That(requestMock.Result.Rules.All(r =>
+                !string.IsNullOrWhiteSpace(r.RuleId) &&
+                !string.IsNullOrWhiteSpace(r.ShortRuleId) &&
+                !string.IsNullOrWhiteSpace(r.DisplayName) &&
+                !string.IsNullOrWhiteSpace(r.Description) &&
+                !string.IsNullOrWhiteSpace(r.Severity)), Is.True,
+                "Returned rules should include core populated properties");
+        }
+
+        /// <summary>
         /// Verify that streaming job
         /// </summary>
         /// <returns></returns>
