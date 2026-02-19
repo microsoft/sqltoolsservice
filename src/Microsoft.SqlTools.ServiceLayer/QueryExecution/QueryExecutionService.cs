@@ -1582,20 +1582,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
         {
-            // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-            // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-            // what the document events are sent in as.
-            var escapedOwnerUri = Uri.EscapeUriString(request.OwnerUri);
             // If it is a document selection, we'll retrieve the text from the document
             if (request is ExecuteDocumentSelectionParams docRequest)
             {
-                return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
+                return GetSqlTextFromSelectionData(request.OwnerUri, docRequest.QuerySelection);
             }
 
             // If it is a document statement, we'll retrieve the text from the document
             if (request is ExecuteDocumentStatementParams stmtRequest)
             {
-                return GetSqlStatementAtPosition(escapedOwnerUri, stmtRequest.Line, stmtRequest.Column);
+                return GetSqlStatementAtPosition(request.OwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
