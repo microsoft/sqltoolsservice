@@ -58,7 +58,7 @@
     <PackageReference Update="TextCopy" Version="6.2.1" />
     <PackageReference Update="Microsoft.SemanticKernel" Version="1.71.0" />
 
-    <PackageReference Update="OpenAI" Version="2.8.0" />
+    <PackageReference Update="OpenAI" Version="2.7.0" />
     <PackageReference Update="System.ClientModel" Version="1.8.1" />
   </ItemGroup>
 
