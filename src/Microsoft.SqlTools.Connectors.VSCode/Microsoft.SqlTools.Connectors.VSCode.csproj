@@ -30,7 +30,7 @@
 
   <ItemGroup Label="Package references">
     <PackageReference Include="Microsoft.SemanticKernel" />
-     <ackageReference Include="OpenAI" />
+    <PackageReference Include="OpenAI" />
     <PackageReference Include="System.ClientModel" />
   </ItemGroup>
 
