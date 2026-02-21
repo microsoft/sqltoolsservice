@@ -14,15 +14,19 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    /// XEvent session that uses XELite's XELiveEventStreamer for push-based live event streaming.
+    /// Extended Events session wrapper that uses XELite's XELiveEventStreamer for push-based live event streaming.
     /// 
     /// This class combines two components:
-    /// - Session: The XEvent Session object used for session lifecycle management (start/stop the session on SQL Server)
+    /// - Session: The Extended Events Session object used for event session lifecycle management (start/stop the session on SQL Server)
     /// - observableSession: The LiveStreamObservable that wraps XELite for push-based event streaming
     /// 
     /// The Session object is needed because XELite only handles event streaming from an existing session;
     /// it does not manage session lifecycle on the server. The Session object provides the ability to
-    /// start and stop the XEvent session on SQL Server.
+    /// start and stop the Extended Events session on SQL Server.
+    /// 
+    /// Note: This implementation uses a fail-fast approach. If the XELite stream is terminated for any
+    /// reason (server restart, network drop, event session stopped externally), the session stops
+    /// immediately without attempting automatic reconnection. Users must manually start a new session.
     /// </summary>
     public class LiveStreamXEventSession : IObservableXEventSession
     {
@@ -34,20 +38,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private readonly SessionId sessionId;
 
         /// <summary>
-        /// Gets or sets the underlying XEvent Session object used for session lifecycle management.
-        /// This is used to start/stop the XEvent session on SQL Server.
-        /// XELite only streams events; it cannot manage session state.
+        /// Gets or sets the underlying Extended Events Session object used for event session lifecycle management.
+        /// This is used to start/stop the Extended Events session on SQL Server.
+        /// XELite only streams events; it cannot manage event session state.
         /// </summary>
-        public Session Session { get; set; }
+        public Session? Session { get; set; }
 
         /// <summary>
-        /// Gets or sets the SQL connection used for XEvent session management.
-        /// This connection is disposed when the session is stopped.
+        /// Gets or sets the SQL connection used for Extended Events session management.
+        /// This connection is disposed when the event session is stopped.
         /// </summary>
-        public Microsoft.Data.SqlClient.SqlConnection SqlConnection { get; set; }
+        public Microsoft.Data.SqlClient.SqlConnection? SqlConnection { get; set; }
 
         /// <summary>
-        /// Gets the unique identifier for this XEvent session.
+        /// Gets the unique identifier for this Extended Events session.
         /// </summary>
         public SessionId Id => sessionId;
 
@@ -57,20 +61,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public IObservable<ProfilerEvent> ObservableSessionEvents => observableSession;
 
         /// <summary>
-        /// Creates a new LiveStreamXEventSession for the specified XEvent session.
+        /// Creates a new LiveStreamXEventSession for the specified Extended Events session.
         /// </summary>
         /// <param name="connectionString">SQL Server connection string</param>
-        /// <param name="sessionName">Name of the XEvent session to stream from</param>
+        /// <param name="sessionName">Name of the Extended Events session to stream from</param>
         /// <param name="sessionId">Unique session identifier</param>
-        /// <param name="maxReconnectAttempts">Maximum reconnection attempts on failure (default: 3)</param>
-        /// <param name="reconnectDelay">Initial delay between reconnection attempts (default: 1 second)</param>
         public LiveStreamXEventSession(
             string connectionString,
             string sessionName,
-            SessionId sessionId,
-            int maxReconnectAttempts = ProfilerConstants.DefaultMaxReconnectAttempts,
-            TimeSpan? reconnectDelay = null)
-            : this(() => new XELiveEventStreamer(connectionString, sessionName), sessionId, maxReconnectAttempts, reconnectDelay)
+            SessionId sessionId)
+            : this(() => new XELiveEventStreamer(connectionString, sessionName), sessionId)
         {
         }
 
@@ -79,23 +79,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public LiveStreamXEventSession(
             Func<IXEventFetcher> streamerFactory,
-            SessionId sessionId,
-            int maxReconnectAttempts = ProfilerConstants.DefaultMaxReconnectAttempts,
-            TimeSpan? reconnectDelay = null)
+            SessionId sessionId)
         {
             this.sessionId = sessionId ?? throw new ArgumentNullException(nameof(sessionId));
             observableSession = new LiveStreamObservable(
-                streamerFactory ?? throw new ArgumentNullException(nameof(streamerFactory)),
-                maxReconnectAttempts,
-                reconnectDelay);
+                streamerFactory ?? throw new ArgumentNullException(nameof(streamerFactory)));
         }
 
         /// <summary>
-        /// Starts the live event stream. The underlying XEvent session should already be running.
+        /// Starts the live event stream. The underlying Extended Events session should already be running.
         /// </summary>
         public void Start()
         {
-            // Ensure the underlying XEvent session is running before starting the stream
+            // Ensure the underlying Extended Events session is running before starting the stream
             if (Session != null && !Session.IsRunning)
             {
                 Session.Start();
@@ -104,7 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Stops the live event stream and optionally the underlying session.
+        /// Stops the live event stream and the underlying Extended Events session.
+        /// This is a terminal operation - the event session cannot be restarted.
         /// </summary>
         public void Stop()
         {
@@ -115,44 +112,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     }
 
     /// <summary>
-    /// Observable wrapper for XELiveEventStreamer that provides push-based event delivery
-    /// with automatic reconnection on transient failures.
+    /// Observable wrapper for XELiveEventStreamer that provides push-based event delivery.
     /// 
-    /// Note: This class implements its own reconnection logic rather than relying on ReliableConnection
-    /// because XELite manages its own internal SQL connection for event streaming. The reconnection
-    /// here handles XELite stream interruptions (network blips, server restarts, session timeouts)
-    /// which are distinct from the SQL connection used for session management. ReliableConnection
-    /// cannot intercept or retry XELite's internal connection failures.
+    /// This implementation uses a fail-fast approach: if the XELite stream terminates for any
+    /// reason (network drop, server restart, event session stopped externally), the stream ends
+    /// immediately and notifies observers of completion or error. No automatic reconnection
+    /// is attempted - users must manually start a new event session if they wish to continue.
     /// </summary>
-    internal class LiveStreamObservable : IObservable<ProfilerEvent>
+    /// <remarks>
+    /// Creates a new LiveStreamObservable.
+    /// </remarks>
+    /// <param name="streamerFactory">Factory function to create XELiveEventStreamer instances</param>
+    internal class LiveStreamObservable(Func<IXEventFetcher> streamerFactory) : IObservable<ProfilerEvent>
     {
         private readonly object syncObj = new object();
         private readonly List<IObserver<ProfilerEvent>> observers = new List<IObserver<ProfilerEvent>>();
-        private readonly Func<IXEventFetcher> streamerFactory;
-        private readonly int maxReconnectAttempts;
-        private readonly TimeSpan baseReconnectDelay;
-        private CancellationTokenSource cancellationTokenSource;
-        private int currentReconnectAttempt;
+        private readonly Func<IXEventFetcher> streamerFactory = streamerFactory ?? throw new ArgumentNullException(nameof(streamerFactory));
+        private CancellationTokenSource? cancellationTokenSource;
         private bool isClosed;
 
         /// <summary>
-        /// Creates a new LiveStreamObservable.
-        /// </summary>
-        /// <param name="streamerFactory">Factory function to create XELiveEventStreamer instances</param>
-        /// <param name="maxReconnectAttempts">Maximum reconnection attempts (0 = no retries)</param>
-        /// <param name="baseReconnectDelay">Base delay between reconnection attempts (uses exponential backoff)</param>
-        public LiveStreamObservable(
-            Func<IXEventFetcher> streamerFactory,
-            int maxReconnectAttempts = ProfilerConstants.DefaultMaxReconnectAttempts,
-            TimeSpan? baseReconnectDelay = null)
-        {
-            this.streamerFactory = streamerFactory ?? throw new ArgumentNullException(nameof(streamerFactory));
-            this.maxReconnectAttempts = Math.Max(0, maxReconnectAttempts);
-            this.baseReconnectDelay = baseReconnectDelay ?? ProfilerConstants.DefaultReconnectDelay;
-        }
-
-        /// <summary>
-        /// Starts streaming events from the XEvent session.
+        /// Starts streaming events from the Extended Events session.
         /// </summary>
         public void Start()
         {
@@ -160,11 +140,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 if (isClosed)
                 {
-                    throw new InvalidOperationException("Cannot restart a closed stream");
+                    throw new InvalidOperationException("Cannot restart a closed event session stream");
                 }
                 cancellationTokenSource?.Cancel();
                 cancellationTokenSource = new CancellationTokenSource();
-                currentReconnectAttempt = 0;
             }
             StartStreamInternal();
         }
@@ -222,16 +201,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             try
             {
-                var token = cancellationTokenSource.Token;
+                var token = cancellationTokenSource?.Token ?? CancellationToken.None;
                 await fetcher.ReadEventStream(OnEventReceived, token);
                 // Stream completed normally
-                OnStreamEnded(completed: true, exception: null, fetcher: fetcher);
+                OnStreamEnded(completed: true, fetcher: fetcher);
             }
             catch (OperationCanceledException)
             {
                 // Stream was cancelled (expected during Stop)
                 (fetcher as IDisposable)?.Dispose();
-                OnStreamEnded(completed: true, exception: null, fetcher: null);
+                OnStreamEnded(completed: true);
             }
             catch (Exception ex)
             {
@@ -242,22 +221,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private void HandleFactoryException(Exception ex)
         {
-            if (currentReconnectAttempt < maxReconnectAttempts)
-            {
-                ScheduleReconnect();
-                return;
-            }
-
-            // Max retries exceeded - notify error and complete
+            // Fail-fast: notify error and complete immediately without reconnection attempt
             NotifyError(ex);
             NotifyCompleted();
         }
 
         private Task OnEventReceived(IXEvent xEvent)
         {
-            // Reset reconnect counter on successful event delivery
-            currentReconnectAttempt = 0;
-
             var profilerEvent = ConvertToProfilerEvent(xEvent);
             
             // Deliver event immediately to all observers (true push model)
@@ -322,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return profilerEvent;
         }
 
-        private void OnStreamEnded(bool completed, Exception exception, IXEventFetcher fetcher)
+        private void OnStreamEnded(bool completed, Exception? exception = null, IXEventFetcher? fetcher = null)
         {
             // Dispose the fetcher if it implements IDisposable
             (fetcher as IDisposable)?.Dispose();
@@ -340,48 +310,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 return;
             }
 
-            // Handle stream failure with reconnection
+            // Fail-fast: if stream ended unexpectedly, notify error and complete immediately
+            // No automatic reconnection is attempted - users must start a new event session
             if (exception != null)
             {
-                if (currentReconnectAttempt < maxReconnectAttempts)
-                {
-                    ScheduleReconnect();
-                    return;
-                }
-
-                // Max retries exceeded - notify error and complete
                 NotifyError(exception);
             }
 
             NotifyCompleted();
-        }
-
-        private void ScheduleReconnect()
-        {
-            currentReconnectAttempt++;
-
-            // Exponential backoff with jitter (using thread-safe Random.Shared)
-            var delay = TimeSpan.FromMilliseconds(
-                baseReconnectDelay.TotalMilliseconds * Math.Pow(2, currentReconnectAttempt - 1) *
-                (0.5 + Random.Shared.NextDouble() * 0.5));
-
-            var token = cancellationTokenSource?.Token ?? CancellationToken.None;
-
-            // Fire-and-forget: schedule reconnection after delay
-            _ = ReconnectAfterDelayAsync(delay, token);
-        }
-
-        private async Task ReconnectAfterDelayAsync(TimeSpan delay, CancellationToken token)
-        {
-            try
-            {
-                await Task.Delay(delay, token);
-                await StartStreamAsync();
-            }
-            catch (OperationCanceledException)
-            {
-                // Reconnection was cancelled - this is expected during Stop()
-            }
         }
 
         private List<IObserver<ProfilerEvent>> GetCurrentObservers()

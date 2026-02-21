@@ -66,10 +66,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (this.sessionsLock)
             {
-                // create new profiling session if needed
+                // create new event session wrapper if needed
                 if (!this.monitoredSessions.ContainsKey(session.Id))
                 {
-                    // Create ProfilerSession with callback to process events when they arrive
+                    // Create ProfilerSession wrapper with callback to process events when they arrive
                     var profilerSession = new ProfilerSession(session, OnSessionActivity);
 
                     this.monitoredSessions.Add(session.Id, profilerSession);

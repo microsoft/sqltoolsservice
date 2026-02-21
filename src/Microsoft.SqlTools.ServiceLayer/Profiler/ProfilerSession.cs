@@ -16,7 +16,8 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    /// Profiler session class
+    /// Wrapper for an Extended Events session that manages event observation and buffering.
+    /// This class monitors an IXEventSession and provides events to the ProfilerSessionMonitor.
     /// </summary>
     public class ProfilerSession : IDisposable
     {
@@ -33,9 +34,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public ConnectionInfo ConnectionInfo { get; set; }
 
         /// <summary>
-        /// Constructs a new ProfilerSession to watch the given IXeventSession's incoming events
+        /// Constructs a new ProfilerSession to watch the given IXEventSession's incoming events
         /// </summary>
-        /// <param name="xEventSession">The XEvent session to monitor</param>
+        /// <param name="xEventSession">The Extended Events session to monitor</param>
         /// <param name="onSessionActivity">Optional callback invoked when events arrive or session completes/errors</param>
         public ProfilerSession(IXEventSession xEventSession, Action<ProfilerSession> onSessionActivity = null)
         {
@@ -150,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// Observer that receives profiler events from an IObservable stream and buffers them
     /// for immediate delivery to the ProfilerSessionMonitor.
     /// Implements the observer pattern to support push-based XELite streaming, where events
-    /// are delivered to clients as soon as they arrive.
+    /// are delivered to clients as soon as they arrive from the Extended Events session.
     /// </summary>
     [DebuggerDisplay("SessionObserver. Current:{writeBuffer.Count} Total:{eventCount}")]
     class SessionObserver : IObserver<ProfilerEvent>
@@ -182,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Called when the observable stream completes normally (e.g., session stopped).
+        /// Called when the observable stream completes normally (e.g., event session stopped).
         /// Marks the observer as completed and notifies the polling loop.
         /// </summary>
         public void OnCompleted()
@@ -192,8 +193,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Called when the observable stream encounters an error (e.g., connection lost after max retries).
+        /// Called when the observable stream encounters an error (e.g., connection lost).
         /// Stores the error, marks completion, and notifies the polling loop.
+        /// Note: With fail-fast behavior, this is called immediately when the stream fails.
         /// </summary>
         /// <param name="error">The exception that caused the stream to fail</param>
         public void OnError(Exception error)
