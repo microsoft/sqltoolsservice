@@ -13,6 +13,18 @@ variables:
   value: '0'
 
 stages:
+- stage: IntegrationTests
+  variables:
+  - name: buildConfiguration
+    value: 'Debug'
+  jobs:
+  - job: IntegrationTests
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - template: integration-tests.yml
+    timeoutInMinutes: 60
+
 - stage: Build
   variables:
   - name: buildConfiguration
