@@ -478,6 +478,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             if (fk.ColumnsIds != null && fk.ReferencedColumnsIds != null)
             {
                 int mappingCount = Math.Min(fk.ColumnsIds.Count, fk.ReferencedColumnsIds.Count);
+                int mappingIndex = 0;
 
                 for (int i = 0; i < mappingCount; i++)
                 {
@@ -493,8 +494,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     }
 
                     viewModel.AddNewColumnMapping();
-                    viewModel.UpdateColumn(i, sourceColumn.Name);
-                    viewModel.UpdateForeignColumn(i, referencedColumn.Name);
+                    viewModel.UpdateColumn(mappingIndex, sourceColumn.Name);
+                    viewModel.UpdateForeignColumn(mappingIndex, referencedColumn.Name);
+                    mappingIndex++;
                 }
             }
         }
