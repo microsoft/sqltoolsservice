@@ -227,6 +227,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             if (initialTable.Columns == null || updatedTable.Columns == null) return;
 
+            var columnNameById = initialTable.Columns
+                .GroupBy(column => column.Id)
+                .ToDictionary(group => group.Key, group => group.First().Name);
+
             int index = 0;
 
             // First drop columns that don't exist in the target
@@ -235,6 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 if (!updatedTable.Columns.Any(c => c.Id == sourceColumn.Id))
                 {
                     tableDesigner.TableViewModel.Columns.RemoveAt(index);
+                    columnNameById.Remove(sourceColumn.Id);
                 }
                 else
                 {
@@ -254,6 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     tableDesigner.TableViewModel.Columns.AddNew();
                     var newCol = tableDesigner.TableViewModel.Columns.Items.Last();
                     SetColumnProperties(newCol, targetColumn);
+                    columnNameById[targetColumn.Id] = targetColumn.Name;
                 }
                 else if (sourceColumn != null && !SchemaDesignerUtils.DeepCompareColumn(sourceColumn, targetColumn))
                 {
@@ -262,8 +268,56 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                     // Only update properties that have changed
                     UpdateColumnProperties(viewModel, sourceColumn, targetColumn);
+                    columnNameById[targetColumn.Id] = targetColumn.Name;
+                }
+                else if (sourceColumn != null)
+                {
+                    columnNameById[targetColumn.Id] = targetColumn.Name;
                 }
             }
+
+            // Reorder columns when IDs are in a different order.
+            if (AreColumnOrdersDifferent(initialTable.Columns, updatedTable.Columns))
+            {
+                for (int targetIndex = 0; targetIndex < updatedTable.Columns.Count; targetIndex++)
+                {
+                    var targetColumn = updatedTable.Columns[targetIndex];
+                    var targetColumnName = columnNameById.TryGetValue(targetColumn.Id, out var name)
+                        ? name
+                        : targetColumn.Name;
+
+                    if (string.IsNullOrEmpty(targetColumnName))
+                    {
+                        continue;
+                    }
+
+                    var currentIndex = tableDesigner.TableViewModel.Columns.Items
+                        .ToList()
+                        .FindIndex(c => string.Equals(c.Name, targetColumnName, StringComparison.OrdinalIgnoreCase));
+
+                    if (currentIndex >= 0 && currentIndex != targetIndex)
+                    {
+                        tableDesigner.TableViewModel.Columns.Move(currentIndex, targetIndex);
+                    }
+                }
+            }
+        }
+
+        private static bool AreColumnOrdersDifferent(
+            List<SchemaDesignerColumn> sourceColumns,
+            List<SchemaDesignerColumn> targetColumns)
+        {
+            var sourceIdsInTargetOrder = sourceColumns
+                .Where(sourceColumn => targetColumns.Any(targetColumn => targetColumn.Id == sourceColumn.Id))
+                .Select(column => column.Id)
+                .ToList();
+
+            var targetExistingIds = targetColumns
+                .Where(targetColumn => sourceColumns.Any(sourceColumn => sourceColumn.Id == targetColumn.Id))
+                .Select(column => column.Id)
+                .ToList();
+
+            return !sourceIdsInTargetOrder.SequenceEqual(targetExistingIds);
         }
 
         /// <summary>
@@ -369,13 +423,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     if (targetTable.ForeignKeys?.Count > 0)
                     {
                         var tableDesigner = schemaDesigner.GetTableDesigner(targetTable.Schema, targetTable.Name);
-                        AddForeignKeysToTableDesigner(tableDesigner, targetTable, targetTable.ForeignKeys);
+                        AddForeignKeysToTableDesigner(tableDesigner, targetTable, targetTable.ForeignKeys, updatedSchema);
                     }
                 }
                 else
                 {
                     // For existing tables, process foreign key changes
-                    UpdateTableForeignKeys(sourceTable, targetTable, schemaDesigner);
+                    UpdateTableForeignKeys(sourceTable, targetTable, schemaDesigner, updatedSchema);
                 }
             }
         }
@@ -386,35 +440,61 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void AddForeignKeysToTableDesigner(
             DacTableDesigner tableDesigner,
             SchemaDesignerTable table,
-            List<SchemaDesignerForeignKey> foreignKeys)
+            List<SchemaDesignerForeignKey> foreignKeys,
+            SchemaDesignerModel schema)
         {
             foreach (var fk in foreignKeys)
             {
                 tableDesigner.TableViewModel.ForeignKeys.AddNew();
                 var sdForeignKey = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
-                SetForeignKeyProperties(sdForeignKey, fk);
+                SetForeignKeyProperties(sdForeignKey, table, fk, schema);
             }
         }
 
         /// <summary>
         /// Sets properties on a foreign key view model from a schema foreign key
         /// </summary>
-        private static void SetForeignKeyProperties(ForeignKeyViewModel viewModel, SchemaDesignerForeignKey fk)
+        private static void SetForeignKeyProperties(
+            ForeignKeyViewModel viewModel,
+            SchemaDesignerTable sourceTable,
+            SchemaDesignerForeignKey fk,
+            SchemaDesignerModel schema)
         {
             viewModel.Name = fk.Name;
-            viewModel.ForeignTable = $"{fk.ReferencedSchemaName}.{fk.ReferencedTableName}";
+
+            var referencedTable = schema.Tables?.FirstOrDefault(table =>
+                string.Equals(table.Id.ToString(), fk.ReferencedTableId, StringComparison.OrdinalIgnoreCase));
+
+            if (referencedTable != null)
+            {
+                viewModel.ForeignTable = $"{referencedTable.Schema}.{referencedTable.Name}";
+            }
+
             viewModel.OnDeleteAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(fk.OnDeleteAction);
             viewModel.OnUpdateAction = SchemaDesignerUtils.ConvertOnActionToSqlForeignKeyAction(fk.OnUpdateAction);
 
             viewModel.Columns.Clear();
 
-            if (fk.Columns != null && fk.ReferencedColumns != null)
+            if (fk.ColumnsIds != null && fk.ReferencedColumnsIds != null)
             {
-                for (int i = 0; i < fk.Columns.Count; i++)
+                int mappingCount = Math.Min(fk.ColumnsIds.Count, fk.ReferencedColumnsIds.Count);
+
+                for (int i = 0; i < mappingCount; i++)
                 {
+                    var sourceColumn = sourceTable.Columns?.FirstOrDefault(column =>
+                        string.Equals(column.Id.ToString(), fk.ColumnsIds[i], StringComparison.OrdinalIgnoreCase));
+
+                    var referencedColumn = referencedTable?.Columns?.FirstOrDefault(column =>
+                        string.Equals(column.Id.ToString(), fk.ReferencedColumnsIds[i], StringComparison.OrdinalIgnoreCase));
+
+                    if (sourceColumn?.Name == null || referencedColumn?.Name == null)
+                    {
+                        continue;
+                    }
+
                     viewModel.AddNewColumnMapping();
-                    viewModel.UpdateColumn(i, fk.Columns[i]);
-                    viewModel.UpdateForeignColumn(i, fk.ReferencedColumns[i]);
+                    viewModel.UpdateColumn(i, sourceColumn.Name);
+                    viewModel.UpdateForeignColumn(i, referencedColumn.Name);
                 }
             }
         }
@@ -425,7 +505,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private static void UpdateTableForeignKeys(
             SchemaDesignerTable initialTable,
             SchemaDesignerTable updatedTable,
-            DacSchemaDesigner designer)
+            DacSchemaDesigner designer,
+            SchemaDesignerModel schema)
         {
             if (initialTable.ForeignKeys == null && updatedTable.ForeignKeys == null) return;
 
@@ -456,7 +537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         // Add new foreign key
                         tableDesigner.TableViewModel.ForeignKeys.AddNew();
                         var newFk = tableDesigner.TableViewModel.ForeignKeys.Items.Last();
-                        SetForeignKeyProperties(newFk, targetFk);
+                        SetForeignKeyProperties(newFk, updatedTable, targetFk, schema);
                     }
                     else if (!SchemaDesignerUtils.DeepCompareForeignKey(sourceFk, targetFk))
                     {
@@ -466,7 +547,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         if (index >= 0)
                         {
                             var viewModel = tableDesigner.TableViewModel.ForeignKeys.Items[index];
-                            SetForeignKeyProperties(viewModel, targetFk);
+                            SetForeignKeyProperties(viewModel, updatedTable, targetFk, schema);
                         }
                     }
                 }
