@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
@@ -45,14 +47,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             // Act
             var rules = codeAnalysisService.GetRules().ToList();
 
-            // Assert - every rule must have its key properties populated
+            // Assert - every rule must have its key properties populated with meaningful values
             foreach (var rule in rules)
             {
-                Assert.IsNotNull(rule.RuleId, "RuleId should not be null");
-                Assert.IsNotNull(rule.ShortRuleId, $"ShortRuleId should not be null for {rule.RuleId}");
-                Assert.IsNotNull(rule.DisplayName, $"DisplayName should not be null for {rule.RuleId}");
-                Assert.IsNotNull(rule.DisplayDescription, $"DisplayDescription should not be null for {rule.RuleId}");
-                Assert.IsNotNull(rule.Severity, $"Severity should not be null for {rule.RuleId}");
+                Assert.IsFalse(
+                    string.IsNullOrWhiteSpace(rule.RuleId),
+                    "RuleId should not be null, empty, or whitespace",
+                );
+                Assert.IsFalse(
+                    string.IsNullOrWhiteSpace(rule.ShortRuleId),
+                    $"ShortRuleId should not be null, empty, or whitespace for {rule.RuleId}",
+                );
+                Assert.IsFalse(
+                    string.IsNullOrWhiteSpace(rule.DisplayName),
+                    $"DisplayName should not be null, empty, or whitespace for {rule.RuleId}",
+                );
+                Assert.IsFalse(
+                    string.IsNullOrWhiteSpace(rule.DisplayDescription),
+                    $"DisplayDescription should not be null, empty, or whitespace for {rule.RuleId}",
+                );
+                Assert.IsTrue(
+                    System.Enum.IsDefined(typeof(ModelValidationErrorSeverity), rule.Severity),
+                    $"Severity should be a defined {nameof(ModelValidationErrorSeverity)} value for {rule.RuleId}",
+                );
             }
         }
 

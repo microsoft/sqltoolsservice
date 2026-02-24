@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Represents a SQL code analysis rule with its metadata
     /// </summary>
-    public class SqlCodeAnalysisRule
+    public class CodeAnalysisRuleInfo
     {
         /// <summary>
         /// The full rule identifier (e.g., "Microsoft.Rules.Data.SR0001")
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string Severity { get; set; }
 
         /// <summary>
-        /// The scope of the rule (Element or Model)
+        /// The scope of the rule (Element or Model)    
         /// </summary>
         public string RuleScope { get; set; }
     }
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// The list of available code analysis rules
         /// </summary>
-        public SqlCodeAnalysisRule[] Rules { get; set; }
+        public CodeAnalysisRuleInfo[] Rules { get; set; }
     }
 
     /// <summary>
