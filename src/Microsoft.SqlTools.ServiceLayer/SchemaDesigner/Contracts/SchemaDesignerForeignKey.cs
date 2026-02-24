@@ -19,21 +19,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string? Name { get; set; }
         /// <summary>
-        /// Gets or sets the parent columns
+        /// Gets or sets the parent columns identifiers.
         /// </summary>
-        public List<string>? Columns { get; set; }
+        public List<string>? ColumnsIds { get; set; }
         /// <summary>
-        /// Gets or sets the referenced schema
+        /// Gets or sets the referenced entity identifier.
         /// </summary>
-        public string? ReferencedSchemaName { get; set; }
+        public string? ReferencedTableId { get; set; }
         /// <summary>
-        /// Gets or sets the referenced entity (Table in MSSQL) name.
+        /// Gets or sets the referenced column identifiers.
         /// </summary>
-        public string? ReferencedTableName { get; set; }
-        /// <summary>
-        /// Gets or sets the referenced column
-        /// </summary>
-        public List<string>? ReferencedColumns { get; set; }
+        public List<string>? ReferencedColumnsIds { get; set; }
         /// <summary>
         /// Gets or sets the delete cascade action. Default is NO_ACTION
         /// </summary>
