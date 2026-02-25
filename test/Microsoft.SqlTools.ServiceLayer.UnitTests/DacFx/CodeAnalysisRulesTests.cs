@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
@@ -113,7 +114,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
 
             var result = SqlProjectsService.BuildCodeAnalysisRulesXmlValue(rules);
 
-            Assert.That(result, Is.EqualTo("+SR0001=Error;-SR0003"));
+            // Newer DacFx settings serialization uses +!<RuleId> for Error overrides.
+            Assert.That(result, Is.EqualTo("+!SR0001;-SR0003"));
         }
 
         [Test]
@@ -124,37 +126,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         }
 
         [Test]
-        public void SqlProjectProperties_SetAndDeleteProperty_UpdatesCodeAnalysisProperties()
+        public async Task SqlProjectProperties_SetAndDeleteProperty_UpdatesCodeAnalysisProperties()
         {
-            var path = CreateMinimalSqlproj();
+            var path = await CreateTestSqlprojAsync();
             try
             {
+                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+
+                // Set properties and verify
                 SqlProject project = SqlProject.OpenProject(path, onlyLoadProperties: true);
-                project.Properties.SetProperty("SqlCodeAnalysisRules", "+SR0001=Error;-SR0005");
+                project.Properties.SetProperty("SqlCodeAnalysisRules", "+!SR0001;-SR0005");
                 project.Properties.SetProperty("RunSqlCodeAnalysis", "True");
 
                 var doc = XDocument.Load(path);
-                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
-                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault()?.Value, Is.EqualTo("+SR0001=Error;-SR0005"));
+                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault()?.Value, Is.EqualTo("+!SR0001;-SR0005"));
                 Assert.That(doc.Descendants(ns + "RunSqlCodeAnalysis").FirstOrDefault()?.Value, Is.EqualTo("True"));
-            }
-            finally
-            {
-                File.Delete(path);
-            }
-        }
 
-        [Test]
-        public void SqlProjectProperties_DeleteProperty_RemovesRulesElement()
-        {
-            var path = CreateMinimalSqlproj(existingRulesValue: "+SR0001=Error");
-            try
-            {
-                SqlProject project = SqlProject.OpenProject(path, onlyLoadProperties: true);
+                // Delete property and verify it is removed
+                project = SqlProject.OpenProject(path, onlyLoadProperties: true);
                 project.Properties.DeleteProperty("SqlCodeAnalysisRules");
 
-                var doc = XDocument.Load(path);
-                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+                doc = XDocument.Load(path);
                 Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault(), Is.Null);
             }
             finally
@@ -163,25 +155,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             }
         }
 
-        private static string CreateMinimalSqlproj(string existingRulesValue = null)
+        private static async Task<string> CreateTestSqlprojAsync()
         {
-            var path = Path.GetTempFileName() + ".sqlproj";
-            XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+            var path = Path.Combine(Path.GetTempPath(), $"{TestContext.CurrentContext.Test.Name}_{System.Guid.NewGuid()}.sqlproj");
 
-            var propertyGroup = new XElement(ns + "PropertyGroup",
-                new XElement(ns + "Name", "TestProject"));
-
-            if (existingRulesValue != null)
+            await SqlProject.CreateProjectAsync(path, new Microsoft.SqlServer.Dac.Projects.CreateSqlProjectParams
             {
-                propertyGroup.Add(new XElement(ns + "SqlCodeAnalysisRules", existingRulesValue));
-            }
+                ProjectType = ProjectType.LegacyStyle
+            });
 
-            var doc = new XDocument(
-                new XElement(ns + "Project",
-                    new XAttribute("DefaultTargets", "Build"),
-                    propertyGroup));
-
-            doc.Save(path);
             return path;
         }
     }
