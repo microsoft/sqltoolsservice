@@ -170,7 +170,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     DefaultCollation = project.Properties.DefaultCollation,
                     DatabaseSource = project.Properties.DatabaseSource,
                     ProjectStyle = project.SqlProjStyle,
-                    DatabaseSchemaProvider = project.Properties.DatabaseSchemaProvider
+                    DatabaseSchemaProvider = project.Properties.DatabaseSchemaProvider,
+                    RunSqlCodeAnalysis = bool.TryParse(project.Properties.GetProperty(RunSqlCodeAnalysisPropertyName), out var runAnalysis) && runAnalysis,
+                    SqlCodeAnalysisRules = project.Properties.GetProperty(SqlCodeAnalysisRulesPropertyName)
                 };
             }, requestContext);
         }
