@@ -5,9 +5,15 @@
 
 #nullable disable
 
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
+using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
@@ -52,23 +58,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             {
                 Assert.IsFalse(
                     string.IsNullOrWhiteSpace(rule.RuleId),
-                    "RuleId should not be null, empty, or whitespace",
+                    "RuleId should not be null, empty, or whitespace"
                 );
                 Assert.IsFalse(
                     string.IsNullOrWhiteSpace(rule.ShortRuleId),
-                    $"ShortRuleId should not be null, empty, or whitespace for {rule.RuleId}",
+                    $"ShortRuleId should not be null, empty, or whitespace for {rule.RuleId}"
                 );
                 Assert.IsFalse(
                     string.IsNullOrWhiteSpace(rule.DisplayName),
-                    $"DisplayName should not be null, empty, or whitespace for {rule.RuleId}",
+                    $"DisplayName should not be null, empty, or whitespace for {rule.RuleId}"
                 );
                 Assert.IsFalse(
                     string.IsNullOrWhiteSpace(rule.DisplayDescription),
-                    $"DisplayDescription should not be null, empty, or whitespace for {rule.RuleId}",
+                    $"DisplayDescription should not be null, empty, or whitespace for {rule.RuleId}"
                 );
                 Assert.IsTrue(
-                    System.Enum.IsDefined(typeof(ModelValidationErrorSeverity), rule.Severity),
-                    $"Severity should be a defined {nameof(ModelValidationErrorSeverity)} value for {rule.RuleId}",
+                    System.Enum.IsDefined(typeof(SqlRuleProblemSeverity), rule.Severity),
+                    $"Severity should be a defined {nameof(SqlRuleProblemSeverity)} value for {rule.RuleId}"
                 );
             }
         }
@@ -93,6 +99,90 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
 
             var rulesWithScope = rules.Where(r => r.Metadata?.RuleScope != null).ToList();
             Assert.IsTrue(rulesWithScope.Count > 0, "At least some rules should have a rule scope");
+        }
+
+        [Test]
+        public void BuildCodeAnalysisRulesXmlValue_MixedRules_SerializesExpectedTokens()
+        {
+            var rules = new List<CodeAnalysisRuleOverride>
+            {
+                new() { RuleId = "SR0001", Severity = "Error" },
+                new() { RuleId = "SR0002", Severity = "Warning" }, // omitted
+                new() { RuleId = "SR0003", Severity = "Disabled" },
+            };
+
+            var result = SqlProjectsService.BuildCodeAnalysisRulesXmlValue(rules);
+
+            Assert.That(result, Is.EqualTo("+SR0001=Error;-SR0003"));
+        }
+
+        [Test]
+        public void BuildCodeAnalysisRulesXmlValue_EmptyRules_ReturnsEmpty()
+        {
+            var result = SqlProjectsService.BuildCodeAnalysisRulesXmlValue(new List<CodeAnalysisRuleOverride>());
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public void SqlProjectProperties_SetAndDeleteProperty_UpdatesCodeAnalysisProperties()
+        {
+            var path = CreateMinimalSqlproj();
+            try
+            {
+                SqlProject project = SqlProject.OpenProject(path, onlyLoadProperties: true);
+                project.Properties.SetProperty("SqlCodeAnalysisRules", "+SR0001=Error;-SR0005");
+                project.Properties.SetProperty("RunSqlCodeAnalysis", "True");
+
+                var doc = XDocument.Load(path);
+                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault()?.Value, Is.EqualTo("+SR0001=Error;-SR0005"));
+                Assert.That(doc.Descendants(ns + "RunSqlCodeAnalysis").FirstOrDefault()?.Value, Is.EqualTo("True"));
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Test]
+        public void SqlProjectProperties_DeleteProperty_RemovesRulesElement()
+        {
+            var path = CreateMinimalSqlproj(existingRulesValue: "+SR0001=Error");
+            try
+            {
+                SqlProject project = SqlProject.OpenProject(path, onlyLoadProperties: true);
+                project.Properties.DeleteProperty("SqlCodeAnalysisRules");
+
+                var doc = XDocument.Load(path);
+                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault(), Is.Null);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        private static string CreateMinimalSqlproj(string existingRulesValue = null)
+        {
+            var path = Path.GetTempFileName() + ".sqlproj";
+            XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+
+            var propertyGroup = new XElement(ns + "PropertyGroup",
+                new XElement(ns + "Name", "TestProject"));
+
+            if (existingRulesValue != null)
+            {
+                propertyGroup.Add(new XElement(ns + "SqlCodeAnalysisRules", existingRulesValue));
+            }
+
+            var doc = new XDocument(
+                new XElement(ns + "Project",
+                    new XAttribute("DefaultTargets", "Build"),
+                    propertyGroup));
+
+            doc.Save(path);
+            return path;
         }
     }
 }

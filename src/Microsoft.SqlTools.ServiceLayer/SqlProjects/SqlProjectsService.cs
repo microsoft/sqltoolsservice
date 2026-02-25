@@ -4,9 +4,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -21,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
     public sealed class SqlProjectsService : BaseService
     {
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
+        private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
+        private const string SqlCodeAnalysisRulesPropertyName = "SqlCodeAnalysisRules";
 
         /// <summary>
         /// Gets the singleton instance object
@@ -49,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(GetProjectPropertiesRequest.Type, HandleGetProjectPropertiesRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(SetDatabaseSourceRequest.Type, HandleSetDatabaseSourceRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(SetDatabaseSchemaProviderRequest.Type, HandleSetDatabaseSchemaProviderRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(UpdateCodeAnalysisRulesRequest.Type, HandleUpdateCodeAnalysisRulesRequest, isParallelProcessingSupported: false);
 
             // SQL object script functions
             serviceHost.SetRequestHandler(GetSqlObjectScriptsRequest.Type, HandleGetSqlObjectScriptsRequest, isParallelProcessingSupported: true);
@@ -177,6 +183,78 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
+        }
+
+        internal async Task HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams, RequestContext<UpdateCodeAnalysisRulesResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                if (string.IsNullOrWhiteSpace(requestParams?.ProjectFilePath))
+                {
+                    throw new ArgumentException("ProjectFilePath is required.");
+                }
+
+                if (!File.Exists(requestParams.ProjectFilePath))
+                {
+                    throw new FileNotFoundException($"SQL project file not found: {requestParams.ProjectFilePath}");
+                }
+
+                string rulesValue = BuildCodeAnalysisRulesXmlValue(requestParams.Rules ?? Array.Empty<CodeAnalysisRuleOverride>());
+                SqlProject project = GetProject(requestParams.ProjectFilePath, onlyLoadProperties: true);
+
+                if (requestParams.RunSqlCodeAnalysis.HasValue)
+                {
+                    project.Properties.SetProperty(RunSqlCodeAnalysisPropertyName, requestParams.RunSqlCodeAnalysis.Value ? "True" : "False");
+                }
+
+                if (string.IsNullOrEmpty(rulesValue))
+                {
+                    project.Properties.DeleteProperty(SqlCodeAnalysisRulesPropertyName);
+                }
+                else
+                {
+                    project.Properties.SetProperty(SqlCodeAnalysisRulesPropertyName, rulesValue);
+                }
+
+                return new UpdateCodeAnalysisRulesResult()
+                {
+                    Success = true,
+                    ErrorMessage = null
+                };
+            }, requestContext);
+        }
+
+        internal static string BuildCodeAnalysisRulesXmlValue(IEnumerable<CodeAnalysisRuleOverride> rules)
+        {
+            CodeAnalysisRuleSettings settings = new();
+            foreach (CodeAnalysisRuleOverride rule in rules)
+            {
+                if (string.IsNullOrWhiteSpace(rule?.RuleId))
+                {
+                    continue;
+                }
+
+                bool enabled;
+                SqlRuleProblemSeverity severity;
+                switch (rule.Severity?.ToLowerInvariant())
+                {
+                    case "disabled":
+                    case "none":
+                        enabled = false;
+                        severity = SqlRuleProblemSeverity.Warning;
+                        break;
+                    case "error":
+                        enabled = true;
+                        severity = SqlRuleProblemSeverity.Error;
+                        break;
+                    default:
+                        continue;
+                }
+
+                settings.Add(new RuleConfiguration(rule.RuleId, enabled, severity));
+            }
+
+            return settings.ConvertToSettingsString();
         }
 
         #endregion
