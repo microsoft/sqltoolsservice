@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string Severity { get; set; }
 
         /// <summary>
-        /// The scope of the rule (Element or Model)    
+        /// The scope of the rule (Element or Model)
         /// </summary>
         public string RuleScope { get; set; }
     }

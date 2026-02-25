@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     public class CodeAnalysisRuleOverride
     {
         /// <summary>
-        /// The full rule identifier (e.g., "Microsoft.Rules.Data.SR0001")
+        /// The rule identifier, using the short ID format (e.g., "SR0001")
         /// </summary>
         public string RuleId { get; set; }
 
@@ -28,18 +28,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Parameters for updating code analysis rule settings in a .sqlproj file.
     /// </summary>
-    public class UpdateCodeAnalysisRulesParams
+    public class UpdateCodeAnalysisRulesParams : SqlProjectParams
     {
-        /// <summary>
-        /// Absolute file path to the .sqlproj file to update.
-        /// </summary>
-        public string ProjectFilePath { get; set; }
-
         /// <summary>
         /// The full list of rules and their desired severities.
         /// Rules with the default severity (Warning) are omitted from the project file;
         /// only Error and Disabled overrides are written.
-        /// Pass an empty array to reset rules to DacFx defaults (removes CodeAnalysisRules property).
+        /// Pass an empty array to reset rules to DacFx defaults (removes SqlCodeAnalysisRules property).
+        /// When null, existing rule overrides in the project file are preserved.
         /// </summary>
         public CodeAnalysisRuleOverride[] Rules { get; set; }
 
@@ -60,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Request to update code analysis rule settings in a .sqlproj file.
     /// </summary>
-    class UpdateCodeAnalysisRulesRequest
+    public class UpdateCodeAnalysisRulesRequest
     {
         public static readonly RequestType<UpdateCodeAnalysisRulesParams, UpdateCodeAnalysisRulesResult> Type =
             RequestType<UpdateCodeAnalysisRulesParams, UpdateCodeAnalysisRulesResult>.Create("sqlProjects/updateCodeAnalysisRules");

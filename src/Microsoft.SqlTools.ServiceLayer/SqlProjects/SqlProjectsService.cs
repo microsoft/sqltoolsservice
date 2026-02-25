@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
@@ -191,31 +190,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(() =>
             {
-                if (string.IsNullOrWhiteSpace(requestParams?.ProjectFilePath))
-                {
-                    throw new ArgumentException("ProjectFilePath is required.");
-                }
-
-                if (!File.Exists(requestParams.ProjectFilePath))
-                {
-                    throw new FileNotFoundException($"SQL project file not found: {requestParams.ProjectFilePath}");
-                }
-
-                string rulesValue = BuildCodeAnalysisRulesXmlValue(requestParams.Rules ?? Array.Empty<CodeAnalysisRuleOverride>());
-                SqlProject project = GetProject(requestParams.ProjectFilePath, onlyLoadProperties: true);
+                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
 
                 if (requestParams.RunSqlCodeAnalysis.HasValue)
                 {
                     project.Properties.SetProperty(RunSqlCodeAnalysisPropertyName, requestParams.RunSqlCodeAnalysis.Value ? "True" : "False");
                 }
 
-                if (string.IsNullOrEmpty(rulesValue))
+                // Only modify SqlCodeAnalysisRules when the caller explicitly provided rules.
+                // A null Rules list means "leave existing overrides untouched".
+                if (requestParams.Rules != null)
                 {
-                    project.Properties.DeleteProperty(SqlCodeAnalysisRulesPropertyName);
-                }
-                else
-                {
-                    project.Properties.SetProperty(SqlCodeAnalysisRulesPropertyName, rulesValue);
+                    string rulesValue = BuildCodeAnalysisRulesXmlValue(requestParams.Rules);
+                    if (string.IsNullOrEmpty(rulesValue))
+                    {
+                        project.Properties.DeleteProperty(SqlCodeAnalysisRulesPropertyName);
+                    }
+                    else
+                    {
+                        project.Properties.SetProperty(SqlCodeAnalysisRulesPropertyName, rulesValue);
+                    }
                 }
 
                 return new UpdateCodeAnalysisRulesResult()
