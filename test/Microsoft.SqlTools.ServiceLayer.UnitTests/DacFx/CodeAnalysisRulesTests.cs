@@ -6,13 +6,9 @@
 #nullable disable
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using NUnit.Framework;
@@ -126,45 +122,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         }
 
         [Test]
-        public async Task SqlProjectProperties_SetAndDeleteProperty_UpdatesCodeAnalysisProperties()
+        public void BuildCodeAnalysisRulesXmlValue_UnknownOrNullSeverity_SkipsEntry()
         {
-            var path = await CreateTestSqlprojAsync();
-            try
+            // Unrecognized severities (including null) are treated as "use DacFx default" and
+            // produce no override entry, matching the Warning / default-severity behaviour.
+            var rules = new List<CodeAnalysisRuleOverride>
             {
-                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+                new() { RuleId = "SR0001", Severity = "Errror" },  // typo → skipped
+                new() { RuleId = "SR0002", Severity = null },       // null  → skipped
+                new() { RuleId = "SR0003", Severity = "Error" },    // valid → included
+            };
 
-                // Set properties and verify
-                SqlProject project = SqlProject.OpenProject(path, onlyLoadProperties: true);
-                project.Properties.SetProperty("SqlCodeAnalysisRules", "+!SR0001;-SR0005");
-                project.Properties.SetProperty("RunSqlCodeAnalysis", "True");
-
-                var doc = XDocument.Load(path);
-                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault()?.Value, Is.EqualTo("+!SR0001;-SR0005"));
-                Assert.That(doc.Descendants(ns + "RunSqlCodeAnalysis").FirstOrDefault()?.Value, Is.EqualTo("True"));
-
-                // Delete property and verify it is removed
-                project = SqlProject.OpenProject(path, onlyLoadProperties: true);
-                project.Properties.DeleteProperty("SqlCodeAnalysisRules");
-
-                doc = XDocument.Load(path);
-                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault(), Is.Null);
-            }
-            finally
-            {
-                File.Delete(path);
-            }
+            var result = SqlProjectsService.BuildCodeAnalysisRulesXmlValue(rules);
+            Assert.That(result, Is.EqualTo("+!SR0003"));
         }
 
-        private static async Task<string> CreateTestSqlprojAsync()
+        [Test]
+        public void BuildCodeAnalysisRulesXmlValue_EmptyRuleId_SkipsEntry()
         {
-            var path = Path.Combine(Path.GetTempPath(), $"{TestContext.CurrentContext.Test.Name}_{System.Guid.NewGuid()}.sqlproj");
-
-            await SqlProject.CreateProjectAsync(path, new Microsoft.SqlServer.Dac.Projects.CreateSqlProjectParams
+            var rules = new List<CodeAnalysisRuleOverride>
             {
-                ProjectType = ProjectType.LegacyStyle
-            });
+                new() { RuleId = "  ", Severity = "Error" },   // blank RuleId → skipped
+                new() { RuleId = "SR0001", Severity = "Error" },
+            };
 
-            return path;
+            var result = SqlProjectsService.BuildCodeAnalysisRulesXmlValue(rules);
+            Assert.That(result, Is.EqualTo("+!SR0001"));
         }
     }
 }

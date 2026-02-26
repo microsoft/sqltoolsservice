@@ -244,6 +244,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         severity = SqlRuleProblemSeverity.Error;
                         break;
                     default:
+                        // Warning (the DacFx default) and any unrecognized severity produce no
+                        // override entry — the rule inherits its default behaviour from DacFx.
                         continue;
                 }
 
