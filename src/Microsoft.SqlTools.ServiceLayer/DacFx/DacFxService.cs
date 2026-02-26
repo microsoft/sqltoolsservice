@@ -6,8 +6,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -66,6 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
+            serviceHost.SetRequestHandler(GetCodeAnalysisRulesRequest.Type, this.HandleGetCodeAnalysisRulesRequest, true);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
             telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
@@ -384,6 +387,42 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             return;
         }
+
+        /// <summary>
+        /// Handles request to get all available built-in SQL code analysis rules.
+        /// Creates a minimal TSqlModel to enumerate rules from DacFx CodeAnalysisService.
+        /// The rules are static and do not depend on model content or SQL Server version.
+        /// </summary>
+        public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams parameters, RequestContext<GetCodeAnalysisRulesResult> requestContext)
+        {
+            await BaseService.RunWithErrorHandling(() =>
+            {
+                // Version doesn't affect the rules returned; a model is only needed to obtain a CodeAnalysisService instance.
+                using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
+                var factory = new CodeAnalysisServiceFactory();
+                var codeAnalysisService = factory.CreateAnalysisService(model);
+                var rules = codeAnalysisService.GetRules();
+
+                var ruleInfos = rules.Select(r => new CodeAnalysisRuleInfo
+                {
+                    RuleId = r.RuleId,
+                    ShortRuleId = r.ShortRuleId,
+                    DisplayName = r.DisplayName,
+                    Description = r.DisplayDescription,
+                    Category = r.Metadata?.Category ?? string.Empty,
+                    Severity = r.Severity.ToString(),
+                    RuleScope = r.Metadata?.RuleScope.ToString() ?? string.Empty
+                }).ToArray();
+
+                return new GetCodeAnalysisRulesResult
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Rules = ruleInfos
+                };
+            }, requestContext);
+        }
+
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
