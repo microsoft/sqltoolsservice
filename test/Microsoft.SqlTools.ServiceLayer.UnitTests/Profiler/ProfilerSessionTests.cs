@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 CreateTestEvent("event3")
             };
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
-            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
             var profilerSession = new ProfilerSession(liveSession);
 
             // Act - start the session and wait for events
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 CreateTestEvent("event2")
             };
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
-            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
             var profilerSession = new ProfilerSession(liveSession);
 
             // Act - start the session and wait for events
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             int callbackCount = 0;
             var testEvents = new List<IXEvent> { CreateTestEvent("event1") };
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
-            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
             Action<ProfilerSession> callback = session => callbackCount++;
             _ = new ProfilerSession(liveSession, onSessionActivity: callback);
 
@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // Arrange - session that completes after delivering events
             var testEvents = new List<IXEvent> { CreateTestEvent("event1") };
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
-            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
             var profilerSession = new ProfilerSession(liveSession);
 
             Assert.That(profilerSession.Completed, Is.False, "Should not be completed before start");
@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 failAfterEvents: 1,
                 exceptionToThrow: expectedError,
                 delayBetweenEvents: TimeSpan.FromMilliseconds(10));
-            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1), maxReconnectAttempts: 0);
+            var liveSession = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
             var profilerSession = new ProfilerSession(liveSession);
 
             Assert.That(profilerSession.Error, Is.Null, "Should not have error before start");
