@@ -334,5 +334,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details1 = details2.Clone();
             Assert.That(details1.IsComparableTo(details2), Is.True, "Same Connection Settings must be comparable.");
         }
+
+        /// <summary>
+        /// Verify that the password connection option is not required.
+        /// SQL Server supports connections with empty passwords, so the password field should not be marked as required.
+        /// </summary>
+        [Test]
+        public void PasswordConnectionOptionShouldNotBeRequired()
+        {
+            ConnectionProviderOptions optionMetadata = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions();
+
+            var passwordOption = optionMetadata.Options.FirstOrDefault(o => o.Name == "password");
+
+            Assert.That(passwordOption, Is.Not.Null, "Password option should exist in connection provider options");
+            Assert.That(passwordOption.IsRequired, Is.False, "Password option should not be required since SQL Server supports empty password connections");
+        }
     }
 }
