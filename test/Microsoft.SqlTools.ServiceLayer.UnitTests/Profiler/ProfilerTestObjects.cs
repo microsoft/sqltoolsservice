@@ -204,20 +204,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
     public class TestLiveStreamSessionFactory : IXEventSessionFactory
     {
         private readonly Queue<IXEventFetcher> fetcherQueue;
-        private readonly int maxReconnectAttempts;
-        private readonly TimeSpan reconnectDelay;
 
         public SessionId LastSessionId { get; private set; }
         public int FetchersCreated { get; private set; }
 
-        public TestLiveStreamSessionFactory(
-            IEnumerable<IXEventFetcher> fetchers,
-            int maxReconnectAttempts = 3,
-            TimeSpan? reconnectDelay = null)
+        public TestLiveStreamSessionFactory(IEnumerable<IXEventFetcher> fetchers)
         {
             fetcherQueue = new Queue<IXEventFetcher>(fetchers ?? Array.Empty<IXEventFetcher>());
-            this.maxReconnectAttempts = maxReconnectAttempts;
-            this.reconnectDelay = reconnectDelay ?? TimeSpan.FromMilliseconds(10);
         }
 
         public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
@@ -242,9 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             return new LiveStreamXEventSession(
                 GetNextFetcher,
-                LastSessionId,
-                maxReconnectAttempts,
-                reconnectDelay);
+                LastSessionId);
         }
 
         private IXEventFetcher GetNextFetcher()

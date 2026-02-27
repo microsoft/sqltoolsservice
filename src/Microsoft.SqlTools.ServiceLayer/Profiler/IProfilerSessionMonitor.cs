@@ -8,17 +8,17 @@
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    /// Profiler session monitor interface
+    /// Extended Events session monitor interface
     /// </summary>
     public interface IProfilerSessionMonitor
     {
         /// <summary>
-        /// Starts monitoring a profiler session
+        /// Starts monitoring an Extended Events session
         /// </summary>
         bool StartMonitoringSession(string viewerId, IXEventSession session);
 
         /// <summary>
-        /// Stops monitoring a profiler session
+        /// Stops monitoring an Extended Events session
         /// </summary>
         bool StopMonitoringSession(string viewerId, out ProfilerSession session);
 
