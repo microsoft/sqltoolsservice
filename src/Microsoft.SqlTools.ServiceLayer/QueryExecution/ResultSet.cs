@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -245,8 +246,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
+        /// <param name="cancellationToken">Cancellation token used to cancel subset retrieval.</param>
         /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(long startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(
+            long startRow,
+            int rowCount,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // Sanity check to make sure that results read has started
             if (!hasStartedRead)
@@ -266,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             return Task.Factory.StartNew(() =>
             {
-
+                cancellationToken.ThrowIfCancellationRequested();
                 DbCellValue[][] rows;
 
                 using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
@@ -275,10 +280,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Concatenate all the rows together into one row
                     if (isSingleColumnXmlJsonResultSet)
                     {
-                        // Iterate over all the rows and process them into a list of string builders
-                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
-                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, 0, Columns)[0].DisplayValue);
-                        string singleString = string.Join(string.Empty, rowValues);
+                        StringBuilder resultBuilder = new StringBuilder();
+                        foreach (long rowOffset in fileOffsets)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            string displayValue = fileStreamReader.ReadRow(rowOffset, 0, Columns)[0].DisplayValue;
+                            if (!string.IsNullOrEmpty(displayValue))
+                            {
+                                resultBuilder.Append(displayValue);
+                            }
+                        }
+
+                        string singleString = resultBuilder.ToString();
                         var cellValue = new DbCellValue
                         {
                             DisplayValue = singleString,
@@ -294,17 +307,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         IEnumerable<long> rowOffsets = fileOffsets.LongSkip(startRow).Take(rowCount);
 
                         // Iterate over the rows we need and process them into output
-                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
-                        rows = rowOffsets.Select((offset, id) => fileStreamReader.ReadRow(offset, id, Columns).ToArray()).ToArray();
+                        List<DbCellValue[]> subsetRows = new List<DbCellValue[]>();
+                        int rowId = 0;
+                        foreach (long rowOffset in rowOffsets)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            subsetRows.Add(fileStreamReader.ReadRow(rowOffset, rowId, Columns).ToArray());
+                            rowId++;
+                        }
+
+                        rows = subsetRows.ToArray();
                     }
                 }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
                 {
                     Rows = rows,
                     RowCount = rows.Length
                 };
-            });
+            }, cancellationToken);
         }
 
         /// <summary>
