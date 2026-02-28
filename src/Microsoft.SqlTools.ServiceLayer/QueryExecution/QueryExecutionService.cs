@@ -218,7 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest, true);
-            // Allow subset requests to dispatch in parallel globally; per-ownerUri ordering is preserved by server-side locks.
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, true);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest, true);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest, true);
