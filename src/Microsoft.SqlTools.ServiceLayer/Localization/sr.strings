@@ -98,6 +98,8 @@ QueryServiceSubsetBatchOutOfRange = Batch index cannot be less than 0 or greater
 
 QueryServiceSubsetResultSetOutOfRange = Result set index cannot be less than 0 or greater than the number of result sets
 
+QueryServiceSubsetRowsTimeout = Fetching query rows timed out.
+
 ### Data Reader Exceptions
 
 QueryServiceDataReaderByteCountInvalid = Maximum number of bytes to return must be greater than zero
