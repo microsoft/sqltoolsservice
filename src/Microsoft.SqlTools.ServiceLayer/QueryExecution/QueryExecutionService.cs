@@ -515,9 +515,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 using (CancellationTokenSource timeoutCancellationSource = new CancellationTokenSource())
+                using (CancellationTokenSource delayCancellationSource = new CancellationTokenSource())
                 {
                     Task<ResultSetSubset> subsetTask = InterServiceResultSubset(subsetParams, timeoutCancellationSource.Token);
-                    Task timeoutTask = Task.Delay(subsetRequestTimeout);
+                    Task timeoutTask = Task.Delay(subsetRequestTimeout, delayCancellationSource.Token);
                     Task completedTask = await Task.WhenAny(subsetTask, timeoutTask);
                     if (!ReferenceEquals(completedTask, subsetTask))
                     {
@@ -529,22 +530,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         return;
                     }
 
-                    try
+                    // Subset completed before the timeout — cancel the delay timer so it doesn't
+                    // linger for the remainder of the timeout window.
+                    delayCancellationSource.Cancel();
+
+                    ResultSetSubset subset = await subsetTask;
+                    var result = new SubsetResult
                     {
-                        ResultSetSubset subset = await subsetTask;
-                        var result = new SubsetResult
-                        {
-                            ResultSubset = subset
-                        };
-                        await requestContext.SendResult(result);
-                        Logger.Stop($"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
-                    }
-                    catch (OperationCanceledException) when (timeoutCancellationSource.IsCancellationRequested)
-                    {
-                        blockedSubsetOwnerUris.TryAdd(subsetParams.OwnerUri, 0);
-                        Logger.Error($"Subset request timed out for ownerUri '{subsetParams.OwnerUri}' after {subsetRequestTimeout.TotalSeconds} seconds. Blocking further subset requests until query is rerun/disposed.");
-                        await requestContext.SendError(SubsetRowsTimeoutError);
-                    }
+                        ResultSubset = subset
+                    };
+                    await requestContext.SendResult(result);
+                    Logger.Stop($"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
                 }
             }
         }
