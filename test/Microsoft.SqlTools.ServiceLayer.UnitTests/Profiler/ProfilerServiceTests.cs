@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
@@ -154,10 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // Create fetcher with keepStreamOpen to prevent session from completing during test
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(50), keepStreamOpen: true);
 
-            var sessionFactory = new TestLiveStreamSessionFactory(
-                new[] { fetcher },
-                maxReconnectAttempts: 0,
-                reconnectDelay: TimeSpan.FromMilliseconds(10));
+            var sessionFactory = new TestLiveStreamSessionFactory(new[] { fetcher });
 
             // capture Listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
@@ -229,10 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             };
             var fetcher = new TestLiveEventFetcher(testEvents, delayBetweenEvents: TimeSpan.FromMilliseconds(10));
 
-            var sessionFactory = new TestLiveStreamSessionFactory(
-                new[] { fetcher },
-                maxReconnectAttempts: 0,
-                reconnectDelay: TimeSpan.FromMilliseconds(10));
+            var sessionFactory = new TestLiveStreamSessionFactory(new[] { fetcher });
 
             // capture Listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
@@ -331,20 +324,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             var param = new StartProfilingParams() { OwnerUri = "someUri", SessionName = "someSession" };
 
-            // Create a fetcher that fails immediately with "test!" error after exhausting reconnect attempts
+            // Create a fetcher that fails immediately with "test!" error (fail-fast, no reconnection)
             var testException = new XEventException("test!");
-            var failingFetchers = new List<IXEventFetcher>
-            {
-                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException),
-                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException),
-                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException),
-                new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException)
-            };
+            var failingFetcher = new TestLiveEventFetcher(Array.Empty<TestXEvent>(), failImmediately: true, exceptionToThrow: testException);
 
-            var sessionFactory = new TestLiveStreamSessionFactory(
-                failingFetchers,
-                maxReconnectAttempts: 3,
-                reconnectDelay: TimeSpan.FromMilliseconds(10));
+            var sessionFactory = new TestLiveStreamSessionFactory(new[] { failingFetcher });
 
             var requestContext = new Mock<RequestContext<StartProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))

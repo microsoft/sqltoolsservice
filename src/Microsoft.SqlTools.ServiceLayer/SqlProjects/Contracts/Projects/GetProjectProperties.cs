@@ -64,5 +64,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Database Schema Provider, in the format "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider"
         /// </summary>
         public string DatabaseSchemaProvider { get; set; }
+
+        /// <summary>
+        /// Whether SQL code analysis is enabled for the project
+        /// </summary>
+        public bool RunSqlCodeAnalysis { get; set; }
+
+        /// <summary>
+        /// Serialized code analysis rule overrides (e.g. "+!SR0001;-SR0003"), or null if not set
+        /// </summary>
+        public string? SqlCodeAnalysisRules { get; set; }
     }
 }

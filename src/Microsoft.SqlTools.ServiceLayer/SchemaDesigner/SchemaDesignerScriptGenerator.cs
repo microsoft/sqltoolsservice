@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 foreach (var fk in table.ForeignKeys)
                 {
-                    sb.AppendLine(GenerateForeignKeyScript(table, fk));
+                    sb.AppendLine(GenerateForeignKeyScript(table, fk, tables));
                 }
             }
 
@@ -264,14 +264,39 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <param name="fk">The foreign key to script.</param>
         /// <returns>A string containing SQL script for the foreign key.</returns>
 
-        public static string GenerateForeignKeyScript(SchemaDesignerTable table, SchemaDesignerForeignKey fk)
+        public static string GenerateForeignKeyScript(
+            SchemaDesignerTable table,
+            SchemaDesignerForeignKey fk,
+            List<SchemaDesignerTable> tables)
         {
+            var referencedTable = tables.FirstOrDefault(t => t.Id.ToString() == fk.ReferencedTableId);
+
+            if (fk.ColumnsIds == null || fk.ReferencedColumnsIds == null || referencedTable?.Columns == null)
+            {
+                return string.Empty;
+            }
+
+            var sourceColumnNames = fk.ColumnsIds
+                .Select(columnId => table.Columns.FirstOrDefault(column => column.Id.ToString() == columnId)?.Name)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToList();
+
+            var referencedColumnNames = fk.ReferencedColumnsIds
+                .Select(columnId => referencedTable.Columns.FirstOrDefault(column => column.Id.ToString() == columnId)?.Name)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToList();
+
+            if (sourceColumnNames.Count == 0 || sourceColumnNames.Count != referencedColumnNames.Count)
+            {
+                return string.Empty;
+            }
+
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($@"
 ALTER TABLE [{table.Schema}].[{table.Name}]
 ADD CONSTRAINT [{fk.Name}]
-FOREIGN KEY ({fk.Columns.Select(c => $"[{c}]").Aggregate((a, b) => $"{a}, {b}")}) 
-REFERENCES [{fk.ReferencedSchemaName}].[{fk.ReferencedTableName}]({fk.ReferencedColumns.Select(c => $"[{c}]").Aggregate((a, b) => $"{a}, {b}")})
+FOREIGN KEY ({sourceColumnNames.Select(c => $"[{c}]").Aggregate((a, b) => $"{a}, {b}")}) 
+REFERENCES [{referencedTable.Schema}].[{referencedTable.Name}]({referencedColumnNames.Select(c => $"[{c}]").Aggregate((a, b) => $"{a}, {b}")})
 ON DELETE {SchemaDesignerUtils.ConvertOnActionToSql(fk.OnDeleteAction)}
 ON UPDATE {SchemaDesignerUtils.ConvertOnActionToSql(fk.OnUpdateAction)};
 ");
