@@ -348,8 +348,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
+        /// <param name="cancellationToken">Cancellation token used to cancel subset retrieval.</param>
         /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, long startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(
+            int batchIndex,
+            int resultSetIndex,
+            long startRow,
+            int rowCount,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Logger.Start($"Starting GetSubset execution for batchIndex:'{batchIndex}', resultSetIndex:'{resultSetIndex}', startRow:'{startRow}', rowCount:'{rowCount}'");
             // Sanity check to make sure that the batch is within bounds
@@ -358,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
             }
 
-            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
+            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount, cancellationToken);
         }
 
         /// <summary>

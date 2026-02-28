@@ -258,6 +258,10 @@
     <value>Result set index cannot be less than 0 or greater than the number of result sets</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceSubsetRowsTimeout" xml:space="preserve">
+    <value>Fetching query rows timed out.</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
     <value>Maximum number of bytes to return must be greater than zero</value>
     <comment></comment>

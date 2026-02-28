@@ -223,6 +223,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceSubsetRowsTimeout
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceSubsetRowsTimeout);
+            }
+        }
+
         public static string QueryServiceDataReaderByteCountInvalid
         {
             get
@@ -11100,6 +11108,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceSubsetResultSetOutOfRange = "QueryServiceSubsetResultSetOutOfRange";
+
+
+            public const string QueryServiceSubsetRowsTimeout = "QueryServiceSubsetRowsTimeout";
 
 
             public const string QueryServiceDataReaderByteCountInvalid = "QueryServiceDataReaderByteCountInvalid";

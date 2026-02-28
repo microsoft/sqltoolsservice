@@ -550,8 +550,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
+        /// <param name="cancellationToken">Cancellation token used to cancel subset retrieval.</param>
         /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(int resultSetIndex, long startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(
+            int resultSetIndex,
+            long startRow,
+            int rowCount,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             ResultSet targetResultSet;
             lock (resultSets)
@@ -567,7 +572,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Retrieve the result set
-            return targetResultSet.GetSubset(startRow, rowCount);
+            return targetResultSet.GetSubset(startRow, rowCount, cancellationToken);
         }
 
         /// <summary>

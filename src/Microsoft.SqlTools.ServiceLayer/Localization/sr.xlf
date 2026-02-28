@@ -7058,6 +7058,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">SQL Server 2025 (170)</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceSubsetRowsTimeout">
+        <source>Fetching query rows timed out.</source>
+        <target state="new">Fetching query rows timed out.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
