@@ -167,8 +167,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly ConcurrentDictionary<string, AsyncLock> subsetRequestLocks = new ConcurrentDictionary<string, AsyncLock>();
 
-        private readonly ConcurrentDictionary<string, byte> blockedSubsetOwnerUris = new ConcurrentDictionary<string, byte>();
-        private const string SubsetRowsTimeoutError = "Fetching query rows timed out. Please rerun the query.";
         private static readonly TimeSpan subsetRequestTimeout = TimeSpan.FromSeconds(5);
 
         /// <summary>
@@ -496,23 +494,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleResultSubsetRequest(SubsetParams subsetParams,
             RequestContext<SubsetResult> requestContext)
         {
-            if (blockedSubsetOwnerUris.ContainsKey(subsetParams.OwnerUri))
-            {
-                await requestContext.SendError(SubsetRowsTimeoutError);
-                return;
-            }
-
             AsyncLock subsetLock = subsetRequestLocks.GetOrAdd(subsetParams.OwnerUri, _ => new AsyncLock());
             using (await subsetLock.LockAsync())
             {
-                // If an earlier subset request timed out for this query, fail fast to avoid
-                // repeatedly queueing requests against potentially inconsistent state.
-                if (blockedSubsetOwnerUris.ContainsKey(subsetParams.OwnerUri))
-                {
-                    await requestContext.SendError(SubsetRowsTimeoutError);
-                    return;
-                }
-
                 using (CancellationTokenSource timeoutCancellationSource = new CancellationTokenSource())
                 using (CancellationTokenSource delayCancellationSource = new CancellationTokenSource())
                 {
@@ -522,10 +506,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (!ReferenceEquals(completedTask, subsetTask))
                     {
                         timeoutCancellationSource.Cancel();
-                        blockedSubsetOwnerUris.TryAdd(subsetParams.OwnerUri, 0);
-                        ObserveTimedOutSubsetTask(subsetParams.OwnerUri, subsetTask);
-                        Logger.Error($"Subset request timed out for ownerUri '{subsetParams.OwnerUri}' after {subsetRequestTimeout.TotalSeconds} seconds. Blocking further subset requests until query is rerun/disposed.");
-                        await requestContext.SendError(SubsetRowsTimeoutError);
+                        Logger.Error($"Subset request timed out for ownerUri '{subsetParams.OwnerUri}' after {subsetRequestTimeout.TotalSeconds} seconds.");
+                        await requestContext.SendError(SR.QueryServiceSubsetRowsTimeout);
                         return;
                     }
 
@@ -1454,17 +1436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private void ClearSubsetRequestState(string ownerUri)
         {
-            blockedSubsetOwnerUris.TryRemove(ownerUri, out _);
             subsetRequestLocks.TryRemove(ownerUri, out _);
-        }
-
-        private void ObserveTimedOutSubsetTask(string ownerUri, Task<ResultSetSubset> subsetTask)
-        {
-            _ = subsetTask.ContinueWith(
-                t => Logger.Warning($"Subset request task faulted after timeout for ownerUri '{ownerUri}': {t.Exception?.GetBaseException().Message}"),
-                CancellationToken.None,
-                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
-                TaskScheduler.Default);
         }
 
         private static void ExecuteAndCompleteQuery(string ownerUri, Query query,
