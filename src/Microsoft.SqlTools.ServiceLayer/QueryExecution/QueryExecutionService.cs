@@ -991,7 +991,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 requestParams.LineSeparator = requestParams.LineSeparator ?? Environment.NewLine;
 
                 var columnRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
-                var rowRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromRow, End = selection.ToRow }).ToList());
+                // Not merging row ranges as we need to preserve order of rows for copying
+                var rowRanges = requestParams.Selections.Select(selection => new Range { Start = selection.FromRow, End = selection.ToRow }).ToList();
 
                 if (columnRanges.Count == 0 || rowRanges.Count == 0)
                 {
