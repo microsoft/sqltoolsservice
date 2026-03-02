@@ -9,7 +9,6 @@ using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -153,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private Task OnEventRead(IXEvent xEvent)
         {
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString("o", CultureInfo.InvariantCulture));
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, ProfilerConstants.ToInvariantString(xEvent.Timestamp));
             foreach (var kvp in xEvent.Fields)
             {
                 profileEvent.Values.Add(kvp.Key, ProfilerConstants.ToInvariantString(kvp.Value));
