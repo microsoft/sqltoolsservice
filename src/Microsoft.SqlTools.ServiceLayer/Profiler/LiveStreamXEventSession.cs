@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // Add fields
             foreach (var kvp in xEvent.Fields)
             {
-                var value = Convert.ToString(kvp.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+                var value = ProfilerConstants.ToInvariantString(kvp.Value);
                 if (!profilerEvent.Values.ContainsKey(kvp.Key))
                 {
                     profilerEvent.Values.Add(kvp.Key, value);
@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 foreach (var kvp in xEvent.Actions)
                 {
                     var key = kvp.Key;
-                    var value = Convert.ToString(kvp.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+                    var value = ProfilerConstants.ToInvariantString(kvp.Value);
 
                     if (profilerEvent.Values.ContainsKey(key))
                     {

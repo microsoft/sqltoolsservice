@@ -385,6 +385,113 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         }
 
         [Test]
+        [TestCase("ru-RU")]
+        [TestCase("de-DE")]
+        [TestCase("ja-JP")]
+        [TestCase("ar-SA")]
+        public void LiveStreamXEventSession_FieldAndActionValues_AreLocaleInvariant_WhenDateTimeOffset(string cultureName)
+        {
+            // Arrange
+            var originalCulture = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+
+                var dateFieldValue = new DateTimeOffset(2026, 3, 15, 14, 30, 45, 678, TimeSpan.FromHours(-5));
+                var fields = new Dictionary<string, object>
+                {
+                    { "last_execution_time", dateFieldValue },
+                    { "duration", 12345 },
+                    { "some_text", "hello" }
+                };
+                var actions = new Dictionary<string, object>
+                {
+                    { "collect_system_time", new DateTimeOffset(2026, 6, 1, 9, 0, 0, TimeSpan.Zero) },
+                    { "session_id", 42 }
+                };
+
+                var testEvent = new TestXEvent("test_event", DateTimeOffset.UtcNow, fields, actions);
+                var fetcher = new TestLiveEventFetcher(new[] { testEvent });
+                var session = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
+                var observer = new TestProfilerEventObserver();
+
+                // Act
+                session.ObservableSessionEvents.Subscribe(observer);
+                session.Start();
+                WaitForCompletion(observer, expectedEvents: 1);
+
+                // Assert - DateTimeOffset field values must be invariant (ISO 8601)
+                var profilerEvent = observer.ReceivedEvents.First();
+
+                var lastExecTime = profilerEvent.Values["last_execution_time"];
+                Assert.That(lastExecTime, Does.Match(@"^\d{4}-\d{2}-\d{2}"),
+                    $"Field 'last_execution_time' value '{lastExecTime}' is locale-dependent under '{cultureName}'");
+                // Verify round-trip: parseable with InvariantCulture
+                var parsedField = DateTimeOffset.Parse(lastExecTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                Assert.That(parsedField.Year, Is.EqualTo(2026));
+                Assert.That(parsedField.Month, Is.EqualTo(3));
+                Assert.That(parsedField.Day, Is.EqualTo(15));
+
+                var systemTime = profilerEvent.Values["collect_system_time"];
+                Assert.That(systemTime, Does.Match(@"^\d{4}-\d{2}-\d{2}"),
+                    $"Action 'collect_system_time' value '{systemTime}' is locale-dependent under '{cultureName}'");
+                var parsedAction = DateTimeOffset.Parse(systemTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                Assert.That(parsedAction.Year, Is.EqualTo(2026));
+                Assert.That(parsedAction.Month, Is.EqualTo(6));
+
+                // Non-date values should still work normally
+                Assert.That(profilerEvent.Values["duration"], Is.EqualTo("12345"));
+                Assert.That(profilerEvent.Values["some_text"], Is.EqualTo("hello"));
+                Assert.That(profilerEvent.Values["session_id"], Is.EqualTo("42"));
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+            }
+        }
+
+        [Test]
+        [TestCase("ru-RU")]
+        [TestCase("de-DE")]
+        public void LiveStreamXEventSession_FieldValues_AreLocaleInvariant_WhenDecimal(string cultureName)
+        {
+            // Arrange - decimals use comma as decimal separator in many locales (e.g. "1234,56" in de-DE)
+            var originalCulture = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+
+                var fields = new Dictionary<string, object>
+                {
+                    { "cpu_rate", 98.765m },
+                    { "elapsed_seconds", 1234.5 }
+                };
+                var testEvent = new TestXEvent("test_event", DateTimeOffset.UtcNow, fields);
+                var fetcher = new TestLiveEventFetcher(new[] { testEvent });
+                var session = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
+                var observer = new TestProfilerEventObserver();
+
+                // Act
+                session.ObservableSessionEvents.Subscribe(observer);
+                session.Start();
+                WaitForCompletion(observer, expectedEvents: 1);
+
+                // Assert - decimal/double values must use '.' as decimal separator
+                var profilerEvent = observer.ReceivedEvents.First();
+                Assert.That(profilerEvent.Values["cpu_rate"], Does.Contain("."),
+                    $"Decimal field should use '.' separator, got '{profilerEvent.Values["cpu_rate"]}' under '{cultureName}'");
+                Assert.That(profilerEvent.Values["cpu_rate"], Does.Not.Contain(","),
+                    $"Decimal field should not use ',' separator under '{cultureName}'");
+                Assert.That(profilerEvent.Values["elapsed_seconds"], Does.Contain("."),
+                    $"Double field should use '.' separator under '{cultureName}'");
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+            }
+        }
+
+        [Test]
         public void LiveStreamObservable_throws_when_restarting_closed_stream()
         {
             // Arrange

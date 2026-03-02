@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString("o", CultureInfo.InvariantCulture));
             foreach (var kvp in xEvent.Fields)
             {
-                profileEvent.Values.Add(kvp.Key, Convert.ToString(kvp.Value, CultureInfo.InvariantCulture) ?? string.Empty);
+                profileEvent.Values.Add(kvp.Key, ProfilerConstants.ToInvariantString(kvp.Value));
             }
             // Add the XE 'actions'.
             if(xEvent.Actions != null)
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // Append a postfix to avoid duplicate keys while keeping the data.
                         key += " (action)";
                     }
-                    profileEvent.Values.Add(key, Convert.ToString(kvp.Value, CultureInfo.InvariantCulture) ?? string.Empty);
+                    profileEvent.Values.Add(key, ProfilerConstants.ToInvariantString(kvp.Value));
                 }
             }
             CurrentObservers.ForEach(o => o.OnNext(profileEvent));
