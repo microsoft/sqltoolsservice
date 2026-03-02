@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
@@ -337,6 +338,51 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         #endregion
 
         #region Edge Case Tests
+
+        [Test]
+        [TestCase("ru-RU")]
+        [TestCase("de-DE")]
+        [TestCase("ja-JP")]
+        [TestCase("ar-SA")]
+        public void LiveStreamXEventSession_Timestamp_IsAlwaysIso8601_UnderNonUSLocale(string cultureName)
+        {
+            // Arrange
+            var originalCulture = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+
+                var knownTimestamp = new DateTimeOffset(2026, 1, 21, 20, 29, 10, 123, TimeSpan.Zero);
+                var fields = new Dictionary<string, object> { { "field1", "value1" } };
+                var testEvent = new TestXEvent("test_event", knownTimestamp, fields);
+                var fetcher = new TestLiveEventFetcher(new[] { testEvent });
+                var session = new LiveStreamXEventSession(() => fetcher, new SessionId("test", 1));
+                var observer = new TestProfilerEventObserver();
+
+                // Act
+                session.ObservableSessionEvents.Subscribe(observer);
+                session.Start();
+                WaitForCompletion(observer, expectedEvents: 1);
+
+                // Assert - timestamp must be ISO 8601 regardless of locale
+                var profilerEvent = observer.ReceivedEvents.First();
+                Assert.That(profilerEvent.Timestamp, Does.Match(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"),
+                    $"Timestamp '{profilerEvent.Timestamp}' is not ISO 8601 under culture '{cultureName}'");
+
+                // Verify it can be parsed back to the original value
+                var parsed = DateTimeOffset.Parse(profilerEvent.Timestamp, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                Assert.That(parsed.Year, Is.EqualTo(2026));
+                Assert.That(parsed.Month, Is.EqualTo(1));
+                Assert.That(parsed.Day, Is.EqualTo(21));
+                Assert.That(parsed.Hour, Is.EqualTo(20));
+                Assert.That(parsed.Minute, Is.EqualTo(29));
+                Assert.That(parsed.Second, Is.EqualTo(10));
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+            }
+        }
 
         [Test]
         public void LiveStreamObservable_throws_when_restarting_closed_stream()

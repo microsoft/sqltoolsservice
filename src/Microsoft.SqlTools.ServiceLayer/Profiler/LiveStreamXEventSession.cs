@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.XEvent;
@@ -261,12 +262,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 eventSequence = seq;
             }
 
-            var profilerEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString(), uuid, eventSequence);
+            var profilerEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString("o", CultureInfo.InvariantCulture), uuid, eventSequence);
 
             // Add fields
             foreach (var kvp in xEvent.Fields)
             {
-                var value = kvp.Value?.ToString() ?? string.Empty;
+                var value = Convert.ToString(kvp.Value, CultureInfo.InvariantCulture) ?? string.Empty;
                 if (!profilerEvent.Values.ContainsKey(kvp.Key))
                 {
                     profilerEvent.Values.Add(kvp.Key, value);
@@ -279,8 +280,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 foreach (var kvp in xEvent.Actions)
                 {
                     var key = kvp.Key;
-                    var value = kvp.Value?.ToString() ?? string.Empty;
-                    
+                    var value = Convert.ToString(kvp.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+
                     if (profilerEvent.Values.ContainsKey(key))
                     {
                         key += " (action)";
