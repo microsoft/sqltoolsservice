@@ -20,7 +20,7 @@
 
     <!-- TODO: Upgrade package and use Token Credential design -->
     <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-    <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="180.10.0" />
+    <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="181.15.0" />
     <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.3.93" />
     <PackageReference Update="Microsoft.SqlPackage.Core" Version="0.1.75-preview" />
     <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.5.22-preview" />
