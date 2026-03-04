@@ -46,6 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             CreateOrResetSchemaDesigner();
             SchemaDesignerModel schema = new SchemaDesignerModel();
             schema.Tables = new List<SchemaDesignerTable>();
+
+            // First pass: create all tables and columns so table/column IDs are available for FK projection.
             for (int i = 0; i < schemaDesigner.SimpleSchema.Tables.Count; i++)
             {
                 var table = schemaDesigner.SimpleSchema.Tables[i];
@@ -80,24 +82,44 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         ComputedPersisted = column.ComputedPersisted,
                     });
                 }
+                schema.Tables.Add(schemaTable);
+            }
 
-                foreach (var fk in table.ForeignKeys)
+            // Second pass: project foreign keys using table/column identifiers.
+            for (int i = 0; i < schemaDesigner.SimpleSchema.Tables.Count; i++)
+            {
+                var sourceTable = schemaDesigner.SimpleSchema.Tables[i];
+                var sourceSchemaTable = schema.Tables[i];
+
+                foreach (var fk in sourceTable.ForeignKeys)
                 {
-                    schemaTable.ForeignKeys.Add(new SchemaDesignerForeignKey()
+                    var referencedTable = schema.Tables.FirstOrDefault(t =>
+                        string.Equals(t.Schema, fk.ReferencedTableSchema, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(t.Name, fk.ReferencedTableName, StringComparison.OrdinalIgnoreCase));
+
+                    sourceSchemaTable.ForeignKeys.Add(new SchemaDesignerForeignKey()
                     {
                         Id = Guid.NewGuid(),
                         Name = fk.Name,
-                        Columns = fk.Columns,
-                        ReferencedColumns = fk.ReferencedColumns,
-                        ReferencedTableName = fk.ReferencedTableName,
-                        ReferencedSchemaName = fk.ReferencedTableSchema,
+                        ColumnsIds = fk.Columns
+                            ?.Select(columnName => sourceSchemaTable.Columns
+                                .FirstOrDefault(c => string.Equals(c.Name, columnName, StringComparison.OrdinalIgnoreCase))?
+                                .Id.ToString())
+                            .Where(columnId => !string.IsNullOrEmpty(columnId))
+                            .ToList(),
+                        ReferencedColumnsIds = fk.ReferencedColumns
+                            ?.Select(columnName => referencedTable?.Columns
+                                .FirstOrDefault(c => string.Equals(c.Name, columnName, StringComparison.OrdinalIgnoreCase))?
+                                .Id.ToString())
+                            .Where(columnId => !string.IsNullOrEmpty(columnId))
+                            .ToList(),
+                        ReferencedTableId = referencedTable?.Id.ToString(),
                         OnDeleteAction = SchemaDesignerUtils.ConvertSqlForeignKeyActionToOnAction(fk.OnDeleteAction),
                         OnUpdateAction = SchemaDesignerUtils.ConvertSqlForeignKeyActionToOnAction(fk.OnUpdateAction),
                     });
                 }
-
-                schema.Tables.Add(schemaTable);
             }
+
             return schema;
         }
 

@@ -143,10 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch { }
 
-                // create a new XEvent session and Profiler session, if it doesn't exist
+                // create a new Extended Events session if it doesn't exist
                 xeSession ??= this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
 
-                // start monitoring the profiler session
+                // start monitoring the event session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                 var result = new CreateXEventSessionResult();
@@ -172,10 +172,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 out connInfo);
             if (connInfo != null)
             {
-                // create a new XEvent session and Profiler session
+                // Get the Extended Events session
                 var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
 
-                // start monitoring the profiler session
+                // start monitoring the event session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                 var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
@@ -198,10 +198,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         public IXEventSession OpenLocalFileSession(string filePath)
         {
-            return new ObservableXEventSession(() => initIXEventFetcher(filePath), new SessionId(filePath));
+            return new LocalFileXEventSession(() => initIXEventFetcher(filePath), new SessionId(filePath));
         }
 
-        public IXEventFetcher initIXEventFetcher(string filePath)
+        private IXEventFetcher initIXEventFetcher(string filePath)
         {
             return new XEFileEventStreamer(filePath);
         }
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 // Occasionally we might see the InvalidOperationException due to a read is 
                 // in progress, add the following retry logic will solve the problem.
-                int remainingAttempts = 3;
+                int remainingAttempts = ProfilerConstants.StopSessionMaxRetryAttempts;
                 while (true)
                 {
                     try
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             throw;
                         }
-                        await Task.Delay(500);
+                        await Task.Delay(ProfilerConstants.StopSessionRetryDelay);
                     }
                 }
             }
@@ -245,13 +245,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Handle request to pause a profiling session
+        /// Handle request to pause or resume a profiling session
+        /// calling on a running session will pause the profiling session
+        /// and calling on a paused session will resume the profiling session
         /// </summary>
         internal async Task HandlePauseProfilingRequest(PauseProfilingParams parameters, RequestContext<PauseProfilingResult> requestContext)
         {
-            monitor.PauseViewer(parameters.OwnerUri);
+            if (parameters == null || string.IsNullOrEmpty(parameters.OwnerUri))
+            {
+                await requestContext.SendError(new ProfilerException(SR.SessionNotFound));
+                return;
+            }
 
-            await requestContext.SendResult(new PauseProfilingResult { });
+            if (!monitor.PauseViewer(parameters.OwnerUri, out bool isPaused))
+            {
+                await requestContext.SendError(new ProfilerException(SR.SessionNotFound));
+                return;
+            }
+
+            await requestContext.SendResult(new PauseProfilingResult { IsPaused = isPaused });
         }
 
         /// <summary>
@@ -326,34 +338,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Gets an XEvent session with the given name per the IXEventSessionFactory contract
-        /// Also starts the session if it isn't currently running
+        /// Gets an Extended Events session with the given name per the IXEventSessionFactory contract.
+        /// Uses XELite's XELiveEventStreamer for push-based event delivery.
+        /// Also starts the session if it isn't currently running.
         /// </summary>
         public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
         {
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
-            Session session = store.Sessions[sessionName] ?? throw new Exception(SR.SessionNotFound);
+            Session session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
 
-            // start the session if it isn't already running
-
-            session = session ?? throw new ProfilerException(SR.SessionNotFound);
-
-            var xeventSession = new XEventSession()
-            {
-                Session = session
-            };
-
+            // Ensure the session is not running before starting it
             if (!session.IsRunning)
             {
-                xeventSession.Start();
+                session.Start();
             }
-            return xeventSession;
+
+            // Build connection string for XELite
+            var connectionString = sqlConnection.ConnectionString;
+
+            // Create the live streaming session using XELite
+            var liveSession = new LiveStreamXEventSession(
+                connectionString,
+                sessionName,
+                new SessionId(session.ID.ToString()));
+
+            // Set the SMO session for target XML retrieval
+            liveSession.Session = session;
+            liveSession.SqlConnection = sqlConnection;
+
+            return liveSession;
         }
 
         /// <summary>
-        /// Creates and starts an XEvent session with the given name and create statement per the IXEventSessionFactory contract
+        /// Creates and starts an Extended Events session with the given name and create statement per the IXEventSessionFactory contract
         /// </summary>
         public IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo)
         {
@@ -371,27 +390,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var statement = createStatement.Replace("{sessionName}", sessionName);
             connection.ServerConnection.ExecuteNonQuery(statement);
             store.Refresh();
-            session = store.Sessions[sessionName];
-            if (session == null)
-            {
-                throw new ProfilerException(SR.SessionNotFound);
-            }
+            session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
             if (!session.IsRunning)
             {
                 session.Start();
             }
 
-            // create xevent session wrapper
-            return new XEventSession()
-            {
-                Session = store.Sessions[sessionName]
-            };
+            // Build connection string for XELite
+            var connectionString = sqlConnection.ConnectionString;
+
+            // Create the live streaming session using XELite
+            var liveSession = new LiveStreamXEventSession(
+                connectionString,
+                sessionName,
+                new SessionId(session.ID.ToString()));
+
+            // Set the session for session management
+            liveSession.Session = session;
+            liveSession.SqlConnection = sqlConnection;
+
+            return liveSession;
         }
 
         /// <summary>
         /// Callback when profiler events are available
         /// </summary>
-        public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
         {
             // pass the profiler events on to the client
             this.ServiceHost.SendEvent(
@@ -399,17 +423,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 new ProfilerEventsAvailableParams()
                 {
                     OwnerUri = sessionId,
-                    Events = events,
-                    EventsLost = eventsLost
+                    Events = events
                 });
         }
 
         /// <summary>
-        /// Callback when the XEvent session is closed unexpectedly
+        /// Callback when the Extended Events session is closed unexpectedly
         /// </summary>
         public void SessionStopped(string viewerId, SessionId sessionId, string errorMessage)
         {
-            // notify the client that their session closed
+            // notify the client that their event session closed
             this.ServiceHost.SendEvent(
                 ProfilerSessionStoppedNotification.Type,
                 new ProfilerSessionStoppedParams()
@@ -421,11 +444,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Callback when a new session is created
+        /// Callback when a new event session is created
         /// </summary>
         public void SessionCreatedNotification(string viewerId, string sessionName, string templateName)
         {
-            // pass the profiler events on to the client
+            // notify the client that the event session was created
             this.ServiceHost.SendEvent(
                 ProfilerSessionCreatedNotification.Type,
                 new ProfilerSessionCreatedParams()

@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -242,6 +243,94 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.AreEqual(0, result!.RowCount, "Row count should be 0 for queries without result sets");
             Assert.IsNotNull(result!.ColumnInfo, "Column info should not be null");
             Assert.AreEqual(0, result!.ColumnInfo.Length, "Column info should be empty for queries without result sets");
+        }
+
+        /// <summary>
+        /// Test that SimpleExecuteRequest captures and returns PRINT statement messages
+        /// </summary>
+        [Test]
+        public async Task SimpleExecuteRequestReturnsPrintMessages()
+        {
+            // Establish a new connection
+            ConnectionService.Instance.OwnerToConnectionMap.Clear();
+            ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
+
+            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
+            ManualResetEvent resultEvent = new ManualResetEvent(false);
+            SimpleExecuteResult? result = null;
+
+            requestContext.Setup(x => x.SendResult(It.IsAny<SimpleExecuteResult>()))
+                .Callback<SimpleExecuteResult>(r =>
+                {
+                    result = r;
+                    resultEvent.Set();
+                })
+                .Returns(Task.FromResult(new object()));
+
+            var executeParams = new SimpleExecuteParams
+            {
+                OwnerUri = connectionInfo.OwnerUri,
+                QueryString = "PRINT 'Test message from PRINT'; SELECT 1 AS Value;"
+            };
+
+            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+
+            // Wait for result to be sent
+            bool gotResult = resultEvent.WaitOne(TimeSpan.FromSeconds(10));
+            Assert.IsTrue(gotResult, "Expected result was not received");
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.IsNotNull(result!.Messages, "Messages should not be null");
+            Assert.IsTrue(result!.Messages.Length > 0, "Messages array should contain at least one message");
+            
+            var printMessage = result!.Messages.FirstOrDefault(m => m.Message.Contains("Test message from PRINT"));
+            Assert.IsNotNull(printMessage, "PRINT message should be captured in Messages array");
+            Assert.IsFalse(printMessage!.IsError, "PRINT message should not be marked as error");
+        }
+
+        /// <summary>
+        /// Test that SimpleExecuteRequest captures both PRINT messages and result completion messages
+        /// </summary>
+        [Test]
+        public async Task SimpleExecuteRequestReturnsMultipleMessages()
+        {
+            // Establish a new connection
+            ConnectionService.Instance.OwnerToConnectionMap.Clear();
+            ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
+
+            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
+            ManualResetEvent resultEvent = new ManualResetEvent(false);
+            SimpleExecuteResult? result = null;
+
+            requestContext.Setup(x => x.SendResult(It.IsAny<SimpleExecuteResult>()))
+                .Callback<SimpleExecuteResult>(r =>
+                {
+                    result = r;
+                    resultEvent.Set();
+                })
+                .Returns(Task.FromResult(new object()));
+
+            var executeParams = new SimpleExecuteParams
+            {
+                OwnerUri = connectionInfo.OwnerUri,
+                QueryString = "PRINT 'First message'; PRINT 'Second message'; SELECT 1 AS Value;"
+            };
+
+            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+
+            // Wait for result to be sent
+            bool gotResult = resultEvent.WaitOne(TimeSpan.FromSeconds(10));
+            Assert.IsTrue(gotResult, "Expected result was not received");
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.IsNotNull(result!.Messages, "Messages should not be null");
+            Assert.IsTrue(result!.Messages.Length >= 2, $"Messages array should contain at least 2 PRINT messages, found {result!.Messages.Length}");
+            
+            var firstMessage = result!.Messages.FirstOrDefault(m => m.Message.Contains("First message"));
+            var secondMessage = result!.Messages.FirstOrDefault(m => m.Message.Contains("Second message"));
+            
+            Assert.IsNotNull(firstMessage, "First PRINT message should be captured");
+            Assert.IsNotNull(secondMessage, "Second PRINT message should be captured");
+            Assert.IsFalse(firstMessage!.IsError, "First PRINT message should not be marked as error");
+            Assert.IsFalse(secondMessage!.IsError, "Second PRINT message should not be marked as error");
         }
     }
 }

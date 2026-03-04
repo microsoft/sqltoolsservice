@@ -8074,6 +8074,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";QueryServiceQueryExecutionCompletedWithErrors" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Query execution completed with errors]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’exécution de la requête s’est terminée avec des erreurs]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";QueryServiceQueryFailed" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Query failed: {0}]]></Val>
@@ -9559,6 +9568,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SqlPackageInvalidRequestParameters" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid request parameters]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Paramètres de requête non valides]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SqlProjectModelNotFound" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Could not find SQL model from project: {0}.]]></Val>
@@ -10641,6 +10659,15 @@
           <Val><![CDATA[SQL Server 2022 (160)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[SQL Server 2022 (160)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";compatibilityLevel_sqlv170" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[SQL Server 2025 (170)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2025 (170)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

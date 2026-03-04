@@ -416,7 +416,7 @@
   <Node Name="StoredProcedure" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" NodeType="StoredProcedure" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="StoredProcedureParameters"/>
   </Node>
-  <Node Name="StoredProcedureParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="StoredProcedureParameter" Strategy="StoredProcedureParameters" ChildQuerierTypes="SqlStoredProcedureParameter" DisableSort=""/>
+  <Node Name="StoredProcedureParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="StoredProcedureParameter" Strategy="StoredProcedureParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
 
   <Node Name="TableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode" ValidFor="NotSqlDw">
     <Filters >
@@ -439,7 +439,7 @@
   <Node Name="TableValuedFunction" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" NodeType="TableValuedFunction" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="TableValuedFunctionParameters"/>
   </Node>
-  <Node Name="TableValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="TableValuedFunctionParameter" Strategy="FunctionParameters" ChildQuerierTypes="SqlUserDefinedFunctionParameter" DisableSort="">
+  <Node Name="TableValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="TableValuedFunctionParameter" Strategy="FunctionParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort="">
   </Node>
 
   <Node Name="ScalarValuedFunctions" LocLabel="SR.SchemaHierarchy_ScalarValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="ScalarValuedFunctionTreeNode" >
@@ -461,14 +461,14 @@
   <Node Name="ScalarValuedFunction" LocLabel="string.Empty" BaseClass="ModelBased" NodeType="ScalarValuedFunction" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="ScalarValuedFunctionParameters"/>
   </Node>
-  <Node Name="ScalarValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters" NodeType="ScalarValuedFunctionParameter"  BaseClass="ModelBased" Strategy="FunctionParameters" ChildQuerierTypes="SqlUserDefinedFunctionParameter" DisableSort=""/>
+  <Node Name="ScalarValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters" NodeType="ScalarValuedFunctionParameter"  BaseClass="ModelBased" Strategy="FunctionParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
 
   <Node Name="AggregateFunctions" LocLabel="SR.SchemaHierarchy_AggregateFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedAggregate" TreeNode="AggregateFunctionTreeNode" ValidFor="AllOnPrem|AzureV12">
   </Node>
   <Node Name="AggregateFunction" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" NodeType="AggregateFunction" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="AggregateFunctionParameters"/>
   </Node>
-  <Node Name="AggregateFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="AggregateFunctionParameter" Strategy="PopulateParentDetails" ChildQuerierTypes="SqlUserDefinedAggregateParameter" DisableSort=""/>
+  <Node Name="AggregateFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="AggregateFunctionParameter" Strategy="PopulateParentDetails" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
 
   <!-- TODO Support Route in SMO
   <Node Name="Routes" LocLabel="SR.SchemaHierarchy_Routes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlRoute"/>

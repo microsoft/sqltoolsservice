@@ -65,5 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         [JsonProperty("piiLogging")]
         public Boolean PiiLogging { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to remove the line break from cell values when copying results.
+        /// </summary>
+        [JsonProperty("copyRemoveNewLine")]
+        public Boolean CopyRemoveNewLine { get; set; } = true;
     }
 }

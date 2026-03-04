@@ -11,29 +11,24 @@ using System.Threading;
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    /// Main class for Profiler Service functionality
+    /// Interface for Extended Events session operations
     /// </summary>
     public interface IXEventSession
     {
         /// <summary>
-        /// Gets unique XEvent session Id
+        /// Gets unique Extended Events session Id
         /// </summary>
         SessionId Id { get; }
 
         /// <summary>
-        /// Starts XEvent session
+        /// Starts Extended Events session
         /// </summary>
         void Start();
 
         /// <summary>
-        /// Stops XEvent session
+        /// Stops Extended Events session
         /// </summary>
         void Stop();
-
-        /// <summary>
-        /// Reads XEvent XML from the default session target
-        /// </summary>
-        string GetTargetXml();
     }
 
     public interface IObservableXEventSession : IXEventSession

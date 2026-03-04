@@ -45,6 +45,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// 2D array of the cell values requested from result set
         /// </summary>
         public DbCellValue[][] Rows { get; set; }
+
+        /// <summary>
+        /// Messages generated during query execution (e.g. PRINT output, info messages)
+        /// </summary>
+        public ResultMessage[] Messages { get; set; }
     }
 
     public class SimpleExecuteRequest

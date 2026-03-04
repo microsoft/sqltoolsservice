@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     public interface IProfilerSessionListener
     {
-        void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost);
+        void EventsAvailable(string sessionId, List<ProfilerEvent> events);
 
         void SessionStopped(string viewerId, SessionId sessionId, string errorMessage);
     }

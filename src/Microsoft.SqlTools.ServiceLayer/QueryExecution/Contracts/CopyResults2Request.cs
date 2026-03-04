@@ -64,6 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class CopyResults2RequestResult
     {
+        /// <summary>
+        /// The content to be copied to the clipboard.
+        /// If this is populated, the client is responsible for copying it to the clipboard.
+        /// </summary>
+        public string Content { get; set; }
     }
 
     /// <summary>

@@ -581,6 +581,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.That(s.EditCache[0], Is.InstanceOf<RowDelete>(), "There should be a new row delete object in the cache");
         }
 
+        [Test]
+        public async Task DeleteNewRowsOutOfOrder()
+        {
+            // Setup: Create a session with a proper query and metadata
+            EditSession s = await GetBasicSession();
+
+            long originalNextRowId = s.NextRowId;
+
+            // Create 3 new rows
+            EditCreateRowResult row1 = s.CreateRow();
+            EditCreateRowResult row2 = s.CreateRow();
+            EditCreateRowResult row3 = s.CreateRow();
+
+            Assert.That(s.NextRowId, Is.EqualTo(originalNextRowId + 3), "NextRowId should be incremented by 3 after creating 3 rows");
+            Assert.That(s.EditCache.Count, Is.EqualTo(3), "Should have 3 rows in edit cache");
+
+            // Delete the first created row (not the last)
+            s.DeleteRow(row1.NewRowId);
+
+            // NextRowId should NOT be decremented - this ensures row2 and row3 IDs remain valid
+            Assert.That(s.NextRowId, Is.EqualTo(originalNextRowId + 3), "NextRowId should NOT be decremented when deleting a new row");
+            Assert.That(s.EditCache.Count, Is.EqualTo(2), "Should have 2 rows in edit cache after deletion");
+            Assert.That(s.EditCache.ContainsKey(row1.NewRowId), Is.False, "Deleted row should not be in cache");
+
+            // Should be able to delete the last created row without error
+            // This would fail if NextRowId was decremented, because row3.NewRowId >= NextRowId
+            Assert.DoesNotThrow(() => s.DeleteRow(row3.NewRowId), "Should be able to delete other new rows after deleting an earlier one");
+            Assert.That(s.EditCache.Count, Is.EqualTo(1), "Should have 1 row in edit cache after second deletion");
+
+            // Should be able to delete the remaining row
+            Assert.DoesNotThrow(() => s.DeleteRow(row2.NewRowId), "Should be able to delete the remaining new row");
+            Assert.That(s.EditCache.Count, Is.EqualTo(0), "Should have 0 rows in edit cache after all deletions");
+
+            // NextRowId should still be the same (IDs are never reused)
+            Assert.That(s.NextRowId, Is.EqualTo(originalNextRowId + 3), "NextRowId should remain unchanged after all deletions");
+        }
+
         #endregion
 
         #region Revert Row Tests
@@ -630,7 +667,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             int defaultRowsLength = rows.Length;
 
-            // ... Create a row 
+            // ... Create a row
             EditCreateRowResult result1 = s.CreateRow();
 
             long result1Id = result1.NewRowId;
@@ -645,41 +682,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Check that row has been added.
             Assert.That(rows.Length, Is.EqualTo(defaultRowsLength + 1), "The number of rows should include the newly created row when CreateRow is called.");
 
-            // Check that the nextRowId has a value that reflects the number of rows.
-            Assert.That(s.NextRowId, Is.EqualTo(rows.Length), "The NextRowId should match the same number of rows as the array (following array indexing rules).");
- 
             // If: I revert the row that has a pending CreateRow (Such as when there's a row edit failure)
-            s.RevertRow(result1Id);
+            await s.RevertRow(result1Id);
 
             rows = await s.GetRows(0, 10);
 
-            // Check that the rowId has decremented after a revert.
-            Assert.That(s.NextRowId, Is.EqualTo(addRowNextRowId - 1), "NextRowId should not be incremented after reverting a CreateRow edit.");
+            // Check that NextRowId is NOT decremented after revert.
+            // Row IDs are monotonically increasing (like DB auto-increment) and should not be reused.
+            // This ensures that other new rows with higher IDs remain valid.
+            Assert.That(s.NextRowId, Is.EqualTo(addRowNextRowId), "NextRowId should NOT be decremented after reverting a CreateRow edit.");
 
             // Check that row has been removed.
             Assert.That(rows.Length, Is.EqualTo(defaultRowsLength), "The number of rows should not include the reverted row when RevertRow is called.");
 
-            // Check that the nextRowId has a value that reflects the number of rows.
-            Assert.That(s.NextRowId, Is.EqualTo(rows.Length), "The NextRowId should match the same number of rows as the array (following array indexing rules).");
-
-            // ... Create another row 
+            // ... Create another row
             EditCreateRowResult result2 = s.CreateRow();
 
             long result2Id = result2.NewRowId;
 
             rows = await s.GetRows(0, 10);
 
-            // Check that the rowId has the same id as the previous added row.
-            Assert.That(s.NextRowId, Is.EqualTo(addRowNextRowId), "NextRowId should be incremented to the same value when the previously created row was added.");
+            // Check that the new row gets a NEW ID (not the reverted row's ID).
+            // Row IDs should never be reused to avoid conflicts with other operations.
+            Assert.That(result2Id, Is.EqualTo(addRowNextRowId), "The new row should get the next available ID, not reuse the reverted row's ID.");
+            Assert.That(result2Id, Is.Not.EqualTo(result1Id), "The new row ID should be different from the reverted row's ID.");
 
             // Check that returned result of createRow matches NextRowId index.
             Assert.That(result2Id, Is.EqualTo(s.NextRowId - 1), "The returned row ID should be one less than the current next row ID.");
-
-             // Check that returned result of createRow matches the previous added row id.
-            Assert.That(result2Id, Is.EqualTo(result1Id), "The row id of the newly created row should match that of the previously created row in the same position.");
-
-            // Check that the nextRowId has a value that reflects the number of rows.
-            Assert.That(s.NextRowId, Is.EqualTo(rows.Length), "The NextRowId should match the same number of rows as the array (following array indexing rules).");
 
             // Check that row has been added.
             Assert.That(rows.Length, Is.EqualTo(defaultRowsLength + 1), "The number of rows should include the newly created row when CreateRow is called.");

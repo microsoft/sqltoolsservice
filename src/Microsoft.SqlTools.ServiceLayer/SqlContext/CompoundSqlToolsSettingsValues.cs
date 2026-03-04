@@ -108,5 +108,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             get => GetSettingOrDefault((settings) => settings.PiiLogging);
             set => priorityList[0].PiiLogging = value;
         }
+
+        /// <summary>
+        /// Gets or sets the copy remove new line setting.
+        /// </summary>
+        public bool CopyRemoveNewLine
+        {
+            get => priorityList.Select((settings) => settings.CopyRemoveNewLine).FirstOrDefault();
+            set => priorityList[0].CopyRemoveNewLine = value;
+        }
     }
 }

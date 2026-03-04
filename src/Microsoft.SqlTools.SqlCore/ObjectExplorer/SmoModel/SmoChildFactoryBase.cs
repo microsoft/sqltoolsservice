@@ -43,6 +43,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
                 }
 
+                foreach (var child in allChildren)
+                {
+                    child.FilterProperties = NodeFilterPropertyHelper.GetFilterProperties(parent.GetContext(), child.NodeTypeId);
+                }
+
                 OnBeginAsyncOperations(parent);
             }
             catch (Exception ex)

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Range = Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             get
             {
-                return new SqlToolsSettings();
+                return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings;
             }
         }
         public static async Task<string> BuildCopyContentAsync(
@@ -370,7 +371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private static void AppendTextRow(StringBuilder builder, IList<DbCellValue> rowValues)
         {
-            bool removeNewLines = Settings?.QueryEditorSettings?.Results?.CopyRemoveNewLine ?? true;
+            bool removeNewLines = Settings?.GetCopyRemoveNewLineSetting() ?? true;
 
             for (int i = 0; i < rowValues.Count; i++)
             {

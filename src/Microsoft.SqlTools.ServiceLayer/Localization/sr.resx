@@ -258,6 +258,10 @@
     <value>Result set index cannot be less than 0 or greater than the number of result sets</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceSubsetRowsTimeout" xml:space="preserve">
+    <value>Fetching query rows timed out.</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
     <value>Maximum number of bytes to return must be greater than zero</value>
     <comment></comment>
@@ -1171,6 +1175,10 @@
   </data>
   <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
     <value>Adding SQL bindings is not supported for .NET 5</value>
+    <comment></comment>
+  </data>
+  <data name="SqlPackageInvalidRequestParameters" xml:space="preserve">
+    <value>Invalid request parameters</value>
     <comment></comment>
   </data>
   <data name="Statement" xml:space="preserve">
@@ -5273,6 +5281,10 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="compatibilityLevel_sqlv160" xml:space="preserve">
     <value>SQL Server 2022 (160)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_sqlv170" xml:space="preserve">
+    <value>SQL Server 2025 (170)</value>
     <comment></comment>
   </data>
   <data name="general_containmentType_None" xml:space="preserve">

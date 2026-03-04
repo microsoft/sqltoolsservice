@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
 
                     
                     await profilerService.HandleStartProfilingRequest(startParams, startContext.Object);
-                    Assert.That(sessionId, Does.Contain(connectionResult.ConnectionInfo.ConnectionDetails.ServerName), "UniqueSessionId");
+                    Assert.That(int.TryParse(sessionId, out _), Is.True, "UniqueSessionId should be a numeric value");
                     startContext.VerifyAll();
 
                     // wait a bit for the session monitoring to initialize

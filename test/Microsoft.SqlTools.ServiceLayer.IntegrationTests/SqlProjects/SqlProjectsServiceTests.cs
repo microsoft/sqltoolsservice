@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.Data.Tools.Schema.SchemaModel;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -1056,6 +1057,184 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             setMock.AssertSuccess(nameof(service.HandleSetDatabaseSchemaProviderRequest));
             Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider", service.Projects[projectUri].Properties.DatabaseSchemaProvider);
+
+            // Validate RunSqlCodeAnalysis defaults to false and SqlCodeAnalysisRules is null when absent
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsFalse(getMock.Result.RunSqlCodeAnalysis, "RunSqlCodeAnalysis should default to false");
+            Assert.IsNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should be null when not set");
+
+            // Validate RunSqlCodeAnalysis and SqlCodeAnalysisRules are reflected after write
+
+            MockRequest<UpdateCodeAnalysisRulesResult> caMock = new();
+            await service.HandleUpdateCodeAnalysisRulesRequest(new UpdateCodeAnalysisRulesParams()
+            {
+                ProjectUri = projectUri,
+                RunSqlCodeAnalysis = true,
+                Rules = new[]
+                {
+                    new CodeAnalysisRuleOverride { RuleId = "SR0001", Severity = "Error" },
+                    new CodeAnalysisRuleOverride { RuleId = "SR0008", Severity = "Disabled" },
+                }
+            }, caMock.Object);
+
+            caMock.AssertSuccess(nameof(service.HandleUpdateCodeAnalysisRulesRequest));
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsTrue(getMock.Result.RunSqlCodeAnalysis, "RunSqlCodeAnalysis should be true after being set");
+            Assert.IsNotNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should not be null after rules are written");
+            Assert.IsTrue(getMock.Result.SqlCodeAnalysisRules!.Contains("SR0001"), "SqlCodeAnalysisRules should contain SR0001 override");
+            Assert.IsTrue(getMock.Result.SqlCodeAnalysisRules!.Contains("SR0008"), "SqlCodeAnalysisRules should contain SR0008 override");
+
+            // Validate SqlCodeAnalysisRules is cleared when an empty rules list is written
+
+            caMock = new();
+            await service.HandleUpdateCodeAnalysisRulesRequest(new UpdateCodeAnalysisRulesParams()
+            {
+                ProjectUri = projectUri,
+                Rules = Array.Empty<CodeAnalysisRuleOverride>()
+            }, caMock.Object);
+
+            caMock.AssertSuccess(nameof(service.HandleUpdateCodeAnalysisRulesRequest));
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should be null after empty rules list is written");
+        }
+
+        [Test]
+        public async Task TestUpdateCodeAnalysisRules()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            SqlProjectParams projParams = new() { ProjectUri = projectUri };
+
+            // --- 1. Set RunSqlCodeAnalysis ---
+
+            MockRequest<UpdateCodeAnalysisRulesResult> updateMock = new();
+            await service.HandleUpdateCodeAnalysisRulesRequest(new UpdateCodeAnalysisRulesParams()
+            {
+                ProjectUri = projectUri,
+                RunSqlCodeAnalysis = true,
+            }, updateMock.Object);
+
+            updateMock.AssertSuccess(nameof(service.HandleUpdateCodeAnalysisRulesRequest));
+
+            MockRequest<GetProjectPropertiesResult> getMock = new();
+            await service.HandleGetProjectPropertiesRequest(projParams, getMock.Object);
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsTrue(getMock.Result.RunSqlCodeAnalysis, "RunSqlCodeAnalysis should be true after being set");
+            Assert.IsNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should remain null when Rules was not provided");
+
+            // --- 2. Write rule overrides ---
+
+            updateMock = new();
+            await service.HandleUpdateCodeAnalysisRulesRequest(new UpdateCodeAnalysisRulesParams()
+            {
+                ProjectUri = projectUri,
+                Rules = new[]
+                {
+                    new CodeAnalysisRuleOverride { RuleId = "SR0001", Severity = "Error" },
+                    new CodeAnalysisRuleOverride { RuleId = "SR0008", Severity = "Disabled" },
+                }
+            }, updateMock.Object);
+
+            updateMock.AssertSuccess(nameof(service.HandleUpdateCodeAnalysisRulesRequest));
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(projParams, getMock.Object);
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsNotNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should be set after writing overrides");
+            Assert.IsTrue(getMock.Result.SqlCodeAnalysisRules!.Contains("SR0001"), "SqlCodeAnalysisRules should contain SR0001 override");
+            Assert.IsTrue(getMock.Result.SqlCodeAnalysisRules!.Contains("SR0008"), "SqlCodeAnalysisRules should contain SR0008 override");
+            Assert.IsTrue(getMock.Result.RunSqlCodeAnalysis, "RunSqlCodeAnalysis should still be true after writing rules");
+
+            // --- 3. Preserve overrides when Rules is null ---
+
+            updateMock = new();
+            await service.HandleUpdateCodeAnalysisRulesRequest(new UpdateCodeAnalysisRulesParams()
+            {
+                ProjectUri = projectUri,
+                RunSqlCodeAnalysis = false, // only change RunSqlCodeAnalysis; Rules is null
+            }, updateMock.Object);
+
+            updateMock.AssertSuccess(nameof(service.HandleUpdateCodeAnalysisRulesRequest));
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(projParams, getMock.Object);
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsFalse(getMock.Result.RunSqlCodeAnalysis, "RunSqlCodeAnalysis should be false after being updated");
+            Assert.IsNotNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should be preserved when Rules is null");
+            Assert.IsTrue(getMock.Result.SqlCodeAnalysisRules!.Contains("SR0001"), "SR0001 override should be preserved");
+
+            // --- 4. Delete overrides via empty Rules ---
+
+            updateMock = new();
+            await service.HandleUpdateCodeAnalysisRulesRequest(new UpdateCodeAnalysisRulesParams()
+            {
+                ProjectUri = projectUri,
+                Rules = Array.Empty<CodeAnalysisRuleOverride>()
+            }, updateMock.Object);
+
+            updateMock.AssertSuccess(nameof(service.HandleUpdateCodeAnalysisRulesRequest));
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(projParams, getMock.Object);
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.IsNull(getMock.Result.SqlCodeAnalysisRules, "SqlCodeAnalysisRules should be null after empty Rules list clears overrides");
+        }
+
+        [Test]
+        [TestCase(ProjectType.LegacyStyle)]
+        [TestCase(ProjectType.SdkStyle)]
+        public async Task TestCodeAnalysisPropertyRoundTrip(ProjectType projectType)
+        {
+            // Verify DacFx SetProperty/DeleteProperty write and remove XML elements correctly
+            // for both Legacy-style (MSBuild XML namespace) and SDK-style (no namespace) projects.
+            string projectUri = await new SqlProjectsService().CreateSqlProject(projectType);
+            try
+            {
+                // Legacy-style projects use the MSBuild XML namespace; SDK-style projects use no namespace.
+                XNamespace ns = projectType == ProjectType.LegacyStyle
+                    ? "http://schemas.microsoft.com/developer/msbuild/2003"
+                    : XNamespace.None;
+
+                SqlProject project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
+                project.Properties.SetProperty("SqlCodeAnalysisRules", "+!SR0001;-SR0005");
+                project.Properties.SetProperty("RunSqlCodeAnalysis", "True");
+
+                var doc = XDocument.Load(projectUri);
+                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault()?.Value, Is.EqualTo("+!SR0001;-SR0005"));
+                Assert.That(doc.Descendants(ns + "RunSqlCodeAnalysis").FirstOrDefault()?.Value, Is.EqualTo("True"));
+
+                project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
+                project.Properties.DeleteProperty("SqlCodeAnalysisRules");
+
+                doc = XDocument.Load(projectUri);
+                Assert.That(doc.Descendants(ns + "SqlCodeAnalysisRules").FirstOrDefault(), Is.Null,
+                    "SqlCodeAnalysisRules element should be removed after DeleteProperty");
+            }
+            finally
+            {
+                File.Delete(projectUri);
+            }
         }
 
         [Test]
@@ -1120,7 +1299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         /// </summary>
         /// <param name="service"></param>
         /// <returns></returns>
-        public async static Task<string> CreateSqlProject(this SqlProjectsService service)
+        public async static Task<string> CreateSqlProject(this SqlProjectsService service, ProjectType projectType = ProjectType.SdkStyle)
         {
             string projectUri = TestContext.CurrentContext.GetTestProjectPath();
 
@@ -1128,7 +1307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = projectUri,
-                SqlProjectType = ProjectType.SdkStyle
+                SqlProjectType = projectType
 
             }, requestMock.Object);
 

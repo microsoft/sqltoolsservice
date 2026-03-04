@@ -89,11 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         internal async Task HandleConvertSqlToNotebookRequest(ConvertSqlToNotebookParams parameters, RequestContext<ConvertSqlToNotebookResult> requestContext)
         {
-            // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-            // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-            // what the document events are sent in as.
-            var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
-            var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
+            var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(parameters.ClientUri);
             // Temporary notebook that we just fill in with the sql until the parsing logic is added
             var result = new ConvertSqlToNotebookResult
             {

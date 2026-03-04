@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -56,7 +55,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             serviceHost.SetRequestHandler(SchemaComparePublishProjectChangesRequest.Type, this.HandleSchemaComparePublishProjectChangesRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeAllNodesRequest.Type, this.HandleSchemaCompareIncludeExcludeAllNodesRequest, true);
-            serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareSaveScmpRequest.Type, this.HandleSchemaCompareSaveScmpRequest, true);
         }
@@ -340,35 +338,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
-                });
-            }
-        }
-
-        /// <summary>
-        /// Handles request to create default deployment options as per DacFx
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleSchemaCompareGetDefaultOptionsRequest(SchemaCompareGetOptionsParams parameters, RequestContext<SchemaCompareOptionsResult> requestContext)
-        {
-            try
-            {
-                // this does not need to be an async operation since this only creates and returns the default object
-                DeploymentOptions options = DeploymentOptions.GetDefaultSchemaCompareOptions();
-
-                await requestContext.SendResult(new SchemaCompareOptionsResult()
-                {
-                    DefaultDeploymentOptions = options,
-                    Success = true,
-                    ErrorMessage = null
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendResult(new SchemaCompareOptionsResult()
-                {
-                    DefaultDeploymentOptions = null,
-                    Success = false,
-                    ErrorMessage = e.Message
                 });
             }
         }

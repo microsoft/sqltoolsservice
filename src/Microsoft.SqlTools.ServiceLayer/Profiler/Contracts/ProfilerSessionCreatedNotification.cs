@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     }
 
     /// <summary>
-    /// Profiler Session created notification mapping entry 
+    /// Extended Events session created notification mapping entry 
     /// </summary>
     public class ProfilerSessionCreatedNotification
     {

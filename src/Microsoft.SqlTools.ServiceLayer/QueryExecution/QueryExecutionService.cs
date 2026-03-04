@@ -162,6 +162,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly ConcurrentDictionary<string, CancellationTokenSource> activeCopyOperations = new ConcurrentDictionary<string, CancellationTokenSource>();
 
         /// <summary>
+        /// Per-ownerUri async locks for subset requests. This preserves request ordering and prevents
+        /// concurrent subset reads against the same query state when parallel message processing is enabled.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, AsyncLock> subsetRequestLocks = new ConcurrentDictionary<string, AsyncLock>();
+
+        private static readonly TimeSpan subsetRequestTimeout = TimeSpan.FromSeconds(5);
+
+        /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
         /// </summary>
         private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
@@ -208,9 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest, true);
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest, true);
-            // Parallel Message processing must be disabled for Subset Request, as the requests must be adhered to in order of when they arrive.
-            // Executing in parallel can lead to randomly ordered results, for this reason we should keep it false.
-            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, false);
+            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, true);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest, true);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest, true);
             serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
@@ -325,6 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Collect error messages during execution using thread-safe ordered collection
                 var errorMessages = new System.Collections.Concurrent.ConcurrentQueue<string>();
+                var allMessages = new System.Collections.Concurrent.ConcurrentQueue<ResultMessage>();
 
                 // handle sending event back when the query completes
                 Query.QueryAsyncEventHandler queryComplete = async query =>
@@ -356,7 +363,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 RowCount = 0,
                                 ColumnInfo = new DbColumnWrapper[0],
-                                Rows = new DbCellValue[0][]
+                                Rows = new DbCellValue[0][],
+                                Messages = allMessages.ToArray()
                             };
                             await requestContext.SendResult(emptyResult);
                             return;
@@ -374,7 +382,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             RowCount = rowCount,
                             ColumnInfo = query.Batches[0].ResultSets[0].Columns,
-                            Rows = new DbCellValue[0][]
+                            Rows = new DbCellValue[0][],
+                            Messages = allMessages.ToArray()
                         };
 
                         if (rowCount > 0)
@@ -414,23 +423,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(e);
                 };
 
-                // Collect batch messages (errors) during query execution
-                Batch.BatchAsyncMessageHandler messageHandler = async (message) =>
+                // Collect batch messages (errors and info/PRINT) during query execution
+                Batch.BatchAsyncMessageHandler messageHandler = (message) =>
                 {
+                    allMessages.Enqueue(message);
                     if (message.IsError)
                     {
                         errorMessages.Enqueue(message.Message);
                     }
+                    return Task.CompletedTask;
                 };
 
                 // Execute query with message collection
                 Query createdQuery = null;
-                Func<Query, Task<bool>> queryCreateSuccess = async (q) =>
+                Func<Query, Task<bool>> queryCreateSuccess = (q) =>
                 {
                     createdQuery = q;
                     // Subscribe to batch messages to collect errors
                     q.BatchMessageSent += messageHandler;
-                    return true;
+                    return Task.FromResult(true);
                 };
 
                 await InterServiceExecuteQuery(executeStringParams, newConn, newContext, queryCreateSuccess, queryCreateFailureAction, queryComplete, queryFail);
@@ -483,13 +494,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleResultSubsetRequest(SubsetParams subsetParams,
             RequestContext<SubsetResult> requestContext)
         {
-            ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
-            var result = new SubsetResult
+            AsyncLock subsetLock = subsetRequestLocks.GetOrAdd(subsetParams.OwnerUri, _ => new AsyncLock());
+            using (await subsetLock.LockAsync())
             {
-                ResultSubset = subset
-            };
-            await requestContext.SendResult(result);
-            Logger.Stop($"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
+                using (CancellationTokenSource timeoutCancellationSource = new CancellationTokenSource())
+                using (CancellationTokenSource delayCancellationSource = new CancellationTokenSource())
+                {
+                    Task<ResultSetSubset> subsetTask = InterServiceResultSubset(subsetParams, timeoutCancellationSource.Token);
+                    Task timeoutTask = Task.Delay(subsetRequestTimeout, delayCancellationSource.Token);
+                    Task completedTask = await Task.WhenAny(subsetTask, timeoutTask);
+                    if (!ReferenceEquals(completedTask, subsetTask))
+                    {
+                        timeoutCancellationSource.Cancel();
+                        Logger.Error($"Subset request timed out for ownerUri '{subsetParams.OwnerUri}' after {subsetRequestTimeout.TotalSeconds} seconds.");
+                        await requestContext.SendError(SR.QueryServiceSubsetRowsTimeout);
+                        return;
+                    }
+
+                    // Subset completed before the timeout — cancel the delay timer so it doesn't
+                    // linger for the remainder of the timeout window.
+                    delayCancellationSource.Cancel();
+
+                    ResultSetSubset subset = await subsetTask;
+                    var result = new SubsetResult
+                    {
+                        ResultSubset = subset
+                    };
+                    await requestContext.SendResult(result);
+                    Logger.Stop($"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
+                }
+            }
         }
 
 
@@ -776,12 +810,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query result;
                 if (!ActiveQueries.TryRemove(ownerUri, out result))
                 {
+                    ClearSubsetRequestState(ownerUri);
                     await failureAction(SR.QueryServiceRequestsNoQuery);
                     return;
                 }
 
                 // Cleanup the query
                 result.Dispose();
+                ClearSubsetRequestState(ownerUri);
 
                 // Success
                 await successAction();
@@ -799,7 +835,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="subsetParams">Parameters for the subset to retrieve</param>
         /// <returns>The requested subset</returns>
         /// <exception cref="ArgumentOutOfRangeException">The requested query does not exist</exception>
-        public async Task<ResultSetSubset> InterServiceResultSubset(SubsetParams subsetParams)
+        public async Task<ResultSetSubset> InterServiceResultSubset(
+            SubsetParams subsetParams,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Validate.IsNotNullOrEmptyString(nameof(subsetParams.OwnerUri), subsetParams.OwnerUri);
 
@@ -812,7 +850,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Retrieve the requested subset and return it
             return await query.GetSubset(subsetParams.BatchIndex, subsetParams.ResultSetIndex,
-                subsetParams.RowsStartIndex, subsetParams.RowsCount);
+                subsetParams.RowsStartIndex, subsetParams.RowsCount, cancellationToken);
         }
 
         /// <summary>
@@ -924,7 +962,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                     {
                                         if (row[columnIndex] != null && row[columnIndex].DisplayValue != null)
                                         {
-                                            builder.Append(Settings?.QueryEditorSettings?.Results?.CopyRemoveNewLine ?? true ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
+                                            builder.Append((Settings?.GetCopyRemoveNewLineSetting() ?? true) ? row[columnIndex]?.DisplayValue?.ReplaceLineEndings(" ") : row[columnIndex]?.DisplayValue);
                                         }
                                         else
                                         {
@@ -987,7 +1025,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 requestParams.LineSeparator = requestParams.LineSeparator ?? Environment.NewLine;
 
                 var columnRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
-                var rowRanges = MergeRanges(requestParams.Selections.Select(selection => new Range { Start = selection.FromRow, End = selection.ToRow }).ToList());
+                // Not merging row ranges as we need to preserve order of rows for copying
+                var rowRanges = requestParams.Selections.Select(selection => new Range { Start = selection.FromRow, End = selection.ToRow }).ToList();
 
                 if (columnRanges.Count == 0 || rowRanges.Count == 0)
                 {
@@ -1004,8 +1043,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 cts.Token.ThrowIfCancellationRequested();
 
-                await ClipboardService.SetTextAsync(content);
-                await requestContext.SendResult(new CopyResults2RequestResult());
+                await requestContext.SendResult(new CopyResults2RequestResult
+                {
+                    Content = content
+                });
             }
             catch (OperationCanceledException)
             {
@@ -1326,6 +1367,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ConnectionInfo connInfo,
             bool applyExecutionSettings)
         {
+            ClearSubsetRequestState(executeParams.OwnerUri);
+
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
             if (connInfo != null)
@@ -1390,6 +1433,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             Logger.Information($"Query object for URI:'{executeParams.OwnerUri}' created");
             return newQuery;
+        }
+
+        private void ClearSubsetRequestState(string ownerUri)
+        {
+            subsetRequestLocks.TryRemove(ownerUri, out _);
         }
 
         private static void ExecuteAndCompleteQuery(string ownerUri, Query query,
@@ -1576,20 +1624,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
         {
-            // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-            // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-            // what the document events are sent in as.
-            var escapedOwnerUri = Uri.EscapeUriString(request.OwnerUri);
             // If it is a document selection, we'll retrieve the text from the document
             if (request is ExecuteDocumentSelectionParams docRequest)
             {
-                return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
+                return GetSqlTextFromSelectionData(request.OwnerUri, docRequest.QuerySelection);
             }
 
             // If it is a document statement, we'll retrieve the text from the document
             if (request is ExecuteDocumentStatementParams stmtRequest)
             {
-                return GetSqlStatementAtPosition(escapedOwnerUri, stmtRequest.Line, stmtRequest.Column);
+                return GetSqlStatementAtPosition(request.OwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
