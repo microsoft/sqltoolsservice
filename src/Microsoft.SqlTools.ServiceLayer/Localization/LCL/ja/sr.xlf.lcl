@@ -8245,6 +8245,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";QueryServiceSubsetRowsTimeout" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Fetching query rows timed out.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[クエリの行の取得がタイムアウトしました。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";QueryServiceUnsupportedSqlVariantType" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The underlying type "{0}" for sql variant column "{1}" could not be resolved.]]></Val>
