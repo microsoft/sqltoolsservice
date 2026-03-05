@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
             {
-                Logger.Verbose("Shutting down language service");
+                Logger.Verbose("LanguageService: Shutting down language service");
                 DeletePeekDefinitionScripts();
                 this.Dispose();
                 return Task.FromResult(0);
@@ -431,15 +431,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
+            Logger.Verbose("LanguageService: HandleCompletionRequest: request received.");
+
             var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
             if (scriptFile == null)
             {
+                Logger.Verbose("LanguageService: HandleCompletionRequest: script file not found; returning null completion list.");
                 await requestContext.SendResult(null);
                 return;
             }
             // check if Intellisense suggestions are enabled
             if (ShouldSkipIntellisense(scriptFile.ClientUri))
             {
+                Logger.Verbose("LanguageService: HandleCompletionRequest: intellisense is disabled or blocked for this document; returning null completion list.");
                 await requestContext.SendResult(null);
             }
             else
@@ -459,6 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var newCts = new CancellationTokenSource();
                 if (_pendingCompletionRequests.TryGetValue(uri, out var oldCts))
                 {
+                    Logger.Verbose("LanguageService: HandleCompletionRequest: cancelling superseded in-flight completion request for the same document.");
                     try { oldCts.Cancel(); } catch (ObjectDisposedException) { }
                 }
                 _pendingCompletionRequests[uri] = newCts;
@@ -470,10 +475,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     if (newCts.IsCancellationRequested)
                     {
+                        Logger.Verbose("LanguageService: HandleCompletionRequest: request was superseded before completion result was sent; returning empty list.");
                         await requestContext.SendResult(Array.Empty<CompletionItem>());
                         return;
                     }
 
+                    Logger.Verbose($"LanguageService: HandleCompletionRequest: returning {completionItems?.Length ?? 0} completion items.");
                     await requestContext.SendResult(completionItems);
                 }
                 finally
@@ -482,6 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         && ReferenceEquals(currentCts, newCts))
                     {
                         _pendingCompletionRequests.TryRemove(uri, out _);
+                        Logger.Verbose("LanguageService: HandleCompletionRequest: cleaned up pending completion request state for completed request.");
                     }
 
                     newCts.Dispose();
@@ -589,7 +597,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (task.IsFaulted)
                         {
-                            Logger.Error($"Error getting signature help for script file {scriptFile}: {task.Exception}");
+                            Logger.Error($"LanguageService: Error getting signature help for script file {scriptFile}: {task.Exception}");
                             await requestContext.SendError(task.Exception);
                             return;
                         }
@@ -658,7 +666,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Error("Unknown error " + ex.ToString());
+                Logger.Error("LanguageService: Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -682,7 +690,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Error("Unknown error " + ex.ToString());
+                Logger.Error("LanguageService: Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -713,7 +721,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Error("Unknown error " + ex.ToString());
+                Logger.Error("LanguageService: Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -747,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                Logger.Verbose("HandleRebuildIntelliSenseNotification");
+                Logger.Verbose("LanguageService: HandleRebuildIntelliSenseNotification");
 
                 // Skip closing this file if the file doesn't exist
                 var scriptFile = this.CurrentWorkspace.GetFile(rebuildParams.OwnerUri);
@@ -776,7 +784,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error("Unknown error " + ex.ToString());
+                            Logger.Error("LanguageService: Unknown error " + ex.ToString());
                         }
                         finally
                         {
@@ -807,7 +815,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Error("Unknown error " + ex.ToString());
+                Logger.Error("LanguageService: Unknown error " + ex.ToString());
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
             }
         }
@@ -854,7 +862,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Error("Unknown error " + ex.ToString());
+                Logger.Error("LanguageService: Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -900,7 +908,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Error("Unknown error " + ex.ToString());
+                Logger.Error("LanguageService: Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -941,7 +949,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
         public async Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
-            Logger.Verbose($"ParseAndBind - {scriptFile}");
+            Logger.Verbose($"LanguageService: ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
             return await Task.Run(() =>
@@ -968,13 +976,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 catch (Exception e)
                                 {
                                     // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
-                                    Logger.Error(string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
+                                    Logger.Error(string.Format("LanguageService: An unexpected error occured while parsing: {0}", e.ToString()));
                                 }
                             }, ConnectedBindingQueue.QueueThreadStackSize);
                             parseThread.Start();
                             if (!parseThread.Join(ParseThreadJoinTimeoutMs))
                             {
-                                Logger.Warning($"ParseAndBind: parse thread did not complete within {ParseThreadJoinTimeoutMs} ms");
+                                Logger.Warning($"LanguageService: ParseAndBind: parse thread did not complete within {ParseThreadJoinTimeoutMs} ms");
                             }
                         }
                         else
@@ -1005,15 +1013,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     }
                                     catch (ConnectionException)
                                     {
-                                        Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                        Logger.Error("LanguageService: Hit connection exception while binding - disposing binder object...");
                                     }
                                     catch (SqlParserInternalBinderError)
                                     {
-                                        Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                        Logger.Error("LanguageService: Hit connection exception while binding - disposing binder object...");
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Error("Unknown exception during parsing " + ex.ToString());
+                                        Logger.Error("LanguageService: Unknown exception during parsing " + ex.ToString());
                                     }
 
                                     return null;
@@ -1026,7 +1034,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         // reset the parse result to do a full parse next time
                         parseInfo.ParseResult = null;
-                        Logger.Error("Unknown exception during parsing " + ex.ToString());
+                        Logger.Error("LanguageService: Unknown exception during parsing " + ex.ToString());
                     }
                     finally
                     {
@@ -1035,7 +1043,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    Logger.Warning("Binding metadata lock timeout in ParseAndBind");
+                    Logger.Warning("LanguageService: Binding metadata lock timeout in ParseAndBind");
                 }
 
                 return parseInfo.ParseResult;
@@ -1049,6 +1057,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         public Task StartUpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
+            Logger.Verbose("LanguageService: StartUpdateLanguageServiceOnConnection: scheduling debounced metadata refresh.");
+
             // Start task asynchronously without blocking main thread - this is by design.
             // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
             // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
@@ -1058,6 +1068,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var newCts = new CancellationTokenSource();
             if (_pendingConnectionUpdates.TryGetValue(info.OwnerUri, out var oldCts))
             {
+                Logger.Verbose("LanguageService: StartUpdateLanguageServiceOnConnection: cancelling superseded pending connection update for same document.");
                 try { oldCts.Cancel(); } catch (ObjectDisposedException) { }
             }
             _pendingConnectionUpdates[info.OwnerUri] = newCts;
@@ -1068,10 +1079,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     await Task.Delay(ConnectionUpdateDebounceMs, token);
+                    Logger.Verbose($"LanguageService: StartUpdateLanguageServiceOnConnection: debounce elapsed ({ConnectionUpdateDebounceMs} ms), running metadata refresh.");
                     await UpdateLanguageServiceOnConnection(info);
                 }
                 catch (TaskCanceledException)
                 {
+                    Logger.Verbose("LanguageService: StartUpdateLanguageServiceOnConnection: debounced update cancelled because a newer update superseded it.");
                     return; // superseded by a newer connection event
                 }
                 finally
@@ -1080,6 +1093,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         && ReferenceEquals(currentCts, newCts))
                     {
                         _pendingConnectionUpdates.TryRemove(info.OwnerUri, out _);
+                        Logger.Verbose("LanguageService: StartUpdateLanguageServiceOnConnection: cleaned up pending connection update state.");
                     }
 
                     newCts.Dispose();
@@ -1094,9 +1108,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
+            Logger.Verbose("LanguageService: UpdateLanguageServiceOnConnection: starting metadata refresh.");
+
             if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
             {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
+                Logger.Verbose("LanguageService: UpdateLanguageServiceOnConnection: dedicated admin connection detected; skipping metadata refresh.");
                 return;
             }
             ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
@@ -1106,10 +1123,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
                     scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
+                    Logger.Verbose($"LanguageService: UpdateLanguageServiceOnConnection: connection context refresh completed (isConnected={scriptInfo.IsConnected}).");
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Unknown error in OnConnection " + ex.ToString());
+                    Logger.Error("LanguageService: Unknown error in OnConnection " + ex.ToString());
                     scriptInfo.IsConnected = false;
                 }
                 finally
@@ -1119,15 +1137,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Monitor.Exit(scriptInfo.BuildingMetadataLock);
                 }
             }
+            else
+            {
+                Logger.Warning($"LanguageService: UpdateLanguageServiceOnConnection: timed out waiting for metadata lock after {LanguageService.OnConnectionWaitTimeout} ms.");
+            }
 
             try
             {
+                Logger.Verbose("LanguageService: UpdateLanguageServiceOnConnection: prepopulating common metadata.");
                 await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
             }
             finally
             {
                 // Send a notification to signal that autocomplete is ready
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+                Logger.Verbose("LanguageService: UpdateLanguageServiceOnConnection: sent IntelliSense ready notification.");
             }
         }
 
@@ -1213,7 +1237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Exception in PrepopulateCommonMetadata " + ex.ToString());
+                        Logger.Error("LanguageService: Exception in PrepopulateCommonMetadata " + ex.ToString());
                     }
                     finally
                     {
@@ -1311,7 +1335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         // if any exceptions are raised looking up extended completion metadata
                         // then just return the original completion item
-                        Logger.Error("Exception in ResolveCompletionItem " + ex.ToString());
+                        Logger.Error("LanguageService: Exception in ResolveCompletionItem " + ex.ToString());
                     }
                     finally
                     {
@@ -1421,7 +1445,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     catch (Exception ex)
                     {
                         // if any exceptions are raised return error result with message
-                        Logger.Error("Exception in GetDefinition " + ex.ToString());
+                        Logger.Error("LanguageService: Exception in GetDefinition " + ex.ToString());
                         return new DefinitionResult
                         {
                             IsErrorResult = true,
@@ -1436,7 +1460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    Logger.Error("Timeout waiting to query metadata from server");
+                    Logger.Error("LanguageService: Timeout waiting to query metadata from server");
                 }
             }
             return (lastResult != null) ? lastResult : null;
@@ -1624,7 +1648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal async Task<SignatureHelp?> GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
-            Logger.Verbose($"GetSignatureHelp -  {scriptFile}");
+            Logger.Verbose($"LanguageService: GetSignatureHelp -  {scriptFile}");
             int startLine = textDocumentPosition.Position.Line;
             int endColumn = textDocumentPosition.Position.Character;
 
@@ -1632,7 +1656,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (scriptParseInfo == null)
             {
-                Logger.Verbose($"GetSignatureHelp - Could not find ScriptParseInfo for {scriptFile}");
+                Logger.Verbose($"LanguageService: GetSignatureHelp - Could not find ScriptParseInfo for {scriptFile}");
                 // Cache not set up yet - skip and wait until later
                 return null;
             }
@@ -1649,7 +1673,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-                Logger.Verbose($"GetSignatureHelp - No reparse needed for {scriptFile}");
+                Logger.Verbose($"LanguageService: GetSignatureHelp - No reparse needed for {scriptFile}");
             }
 
             if (scriptParseInfo.ParseResult != null)
@@ -1686,7 +1710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                                 else
                                 {
-                                    Logger.Verbose($"GetSignatureHelp - Didn't get any method locations from parse result");
+                                    Logger.Verbose($"LanguageService: GetSignatureHelp - Didn't get any method locations from parse result");
                                     return null;
                                 }
                             });
@@ -1695,12 +1719,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             return null;
                         }
 
-                        Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
+                        Logger.Verbose($"LanguageService: GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Exception in GetSignatureHelp " + ex.ToString());
+                        Logger.Error("LanguageService: Exception in GetSignatureHelp " + ex.ToString());
                     }
                     finally
                     {
@@ -1708,7 +1732,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
-            Logger.Verbose($"GetSignatureHelp - No ScriptParseInfo.ParseResult for {scriptFile}");
+            Logger.Verbose($"LanguageService: GetSignatureHelp - No ScriptParseInfo.ParseResult for {scriptFile}");
 
             // return null if there isn't a tooltip for the current location
             return null;
@@ -1725,8 +1749,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ConnectionInfo connInfo,
             CancellationToken cancellationToken = default)
         {
+            Logger.Verbose($"LanguageService: GetCompletionItems: start (hasConnection={connInfo != null}, callerCancelled={cancellationToken.IsCancellationRequested}).");
+
             if (cancellationToken.IsCancellationRequested)
             {
+                Logger.Verbose("LanguageService: GetCompletionItems: canceled before processing; returning empty list.");
                 return Array.Empty<CompletionItem>();
             }
 
@@ -1741,20 +1768,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (scriptParseInfo == null)
             {
+                Logger.Verbose("LanguageService: GetCompletionItems: no parse info found; using default completion items.");
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocInfo);
+                Logger.Verbose($"LanguageService: GetCompletionItems: returning {resultCompletionItems?.Length ?? 0} default completion items.");
                 return resultCompletionItems;
             }
 
             // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
+                Logger.Verbose("LanguageService: GetCompletionItems: script requires reparse; invoking ParseAndBind.");
                 await ParseAndBind(scriptFile, connInfo);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
+                    Logger.Verbose("LanguageService: GetCompletionItems: canceled after ParseAndBind; returning empty list.");
                     return Array.Empty<CompletionItem>();
                 }
             }
@@ -1764,15 +1795,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
+                Logger.Verbose("LanguageService: GetCompletionItems: parse result unavailable; using default completion items.");
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
+                Logger.Verbose($"LanguageService: GetCompletionItems: returning {resultCompletionItems?.Length ?? 0} default completion items.");
                 return resultCompletionItems;
             }
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions, cancellationToken);
 
             if (cancellationToken.IsCancellationRequested)
             {
+                Logger.Verbose("LanguageService: GetCompletionItems: canceled after completion service returned; returning empty list.");
                 return Array.Empty<CompletionItem>();
             }
 
@@ -1789,6 +1823,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
                 if (starExpansionSuggestion != null)
                 {
+                    Logger.Verbose($"LanguageService: GetCompletionItems: returning star expansion result with {starExpansionSuggestion.Length} completion items.");
                     return starExpansionSuggestion;
                 }
             }
@@ -1796,10 +1831,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)
             {
+                Logger.Verbose("LanguageService: GetCompletionItems: completion service returned null; using default completion items.");
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
             }
+
+            Logger.Verbose($"LanguageService: GetCompletionItems: returning {resultCompletionItems?.Length ?? 0} completion items.");
 
             return resultCompletionItems;
         }
@@ -1815,10 +1853,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (await Task.WhenAny(queueItem.Completed, Task.Delay(effectiveTimeout)) == queueItem.Completed)
             {
+                Logger.Verbose($"LanguageService: {operationName} completed queue wait within {effectiveTimeout} ms.");
                 return true;
             }
 
-            Logger.Warning($"{operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
+            Logger.Warning($"LanguageService: {operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
             return false;
         }
 
@@ -1835,10 +1874,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (queueItem.Completed.Wait(effectiveTimeout))
             {
+                Logger.Verbose($"LanguageService: {operationName} completed queue wait within {effectiveTimeout} ms.");
                 return true;
             }
 
-            Logger.Warning($"{operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
+            Logger.Warning($"LanguageService: {operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
             return false;
         }
 
@@ -1863,7 +1903,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(string.Format("Exception in calling completion extension {0}:\n{1}", completionExt.Name, e.ToString()));
+                    Logger.Error(string.Format("LanguageService: Exception in calling completion extension {0}:\n{1}", completionExt.Name, e.ToString()));
                 }
 
                 cancellationTokenSource.Dispose();
@@ -2000,7 +2040,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Error(string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
+                Logger.Error(string.Format("LanguageService: Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -2072,7 +2112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         continue;
                     }
 
-                    Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
+                    Logger.Verbose("LanguageService: Analyzing script file: " + scriptFile.FilePath);
 
                     // Start task asynchronously without blocking main thread - this is by design.
                     // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
@@ -2082,11 +2122,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (t.IsFaulted)
                         {
-                            Logger.Error($"Error analyzing script file {scriptFile.FilePath}: {t.Exception}");
+                            Logger.Error($"LanguageService: Error analyzing script file {scriptFile.FilePath}: {t.Exception}");
                             return;
                         }
                         var semanticMarkers = t.GetAwaiter().GetResult();
-                        Logger.Verbose($"Analysis complete for script file: {scriptFile.FilePath}");
+                        Logger.Verbose($"LanguageService: Analysis complete for script file: {scriptFile.FilePath}");
                         await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
                     }, CancellationToken.None);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -2095,7 +2135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // If any errors occur while starting up the analyze task for a script file then just log it and move on so
                     // we at least try to analyze the other files
-                    Logger.Error($"Error while starting to analyze script file {scriptFile.FilePath}: {e}");
+                    Logger.Error($"LanguageService: Error while starting to analyze script file {scriptFile.FilePath}: {e}");
                 }
 
             }
@@ -2114,12 +2154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
                 {
-                    Logger.Verbose($"Updating ScriptParseInfo for uri {uri}");
+                    Logger.Verbose($"LanguageService: Updating ScriptParseInfo for uri {uri}");
                     this.ScriptParseInfoMap[uri] = scriptInfo;
                 }
                 else
                 {
-                    Logger.Verbose($"Adding ScriptParseInfo for uri {uri}");
+                    Logger.Verbose($"LanguageService: Adding ScriptParseInfo for uri {uri}");
                     this.ScriptParseInfoMap.TryAdd(uri, scriptInfo);
                 }
 
@@ -2138,12 +2178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.ScriptParseInfoMap.TryGetValue(uri, out ScriptParseInfo value))
                 {
-                    Logger.Verbose($"Found ScriptParseInfo for uri {uri}");
+                    Logger.Verbose($"LanguageService: Found ScriptParseInfo for uri {uri}");
                     return value;
                 }
                 else if (createIfNotExists)
                 {
-                    Logger.Verbose($"ScriptParseInfo for uri {uri} did not exist, creating new one");
+                    Logger.Verbose($"LanguageService: ScriptParseInfo for uri {uri} did not exist, creating new one");
                     // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
                     this.ScriptParseInfoMap.TryAdd(uri, scriptInfo);
@@ -2151,7 +2191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    Logger.Verbose($"Could not find ScriptParseInfo for uri {uri}");
+                    Logger.Verbose($"LanguageService: Could not find ScriptParseInfo for uri {uri}");
                     return null;
                 }
             }
@@ -2161,7 +2201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             lock (this.parseMapLock)
             {
-                Logger.Verbose($"Removing ScriptParseInfo for uri {uri}");
+                Logger.Verbose($"LanguageService: Removing ScriptParseInfo for uri {uri}");
                 return this.ScriptParseInfoMap.TryRemove(uri, out _);
             }
         }

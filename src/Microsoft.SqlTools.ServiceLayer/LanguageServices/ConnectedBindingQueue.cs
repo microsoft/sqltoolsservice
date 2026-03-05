@@ -229,8 +229,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (connInfo == null)
             {
+                Logger.Verbose("ConnectedBindingQueue.AddConnectionContext: skipped because connection info was null.");
                 return string.Empty;
             }
+
+            Logger.Verbose($"ConnectedBindingQueue.AddConnectionContext: request received (featureName={featureName ?? "null"}, overwrite={overwrite}, needsMetadata={this.needsMetadata}).");
 
             // lookup the current binding context
             string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
@@ -238,11 +241,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (overwrite)
                 {
+                    Logger.Verbose("ConnectedBindingQueue.AddConnectionContext: existing context found and will be overwritten.");
                     RemoveBindingContext(connectionKey);
                 }
                 else
                 {
                     // no need to populate the context again since the context already exists
+                    Logger.Verbose("ConnectedBindingQueue.AddConnectionContext: existing context found; reusing current context.");
                     return connectionKey;
                 }
             }
@@ -252,6 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 try
                 {
+                    Logger.Verbose("ConnectedBindingQueue.AddConnectionContext: binding lock acquired; initializing connected binding context.");
                     bindingContext.BindingLock.Reset();
                    
                     // populate the binding context to work with the SMO metadata provider
@@ -269,9 +275,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
+                    Logger.Verbose("ConnectedBindingQueue.AddConnectionContext: binding context initialized successfully.");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Logger.Error("ConnectedBindingQueue.AddConnectionContext: failed to initialize binding context. " + ex.ToString());
                     bindingContext.IsConnected = false;
                 }       
                 finally
@@ -281,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-                Logger.Warning($"AddConnectionContext timed out waiting for binding lock after {AddConnectionContextLockTimeout} ms for key {connectionKey}");
+                Logger.Warning($"ConnectedBindingQueue.AddConnectionContext: timed out waiting for binding lock after {AddConnectionContextLockTimeout} ms.");
             }
 
             return connectionKey;

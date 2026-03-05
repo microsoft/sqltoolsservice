@@ -109,10 +109,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 CallerCancellation = callerCancellation
             };
 
+            int queueDepth;
             lock (this.bindingQueueLock)
             {
                 this.bindingQueue.AddLast(queueItem);
+                queueDepth = this.bindingQueue.Count;
             }
+
+            Logger.Verbose($"BindingQueue: queued operation (hasKey={!string.IsNullOrWhiteSpace(key)}, bindingTimeoutMs={bindingTimeout?.ToString() ?? "default"}, waitForLockTimeoutMs={waitForLockTimeout?.ToString() ?? "default"}, queueDepth={queueDepth}, callerCancelled={callerCancellation.IsCancellationRequested}).");
 
             this.itemQueuedEvent.Set();
 
@@ -296,6 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // Skip items that the caller has already cancelled (e.g. superseded completion requests)
                         if (queueItem.CallerCancellation.IsCancellationRequested)
                         {
+                            Logger.Verbose("BindingQueue: skipping canceled queue item before dispatch.");
                             queueItem.SignalCompleted();
                             continue;
                         }
@@ -303,6 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
                         if (bindingContext == null)
                         {
+                            Logger.Warning("BindingQueue: no binding context available for queued item; signaling completion.");
                             queueItem.SignalCompleted();
                             continue;
                         }
@@ -341,11 +347,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool releaseBindingLock = false;
             CancellationTokenSource cancelToken = null;
             Task bindTask = null;
+            bool bindTimedOut = false;
             try
             {
                 // If the caller already cancelled this request, skip it entirely
                 if (queueItem.CallerCancellation.IsCancellationRequested)
                 {
+                    Logger.Verbose("BindingQueue: dispatch skipped because caller cancellation was already requested.");
                     return;
                 }
 
@@ -353,19 +361,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 int bindTimeoutInMs = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
                 int waitForLockTimeoutInMs = queueItem.WaitForLockTimeout ?? bindTimeoutInMs;
 
+                Logger.Verbose($"BindingQueue: dispatch starting (bindingTimeoutMs={bindTimeoutInMs}, waitForLockTimeoutMs={waitForLockTimeoutInMs}).");
+
                 // handle the case a previous binding operation is still running
                 if (!bindingContext.BindingLock.WaitOne(waitForLockTimeoutInMs))
                 {
                     try
                     {
-                        Logger.Warning("Binding queue operation timed out waiting for previous operation to finish");
+                        Logger.Warning($"BindingQueue: operation timed out waiting for previous operation to finish after {waitForLockTimeoutInMs} ms.");
                         queueItem.Result = queueItem.TimeoutOperation != null
                             ? queueItem.TimeoutOperation(bindingContext)
                             : null;
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Exception running binding queue lock timeout handler: " + ex.ToString());
+                        Logger.Error("BindingQueue: exception running lock-timeout handler: " + ex.ToString());
                     }
 
                     return;
@@ -389,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Unexpected exception on the binding queue: " + ex.ToString());
+                        Logger.Error("BindingQueue: unexpected exception in bind operation: " + ex.ToString());
                         if (queueItem.ErrorHandler != null)
                         {
                             try
@@ -398,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             }
                             catch (Exception ex2)
                             {
-                                Logger.Error("Unexpected exception in binding queue error handler: " + ex2.ToString());
+                                Logger.Error("BindingQueue: unexpected exception in error handler: " + ex2.ToString());
                             }
                         }
                         if (IsExceptionOfType(ex, typeof(SqlException)) || IsExceptionOfType(ex, typeof(SocketException)))
@@ -418,22 +428,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (bindTask.Wait(bindTimeoutInMs))
                     {
                         queueItem.Result = result;
+                        Logger.Verbose($"BindingQueue: dispatch completed within timeout. ResultType={queueItem.Result?.GetType().Name ?? "null"}.");
                     }
                     else
                     {
+                        bindTimedOut = true;
                         cancelToken.Cancel();
+                        Logger.Warning($"BindingQueue: dispatch timed out after {bindTimeoutInMs} ms; cancellation requested.");
+
                         // if the task didn't complete then call the timeout callback
                         if (queueItem.TimeoutOperation != null)
                         {
                             queueItem.Result = queueItem.TimeoutOperation(bindingContext);
                         }
 
-                        bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
+                        bindTask.ContinueWithOnFaulted(t => Logger.Error("BindingQueue: bind task faulted after timeout: " + t.Exception.ToString()));
 
                         // Give the task a short chance to complete, but don't block the queue indefinitely
                         if (!bindTask.Wait(CanceledBindTaskWaitTimeoutMs))
                         {
-                            Logger.Warning("Binding queue task did not complete after cancellation. Removing binding context.");
+                            Logger.Warning($"BindingQueue: task did not complete within the post-cancel grace period ({CanceledBindTaskWaitTimeoutMs} ms). Removing binding context.");
                             RemoveBindingContext(queueItem.Key);
 
                             // Keep the old context lock unavailable while the timed-out task is still running.
@@ -452,14 +466,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Binding queue task completion threw exception " + ex.ToString());
+                    Logger.Error("BindingQueue: exception while waiting for bind task completion: " + ex.ToString());
                 }
             }
             catch (Exception ex)
             {
                 // catch and log any exceptions raised in the binding calls
                 // set item processed to avoid deadlocks 
-                Logger.Error("Binding queue threw exception " + ex.ToString());
+                Logger.Error("BindingQueue: unhandled dispatch exception: " + ex.ToString());
             }
             finally
             {
@@ -473,6 +487,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // always signal completion to avoid deadlocks
                 queueItem.SignalCompleted();
+
+                if (bindTimedOut)
+                {
+                    Logger.Verbose("BindingQueue: completion signaled after timeout path.");
+                }
             }
         }
 

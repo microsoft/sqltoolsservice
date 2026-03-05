@@ -65,8 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             bool useLowerCaseSuggestions,
             CancellationToken callerCancellation = default)
         {
+            Logger.Verbose($"CompletionService.CreateCompletions: start (isConnected={scriptDocumentInfo.ScriptParseInfo.IsConnected}, callerCancelled={callerCancellation.IsCancellationRequested}).");
+
             if (callerCancellation.IsCancellationRequested)
             {
+                Logger.Verbose("CompletionService.CreateCompletions: caller already cancelled before queueing; returning default completions.");
                 return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
             }
 
@@ -81,21 +84,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     // wait for the queue item with a bounded timeout
                     if (!WaitForQueueItem(queueItem))
                     {
+                        Logger.Verbose("CompletionService.CreateCompletions: queue wait timed out; returning default completions.");
                         return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                     }
 
                     if (callerCancellation.IsCancellationRequested)
                     {
+                        Logger.Verbose("CompletionService.CreateCompletions: caller cancelled after queue completion; returning default completions.");
                         return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                     }
 
                     var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
                     if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                     {
+                        Logger.Verbose($"CompletionService.CreateCompletions: queue returned {completionResult.CompletionItems.Length} completion items.");
                         result = completionResult;
                     }
                     else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
                     {
+                        Logger.Verbose("CompletionService.CreateCompletions: token context suppresses completion list.");
                         result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
                     }
                 }
@@ -103,6 +110,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 {
                     Monitor.Exit(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock);
                 }
+            }
+            else
+            {
+                Logger.Verbose("CompletionService.CreateCompletions: metadata lock unavailable or script is disconnected; returning default result.");
             }
 
             return result;
@@ -115,6 +126,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             bool useLowerCaseSuggestions,
             CancellationToken callerCancellation = default)
         {
+            Logger.Verbose($"CompletionService.AddToQueue: queueing completion bind operation (bindingTimeoutMs={LanguageService.BindingTimeout}, callerCancelled={callerCancellation.IsCancellationRequested}).");
+
             // queue the completion task with the binding queue    
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
@@ -124,6 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 {
                     if (callerCancellation.IsCancellationRequested || cancelToken.IsCancellationRequested)
                     {
+                        Logger.Verbose("CompletionService.AddToQueue: bind operation observed cancellation; returning default completions.");
                         return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                     }
 
@@ -147,6 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             int waitTimeoutMs = LanguageService.BindingTimeout + QueueItemWaitTimeoutBufferMs;
             if (queueItem.Completed.Wait(waitTimeoutMs))
             {
+                Logger.Verbose($"CompletionService.WaitForQueueItem: queue item completed within {waitTimeoutMs} ms.");
                 return true;
             }
 
@@ -184,12 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             ScriptDocumentInfo scriptDocumentInfo,
             MetadataDisplayInfoProvider metadataDisplayInfoProvider)
         {
-            int currentRequestCount = Interlocked.Increment(ref parserCompletionRequestCount);
-            if (currentRequestCount > CompletionRequestStallThreshold)
-            {
-                Logger.Warning($"CreateCompletionsFromSqlParser is configured to stall indefinitely for testing after {CompletionRequestStallThreshold} requests via {CompletionRequestStallEnvVar}. Current request count: {currentRequestCount}.");
-                Thread.Sleep(Timeout.Infinite);
-            }
+            Logger.Verbose($"CompletionService.CreateCompletionsFromSqlParser: computing parser completions at parser line={scriptDocumentInfo.ParserLine}, column={scriptDocumentInfo.ParserColumn}.");;
             AutoCompletionResult result = new AutoCompletionResult();
 
             IEnumerable<Declaration> suggestions = SqlParserWrapper.FindCompletions(
@@ -210,6 +220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 scriptDocumentInfo.TokenText);
 
             result.CompleteResult(completionList);
+
+            Logger.Verbose($"CompletionService.CreateCompletionsFromSqlParser: parser produced {completionList?.Length ?? 0} completion items.");
 
             //The bucket for number of milliseconds will take to send back auto complete list
             connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
