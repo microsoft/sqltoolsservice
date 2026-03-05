@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.Utility;
 using System.Threading;
 using System.Linq;
 
@@ -32,7 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Func<IBindingContext, object> timeoutOperation = null,
             Func<Exception, object> errorHandler = null,
             int? bindingTimeout = null,
-            int? waitForLockTimeout = null);
+            int? waitForLockTimeout = null,
+            CancellationToken callerCancellation = default);
     }
 
     public class SqlConnectionOpener
@@ -52,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
+        internal const int AddConnectionContextLockTimeout = 300000;
 
         internal const int DefaultMinimumConnectionTimeout = 30;
 
@@ -245,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
-            if (bindingContext.BindingLock.WaitOne())
+            if (bindingContext.BindingLock.WaitOne(AddConnectionContextLockTimeout))
             {
                 try
                 {
@@ -275,6 +278,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bindingContext.BindingLock.Set();
                 }         
+            }
+            else
+            {
+                Logger.Warning($"AddConnectionContext timed out waiting for binding lock after {AddConnectionContextLockTimeout} ms for key {connectionKey}");
             }
 
             return connectionKey;

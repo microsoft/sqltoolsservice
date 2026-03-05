@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
         internal const string uriPrefix = "objectexplorer://";
+        private const int QueueItemWaitTimeoutBufferMs = 1000;
 
         // Instance of the connection service, used to get the connection info for a given owner URI
         private ConnectionService connectionService;
@@ -505,7 +506,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return response;
                            });
                     Logger.Verbose($"Queuing binding operation for {nodePath}");
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!WaitForQueueItem(queueItem, timeout, $"ExpandNode ({nodePath})"))
+                    {
+                        return response;
+                    }
                     Logger.Verbose($"Done with binding operation for {nodePath}");
                     if (queueItem.GetResultAsT<ExpandResponse>() != null)
                     {
@@ -566,7 +570,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return session;
                            });
 
-                queueItem.ItemProcessed.WaitOne();
+                if (!WaitForQueueItem(queueItem, timeout, $"CreateSession ({uri})"))
+                {
+                    return null;
+                }
                 if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
                 {
                     session = queueItem.GetResultAsT<ObjectExplorerSession>();
@@ -606,6 +613,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 await SendSessionFailedNotification(uri, ex.ToString(), errorNum);
                 return null;
             }
+        }
+
+        private static bool WaitForQueueItem(QueueItem queueItem, int timeoutMs, string operationName)
+        {
+            int effectiveTimeout = timeoutMs <= 0
+                ? timeoutMs
+                : timeoutMs + QueueItemWaitTimeoutBufferMs;
+
+            if (queueItem.Completed.Wait(effectiveTimeout))
+            {
+                return true;
+            }
+
+            Logger.Warning($"{operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
+            return false;
         }
 
         private async Task SendSessionFailedNotification(string uri, string errorMessage, int? errorCode)

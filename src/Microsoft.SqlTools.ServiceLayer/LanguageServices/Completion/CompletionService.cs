@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 {
@@ -20,7 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// </summary>
     internal class CompletionService
     {
+        private const int QueueItemWaitTimeoutBufferMs = 1000;
         private ConnectedBindingQueue BindingQueue { get; set; }
+
+        private const string CompletionRequestStallEnvVar = "SQLTOOLS_TEST_STALL_COMPLETION_REQUEST";
+        private const int CompletionRequestStallThreshold = 1;
+        // private static int completionRequestCount;
+        private static int parserCompletionRequestCount;
+
 
         /// <summary>
         /// Created new instance given binding queue
@@ -54,18 +62,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         public AutoCompletionResult CreateCompletions(
             ConnectionInfo connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            bool useLowerCaseSuggestions)
+            bool useLowerCaseSuggestions,
+            CancellationToken callerCancellation = default)
         {
+            if (callerCancellation.IsCancellationRequested)
+            {
+                return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+            }
+
             AutoCompletionResult result = new AutoCompletionResult();
             // check if the file is connected and the file lock is available
             if (scriptDocumentInfo.ScriptParseInfo.IsConnected && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
             {
                 try
                 {
-                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions, callerCancellation);
 
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
+                    // wait for the queue item with a bounded timeout
+                    if (!WaitForQueueItem(queueItem))
+                    {
+                        return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    }
+
+                    if (callerCancellation.IsCancellationRequested)
+                    {
+                        return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    }
+
                     var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
                     if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                     {
@@ -89,14 +112,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             ConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            bool useLowerCaseSuggestions)
+            bool useLowerCaseSuggestions,
+            CancellationToken callerCancellation = default)
         {
             // queue the completion task with the binding queue    
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: LanguageService.BindingTimeout,
+                callerCancellation: callerCancellation,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
+                    if (callerCancellation.IsCancellationRequested || cancelToken.IsCancellationRequested)
+                    {
+                        return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    }
+
                     return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);
                 },
                 timeoutOperation: (bindingContext) =>
@@ -110,6 +140,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 });
             return queueItem;
+        }
+
+        private static bool WaitForQueueItem(QueueItem queueItem)
+        {
+            int waitTimeoutMs = LanguageService.BindingTimeout + QueueItemWaitTimeoutBufferMs;
+            if (queueItem.Completed.Wait(waitTimeoutMs))
+            {
+                return true;
+            }
+
+            Logger.Warning($"CreateCompletions timed out waiting for binding queue item completion after {waitTimeoutMs} ms.");
+            return false;
         }
 
         private static bool ShouldShowCompletionList(Token token)
@@ -142,7 +184,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             ScriptDocumentInfo scriptDocumentInfo,
             MetadataDisplayInfoProvider metadataDisplayInfoProvider)
         {
+            int currentRequestCount = Interlocked.Increment(ref parserCompletionRequestCount);
+            if (currentRequestCount > CompletionRequestStallThreshold)
+            {
+                Logger.Warning($"CreateCompletionsFromSqlParser is configured to stall indefinitely for testing after {CompletionRequestStallThreshold} requests via {CompletionRequestStallEnvVar}. Current request count: {currentRequestCount}.");
+                Thread.Sleep(Timeout.Infinite);
+            }
             AutoCompletionResult result = new AutoCompletionResult();
+
             IEnumerable<Declaration> suggestions = SqlParserWrapper.FindCompletions(
                 scriptParseInfo.ParseResult,
                 scriptDocumentInfo.ParserLine,

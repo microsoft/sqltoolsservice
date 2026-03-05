@@ -97,9 +97,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private object parseMapLock = new object();
 
-        private ScriptParseInfo currentCompletionParseInfo;
+        private volatile ScriptParseInfo currentCompletionParseInfo;
 
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+
+        /// <summary>
+        /// Per-URI cancellation for in-flight completion requests.
+        /// When a new completion request arrives for the same URI, the previous one is cancelled.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _pendingCompletionRequests = new();
+
+        /// <summary>
+        /// Per-URI cancellation for debouncing UpdateLanguageServiceOnConnection calls.
+        /// Rapid connect/disconnect/reconnect events for the same URI are coalesced.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _pendingConnectionUpdates = new();
+
+        private const int ConnectionUpdateDebounceMs = 200;
+        private const int ParseThreadJoinTimeoutMs = 30000;
 
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -438,10 +453,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         scriptFile.ClientUri,
                         out connInfo);
                 }
-                var completionItems = await GetCompletionItems(
-                    textDocumentPosition, scriptFile, connInfo);
 
-                await requestContext.SendResult(completionItems);
+                // Cancel any previous in-flight completion request for this URI
+                var uri = scriptFile.ClientUri;
+                var newCts = new CancellationTokenSource();
+                if (_pendingCompletionRequests.TryGetValue(uri, out var oldCts))
+                {
+                    try { oldCts.Cancel(); } catch (ObjectDisposedException) { }
+                }
+                _pendingCompletionRequests[uri] = newCts;
+
+                try
+                {
+                    var completionItems = await GetCompletionItems(
+                        textDocumentPosition, scriptFile, connInfo, newCts.Token);
+
+                    if (newCts.IsCancellationRequested)
+                    {
+                        await requestContext.SendResult(Array.Empty<CompletionItem>());
+                        return;
+                    }
+
+                    await requestContext.SendResult(completionItems);
+                }
+                finally
+                {
+                    if (_pendingCompletionRequests.TryGetValue(uri, out var currentCts)
+                        && ReferenceEquals(currentCts, newCts))
+                    {
+                        _pendingCompletionRequests.TryRemove(uri, out _);
+                    }
+
+                    newCts.Dispose();
+                }
             }
         }
 
@@ -484,7 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (scriptFile != null)
                 {
                     isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
-                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                    definitionResult = await GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 }
 
                 if (definitionResult != null && !definitionResult.IsErrorResult)
@@ -687,12 +731,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Start task asynchronously without blocking main thread - this is by design.
             // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
             // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-            Task.Factory.StartNew(async () =>
-            {
-                await DoHandleRebuildIntellisenseNotification(rebuildParams, eventContext);
-            }, CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.Default);
+            Task.Run(() => DoHandleRebuildIntellisenseNotification(rebuildParams, eventContext))
+                .ContinueWithOnFaulted(null);
 
             return Task.CompletedTask;
         }
@@ -733,7 +773,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
                             RemoveScriptParseInfo(rebuildParams.OwnerUri);
-                            await UpdateLanguageServiceOnConnection(connInfo);
                         }
                         catch (Exception ex)
                         {
@@ -744,6 +783,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // Set Metadata Build event to Signal state.
                             Monitor.Exit(scriptInfo.BuildingMetadataLock);
                         }
+
+                        await UpdateLanguageServiceOnConnection(connInfo);
 
                         // if not in the preview window and diagnostics are enabled then run diagnostics
                         if (!IsPreviewWindow(scriptFile)
@@ -898,12 +939,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="filePath"></param>
         /// <param name="sqlText"></param>
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
-        public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+        public async Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
-            return Task.Run(() =>
+            return await Task.Run(() =>
             {
                 if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
@@ -931,7 +972,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                             }, ConnectedBindingQueue.QueueThreadStackSize);
                             parseThread.Start();
-                            parseThread.Join();
+                            if (!parseThread.Join(ParseThreadJoinTimeoutMs))
+                            {
+                                Logger.Warning($"ParseAndBind: parse thread did not complete within {ParseThreadJoinTimeoutMs} ms");
+                            }
                         }
                         else
                         {
@@ -975,7 +1019,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     return null;
                                 });
 
-                            queueItem.ItemProcessed.WaitOne();
+                            WaitForQueueItemSync(queueItem, LanguageService.BindingTimeout, "ParseAndBind");
                         }
                     }
                     catch (Exception ex)
@@ -1008,7 +1052,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Start task asynchronously without blocking main thread - this is by design.
             // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
             // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-            Task.Factory.StartNew(() => UpdateLanguageServiceOnConnection(info));
+
+            // Debounce: cancel any pending update for this URI to prevent rapid connect/disconnect/reconnect
+            // from spawning multiple concurrent AddConnectionContext calls
+            var newCts = new CancellationTokenSource();
+            if (_pendingConnectionUpdates.TryGetValue(info.OwnerUri, out var oldCts))
+            {
+                try { oldCts.Cancel(); } catch (ObjectDisposedException) { }
+            }
+            _pendingConnectionUpdates[info.OwnerUri] = newCts;
+            var token = newCts.Token;
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(ConnectionUpdateDebounceMs, token);
+                    await UpdateLanguageServiceOnConnection(info);
+                }
+                catch (TaskCanceledException)
+                {
+                    return; // superseded by a newer connection event
+                }
+                finally
+                {
+                    if (_pendingConnectionUpdates.TryGetValue(info.OwnerUri, out var currentCts)
+                        && ReferenceEquals(currentCts, newCts))
+                    {
+                        _pendingConnectionUpdates.TryRemove(info.OwnerUri, out _);
+                    }
+
+                    newCts.Dispose();
+                }
+            }).ContinueWithOnFaulted(null);
             return Task.CompletedTask;
         }
 
@@ -1043,11 +1119,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Monitor.Exit(scriptInfo.BuildingMetadataLock);
                 }
             }
-            await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue).ContinueWith(async _ =>
+
+            try
+            {
+                await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
+            }
+            finally
             {
                 // Send a notification to signal that autocomplete is ready
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
-            });
+            }
         }
 
 
@@ -1073,73 +1154,72 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return;
                 }
 
-                await ParseAndBind(scriptFile, info).ContinueWith(t =>
+                await ParseAndBind(scriptFile, info);
+
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
-                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                    try
                     {
-                        try
-                        {
-                            QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                                key: scriptInfo.ConnectionKey,
-                                bindingTimeout: PrepopulateBindTimeout,
-                                waitForLockTimeout: PrepopulateBindTimeout,
-                                bindOperation: (bindingContext, cancelToken) =>
+                        QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            key: scriptInfo.ConnectionKey,
+                            bindingTimeout: PrepopulateBindTimeout,
+                            waitForLockTimeout: PrepopulateBindTimeout,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {
+                                // parse a simple statement that returns common metadata
+                                ParseResult parseResult = Parser.Parse(
+                                    "select ",
+                                    bindingContext.ParseOptions);
+                                if (bindingContext.IsConnected && bindingContext.Binder != null)
                                 {
-                                    // parse a simple statement that returns common metadata
-                                    ParseResult parseResult = Parser.Parse(
-                                        "select ",
+                                    List<ParseResult> parseResults = new List<ParseResult>();
+                                    parseResults.Add(parseResult);
+                                    bindingContext.Binder.Bind(
+                                        parseResults,
+                                        info.ConnectionDetails.DatabaseName,
+                                        BindMode.Batch);
+
+                                    // get the completion list from SQL Parser
+                                    var suggestions = Resolver.FindCompletions(
+                                        parseResult, 1, 8,
+                                        bindingContext.MetadataDisplayInfoProvider);
+
+                                    // this forces lazy evaluation of the suggestion metadata
+                                    AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+
+                                    parseResult = Parser.Parse(
+                                        "exec ",
                                         bindingContext.ParseOptions);
-                                    if (bindingContext.IsConnected && bindingContext.Binder != null)
-                                    {
-                                        List<ParseResult> parseResults = new List<ParseResult>();
-                                        parseResults.Add(parseResult);
-                                        bindingContext.Binder.Bind(
-                                            parseResults,
-                                            info.ConnectionDetails.DatabaseName,
-                                            BindMode.Batch);
 
-                                        // get the completion list from SQL Parser
-                                        var suggestions = Resolver.FindCompletions(
-                                            parseResult, 1, 8,
-                                            bindingContext.MetadataDisplayInfoProvider);
+                                    parseResults = new List<ParseResult>();
+                                    parseResults.Add(parseResult);
+                                    bindingContext.Binder.Bind(
+                                        parseResults,
+                                        info.ConnectionDetails.DatabaseName,
+                                        BindMode.Batch);
 
-                                        // this forces lazy evaluation of the suggestion metadata
-                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+                                    // get the completion list from SQL Parser
+                                    suggestions = Resolver.FindCompletions(
+                                        parseResult, 1, 6,
+                                        bindingContext.MetadataDisplayInfoProvider);
 
-                                        parseResult = Parser.Parse(
-                                            "exec ",
-                                            bindingContext.ParseOptions);
+                                    // this forces lazy evaluation of the suggestion metadata
+                                    AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                }
+                                return null;
+                            });
 
-                                        parseResults = new List<ParseResult>();
-                                        parseResults.Add(parseResult);
-                                        bindingContext.Binder.Bind(
-                                            parseResults,
-                                            info.ConnectionDetails.DatabaseName,
-                                            BindMode.Batch);
-
-                                        // get the completion list from SQL Parser
-                                        suggestions = Resolver.FindCompletions(
-                                            parseResult, 1, 6,
-                                            bindingContext.MetadataDisplayInfoProvider);
-
-                                        // this forces lazy evaluation of the suggestion metadata
-                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
-                                    }
-                                    return null;
-                                });
-
-                            queueItem.ItemProcessed.WaitOne();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error("Exception in PrepopulateCommonMetadata " + ex.ToString());
-                        }
-                        finally
-                        {
-                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
-                        }
+                        WaitForQueueItemSync(queueItem, PrepopulateBindTimeout, "PrepopulateCommonMetadata");
                     }
-                });
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Exception in PrepopulateCommonMetadata " + ex.ToString());
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    }
+                }
             }
         }
 
@@ -1198,7 +1278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
-            var scriptParseInfo = currentCompletionParseInfo;
+            var scriptParseInfo = Volatile.Read(ref currentCompletionParseInfo);
             if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
                 if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
@@ -1222,7 +1302,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 return completionItem;
                             });
 
-                        queueItem.ItemProcessed.WaitOne();
+                        if (!WaitForQueueItemSync(queueItem, LanguageService.BindingTimeout, "ResolveCompletionItem"))
+                        {
+                            return completionItem;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -1292,9 +1375,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 });
 
             // wait for the queue item
-            queueItem.ItemProcessed.WaitOne();
+            if (!WaitForQueueItemSync(queueItem, LanguageService.PeekDefinitionTimeout, "PeekDefinition"))
+            {
+                return new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionTimedoutError,
+                    Locations = null
+                };
+            }
+
             var result = queueItem.GetResultAsT<DefinitionResult>();
-            return result;
+            return result ?? new DefinitionResult
+            {
+                IsErrorResult = true,
+                Message = SR.PeekDefinitionTimedoutError,
+                Locations = null
+            };
         }
 
         private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
@@ -1352,7 +1449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal async Task<DefinitionResult> GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -1363,7 +1460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
-                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo).GetAwaiter().GetResult();
+                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, connInfo);
             }
 
             // Get token from selected text
@@ -1504,7 +1601,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         endColumn);
                             });
 
-                        queueItem.ItemProcessed.WaitOne();
+                        if (!WaitForQueueItemSync(queueItem, LanguageService.HoverTimeout, "GetHoverItem"))
+                        {
+                            return null;
+                        }
+
                         return queueItem.GetResultAsT<Hover>();
                     }
                     finally
@@ -1589,7 +1690,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     return null;
                                 }
                             });
-                        queueItem.ItemProcessed.WaitOne();
+                        if (!WaitForQueueItemSync(queueItem, LanguageService.BindingTimeout, "GetSignatureHelp"))
+                        {
+                            return null;
+                        }
+
                         Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
@@ -1617,8 +1722,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public async Task<CompletionItem[]> GetCompletionItems(
             TextDocumentPosition textDocumentPosition,
             ScriptFile scriptFile,
-            ConnectionInfo connInfo)
+            ConnectionInfo connInfo,
+            CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Array.Empty<CompletionItem>();
+            }
+
             // initialize some state to parse and bind the current script file
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
@@ -1641,6 +1752,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 await ParseAndBind(scriptFile, connInfo);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return Array.Empty<CompletionItem>();
+                }
             }
 
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
@@ -1653,9 +1769,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
                 return resultCompletionItems;
             }
-            AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+            AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions, cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Array.Empty<CompletionItem>();
+            }
+
             // cache the current script parse info object to resolve completions later
-            this.currentCompletionParseInfo = scriptParseInfo;
+            Volatile.Write(ref this.currentCompletionParseInfo, scriptParseInfo);
             resultCompletionItems = result.CompletionItems;
             
             /*
@@ -1680,6 +1802,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return resultCompletionItems;
+        }
+
+        /// <summary>
+        /// Waits for a queue item to complete with a timeout, logging a warning on timeout.
+        /// </summary>
+        private static async Task<bool> WaitForQueueItemAsync(QueueItem queueItem, int timeoutMs, string operationName)
+        {
+            int effectiveTimeout = timeoutMs <= 0
+                ? timeoutMs
+                : timeoutMs + OneSecond;
+
+            if (await Task.WhenAny(queueItem.Completed, Task.Delay(effectiveTimeout)) == queueItem.Completed)
+            {
+                return true;
+            }
+
+            Logger.Warning($"{operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
+            return false;
+        }
+
+        /// <summary>
+        /// Synchronous version of WaitForQueueItemAsync for methods that cannot be made async
+        /// (e.g. ResolveCompletionItem, GetHoverItem, GetDefinition).
+        /// Uses a bounded wait instead of indefinite WaitOne().
+        /// </summary>
+        private static bool WaitForQueueItemSync(QueueItem queueItem, int timeoutMs, string operationName)
+        {
+            int effectiveTimeout = timeoutMs <= 0
+                ? timeoutMs
+                : timeoutMs + OneSecond;
+
+            if (queueItem.Completed.Wait(effectiveTimeout))
+            {
+                return true;
+            }
+
+            Logger.Warning($"{operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
+            return false;
         }
 
         /// <summary>
@@ -1830,15 +1990,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // If there's an existing task, attempt to cancel it
             try
             {
-                if (existingRequestCancellation != null)
+                var newCts = new CancellationTokenSource();
+                var oldCts = Interlocked.Exchange(ref existingRequestCancellation, newCts);
+                if (oldCts != null)
                 {
-                    // Try to cancel the request
-                    existingRequestCancellation.Cancel();
-
-                    // If cancellation didn't throw an exception,
-                    // clean up the existing token
-                    existingRequestCancellation.Dispose();
-                    existingRequestCancellation = null;
+                    oldCts.Cancel();
+                    oldCts.Dispose();
                 }
             }
             catch (Exception e)
@@ -1853,7 +2010,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Create a fresh cancellation token and then start the task.
             // We create this on a different TaskScheduler so that we
             // don't block the main message loop thread.
-            existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
                     this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
@@ -2097,6 +2253,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
+            foreach (var entry in _pendingCompletionRequests)
+            {
+                try { entry.Value.Cancel(); } catch (ObjectDisposedException) { }
+                entry.Value.Dispose();
+            }
+            _pendingCompletionRequests.Clear();
+
+            foreach (var entry in _pendingConnectionUpdates)
+            {
+                try { entry.Value.Cancel(); } catch (ObjectDisposedException) { }
+                entry.Value.Dispose();
+            }
+            _pendingConnectionUpdates.Clear();
+
+            var diagnosticsCts = Interlocked.Exchange(ref existingRequestCancellation, null);
+            if (diagnosticsCts != null)
+            {
+                try { diagnosticsCts.Cancel(); } catch (ObjectDisposedException) { }
+                diagnosticsCts.Dispose();
+            }
+
             if (bindingQueue != null)
             {
                 bindingQueue.Dispose();

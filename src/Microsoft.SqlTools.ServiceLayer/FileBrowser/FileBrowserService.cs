@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     /// </summary>
     public sealed class FileBrowserService: IDisposable
     {
+        private const int QueueItemWaitTimeoutBufferMs = 1000;
         private static readonly Lazy<FileBrowserService> LazyInstance = new Lazy<FileBrowserService>(() => new FileBrowserService());
         public static FileBrowserService Instance => LazyInstance.Value;
 
@@ -194,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    WaitForQueueItem(queueItem, DefaultTimeout, "RunFileBrowserCloseTask");
                     if (queueItem.GetResultAsT<FileBrowserCloseResponse>() != null)
                     {
                         result = queueItem.GetResultAsT<FileBrowserCloseResponse>();
@@ -265,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    WaitForQueueItem(queueItem, DefaultTimeout, "RunFileBrowserOpenTask");
 
                     if (queueItem.GetResultAsT<FileBrowserOpenedParams>() != null)
                     {
@@ -309,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    WaitForQueueItem(queueItem, DefaultTimeout, "RunFileBrowserExpandTask");
 
                     if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
                     {
@@ -357,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    WaitForQueueItem(queueItem, DefaultTimeout, "RunFileBrowserValidateTask");
 
                     if (queueItem.GetResultAsT<FileBrowserValidatedParams>() != null)
                     {
@@ -375,6 +376,21 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
 
             await requestContext.SendEvent(FileBrowserValidatedNotification.Type, result);
+        }
+
+        private static bool WaitForQueueItem(QueueItem queueItem, int timeoutMs, string operationName)
+        {
+            int effectiveTimeout = timeoutMs <= 0
+                ? timeoutMs
+                : timeoutMs + QueueItemWaitTimeoutBufferMs;
+
+            if (queueItem.Completed.Wait(effectiveTimeout))
+            {
+                return true;
+            }
+
+            Logger.Warning($"{operationName} timed out waiting for binding queue item completion after {effectiveTimeout} ms.");
+            return false;
         }
     }
 }

@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -15,13 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>    
     public class QueueItem
     {
-        /// <summary>
-        /// QueueItem constructor
-        /// </summary>
-        public QueueItem()
-        {
-            this.ItemProcessed = new ManualResetEvent(initialState: false);
-        }
+        private readonly TaskCompletionSource<object> _completionSource =
+            new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         /// <summary>
         /// Gets or sets the queue item key
@@ -46,9 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public Func<Exception, object> ErrorHandler { get; set; }
 
         /// <summary>
-        /// Gets or sets an event to signal when this queue item has been processed
+        /// Gets the task that completes when this queue item has been processed.
+        /// Use <see cref="SignalCompleted"/> to mark the item as done.
         /// </summary>
-        public virtual ManualResetEvent ItemProcessed { get; set; } 
+        public Task Completed => _completionSource.Task;
+
+        /// <summary>
+        /// Signals that processing of this queue item is complete.
+        /// Safe to call multiple times — only the first call has any effect.
+        /// </summary>
+        public void SignalCompleted() => _completionSource.TrySetResult(null);
 
         /// <summary>
         /// Gets or sets the result of the queued task
@@ -66,11 +69,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public int? WaitForLockTimeout { get; set; }
 
         /// <summary>
+        /// Optional cancellation token from the caller (e.g. superseded completion request).
+        /// When signalled before dispatch, the queue processor can skip this item entirely.
+        /// </summary>
+        public CancellationToken CallerCancellation { get; set; } = CancellationToken.None;
+
+        /// <summary>
         /// Converts the result of the execution to type T
         /// </summary>
         public T? GetResultAsT<T>() where T : class
         {
-            //var task = this.ResultsTask;
             return (this.Result != null)
                 ? this.Result as T
                 : null;

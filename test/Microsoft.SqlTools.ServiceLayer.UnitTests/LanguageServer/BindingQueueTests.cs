@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                     return defaultReturnObject;
                 });
 
-            queueItem.ItemProcessed.WaitOne(10000);
+            queueItem.Completed.Wait(10000);
             
             this.bindingQueue.StopQueueProcessor(15000);
 

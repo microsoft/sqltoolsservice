@@ -214,15 +214,13 @@ GO";
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
         [Test]
-        public void GetDefinitionTimeoutTest()
+        public async Task GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
             var languageService = new LanguageService();
             Mock<ConnectedBindingQueue> queueMock = new Mock<ConnectedBindingQueue>();
             languageService.BindingQueue = queueMock.Object;
-            ManualResetEvent mre = new ManualResetEvent(true); // Do not block
-            Mock<QueueItem> itemMock = new Mock<QueueItem>();
-            itemMock.Setup(i => i.ItemProcessed).Returns(mre);
+            var queueItem = new QueueItem();
 
             DefinitionResult timeoutResult = null;
 
@@ -232,18 +230,20 @@ GO";
                 It.IsAny<Func<IBindingContext, object>>(),
                 It.IsAny<Func<Exception, object>>(),
                 It.IsAny<int?>(),
-                It.IsAny<int?>()))
-            .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, Func<Exception, object>, int?, int?>(
-                (key, bindOperation, timeoutOperation, errHandler, t1, t2) =>
+                It.IsAny<int?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, Func<Exception, object>, int?, int?, CancellationToken>(
+                (key, bindOperation, timeoutOperation, errHandler, t1, t2, ct) =>
                 {
                     if(timeoutOperation != null)
                     {
                         timeoutResult = (DefinitionResult)timeoutOperation(null);
                     }
                     
-                    itemMock.Object.Result = timeoutResult;
+                    queueItem.Result = timeoutResult;
+                    queueItem.SignalCompleted();
                 })
-            .Returns(() => itemMock.Object);
+            .Returns(() => queueItem);
 
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
@@ -263,7 +263,7 @@ GO";
 
             // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
             // before we want it to (this is testing the timeout trying to fetch the definitions after the parse)
-            var result = languageService.GetDefinition(textDocument, scriptFile, null);
+            var result = await languageService.GetDefinition(textDocument, scriptFile, null);
 
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
@@ -794,7 +794,7 @@ GO";
             service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
 
             // When I call the language service
-            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
+            var fnResult = await service.GetDefinition(fnDocument, scriptFile, connInfo);
             return fnResult;
         }
 
