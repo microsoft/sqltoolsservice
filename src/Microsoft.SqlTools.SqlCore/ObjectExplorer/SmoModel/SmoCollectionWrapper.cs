@@ -13,18 +13,20 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     /// <summary>
     /// Wrapper to convert non-generic Smo enumerables to generic enumerable types for easier use in 
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class SmoCollectionWrapper<T> : IEnumerable<T>
-        where T : SqlSmoObject
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TParent"></typeparam>
+    public class SmoCollectionWrapper<TObject, TParent> : IEnumerable<TObject>
+        where TObject : SqlSmoObject
+        where TParent : SqlSmoObject
     {
-        private SmoCollectionBase collection;
+        private SmoCollectionBase<TObject, TParent> collection;
 
         /// <summary>
         /// Constructor which accepts a <see cref="SmoCollectionBase"/> containing the objects
         /// to wrap 
         /// </summary>
         /// <param name="collection"><see cref="SmoCollectionBase"/> or null if none were set</param>
-        public SmoCollectionWrapper(SmoCollectionBase collection)
+        public SmoCollectionWrapper(SmoCollectionBase<TObject, TParent> collection)
         {
             this.collection = collection;
         }
@@ -33,7 +35,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// <see cref="IEnumerable{T}.GetEnumerator"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<TObject> GetEnumerator()
         {
             if (collection == null)
             {
@@ -41,7 +43,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
             foreach(Object obj in collection)
             {
-                yield return (T)obj;
+                yield return (TObject)obj;
             }
         }
 

@@ -3155,7 +3155,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         {
             get
             {
-                return new [] { typeof(SqlSubroutineParameterQuerier), };
+                return new [] { typeof(SqlStoredProcedureParameterQuerier), };
             }
         }
 
@@ -3308,7 +3308,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         {
             get
             {
-                return new [] { typeof(SqlSubroutineParameterQuerier), };
+                return new [] { typeof(SqlUserDefinedFunctionParameterQuerier), };
             }
         }
 
@@ -3461,7 +3461,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         {
             get
             {
-                return new [] { typeof(SqlSubroutineParameterQuerier), };
+                return new [] { typeof(SqlUserDefinedFunctionParameterQuerier), };
             }
         }
 
@@ -3542,7 +3542,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         {
             get
             {
-                return new [] { typeof(SqlSubroutineParameterQuerier), };
+                return new [] { typeof(SqlUserDefinedAggregateParameterQuerier), };
             }
         }
 
