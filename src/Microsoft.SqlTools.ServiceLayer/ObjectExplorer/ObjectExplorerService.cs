@@ -388,14 +388,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
+            return QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters);
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
+        internal async Task<ExpandResponse> QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
+            Task<ExpandResponse> queueTask = null;
 
             // Performance Optimization for table designer to load the database model earlier based on user configuration.
             if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
@@ -441,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 try
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
-                    QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                    queueTask = bindingQueue.QueueBindingOperationAsync<ExpandResponse>(
                            key: bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
@@ -505,12 +506,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return response;
                            });
                     Logger.Verbose($"Queuing binding operation for {nodePath}");
-                    queueItem.ItemProcessed.WaitOne();
-                    Logger.Verbose($"Done with binding operation for {nodePath}");
-                    if (queueItem.GetResultAsT<ExpandResponse>() != null)
-                    {
-                        response = queueItem.GetResultAsT<ExpandResponse>();
-                    }
                 }
                 catch
                 {
@@ -520,6 +515,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     Monitor.Exit(node.BuildingMetadataLock);
                 }
             }
+
+            if (queueTask != null)
+            {
+                response = await queueTask;
+                Logger.Verbose($"Done with binding operation for {nodePath}");
+            }
+
             return response;
         }
 
@@ -550,7 +552,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
 
                 int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
-                QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                var queueResult = await bindingQueue.QueueBindingOperationAsync<ObjectExplorerSession>(
                            key: bindingQueue.AddConnectionContext(connectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
@@ -566,10 +568,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return session;
                            });
 
-                queueItem.ItemProcessed.WaitOne();
-                if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
+                if (queueResult != null)
                 {
-                    session = queueItem.GetResultAsT<ObjectExplorerSession>();
+                    session = queueResult;
                 }
                 return session;
             }

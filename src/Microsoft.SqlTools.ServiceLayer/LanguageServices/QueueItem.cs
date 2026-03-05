@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -21,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public QueueItem()
         {
             this.ItemProcessed = new ManualResetEvent(initialState: false);
+            this.CompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         /// <summary>
@@ -49,6 +51,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets an event to signal when this queue item has been processed
         /// </summary>
         public virtual ManualResetEvent ItemProcessed { get; set; } 
+
+        /// <summary>
+        /// Gets an awaitable task that completes when this queue item has produced a result.
+        /// </summary>
+        public Task<object> CompletionTask => this.CompletionSource.Task;
+
+        /// <summary>
+        /// Completion source for this queue item. Internal so BindingQueue can complete it.
+        /// </summary>
+        internal TaskCompletionSource<object> CompletionSource { get; }
 
         /// <summary>
         /// Gets or sets the result of the queued task

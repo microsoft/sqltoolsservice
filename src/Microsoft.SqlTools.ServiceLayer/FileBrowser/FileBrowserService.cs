@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     this.fileBrowserQueue.ClearQueuedItems();
 
                     // Queue operation to clean up resources
-                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                    var queueResult = await fileBrowserQueue.QueueBindingOperationAsync<FileBrowserCloseResponse>(
                         key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
                         bindingTimeout: DefaultTimeout,
                         waitForLockTimeout: DefaultTimeout,
@@ -194,10 +194,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
-                    if (queueItem.GetResultAsT<FileBrowserCloseResponse>() != null)
+                    if (queueResult != null)
                     {
-                        result = queueItem.GetResultAsT<FileBrowserCloseResponse>();
+                        result = queueResult;
                     }
 
                     this.fileBrowserQueue.CloseConnections(connInfo.ConnectionDetails.ServerName, connInfo.ConnectionDetails.DatabaseName, DefaultTimeout);
@@ -224,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
                 if (connInfo != null)
                 {
-                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                    var queueResult = await fileBrowserQueue.QueueBindingOperationAsync<FileBrowserOpenedParams>(
                         key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
                         bindingTimeout: DefaultTimeout,
                         waitForLockTimeout: DefaultTimeout,
@@ -265,11 +264,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
-
-                    if (queueItem.GetResultAsT<FileBrowserOpenedParams>() != null)
+                    if (queueResult != null)
                     {
-                        result = queueItem.GetResultAsT<FileBrowserOpenedParams>();
+                        result = queueResult;
                     }
                 }
             }
@@ -296,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
                 if (operation != null && connInfo != null)
                 {
-                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                    var queueResult = await fileBrowserQueue.QueueBindingOperationAsync<FileBrowserExpandedParams>(
                         key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
                         bindingTimeout: DefaultTimeout,
                         waitForLockTimeout: DefaultTimeout,
@@ -309,11 +306,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
-
-                    if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
+                    if (queueResult != null)
                     {
-                        result = queueItem.GetResultAsT<FileBrowserExpandedParams>();
+                        result = queueResult;
                     }
                 }
             }
@@ -340,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     && fileBrowserParams.SelectedFiles != null
                     && fileBrowserParams.SelectedFiles.Length > 0)
                 {
-                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                    var queueResult = await fileBrowserQueue.QueueBindingOperationAsync<FileBrowserValidatedParams>(
                         key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
                         bindingTimeout: DefaultTimeout,
                         waitForLockTimeout: DefaultTimeout,
@@ -357,11 +352,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
-
-                    if (queueItem.GetResultAsT<FileBrowserValidatedParams>() != null)
+                    if (queueResult != null)
                     {
-                        result = queueItem.GetResultAsT<FileBrowserValidatedParams>();
+                        result = queueResult;
                     }
                 }
                 else

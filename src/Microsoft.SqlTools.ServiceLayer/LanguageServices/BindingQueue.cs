@@ -14,7 +14,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -114,6 +113,51 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.itemQueuedEvent.Set();
 
             return queueItem;
+        }
+
+        /// <summary>
+        /// Queue a binding request item and await its completion.
+        /// </summary>
+        public virtual Task<object> QueueBindingOperationAsync(
+            string key,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null)
+        {
+            QueueItem queueItem = QueueBindingOperation(
+                key,
+                bindOperation,
+                timeoutOperation,
+                errorHandler,
+                bindingTimeout,
+                waitForLockTimeout);
+
+            return queueItem.CompletionTask;
+        }
+
+        /// <summary>
+        /// Queue a binding request item and await a typed result.
+        /// </summary>
+        public virtual async Task<TResult> QueueBindingOperationAsync<TResult>(
+            string key,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null)
+            where TResult : class
+        {
+            object result = await QueueBindingOperationAsync(
+                key,
+                bindOperation,
+                timeoutOperation,
+                errorHandler,
+                bindingTimeout,
+                waitForLockTimeout);
+
+            return result as TResult;
         }
 
         /// <summary>
@@ -293,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
                         if (bindingContext == null)
                         {
-                            queueItem.ItemProcessed.Set();
+                            CompleteQueueItem(queueItem);
                             continue;
                         }
 
@@ -350,8 +394,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                        queueItem.ItemProcessed.Set();
+                        CompleteQueueItem(queueItem);
                     }
+
+                    return;
                 }
 
                 bindingContext.BindingLock.Reset();
@@ -398,12 +444,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 Task.Run(() =>
                 {
+                    bool queueItemCompleted = false;
+                    bool releaseLockWhenBindTaskCompletes = false;
                     try
                     {
                         // check if the binding tasks completed within the binding timeout                           
                         if (bindTask.Wait(bindTimeoutInMs))
                         {
                             queueItem.Result = result;
+                            CompleteQueueItem(queueItem);
+                            queueItemCompleted = true;
                         }
                         else
                         {
@@ -413,9 +463,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             {
                                 queueItem.Result = queueItem.TimeoutOperation(bindingContext);
                             }
-                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
-                            // Give the task a chance to complete before moving on to the next operation
-                            bindTask.Wait();
+
+                            // Return timeout result immediately while keeping per-context serialization.
+                            CompleteQueueItem(queueItem);
+                            queueItemCompleted = true;
+                            releaseLockWhenBindTaskCompletes = true;
+
+                            bindTask.ContinueWith(
+                                task =>
+                                {
+                                    try
+                                    {
+                                        if (task.IsFaulted && task.Exception != null)
+                                        {
+                                            Logger.Error("Binding queue threw exception " + task.Exception.ToString());
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        bindingContext.BindingLock.Set();
+                                    }
+                                },
+                                TaskContinuationOptions.RunContinuationsAsynchronously);
                         }
                     }
                     catch (Exception ex)
@@ -424,12 +493,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
+                        cancelToken.Dispose();
+
                         // set item processed to avoid deadlocks 
-                        if (lockTaken)
+                        if (lockTaken && !releaseLockWhenBindTaskCompletes)
                         {
                             bindingContext.BindingLock.Set();
                         }
-                        queueItem.ItemProcessed.Set();
+
+                        if (!queueItemCompleted)
+                        {
+                            CompleteQueueItem(queueItem);
+                        }
                     }
                 });
             }
@@ -443,8 +518,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bindingContext.BindingLock.Set();
                 }
-                queueItem.ItemProcessed.Set();
+                CompleteQueueItem(queueItem);
             }
+        }
+
+        private static void CompleteQueueItem(QueueItem queueItem)
+        {
+            queueItem.CompletionSource.TrySetResult(queueItem.Result);
+            queueItem.ItemProcessed.Set();
         }
 
         /// <summary>

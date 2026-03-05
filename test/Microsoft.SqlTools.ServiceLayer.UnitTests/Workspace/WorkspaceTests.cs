@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -254,6 +255,333 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
             Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"C:\myfile.sql"));
             Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"\\myfile.sql"));
         }
+
+        #region Windows File Path Tests
+
+        [Test]
+        public void GetFile_FileUriWithEncodedColon_ResolvesCorrectly()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                // Open with encoded colon (%3A) in drive letter
+                var file = workspace.GetFileBuffer("file:///c%3A/Users/dev/query.sql", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+            });
+        }
+
+        [Test]
+        public void GetFile_FileUriWithNormalColon_ResolvesCorrectly()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                var file = workspace.GetFileBuffer("file:///C:/Users/dev/query.sql", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+            });
+        }
+
+        [Test]
+        public void GetFile_EncodedAndNormalColon_ResolveSameKey()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+
+                // Open with encoded colon
+                workspace.GetFileBuffer("file:///c%3A/Users/dev/query.sql", contents);
+
+                // The same file opened with normal colon should resolve to the same entry
+                Assert.True(workspace.ContainsFile("file:///c:/Users/dev/query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_UntitledScheme_ReturnsBufferContents()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                var file = workspace.GetFileBuffer("untitled:Untitled-1", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+            });
+        }
+
+        [Test]
+        public void GetFile_UntitledScheme_GetFileReturnsNull()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                // GetFile (not GetFileBuffer) should return null for untitled files
+                // that haven't been opened via GetFileBuffer
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                var file = workspace.GetFile("untitled:Untitled-1");
+                Assert.Null(file);
+            });
+        }
+
+        [Test]
+        public void GetFile_GitScheme_ReturnsNull()
+        {
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            var file = workspace.GetFile("git:/myfile.sql");
+            Assert.Null(file);
+        }
+
+        [Test]
+        public void GetFile_SpacesInPath_EncodedUri()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                var file = workspace.GetFileBuffer("file:///C:/My%20Project/query.sql", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+            });
+        }
+
+        [Test]
+        public void GetFile_HashInPath_EncodedUri()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                var file = workspace.GetFileBuffer("file:///C:/C%23Project/query.sql", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+
+                // Should be retrievable with the same URI
+                Assert.True(workspace.ContainsFile("file:///C:/C%23Project/query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_QuestionMarkInPath_EncodedUri()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                var file = workspace.GetFileBuffer("file:///C:/what%3F/query.sql", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+
+                Assert.True(workspace.ContainsFile("file:///C:/what%3F/query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_BracketsInPath()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+                var file = workspace.GetFileBuffer("file:///C:/dev/[backup]/query.sql", contents);
+                Assert.NotNull(file);
+                Assert.AreEqual(contents, file.Contents);
+            });
+        }
+
+        [Test]
+        public void GetFile_DriveLetterPath_NoUriScheme()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                // GetScheme should return null for a Windows drive path
+                Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"C:\Users\dev\query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_UncPath_NoUriScheme()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"\\server\share\query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_CaseInsensitiveKey()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+
+                // Open with uppercase path
+                workspace.GetFileBuffer("file:///C:/Users/Dev/Query.sql", contents);
+
+                // Should find it with lowercase key (LowercaseClientUri)
+                Assert.True(workspace.ContainsFile("file:///c:/users/dev/query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_EscapedVsUnescapedUri_ResolveSameKey()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                string contents = "SELECT 1";
+
+                // Open with encoded spaces
+                workspace.GetFileBuffer("file:///C:/My%20Project/query.sql", contents);
+
+                // Should resolve to the same key when using unencoded spaces
+                Assert.True(workspace.ContainsFile("file:///C:/My Project/query.sql"));
+            });
+        }
+
+        [Test]
+        public void ContainsFile_ReturnsFalse_WhenFileNotOpened()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                Assert.False(workspace.ContainsFile("file:///C:/nonexistent/query.sql"));
+            });
+        }
+
+        [Test]
+        public void GetFile_BacktickEscapedBrackets_Unescaped()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                // Backtick-escaped brackets should be unescaped by UnescapePath
+                string escaped = @"`[backup`]";
+                string unescaped = ServiceLayer.Workspace.Workspace.UnescapePath(escaped);
+                Assert.AreEqual("[backup]", unescaped);
+            });
+        }
+
+        [Test]
+        public void GetFile_BacktickEscapedSpaces_Unescaped()
+        {
+            // Backtick-escaped spaces should be unescaped
+            string escaped = @"path`/to` file";
+            string unescaped = ServiceLayer.Workspace.Workspace.UnescapePath(escaped);
+            // Only backticks before [ ] and space are removed
+            Assert.False(unescaped.Contains("`"));
+        }
+
+        [Test]
+        public void GetFile_NoBackticks_PathUnchanged()
+        {
+            string path = @"C:\Users\dev\query.sql";
+            string result = ServiceLayer.Workspace.Workspace.UnescapePath(path);
+            Assert.AreEqual(path, result);
+        }
+
+        [Test]
+        public async Task HandleDidOpenAndClose_FileUri_WindowsPath()
+        {
+            await RunIfWrapperAsync(async () =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
+                string uri = "file:///C:/Users/dev/query.sql";
+
+                // Open
+                var openParams = new DidOpenTextDocumentNotification
+                {
+                    TextDocument = new TextDocumentItem { Uri = uri, Text = "SELECT 1" }
+                };
+                await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
+                Assert.True(workspace.ContainsFile(uri));
+
+                // Close
+                var closeParams = new DidCloseTextDocumentParams
+                {
+                    TextDocument = new TextDocumentItem { Uri = uri }
+                };
+                await workspaceService.HandleDidCloseTextDocumentNotification(closeParams, eventContext: null);
+                Assert.False(workspace.ContainsFile(uri));
+            });
+        }
+
+        [Test]
+        public async Task HandleDidOpen_GitScheme_IgnoredOnWindows()
+        {
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
+
+            var openParams = new DidOpenTextDocumentNotification
+            {
+                TextDocument = new TextDocumentItem { Uri = "git:/C:/repo/file.sql", Text = "SELECT 1" }
+            };
+            await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
+
+            Assert.False(workspace.ContainsFile("git:/C:/repo/file.sql"));
+        }
+
+        [Test]
+        [TestCase("file:///C:/path/file.sql")]
+        [TestCase("file:///c%3A/path/file.sql")]
+        [TestCase("file:///C:/path%20with%20spaces/file.sql")]
+        [TestCase("file:///C:/C%23Project/file.sql")]
+        [TestCase("file:///C:/what%3F/file.sql")]
+        [TestCase("file:///C:/dev/[backup]/file.sql")]
+        public void WorkspaceContainsFile_Windows(string uri)
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                workspace.GetFileBuffer(uri, "SELECT 1");
+                Assert.True(workspace.ContainsFile(uri));
+            });
+        }
+
+        [Test]
+        public void GetScheme_WindowsDrivePath_ReturnsNull()
+        {
+            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"C:\myfile.sql"));
+            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"D:\folder\myfile.sql"));
+            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"\\server\share\myfile.sql"));
+        }
+
+        [Test]
+        public void GetScheme_FileUri_ReturnsFile()
+        {
+            Assert.AreEqual("file", ServiceLayer.Workspace.Workspace.GetScheme("file:///C:/path/file.sql"));
+        }
+
+        [Test]
+        public void GetScheme_UntitledUri_ReturnsUntitled()
+        {
+            Assert.AreEqual("untitled", ServiceLayer.Workspace.Workspace.GetScheme("untitled:Untitled-1"));
+        }
+
+        [Test]
+        public void GetScheme_GitUri_ReturnsGit()
+        {
+            Assert.AreEqual("git", ServiceLayer.Workspace.Workspace.GetScheme("git:/path/file.sql"));
+        }
+
+        /// <summary>
+        /// Helper for async tests that should only run on Windows
+        /// </summary>
+        private static async Task RunIfWrapperAsync(Func<Task> test)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                await test();
+            }
+        }
+
+        #endregion
 
     }
 }

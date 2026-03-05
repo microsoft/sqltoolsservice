@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -27,6 +28,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
         void Dispose();
         QueueItem QueueBindingOperation(
+            string key,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null);
+
+        Task<object> QueueBindingOperationAsync(
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,

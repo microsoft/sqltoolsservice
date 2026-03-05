@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -51,30 +52,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// <summary>
         /// Creates a completion list given connection and document info
         /// </summary>
-        public AutoCompletionResult CreateCompletions(
+        public async Task<AutoCompletionResult> CreateCompletionsAsync(
             ConnectionInfo connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
         {
             AutoCompletionResult result = new AutoCompletionResult();
+            Task<AutoCompletionResult> queueTask = null;
+
             // check if the file is connected and the file lock is available
             if (scriptDocumentInfo.ScriptParseInfo.IsConnected && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
             {
                 try
                 {
-                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
-
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-                    var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
-                    if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
-                    {
-                        result = completionResult;
-                    }
-                    else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
-                    {
-                        result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
-                    }
+                    queueTask = AddToQueueAsync(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 }
                 finally
                 {
@@ -82,17 +73,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 }
             }
 
+            if (queueTask != null)
+            {
+                var completionResult = await queueTask;
+                if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
+                {
+                    result = completionResult;
+                }
+                else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
+                {
+                    result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
+                }
+            }
+
             return result;
         }
 
-        private QueueItem AddToQueue(
+        private Task<AutoCompletionResult> AddToQueueAsync(
             ConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
         {
-            // queue the completion task with the binding queue    
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+            // queue the completion task with the binding queue
+            return this.BindingQueue.QueueBindingOperationAsync<AutoCompletionResult>(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: LanguageService.BindingTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
@@ -109,7 +113,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     // return the default list if an unexpected exception occurs
                     return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 });
-            return queueItem;
         }
 
         private static bool ShouldShowCompletionList(Token token)

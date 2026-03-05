@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -24,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     {
         // Disable flaky test (mairvine - 3/15/2018)
         // [Test]
-        public void CompletionItemsShouldCreatedUsingSqlParserIfTheProcessDoesNotTimeout()
+        public async Task CompletionItemsShouldCreatedUsingSqlParserIfTheProcessDoesNotTimeout()
         {
             ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
             ScriptDocumentInfo docInfo = CreateScriptDocumentInfo();
@@ -40,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 It.IsAny<IMetadataDisplayInfoProvider>())).Returns(declarations);
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
-            AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+            AutoCompletionResult result = await completionService.CreateCompletionsAsync(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
             var count = result.CompletionItems == null ? 0 : result.CompletionItems.Length;
 
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Test]
-        public void CompletionItemsShouldCreatedUsingDefaultListIfTheSqlParserProcessTimesout()
+        public async Task CompletionItemsShouldCreatedUsingDefaultListIfTheSqlParserProcessTimesout()
         {
             ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
             ScriptDocumentInfo docInfo = CreateScriptDocumentInfo();
@@ -63,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(LanguageService.BindingTimeout + 100)).Returns(declarations);
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
-            AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+            AutoCompletionResult result = await completionService.CreateCompletionsAsync(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
             Assert.AreEqual(result.CompletionItems.Length, defaultCompletionList.Length);
             Thread.Sleep(3000);
