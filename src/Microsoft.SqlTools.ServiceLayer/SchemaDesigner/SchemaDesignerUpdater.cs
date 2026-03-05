@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (!updatedSchema.Tables.Any(t => t.Id == sourceTable.Id))
                 {
-                    // Get schema designer before dropping
+                    // Get schema designer before dropping otherwise drops don't register correctly in the report
                     var tableDesigner = schemaDesigner.GetTableDesigner(sourceTable.Schema, sourceTable.Name);
                     // Mark for drop in designer
                     schemaDesigner.TablesMarkedForDrop.Add([sourceTable.Schema, sourceTable.Name]);
