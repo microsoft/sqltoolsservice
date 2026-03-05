@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     public class PauseProfilingResult
     {
         /// <summary>
-        /// Indicates whether the profiler session is currently paused after the toggle operation
+        /// Indicates whether the event session is currently paused after the toggle operation
         /// </summary>
         public bool IsPaused { get; set; }
     }

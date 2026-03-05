@@ -143,10 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch { }
 
-                // create a new XEvent session and Profiler session, if it doesn't exist
+                // create a new Extended Events session if it doesn't exist
                 xeSession ??= this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
 
-                // start monitoring the profiler session
+                // start monitoring the event session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                 var result = new CreateXEventSessionResult();
@@ -172,10 +172,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 out connInfo);
             if (connInfo != null)
             {
-                // create a new XEvent session and Profiler session
+                // Get the Extended Events session
                 var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
 
-                // start monitoring the profiler session
+                // start monitoring the event session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                 var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
@@ -338,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Gets an XEvent session with the given name per the IXEventSessionFactory contract.
+        /// Gets an Extended Events session with the given name per the IXEventSessionFactory contract.
         /// Uses XELite's XELiveEventStreamer for push-based event delivery.
         /// Also starts the session if it isn't currently running.
         /// </summary>
@@ -362,9 +362,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var liveSession = new LiveStreamXEventSession(
                 connectionString,
                 sessionName,
-                new SessionId(session.ID.ToString()),
-                maxReconnectAttempts: ProfilerConstants.DefaultMaxReconnectAttempts,
-                reconnectDelay: ProfilerConstants.DefaultReconnectDelay);
+                new SessionId(session.ID.ToString()));
 
             // Set the SMO session for target XML retrieval
             liveSession.Session = session;
@@ -374,7 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Creates and starts an XEvent session with the given name and create statement per the IXEventSessionFactory contract
+        /// Creates and starts an Extended Events session with the given name and create statement per the IXEventSessionFactory contract
         /// </summary>
         public IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo)
         {
@@ -405,9 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var liveSession = new LiveStreamXEventSession(
                 connectionString,
                 sessionName,
-                new SessionId(session.ID.ToString()),
-                maxReconnectAttempts: ProfilerConstants.DefaultMaxReconnectAttempts,
-                reconnectDelay: ProfilerConstants.DefaultReconnectDelay);
+                new SessionId(session.ID.ToString()));
 
             // Set the session for session management
             liveSession.Session = session;
@@ -432,11 +428,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Callback when the XEvent session is closed unexpectedly
+        /// Callback when the Extended Events session is closed unexpectedly
         /// </summary>
         public void SessionStopped(string viewerId, SessionId sessionId, string errorMessage)
         {
-            // notify the client that their session closed
+            // notify the client that their event session closed
             this.ServiceHost.SendEvent(
                 ProfilerSessionStoppedNotification.Type,
                 new ProfilerSessionStoppedParams()
@@ -448,11 +444,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Callback when a new session is created
+        /// Callback when a new event session is created
         /// </summary>
         public void SessionCreatedNotification(string viewerId, string sessionName, string templateName)
         {
-            // pass the profiler events on to the client
+            // notify the client that the event session was created
             this.ServiceHost.SendEvent(
                 ProfilerSessionCreatedNotification.Type,
                 new ProfilerSessionCreatedParams()

@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
@@ -108,6 +109,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 return false;
             }
 
+            // Compare column order by IDs
+            var sourceColumnOrder = table.Columns.Select(column => column.Id);
+            var targetColumnOrder = otherTable.Columns.Select(column => column.Id);
+            if (!sourceColumnOrder.SequenceEqual(targetColumnOrder))
+            {
+                return false;
+            }
+
             // Ensure every column in the first table has a matching column in the second table
             foreach (var column in table.Columns)
             {
@@ -177,8 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             // Compare basic properties
             if (fk.Id != otherFk.Id ||
                 fk.Name != otherFk.Name ||
-                !string.Equals(fk.ReferencedSchemaName, otherFk.ReferencedSchemaName, StringComparison.OrdinalIgnoreCase) ||
-                !string.Equals(fk.ReferencedTableName, otherFk.ReferencedTableName, StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(fk.ReferencedTableId, otherFk.ReferencedTableId, StringComparison.OrdinalIgnoreCase) ||
                 fk.OnDeleteAction != otherFk.OnDeleteAction ||
                 fk.OnUpdateAction != otherFk.OnUpdateAction)
             {
@@ -187,34 +195,34 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
 
             // Validate column collections
-            if (fk.Columns == null || otherFk.Columns == null ||
-                fk.ReferencedColumns == null || otherFk.ReferencedColumns == null)
+            if (fk.ColumnsIds == null || otherFk.ColumnsIds == null ||
+                fk.ReferencedColumnsIds == null || otherFk.ReferencedColumnsIds == null)
             {
                 // Both should be null to be equal
-                return (fk.Columns == otherFk.Columns) && (fk.ReferencedColumns == otherFk.ReferencedColumns);
+                return (fk.ColumnsIds == otherFk.ColumnsIds) && (fk.ReferencedColumnsIds == otherFk.ReferencedColumnsIds);
             }
 
             // Compare column counts
-            if (fk.Columns.Count != otherFk.Columns.Count ||
-                fk.ReferencedColumns.Count != otherFk.ReferencedColumns.Count)
+            if (fk.ColumnsIds.Count != otherFk.ColumnsIds.Count ||
+                fk.ReferencedColumnsIds.Count != otherFk.ReferencedColumnsIds.Count)
             {
                 return false;
             }
 
 
             // Compare columns (order matters in foreign keys)
-            for (int i = 0; i < fk.Columns.Count; i++)
+            for (int i = 0; i < fk.ColumnsIds.Count; i++)
             {
-                if (!string.Equals(fk.Columns[i], otherFk.Columns[i], StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(fk.ColumnsIds[i], otherFk.ColumnsIds[i], StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
             }
 
             // Compare referenced columns (order matters in foreign keys)
-            for (int i = 0; i < fk.ReferencedColumns.Count; i++)
+            for (int i = 0; i < fk.ReferencedColumnsIds.Count; i++)
             {
-                if (!string.Equals(fk.ReferencedColumns[i], otherFk.ReferencedColumns[i], StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(fk.ReferencedColumnsIds[i], otherFk.ReferencedColumnsIds[i], StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }

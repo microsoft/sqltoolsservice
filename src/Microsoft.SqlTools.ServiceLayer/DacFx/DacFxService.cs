@@ -403,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 var codeAnalysisService = factory.CreateAnalysisService(model);
                 var rules = codeAnalysisService.GetRules();
 
-                var ruleInfos = rules.Select(r => new Contracts.SqlCodeAnalysisRule
+                var ruleInfos = rules.Select(r => new CodeAnalysisRuleInfo
                 {
                     RuleId = r.RuleId,
                     ShortRuleId = r.ShortRuleId,

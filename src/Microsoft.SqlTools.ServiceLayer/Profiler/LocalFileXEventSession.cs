@@ -152,10 +152,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private Task OnEventRead(IXEvent xEvent)
         {
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, ProfilerConstants.ToInvariantString(xEvent.Timestamp));
             foreach (var kvp in xEvent.Fields)
             {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+                profileEvent.Values.Add(kvp.Key, ProfilerConstants.ToInvariantString(kvp.Value));
             }
             // Add the XE 'actions'.
             if(xEvent.Actions != null)
@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // Append a postfix to avoid duplicate keys while keeping the data.
                         key += " (action)";
                     }
-                    profileEvent.Values.Add(key, kvp.Value.ToString());
+                    profileEvent.Values.Add(key, ProfilerConstants.ToInvariantString(kvp.Value));
                 }
             }
             CurrentObservers.ForEach(o => o.OnNext(profileEvent));
