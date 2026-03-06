@@ -113,5 +113,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var w6 = new DbColumnWrapper(new TestColumn("my_hieracrchy", null, null, "MICROSOFT.SQLSERVER.TYPES.SQLHIERARCHYID"));
             Assert.True(w6.IsUdt);
         }
+
+        /// <summary>
+        /// Tests that the native JSON data type (SQL Server 2025+) is treated as a character
+        /// type rather than binary, so it displays as readable text instead of hex.
+        /// </summary>
+        [Test]
+        public void NativeJsonTypeIsCharsNotBytes()
+        {
+            var wrapper = new DbColumnWrapper(new TestColumn("json"));
+
+            Assert.True(wrapper.IsChars, "Native JSON column should be a chars type");
+            Assert.True(wrapper.IsLong == true, "Native JSON column should be long");
+            Assert.False(wrapper.IsBytes, "Native JSON column should not be a bytes type");
+            Assert.False(wrapper.IsUdt, "Native JSON column should not be treated as a UDT");
+        }
+
+        [Test]
+        public void NativeJsonTypeSqlDbTypeIsNVarChar()
+        {
+            var wrapper = new DbColumnWrapper(new TestColumn("json"));
+
+            Assert.AreEqual(System.Data.SqlDbType.NVarChar, wrapper.SqlDbType,
+                "Native JSON column should map to NVarChar so it is read back as text");
+        }
     }
 }
