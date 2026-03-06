@@ -289,3 +289,4 @@ docs/metadata
 
 # Designer Files
 *.Designer.cs
+.claude/ 
