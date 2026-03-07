@@ -1702,6 +1702,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return resultCompletionItems;
             }
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+
+            // A newer request may have cancelled us while we were in CreateCompletions.
+            // Bail out so we don't overwrite currentCompletionParseInfo with stale data.
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
