@@ -51,11 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         protected TextDocumentPosition textDocument;
 
-        protected virtual LanguageService CreateLanguageService()
-        {
-            return new LanguageService();
-        }
-
         protected void InitializeTestObjects()
         {
             // initial cursor position in the script file
@@ -87,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(this.testConnectionKey);
 
-            langService = CreateLanguageService();
+            langService = new LanguageService();
             // inject mock instances into the Language Service
             langService.WorkspaceServiceInstance = workspaceService.Object;
             langService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
