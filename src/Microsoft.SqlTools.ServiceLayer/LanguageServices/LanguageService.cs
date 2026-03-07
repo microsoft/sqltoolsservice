@@ -447,6 +447,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // check if Intellisense suggestions are enabled
             if (ShouldSkipIntellisense(scriptFile.ClientUri))
             {
+                Logger.Verbose($"Skipping completion request for {scriptFile.ClientUri} because intellisense is disabled or file is non-MSSQL");
                 await requestContext.SendResult(null);
                 return;
             }
@@ -900,6 +901,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var oldCts = Interlocked.Exchange(ref completionRequestCancellation, newCts);
             if (oldCts != null)
             {
+                Logger.Verbose("Cancelling previous completion request");
                 oldCts.Cancel();
                 oldCts.Dispose();
             }
@@ -1677,6 +1679,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocInfo);
+                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no ScriptParseInfo was found");
                 return resultCompletionItems;
             }
 
@@ -1684,10 +1687,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 await ParseAndBind(scriptFile, connInfo);
+                Logger.Verbose($"Reparsed script for {scriptFile.ClientUri} in GetCompletionItems");
             }
 
             if (cancellationToken.IsCancellationRequested)
             {
+                Logger.Verbose($"Cancellation requested for {scriptFile.ClientUri} in GetCompletionItems");
                 return null;
             }
 
@@ -1699,6 +1704,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
+                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as parse result was null");
                 return resultCompletionItems;
             }
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
@@ -1707,6 +1713,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Bail out so we don't overwrite currentCompletionParseInfo with stale data.
             if (cancellationToken.IsCancellationRequested)
             {
+                Logger.Verbose($"Cancellation requested for {scriptFile.ClientUri} in GetCompletionItems after CreateCompletions");
                 return null;
             }
 
@@ -1721,6 +1728,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
+                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no completions were found");
             }
 
             return resultCompletionItems;

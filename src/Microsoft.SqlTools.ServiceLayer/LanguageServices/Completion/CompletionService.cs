@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 {
@@ -66,6 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
+                    Logger.Verbose($"Finished processing completion request for {connInfo.OwnerUri} in CompletionService.CreateCompletions");
                     var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
                     if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                     {
@@ -81,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     Monitor.Exit(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock);
                 }
             }
-
+            Logger.Verbose($"Sending completion result for {connInfo.OwnerUri} in CompletionService.CreateCompletions");
             return result;
         }
 
@@ -168,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
                 if (starExpansionSuggestion != null)
                 {
-                    completionList = [.. completionList, ..starExpansionSuggestion];
+                    completionList = [.. starExpansionSuggestion, .. completionList];
                 }
             }
 
