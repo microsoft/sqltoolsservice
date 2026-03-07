@@ -10798,6 +10798,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
         }
 
+        public static string StarExpansionLabel(string starExpression)
+        {
+            return Keys.GetString(Keys.StarExpansionLabel, starExpression);
+        }
+
+        public static string StarExpansionDescription(string starExpression, string columnCount, string columnPreview)
+        {
+            return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
+        }
+
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
         {
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
@@ -11273,6 +11283,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
+
+
+            public const string StarExpansionLabel = "StarExpansionLabel";
+
+
+            public const string StarExpansionDescription = "StarExpansionDescription";
 
 
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
