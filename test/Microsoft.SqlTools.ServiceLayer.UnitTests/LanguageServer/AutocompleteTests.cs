@@ -5,7 +5,12 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Threading;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -39,6 +44,88 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             InitializeTestObjects();
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleCompletionResolveRequest(null, null));
+        }
+
+        [Test]
+        public void HandleCompletionResolveRequest_DoesNotBlockDispatcherWhileBindingCompletes()
+        {
+            InitializeTestObjects();
+            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+
+            scriptParseInfo.CurrentSuggestions = System.Array.Empty<Declaration>();
+            var currentCompletionParseInfoField = typeof(LanguageService).GetField(
+                "currentCompletionParseInfo",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            currentCompletionParseInfoField.SetValue(langService, scriptParseInfo);
+
+            var bindingWorkStarted = new ManualResetEventSlim(initialState: false);
+            var allowBindingWorkToFinish = new ManualResetEventSlim(initialState: false);
+            bindingQueue.Setup(q => q.QueueBindingOperation(
+                    It.IsAny<string>(),
+                    It.IsAny<System.Func<IBindingContext, CancellationToken, object>>(),
+                    It.IsAny<System.Func<IBindingContext, object>>(),
+                    It.IsAny<System.Func<System.Exception, object>>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>()))
+                .Returns((
+                    string key,
+                    System.Func<IBindingContext, CancellationToken, object> bindOperation,
+                    System.Func<IBindingContext, object> timeoutOperation,
+                    System.Func<System.Exception, object> errorHandler,
+                    int? bindingTimeout,
+                    int? waitForLockTimeout) =>
+                {
+                    var queueItem = new QueueItem();
+                    Task.Run(() =>
+                    {
+                        bindingWorkStarted.Set();
+                        allowBindingWorkToFinish.Wait(TaskTimeout);
+                        queueItem.Result = bindOperation(new ConnectedBindingContext(), CancellationToken.None);
+                        queueItem.ItemProcessed.Set();
+                    });
+                    return queueItem;
+                });
+
+            var resolveRequestContext = new Mock<RequestContext<CompletionItem>>();
+            CompletionItem resolvedItem = null;
+            string errorMessage = null;
+            var resultSent = new ManualResetEventSlim(initialState: false);
+            resolveRequestContext.Setup(rc => rc.SendResult(It.IsAny<CompletionItem>()))
+                .Returns<CompletionItem>(result =>
+                {
+                    resolvedItem = result;
+                    resultSent.Set();
+                    return Task.FromResult(0);
+                });
+            resolveRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+                .Returns<string, int, string>((message, errorCode, data) =>
+                {
+                    errorMessage = message;
+                    resultSent.Set();
+                    return Task.FromResult(0);
+                });
+            resolveRequestContext.Setup(rc => rc.SendError(It.IsAny<System.Exception>()))
+                .Returns<System.Exception>(exception =>
+                {
+                    errorMessage = exception.Message;
+                    resultSent.Set();
+                    return Task.FromResult(0);
+                });
+
+            var completionItem = new CompletionItem { Label = "select" };
+
+            var handleTask = langService.HandleCompletionResolveRequest(completionItem, resolveRequestContext.Object);
+
+            Assert.True(handleTask.Wait(1000), "Expected completion resolve handler to return without waiting for binding work");
+            Assert.True(bindingWorkStarted.Wait(TaskTimeout), "Expected background completion resolve work to start");
+            Assert.False(resultSent.IsSet, "Expected completion resolve result to wait for the background binding work");
+
+            allowBindingWorkToFinish.Set();
+
+            Assert.True(resultSent.Wait(TaskTimeout), "Expected completion resolve result to be sent after the background binding work completed");
+            Assert.IsNull(errorMessage);
+            Assert.AreSame(completionItem, resolvedItem);
+            resolveRequestContext.Verify(rc => rc.SendResult(It.IsAny<CompletionItem>()), Times.Once());
         }
 
         [Test]
@@ -257,6 +344,88 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void TryGetSqlSelectStarStatementNullFileTest()
         {
             Assert.Null(AutoCompleteHelper.TryGetSelectStarStatement(null, null), "null is not returned on null file");
+        }
+
+        [Test]
+        public void CreateStarExpansionCompletionItem_UsesSnippetPresentation()
+        {
+            CompletionItem completionItem = AutoCompleteHelper.CreateStarExpansionCompletionItem(
+                "*",
+                "[BusinessEntityID], [PersonType], [NameStyle], [Title]",
+                new List<string>
+                {
+                    "[BusinessEntityID]",
+                    "[PersonType]",
+                    "[NameStyle]",
+                    "[Title]"
+                },
+                line: 0,
+                startCharacter: 7,
+                endCharacter: 8);
+
+            Assert.AreEqual("Expand *", completionItem.Label);
+            Assert.AreEqual("Replace with 4 columns: [BusinessEntityID], [PersonType], [NameStyle], ...", completionItem.Detail);
+            Assert.AreEqual(CompletionItemKind.Snippet, completionItem.Kind);
+            Assert.AreEqual("*", completionItem.FilterText);
+            Assert.True(completionItem.Preselect);
+            Assert.AreEqual("[BusinessEntityID], [PersonType], [NameStyle], [Title]", completionItem.InsertText);
+            Assert.AreEqual(completionItem.InsertText, completionItem.TextEdit.NewText);
+            StringAssert.StartsWith("Expands * into:" + Environment.NewLine, completionItem.Documentation);
+        }
+
+        [Test]
+        public void CreateStarExpansionInsertText_WithTrailingSql_UsesMultilineFormat()
+        {
+            string insertText = AutoCompleteHelper.CreateStarExpansionInsertText(
+                "select * from sys.all_objects",
+                line: 0,
+                startCharacter: 7,
+                endCharacter: 9,
+                columnNames: new List<string>
+                {
+                    "[BusinessEntityID]",
+                    "[PersonType]",
+                    "[NameStyle]"
+                });
+
+            Assert.AreEqual(
+                "[BusinessEntityID]," + Environment.NewLine +
+                "       [PersonType]," + Environment.NewLine +
+                "       [NameStyle]" + Environment.NewLine,
+                insertText);
+        }
+
+        [Test]
+        public void CreateStarExpansionInsertText_WithoutTrailingSql_UsesIndentedMultilineFormat()
+        {
+            string insertText = AutoCompleteHelper.CreateStarExpansionInsertText(
+                "select *",
+                line: 0,
+                startCharacter: 7,
+                endCharacter: 8,
+                columnNames: new List<string>
+                {
+                    "[BusinessEntityID]",
+                    "[PersonType]",
+                    "[NameStyle]"
+                });
+
+            Assert.AreEqual(
+                "[BusinessEntityID]," + Environment.NewLine +
+                "       [PersonType]," + Environment.NewLine +
+                "       [NameStyle]",
+                insertText);
+        }
+
+        [Test]
+        public void GetStarExpansionReplacementEndCharacter_WithTrailingSql_ConsumesFollowingWhitespace()
+        {
+            int replacementEndCharacter = AutoCompleteHelper.GetStarExpansionReplacementEndCharacter(
+                "select * from sys.all_objects",
+                line: 0,
+                endCharacter: 8);
+
+            Assert.AreEqual(9, replacementEndCharacter);
         }
 
         [Test]

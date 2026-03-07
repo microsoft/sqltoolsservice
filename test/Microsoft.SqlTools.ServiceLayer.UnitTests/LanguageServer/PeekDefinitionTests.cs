@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -122,6 +123,71 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             // Expected not to throw any exception
             LanguageService.Instance.DeletePeekDefinitionScripts();
+        }
+
+        [Test]
+        public async Task GetPeekDefinitionTempFolder_IsThreadSafe()
+        {
+            string originalPeekDefinitionTempFolder = FileUtilities.PeekDefinitionTempFolder;
+            bool originalPeekDefinitionTempFolderCreated = FileUtilities.PeekDefinitionTempFolderCreated;
+            string testPeekDefinitionTempFolder = Path.Combine(Path.GetTempPath(), $"mssql_definition_test_{Guid.NewGuid():N}");
+
+            FileUtilities.PeekDefinitionTempFolder = testPeekDefinitionTempFolder;
+            FileUtilities.PeekDefinitionTempFolderCreated = false;
+
+            try
+            {
+                Task<string>[] tempFolderTasks = new Task<string>[8];
+                for (int i = 0; i < tempFolderTasks.Length; i++)
+                {
+                    tempFolderTasks[i] = Task.Run(FileUtilities.GetPeekDefinitionTempFolder);
+                }
+
+                string[] tempFolders = await Task.WhenAll(tempFolderTasks);
+
+                Assert.True(FileUtilities.PeekDefinitionTempFolderCreated);
+                Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
+                Assert.AreEqual(tempFolders[0], FileUtilities.PeekDefinitionTempFolder);
+                StringAssert.StartsWith(testPeekDefinitionTempFolder + "_", tempFolders[0]);
+
+                for (int i = 1; i < tempFolders.Length; i++)
+                {
+                    Assert.AreEqual(tempFolders[0], tempFolders[i]);
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(FileUtilities.PeekDefinitionTempFolder))
+                {
+                    FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+                }
+
+                FileUtilities.PeekDefinitionTempFolder = originalPeekDefinitionTempFolder;
+                FileUtilities.PeekDefinitionTempFolderCreated = originalPeekDefinitionTempFolderCreated;
+            }
+        }
+
+        [Test]
+        public void CreateFileName_ReturnsUniqueNamePerRequest()
+        {
+            MethodInfo createFileNameMethod = typeof(Scripter).GetMethod("CreateFileName", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.NotNull(createFileNameMethod);
+
+            var identifier = new Sql3PartIdentifier
+            {
+                DatabaseName = "master",
+                SchemaName = "dbo",
+                ObjectName = "testTable"
+            };
+
+            string firstFileName = (string)createFileNameMethod.Invoke(null, new object[] { identifier });
+            string secondFileName = (string)createFileNameMethod.Invoke(null, new object[] { identifier });
+
+            Assert.AreNotEqual(firstFileName, secondFileName);
+            StringAssert.StartsWith("master.dbo.testTable_", firstFileName);
+            StringAssert.StartsWith("master.dbo.testTable_", secondFileName);
+            StringAssert.EndsWith(".sql", firstFileName);
+            StringAssert.EndsWith(".sql", secondFileName);
         }
 
         /// <summary>
