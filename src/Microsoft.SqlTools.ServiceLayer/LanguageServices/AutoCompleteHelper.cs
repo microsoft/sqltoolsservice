@@ -931,8 +931,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return new CompletionItem
             {
                 InsertText = insertText,
-                Label = $"Expand {starExpressionSql}",
-                Detail = CreateStarExpansionDetail(columnNames),
+                Label = SR.StarExpansionLabel(starExpressionSql),
+                Detail = CreateStarExpansionDetail(starExpressionSql, columnNames),
                 Documentation = $"Expands {starExpressionSql} into:{Environment.NewLine}{insertText}",
                 Kind = CompletionItemKind.Snippet,
                 /*
@@ -974,14 +974,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return hasTrailingContent ? insertText + newLine : insertText;
         }
 
-        private static string CreateStarExpansionDetail(IList<string> columnNames)
+        private static string CreateStarExpansionDetail(string starExpressionSql, IList<string> columnNames)
         {
             int previewCount = Math.Min(columnNames.Count, 3);
             string preview = String.Join(", ", columnNames.Take(previewCount));
             string suffix = columnNames.Count > previewCount ? ", ..." : string.Empty;
-            string columnLabel = columnNames.Count == 1 ? "column" : "columns";
 
-            return $"Replace with {columnNames.Count} {columnLabel}: {preview}{suffix}";
+            return SR.StarExpansionDescription(starExpressionSql, columnNames.Count.ToString(), preview + suffix);
         }
 
         private static string GetDocumentNewLine(string contents)

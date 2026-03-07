@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -278,8 +279,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 startCharacter: 7,
                 endCharacter: 8);
 
-            Assert.AreEqual("Expand *", completionItem.Label);
-            Assert.AreEqual("Replace with 4 columns: [BusinessEntityID], [PersonType], [NameStyle], ...", completionItem.Detail);
+            Assert.AreEqual(SR.StarExpansionLabel("*"), completionItem.Label);
+            Assert.AreEqual(SR.StarExpansionDescription("*", "4", "[BusinessEntityID], [PersonType], [NameStyle], ..."), completionItem.Detail);
             Assert.AreEqual(CompletionItemKind.Snippet, completionItem.Kind);
             Assert.AreEqual("*", completionItem.FilterText);
             Assert.True(completionItem.Preselect);
