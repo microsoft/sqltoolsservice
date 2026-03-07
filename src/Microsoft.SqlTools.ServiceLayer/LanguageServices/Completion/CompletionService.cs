@@ -159,24 +159,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 scriptDocumentInfo.StartColumn,
                 scriptDocumentInfo.EndColumn,
                 scriptDocumentInfo.TokenText);
-            /*
-             Expanding star expressions in query only when the script is connected to a database
-             as the parser requires a connection to determine column names
-            */
-            if (connInfo != null)
-            {
-                CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
-                if (starExpansionSuggestion != null)
-                {
-
-                    CompletionItem[] starExpansionSuggestions =
-                    AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
-                    if (starExpansionSuggestions?.Length > 0)
-                    {
-                        completionList = [.. starExpansionSuggestions, .. completionList];
-                    }
-                }
-            }
 
             result.CompleteResult(completionList);
 

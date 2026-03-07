@@ -5,12 +5,7 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Reflection;
-using System.Threading;
-using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -262,88 +257,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void TryGetSqlSelectStarStatementNullFileTest()
         {
             Assert.Null(AutoCompleteHelper.TryGetSelectStarStatement(null, null), "null is not returned on null file");
-        }
-
-        [Test]
-        public void CreateStarExpansionCompletionItem_UsesSnippetPresentation()
-        {
-            CompletionItem completionItem = AutoCompleteHelper.CreateStarExpansionCompletionItem(
-                "*",
-                "[BusinessEntityID], [PersonType], [NameStyle], [Title]",
-                new List<string>
-                {
-                    "[BusinessEntityID]",
-                    "[PersonType]",
-                    "[NameStyle]",
-                    "[Title]"
-                },
-                line: 0,
-                startCharacter: 7,
-                endCharacter: 8);
-
-            Assert.AreEqual("Expand *", completionItem.Label);
-            Assert.AreEqual("Replace with 4 columns: [BusinessEntityID], [PersonType], [NameStyle], ...", completionItem.Detail);
-            Assert.AreEqual(CompletionItemKind.Snippet, completionItem.Kind);
-            Assert.AreEqual("*", completionItem.FilterText);
-            Assert.True(completionItem.Preselect);
-            Assert.AreEqual("[BusinessEntityID], [PersonType], [NameStyle], [Title]", completionItem.InsertText);
-            Assert.AreEqual(completionItem.InsertText, completionItem.TextEdit.NewText);
-            StringAssert.StartsWith("Expands * into:" + Environment.NewLine, completionItem.Documentation);
-        }
-
-        [Test]
-        public void CreateStarExpansionInsertText_WithTrailingSql_UsesMultilineFormat()
-        {
-            string insertText = AutoCompleteHelper.CreateStarExpansionInsertText(
-                "select * from sys.all_objects",
-                line: 0,
-                startCharacter: 7,
-                endCharacter: 9,
-                columnNames: new List<string>
-                {
-                    "[BusinessEntityID]",
-                    "[PersonType]",
-                    "[NameStyle]"
-                });
-
-            Assert.AreEqual(
-                "[BusinessEntityID]," + Environment.NewLine +
-                "       [PersonType]," + Environment.NewLine +
-                "       [NameStyle]" + Environment.NewLine,
-                insertText);
-        }
-
-        [Test]
-        public void CreateStarExpansionInsertText_WithoutTrailingSql_UsesIndentedMultilineFormat()
-        {
-            string insertText = AutoCompleteHelper.CreateStarExpansionInsertText(
-                "select *",
-                line: 0,
-                startCharacter: 7,
-                endCharacter: 8,
-                columnNames: new List<string>
-                {
-                    "[BusinessEntityID]",
-                    "[PersonType]",
-                    "[NameStyle]"
-                });
-
-            Assert.AreEqual(
-                "[BusinessEntityID]," + Environment.NewLine +
-                "       [PersonType]," + Environment.NewLine +
-                "       [NameStyle]",
-                insertText);
-        }
-
-        [Test]
-        public void GetStarExpansionReplacementEndCharacter_WithTrailingSql_ConsumesFollowingWhitespace()
-        {
-            int replacementEndCharacter = AutoCompleteHelper.GetStarExpansionReplacementEndCharacter(
-                "select * from sys.all_objects",
-                line: 0,
-                endCharacter: 8);
-
-            Assert.AreEqual(9, replacementEndCharacter);
         }
 
         [Test]

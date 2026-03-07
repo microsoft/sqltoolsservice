@@ -896,122 +896,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
-            int startCharacter = selectStarExpression.StartLocation.ColumnNumber - 1;
-            int endCharacter = selectStarExpression.EndLocation.ColumnNumber - 1;
-            int replacementEndCharacter = GetStarExpansionReplacementEndCharacter(
-                scriptDocumentInfo.Contents,
-                scriptDocumentInfo.StartLine,
-                endCharacter);
-
+            var insertText = String.Join(String.Format(",{0}", Environment.NewLine), columnNames.ToArray()); // Adding a new line after every column name
             var completionItems = new CompletionItem[] {
-                CreateStarExpansionCompletionItem(
-                    selectStarExpression.Sql,
-                    CreateStarExpansionInsertText(
-                        scriptDocumentInfo.Contents,
-                        scriptDocumentInfo.StartLine,
-                        startCharacter,
-                        replacementEndCharacter,
-                        columnNames),
-                    columnNames,
-                    scriptDocumentInfo.StartLine,
-                    startCharacter,
-                    replacementEndCharacter)
-            };
-            return completionItems;
-        }
-
-        internal static CompletionItem CreateStarExpansionCompletionItem(
-            string starExpressionSql,
-            string insertText,
-            IList<string> columnNames,
-            int line,
-            int startCharacter,
-            int endCharacter)
-        {
-            return new CompletionItem
-            {
-                InsertText = insertText,
-                Label = $"Expand {starExpressionSql}",
-                Detail = CreateStarExpansionDetail(columnNames),
-                Documentation = $"Expands {starExpressionSql} into:{Environment.NewLine}{insertText}",
-                Kind = CompletionItemKind.Snippet,
-                /*
-                Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
-                Therefore adding an explicit filterText that contains the original star expression to trick vscode/ADS into showing this suggestion item. 
-                */
-                FilterText = starExpressionSql,
-                Preselect = true,
-                TextEdit = new TextEdit {
-                    NewText = insertText,
-                    Range = new Range {
-                        Start = new Position{
-                            Line = line,
-                            Character = startCharacter
-                        },
-                        End = new Position {
-                            Line = line,
-                            Character = endCharacter
+                new CompletionItem
+                {
+                    InsertText = insertText,
+                    Label = insertText,
+                    Detail = insertText,
+                    Kind = CompletionItemKind.Text,
+                    /*
+                    Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
+                    Therefore adding an explicit filterText that contains the original star expression to trick vscode/ADS into showing this suggestion item. 
+                    */
+                    FilterText = selectStarExpression.Sql,
+                    Preselect = true,
+                    TextEdit = new TextEdit {
+                        NewText = insertText,
+                        Range = new Range {
+                            Start = new Position{
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.StartLocation.ColumnNumber - 1
+                            },
+                            End = new Position {
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.EndLocation.ColumnNumber - 1
+                            }
                         }
                     }
                 }
             };
-        }
-
-        internal static string CreateStarExpansionInsertText(
-            string contents,
-            int line,
-            int startCharacter,
-            int endCharacter,
-            IList<string> columnNames)
-        {
-            string lineText = GetLineText(contents, line);
-            bool hasTrailingContent = endCharacter < lineText.Length;
-
-            string newLine = GetDocumentNewLine(contents);
-            string continuationIndent = new string(' ', Math.Max(startCharacter, 0));
-            string insertText = String.Join($",{newLine}{continuationIndent}", columnNames);
-
-            return hasTrailingContent ? insertText + newLine : insertText;
-        }
-
-        private static string CreateStarExpansionDetail(IList<string> columnNames)
-        {
-            int previewCount = Math.Min(columnNames.Count, 3);
-            string preview = String.Join(", ", columnNames.Take(previewCount));
-            string suffix = columnNames.Count > previewCount ? ", ..." : string.Empty;
-            string columnLabel = columnNames.Count == 1 ? "column" : "columns";
-
-            return $"Replace with {columnNames.Count} {columnLabel}: {preview}{suffix}";
-        }
-
-        private static string GetDocumentNewLine(string contents)
-        {
-            return contents != null && contents.Contains("\r\n") ? "\r\n" : "\n";
-        }
-
-        internal static int GetStarExpansionReplacementEndCharacter(string contents, int line, int endCharacter)
-        {
-            string lineText = GetLineText(contents, line);
-            int replacementEndCharacter = Math.Max(endCharacter, 0);
-
-            while (replacementEndCharacter < lineText.Length && char.IsWhiteSpace(lineText[replacementEndCharacter]))
-            {
-                replacementEndCharacter++;
-            }
-
-            return replacementEndCharacter;
-        }
-
-        private static string GetLineText(string contents, int line)
-        {
-            if (string.IsNullOrEmpty(contents) || line < 0)
-            {
-                return string.Empty;
-            }
-
-            string normalizedContents = contents.Replace("\r\n", "\n");
-            string[] lines = normalizedContents.Split('\n');
-            return line < lines.Length ? lines[line] : string.Empty;
+            return completionItems;
         }
 
         public static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
