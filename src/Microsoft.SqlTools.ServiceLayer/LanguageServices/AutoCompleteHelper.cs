@@ -985,7 +985,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static string GetDocumentNewLine(string contents)
         {
-            return contents != null && contents.Contains("\r\n") ? "\r\n" : "\n";
+            if (contents != null && contents.Contains("\r\n"))
+            {
+                return "\r\n";
+            }
+            if (contents != null && contents.Contains("\n"))
+            {
+                return "\n";
+            }
+            return Environment.NewLine;
         }
 
         internal static int GetStarExpansionReplacementEndCharacter(string contents, int line, int endCharacter)
