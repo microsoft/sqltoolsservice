@@ -7063,6 +7063,18 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Fetching query rows timed out.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="StarExpansionLabel">
+        <source>Expand {0}</source>
+        <target state="new">Expand {0}</target>
+        <note>.
+ Parameters: 0 - starExpression (string) </note>
+      </trans-unit>
+      <trans-unit id="StarExpansionDescription">
+        <source>Replace {0} with {1} columns: {2}</source>
+        <target state="new">Replace {0} with {1} columns: {2}</target>
+        <note>.
+ Parameters: 0 - starExpression (string), 1 - columnCount (string), 2 - columnPreview (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
