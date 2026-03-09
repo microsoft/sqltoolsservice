@@ -255,34 +255,40 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
-            // Safe for parallel dispatch: signature help only uses request-local inputs.
-            // Same-document metadata work is serialized below this layer by ScriptParseInfo locks and the binding queue.
+            // Returns signature help for the current cursor position.
+            // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
             serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch: hover reads request-local document state.
-            // Same-document metadata work is serialized below this layer by ScriptParseInfo locks and the binding queue.
+            // Returns hover details for the current token.
+            // Parallel safe because it reads request-local state and shared metadata access is already serialized.
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest, isParallelProcessingSupported: true);
 
+            // Resolves extra metadata for a selected completion item.
+            // Parallel safe because it only reads the current completion snapshot.
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch: a new completion request cancels any previous in-flight
-            // completion, preventing a stale result from overwriting currentCompletionParseInfo.
+            // Returns completions at the current cursor position.
+            // Parallel safe because newer requests cancel older ones before stale completion state can win.
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch: peek-definition now scripts into unique per-request temp files under a thread-safe shared temp folder.
+            // Resolves definition locations for the token under the cursor.
+            // Parallel safe because each request uses its own temp script path and request-local state.
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch: syntax parse only parses request text and does not mutate LanguageService state.
+            // Parses request text and returns syntax diagnostics.
+            // Parallel safe because it only operates on request-local text and does not mutate LanguageService state.
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch across different URIs. Same-URI rebuild work is serialized explicitly by uriAsyncLocks.
+            // Rebuilds IntelliSense metadata for a document.
+            // Parallel safe because same-URI rebuilds are serialized explicitly by uriAsyncLocks.
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch across different URIs because language-flavor transitions are serialized per URI
-            // before they can mutate nonMssqlUriMap or trigger intellisense rebuilds.
+            // Updates whether a document should use MSSQL language services.
+            // Parallel safe because same-URI flavor transitions are serialized before shared state is updated.
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification, isParallelProcessingSupported: true);
 
-            // Safe for parallel dispatch: token refresh only updates connection/token state backed by concurrent collections.
+            // Updates connection state after an auth token refresh completes.
+            // Parallel safe because it only updates connection info token.
             serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
 
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
@@ -1711,6 +1717,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as parse result was null");
                 return resultCompletionItems;
             }
+
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
 
             // A newer request may have cancelled us while we were in CreateCompletions.
