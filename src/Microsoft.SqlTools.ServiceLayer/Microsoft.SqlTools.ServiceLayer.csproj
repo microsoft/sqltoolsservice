@@ -82,6 +82,8 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="System.Runtime.Caching" />
     <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.Threading.Channels" />
     <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
       <Aliases>ASAScriptDom</Aliases>
     </PackageReference>
