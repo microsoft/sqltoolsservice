@@ -571,6 +571,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         await requestContext.SendResult(new SignatureHelp());
                     }
                 }
+                else
+                {
+                    await requestContext.SendResult(null);
+                }
             }
         }
 
