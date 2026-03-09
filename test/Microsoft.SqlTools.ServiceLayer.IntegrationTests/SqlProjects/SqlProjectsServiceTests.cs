@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -1268,6 +1269,93 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             scriptsMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially opened for a list of files");
+        }
+
+        [Test]
+        [TestCase(ProjectType.LegacyStyle)]
+        [TestCase(ProjectType.SdkStyle)]
+        public async Task TestSetProjectProperties(ProjectType projectType)
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject(projectType);
+
+            // Set multiple properties in a single call
+            MockRequest<ResultStatus> setMock = new();
+            await service.HandleSetProjectPropertiesRequest(new SetProjectPropertiesParams()
+            {
+                ProjectUri = projectUri,
+                Properties = new Dictionary<string, string>()
+                {
+                    { "DatabaseSource",  "TestSource" },
+                    { "Description",     "Test project description" },
+                }
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
+
+            // Reload the project and verify values were written
+            service.Projects.Clear();
+            SqlProject project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
+            Assert.AreEqual("TestSource", project.Properties.DatabaseSource, "DatabaseSource should match the value set via SetProjectProperties");
+            Assert.AreEqual("Test project description", project.Properties.GetProperty("Description"), "Description should match the value set via SetProjectProperties");
+
+            // Overwrite a single property; other properties should be unaffected
+            setMock = new();
+            await service.HandleSetProjectPropertiesRequest(new SetProjectPropertiesParams()
+            {
+                ProjectUri = projectUri,
+                Properties = new Dictionary<string, string>()
+                {
+                    { "Description", "Updated description" },
+                }
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
+
+            service.Projects.Clear();
+            project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
+            Assert.AreEqual("Updated description", project.Properties.GetProperty("Description"), "Description should reflect the updated value");
+            Assert.AreEqual("TestSource", project.Properties.DatabaseSource, "DatabaseSource should be unaffected by updating Description");
+        }
+
+        /// <summary>
+        /// Verifies the ProjectGuid special-case in HandleSetProjectPropertiesRequest:
+        /// because DacFx exposes ProjectGuid as an init-only field, the handler writes it
+        /// directly to the .sqlproj XML via SetReadOnlyPropertyInXml. This test confirms
+        /// the value round-trips correctly through a set → evict → reload sequence.
+        /// </summary>
+        [TestCase(ProjectType.LegacyStyle)]
+        [TestCase(ProjectType.SdkStyle)]
+        public async Task TestSetProjectPropertiesProjectGuid(ProjectType projectType)
+        {
+            const string expectedGuid = "{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}";
+
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject(projectType);
+
+            // Set ProjectGuid via the generic SetProjectProperties endpoint
+            MockRequest<ResultStatus> setMock = new();
+            await service.HandleSetProjectPropertiesRequest(new SetProjectPropertiesParams()
+            {
+                ProjectUri = projectUri,
+                Properties = new Dictionary<string, string>()
+                {
+                    { "ProjectGuid", expectedGuid },
+                }
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
+
+            // The handler evicts the project from cache; reload from disk to verify the XML was written
+            MockRequest<GetProjectPropertiesResult> getMock = new();
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.AreEqual(expectedGuid, getMock.Result.ProjectGuid,
+                "ProjectGuid should match the value written by SetProjectProperties");
         }
 
         #region Helpers
