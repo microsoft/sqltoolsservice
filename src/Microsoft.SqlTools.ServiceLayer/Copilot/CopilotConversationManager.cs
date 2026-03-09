@@ -230,6 +230,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 {
                     CartridgeExperience = CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat,
                     ContextSettings = new Dictionary<string, string>()
+                    {
+                        { SqlExecutionContextKeys.EnableAgentsMd, "no" }
+                    }
                 };
                 await _executionContext.LoadExecutionContextAsync(cartridgeContextSettings, sqlService!, CancellationToken.None);
 
