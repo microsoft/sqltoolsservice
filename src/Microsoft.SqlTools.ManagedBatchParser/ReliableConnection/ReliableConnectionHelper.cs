@@ -35,12 +35,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         // http://msdn.microsoft.com/en-us/library/ee336261.aspx
         private const int SqlAzureEngineEditionId = 5;
 
+        // Engine edition for Fabric SQL Database, not yet defined in the DatabaseEngineEdition enum.
+        public const int FabricSqlDatabaseEngineEditionId = 12;
+
         private static Lazy<HashSet<int>> cloudEditions = new Lazy<HashSet<int>>(() => new HashSet<int>()
         {
             (int)DatabaseEngineEdition.SqlDatabase,
             (int)DatabaseEngineEdition.SqlDataWarehouse,
             (int)DatabaseEngineEdition.SqlStretchDatabase,
             (int)DatabaseEngineEdition.SqlOnDemand,
+            FabricSqlDatabaseEngineEditionId,
             // Note: for now, ignoring managed instance as it should be treated just like on prem.
         });
 
