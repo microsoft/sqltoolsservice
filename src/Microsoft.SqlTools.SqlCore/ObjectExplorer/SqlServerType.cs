@@ -104,7 +104,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             string serverVersion = serverInfo.ServerVersion;
 
-            if (serverInfo.EngineEditionId == 11
+            if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlOnDemand
                 || serverInfo.EngineEditionId == ReliableConnectionHelper.FabricSqlDatabaseEngineEditionId)
             {
                 return SqlServerType.SqlOnDemand;
