@@ -21,8 +21,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
     internal sealed class GroupBySchemaTests
     {
+        private sealed class TestTreeNode : TreeNode
+        {
+            private readonly object context;
+
+            public TestTreeNode(object context)
+            {
+                this.context = context;
+            }
+
+            public override object GetContext()
+            {
+                return context;
+            }
+        }
+
         Mock<DatabaseChildFactory> factory;
-        Mock<TreeNode> node;
+        TreeNode node;
         Mock<SmoQueryContext> context;
         bool enableGroupBySchema = false;
 
@@ -48,15 +63,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             context.CallBase = true;
             context.Object.ValidFor = ValidForFlag.None;
 
-            node = new Mock<TreeNode>();
-            node.Setup(n => n.GetContext()).Returns(context.Object);
+            node = new TestTreeNode(context.Object)
+            {
+                NodeValue = "TestDB",
+            };
         }
 
         [Test]
         public void SchemaBasedFoldersExcludedWhenGroupBySchemaIsEnabled()
         {
             enableGroupBySchema = true;
-            var children = factory.Object.Expand(node.Object, true, "TestDB", true, new System.Threading.CancellationToken());
+            var children = factory.Object.Expand(node, true, "TestDB", true, new System.Threading.CancellationToken());
             Assert.False(children.Any(c => c.Label == "Tables"), "Tables subfolder in database should be excluded when group by schema is enabled");
             Assert.False(children.Any(c => c.Label == "Views"), "Views subfolder in database should be excluded when group by schema is enabled");
             Assert.False(children.Any(c => c.Label == "Synonyms"), "Synonyms subfolder in database should be excluded when group by schema is enabled");
@@ -67,10 +84,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             enableGroupBySchema = false;
             WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
-            var children = factory.Object.Expand(node.Object, true, "TestDB", true, new System.Threading.CancellationToken());
+            var children = factory.Object.Expand(node, true, "TestDB", true, new System.Threading.CancellationToken());
             Assert.True(children.Any(c => c.Label == "Tables"), "Tables subfolder in database should be included when group by schema is disabled");
             Assert.True(children.Any(c => c.Label == "Views"), "Views subfolder in database should be included when group by schema is disabled");
             Assert.True(children.Any(c => c.Label == "Synonyms"), "Synonyms subfolder in database should be included when group by schema is disabled");
+        }
+
+        [Test]
+        public void GroupedDatabaseFolderPathsDoNotCollideWithSchemaNames()
+        {
+            enableGroupBySchema = true;
+            var children = factory.Object.Expand(node, true, "TestDB", true, new System.Threading.CancellationToken()).ToList();
+            foreach (var child in children)
+            {
+                child.Parent = node;
+            }
+
+            var securityFolder = children.Single(c => c.NodeTypeId == NodeTypes.Security);
+            var securitySchema = new TreeNode
+            {
+                NodeValue = "security",
+                Label = "security",
+                NodeType = nameof(NodeTypes.ExpandableSchema),
+                NodeTypeId = NodeTypes.ExpandableSchema,
+                Parent = node,
+            };
+
+            Assert.False(
+                string.Equals(securityFolder.GetNodePath(), securitySchema.GetNodePath(), StringComparison.OrdinalIgnoreCase),
+                "Grouped database folders should not reuse the same node path as a schema with the same name.");
+            Assert.AreEqual("Folder:Security", securityFolder.NodePathName);
         }
 
 
