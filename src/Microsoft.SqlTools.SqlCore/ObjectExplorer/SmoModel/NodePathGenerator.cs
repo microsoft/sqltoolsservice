@@ -89,6 +89,31 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return returnSet;
         }
 
+        private static bool IsGroupBySchemaEnabled(IObjectExplorerSession objectExplorerSession)
+        {
+            return objectExplorerSession?.Root?.GetContextAs<SmoQueryContext>()?.GroupBySchema
+                ?? objectExplorerSession?.Root?.Parent?.GetContextAs<SmoQueryContext>()?.GroupBySchema
+                ?? false;
+        }
+
+        private static string GetNodePathPart(IObjectExplorerSession objectExplorerSession, Node currentNode)
+        {
+            var currentLabel = currentNode.Label();
+            if (currentLabel == string.Empty)
+            {
+                return string.Empty;
+            }
+
+            if (IsGroupBySchemaEnabled(objectExplorerSession) &&
+                currentNode.ParentNodes().Any(parent => parent.Name == "Database") &&
+                FolderNode.TryGetSchemaGroupedDatabaseFolderNodePathName(currentNode.Name, out string nodePathName))
+            {
+                return nodePathName;
+            }
+
+            return currentLabel;
+        }
+
         private static HashSet<string> GenerateNodePath(IObjectExplorerSession objectExplorerSession, Node currentNode, string databaseName, List<string> parentNames, string path)
         {
             if (parentNames != null)
@@ -111,10 +136,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 return returnSet;
             }
 
-            var currentLabel = currentNode.Label();
-            if (currentLabel != string.Empty)
+            var currentPathPart = GetNodePathPart(objectExplorerSession, currentNode);
+            if (currentPathPart != string.Empty)
             {
-                path = currentLabel + "/" + path;
+                path = currentPathPart + "/" + path;
                 var returnSet = new HashSet<string>();
                 foreach (var parent in currentNode.ParentNodes())
                 {

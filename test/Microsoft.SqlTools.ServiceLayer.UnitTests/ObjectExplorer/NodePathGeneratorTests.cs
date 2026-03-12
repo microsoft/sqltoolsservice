@@ -6,6 +6,8 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
@@ -16,6 +18,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
     public class NodePathGeneratorTests
     {
+        private sealed class TestTreeNode : TreeNode
+        {
+            private readonly object context;
+
+            public TestTreeNode(object context = null)
+            {
+                this.context = context;
+            }
+
+            public override object GetContext()
+            {
+                return context;
+            }
+        }
+
         private ObjectExplorerService.ObjectExplorerSession serverSession;
         private ObjectExplorerService.ObjectExplorerSession databaseSession;
         private const string serverName = "testServer";
@@ -175,6 +192,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             var serverPaths = NodePathGenerator.FindNodePaths(serverSession, "Column", "testSchema", "testColumn", databaseName);
             Assert.AreEqual(0, serverPaths.Count);
+        }
+
+        [Test]
+        public void FindCorrectPathsForSecurityChildrenWithGroupBySchemaEnabled()
+        {
+            var serverRoot = new TreeNode
+            {
+                NodeType = "Server",
+                NodeValue = serverName,
+            };
+            var groupedDatabaseContext = new SmoQueryContext(new Server(), ExtensionServiceProvider.CreateDefaultServiceProvider(), () => true, null);
+            var groupedDatabaseRoot = new TestTreeNode(groupedDatabaseContext)
+            {
+                NodeType = "Database",
+                NodeValue = databaseName,
+                Parent = serverRoot,
+            };
+            var groupedDatabaseSession = new ObjectExplorerService.ObjectExplorerSession("databaseUri-grouped", groupedDatabaseRoot);
+
+            var paths = NodePathGenerator.FindNodePaths(groupedDatabaseSession, "User", null, "testUser", databaseName);
+            var expectedPaths = new List<string>
+            {
+                "testServer/testDatabase/Folder:Security/Users/testUser"
+            };
+
+            Assert.AreEqual(expectedPaths.Count, paths.Count);
+            foreach (var expectedPath in expectedPaths)
+            {
+                Assert.True(paths.Contains(expectedPath));
+            }
         }
     }
 }
