@@ -264,6 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
             serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
+            serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
@@ -603,6 +604,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                // Safety net: if this file has an active connection but its ScriptParseInfo is
+                // missing or not yet marked connected (e.g. because connect() was called before
+                // the file existed in the workspace), kick off language-service setup now that
+                // the file is available.
+                ConnectionInfo connInfo;
+                if (ConnectionServiceInstance.TryFindConnection(uri, out connInfo))
+                {
+                    ScriptParseInfo scriptInfo = GetScriptParseInfo(uri, createIfNotExists: false);
+                    if (scriptInfo == null || !scriptInfo.IsConnected)
+                    {
+                        StartUpdateLanguageServiceOnConnection(connInfo);
+                    }
+                }
+
                 // if not in the preview window and diagnostics are enabled then run diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -768,6 +783,75 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Error("Unknown error " + ex.ToString());
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+            }
+        }
+
+        /// <summary>
+        /// Handles the connection/uriChanged notification sent by the client when a document is
+        /// saved (untitled → file path) or renamed.  Atomically transfers all per-URI
+        /// language-service state from the old URI to the new URI so that IntelliSense continues
+        /// to work without a full disconnect + reconnect cycle.
+        /// </summary>
+        public Task HandleConnectionUriChangedNotification(
+            ConnectionUriChangedParams uriChangedParams,
+            EventContext eventContext)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                await DoHandleConnectionUriChangedNotification(uriChangedParams, eventContext);
+            }, CancellationToken.None,
+            TaskCreationOptions.None,
+            TaskScheduler.Default);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Internal implementation for HandleConnectionUriChangedNotification.
+        /// </summary>
+        internal async Task DoHandleConnectionUriChangedNotification(
+            ConnectionUriChangedParams uriChangedParams,
+            EventContext eventContext)
+        {
+            if (uriChangedParams == null
+                || string.IsNullOrEmpty(uriChangedParams.OwnerUri)
+                || string.IsNullOrEmpty(uriChangedParams.NewOwnerUri))
+            {
+                return;
+            }
+
+            string oldUri = uriChangedParams.OwnerUri;
+            string newUri = uriChangedParams.NewOwnerUri;
+
+            try
+            {
+                Logger.Verbose($"HandleConnectionUriChangedNotification: {oldUri} -> {newUri}");
+
+                // Transfer the ScriptParseInfo from old URI to new URI so that IntelliSense
+                // state (ConnectionKey, IsConnected, ParseResult) is preserved.
+                if (ScriptParseInfoMap.TryRemove(oldUri, out ScriptParseInfo existingScriptInfo))
+                {
+                    ScriptParseInfoMap.TryAdd(newUri, existingScriptInfo);
+                }
+
+                // Look up the connection for the new URI (transferConnectionToFile in the
+                // extension already called connect(newUri) before sending this notification).
+                ConnectionInfo connInfo;
+                if (!ConnectionServiceInstance.TryFindConnection(newUri, out connInfo))
+                {
+                    // No connection found for the new URI — nothing more to do.
+                    return;
+                }
+
+                // Re-run language-service setup for the new URI.  This will call
+                // PrepopulateCommonMetadata, which can now succeed because the file has been
+                // saved and textDocument/didOpen will have (or is about to) add it to the
+                // workspace.  Running this as a background task keeps the notification handler
+                // non-blocking.
+                await UpdateLanguageServiceOnConnection(connInfo);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error in HandleConnectionUriChangedNotification: " + ex.ToString());
             }
         }
 
