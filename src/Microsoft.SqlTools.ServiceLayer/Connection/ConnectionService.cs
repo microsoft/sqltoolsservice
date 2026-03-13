@@ -276,6 +276,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns> True if a refreshed was needed and requested, false otherwise </returns>
         internal async Task<bool> TryRequestRefreshAuthToken(string ownerUri)
         {
+            // When SqlAuthenticationProvider is enabled, the driver handles token refresh
+            // automatically via MSAL — no need for the manual client round-trip.
+            if (this.EnableSqlAuthenticationProvider)
+            {
+                return false;
+            }
+
             ConnectionInfo connInfo;
             if (this.TryFindConnection(ownerUri, out connInfo))
             {
