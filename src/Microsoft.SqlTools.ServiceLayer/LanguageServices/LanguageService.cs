@@ -115,10 +115,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new();
         private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new();
 
-        internal Func<string, ParseResult, ParseOptions, ParseResult> IncrementalParseAction { get; set; }
-
-        internal Func<ThreadStart, Thread> CreateParseThread { get; set; }
-
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
         /// </summary>
@@ -143,13 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal LanguageService()
         {
-            this.IncrementalParseAction = Parser.IncrementalParse;
-            this.CreateParseThread = threadStart =>
-            {
-                Thread thread = new Thread(threadStart, ConnectedBindingQueue.QueueThreadStackSize);
-                thread.IsBackground = true;
-                return thread;
-            };
         }
 
         #endregion
@@ -1018,7 +1007,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 try
                 {
-                    incrementalParseResult = this.IncrementalParseAction(sqlText, previousParseResult, parseOptions);
+                    incrementalParseResult = this.IncrementalParse(sqlText, previousParseResult, parseOptions);
                 }
                 catch (Exception ex)
                 {
@@ -1037,6 +1026,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return true;
+        }
+
+        internal virtual ParseResult IncrementalParse(
+            string sqlText,
+            ParseResult previousParseResult,
+            ParseOptions parseOptions)
+        {
+            return Parser.IncrementalParse(sqlText, previousParseResult, parseOptions);
+        }
+
+        internal virtual Thread CreateParseThread(ThreadStart threadStart)
+        {
+            Thread thread = new Thread(threadStart, ConnectedBindingQueue.QueueThreadStackSize);
+            thread.IsBackground = true;
+            return thread;
         }
 
         /// <summary>

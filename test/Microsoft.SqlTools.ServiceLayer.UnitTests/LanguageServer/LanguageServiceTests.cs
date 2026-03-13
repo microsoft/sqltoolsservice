@@ -24,6 +24,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
+        private sealed class TestLanguageService : LanguageService
+        {
+            internal Func<string, ParseResult, ParseOptions, ParseResult> IncrementalParseOverride { get; set; }
+
+            internal Func<ThreadStart, Thread> CreateParseThreadOverride { get; set; }
+
+            internal override ParseResult IncrementalParse(string sqlText, ParseResult previousParseResult, ParseOptions parseOptions)
+            {
+                return this.IncrementalParseOverride != null
+                    ? this.IncrementalParseOverride(sqlText, previousParseResult, parseOptions)
+                    : base.IncrementalParse(sqlText, previousParseResult, parseOptions);
+            }
+
+            internal override Thread CreateParseThread(ThreadStart threadStart)
+            {
+                return this.CreateParseThreadOverride != null
+                    ? this.CreateParseThreadOverride(threadStart)
+                    : base.CreateParseThread(threadStart);
+            }
+        }
+
         /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
@@ -195,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Test]
         public async Task ParseAndBindConnectedPathUsesDedicatedParseThreadAndClearsFailedParseState()
         {
-            LanguageService service = TestObjects.GetTestLanguageService();
+            TestLanguageService service = new TestLanguageService();
             ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(false);
             service.BindingQueue = bindingQueue;
 
@@ -229,13 +250,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             int parserThreadId = callingThreadId;
             bool dedicatedThreadCreated = false;
 
-            service.CreateParseThread = threadStart =>
+            service.CreateParseThreadOverride = threadStart =>
             {
                 dedicatedThreadCreated = true;
                 return new Thread(threadStart);
             };
 
-            service.IncrementalParseAction = (sqlText, previousParseResult, options) =>
+            service.IncrementalParseOverride = (sqlText, previousParseResult, options) =>
             {
                 parserThreadId = Environment.CurrentManagedThreadId;
                 throw new InvalidOperationException("parser fault");
