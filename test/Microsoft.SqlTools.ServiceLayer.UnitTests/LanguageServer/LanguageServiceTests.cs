@@ -5,6 +5,11 @@
 
 #nullable disable
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -19,6 +24,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
+        private sealed class TestLanguageService : LanguageService
+        {
+            internal Func<string, ParseResult, ParseOptions, ParseResult> IncrementalParseOverride { get; set; }
+
+            internal Func<ThreadStart, Thread> CreateParseThreadOverride { get; set; }
+
+            internal override ParseResult IncrementalParse(string sqlText, ParseResult previousParseResult, ParseOptions parseOptions)
+            {
+                return this.IncrementalParseOverride != null
+                    ? this.IncrementalParseOverride(sqlText, previousParseResult, parseOptions)
+                    : base.IncrementalParse(sqlText, previousParseResult, parseOptions);
+            }
+
+            internal override Thread CreateParseThread(ThreadStart threadStart)
+            {
+                return this.CreateParseThreadOverride != null
+                    ? this.CreateParseThreadOverride(threadStart)
+                    : base.CreateParseThread(threadStart);
+            }
+        }
+
         /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
@@ -185,6 +211,71 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
             Assert.AreEqual(1, result.Length);
+        }
+
+        [Test]
+        public async Task ParseAndBindConnectedPathUsesDedicatedParseThreadAndClearsFailedParseState()
+        {
+            TestLanguageService service = new TestLanguageService();
+            ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(false);
+            service.BindingQueue = bindingQueue;
+
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("SELECT 1");
+
+            var parseOptions = new ParseOptions(
+                batchSeparator: LanguageService.DefaultBatchSeperator,
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+
+            ScriptParseInfo scriptParseInfo = new ScriptParseInfo
+            {
+                IsConnected = true,
+                ConnectionKey = "test-connection-key",
+                ParseResult = Parser.IncrementalParse("SELECT 1", null, parseOptions)
+            };
+
+            service.AddOrUpdateScriptParseInfo(scriptFile.ClientUri, scriptParseInfo);
+
+            ConnectedBindingContext bindingContext = new ConnectedBindingContext
+            {
+                IsConnected = false
+            };
+
+            bindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
+            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.FromResult(0));
+
+            int callingThreadId = Environment.CurrentManagedThreadId;
+            int parserThreadId = callingThreadId;
+            bool dedicatedThreadCreated = false;
+
+            service.CreateParseThreadOverride = threadStart =>
+            {
+                dedicatedThreadCreated = true;
+                return new Thread(threadStart);
+            };
+
+            service.IncrementalParseOverride = (sqlText, previousParseResult, options) =>
+            {
+                parserThreadId = Environment.CurrentManagedThreadId;
+                throw new InvalidOperationException("parser fault");
+            };
+
+            try
+            {
+                ParseResult parseResult = await service.ParseAndBind(scriptFile, TestObjects.GetTestConnectionInfo());
+
+                Assert.IsNull(parseResult);
+                Assert.IsNull(scriptParseInfo.ParseResult);
+                Assert.IsTrue(dedicatedThreadCreated);
+                Assert.AreNotEqual(callingThreadId, parserThreadId);
+            }
+            finally
+            {
+                bindingQueue.StopQueueProcessor(1000);
+                bindingQueue.Dispose();
+            }
         }
     }
 }
