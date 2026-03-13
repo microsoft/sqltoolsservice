@@ -282,6 +282,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 										{
 												WriteLine("            currentChildren.Add(new FolderNode {");
 												WriteLine("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel"));
+												if (type == "Database" && (childName == "BuiltInSchemas" || childName == "Programmability" || childName == "ExternalResources" || childName == "ServiceBroker" || childName == "Storage" || childName == "Security"))
+												{
+													if (childName == "BuiltInSchemas")
+													{
+														WriteLine("                NodePathName = FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.{0}),", childName);
+													}
+													else
+													{
+														WriteLine("                NodePathName = {0} ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.{1}) : null,", GetSettingsString("GroupBySchema"), childName);
+													}
+												}
 												WriteLine("                NodeTypeId = NodeTypes.{0},", childName);
 												WriteLine("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false");
 

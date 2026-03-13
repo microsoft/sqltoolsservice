@@ -7,8 +7,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
@@ -197,6 +199,107 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     Assert.True(item.ContainsKey(columns[i].ColumnName));
                     Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
                 }
+            }
+        }
+        [Test]
+        [TestCase("sl-SI")]
+        [TestCase("de-DE")]
+        [TestCase("fr-FR")]
+        public void WriteRowDecimalUsesInvariantCulture(string cultureName)
+        {
+            // Setup:
+            // ... Switch to an EU locale where '.' is the thousands separator and ',' is decimal
+            CultureInfo originalCulture = Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+
+                SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams();
+                // DisplayValue is always dot-delimited as returned by SQL Server
+                List<DbCellValue> data = new List<DbCellValue>
+                {
+                    new DbCellValue { DisplayValue = "12.34",   RawObject = 12.34m },
+                    new DbCellValue { DisplayValue = "0.99",    RawObject = 0.99m },
+                    new DbCellValue { DisplayValue = "1234.56", RawObject = 1234.56m },
+                    new DbCellValue { DisplayValue = "0.01",    RawObject = 0.01m },
+                };
+                List<DbColumnWrapper> columns = new List<DbColumnWrapper>
+                {
+                    new DbColumnWrapper(new TestDbColumn("col1", typeof(decimal))),
+                    new DbColumnWrapper(new TestDbColumn("col2", typeof(decimal))),
+                    new DbColumnWrapper(new TestDbColumn("col3", typeof(decimal))),
+                    new DbColumnWrapper(new TestDbColumn("col4", typeof(decimal))),
+                };
+                byte[] output = new byte[8192];
+
+                // If:
+                // ... I write a row while the current culture uses comma as the decimal separator
+                var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
+                using (jsonWriter)
+                {
+                    jsonWriter.WriteRow(data, columns);
+                }
+
+                // Then:
+                // ... The JSON output should contain the original dot-decimal values, not locale-mangled ones
+                string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0');
+                Dictionary<string, decimal>[] outputObject =
+                    JsonConvert.DeserializeObject<Dictionary<string, decimal>[]>(outputString);
+
+                Assert.AreEqual(1, outputObject.Length);
+                Assert.AreEqual(12.34m,   outputObject[0]["col1"], "col1 should be 12.34, not 1234");
+                Assert.AreEqual(0.99m,    outputObject[0]["col2"], "col2 should be 0.99, not 99");
+                Assert.AreEqual(1234.56m, outputObject[0]["col3"], "col3 should be 1234.56, not 123456");
+                Assert.AreEqual(0.01m,    outputObject[0]["col4"], "col4 should be 0.01, not 1");
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = originalCulture;
+            }
+        }
+
+        [Test]
+        [TestCase("sl-SI")]
+        [TestCase("de-DE")]
+        public void WriteRowFloatUsesInvariantCulture(string cultureName)
+        {
+            // Setup:
+            // ... Switch to an EU locale where '.' is the thousands separator
+            CultureInfo originalCulture = Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+
+                SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams();
+                List<DbCellValue> data = new List<DbCellValue>
+                {
+                    new DbCellValue { DisplayValue = "3.14", RawObject = 3.14 },
+                    new DbCellValue { DisplayValue = "2.72", RawObject = 2.72 },
+                };
+                List<DbColumnWrapper> columns = new List<DbColumnWrapper>
+                {
+                    new DbColumnWrapper(new TestDbColumn("floatCol1", typeof(double))),
+                    new DbColumnWrapper(new TestDbColumn("floatCol2", typeof(double))),
+                };
+                byte[] output = new byte[8192];
+
+                var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
+                using (jsonWriter)
+                {
+                    jsonWriter.WriteRow(data, columns);
+                }
+
+                string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0');
+                Dictionary<string, double>[] outputObject =
+                    JsonConvert.DeserializeObject<Dictionary<string, double>[]>(outputString);
+
+                Assert.AreEqual(1, outputObject.Length);
+                Assert.AreEqual(3.14, outputObject[0]["floatCol1"], 1e-10, "floatCol1 should be 3.14, not 314");
+                Assert.AreEqual(2.72, outputObject[0]["floatCol2"], 1e-10, "floatCol2 should be 2.72, not 272");
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = originalCulture;
             }
         }
     }

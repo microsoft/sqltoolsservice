@@ -751,6 +751,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_BuiltInSchema,
+                    NodePathName = FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.BuiltInSchemas),
                     NodeTypeId = NodeTypes.BuiltInSchemas,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
@@ -758,6 +759,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 			}
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Programmability,
+                NodePathName = (parent.GetContext() as SmoQueryContext).GroupBySchema ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.Programmability) : null,
                 NodeTypeId = NodeTypes.Programmability,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.All,
@@ -765,6 +767,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ExternalResources,
+                NodePathName = (parent.GetContext() as SmoQueryContext).GroupBySchema ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.ExternalResources) : null,
                 NodeTypeId = NodeTypes.ExternalResources,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
@@ -772,6 +775,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ServiceBroker,
+                NodePathName = (parent.GetContext() as SmoQueryContext).GroupBySchema ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.ServiceBroker) : null,
                 NodeTypeId = NodeTypes.ServiceBroker,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.AllOnPrem,
@@ -779,6 +783,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Storage,
+                NodePathName = (parent.GetContext() as SmoQueryContext).GroupBySchema ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.Storage) : null,
                 NodeTypeId = NodeTypes.Storage,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
@@ -786,6 +791,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Security,
+                NodePathName = (parent.GetContext() as SmoQueryContext).GroupBySchema ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.Security) : null,
                 NodeTypeId = NodeTypes.Security,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,

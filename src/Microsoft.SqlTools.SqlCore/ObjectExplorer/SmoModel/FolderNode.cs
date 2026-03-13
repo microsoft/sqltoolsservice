@@ -13,6 +13,28 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     /// </summary>
     public class FolderNode : SmoTreeNode
     {
+        internal static string GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes nodeTypeId)
+        {
+            return $"Folder:{nodeTypeId}";
+        }
+
+        internal static bool TryGetSchemaGroupedDatabaseFolderNodePathName(string nodeName, out string nodePathName)
+        {
+            switch (nodeName)
+            {
+                case nameof(NodeTypes.BuiltInSchemas):
+                case nameof(NodeTypes.Programmability):
+                case nameof(NodeTypes.ExternalResources):
+                case nameof(NodeTypes.ServiceBroker):
+                case nameof(NodeTypes.Storage):
+                case nameof(NodeTypes.Security):
+                    nodePathName = $"Folder:{nodeName}";
+                    return true;
+                default:
+                    nodePathName = string.Empty;
+                    return false;
+            }
+        }
 
         public FolderNode()
         {

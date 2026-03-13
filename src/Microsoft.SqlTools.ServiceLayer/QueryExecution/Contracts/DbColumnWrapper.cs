@@ -56,7 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             "date",
             "time",
             "datetimeoffset",
-            "datetime2"
+            "datetime2",
+            "json"
         };
 
         private const string SqlXmlDataTypeName = "xml";
@@ -244,6 +245,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                     case "sysname":
                         SqlDbType = SqlDbType.NVarChar;
                         break;
+                    case "json":
+                        SqlDbType = SqlDbType.NVarChar;
+                        break;
                     default:
                         SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.Binary : SqlDbType.Udt;
                         break;
@@ -290,6 +294,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                     break;
                 case "xml":
                     IsXml = true;
+                    IsLong = true;
+                    break;
+                case "json":
+                    IsChars = true;
                     IsLong = true;
                     break;
                 case "binary":

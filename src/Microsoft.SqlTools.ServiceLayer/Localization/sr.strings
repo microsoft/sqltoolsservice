@@ -227,6 +227,10 @@ PeekDefinitionTypeNotSupportedError = This object type is currently not supporte
 
 ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
 
+StarExpansionLabel(string starExpression) = Expand {0}
+
+StarExpansionDescription(string starExpression, string columnCount, string columnPreview) = Replace {0} with {1} columns: {2}
+
 ############################################################################
 # Workspace Service
 

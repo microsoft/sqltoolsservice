@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Newtonsoft.Json;
@@ -77,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     // Try converting to column type
                     try
                     {
-                        var value = Convert.ChangeType(row[i].DisplayValue, columns[i].DataType);
+                        var value = Convert.ChangeType(row[i].DisplayValue, columns[i].DataType, CultureInfo.InvariantCulture);
                         jsonWriter.WriteValue(value);
                     }
                     // Default column type as string

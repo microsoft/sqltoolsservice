@@ -1987,5 +1987,56 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Throws<Microsoft.SqlServer.Management.Common.ChangePasswordFailureException>(
                 () => connectionService.ChangePassword(testConnectionParams));
         }
+
+        [Test]
+        public async Task TryRequestRefreshAuthToken_ReturnsFalse_WhenSqlAuthProviderEnabled()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var connectionService = new ConnectionService(new TestSqlConnectionFactory());
+            connectionService.ServiceHost = serviceHostMock.Object;
+            connectionService.EnableSqlAuthenticationProvider = true;
+
+            // Add a connection with AzureMFA auth and an expired token
+            const string ownerUri = "file:///my/test/file.sql";
+            var details = TestObjects.GetTestConnectionDetails();
+            details.AuthenticationType = AzureMFA;
+            details.ExpiresOn = 0; // already expired
+            connectionService.OwnerToConnectionMap.TryAdd(ownerUri,
+                new ConnectionInfo(new TestSqlConnectionFactory(), ownerUri, details));
+
+            var result = await connectionService.TryRequestRefreshAuthToken(ownerUri);
+
+            Assert.That(result, Is.False, "Should skip manual token refresh when SqlAuthenticationProvider is enabled");
+            serviceHostMock.Verify(
+                h => h.SendEvent(RefreshTokenNotification.Type, It.IsAny<RefreshTokenParams>()),
+                Times.Never,
+                "Should not send RefreshTokenNotification when SqlAuthenticationProvider handles token refresh");
+        }
+
+        [Test]
+        public async Task TryRequestRefreshAuthToken_SendsNotification_WhenSqlAuthProviderDisabled()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var connectionService = new ConnectionService(new TestSqlConnectionFactory());
+            connectionService.ServiceHost = serviceHostMock.Object;
+            connectionService.EnableSqlAuthenticationProvider = false;
+
+            const string ownerUri = "file:///my/test/file.sql";
+            var details = TestObjects.GetTestConnectionDetails();
+            details.AuthenticationType = AzureMFA;
+            details.ExpiresOn = 0; // already expired
+            details.Options["azureAccount"] = "testAccount";
+            details.Options["azureTenantId"] = "testTenant";
+            connectionService.OwnerToConnectionMap.TryAdd(ownerUri,
+                new ConnectionInfo(new TestSqlConnectionFactory(), ownerUri, details));
+
+            var result = await connectionService.TryRequestRefreshAuthToken(ownerUri);
+
+            Assert.That(result, Is.True, "Should request token refresh when SqlAuthenticationProvider is not enabled");
+            serviceHostMock.Verify(
+                h => h.SendEvent(RefreshTokenNotification.Type, It.IsAny<RefreshTokenParams>()),
+                Times.Once,
+                "Should send RefreshTokenNotification when using legacy token refresh");
+        }
     }
 }

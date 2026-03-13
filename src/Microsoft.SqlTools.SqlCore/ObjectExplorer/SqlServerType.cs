@@ -6,6 +6,7 @@
 using System;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
@@ -103,7 +104,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         {
             string serverVersion = serverInfo.ServerVersion;
 
-            if (serverInfo.EngineEditionId == 11)
+            if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlOnDemand
+                || serverInfo.EngineEditionId == ReliableConnectionHelper.FabricSqlDatabaseEngineEditionId)
             {
                 return SqlServerType.SqlOnDemand;
             }
