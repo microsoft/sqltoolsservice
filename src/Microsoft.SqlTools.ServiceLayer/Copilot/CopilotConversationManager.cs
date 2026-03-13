@@ -177,6 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
                 services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
                 services.AddSingleton<ITokenRateLimiter, TokenRateLimiter>();
+                services.AddSingleton<IToolsetFactory, ToolsetFactory>();
                 
                 // Register VS Code-specific minion LLM invoker that uses DirectRequest to prevent streaming to users
                 // This is used by minions (AccessChecker, KnowledgeLibrarian, etc.) via dependency injection
@@ -229,6 +230,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 {
                     CartridgeExperience = CartridgeExperienceKeyNames.VSCode_MSSQL_TsqlEditorChat,
                     ContextSettings = new Dictionary<string, string>()
+                    {
+                        { SqlExecutionContextKeys.EnableAgentsMd, "no" }
+                    }
                 };
                 await _executionContext.LoadExecutionContextAsync(cartridgeContextSettings, sqlService!, CancellationToken.None);
 
