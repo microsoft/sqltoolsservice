@@ -302,5 +302,82 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             string fullObjectName = "master.dbo.tableName";
             Assert.Throws<NullReferenceException>(() => peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, new Sql3PartIdentifier { ObjectName = objectName }));
         }
+
+        /// <summary>
+        /// Scalar-valued functions must be a supported declaration type so that Go to Definition
+        /// proceeds to the SMO scripting path rather than returning "type not supported".
+        /// The NullReferenceException is expected here because there is no live connection
+        /// (same behaviour as the Table test above).
+        /// </summary>
+        [Test]
+        public void GetDefinitionUsingDeclarationTypeScalarFunctionIsSupportedTest()
+        {
+            Scripter peekDefinition = new Scripter(null, null);
+            string objectName = "myScalarFn";
+            string fullObjectName = "master.dbo.myScalarFn";
+            // Should throw NullReferenceException (scripting path entered), NOT return a
+            // "type not supported" DefinitionResult, confirming ScalarValuedFunction is mapped.
+            Assert.Throws<NullReferenceException>(() =>
+                peekDefinition.GetDefinitionUsingDeclarationType(
+                    DeclarationType.ScalarValuedFunction,
+                    fullObjectName,
+                    new Sql3PartIdentifier { ObjectName = objectName, SchemaName = "dbo" }));
+        }
+
+        /// <summary>
+        /// Table-valued functions must be a supported declaration type so that Go to Definition
+        /// proceeds to the SMO scripting path rather than returning "type not supported".
+        /// </summary>
+        [Test]
+        public void GetDefinitionUsingDeclarationTypeTableValuedFunctionIsSupportedTest()
+        {
+            Scripter peekDefinition = new Scripter(null, null);
+            string objectName = "myTVF";
+            string fullObjectName = "master.dbo.myTVF";
+            Assert.Throws<NullReferenceException>(() =>
+                peekDefinition.GetDefinitionUsingDeclarationType(
+                    DeclarationType.TableValuedFunction,
+                    fullObjectName,
+                    new Sql3PartIdentifier { ObjectName = objectName, SchemaName = "dbo" }));
+        }
+
+        /// <summary>
+        /// GetTokenTypeFromQuickInfo should extract "scalar-valued function" from a function quickInfo string.
+        /// </summary>
+        [Test]
+        public void GetTokenTypeFromQuickInfoScalarFunctionTest()
+        {
+            Scripter peekDefinition = new Scripter(null, null);
+            string objectName = "pd_addTwo";
+            string quickInfoText = "scalar-valued function master.dbo.pd_addTwo";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
+            Assert.AreEqual("scalar-valued function", result);
+        }
+
+        /// <summary>
+        /// GetTokenTypeFromQuickInfo should extract "table-valued function" from a TVF quickInfo string.
+        /// </summary>
+        [Test]
+        public void GetTokenTypeFromQuickInfoTableValuedFunctionTest()
+        {
+            Scripter peekDefinition = new Scripter(null, null);
+            string objectName = "pd_returnTable";
+            string quickInfoText = "table-valued function master.dbo.pd_returnTable";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
+            Assert.AreEqual("table-valued function", result);
+        }
+
+        /// <summary>
+        /// GetFullObjectNameFromQuickInfo should return the fully-qualified name from a scalar function quickInfo string.
+        /// </summary>
+        [Test]
+        public void GetFullObjectNameFromQuickInfoScalarFunctionTest()
+        {
+            Scripter peekDefinition = new Scripter(null, null);
+            string objectName = "pd_addTwo";
+            string quickInfoText = "scalar-valued function master.dbo.pd_addTwo";
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
+            Assert.AreEqual("master.dbo.pd_addTwo", result);
+        }
     }
 }
