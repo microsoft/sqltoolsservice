@@ -25,8 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             AddSupportedType(DeclarationType.UserDefinedDataType, "UserDefinedDataType", "user-defined data type", typeof(UserDefinedDataType));
             AddSupportedType(DeclarationType.UserDefinedTableType, "UserDefinedTableType", "user-defined table type", typeof(UserDefinedTableType));
             AddSupportedType(DeclarationType.Synonym, "Synonym", "", typeof(Synonym));
-            AddSupportedType(DeclarationType.ScalarValuedFunction, "Function", "scalar-valued function", typeof(UserDefinedFunction));
-            AddSupportedType(DeclarationType.TableValuedFunction, "Function", "table-valued function", typeof(UserDefinedFunction));
+            AddSupportedType(DeclarationType.ScalarValuedFunction, "UserDefinedFunction", "scalar-valued function", typeof(UserDefinedFunction));
+            AddSupportedType(DeclarationType.TableValuedFunction, "UserDefinedFunction", "table-valued function", typeof(UserDefinedFunction));
 
             // Mapping for database engine edition
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.Unknown, "SqlServerEnterpriseEdition"); //default case
