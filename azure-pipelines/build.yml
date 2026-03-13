@@ -5,6 +5,14 @@ parameters:
   - name: platforms
     type: object
     default:
+    # Portable package is framework-dependent (no bundled .NET runtime).
+    # Consumers must have a compatible .NET runtime installed.
+    # OS-specific packages below remain self-contained.
+    - name: 'default'
+      displayName: '.NET portable build'
+      archiveName: 'portable'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
     - name: 'osx-x64'
       displayName: 'OSX 64 bit'
       archiveName: 'osx-x64'
