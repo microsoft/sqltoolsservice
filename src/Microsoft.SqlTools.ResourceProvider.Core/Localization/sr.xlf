@@ -4,57 +4,57 @@
     <body>
       <trans-unit id="AzureServerNotFound">
         <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
-        <target state="new">The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</target>
+        <target state="translated">The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AzureSubscriptionFailedErrorMessage">
         <source>An error occurred while getting Azure subscriptions: {0}</source>
-        <target state="new">An error occurred while getting Azure subscriptions: {0}</target>
+        <target state="translated">An error occurred while getting Azure subscriptions: {0}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
         <source>An error occurred while getting databases from servers of type {0} from {1}</source>
-        <target state="new">An error occurred while getting databases from servers of type {0} from {1}</target>
+        <target state="translated">An error occurred while getting databases from servers of type {0} from {1}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleAccessForbidden">
         <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
-        <target state="new">{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</target>
+        <target state="translated">{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidIpAddress">
         <source>Invalid IP address</source>
-        <target state="new">Invalid IP address</target>
+        <target state="translated">Invalid IP address</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidServerTypeErrorMessage">
         <source>Server Type is invalid.</source>
-        <target state="new">Server Type is invalid.</target>
+        <target state="translated">Server Type is invalid.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
         <source>A required dll cannot be loaded. Please repair your application.</source>
-        <target state="new">A required dll cannot be loaded. Please repair your application.</target>
+        <target state="translated">A required dll cannot be loaded. Please repair your application.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailed">
         <source>An error occurred while creating a new firewall rule.</source>
-        <target state="new">An error occurred while creating a new firewall rule.</target>
+        <target state="translated">An error occurred while creating a new firewall rule.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleUnsupportedConnectionType">
         <source>Cannot open a firewall rule for the specified connection type</source>
-        <target state="new">Cannot open a firewall rule for the specified connection type</target>
+        <target state="translated">Cannot open a firewall rule for the specified connection type</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailedWithError">
         <source>An error occurred while creating a new firewall rule: '{0}'</source>
-        <target state="new">An error occurred while creating a new firewall rule: '{0}'</target>
+        <target state="translated">An error occurred while creating a new firewall rule: '{0}'</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NoSubscriptionsFound">
         <source>No subscriptions were found for the currently logged in user account.</source>
-        <target state="new">No subscriptions were found for the currently logged in user account.</target>
+        <target state="translated">No subscriptions were found for the currently logged in user account.</target>
         <note></note>
       </trans-unit>
     </body>

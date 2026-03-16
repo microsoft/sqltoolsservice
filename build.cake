@@ -3,6 +3,7 @@
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
+#tool "nuget:?package=Microsoft.Data.Tools.StringResourceTool&version=4.3.0"
 #tool "dotnet:?package=dotnet-t4&version=3.0.0"
 
 using System.ComponentModel;
@@ -782,7 +783,23 @@ Task("SRGen")
                 continue;
             }
 
-            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "net6.0", "srgen.dll");
+            var srgenToolSearchRoot = System.IO.Path.Combine(workingDirectory, "tools");
+            var srgenPath = GetFiles(System.IO.Path.Combine(srgenToolSearchRoot, "**", "srgen.dll"))
+                .Select(path => path.FullPath)
+                .FirstOrDefault();
+
+            if (string.IsNullOrEmpty(srgenPath))
+            {
+                srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "net6.0", "srgen.dll");
+            }
+
+            if (!System.IO.File.Exists(srgenPath))
+            {
+                throw new Exception(
+                    "Could not find StringResourceTool (srgen.dll). " +
+                    "dotnet restore does not restore legacy packages.config tools. " +
+                    "Run Cake with tool restore enabled or restore Microsoft.Data.Tools.StringResourceTool into the tools folder.");
+            }
             var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
             var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
             var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
@@ -804,7 +821,7 @@ Task("SRGen")
             }
 
             // Run SRGen
-            var dotnetArgs = string.Format("--roll-forward LatestMajor {0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+            var dotnetArgs = string.Format("exec --roll-forward LatestMajor \"{0}\" -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
             srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
             Information("{0}", dotnetcli);
             Information("{0}", dotnetArgs);

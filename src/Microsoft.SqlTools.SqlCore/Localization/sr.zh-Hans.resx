@@ -1,110 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -773,12 +668,16 @@
   </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>对于 ID 为 "{0}" 的表，初始化未正确完成</value>
+    <comment>.
+ Parameters: 0 - tableId (string) </comment>
   </data>
   <data name="TableEditPathNotProvidedException" xml:space="preserve">
     <value>表更改信息中的路径不能为空</value>
   </data>
   <data name="InvalidTableEditPathException" xml:space="preserve">
     <value>表更改信息中的路径 "{0}" 对于编辑类型 "{1}" 无效</value>
+    <comment>.
+ Parameters: 0 - path (string), 1 - editType (string) </comment>
   </data>
   <data name="TableColumnIdentityGroupName" xml:space="preserve">
     <value>标识规范</value>
@@ -827,6 +726,8 @@
   </data>
   <data name="UnknownEnumString" xml:space="preserve">
     <value>未知枚举值: {0}。</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>指定是否已启用检查约束</value>
@@ -1112,33 +1013,53 @@
   </data>
   <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>索引“{0}”不具有任何与之关联的列。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>外键“{0}”没有指定任何列。</value>
+    <comment>.
+ Parameters: 0 - foreignKeyName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
     <value>已将名为“{0}”的列添加到索引“{1}”。行号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
     <value>已将名为“{0}”的列添加到外键“{1}”。行号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
     <value>已将名为“{0}”的外列已添加到外键“{1}”。行号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
     <value>名称“{0}”已由另一个约束使用。行号: {1}。</value>
+    <comment>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
     <value>名称“{0}”已由另一列使用。行号: {1}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
     <value>另一个索引已使用名称“{0}”。行号: {1}。</value>
+    <comment>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
     <value>边缘约束“{0}”未指定任何子句。</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
     <value>对“{0}”已由边缘约束中的另一个子句定义。行号: {1}。</value>
+    <comment>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
     <value>内存优化表必须具有非群集主键。</value>
@@ -1172,6 +1093,8 @@
   </data>
   <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>主键中不能使用重复的列名，列名: {0}</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
     <value>此数据库不支持内存优化表。</value>
@@ -1187,35 +1110,55 @@
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
     <value>已将名为 "{0}" 的列包含到索引 "{1}"。行号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
     <value>名为 "{0}" 的包含列已是索引 "{1}" 的一部分，因此不能包含它。行号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>名称为“{0}”的计算列必须保留，并且不能为 null 才能成为主键的一部分。</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
     <value>名称为“{0}”的计算列必须保留为外键“{1}”的一部分。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
     <value>非内存优化表不支持名为“{0}”的哈希索引。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
     <value>哈希索引“{0}”没有桶计数。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
     <value>已将名为 "{0}" 的列添加到非聚集列存储索引 "{1}"。行号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>非聚集列存储索引 "{0}" 没有任何与其关联的列。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>我已阅读摘要并了解潜在风险。</value>
   </data>
   <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
     <value>已拒绝 CREATE TABLE 数据库 "{0}" 中的权限。</value>
+    <comment>.
+ Parameters: 0 - db (string) </comment>
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>已拒绝对表 "{0}" 的 ALTER TABLE 权限。</value>
+    <comment>.
+ Parameters: 0 - table (string) </comment>
   </data>
 </root>
