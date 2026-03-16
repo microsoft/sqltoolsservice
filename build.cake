@@ -1,18 +1,16 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
-#addin nuget:?package=fmdev.ResX&version=0.3.2
-#addin nuget:?package=fmdev.XliffParser&version=0.5.6
 
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
-#tool "nuget:?package=Mono.TextTransform&version=1.0.0"
+#tool "dotnet:?package=dotnet-t4&version=3.0.0"
 
 using System.ComponentModel;
 using System.Net;
+using System.Xml.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Cake.Common.IO;
-using XliffParser;
 
 // Basic arguments
 var target = Argument("target", "Default");
@@ -85,6 +83,85 @@ var logFolder = System.IO.Path.Combine(artifactFolder, "logs");
 var packageFolder = System.IO.Path.Combine(artifactFolder, "package");
 var nugetPackageFolder = System.IO.Path.Combine(artifactFolder, "nugetPackages");
 var scriptFolder =  System.IO.Path.Combine(artifactFolder, "scripts");
+
+var xliffNamespace = (XNamespace)"urn:oasis:names:tc:xliff:document:1.2";
+var xmlNamespace = (XNamespace)"http://www.w3.org/XML/1998/namespace";
+
+XElement CreateResHeader(string name, string value)
+{
+    return new XElement("resheader",
+        new XAttribute("name", name),
+        new XElement("value", value));
+}
+
+IEnumerable<XElement> GetTransUnits(XDocument document)
+{
+    return document
+        .Descendants(xliffNamespace + "trans-unit")
+        .Where(unit => unit.Attribute("id") != null);
+}
+
+void UpdateXlfTargetsFromSource(string xlfPath)
+{
+    var document = XDocument.Load(xlfPath, LoadOptions.PreserveWhitespace);
+    foreach (var unit in GetTransUnits(document))
+    {
+        var source = unit.Element(xliffNamespace + "source");
+        if (source == null)
+        {
+            continue;
+        }
+
+        var target = unit.Element(xliffNamespace + "target");
+        if (target == null)
+        {
+            target = new XElement(xliffNamespace + "target");
+            unit.Add(target);
+        }
+
+        target.Value = source.Value;
+        target.SetAttributeValue("state", "translated");
+    }
+
+    document.Save(xlfPath);
+}
+
+void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
+{
+    var xlfDocument = XDocument.Load(xlfPath, LoadOptions.PreserveWhitespace);
+    var resxDocument = new XDocument(
+        new XDeclaration("1.0", "utf-8", null),
+        new XElement("root",
+            CreateResHeader("resmimetype", "text/microsoft-resx"),
+            CreateResHeader("version", "2.0"),
+            CreateResHeader("reader", "System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            CreateResHeader("writer", "System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")));
+
+    var root = resxDocument.Root;
+    foreach (var unit in GetTransUnits(xlfDocument))
+    {
+        var target = unit.Element(xliffNamespace + "target");
+        if (target == null)
+        {
+            continue;
+        }
+
+        var data = new XElement("data",
+            new XAttribute("name", unit.Attribute("id").Value),
+            new XAttribute(xmlNamespace + "space", "preserve"),
+            new XElement("value", target.Value));
+
+        var note = unit.Element(xliffNamespace + "note");
+        if (note != null && !string.IsNullOrWhiteSpace(note.Value))
+        {
+            data.Add(new XElement("comment", note.Value));
+        }
+
+        root.Add(data);
+    }
+
+    resxDocument.Save(resxPath);
+}
 
 /// <summary>
 ///  Clean artifacts.
@@ -683,7 +760,6 @@ Task("SRGen")
     try
     {
         var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization");
 
         foreach(var project in projects) {
             var projectDir = System.IO.Path.GetDirectoryName(project);
@@ -736,40 +812,14 @@ Task("SRGen")
             .ExceptionOnError("Failed to run SRGen.");
 
             // Update XLF file from new Resx file
-            var doc = new XlfDocument(outputXlf);
-            doc.UpdateFromSource();
-            var outputXlfFile = doc.Files.Single();
-            foreach (var unit in outputXlfFile.TransUnits)
-            {
-                unit.Target = unit.Source;
-            }
-            doc.Save();
+            UpdateXlfTargetsFromSource(outputXlf);
 
             // Update ResX files from new xliff files
             var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
             foreach(var docName in xlfDocNames)
             {
-                // load our language XLIFF
-                var xlfDoc = new XlfDocument(docName);
-                var xlfFile = xlfDoc.Files.Single();
-
-                // load a language template
-                var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
-                var templateDoc = new XlfDocument(templateFileLocation);
-                var templateFile = templateDoc.Files.Single();
-
-                // iterate through our tranlation units and prune invalid units
-                foreach (var unit in xlfFile.TransUnits)
-                {
-                    // if a unit does not have a target it is invalid
-                    if (unit.Target != null) {
-                        templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
-                    }
-                }
-
-                // export modified template to RESX
                 var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));
+                SaveXlfTargetsAsResx(docName, newPath.Replace("xlf","resx"));
             }
         }
     }
@@ -789,7 +839,16 @@ Task("CodeGen")
        var t4Files = GetFiles(sourceFolder + "/**/*.tt");
        foreach(var t4Template in t4Files)
        {
-              TransformTemplate(t4Template, new TextTransformSettings {});
+              var exitCode = StartProcess("t4", new ProcessSettings
+              {
+                  Arguments = new ProcessArgumentBuilder()
+                      .AppendQuoted(t4Template.FullPath)
+              });
+
+              if (exitCode != 0)
+              {
+                  throw new Exception($"Transforming template {t4Template.FullPath} failed.");
+              }
        }
 });
 
