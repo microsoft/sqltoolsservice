@@ -29,10 +29,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Find global.json
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter global.json -Recurse -File |
+            Select-Object -ExpandProperty FullName
+
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          global-json-file: sqltoolsservice/sqltoolsservice/global.json
+          global-json-file: sqltoolsservice/global.json
 
       - name: Generate SQL authentication password
         shell: pwsh
@@ -109,9 +115,9 @@ jobs:
       - name: Generate integration test settings
         shell: pwsh
         run: |
-          dotnet run \
-            --project test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj \
-            -- \
+          dotnet run `
+            --project test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj `
+            -- `
             test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.CI.xml
 
       - name: Build integration tests
@@ -124,10 +130,10 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj \
-            --configuration Release \
-            --no-build \
-            --logger "trx;LogFileName=IntegrationTests.trx" \
+          dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj `
+            --configuration Release `
+            --no-build `
+            --logger "trx;LogFileName=IntegrationTests.trx" `
             --results-directory "$PWD/TestResults"
 
       - name: Publish integration test report
