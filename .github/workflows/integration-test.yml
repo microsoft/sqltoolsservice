@@ -42,11 +42,16 @@ jobs:
         run: |
           $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.ToCharArray()
           $passwordBody = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
-          $sqlPassword = "$passwordBody"
+          $sqlPassword = "A1!$passwordBody"
           Write-Output "::add-mask::$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "SQL_PASSWORD=$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "sqlOnPrem_password=$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "sqlAzure_password=$sqlPassword"
+
+      - name: Build repository
+        shell: pwsh
+        run: |
+          bash ./build.sh -target=all -mono
 
       - name: Start SQL Server 2025 container
         shell: pwsh
