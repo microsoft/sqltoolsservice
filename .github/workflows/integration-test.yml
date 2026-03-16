@@ -32,7 +32,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          global-json-file: sqltoolsservice/global.json
+          global-json-file: sqltoolsservice/sqltoolsservice/global.json
 
       - name: Generate SQL authentication password
         shell: pwsh
