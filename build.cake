@@ -326,13 +326,14 @@ Task("BuildTest")
             var projectFolder = System.IO.Path.Combine(testFolder, project);
             var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
-                Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
+                var exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
-                    })
-                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
+                    });
+
+                ExceptionOnErrorWithLog(exitStatus, $"Building test {project} failed for {framework}. See {logPath} for more details.", logPath);
             }
 
         }
@@ -354,13 +355,14 @@ Task("BuildFx")
             var projectFolder = System.IO.Path.Combine(sourceFolder, project.Name);
             var logPath = System.IO.Path.Combine(logFolder, $"{project.Name}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
-                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                var exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
-                    })
-                .ExceptionOnError($"Building test {project.Name} failed for {framework}. See {logPath} for more details.");
+                    });
+
+                ExceptionOnErrorWithLog(exitStatus, $"Building test {project.Name} failed for {framework}. See {logPath} for more details.", logPath);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 /// <summary>
 ///  Class encompassing the optional settings for running processes.
@@ -61,6 +62,10 @@ public struct ExitStatus
     public static implicit operator int(ExitStatus exitStatus)
     {
         return exitStatus._exitCode;
+    }
+    public override string ToString()
+    {
+        return $"{this._cmd} {this._args}";
     }
     /// <summary>
     ///  Trigger Exception for non-zero exit code.
@@ -179,6 +184,37 @@ ExitStatus RunRestore(string exec, string args, string workingDirectory)
     }).ExceptionOnError($"Error restoring packages.");
 
     Information("Package restore successful!");
+    return exitStatus;
+}
+
+void PrintLogTail(string logPath, int maxLines = 200)
+{
+    if (!System.IO.File.Exists(logPath))
+    {
+        Warning("Log file '{0}' was not found.", logPath);
+        return;
+    }
+
+    Information("Showing last {0} lines from {1}", maxLines, logPath);
+    Information("----- LOG TAIL BEGIN -----");
+
+    var logLines = System.IO.File.ReadLines(logPath).ToList();
+    foreach (var line in logLines.Skip(System.Math.Max(0, logLines.Count - maxLines)))
+    {
+        Information("{0}", line);
+    }
+
+    Information("----- LOG TAIL END -----");
+}
+
+ExitStatus ExceptionOnErrorWithLog(ExitStatus exitStatus, string errorMessage, string logPath, int maxLines = 200)
+{
+    if ((int)exitStatus != 0)
+    {
+        PrintLogTail(logPath, maxLines);
+        throw new Exception(errorMessage + $"\nCommand: {exitStatus.ToString()}");
+    }
+
     return exitStatus;
 }
 

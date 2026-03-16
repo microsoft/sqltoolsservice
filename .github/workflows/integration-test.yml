@@ -59,6 +59,14 @@ jobs:
         run: |
           ./.tools/dotnet-cake build.cake --target=all
 
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cake-build-logs
+          path: artifacts/logs
+          if-no-files-found: ignore
+
       - name: Start SQL Server 2025 container
         shell: pwsh
         run: |
