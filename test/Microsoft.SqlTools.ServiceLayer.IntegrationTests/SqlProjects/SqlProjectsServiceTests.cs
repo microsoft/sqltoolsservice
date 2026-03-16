@@ -1271,15 +1271,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially opened for a list of files");
         }
 
+        /// <summary>
+        /// Verifies that multiple properties passed in a single call are all written to disk.
+        /// </summary>
         [Test]
         [TestCase(ProjectType.LegacyStyle)]
         [TestCase(ProjectType.SdkStyle)]
-        public async Task TestSetProjectProperties(ProjectType projectType)
+        public async Task TestSetProjectProperties_SetsMultipleProperties(ProjectType projectType)
         {
             SqlProjectsService service = new();
             string projectUri = await service.CreateSqlProject(projectType);
 
-            // Set multiple properties in a single call
             MockRequest<ResultStatus> setMock = new();
             await service.HandleSetProjectPropertiesRequest(new SetProjectPropertiesParams()
             {
@@ -1293,13 +1295,39 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
 
-            // Reload the project and verify values were written
+            // Reload from disk to verify both values were written
             service.Projects.Clear();
             SqlProject project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
             Assert.AreEqual("TestSource", project.Properties.DatabaseSource, "DatabaseSource should match the value set via SetProjectProperties");
             Assert.AreEqual("Test project description", project.Properties.GetProperty("Description"), "Description should match the value set via SetProjectProperties");
+        }
 
-            // Overwrite a single property; other properties should be unaffected
+        /// <summary>
+        /// Verifies that updating one property in a subsequent call leaves unrelated properties intact.
+        /// </summary>
+        [Test]
+        [TestCase(ProjectType.LegacyStyle)]
+        [TestCase(ProjectType.SdkStyle)]
+        public async Task TestSetProjectProperties_OverwriteDoesNotAffectOtherProperties(ProjectType projectType)
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject(projectType);
+
+            // Write the baseline values first
+            MockRequest<ResultStatus> setMock = new();
+            await service.HandleSetProjectPropertiesRequest(new SetProjectPropertiesParams()
+            {
+                ProjectUri = projectUri,
+                Properties = new Dictionary<string, string>()
+                {
+                    { "DatabaseSource",  "TestSource" },
+                    { "Description",     "Test project description" },
+                }
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
+
+            // Overwrite only Description; DatabaseSource should be unaffected
             setMock = new();
             await service.HandleSetProjectPropertiesRequest(new SetProjectPropertiesParams()
             {
@@ -1313,17 +1341,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
 
             service.Projects.Clear();
-            project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
+            SqlProject project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
             Assert.AreEqual("Updated description", project.Properties.GetProperty("Description"), "Description should reflect the updated value");
             Assert.AreEqual("TestSource", project.Properties.DatabaseSource, "DatabaseSource should be unaffected by updating Description");
         }
 
         /// <summary>
-        /// Verifies the ProjectGuid special-case in HandleSetProjectPropertiesRequest:
-        /// because DacFx exposes ProjectGuid as an init-only field, the handler writes it
-        /// directly to the .sqlproj XML via SetReadOnlyPropertyInXml. This test confirms
-        /// the value round-trips correctly through a set → evict → reload sequence.
+        /// Verifies that ProjectGuid, which DacFx exposes as init-only, is written directly to the .sqlproj XML and round-trips correctly.
         /// </summary>
+        [Test]
         [TestCase(ProjectType.LegacyStyle)]
         [TestCase(ProjectType.SdkStyle)]
         public async Task TestSetProjectPropertiesProjectGuid(ProjectType projectType)

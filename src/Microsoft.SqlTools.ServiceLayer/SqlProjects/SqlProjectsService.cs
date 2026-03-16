@@ -26,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
         private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
         private const string SqlCodeAnalysisRulesPropertyName = "SqlCodeAnalysisRules";
+        private const string ProjectGuidPropertyName = "ProjectGuid";
 
         /// <summary>
         /// Gets the singleton instance object
@@ -194,19 +195,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
 
+                // First pass: apply all DacFx-managed properties so they are fully flushed
+                // to disk before any raw XML edits are made against the same file.
                 foreach (KeyValuePair<string, string> entry in requestParams.Properties)
                 {
-                    if (string.Equals(entry.Key, "ProjectGuid", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // DacFx exposes ProjectGuid as an init-only field with no writable API,
-                        // so fall back to editing the .sqlproj XML directly. Evict the cached
-                        // project afterward so the updated value is picked up on the next load.
-                        SetReadOnlyPropertyInXml(requestParams.ProjectUri, entry.Key, entry.Value);
-                        Projects.TryRemove(requestParams.ProjectUri, out _);
-                    }
-                    else
+                    if (!string.Equals(entry.Key, ProjectGuidPropertyName, StringComparison.OrdinalIgnoreCase))
                     {
                         project.Properties.SetProperty(entry.Key, entry.Value);
+                    }
+                }
+
+                // Second pass: apply XML-only properties (e.g. ProjectGuid) now that DacFx
+                // has finished writing, then evict the cached project so the next load picks
+                // up the updated file.
+                foreach (KeyValuePair<string, string> entry in requestParams.Properties)
+                {
+                    if (string.Equals(entry.Key, ProjectGuidPropertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        SetReadOnlyPropertyInXml(requestParams.ProjectUri, entry.Key, entry.Value);
+                        Projects.TryRemove(requestParams.ProjectUri, out _);
                     }
                 }
             }, requestContext);
