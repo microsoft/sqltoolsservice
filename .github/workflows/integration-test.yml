@@ -48,10 +48,15 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "sqlOnPrem_password=$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "sqlAzure_password=$sqlPassword"
 
+      - name: Install Cake
+        shell: pwsh
+        run: |
+          dotnet tool install --tool-path ./.dotnet-tools Cake.Tool
+
       - name: Build repository
         shell: pwsh
         run: |
-          bash ./build.sh -target=all -mono
+          ./.dotnet-tools/dotnet-cake build.cake --target=all
 
       - name: Start SQL Server 2025 container
         shell: pwsh
