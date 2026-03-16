@@ -940,10 +940,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         }
 
                                         parseInfo.ParseResult = parseResult;
-                                        if (parseResult == null)
-                                        {
-                                            return null;
-                                        }
 
                                         List<ParseResult> parseResults = new List<ParseResult>();
                                         parseResults.Add(parseResult);
@@ -1026,6 +1022,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (parseException != null)
             {
                 Logger.Error($"An unexpected error occured while parsing: {parseException}");
+                return false;
+            }
+
+            if (incrementalParseResult == null)
+            {
+                Logger.Error("Parser returned a null ParseResult.");
                 return false;
             }
 

@@ -277,5 +277,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 bindingQueue.Dispose();
             }
         }
+
+        [Test]
+        public async Task ParseAndBindConnectedPathClearsParseStateWhenParserReturnsNull()
+        {
+            TestLanguageService service = new TestLanguageService();
+            ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(false);
+            service.BindingQueue = bindingQueue;
+
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("SELECT 1");
+
+            var parseOptions = new ParseOptions(
+                batchSeparator: LanguageService.DefaultBatchSeperator,
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+
+            ScriptParseInfo scriptParseInfo = new ScriptParseInfo
+            {
+                IsConnected = true,
+                ConnectionKey = "test-connection-key",
+                ParseResult = Parser.IncrementalParse("SELECT 1", null, parseOptions)
+            };
+
+            service.AddOrUpdateScriptParseInfo(scriptFile.ClientUri, scriptParseInfo);
+
+            ConnectedBindingContext bindingContext = new ConnectedBindingContext
+            {
+                IsConnected = false
+            };
+
+            bindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
+            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.FromResult(0));
+
+            bool dedicatedThreadCreated = false;
+
+            service.CreateParseThreadOverride = threadStart =>
+            {
+                dedicatedThreadCreated = true;
+                return new Thread(threadStart);
+            };
+
+            service.IncrementalParseOverride = (sqlText, previousParseResult, options) => null;
+
+            try
+            {
+                ParseResult parseResult = await service.ParseAndBind(scriptFile, TestObjects.GetTestConnectionInfo());
+
+                Assert.IsNull(parseResult);
+                Assert.IsNull(scriptParseInfo.ParseResult);
+                Assert.IsTrue(dedicatedThreadCreated);
+            }
+            finally
+            {
+                bindingQueue.StopQueueProcessor(1000);
+                bindingQueue.Dispose();
+            }
+        }
     }
 }
