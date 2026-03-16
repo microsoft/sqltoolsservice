@@ -21,9 +21,6 @@ permissions:
 jobs:
   integration-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: sqltoolsservice
 
     steps:
       - name: Checkout repository
@@ -38,7 +35,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          global-json-file: sqltoolsservice/global.json
+          global-json-file: global.json
 
       - name: Generate SQL authentication password
         shell: pwsh
@@ -141,7 +138,7 @@ jobs:
         uses: dorny/test-reporter@v1
         with:
           name: Integration Tests
-          path: sqltoolsservice/TestResults/*.trx
+          path: TestResults/*.trx
           reporter: dotnet-trx
           fail-on-error: false
 
@@ -150,7 +147,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-results
-          path: sqltoolsservice/TestResults/*.trx
+          path: TestResults/*.trx
           if-no-files-found: ignore
 
       - name: Stop SQL container
