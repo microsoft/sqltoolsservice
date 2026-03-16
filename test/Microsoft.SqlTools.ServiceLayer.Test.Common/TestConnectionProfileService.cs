@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static InstanceInfo? GetInstance(string key)
         {
             connectionProfilesCache.TryGetValue(key, out InstanceInfo? instanceInfo);
-            Assert.True(instanceInfo != null, string.Format(CultureInfo.InvariantCulture, "Cannot find any instance for version key: {0}", key));
+            Assert.True(instanceInfo != null, $"Cannot find any instance for version key: {key}; available keys: {String.Join(", ", connectionProfilesCache.Keys)}");
             return instanceInfo;
         }
 
