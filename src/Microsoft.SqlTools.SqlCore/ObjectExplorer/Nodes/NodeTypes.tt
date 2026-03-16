@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 <#
 		var directory = Path.GetDirectoryName(Host.TemplateFile);
 
-		string xmlFile = Path.Combine(directory, "..\\SmoModel\\SmoTreeNodesDefinition.xml");
+		string xmlFile = Path.Combine(directory, "../SmoModel/SmoTreeNodesDefinition.xml");
 
 		var allTreeNodes = GetUniqueNodeTypes(xmlFile);
 
