@@ -998,11 +998,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Runs parse on a separate thread to avoid blocking and crashing the main thread if the parser
         /// hangs or crashes.
         /// </summary>
-        /// <param name="sqlText"></param>
-        /// <param name="previousParseResult"></param>
-        /// <param name="parseOptions"></param>
-        /// <param name="parseResult"></param>
-        /// <returns></returns>
         private bool TryIncrementalParse(
             string sqlText,
             ParseResult previousParseResult,
