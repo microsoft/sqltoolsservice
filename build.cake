@@ -164,6 +164,17 @@ void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
     resxDocument.Save(resxPath);
 }
 
+string GetExistingPathWithPreferredCase(string directoryPath, string fileName)
+{
+    // Linux treats zh-Hans and zh-hans as different files, which lets SRGen create
+    // duplicate locale resources that later collide to the same MSBuild output path.
+    var existingPath = System.IO.Directory
+        .GetFiles(directoryPath, "*", SearchOption.TopDirectoryOnly)
+        .FirstOrDefault(path => string.Equals(System.IO.Path.GetFileName(path), fileName, StringComparison.OrdinalIgnoreCase));
+
+    return existingPath ?? System.IO.Path.Combine(directoryPath, fileName);
+}
+
 /// <summary>
 ///  Clean artifacts.
 /// </summary>
@@ -852,8 +863,18 @@ Task("SRGen")
             var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
             foreach(var docName in xlfDocNames)
             {
-                var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-                SaveXlfTargetsAsResx(docName, newPath.Replace("xlf","resx"));
+                var generatedFileName = System.IO.Path.GetFileName(docName).Replace("xlf", "resx");
+                var targetResxPath = GetExistingPathWithPreferredCase(localizationDir, generatedFileName);
+                var generatedResxPath = System.IO.Path.Combine(localizationDir, generatedFileName);
+
+                // Remove any alternate-case locale file first so Linux builds do not end up with
+                // both names on disk and fail with duplicate satellite resource outputs.
+                if (!string.Equals(targetResxPath, generatedResxPath, StringComparison.Ordinal) && System.IO.File.Exists(generatedResxPath))
+                {
+                    System.IO.File.Delete(generatedResxPath);
+                }
+
+                SaveXlfTargetsAsResx(docName, targetResxPath);
             }
         }
     }
