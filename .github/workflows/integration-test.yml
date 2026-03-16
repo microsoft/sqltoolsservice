@@ -1,15 +1,16 @@
-name: CI
+name: Integration Tests
+
 on:
   schedule:
     - cron: '0 0 * * *'
-
   push:
     branches:
       - main
-    pull_request:
-      branches:
-        - main
-
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - release/*
   workflow_dispatch:
 
 permissions:
@@ -18,9 +19,140 @@ permissions:
   checks: write
 
 jobs:
-  build-and-test:
+  integration-tests:
     runs-on: ubuntu-latest
-  
+    defaults:
+      run:
+        working-directory: sqltoolsservice
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: sqltoolsservice/global.json
+
+      - name: Generate SQL authentication password
+        shell: pwsh
+        run: |
+          $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.ToCharArray()
+          $passwordBody = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
+          $sqlPassword = "A1!$passwordBody"
+          Write-Output "::add-mask::$sqlPassword"
+          Add-Content -Path $env:GITHUB_ENV -Value "SQL_PASSWORD=$sqlPassword"
+          Add-Content -Path $env:GITHUB_ENV -Value "sqlOnPrem_password=$sqlPassword"
+          Add-Content -Path $env:GITHUB_ENV -Value "sqlAzure_password=$sqlPassword"
+
+      - name: Start SQL Server 2025 container
+        shell: pwsh
+        run: |
+          docker pull mcr.microsoft.com/mssql/server:2025-latest
+          docker rm -f sqltoolsservice-integration-tests *> $null
+          docker run `
+            --detach `
+            --name sqltoolsservice-integration-tests `
+            --hostname sqltoolsservice-integration-tests `
+            --publish 1433:1433 `
+            --env ACCEPT_EULA=Y `
+            --env MSSQL_PID=Developer `
+            --env MSSQL_AGENT_ENABLED=true `
+            --env MSSQL_SA_PASSWORD="$env:SQL_PASSWORD" `
+            mcr.microsoft.com/mssql/server:2025-latest
+
+      - name: Create SQL login for integration tests
+        shell: pwsh
+        run: |
+          $ready = $false
+          for ($attempt = 1; $attempt -le 30; $attempt++) {
+            docker exec sqltoolsservice-integration-tests /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $env:SQL_PASSWORD -C -Q "SELECT 1" *> $null
+            if ($LASTEXITCODE -eq 0) {
+              $ready = $true
+              break
+            }
+
+            Start-Sleep -Seconds 5
+          }
+
+          if (-not $ready) {
+            throw "SQL Server container did not become ready in time."
+          }
+
+          $sql = "IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = 'testAccount') BEGIN CREATE LOGIN [testAccount] WITH PASSWORD = '$($env:SQL_PASSWORD)', CHECK_POLICY = OFF; END; ALTER SERVER ROLE [sysadmin] ADD MEMBER [testAccount];"
+          docker exec sqltoolsservice-integration-tests /opt/mssql-tools18/bin/sqlcmd `
+            -S localhost `
+            -U sa `
+            -P $env:SQL_PASSWORD `
+            -C `
+            -Q $sql
+
+      - name: Create integration test connection instances file
+        shell: pwsh
+        run: |
+          @'
+          <?xml version="1.0" encoding="utf-8"?>
+          <Instances>
+            <Instance VersionKey="sqlOnPrem">
+              <DataSource>localhost</DataSource>
+              <UserId>testAccount</UserId>
+              <Password></Password>
+            </Instance>
+            <Instance VersionKey="sqlAzure">
+              <DataSource>localhost</DataSource>
+              <UserId>testAccount</UserId>
+              <Password></Password>
+            </Instance>
+          </Instances>
+          '@ | Set-Content -Path test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.CI.xml
+
+      - name: Generate integration test settings
+        shell: pwsh
+        run: |
+          dotnet run \
+            --project test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj \
+            -- \
+            test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.CI.xml
+
+      - name: Build integration tests
+        shell: pwsh
+        run: |
+          dotnet build test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj --configuration Release
+
+      - name: Run integration tests
+        id: integration_tests
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=IntegrationTests.trx" \
+            --results-directory "$PWD/TestResults"
+
+      - name: Publish integration test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Integration Tests
+          path: sqltoolsservice/TestResults/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: sqltoolsservice/TestResults/*.trx
+          if-no-files-found: ignore
+
+      - name: Stop SQL container
+        if: always()
+        shell: pwsh
+        run: docker rm -f sqltoolsservice-integration-tests *> $null
+
+      - name: Fail workflow when integration tests fail
+        if: steps.integration_tests.outcome == 'failure'
+        shell: pwsh
+        run: exit 1
