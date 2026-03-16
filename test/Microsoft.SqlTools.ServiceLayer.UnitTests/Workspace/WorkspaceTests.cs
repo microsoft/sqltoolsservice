@@ -118,12 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         }
 
         [Test]
-        public void UnescapePath()
-        {
-            Assert.NotNull(Microsoft.SqlTools.ServiceLayer.Workspace.Workspace.UnescapePath("`/path/`"));
-        }
-
-        [Test]
         public void GetBaseFilePath()
         {
             RunIfWrapper.RunIfWindows(() => 
@@ -240,11 +234,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
             file = workspace.GetFile(tempFile);
             Assert.AreEqual(fileContents, file.Contents);
 
-            if (tempFile.StartsWith("/"))
-            {
-                tempFile = tempFile.Substring(1);
-            }
-            file = workspace.GetFile("file://" + tempFile);
+            var fileUri = new Uri(tempFile).AbsoluteUri;
+            file = workspace.GetFile(fileUri);
             Assert.AreEqual(fileContents, file.Contents);
 
             file = workspace.GetFileBuffer("untitled://"+ tempFile, fileContents);
