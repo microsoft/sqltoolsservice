@@ -11,6 +11,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -34,16 +35,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     public class LanguageServiceTests
     {
         private const int NonTSqlTestTimeoutMs = 180_000;
+        private readonly List<LanguageService> createdLanguageServices = new();
 
         [SetUp]
         public void SetUpTest()
         {
+            createdLanguageServices.Clear();
             Console.WriteLine($"=== START TEST {TestContext.CurrentContext.Test.FullName} ===");
         }
 
         [TearDown]
         public void TearDownTest()
         {
+            foreach (var languageService in createdLanguageServices)
+            {
+                languageService.Dispose();
+            }
+            createdLanguageServices.Clear();
             Console.WriteLine(
                 $"=== END TEST {TestContext.CurrentContext.Test.FullName} " +
                 $"Status={TestContext.CurrentContext.Result.Outcome.Status} ===");
@@ -743,6 +751,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 lowerCaseSuggestions ?
                 Formatter.CasingOptions.Lowercase :
                 Formatter.CasingOptions.Uppercase;
+            createdLanguageServices.Add(langService);
             return langService;
         }
     }
