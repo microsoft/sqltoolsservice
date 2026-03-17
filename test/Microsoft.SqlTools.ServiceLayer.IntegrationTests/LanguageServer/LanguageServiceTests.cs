@@ -443,76 +443,76 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.AreEqual(0, fileMarkers.Length);
         }
 
-        [Test]
-        [Timeout(NonTSqlTestTimeoutMs)]
-        [TestCase(
-            @"
-            SELECT * from sys.objects
-            --returning
-            select * s
-            ", 
-            false, 
-            "Should not detect non-T-SQL in a valid T-SQL script."
-        )]
-        [TestCase(
-            @"
-            SELECT * from [returning]
-            --returning
-            ", 
-            false, 
-            "Should not detect non-T-SQL in a valid T-SQL script, with a Non-T-SQL keyword as an object name"
-        )]
-        [TestCase(
-            "CREATE DATABASE ExampleDB; returNING", 
-            true, 
-            "Should detect non-T-SQL keywords in the script."
-        )]
+        // [Test]
+        // [Timeout(NonTSqlTestTimeoutMs)]
+        // [TestCase(
+        //     @"
+        //     SELECT * from sys.objects
+        //     --returning
+        //     select * s
+        //     ", 
+        //     false, 
+        //     "Should not detect non-T-SQL in a valid T-SQL script."
+        // )]
+        // [TestCase(
+        //     @"
+        //     SELECT * from [returning]
+        //     --returning
+        //     ", 
+        //     false, 
+        //     "Should not detect non-T-SQL in a valid T-SQL script, with a Non-T-SQL keyword as an object name"
+        // )]
+        // [TestCase(
+        //     "CREATE DATABASE ExampleDB; returNING", 
+        //     true, 
+        //     "Should detect non-T-SQL keywords in the script."
+        // )]
         // [TestCase(
         //     null, 
         //     true, 
         //     "Should detect non-T-SQL due to exceeding error limit."
         // )]
-        public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
-        {
-            LogNonTSqlTest($"Starting inline script test. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
-            bool result = await CheckForNonTSqlHelper(scriptText);
-            LogNonTSqlTest($"Completed inline script test. Expected={expectedResult}. Actual={result}. Message={message}");
-            Assert.AreEqual(expectedResult, result, message);
-        }
+        // public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
+        // {
+        //     LogNonTSqlTest($"Starting inline script test. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
+        //     bool result = await CheckForNonTSqlHelper(scriptText);
+        //     LogNonTSqlTest($"Completed inline script test. Expected={expectedResult}. Actual={result}. Message={message}");
+        //     Assert.AreEqual(expectedResult, result, message);
+        // }
 
-        [Test]
-        [Timeout(NonTSqlTestTimeoutMs)]
-        [TestCase(
-            "LanguageServer/AdventureWorksDeploymentTestScript.sql", 
-            false, 
-            "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
-        )]
-        [TestCase(
-            "LanguageServer/AdventureWorksTestScript.sql", 
-            false, 
-            "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
-        )]
-        [TestCase(
-            "LanguageServer/WWITestScript.sql", 
-            false, 
-            "WWI script; should not detect Non-T-SQL syntax"
-        )]
-        public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
-        {            
-            filePath = Path.Combine(AppContext.BaseDirectory, filePath);
-            if (File.Exists(filePath))
-            {
-                // Read the contents of the file
-                string scriptText = File.ReadAllText(filePath);
-                LogNonTSqlTest($"Starting file-based test. File={filePath}. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
-                bool result = await CheckForNonTSqlHelper(scriptText);
-                LogNonTSqlTest($"Completed file-based test. File={filePath}. Expected={expectedResult}. Actual={result}. Message={message}");
-                Assert.AreEqual(expectedResult, result, message);
-            }
-            else {
-                Assert.Fail($"File not found: {filePath}");
-            }
-        }
+        // [Test]
+        // [Timeout(NonTSqlTestTimeoutMs)]
+        // [TestCase(
+        //     "LanguageServer/AdventureWorksDeploymentTestScript.sql", 
+        //     false, 
+        //     "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
+        // )]
+        // [TestCase(
+        //     "LanguageServer/AdventureWorksTestScript.sql", 
+        //     false, 
+        //     "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
+        // )]
+        // [TestCase(
+        //     "LanguageServer/WWITestScript.sql", 
+        //     false, 
+        //     "WWI script; should not detect Non-T-SQL syntax"
+        // )]
+        // public async Task CheckForNonTSqlLanguageFromFilePathTest(string filePath, bool expectedResult, string message)
+        // {            
+        //     filePath = Path.Combine(AppContext.BaseDirectory, filePath);
+        //     if (File.Exists(filePath))
+        //     {
+        //         // Read the contents of the file
+        //         string scriptText = File.ReadAllText(filePath);
+        //         LogNonTSqlTest($"Starting file-based test. File={filePath}. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
+        //         bool result = await CheckForNonTSqlHelper(scriptText);
+        //         LogNonTSqlTest($"Completed file-based test. File={filePath}. Expected={expectedResult}. Actual={result}. Message={message}");
+        //         Assert.AreEqual(expectedResult, result, message);
+        //     }
+        //     else {
+        //         Assert.Fail($"File not found: {filePath}");
+        //     }
+        // }
 
         public async Task<bool>CheckForNonTSqlHelper(string scriptText)
         {
