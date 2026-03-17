@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Text;
 using System.Xml;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 
@@ -131,7 +130,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 
                 writer.WriteStartElement("is");
                 writer.WriteStartElement("t");
-                writer.WriteValue(SanitizeXmlString(value));
+                writer.WriteValue(value);
                 writer.WriteEndElement();
                 writer.WriteEndElement();
 
@@ -330,30 +329,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
                 {
                     writer.WriteEndElement(); // <row>
                 }
-            }
-
-            /// <summary>
-            /// Removes characters that are illegal in XML 1.0 from a string.
-            /// XML 1.0 allows: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD]
-            /// </summary>
-            private static string SanitizeXmlString(string input)
-            {
-                if (string.IsNullOrEmpty(input)) return input;
-                StringBuilder? sb = null;
-                for (int i = 0; i < input.Length; i++)
-                {
-                    char c = input[i];
-                    bool legal = c == '\t' || c == '\n' || c == '\r' ||
-                                 (c >= '\x20' && c <= '\xD7FF') ||
-                                 (c >= '\xE000' && c <= '\xFFFD');
-                    if (!legal && sb == null)
-                    {
-                        sb = new StringBuilder(input.Length);
-                        sb.Append(input, 0, i);
-                    }
-                    if (legal) sb?.Append(c);
-                }
-                return sb == null ? input : sb.ToString();
             }
 
 
