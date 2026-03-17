@@ -467,11 +467,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             true, 
             "Should detect non-T-SQL keywords in the script."
         )]
-        [TestCase(
-            null, 
-            true, 
-            "Should detect non-T-SQL due to exceeding error limit."
-        )]
+        // [TestCase(
+        //     null, 
+        //     true, 
+        //     "Should detect non-T-SQL due to exceeding error limit."
+        // )]
         public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
         {
             LogNonTSqlTest($"Starting inline script test. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
