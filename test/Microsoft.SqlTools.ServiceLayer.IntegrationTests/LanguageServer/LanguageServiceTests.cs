@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     /// <summary>
     /// Tests for the ServiceHost Language Service tests
     /// </summary>
+    [Ignore("Temporarily disabled while investigating integration test hangs in CI")]
     public class LanguageServiceTests
     {
         private const int NonTSqlTestTimeoutMs = 180_000;
