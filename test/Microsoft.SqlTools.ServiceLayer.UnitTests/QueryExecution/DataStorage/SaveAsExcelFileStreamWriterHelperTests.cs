@@ -495,7 +495,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
         [TestCase("hello\x00world", "helloworld")]
         [TestCase("\x01\x02\x03", "")]
-        [TestCase("ok\x00\x01\x14end", "okend")]
+        [TestCase("ok\u0001\u0014end", "okend")]
         [TestCase("no control chars", "no control chars")]
         [TestCase("tab\there", "tab\there")]    // tab (\x09) is legal and must be preserved
         public void StringCellIllegalXmlControlCharactersAreStripped(string rawValue, string expected)
