@@ -469,6 +469,58 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             stream.Dispose();
         }
 
+        /// <summary>
+        /// Verifies that strings containing XML-illegal control characters (issue #17853) do not
+        /// throw when written to the Excel sheet and that the illegal characters are stripped from
+        /// the output.
+        /// </summary>
+        [TestCase("\x00")]                      // NUL
+        [TestCase("\x01")]                      // SOH
+        [TestCase("\x14")]                      // DC4
+        [TestCase("hello\x00world")]            // embedded NUL
+        [TestCase("\x01\x02\x03")]              // several illegal chars
+        [TestCase("ok\x00\x01\x14end")]         // multiple illegal chars mixed with legal text
+        public void StringCellWithIllegalXmlControlCharactersDoesNotThrow(string rawValue)
+        {
+            var stream = new MemoryStream();
+            Assert.DoesNotThrow(() =>
+            {
+                using var helper = new SaveAsExcelFileStreamWriterHelper(stream, true);
+                using var sheet = helper.AddSheet(null, 1);
+                sheet.AddRow();
+                var value = new DbCellValue { IsNull = false, RawObject = rawValue };
+                sheet.AddCell(value);
+            });
+        }
+
+        [TestCase("hello\x00world", "helloworld")]
+        [TestCase("\x01\x02\x03", "")]
+        [TestCase("ok\x00\x01\x14end", "okend")]
+        [TestCase("no control chars", "no control chars")]
+        [TestCase("tab\there", "tab\there")]    // tab (\x09) is legal and must be preserved
+        public void StringCellIllegalXmlControlCharactersAreStripped(string rawValue, string expected)
+        {
+            var stream = new MemoryStream();
+            using (var helper = new SaveAsExcelFileStreamWriterHelper(stream, true))
+            using (var sheet = helper.AddSheet(null, 1))
+            {
+                sheet.AddRow();
+                var value = new DbCellValue { IsNull = false, RawObject = rawValue };
+                sheet.AddCell(value);
+            }
+
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read, true);
+            using var reader = new StreamReader(zip.GetEntry("xl/worksheets/sheet1.xml")!.Open());
+            string sheetXml = reader.ReadToEnd();
+
+            // The cell value is written inside <t>…</t>
+            int start = sheetXml.IndexOf("<t>", StringComparison.Ordinal);
+            int end = sheetXml.IndexOf("</t>", StringComparison.Ordinal);
+            Assert.IsTrue(start >= 0 && end > start, "Could not find <t> element in sheet XML");
+            string cellContent = sheetXml.Substring(start + 3, end - start - 3);
+            Assert.AreEqual(expected, cellContent);
+        }
+
         [GeneratedRegex("\\r?\\n\\s*")]
         private static partial Regex GetContentRemoveLinebreakLeadingSpaceRegex();
 
