@@ -37,10 +37,6 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Create Linux build directories
-        shell: bash
-        run: ./azure-pipelines/createBuildDirectories.sh
-
       - name: Generate SQL authentication password
         shell: pwsh
         run: |
