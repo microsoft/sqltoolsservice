@@ -911,27 +911,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (connInfo == null || !parseInfo.IsConnected)
                         {
-                            // parse on separate thread so stack size can be increased
-                            var parseThread = new Thread(() =>
+                            if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, out ParseResult parseResult))
                             {
-                                try
-                                {
-                                    // parse current SQL file contents to retrieve a list of errors
-                                    ParseResult parseResult = Parser.IncrementalParse(
-                                    scriptFile.Contents,
-                                    parseInfo.ParseResult,
-                                    this.DefaultParseOptions);
-
-                                    parseInfo.ParseResult = parseResult;
-                                }
-                                catch (Exception e)
-                                {
-                                    // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
-                                    Logger.Error(string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
-                                }
-                            }, ConnectedBindingQueue.QueueThreadStackSize);
-                            parseThread.Start();
-                            parseThread.Join();
+                                parseInfo.ParseResult = parseResult;
+                            }
+                            else
+                            {
+                                parseInfo.ParseResult = null;
+                            }
                         }
                         else
                         {
@@ -942,10 +929,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 {
                                     try
                                     {
-                                        ParseResult parseResult = Parser.IncrementalParse(
+                                        if (!TryIncrementalParse(
                                             scriptFile.Contents,
                                             parseInfo.ParseResult,
-                                            bindingContext.ParseOptions);
+                                            bindingContext.ParseOptions,
+                                            out ParseResult parseResult))
+                                        {
+                                            parseInfo.ParseResult = null;
+                                            return null;
+                                        }
 
                                         parseInfo.ParseResult = parseResult;
 
@@ -996,6 +988,65 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 return parseInfo.ParseResult;
             });
+        }
+        
+        /// <summary>
+        /// Runs parse on a separate thread to avoid blocking and crashing the main thread if the parser
+        /// hangs or crashes.
+        /// </summary>
+        private bool TryIncrementalParse(
+            string sqlText,
+            ParseResult previousParseResult,
+            ParseOptions parseOptions,
+            out ParseResult parseResult)
+        {
+            ParseResult incrementalParseResult = null;
+            Exception parseException = null;
+
+            Thread parseThread = this.CreateParseThread(() =>
+            {
+                try
+                {
+                    incrementalParseResult = this.IncrementalParse(sqlText, previousParseResult, parseOptions);
+                }
+                catch (Exception ex)
+                {
+                    parseException = ex;
+                }
+            });
+
+            parseThread.Start();
+            parseThread.Join();
+            parseResult = incrementalParseResult;
+
+            if (parseException != null)
+            {
+                Logger.Error($"An unexpected error occured while parsing: {parseException}");
+                return false;
+            }
+
+            if (incrementalParseResult == null)
+            {
+                Logger.Error("Parser returned a null ParseResult.");
+                return false;
+            }
+
+            return true;
+        }
+
+        internal virtual ParseResult IncrementalParse(
+            string sqlText,
+            ParseResult previousParseResult,
+            ParseOptions parseOptions)
+        {
+            return Parser.IncrementalParse(sqlText, previousParseResult, parseOptions);
+        }
+
+        internal virtual Thread CreateParseThread(ThreadStart threadStart)
+        {
+            Thread thread = new Thread(threadStart, ConnectedBindingQueue.QueueThreadStackSize);
+            thread.IsBackground = true;
+            return thread;
         }
 
         /// <summary>
