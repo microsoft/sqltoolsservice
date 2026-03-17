@@ -33,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
+        private const int NonTSqlTestTimeoutMs = 180_000;
+
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
             var textDocument = new TextDocumentPosition
@@ -442,6 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         }
 
         [Test]
+        [Timeout(NonTSqlTestTimeoutMs)]
         [TestCase(
             @"
             SELECT * from sys.objects
@@ -471,11 +474,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         )]
         public async Task CheckForNonTSqlLanguageTest(string scriptText, bool expectedResult, string message)
         {
+            LogNonTSqlTest($"Starting inline script test. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
             bool result = await CheckForNonTSqlHelper(scriptText);
+            LogNonTSqlTest($"Completed inline script test. Expected={expectedResult}. Actual={result}. Message={message}");
             Assert.AreEqual(expectedResult, result, message);
         }
 
         [Test]
+        [Timeout(NonTSqlTestTimeoutMs)]
         [TestCase(
             "LanguageServer/AdventureWorksDeploymentTestScript.sql", 
             false, 
@@ -498,7 +504,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 // Read the contents of the file
                 string scriptText = File.ReadAllText(filePath);
+                LogNonTSqlTest($"Starting file-based test. File={filePath}. Expected={expectedResult}. Message={message}. ScriptSummary={SummarizeScript(scriptText)}");
                 bool result = await CheckForNonTSqlHelper(scriptText);
+                LogNonTSqlTest($"Completed file-based test. File={filePath}. Expected={expectedResult}. Actual={result}. Message={message}");
                 Assert.AreEqual(expectedResult, result, message);
             }
             else {
@@ -512,15 +520,67 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             // Dynamically generate the script if it's null (for error limit test)
             scriptText ??= string.Concat(Enumerable.Repeat("select * s\n", TSqlDetectionConstants.SqlFileErrorLimit + 1));
+            LogNonTSqlTest($"Preparing script for Non-T-SQL detection. Length={scriptText.Length}. Summary={SummarizeScript(scriptText)}");
 
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(scriptText);
+            LogNonTSqlTest($"Created ScriptFile. Uri={scriptFile.ClientUri}. Path={scriptFile.FilePath}");
 
             var langService = CreateLanguageService(scriptFile);
-            ParseResult parseResult = await langService.ParseAndBind(scriptFile, connInfo);
+            LogNonTSqlTest($"Starting ParseAndBind. Uri={scriptFile.ClientUri}");
+            ParseResult parseResult = await WithTimeout(
+                langService.ParseAndBind(scriptFile, connInfo),
+                "ParseAndBind",
+                $"Uri={scriptFile.ClientUri}; Summary={SummarizeScript(scriptText)}");
+            LogNonTSqlTest(
+                $"Completed ParseAndBind. Uri={scriptFile.ClientUri}. " +
+                $"Errors={parseResult?.Errors?.Count() ?? -1}. " +
+                $"Tokens={parseResult?.Script?.Tokens?.Count() ?? -1}. " +
+                $"Identifiers={parseResult?.Script?.RetrieveAllIdentifiers()?.Count ?? -1}");
 
-            bool result = await langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+            LogNonTSqlTest($"Starting CheckForNonTSqlLanguage. Uri={scriptFile.ClientUri}");
+            bool result = await WithTimeout(
+                langService.CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult),
+                "CheckForNonTSqlLanguage",
+                $"Uri={scriptFile.ClientUri}; Errors={parseResult?.Errors?.Count() ?? -1}; Tokens={parseResult?.Script?.Tokens?.Count() ?? -1}");
+            LogNonTSqlTest($"Completed CheckForNonTSqlLanguage. Uri={scriptFile.ClientUri}. Result={result}");
             return result;
+        }
+
+        private static async Task<T> WithTimeout<T>(Task<T> task, string operationName, string context)
+        {
+            var timeoutTask = Task.Delay(NonTSqlTestTimeoutMs);
+            var completedTask = await Task.WhenAny(task, timeoutTask);
+            if (completedTask == timeoutTask)
+            {
+                var message = $"{operationName} timed out after {NonTSqlTestTimeoutMs / 1000} seconds. {context}";
+                LogNonTSqlTest(message);
+                throw new TimeoutException(message);
+            }
+
+            return await task;
+        }
+
+        private static void LogNonTSqlTest(string message)
+        {
+            Console.WriteLine($"[CheckForNonTSqlLanguageTest {DateTime.UtcNow:O}] {message}");
+        }
+
+        private static string SummarizeScript(string scriptText)
+        {
+            if (scriptText == null)
+            {
+                return "<null>";
+            }
+
+            var normalized = scriptText
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n");
+
+            const int maxLength = 160;
+            return normalized.Length <= maxLength
+                ? normalized
+                : normalized.Substring(0, maxLength) + "...";
         }
 
         /// <summary>
