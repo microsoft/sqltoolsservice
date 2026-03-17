@@ -70,6 +70,14 @@ steps:
     useGlobalJson: true
 
 - task: PowerShell@2
+  displayName: 'Install Cake tools'
+  inputs:
+    targetType: 'inline'
+    script: |
+      dotnet tool install --tool-path ./.tools Cake.Tool
+      dotnet tool install --tool-path ./.tools dotnet-t4
+
+- task: PowerShell@2
   displayName: 'Add version number to SqlCore project for packaging'
   inputs:
     targetType: 'inline'
@@ -85,11 +93,12 @@ steps:
   displayName: 'CodeQL Initialize'
   condition: eq(variables['Codeql.enabled'], 'True')
 
-- task: BatchScript@1
-  displayName: 'Run script build.cmd'
+- task: PowerShell@2
+  displayName: 'Run Cake build'
   inputs:
-    filename: build.cmd
-    arguments: '-target=all -mono'
+    targetType: 'inline'
+    script: |
+      ./.tools/dotnet-cake build.cake --target=all
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
@@ -200,19 +209,21 @@ steps:
     custom: pack
     arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
-- task: BatchScript@1
+- task: PowerShell@2
   displayName: 'Package nuspec projects'
   inputs:
-    filename: build.cmd
-    arguments: '-target=NugetPackNuspec -mono'
+    targetType: 'inline'
+    script: |
+      ./.tools/dotnet-cake build.cake --target=NugetPackNuspec
     
-- task: BatchScript@1
+- task: PowerShell@2
   displayName: "Build and Package service tool projects"
   env:
     BUILD_DOTNET_TOOL: "true"
   inputs:
-    filename: build.cmd
-    arguments: "-target=dotnetpackservicetools -mono"
+    targetType: 'inline'
+    script: |
+      ./.tools/dotnet-cake build.cake --target=dotnetpackservicetools
 
 - ${{ each project in parameters.projects }}:
   - ${{ each platform in parameters.platforms }}:
