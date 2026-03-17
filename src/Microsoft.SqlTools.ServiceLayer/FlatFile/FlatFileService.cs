@@ -201,14 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
             {
                 details.DatabaseName = parameters.DatabaseName;
             }
-
-            if (details.AuthenticationType == "AzureMFA" &&
-                !ConnectionService.Instance.EnableSqlAuthenticationProvider)
-            {
-                throw new InvalidOperationException(
-                    "Flat file import for Azure MFA connections requires EnableSqlAuthenticationProvider.");
-            }
-
+            
             return ConnectionService.BuildConnectionString(details);
         }
 
