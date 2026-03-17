@@ -22,7 +22,6 @@ namespace Microsoft.SqlTools.Extensibility
             "microsofsqltoolscredentials.dll",
             "microsoft.sqltools.hosting.dll",
             "microsoftsqltoolsservicelayer.dll",
-            "microsoftkustoservicelayer.dll",
             "microsoft.sqltools.sqlcore.dll"
         };
 

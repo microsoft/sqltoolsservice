@@ -11,9 +11,6 @@
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
       "net8.0"
     ],
-    "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net8.0"
-    ],
     "Microsoft.SqlTools.Authentication.UnitTests": [
       "net8.0"
     ],
@@ -30,7 +27,6 @@
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
-    "Microsoft.Kusto.ServiceLayer",
     "Microsoft.SqlTools.ServiceLayer",
     "Microsoft.SqlTools.ManagedBatchParser",
     "Microsoft.SqlTools.Migration"
@@ -48,8 +44,7 @@
     "Microsoft.SqlTools.Hosting"
   ],
   "DotnetToolProjects": [
-    "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer"
+    "Microsoft.SqlTools.ServiceLayer"
   ],
   "Projects": [
     {
