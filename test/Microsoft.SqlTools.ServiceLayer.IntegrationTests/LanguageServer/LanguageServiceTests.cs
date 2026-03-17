@@ -35,6 +35,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     {
         private const int NonTSqlTestTimeoutMs = 180_000;
 
+        [SetUp]
+        public void SetUpTest()
+        {
+            Console.WriteLine($"=== START TEST {TestContext.CurrentContext.Test.FullName} ===");
+        }
+
+        [TearDown]
+        public void TearDownTest()
+        {
+            Console.WriteLine(
+                $"=== END TEST {TestContext.CurrentContext.Test.FullName} " +
+                $"Status={TestContext.CurrentContext.Result.Outcome.Status} ===");
+        }
+
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
             var textDocument = new TextDocumentPosition
