@@ -477,17 +477,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
         [Test]
         [TestCase(
-            "LanguageServer\\AdventureWorksDeploymentTestScript.sql", 
+            "LanguageServer/AdventureWorksDeploymentTestScript.sql", 
             false, 
             "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
         )]
         [TestCase(
-            "LanguageServer\\AdventureWorksTestScript.sql", 
+            "LanguageServer/AdventureWorksTestScript.sql", 
             false, 
             "AdventureWorks DacFx deployment script; should not detect Non-T-SQL syntax"
         )]
         [TestCase(
-            "LanguageServer\\WWITestScript.sql", 
+            "LanguageServer/WWITestScript.sql", 
             false, 
             "WWI script; should not detect Non-T-SQL syntax"
         )]
