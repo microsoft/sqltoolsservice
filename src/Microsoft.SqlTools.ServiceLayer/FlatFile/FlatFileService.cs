@@ -39,13 +39,13 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
         {
             Logger.Verbose("FlatFile service initialized");
 
-            serviceHost.SetRequestHandler(ProseDiscoveryRequest.Type, HandleProseDiscoveryRequest, true);
-            serviceHost.SetRequestHandler(InsertDataRequest.Type, HandleInsertDataRequest, true);
-            serviceHost.SetRequestHandler(GetColumnInfoRequest.Type, HandleGetColumnInfoRequest, true);
-            serviceHost.SetRequestHandler(ChangeColumnSettingsRequest.Type, HandleChangeColumnSettingsRequest, true);
-            serviceHost.SetRequestHandler(LearnTransformationRequest.Type, HandleLearnTransformationRequest, true);
-            serviceHost.SetRequestHandler(SaveTransformationRequest.Type, HandleSaveTransformationRequest, true);
-            serviceHost.SetRequestHandler(DisposeSessionRequest.Type, HandleDisposeSessionRequest, true);
+            serviceHost.SetRequestHandler(ProseDiscoveryRequest.Type, HandleProseDiscoveryRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(InsertDataRequest.Type, HandleInsertDataRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetColumnInfoRequest.Type, HandleGetColumnInfoRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(ChangeColumnSettingsRequest.Type, HandleChangeColumnSettingsRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(LearnTransformationRequest.Type, HandleLearnTransformationRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(SaveTransformationRequest.Type, HandleSaveTransformationRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(DisposeSessionRequest.Type, HandleDisposeSessionRequest, isParallelProcessingSupported: true);
         }
 
         internal async Task HandleProseDiscoveryRequest(
