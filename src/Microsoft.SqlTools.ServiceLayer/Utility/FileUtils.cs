@@ -11,45 +11,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class FileUtilities
     {
+        private static readonly object PeekDefinitionTempFolderLock = new object();
+
         internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
         internal static string AgentNotebookTempFolder = Path.GetTempPath() + "mssql_notebooks";
         internal static bool PeekDefinitionTempFolderCreated = false;
 
         internal static string GetPeekDefinitionTempFolder()
         {
-            string tempPath;
-            if (!PeekDefinitionTempFolderCreated)
-            {               
-                try
-                {
-                    // create new temp folder
-                    string tempFolder = string.Format("{0}_{1}", FileUtilities.PeekDefinitionTempFolder, DateTime.Now.ToString("yyyyMMddHHmmssffff"));
-                    DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(tempFolder);
-                    FileUtilities.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
-                    tempPath = tempScriptDirectory.FullName;
-                    PeekDefinitionTempFolderCreated = true;
-                }
-                catch (Exception)
-                {
-                    // swallow exception and use temp folder to store scripts
-                    tempPath = Path.GetTempPath();
-                }
-            }
-            else
+            lock (PeekDefinitionTempFolderLock)
             {
-                try
+                string tempPath;
+                if (!PeekDefinitionTempFolderCreated)
                 {
-                    // use tempDirectory name created previously
-                    DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(FileUtilities.PeekDefinitionTempFolder);
-                    tempPath = tempScriptDirectory.FullName;
+                    try
+                    {
+                        // create a private temp folder once per process so concurrent peek-definition requests share the same root
+                        string tempFolder = string.Format("{0}_{1}", FileUtilities.PeekDefinitionTempFolder, Guid.NewGuid().ToString("N"));
+                        DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(tempFolder);
+                        FileUtilities.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
+                        tempPath = tempScriptDirectory.FullName;
+                        PeekDefinitionTempFolderCreated = true;
+                    }
+                    catch (Exception)
+                    {
+                        // swallow exception and use temp folder to store scripts
+                        tempPath = Path.GetTempPath();
+                    }
                 }
-                catch (Exception)
+                else
                 {
-                    // swallow exception and use temp folder to store scripts
-                    tempPath = Path.GetTempPath();
+                    try
+                    {
+                        // use tempDirectory name created previously
+                        DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(FileUtilities.PeekDefinitionTempFolder);
+                        tempPath = tempScriptDirectory.FullName;
+                    }
+                    catch (Exception)
+                    {
+                        // swallow exception and use temp folder to store scripts
+                        tempPath = Path.GetTempPath();
+                    }
                 }
+
+                return tempPath;
             }
-            return tempPath;
         }
 
         /// <summary>

@@ -114,6 +114,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new();
         private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new();
+        private readonly ConcurrentDictionary<string, AsyncLock> uriAsyncLocks = new();
+        private CancellationTokenSource completionRequestCancellation;
 
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
@@ -253,17 +255,43 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
-            // Not enabling parallel processing for LanguageService as message order might matter.
-            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
-            serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
-            serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
-            serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
-            serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
-            serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
+            // Returns signature help for the current cursor position.
+            // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
+            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest, isParallelProcessingSupported: true);
+
+            // Returns hover details for the current token.
+            // Parallel safe because it reads request-local state and shared metadata access is already serialized.
+            serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest, isParallelProcessingSupported: true);
+
+            // Resolves extra metadata for a selected completion item.
+            // Parallel safe because it only reads the current completion snapshot.
+            serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest, isParallelProcessingSupported: true);
+
+            // Returns completions at the current cursor position.
+            // Parallel safe because newer requests cancel older ones before stale completion state can win.
+            serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest, isParallelProcessingSupported: true);
+
+            // Resolves definition locations for the token under the cursor.
+            // Parallel safe because each request uses its own temp script path and request-local state.
+            serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest, isParallelProcessingSupported: true);
+
+            // Parses request text and returns syntax diagnostics.
+            // Parallel safe because it only operates on request-local text and does not mutate LanguageService state.
+            serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest, isParallelProcessingSupported: true);
+
+            // Rebuilds IntelliSense metadata for a document.
+            // Parallel safe because same-URI rebuilds are serialized explicitly by uriAsyncLocks.
+            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification, isParallelProcessingSupported: true);
+
+            // Updates whether a document should use MSSQL language services.
+            // Parallel safe because same-URI flavor transitions are serialized before shared state is updated.
+            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification, isParallelProcessingSupported: true);
+
+            // Updates connection state after an auth token refresh completes.
+            // Parallel safe because it only updates connection info token.
+            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
+
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
-            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
-            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
-            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
@@ -425,24 +453,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // check if Intellisense suggestions are enabled
             if (ShouldSkipIntellisense(scriptFile.ClientUri))
             {
+                Logger.Verbose($"Skipping completion request for {scriptFile.ClientUri} because intellisense is disabled or file is non-MSSQL");
                 await requestContext.SendResult(null);
+                return;
             }
-            else
-            {
-                ConnectionInfo connInfo = null;
-                // Check if we need to refresh the auth token, and if we do then don't pass in the 
-                // connection so that we only show the default options until the refreshed token is returned
-                if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
-                {
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
-                }
-                var completionItems = await GetCompletionItems(
-                    textDocumentPosition, scriptFile, connInfo);
 
-                await requestContext.SendResult(completionItems);
+            // Cancel any previous in-flight completion so it doesn't
+            // overwrite currentCompletionParseInfo after we do.
+            var cts = CancelPreviousCompletionRequest();
+
+            ConnectionInfo connInfo = null;
+            // Check if we need to refresh the auth token, and if we do then don't pass in the 
+            // connection so that we only show the default options until the refreshed token is returned
+            if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+            {
+                ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
             }
+            var completionItems = await GetCompletionItems(
+                textDocumentPosition, scriptFile, connInfo, cts.Token);
+
+            await requestContext.SendResult(completionItems);
         }
 
         /// <summary>
@@ -464,8 +494,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-                completionItem = ResolveCompletionItem(completionItem);
-                await requestContext.SendResult(completionItem);
+                CompletionItem resolvedItem = ResolveCompletionItem(completionItem);
+                await requestContext.SendResult(resolvedItem);
+
             }
         }
 
@@ -536,30 +567,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     textDocumentPosition.TextDocument.Uri);
                 if (scriptFile != null)
                 {
-                    // Start task asynchronously without blocking main thread - this is by design.
-                    // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
-                    // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    GetSignatureHelp(textDocumentPosition, scriptFile)
-                        .ContinueWith(async task =>
+                    SignatureHelp help = await GetSignatureHelp(textDocumentPosition, scriptFile);
+                    if (help != null)
                     {
-                        if (task.IsFaulted)
-                        {
-                            Logger.Error($"Error getting signature help for script file {scriptFile}: {task.Exception}");
-                            await requestContext.SendError(task.Exception);
-                            return;
-                        }
-                        var result = await task;
-                        if (result != null)
-                        {
-                            await requestContext.SendResult(result);
-                        }
-                        else
-                        {
-                            await requestContext.SendResult(new SignatureHelp());
-                        }
-                    });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        await requestContext.SendResult(help);
+                    }
+                    else
+                    {
+                        await requestContext.SendResult(new SignatureHelp());
+                    }
+                }
+                else
+                {
+                    await requestContext.SendResult(null);
                 }
             }
         }
@@ -568,8 +588,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            Hover hover = null;
-
             // check if Quick Info hover tooltips are enabled
             if (CurrentWorkspaceSettings.IsQuickInfoEnabled
                 && !ShouldSkipNonMssqlFile(textDocumentPosition))
@@ -579,10 +597,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 if (scriptFile != null)
                 {
-                    hover = GetHoverItem(textDocumentPosition, scriptFile);
+                    Hover hover = GetHoverItem(textDocumentPosition, scriptFile);
+                    await requestContext.SendResult(hover);
+                    return;
                 }
             }
-            await requestContext.SendResult(hover);
+
+            await requestContext.SendResult(null);
         }
 
         #endregion
@@ -680,21 +701,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="rebuildParams">Rebuild params</param>
         /// <param name="eventContext">Event context</param>
         /// <returns>Async task</returns>
-        public Task HandleRebuildIntelliSenseNotification(
+        public async Task HandleRebuildIntelliSenseNotification(
             RebuildIntelliSenseParams rebuildParams,
             EventContext eventContext)
         {
-            // Start task asynchronously without blocking main thread - this is by design.
-            // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
-            // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-            Task.Factory.StartNew(async () =>
-            {
-                await DoHandleRebuildIntellisenseNotification(rebuildParams, eventContext);
-            }, CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.Default);
-
-            return Task.CompletedTask;
+            await RunSerializedByUriAsync(
+                rebuildParams.OwnerUri,
+                () => DoHandleRebuildIntellisenseNotification(rebuildParams, eventContext));
         }
 
         /// <summary>
@@ -703,7 +716,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="rebuildParams">Rebuild params</param>
         /// <param name="eventContext">Event context</param>
         /// <returns>Async task</returns>
-        public async Task DoHandleRebuildIntellisenseNotification(RebuildIntelliSenseParams rebuildParams, EventContext eventContext)
+        public virtual async Task DoHandleRebuildIntellisenseNotification(RebuildIntelliSenseParams rebuildParams, EventContext eventContext)
         {
             try
             {
@@ -831,37 +844,78 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Validate.IsNotNull(nameof(changeParams), changeParams);
                 Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
-                bool shouldBlock = false;
-                if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
-                }
-                if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldBlock = true; // the provider will continue to be mssql
-                }
-                if (shouldBlock)
-                {
-                    this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
-                    if (CurrentWorkspace.ContainsFile(changeParams.Uri))
-                    {
-                        await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
-                    }
-                }
-                else
-                {
-                    bool value;
-                    this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
-                    // should rebuild intellisense when re-considering as sql
-                    RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
-                    await HandleRebuildIntelliSenseNotification(param, eventContext);
-                }
+                await RunSerializedByUriAsync(
+                    changeParams.Uri,
+                    () => DoHandleDidChangeLanguageFlavorNotification(changeParams, eventContext));
             }
             catch (Exception ex)
             {
                 Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
+        }
+
+        private async Task DoHandleDidChangeLanguageFlavorNotification(
+            LanguageFlavorChangeParams changeParams,
+            EventContext eventContext)
+        {
+            bool shouldBlock = false;
+            if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
+            {
+                shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
+            }
+            if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
+            {
+                shouldBlock = true; // the provider will continue to be mssql
+            }
+            if (shouldBlock)
+            {
+                this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
+                if (CurrentWorkspace.ContainsFile(changeParams.Uri))
+                {
+                    await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
+                }
+            }
+            else
+            {
+                bool value;
+                this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
+                // should rebuild intellisense when re-considering as sql
+                RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
+                await DoHandleRebuildIntellisenseNotification(param, eventContext);
+            }
+        }
+
+        private async Task RunSerializedByUriAsync(string uri, Func<Task> operation)
+        {
+            if (string.IsNullOrWhiteSpace(uri))
+            {
+                await operation();
+                return;
+            }
+
+            AsyncLock uriLock = uriAsyncLocks.GetOrAdd(uri, _ => new AsyncLock());
+            using (await uriLock.LockAsync())
+            {
+                await operation();
+            }
+        }
+
+        /// <summary>
+        /// Cancels any previous in-flight completion request and returns a new CTS for the current request.
+        /// This ensures only the latest request's result wins the write to currentCompletionParseInfo.
+        /// </summary>
+        private CancellationTokenSource CancelPreviousCompletionRequest()
+        {
+            var newCts = new CancellationTokenSource();
+            var oldCts = Interlocked.Exchange(ref completionRequestCancellation, newCts);
+            if (oldCts != null)
+            {
+                Logger.Verbose("Cancelling previous completion request");
+                oldCts.Cancel();
+                oldCts.Dispose();
+            }
+            return newCts;
         }
 
         internal Task HandleTokenRefreshedNotification(
@@ -1247,7 +1301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Resolves the details and documentation for a completion item
         /// </summary>
         /// <param name="completionItem"></param>
-        internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
+        internal virtual CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
             var scriptParseInfo = currentCompletionParseInfo;
             if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
@@ -1403,7 +1457,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal virtual DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -1519,7 +1573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptFile"></param>
-        internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal virtual Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
@@ -1572,7 +1626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Get function signature help for the current position
         /// </summary>
-        internal async Task<SignatureHelp?> GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal virtual async Task<SignatureHelp> GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             Logger.Verbose($"GetSignatureHelp -  {scriptFile}");
             int startLine = textDocumentPosition.Position.Line;
@@ -1665,10 +1719,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// This method does not await cache builds since it expects to return quickly
         /// </summary>
         /// <param name="textDocumentPosition"></param>
-        public async Task<CompletionItem[]> GetCompletionItems(
+        public virtual async Task<CompletionItem[]> GetCompletionItems(
             TextDocumentPosition textDocumentPosition,
             ScriptFile scriptFile,
-            ConnectionInfo connInfo)
+            ConnectionInfo connInfo,
+            CancellationToken cancellationToken = default)
         {
             // initialize some state to parse and bind the current script file
             this.currentCompletionParseInfo = null;
@@ -1685,6 +1740,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocInfo);
+                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no ScriptParseInfo was found");
                 return resultCompletionItems;
             }
 
@@ -1692,6 +1748,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 await ParseAndBind(scriptFile, connInfo);
+                Logger.Verbose($"Reparsed script for {scriptFile.ClientUri} in GetCompletionItems");
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Logger.Verbose($"Cancellation requested for {scriptFile.ClientUri} in GetCompletionItems");
+                return null;
             }
 
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
@@ -1702,25 +1765,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
+                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as parse result was null");
                 return resultCompletionItems;
             }
+
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+
+            // A newer request may have cancelled us while we were in CreateCompletions.
+            // Bail out so we don't overwrite currentCompletionParseInfo with stale data.
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Logger.Verbose($"Cancellation requested for {scriptFile.ClientUri} in GetCompletionItems after CreateCompletions");
+                return null;
+            }
+
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
-            
-            /*
-             Expanding star expressions in query only when the script is connected to a database
-             as the parser requires a connection to determine column names
-            */
-            if (connInfo != null)
-            {
-                CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
-                if (starExpansionSuggestion != null)
-                {
-                    return starExpansionSuggestion;
-                }
-            }
+
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)
@@ -1728,6 +1790,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
+                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no completions were found");
             }
 
             return resultCompletionItems;
