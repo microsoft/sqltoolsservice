@@ -38,6 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="SqlCopilotCommon">
+      <HintPath>..\..\bin\ref\SqlCopilotCommon.dll</HintPath>
+    </Reference>
     <Reference Include="ScriptoriaCommonDefs">
       <HintPath>..\..\bin\ref\ScriptoriaCommonDefs.dll</HintPath>
     </Reference>
@@ -79,8 +82,6 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="System.Runtime.Caching" />
     <PackageReference Include="System.Text.Encoding.CodePages" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
-    <PackageReference Include="System.Threading.Channels" />
     <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
       <Aliases>ASAScriptDom</Aliases>
     </PackageReference>
