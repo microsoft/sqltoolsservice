@@ -447,7 +447,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 
             // diff > 0 == this below other
             // diff < 0 == other below this
-            return thisPriority - otherPriority;
+            int diff = thisPriority - otherPriority;
+            return diff != 0 ? diff : CompareSamePriorities(this, other);
         }
     }
 }

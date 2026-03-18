@@ -1065,6 +1065,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ExternalTables,
+                NodeTypeId = NodeTypes.ExternalTables,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
+                SortPriority = Int32.MaxValue,
+            });
+            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_DroppedLedgerTables,
                 NodeTypeId = NodeTypes.DroppedLedgerTables,
                 IsSystemObject = false,
@@ -1592,6 +1599,43 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new TableTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExternalTablesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.ExternalTables) }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsExternal",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ExternalTableTreeNode();
             InitializeChild(parent, child, context);
             return child;
         }
