@@ -10103,6 +10103,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault);
+            }
+        }
+
         public static string ConnectionConfigOptions_user_displayName
         {
             get
@@ -15006,6 +15014,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionConfigOptions_authenticationType_category_AzureMFA = "ConnectionConfigOptions_authenticationType_category_AzureMFA";
+
+
+            public const string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault = "ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault";
 
 
             public const string ConnectionConfigOptions_user_displayName = "ConnectionConfigOptions_user_displayName";

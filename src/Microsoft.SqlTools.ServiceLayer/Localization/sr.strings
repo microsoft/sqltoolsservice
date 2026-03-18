@@ -2314,6 +2314,7 @@ ConnectionConfigOptions_authenticationType_description = Specifies the method of
 ConnectionConfigOptions_authenticationType_category_SqlLogin = SQL Login
 ConnectionConfigOptions_authenticationType_category_Integrated = Windows Authentication
 ConnectionConfigOptions_authenticationType_category_AzureMFA = Microsoft Entra ID - Universal with MFA support
+ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault = Microsoft Entra ID - Default
 ConnectionConfigOptions_user_displayName = User name
 ConnectionConfigOptions_user_description = Indicates the user ID to be used when connecting to the data source
 ConnectionConfigOptions_password_displayName = Password
