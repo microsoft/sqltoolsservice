@@ -7,6 +7,8 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
+using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -41,3 +43,14 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
+[SetUpFixture]
+public class GlobalTestSetup
+{
+    [OneTimeSetUp]
+    public void Init()
+    {
+        // language service tests leave a lot of threads running, so increase the minimum 
+        // thread pool size to avoid starvation
+        ThreadPool.SetMinThreads(1000, 1000);
+    }
+}
