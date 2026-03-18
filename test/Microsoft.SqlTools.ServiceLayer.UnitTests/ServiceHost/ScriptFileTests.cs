@@ -7,6 +7,7 @@
 
 using System;
 using System.Linq;
+using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -28,15 +29,40 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         {
             initialText ??= ScriptFileTests.query;
 
-            string ownerUri = System.IO.Path.GetTempFileName();
+            string ownerUri = Path.Combine(
+                Path.GetTempPath(),
+                $"{GetSafeCurrentTestName()}_{Guid.NewGuid():N}.tmp");
 
             // Write the query text to a backing file
             lock (fileLock)
             {
-                System.IO.File.WriteAllText(ownerUri, initialText);
+                File.WriteAllText(ownerUri, initialText);
             }
 
             return new ScriptFile(ownerUri, ownerUri, initialText);
+        }
+
+        private static string GetSafeCurrentTestName()
+        {
+            var testName = TestContext.CurrentContext?.Test?.Name;
+            if (string.IsNullOrWhiteSpace(testName))
+            {
+                return "sqlscript";
+            }
+
+            var invalidFileNameChars = Path.GetInvalidFileNameChars().ToHashSet();
+            var sanitized = new string(testName
+                .Select(ch => invalidFileNameChars.Contains(ch) || char.IsWhiteSpace(ch) ? '_' : ch)
+                .ToArray())
+                .Trim('_');
+
+            if (string.IsNullOrWhiteSpace(sanitized))
+            {
+                sanitized = "sqlscript";
+            }
+
+            const int maxLength = 80;
+            return sanitized.Length <= maxLength ? sanitized : sanitized.Substring(0, maxLength);
         }
 
         /// <summary>

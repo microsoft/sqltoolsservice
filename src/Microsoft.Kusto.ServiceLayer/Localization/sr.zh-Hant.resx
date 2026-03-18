@@ -1,110 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -125,12 +20,18 @@
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
     <value>SpecifiedUri '{0}' 沒有現有的連線</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
     <value>AuthenticationType 值 "{0}" 無效。有效值為 'Integrated' 和 'SqlLogin'。</value>
+    <comment>.
+ Parameters: 0 - authType (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>ApplicationIntent 值 '{0}' 無效。有效值為 'ReadWrite' 和 'ReadOnly'。</value>
+    <comment>.
+ Parameters: 0 - intent (string) </comment>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>已取消連線</value>
@@ -146,6 +47,8 @@
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
     <value>使用 SqlLogin 驗證時，{0} 不能是 Null 或是空白</value>
+    <comment>.
+ Parameters: 0 - component (string) </comment>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>查詢已完成，無法取消</value>
@@ -188,15 +91,21 @@
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
     <value>({0} 個資料列受到影響)</value>
+    <comment>.
+ Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>命令已順利完成。</value>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
     <value>訊息 {0}，層級 {1}，狀態 {2}，第 {3} {4} {5} 行</value>
+    <comment>.
+ Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
   </data>
   <data name="QueryServiceQueryFailed" xml:space="preserve">
     <value>查詢失敗︰{0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(沒有資料行名稱)</value>
@@ -224,6 +133,8 @@
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>無法儲存 {0}: {1}</value>
+    <comment>.
+ Parameters: 0 - fileName (string), 1 - message (string) </comment>
   </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
     <value>從伺服器讀取結果前，無法讀取子集</value>
@@ -242,9 +153,13 @@
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>Azure SQL DB 和資料倉儲目前不支援此功能︰{0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
     <value>瞄核定義執行過程中發生未預期的錯誤︰{0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>找不到任何結果。</value>
@@ -266,9 +181,13 @@
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
     <value>第 {0} 行位置超出資料行範圍</value>
+    <comment>.
+ Parameters: 0 - line (int) </comment>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
     <value>開始位置 ({0}, {1}) 必須在結束位置之前或正好在結束位置上 ({2}, {3})</value>
+    <comment>.
+ Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>測試</value>
@@ -308,6 +227,8 @@
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
     <value>資料行 '{0}' 已定義為 NOT NULL，但並未提供值</value>
+    <comment>.
+ Parameters: 0 - colName (string) </comment>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>即將刪除此資料列，無法套用儲存格更新</value>
@@ -326,9 +247,13 @@
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
     <value>無法編輯資料庫物件 {0}。</value>
+    <comment>.
+ Parameters: 0 - typeName (string) </comment>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
     <value>指定的 URI '{0}' 沒有預設的連線</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
     <value>認可的工作正在進行，請等待作業完成。</value>
@@ -1064,9 +989,13 @@
   </data>
   <data name="EditDataValueTooLarge" xml:space="preserve">
     <value>數值 {0} 太大無法符合欄位類型 {1}</value>
+    <comment>.
+ Parameters: 0 - value (string), 1 - columnType (string) </comment>
   </data>
   <data name="EditDataInvalidFormat" xml:space="preserve">
     <value>資料行 '{0}' 為無效格式，資料行定義為 {1}</value>
+    <comment>.
+ Parameters: 0 - colName (string), 1 - colType (string) </comment>
   </data>
   <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
     <value>包含長度的資料行缺少大小資訊</value>
@@ -1103,9 +1032,12 @@
   </data>
   <data name="EditDataIncorrectTable" xml:space="preserve">
     <value>EditData 查詢必須查詢原始鎖定的資料表 '{0}'</value>
+    <comment>.
+ Parameters: 0 - tableName (string) </comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[未分類 (本機)]</value>
+    <comment>job categories</comment>
   </data>
   <data name="CategoryFromMsx" xml:space="preserve">
     <value>來自 MSX 的作業</value>
@@ -1169,12 +1101,16 @@
   </data>
   <data name="JobAlreadyExists" xml:space="preserve">
     <value>名為 '{0}' 的作業已存在。輸入該作業的唯一名稱。</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="JobStepNameCannotBeBlank" xml:space="preserve">
     <value>作業名稱步驟不能空白。</value>
   </data>
   <data name="JobStepNameAlreadyExists" xml:space="preserve">
     <value>此作業已有名為 '{0}' 的步驟。您必須指定不同的名稱。</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="AlertNameCannotBeBlank" xml:space="preserve">
     <value>警示名稱不能空白。</value>
@@ -1190,15 +1126,21 @@
   </data>
   <data name="ProxyAccountNotFound" xml:space="preserve">
     <value>伺服器上不存在 Proxy 帳戶 '{0}'。</value>
+    <comment>.
+ Parameters: 0 - proxyName (string) </comment>
   </data>
   <data name="CredentialNoLongerExists" xml:space="preserve">
     <value>伺服器上不再存在該物件。</value>
   </data>
   <data name="UnknownServerType" xml:space="preserve">
     <value>未知的伺服器類型 '{0}'。</value>
+    <comment>.
+ Parameters: 0 - serverTypeName (string) </comment>
   </data>
   <data name="SetOwnerFailed" xml:space="preserve">
     <value>目前的登入沒有權限將資料庫擁有者設為 '{0}'  但已順利建立資料庫。</value>
+    <comment>.
+ Parameters: 0 - ownerName (string) </comment>
   </data>
   <data name="TargetServerNotSelected" xml:space="preserve">
     <value>您必須指定目標伺服器以執行此多伺服器作業。</value>
@@ -1208,27 +1150,40 @@
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
     <value>未知的大小單位 {0}</value>
+    <comment>.
+ Parameters: 0 - unit (string) </comment>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>找不到要求的 XEvent 工作階段</value>
   </data>
   <data name="StopSessionFailed" xml:space="preserve">
     <value>無法停止工作階段: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="StartSessionFailed" xml:space="preserve">
     <value>無法開始工作階段: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="CreateSessionFailed" xml:space="preserve">
     <value>無法建立工作階段: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="PauseSessionFailed" xml:space="preserve">
     <value>無法暫停工作階段: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="SessionAlreadyExists" xml:space="preserve">
     <value>名為 {0} 的 XEvent 工作階段已存在</value>
+    <comment>.
+ Parameters: 0 - sessionName (String) </comment>
   </data>
   <data name="InvalidScheduleTitle" xml:space="preserve">
     <value>無效的排程</value>
+    <comment> Schedule error message</comment>
   </data>
   <data name="InvalidWeeklySchedule" xml:space="preserve">
     <value>請選取至少一天，成為每週排程的一部份。</value>
@@ -1247,9 +1202,12 @@
   </data>
   <data name="ScheduleNameAlreadyExists" xml:space="preserve">
     <value>此作業已有名為 '{0}' 的排程。您必須指定不同的名稱。</value>
+    <comment>.
+ Parameters: 0 - scheduleName (string) </comment>
   </data>
   <data name="JobServerIsNotAvailable" xml:space="preserve">
     <value>作業伺服器無法使用</value>
+    <comment> Exception thrown when job server is not available</comment>
   </data>
   <data name="NeverBackedUp" xml:space="preserve">
     <value>永不</value>
@@ -1304,11 +1262,17 @@
   </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>不支援的儲存格式: {0}</value>
+    <comment>.
+ Parameters: 0 - formatName (string) </comment>
   </data>
   <data name="SerializationServiceRequestInProgress" xml:space="preserve">
     <value>正在進行檔案 {0} 的要求</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>無法序列化更多資料，因為找不到檔案 {0} 的要求</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
   </data>
 </root>

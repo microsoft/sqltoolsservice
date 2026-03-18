@@ -1,110 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -125,12 +20,18 @@
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
     <value>SpecifiedUri «{0}» не имеет существующего подключения</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
     <value>Значение «{0}» недопустимо для AuthenticationType. Допустимые значения «Integrated» и «SqlLogin».</value>
+    <comment>.
+ Parameters: 0 - authType (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>Значение «{0}» недопустимо для ApplicationIntent. Допустимые значения «ReadWrite» или «ReadOnly».</value>
+    <comment>.
+ Parameters: 0 - intent (string) </comment>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>Подключение отменено.</value>
@@ -146,6 +47,8 @@
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
     <value>{0} не может быть пустым или иметь значение NULL при использовании проверки подлинности SqlLogin</value>
+    <comment>.
+ Parameters: 0 - component (string) </comment>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>Запрос уже был выполнен, отмена невозможна</value>
@@ -188,15 +91,21 @@
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
     <value>(Затронуто строк: {0})</value>
+    <comment>.
+ Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>Выполнение команд успешно завершено.</value>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
     <value>Сообщение {0}, Уровень {1}, Состояние {2}, Строка {3}{4}{5}</value>
+    <comment>.
+ Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
   </data>
   <data name="QueryServiceQueryFailed" xml:space="preserve">
     <value>Не удалось выполнить запрос: {0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(Отсутствует имя столбца)</value>
@@ -224,6 +133,8 @@
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>Не удалось сохранить {0}: {1}</value>
+    <comment>.
+ Parameters: 0 - fileName (string), 1 - message (string) </comment>
   </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
     <value>Невозможно прочитать подмножество, поскольку результаты еще не были получены с сервера</value>
@@ -242,9 +153,13 @@
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>В настоящее время эта функция не поддерживается Azure SQL DB и Data Warehouse: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
     <value>Произошла непредвиденная ошибка во время выполнения показа определения: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>Результаты не найдены.</value>
@@ -266,9 +181,13 @@
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
     <value>Позиция выходит за пределы диапазона столбцов строки {0}</value>
+    <comment>.
+ Parameters: 0 - line (int) </comment>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
     <value>Начальная позиция ({0}, {1}) должна быть меньше или равна конечной ({2}, {3})</value>
+    <comment>.
+ Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>тест</value>
@@ -308,6 +227,8 @@
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
     <value>Столбец «{0}» определен как не NULL, но ему не присвоено значение</value>
+    <comment>.
+ Parameters: 0 - colName (string) </comment>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>Обновление ячейки не может быть применено, поскольку для данной строки ожидается удаление.</value>
@@ -326,9 +247,13 @@
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
     <value>Объект базы данных {0} не может использоваться для редактирования.</value>
+    <comment>.
+ Parameters: 0 - typeName (string) </comment>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
     <value>Указанный URI «{0}» не имеет соединения по умолчанию</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
     <value>Выполняется фиксация. Дождитесь завершения.</value>
@@ -1064,9 +989,13 @@
   </data>
   <data name="EditDataValueTooLarge" xml:space="preserve">
     <value>Значение {0} слишком велико, чтобы уместиться в столбце типа {1}</value>
+    <comment>.
+ Parameters: 0 - value (string), 1 - columnType (string) </comment>
   </data>
   <data name="EditDataInvalidFormat" xml:space="preserve">
     <value>Недопустимый формат столбца «{0}». Столбец определен как {1}</value>
+    <comment>.
+ Parameters: 0 - colName (string), 1 - colType (string) </comment>
   </data>
   <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
     <value>Длина столбца не указана</value>
@@ -1103,9 +1032,12 @@
   </data>
   <data name="EditDataIncorrectTable" xml:space="preserve">
     <value>Запросы EditData должны быть нацелены на первоначально запрошенную таблицу «{0}»</value>
+    <comment>.
+ Parameters: 0 - tableName (string) </comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[Без категорий (локальный)]</value>
+    <comment>job categories</comment>
   </data>
   <data name="CategoryFromMsx" xml:space="preserve">
     <value>Задания из главного сервера</value>
@@ -1169,12 +1101,16 @@
   </data>
   <data name="JobAlreadyExists" xml:space="preserve">
     <value>Задание с именем «{0}» уже существует. Введите уникальное имя задания.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="JobStepNameCannotBeBlank" xml:space="preserve">
     <value>Имя шага задания не может быть пустым.</value>
   </data>
   <data name="JobStepNameAlreadyExists" xml:space="preserve">
     <value>В этом задании уже существует шаг с именем «{0}». Необходимо указать другое имя.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="AlertNameCannotBeBlank" xml:space="preserve">
     <value>Имя предупреждения не может быть пустым.</value>
@@ -1190,15 +1126,21 @@
   </data>
   <data name="ProxyAccountNotFound" xml:space="preserve">
     <value>Учетная запись-посредник «{0}» не существует на этом сервере.</value>
+    <comment>.
+ Parameters: 0 - proxyName (string) </comment>
   </data>
   <data name="CredentialNoLongerExists" xml:space="preserve">
     <value>Объект больше не существует на сервере.</value>
   </data>
   <data name="UnknownServerType" xml:space="preserve">
     <value>Неизвестный тип сервера «{0}».</value>
+    <comment>.
+ Parameters: 0 - serverTypeName (string) </comment>
   </data>
   <data name="SetOwnerFailed" xml:space="preserve">
     <value>Текущее имя для входа не имеет достаточно разрешений, чтобы установить владельцем базы данных «{0}». Однако база данных была создана.</value>
+    <comment>.
+ Parameters: 0 - ownerName (string) </comment>
   </data>
   <data name="TargetServerNotSelected" xml:space="preserve">
     <value>Определите целевые серверы, на которых будет выполняться это многосерверное задание.</value>
@@ -1208,27 +1150,40 @@
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
     <value>Неизвестная единица размера: {0} </value>
+    <comment>.
+ Parameters: 0 - unit (string) </comment>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>Не удается найти запрошенный сеанс XEvent</value>
   </data>
   <data name="StopSessionFailed" xml:space="preserve">
     <value>Не удалось остановить сеанс: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="StartSessionFailed" xml:space="preserve">
     <value>Не удалось запустить сеанс: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="CreateSessionFailed" xml:space="preserve">
     <value>Не удалось создать сеанс: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="PauseSessionFailed" xml:space="preserve">
     <value>Не удалось приостановить сеанс: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="SessionAlreadyExists" xml:space="preserve">
     <value>Сеанс XEvent с именем {0} уже существует</value>
+    <comment>.
+ Parameters: 0 - sessionName (String) </comment>
   </data>
   <data name="InvalidScheduleTitle" xml:space="preserve">
     <value>Недопустимое расписание</value>
+    <comment> Schedule error message</comment>
   </data>
   <data name="InvalidWeeklySchedule" xml:space="preserve">
     <value>Выберите по меньшей мере один день для включения в недельное расписание.</value>
@@ -1247,9 +1202,12 @@
   </data>
   <data name="ScheduleNameAlreadyExists" xml:space="preserve">
     <value>В этом задании уже существует расписание с именем «{0}». Необходимо указать другое имя.</value>
+    <comment>.
+ Parameters: 0 - scheduleName (string) </comment>
   </data>
   <data name="JobServerIsNotAvailable" xml:space="preserve">
     <value>Сервер заданий недоступен</value>
+    <comment> Exception thrown when job server is not available</comment>
   </data>
   <data name="NeverBackedUp" xml:space="preserve">
     <value>Никогда</value>
@@ -1304,11 +1262,17 @@
   </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>Неподдерживаемый формат сохранения: {0}</value>
+    <comment>.
+ Parameters: 0 - formatName (string) </comment>
   </data>
   <data name="SerializationServiceRequestInProgress" xml:space="preserve">
     <value>Запрос для файла {0} уже выполняется</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>Не удается сериализовать больше данных, так как не удалось найти запрос для файла {0}</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
   </data>
 </root>

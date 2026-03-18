@@ -4,7 +4,7 @@
 This is a Powershell script to bootstrap a Cake build.
 
 .DESCRIPTION
-This Powershell script will download NuGet if missing, restore NuGet tools (including Cake)
+This Powershell script will restore local dotnet tools (including Cake)
 and execute your Cake build script with the parameters you provide.
 
 .PARAMETER Script
@@ -20,7 +20,7 @@ Tells Cake to use the latest Roslyn release.
 Performs a dry run of the build script.
 No tasks will be executed.
 .PARAMETER Mono
-Tells Cake to use the Mono scripting engine.
+Legacy switch retained for compatibility. Ignored by the dotnet-based Cake runner.
 
 .LINK
 http://cakebuild.net
@@ -44,16 +44,46 @@ Write-Host "Preparing to run build script..."
 
 $PS_SCRIPT_ROOT = split-path -parent $MyInvocation.MyCommand.Definition;
 $TOOLS_DIR = Join-Path $PSScriptRoot "..\.tools"
-$NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
-$NUGET_URL = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
-$CAKE_EXE = Join-Path $TOOLS_DIR "Cake/Cake.exe"
-$PACKAGES_CONFIG = Join-Path $PS_SCRIPT_ROOT "packages.config"
 
-# Should we use mono?
-$UseMono = "";
+function Get-ToolPath {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$ToolName
+    )
+
+    if ($IsWindows) {
+        return Join-Path $TOOLS_DIR "$ToolName.exe"
+    }
+
+    return Join-Path $TOOLS_DIR $ToolName
+}
+
+function InstallOrUpdate-Tool {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$PackageId
+    )
+
+    $installArgs = @("tool", "install", "--tool-path", $TOOLS_DIR, $PackageId)
+    & dotnet @installArgs
+
+    if ($LASTEXITCODE -eq 0) {
+        return
+    }
+
+    $updateArgs = @("tool", "update", "--tool-path", $TOOLS_DIR, $PackageId)
+    & dotnet @updateArgs
+
+    if ($LASTEXITCODE -ne 0) {
+        Throw "Could not install or update dotnet tool '$PackageId'."
+    }
+}
+
+$CAKE_EXE = Get-ToolPath -ToolName "dotnet-cake"
+$T4_EXE = Get-ToolPath -ToolName "t4"
+
 if($Mono.IsPresent) {
-    Write-Host "Using the Mono based scripting engine."
-    $UseMono = "-mono"
+    Write-Host "Ignoring -Mono. The dotnet-based Cake runner does not use the Mono scripting engine."
 }
 
 # Is this a dry run?
@@ -68,46 +98,39 @@ if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
     New-Item -Path $TOOLS_DIR -Type directory | out-null
 }
 
-# Try download NuGet.exe if not exists
-if (!(Test-Path $NUGET_EXE)) {
-    Write-Host "Downloading NuGet.exe..."
-    try {
-        (New-Object System.Net.WebClient).DownloadFile($NUGET_URL, $NUGET_EXE)
-    } catch {
-        Throw "Could not download NuGet.exe."
-    }
-}
-
-# Save nuget.exe path to environment to be available to child processed
-$ENV:NUGET_EXE = $NUGET_EXE
-
-# Restore tools from NuGet?
+# Restore local dotnet tools?
 if(-Not $SkipToolPackageRestore.IsPresent)
 {
-    # Restore packages from NuGet.
-    Push-Location
-    Set-Location $TOOLS_DIR
-
-    Write-Host "Restoring tools from NuGet..."
-    $NuGetConfig = Invoke-Expression "&`"$NUGET_EXE`" config -configfile ../nuget.config"
-    $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install $PACKAGES_CONFIG -ExcludeVersion -OutputDirectory `"$TOOLS_DIR`""
-    Write-Host ($NuGetOutput | out-string)
-
-    Pop-Location
-    if ($LASTEXITCODE -ne 0)
-    {
-        exit $LASTEXITCODE
-    }
+    Write-Host "Restoring local dotnet tools..."
+    InstallOrUpdate-Tool -PackageId "Cake.Tool"
+    InstallOrUpdate-Tool -PackageId "dotnet-t4"
 }
 
 # Make sure that Cake has been installed.
 if (!(Test-Path $CAKE_EXE)) {
-    Throw "Could not find Cake.exe at $CAKE_EXE"
+    Throw "Could not find dotnet-cake at $CAKE_EXE"
+}
+
+if (!(Test-Path $T4_EXE)) {
+    Throw "Could not find t4 at $T4_EXE"
 }
 
 # Start Cake
 Write-Host "Running build script..."
-$v = "& `"$CAKE_EXE`" `"$Script`" -verbosity=`"$Verbosity`" $UseMono $UseDryRun $ScriptArgs"
-Write-Host $v
-Invoke-Expression $v
+$cakeArgs = @(
+    $Script,
+    "--verbosity",
+    $Verbosity
+)
+
+if ($WhatIf.IsPresent) {
+    $cakeArgs += "--dryrun"
+}
+
+if ($ScriptArgs) {
+    $cakeArgs += $ScriptArgs
+}
+
+Write-Host "& `"$CAKE_EXE`" $($cakeArgs -join ' ')"
+& $CAKE_EXE @cakeArgs
 exit $LASTEXITCODE

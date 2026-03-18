@@ -1,110 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -125,12 +20,18 @@
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
     <value>지정된 URI '{0}'에 기존 연결이 없습니다.</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
     <value>AuthenticationType의 값 '{0}'은(는) 유효하지 않습니다. 유효한 값은 'Integrated' 및 'SqlLogin'입니다.</value>
+    <comment>.
+ Parameters: 0 - authType (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>ApplicationIntent의 값 '{0}'은(는) 유효하지 않습니다. 유효한 값은 'ReadWrite' 및 'ReadOnly'입니다.</value>
+    <comment>.
+ Parameters: 0 - intent (string) </comment>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>연결이 취소되었습니다.</value>
@@ -146,6 +47,8 @@
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
     <value>SqlLogin 인증 사용 시 {0}은(는) null이거나 비워 둘 수 없습니다.</value>
+    <comment>.
+ Parameters: 0 - component (string) </comment>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>쿼리가 이미 완료되어 취소할 수 없습니다.</value>
@@ -188,15 +91,21 @@
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
     <value>({0}개 행이 영향을 받음)</value>
+    <comment>.
+ Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>명령이 완료되었습니다.</value>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
     <value>메시지 {0}, 수준 {1}, 상태 {2}, 줄 {3}{4}{5}</value>
+    <comment>.
+ Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
   </data>
   <data name="QueryServiceQueryFailed" xml:space="preserve">
     <value>쿼리 실패: {0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(열 이름 없음)</value>
@@ -224,6 +133,8 @@
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>{0} 저장 실패: {1}</value>
+    <comment>.
+ Parameters: 0 - fileName (string), 1 - message (string) </comment>
   </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
     <value>서버에서 결과를 읽지 않으면 하위 세트를 읽을 수 없습니다.</value>
@@ -242,9 +153,13 @@
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>현재 이 기능은 Azure SQL DB 및 Data Warehouse에서 지원되지 않습니다. {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
     <value>정의 피킹을 실행하는 동안 예기치 않은 오류가 발생했습니다. {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>결과가 없습니다.</value>
@@ -266,9 +181,13 @@
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
     <value>위치가 줄 {0}의 열 범위를 벗어났습니다.</value>
+    <comment>.
+ Parameters: 0 - line (int) </comment>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
     <value>시작 위치({0}, {1})는 끝 위치({2}, {3})와 같거나 더 앞에 있어야 합니다.</value>
+    <comment>.
+ Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>테스트</value>
@@ -308,6 +227,8 @@
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
     <value>열 '{0}'이(가) NOT NULL로 정의되었으나 값이 지정되지 않았습니다.</value>
+    <comment>.
+ Parameters: 0 - colName (string) </comment>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>이 행의 삭제가 보류 중이므로 셀을 업데이트할 수 없습니다.</value>
@@ -326,9 +247,13 @@
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
     <value>데이터베이스 개체 {0}은(는) 편집할 수 없습니다.</value>
+    <comment>.
+ Parameters: 0 - typeName (string) </comment>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
     <value>지정된 URI '{0}'에 기본 연결이 없습니다.</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
     <value>커밋 작업이 진행 중입니다. 완료될 때까지 기다리세요.</value>
@@ -1064,9 +989,13 @@
   </data>
   <data name="EditDataValueTooLarge" xml:space="preserve">
     <value>값 {0}이(가) 너무 커서 {1} 유형의 열에 맞지 않습니다.</value>
+    <comment>.
+ Parameters: 0 - value (string), 1 - columnType (string) </comment>
   </data>
   <data name="EditDataInvalidFormat" xml:space="preserve">
     <value>열 '{0}'에 서식이 잘못되었습니다. 열은 {1}(으)로 정의됩니다.</value>
+    <comment>.
+ Parameters: 0 - colName (string), 1 - colType (string) </comment>
   </data>
   <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
     <value>길이가 있는 열의 크기가 누락되었습니다.</value>
@@ -1103,9 +1032,12 @@
   </data>
   <data name="EditDataIncorrectTable" xml:space="preserve">
     <value>EditData 쿼리는 처음에 대상으로 지정된 테이블 '{0}'을(를) 쿼리해야 합니다.</value>
+    <comment>.
+ Parameters: 0 - tableName (string) </comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[범주화되지 않음(로컬)]</value>
+    <comment>job categories</comment>
   </data>
   <data name="CategoryFromMsx" xml:space="preserve">
     <value>MSX의 작업</value>
@@ -1169,12 +1101,16 @@
   </data>
   <data name="JobAlreadyExists" xml:space="preserve">
     <value>이름이 '{0}'인 작업이 이미 있습니다. 작업의 고유한 이름을 입력하세요.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="JobStepNameCannotBeBlank" xml:space="preserve">
     <value>작업 단계 이름을 비워 둘 수 없습니다.</value>
   </data>
   <data name="JobStepNameAlreadyExists" xml:space="preserve">
     <value>이 작업에 대해 이름이 '{0}'인 단계가 이미 있습니다. 다른 이름을 지정해야 합니다.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="AlertNameCannotBeBlank" xml:space="preserve">
     <value>경고 이름을 비워 둘 수 없습니다.</value>
@@ -1190,15 +1126,21 @@
   </data>
   <data name="ProxyAccountNotFound" xml:space="preserve">
     <value>프록시 계정 '{0}'이(가) 서버에 없습니다.</value>
+    <comment>.
+ Parameters: 0 - proxyName (string) </comment>
   </data>
   <data name="CredentialNoLongerExists" xml:space="preserve">
     <value>해당 개체가 서버에 더 이상 없습니다.</value>
   </data>
   <data name="UnknownServerType" xml:space="preserve">
     <value>알 수 없는 서버 유형 '{0}'입니다.</value>
+    <comment>.
+ Parameters: 0 - serverTypeName (string) </comment>
   </data>
   <data name="SetOwnerFailed" xml:space="preserve">
     <value>현재 로그인에는 데이터베이스 소유자를 '{0}'(으)로 설정할 권한이 없지만 데이터베이스는 생성되었습니다.</value>
+    <comment>.
+ Parameters: 0 - ownerName (string) </comment>
   </data>
   <data name="TargetServerNotSelected" xml:space="preserve">
     <value>이 다중 서버 작업을 실행할 대상 서버를 지정해야 합니다.</value>
@@ -1208,27 +1150,40 @@
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
     <value>알 수 없는 크기 단위 {0} </value>
+    <comment>.
+ Parameters: 0 - unit (string) </comment>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>요청된 XEvent 세션을 찾을 수 없습니다.</value>
   </data>
   <data name="StopSessionFailed" xml:space="preserve">
     <value>세션을 중지하지 못함 {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="StartSessionFailed" xml:space="preserve">
     <value>세션을 시작하지 못함 {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="CreateSessionFailed" xml:space="preserve">
     <value>세션을 생성하지 못함 {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="PauseSessionFailed" xml:space="preserve">
     <value>세션을 일시 중지하지 못함 {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="SessionAlreadyExists" xml:space="preserve">
     <value>이름이 {0}인 XEvent 세션이 이미 있습니다.</value>
+    <comment>.
+ Parameters: 0 - sessionName (String) </comment>
   </data>
   <data name="InvalidScheduleTitle" xml:space="preserve">
     <value>잘못된 일정</value>
+    <comment> Schedule error message</comment>
   </data>
   <data name="InvalidWeeklySchedule" xml:space="preserve">
     <value>이 주별 일정에 포함할 요일을 하나 이상 선택하세요.</value>
@@ -1247,9 +1202,12 @@
   </data>
   <data name="ScheduleNameAlreadyExists" xml:space="preserve">
     <value>이 작업에 대해 이름이 '{0}'인 일정이 이미 있습니다. 다른 이름을 지정해야 합니다.</value>
+    <comment>.
+ Parameters: 0 - scheduleName (string) </comment>
   </data>
   <data name="JobServerIsNotAvailable" xml:space="preserve">
     <value>작업 서버를 사용할 수 없습니다.</value>
+    <comment> Exception thrown when job server is not available</comment>
   </data>
   <data name="NeverBackedUp" xml:space="preserve">
     <value>안 함</value>
@@ -1304,11 +1262,17 @@
   </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>지원되지 않는 저장 형식: {0}</value>
+    <comment>.
+ Parameters: 0 - formatName (string) </comment>
   </data>
   <data name="SerializationServiceRequestInProgress" xml:space="preserve">
     <value>파일 {0}에 대한 요청이 이미 진행 중입니다.</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>파일 {0}에 대한 요청을 찾을 수 없으므로 추가 데이터를 직렬화할 수 없습니다.</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
   </data>
 </root>

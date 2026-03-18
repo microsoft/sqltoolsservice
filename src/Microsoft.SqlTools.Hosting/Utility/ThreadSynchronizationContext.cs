@@ -38,10 +38,23 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public override void Post(SendOrPostCallback callback, object state)
         {
-            // Add the request to the queue
-            this.requestQueue.Add(
-                new Tuple<SendOrPostCallback, object>(
-                    callback, state));
+            // Shutdown can race with background notifications; once the loop is ending,
+            // drop late posts instead of throwing from BlockingCollection.Add.
+            if (this.requestQueue.IsAddingCompleted)
+            {
+                return;
+            }
+
+            try
+            {
+                this.requestQueue.Add(
+                    new Tuple<SendOrPostCallback, object>(
+                        callback, state));
+            }
+            catch (InvalidOperationException)
+            {
+                // Another thread completed the queue after the check above.
+            }
         }
 
         #endregion
@@ -74,4 +87,3 @@ namespace Microsoft.SqlTools.Utility
         #endregion
     }
 }
-
