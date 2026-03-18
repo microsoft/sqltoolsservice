@@ -98,12 +98,6 @@ steps:
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
-  inputs:
-    command: restore
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-
-- task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.Authentication.UnitTests'
   inputs:
     command: restore
@@ -115,14 +109,6 @@ steps:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
-  inputs:
-    command: test
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-    testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - task: DotNetCoreCLI@2
