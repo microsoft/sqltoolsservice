@@ -69,6 +69,9 @@ steps:
   inputs:
     useGlobalJson: true
 
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
+
 - task: PowerShell@2
   displayName: 'Install Cake tools'
   inputs:

@@ -72,7 +72,11 @@ var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
 var dotnetFolder = System.IO.Path.Combine(workingDirectory, buildPlan.DotNetFolder);
 var dotnetcli = buildPlan.UseSystemDotNetPath ? "dotnet" : System.IO.Path.Combine(System.IO.Path.GetFullPath(dotnetFolder), "dotnet");
 var toolsFolder = System.IO.Path.Combine(workingDirectory, buildPlan.BuildToolsFolder);
-var nugetcli = System.IO.Path.Combine(toolsFolder, "nuget.exe");
+var nugetcli = Environment.GetEnvironmentVariable("NUGET_EXE");
+if (string.IsNullOrWhiteSpace(nugetcli))
+{
+    nugetcli = IsRunningOnWindows() ? "nuget.exe" : "nuget";
+}
 
 var sourceFolder = System.IO.Path.Combine(workingDirectory, "src");
 var testFolder = System.IO.Path.Combine(workingDirectory, "test");
