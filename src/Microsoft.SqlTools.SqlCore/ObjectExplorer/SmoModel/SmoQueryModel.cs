@@ -1868,6 +1868,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            else
+            {
+                Logger.Verbose($"Expected parent of type `ServiceBroker` but actual parent type is {context.Parent?.GetType().Name ?? "null"}");
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -1894,6 +1898,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     Logger.Verbose("End query ServiceContract");
                     return ret;
                 }
+            }
+            else
+            {
+                Logger.Verbose($"Expected parent of type `ServiceBroker` but actual parent type is {context.Parent?.GetType().Name ?? "null"}");
             }
             return Enumerable.Empty<SqlSmoObject>();
         }
@@ -1922,6 +1930,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            else
+            {
+                Logger.Verbose($"Expected parent of type `ServiceBroker` but actual parent type is {context.Parent?.GetType().Name ?? "null"}");
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -1948,6 +1960,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     Logger.Verbose("End query RemoteServiceBinding");
                     return ret;
                 }
+            }
+            else
+            {
+                Logger.Verbose($"Expected parent of type `ServiceBroker` but actual parent type is {context.Parent?.GetType().Name ?? "null"}");
             }
             return Enumerable.Empty<SqlSmoObject>();
         }
@@ -1976,6 +1992,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            else
+            {
+                Logger.Verbose($"Expected parent of type `ServiceBroker` but actual parent type is {context.Parent?.GetType().Name ?? "null"}");
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -2002,6 +2022,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     Logger.Verbose("End query MessageType");
                     return ret;
                 }
+            }
+            else
+            {
+                Logger.Verbose($"Expected parent of type `ServiceBroker` but actual parent type is {context.Parent?.GetType().Name ?? "null"}");
             }
             return Enumerable.Empty<SqlSmoObject>();
         }
