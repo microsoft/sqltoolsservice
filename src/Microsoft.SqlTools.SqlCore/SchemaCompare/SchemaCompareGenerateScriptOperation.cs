@@ -1,22 +1,21 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare generate script operation
+    /// Host-agnostic schema compare generate script operation.
+    /// Script delivery is handled by ISchemaCompareScriptHandler.
     /// </summary>
-    class SchemaCompareGenerateScriptOperation : ITaskOperation
+    public class SchemaCompareGenerateScriptOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
@@ -26,27 +25,49 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// </summary>
         public string OperationId { get; private set; }
 
+        /// <summary>
+        /// Gets the parameters for the generate script operation.
+        /// </summary>
         public SchemaCompareGenerateScriptParams Parameters { get; }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
+        /// <summary>
+        /// The error message if the operation failed.
+        /// </summary>
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
+        /// <summary>
+        /// The schema comparison result used to generate the script.
+        /// </summary>
         public SchemaComparisonResult ComparisonResult { get; set; }
 
+        /// <summary>
+        /// The result of the script generation, containing the generated scripts.
+        /// </summary>
         public SchemaCompareScriptGenerationResult ScriptGenerationResult { get; set; }
 
-        public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult)
+        /// <summary>
+        /// Optional script handler for delivering generated scripts to the host.
+        /// </summary>
+        public ISchemaCompareScriptHandler ScriptHandler { get; set; }
+
+        /// <summary>
+        /// Initializes a new generate script operation with the given parameters, comparison result, and optional script handler.
+        /// </summary>
+        public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult, ISchemaCompareScriptHandler scriptHandler = null)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
+            this.ScriptHandler = scriptHandler;
         }
 
-        public void Execute(TaskExecutionMode mode)
+        /// <summary>
+        /// Executes the script generation operation against the comparison result.
+        /// </summary>
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -57,16 +78,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName, this.CancellationToken);
 
-                // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
-                if (this.SqlTask != null)
+                if (this.ScriptHandler != null)
                 {
-                    this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.ScriptGenerationResult.Script);
+                    this.ScriptHandler.OnScriptGenerated(this.ScriptGenerationResult.Script);
                     if (!string.IsNullOrEmpty(this.ScriptGenerationResult.MasterScript))
                     {
-                        // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-                        this.SqlTask.AddScript(SqlTaskStatus.Succeeded, ScriptGenerationResult.MasterScript);
+                        this.ScriptHandler.OnMasterScriptGenerated(this.ScriptGenerationResult.MasterScript);
                     }
                 }
+
                 if (!this.ScriptGenerationResult.Success)
                 {
                     ErrorMessage = this.ScriptGenerationResult.Message;
@@ -81,14 +101,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
+        /// <summary>
+        /// Cancels the running script generation operation.
+        /// </summary>
         public void Cancel()
         {
             this.cancellation.Cancel();
         }
 
         /// <summary>
-        /// Disposes the operation.
+        /// Disposes the operation and cancels any pending work.
         /// </summary>
         public void Dispose()
         {

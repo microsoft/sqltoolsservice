@@ -3,45 +3,58 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare include/exclude all Node operation
+    /// Host-agnostic schema compare include/exclude all nodes operation.
     /// </summary>
-    class SchemaCompareIncludeExcludeAllNodesOperation : ITaskOperation
+    public class SchemaCompareIncludeExcludeAllNodesOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
 
         /// <summary>
-        /// Gets the unique id associated with this instance.
+        /// Gets the unique identifier for this operation.
         /// </summary>
         public string OperationId { get; private set; }
 
+        /// <summary>
+        /// Gets the parameters for the include/exclude all nodes operation.
+        /// </summary>
         public SchemaCompareIncludeExcludeAllNodesParams Parameters { get; }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
+        /// <summary>
+        /// The error message if the operation failed.
+        /// </summary>
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
+        /// <summary>
+        /// The schema comparison result to include/exclude nodes from.
+        /// </summary>
         public SchemaComparisonResult ComparisonResult { get; set; }
 
+        /// <summary>
+        /// Whether the include/exclude operation succeeded.
+        /// </summary>
         public bool Success { get; set; }
 
+        /// <summary>
+        /// List of all diff entries after the include/exclude all operation.
+        /// </summary>
         public List<DiffEntry> AllIncludedOrExcludedDifferences;
 
-
+        /// <summary>
+        /// Initializes a new include/exclude all nodes operation with parameters and comparison result.
+        /// </summary>
         public SchemaCompareIncludeExcludeAllNodesOperation(SchemaCompareIncludeExcludeAllNodesParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -51,10 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
         /// <summary>
-        /// Execute will include/exclude all differences in the schema compare result.
+        /// Executes the include or exclude operation on all schema differences.
         /// </summary>
-        /// <param name="mode"></param>
-        public void Execute(TaskExecutionMode mode)
+        public void Execute()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -101,14 +113,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
         /// <summary>
-        /// The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled 
+        /// Cancels the running operation.
         /// </summary>
         public void Cancel()
         {
         }
 
         /// <summary>
-        /// Disposes the operation.
+        /// Disposes the operation and cancels any pending work.
         /// </summary>
         public void Dispose()
         {

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -7,22 +7,24 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
-    internal static class DacFxUtils
+    /// <summary>
+    /// Utility methods for converting DeploymentOptions to DacFx DacDeployOptions.
+    /// </summary>
+    public static class DacFxUtils
     {
         /// <summary>
-        /// Converts DeploymentOptions used in STS and ADS to DacDeployOptions which can be passed to the DacFx apis.
+        /// Converts DeploymentOptions to DacDeployOptions which can be passed to the DacFx APIs.
         /// </summary>
-        /// <param name="deploymentOptions">DeploymentOptions to convert. Must not be null.</param>
-        /// <returns>DacDeployOptions</returns>
-        internal static DacDeployOptions CreateDeploymentOptions(DeploymentOptions deploymentOptions)
+        public static DacDeployOptions CreateDeploymentOptions(DeploymentOptions? deploymentOptions = null)
         {
             try
             {
+                deploymentOptions = deploymentOptions ?? new DeploymentOptions();
                 PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
                 DacDeployOptions dacOptions = new DacDeployOptions();
@@ -32,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
                 {
                     var prop = propType.GetProperty(deployOptionsProp.Name);
-                    // Set the excludeObjectTypes values to the DacDeployOptions
                     if (prop != null && deployOptionsProp.Name == nameof(deploymentOptions.ExcludeObjectTypes))
                     {
                         List<ObjectType> finalExcludeObjects = new List<ObjectType> { };
@@ -54,19 +55,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                                     Logger.Error(string.Format($"{objectTypeValue} is not part of ObjectTypes enum"));
                                 }
                             }
-                            // set final values to excludeObjectType property
                             prop.SetValue(dacOptions, finalExcludeObjects.ToArray());
                         }
                     }
 
-                    // BooleanOptionsDictionary has all the deployment options and is being processed separately in the second iteration by collecting here
                     if (deployOptionsProp.Name == nameof(deploymentOptions.BooleanOptionsDictionary))
                     {
                         booleanOptionsDictionary = deploymentOptions.BooleanOptionsDictionary as Dictionary<string, DeploymentOptionProperty<bool>>;
                     }
                 }
 
-                // Iterating through the updated boolean options coming from the booleanOptionsDictionary and assigning them to DacDeployOptions
                 foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in booleanOptionsDictionary)
                 {
                     var prop = propType.GetProperty(deployOptionsProp.Key);

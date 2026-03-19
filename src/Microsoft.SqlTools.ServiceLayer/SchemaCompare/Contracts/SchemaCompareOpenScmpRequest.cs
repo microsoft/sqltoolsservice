@@ -6,23 +6,11 @@
 #nullable disable
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
-    public class SchemaCompareObjectId
-    {
-        /// <summary>
-        /// Name to create object identifier
-        /// </summary>
-        public string[] NameParts;
-
-        /// <summary>
-        /// sql object type
-        /// </summary>
-        public string SqlObjectType;
-    }
 
     /// <summary>
     /// Parameters for a schema compare open scmp file request.

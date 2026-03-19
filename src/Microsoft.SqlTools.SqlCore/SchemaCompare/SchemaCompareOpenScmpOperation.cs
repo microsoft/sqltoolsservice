@@ -1,59 +1,69 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Schema compare load scmp operation
+    /// Host-agnostic schema compare open SCMP operation.
+    /// Connection string parsing is handled by ISchemaCompareConnectionProvider.
     /// </summary>
-    class SchemaCompareOpenScmpOperation : ITaskOperation
+    public class SchemaCompareOpenScmpOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
+        private readonly ISchemaCompareConnectionProvider _connectionProvider;
 
-        public SqlTask SqlTask { get; set; }
-
+        /// <summary>
+        /// Gets or sets the parameters for the open SCMP operation.
+        /// </summary>
         public SchemaCompareOpenScmpParams Parameters { get; set; }
 
+        /// <summary>
+        /// The result of parsing the SCMP file, including endpoint info and deployment options.
+        /// </summary>
         public SchemaCompareOpenScmpResult Result { get; private set; }
 
         private XDocument scmpInfo { get; set; }
 
-        public SchemaCompareOpenScmpOperation(SchemaCompareOpenScmpParams parameters)
+        /// <summary>
+        /// Initializes a new open SCMP operation with parameters and a connection provider.
+        /// </summary>
+        public SchemaCompareOpenScmpOperation(SchemaCompareOpenScmpParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
+            this._connectionProvider = connectionProvider;
         }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
         /// <summary>
-        /// The error occurred during operation
+        /// The error message if the operation failed.
         /// </summary>
         public string ErrorMessage { get; set; }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
+        /// <summary>
+        /// Cancels the running operation.
+        /// </summary>
         public void Cancel()
         {
         }
 
         /// <summary>
-        /// Disposes the operation.
+        /// Disposes the operation and cancels any pending work.
         /// </summary>
         public void Dispose()
         {
@@ -64,7 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        public void Execute(TaskExecutionMode mode)
+        /// <summary>
+        /// Executes the SCMP file parsing and populates the result with source/target endpoint info and options.
+        /// </summary>
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -75,7 +88,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparison compare = new SchemaComparison(this.Parameters.FilePath);
 
-                // load xml file because some parsing still needs to be done
                 this.scmpInfo = XDocument.Load(this.Parameters.FilePath);
 
                 this.Result = new SchemaCompareOpenScmpResult()
@@ -102,7 +114,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             SchemaCompareEndpointInfo endpointInfo = new SchemaCompareEndpointInfo();
 
-            // if the endpoint is a dacpac, we don't need to parse the xml
             if (endpoint is SchemaCompareDacpacEndpoint dacpacEndpoint)
             {
                 endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
@@ -111,10 +122,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             else
             {
                 bool isProjectEndpoint = endpoint is SchemaCompareProjectEndpoint;
-                IEnumerable<XElement> result = isProjectEndpoint ? this.scmpInfo.Descendants("ProjectBasedModelProvider"): this.scmpInfo.Descendants("ConnectionBasedModelProvider");
+                IEnumerable<XElement> result = isProjectEndpoint ? this.scmpInfo.Descendants("ProjectBasedModelProvider") : this.scmpInfo.Descendants("ConnectionBasedModelProvider");
                 string searchingFor = source ? "Source" : "Target";
-                
-                // need to parse xml
+
                 try
                 {
                     if (result != null)
@@ -123,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         {
                             if (node.Parent.Name.ToString().Contains(searchingFor))
                             {
-                                if(isProjectEndpoint)
+                                if (isProjectEndpoint)
                                 {
                                     SetProjectEndpointInfoFromXML(result, endpointInfo, ((SchemaCompareProjectEndpoint)endpoint).ProjectFilePath);
                                     break;
@@ -140,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 catch (Exception e)
                 {
                     string info = isProjectEndpoint ? ((SchemaCompareProjectEndpoint)endpoint).ProjectFilePath : ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName;
-                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, info, e.Message);
+                    ErrorMessage = string.Format("Schema compare open scmp operation failed during xml parsing for '{0}': {1}", info, e.Message);
                     Logger.Error(string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
                     throw;
                 }
@@ -151,40 +161,52 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         private void SetDatabaseEndpointInfoFromXML(XElement node, SchemaCompareEndpointInfo endpointInfo)
         {
-            // get connection string of database
-            endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.Value);
-            endpointInfo.ConnectionDetails.ConnectionString = node.Value;
-            endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
+            endpointInfo.ConnectionString = node.Value;
+            if (_connectionProvider != null)
+            {
+                var parsed = _connectionProvider.ParseConnectionString(node.Value);
+                endpointInfo.DatabaseName = parsed.DatabaseName;
+                endpointInfo.ServerName = parsed.ServerName;
+                endpointInfo.UserName = parsed.UserName;
+            }
+            else
+            {
+                // Fall back to SqlConnectionStringBuilder for parsing
+                var builder = new SqlConnectionStringBuilder(node.Value);
+                endpointInfo.DatabaseName = builder.InitialCatalog;
+                endpointInfo.ServerName = builder.DataSource;
+                endpointInfo.UserName = builder.UserID;
+            }
             endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
         }
 
         private void SetProjectEndpointInfoFromXML(IEnumerable<XElement> result, SchemaCompareEndpointInfo endpointInfo, string filePath)
         {
-            // get dsp information
             IEnumerable<XElement> dsp = result.Descendants("Dsp");
             if (dsp != null)
             {
                 endpointInfo.DataSchemaProvider = dsp.FirstOrDefault().Value;
             }
 
-            // get folder structure information
             IEnumerable<XElement> fs = result.Descendants("FolderStructure");
             if (fs != null)
             {
                 DacExtractTarget extractTarget;
-                if(fs.FirstOrDefault() != null)     // it is possible that this value is not set
+                if (fs.FirstOrDefault() != null)
                 {
                     if (Enum.TryParse<DacExtractTarget>(fs.FirstOrDefault().Value, out extractTarget))
                     {
                         endpointInfo.ExtractTarget = extractTarget;
-                    } else
+                    }
+                    else
                     {
-                        endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set default but log an error
+                        endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;
                         Logger.Error(string.Format("Schema compare open scmp operation failed during xml parsing with unknown ExtractTarget"));
                     }
-                } else
+                }
+                else
                 {
-                    endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set the default if this value doesn't already exist in the scmp file
+                    endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;
                 }
             }
 
@@ -208,8 +230,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return excludedElements;
         }
 
-
-        // The original target name is used to determine whether to use ExcludedSourceElements or ExcludedTargetElements if source and target were swapped
         private string GetOriginalTargetName()
         {
             var result = this.scmpInfo.Descendants("PropertyElementName")
@@ -219,7 +239,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return result != null ? result.Value : string.Empty;
         }
 
-        // The original target connection string is used if comparing a dacpac and db with the same name
         private string GetOriginalTargetConnectionString()
         {
             var result = this.scmpInfo.Descendants("PropertyElementName")

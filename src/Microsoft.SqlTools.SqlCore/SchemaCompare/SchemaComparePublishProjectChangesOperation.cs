@@ -1,36 +1,46 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 
 using System;
 using System.Threading;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare publish project changes operation
+    /// Host-agnostic schema compare publish project changes operation.
     /// </summary>
-    class SchemaComparePublishProjectChangesOperation: SchemaComparePublishChangesOperation
+    public class SchemaComparePublishProjectChangesOperation : SchemaComparePublishChangesOperation
     {
+        /// <summary>
+        /// Gets the parameters for the publish project changes operation.
+        /// </summary>
         public SchemaComparePublishProjectChangesParams Parameters { get; }
 
+        /// <summary>
+        /// Result from DacFx PublishChangesToProject call.
+        /// </summary>
         public SchemaComparePublishProjectResult PublishResult { get; set; }
 
+        /// <summary>
+        /// Initializes a new publish project changes operation with parameters and comparison result.
+        /// </summary>
         public SchemaComparePublishProjectChangesOperation(SchemaComparePublishProjectChangesParams parameters, SchemaComparisonResult comparisonResult) : base(comparisonResult)
         {
             Validate.IsNotNull(nameof(parameters), parameters);
             Parameters = parameters;
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        /// <summary>
+        /// Executes the publish operation, applying schema changes to the target SQL project.
+        /// </summary>
+        public override void Execute()
         {
             if (CancellationToken.IsCancellationRequested)
             {
@@ -40,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 PublishResult = ComparisonResult.PublishChangesToProject(Parameters.TargetProjectPath, Parameters.TargetFolderStructure);
-                
+
                 if (!PublishResult.Success)
                 {
                     ErrorMessage = PublishResult.ErrorMessage;

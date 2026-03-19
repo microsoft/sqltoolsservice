@@ -8,9 +8,11 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using DeploymentOptions = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptions;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using System;
@@ -185,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             VerifyBooleanOptionsDictionary(deploymentOptions.BooleanOptionsDictionary, dacDeployOptions);
         }
 
-        internal static bool ValidateOptionsEqualsDefault(GetDeploymentOptionsResult options)
+        internal static bool ValidateOptionsEqualsDefault(SchemaCompareOptionsResult options)
         {
             DeploymentOptions defaultOpt = new DeploymentOptions();
             DeploymentOptions actualOpt = options.DefaultDeploymentOptions;
@@ -214,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 }
             }
 
-            // Verify the default booleanOptionsDictionary with the GetDeploymentOptionsResult options property values
+            // Verify the default booleanOptionsDictionary with the SchemaCompareOptionsResult options property values
             DacFxServiceTests dacFxServiceTests = new DacFxServiceTests();
             dacFxServiceTests.VerifyExpectedAndActualBooleanOptionsDictionary(defaultOpt.BooleanOptionsDictionary, options.DefaultDeploymentOptions.BooleanOptionsDictionary);
 
@@ -226,9 +228,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         /// </summary>
         /// <param name="expectedBooleanOptionsDictionary"></param>
         /// <param name="dacDeployOptions"></param>
-        private static void VerifyBooleanOptionsDictionary(Dictionary<string, DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, DacDeployOptions dacDeployOptions)
+        private static void VerifyBooleanOptionsDictionary(Dictionary<string, Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, DacDeployOptions dacDeployOptions)
         {
-            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
+            foreach (KeyValuePair<string, Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
             {
                 var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
                 Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {optionRow.Key}");

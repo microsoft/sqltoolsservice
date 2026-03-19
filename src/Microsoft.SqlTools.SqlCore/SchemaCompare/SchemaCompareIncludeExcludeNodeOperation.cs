@@ -1,49 +1,66 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare include/exclude Node operation
+    /// Host-agnostic schema compare include/exclude node operation.
     /// </summary>
-    class SchemaCompareIncludeExcludeNodeOperation : ITaskOperation
+    public class SchemaCompareIncludeExcludeNodeOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
 
         /// <summary>
-        /// Gets the unique id associated with this instance.
+        /// Gets the unique identifier for this operation.
         /// </summary>
         public string OperationId { get; private set; }
 
+        /// <summary>
+        /// Gets the parameters for the include/exclude node operation.
+        /// </summary>
         public SchemaCompareNodeParams Parameters { get; }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
+        /// <summary>
+        /// The error message if the operation failed.
+        /// </summary>
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
+        /// <summary>
+        /// The schema comparison result to include/exclude a node from.
+        /// </summary>
         public SchemaComparisonResult ComparisonResult { get; set; }
 
+        /// <summary>
+        /// Whether the include/exclude operation succeeded.
+        /// </summary>
         public bool Success { get; set; }
 
+        /// <summary>
+        /// List of diff entries affected by the include/exclude operation.
+        /// </summary>
         public List<DiffEntry> AffectedDependencies;
+
+        /// <summary>
+        /// List of diff entries blocking an exclude operation.
+        /// </summary>
         public List<DiffEntry> BlockingDependencies;
 
-
+        /// <summary>
+        /// Initializes a new include/exclude node operation with parameters and comparison result.
+        /// </summary>
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -53,46 +70,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
         /// <summary>
-        /// Exclude will return false if included dependencies are found. Include will also include dependencies that need to be included. 
-        /// This is the same behavior as SSDT
+        /// Exclude will return false if included dependencies are found.
+        /// Include will also include dependencies that need to be included.
         /// </summary>
-        /// <param name="mode"></param>
-        public void Execute(TaskExecutionMode mode)
+        public void Execute()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
             try
             {
-                SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry) ?? throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
+                SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry)
+                    ?? throw new InvalidOperationException("Schema compare include/exclude node not found.");
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
-                // if include request (pass or fail), send dependencies that might have been affected by this request, given by GetIncludeDependencies()
-                if(this.Parameters.IncludeRequest)
+                if (this.Parameters.IncludeRequest)
                 {
                     IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
                     this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                 }
                 else
-                {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
-                    if(this.Success)
+                {
+                    if (this.Success)
                     {
                         IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
                         this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                     }
-                    // if not successful, send back the exclude dependencies that caused it to fail
                     else
                     {
                         IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
                         blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
                         this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                     }
-                   
                 }
             }
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Error(string.Format("Schema compare publish changes operation {0} failed with exception {1}", this.OperationId, e.Message));
+                Logger.Error(string.Format("Schema compare include/exclude operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
         }
@@ -120,18 +134,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
         {
             bool result = true;
-            // Create a diff entry from difference and check if it matches the diff entry passed
             DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
 
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
             {
-                // Don't need to check if included is the same when verifying if the difference is equal
                 if (prop.Name != "Included")
                 {
-                    if(!((prop.GetValue(diffEntry) == null &&
-                        prop.GetValue(entryFromDifference) == null) ||
-                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString())))
+                    var diffVal = prop.GetValue(diffEntry);
+                    var entryVal = prop.GetValue(entryFromDifference);
+                    if (!((diffVal == null && entryVal == null) ||
+                        (diffVal != null && entryVal != null && diffVal.ToString().Equals(entryVal.ToString()))))
                     {
                         return false;
                     }
@@ -141,13 +154,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return result;
         }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
+        /// <summary>
+        /// Cancels the running operation.
+        /// </summary>
         public void Cancel()
         {
         }
 
         /// <summary>
-        /// Disposes the operation.
+        /// Disposes the operation and cancels any pending work.
         /// </summary>
         public void Dispose()
         {

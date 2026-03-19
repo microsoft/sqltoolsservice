@@ -8,29 +8,16 @@
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Parameters for a schema compare publish database changes request.
+    /// Extends SqlCore's version with TaskExecutionMode.
     /// </summary>
-    public class SchemaComparePublishDatabaseChangesParams
+    public class SchemaComparePublishDatabaseChangesParams : CoreContracts.SchemaComparePublishDatabaseChangesParams
     {
-        /// <summary>
-        /// Operation id of the schema compare operation
-        /// </summary>
-        public string OperationId { get; set; }
-
-        /// <summary>
-        /// Name of target server
-        /// </summary>
-        public string TargetServerName { get; set; }
-
-        /// <summary>
-        /// Name of target database
-        /// </summary>
-        public string TargetDatabaseName { get; set; }
-
         /// <summary>
         /// Execution mode for the operation. Default is execution
         /// </summary>

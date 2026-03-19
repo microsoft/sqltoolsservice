@@ -1,64 +1,69 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Schema compare operation
+    /// Host-agnostic schema compare operation.
+    /// Connection resolution is handled by ISchemaCompareConnectionProvider.
     /// </summary>
-    class SchemaCompareOperation : ITaskOperation
+    public class SchemaCompareOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
+        private readonly ISchemaCompareConnectionProvider _connectionProvider;
 
         /// <summary>
         /// Gets the unique id associated with this instance.
         /// </summary>
         public string OperationId { get; private set; }
 
-        public SqlTask SqlTask { get; set; }
-
+        /// <summary>
+        /// Gets or sets the parameters for the schema compare operation.
+        /// </summary>
         public SchemaCompareParams Parameters { get; set; }
 
-        public ConnectionInfo SourceConnectionInfo { get; set; }
-
-        public ConnectionInfo TargetConnectionInfo { get; set; }
-
+        /// <summary>
+        /// The schema comparison result from DacFx.
+        /// </summary>
         public SchemaComparisonResult ComparisonResult { get; set; }
 
+        /// <summary>
+        /// List of diff entries representing the differences found.
+        /// </summary>
         public List<DiffEntry> Differences;
 
-        public SchemaCompareOperation(SchemaCompareParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
+        /// <summary>
+        /// Initializes a new schema compare operation with parameters and a connection provider.
+        /// </summary>
+        public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
-            this.SourceConnectionInfo = sourceConnInfo;
-            this.TargetConnectionInfo = targetConnInfo;
+            this._connectionProvider = connectionProvider;
             this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
-        
+
         /// <summary>
         /// The error occurred during operation
         /// </summary>
         public string ErrorMessage { get; set; }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
+        /// <summary>
+        /// Cancels the running schema comparison.
+        /// </summary>
         public void Cancel()
         {
             this.cancellation.Cancel();
@@ -76,7 +81,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        public void Execute(TaskExecutionMode mode)
+        /// <summary>
+        /// Executes the schema comparison between source and target endpoints.
+        /// </summary>
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -85,8 +93,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionInfo);
-                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionInfo);
+                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this._connectionProvider);
+                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this._connectionProvider);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 
@@ -106,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     this.ComparisonResult = comparison.Compare(this.CancellationToken);
                 }
 
-                // Since DacFx does not throw on schema comparison cancellation, throwing here explicitly to ensure consistency of behavior
+                // Since DacFx does not throw on schema comparison cancellation, throwing here explicitly
                 if (!this.ComparisonResult.IsValid && this.CancellationToken.IsCancellationRequested)
                 {
                     throw new OperationCanceledException(this.CancellationToken);
@@ -115,7 +123,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 this.Differences = new List<DiffEntry>();
                 if (this.ComparisonResult.Differences != null)
                 {
-                    // filter out not included and not excludeable differences
                     (this.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included && !d.IsExcludable);
 
                     foreach (SchemaDifference difference in this.ComparisonResult.Differences)
@@ -125,8 +132,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 }
 
-                // Appending the set of errors that are stopping the schema compare to the ErrorMessage
-                // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here
                 var errorsList = ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Error)).Select(e => e.Message).Distinct().ToList();
                 if (errorsList.Count > 0)
                 {

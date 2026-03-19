@@ -6,27 +6,14 @@
 #nullable disable
 using System.Collections.Generic;
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
-    /// <summary>
-    /// Types of schema compare endpoints
-    /// </summary>
-    public enum SchemaCompareEndpointType
-    {
-        Database = 0,
-        Dacpac = 1,
-        Project = 2
-        // must be kept in-sync with SchemaCompareEndpointType in Azure Data Studio
-        // located at \extensions\mssql\src\mssql.d.ts and in the MSSQL for VSCode Extension
-        // located at \typings\vscode-mssql.d.ts
-    }
 
     /// <summary>
     /// Info needed from endpoints for schema comparison
@@ -120,22 +107,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool AreEqual { get; set; }
 
         public List<DiffEntry> Differences { get; set; }
-    }
-
-    public class DiffEntry
-    {
-        public SchemaUpdateAction UpdateAction { get; set; }
-        public SchemaDifferenceType DifferenceType { get; set; }
-        public string Name { get; set; }
-        public string[] SourceValue { get; set; }
-        public string[] TargetValue { get; set; }
-        public DiffEntry Parent { get; set; }
-        public List<DiffEntry> Children { get; set; }
-        public string SourceScript { get; set; }
-        public string TargetScript { get; set; }
-        public string SourceObjectType { get; set; }
-        public string TargetObjectType { get; set; }
-        public bool Included { get; set; }
     }
 
     /// <summary>

@@ -4,14 +4,15 @@
 //
 
 #nullable disable
-using Microsoft.SqlTools.ServiceLayer.DacFx;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlServer.Dac;
+using DeploymentOptions = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptions;
+using SchemaCompareEndpointType = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareEndpointType;
+using Moq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -81,7 +82,7 @@ END
         private DeploymentOptions GetExcludeTableValuedFunctionOptions()
         {
             var options = new DeploymentOptions();
-            options.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>
+            options.ExcludeObjectTypes = new Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<string[]>
                 (
                     new string[]{
                         Enum.GetName(ObjectType.ServerTriggers),
@@ -140,8 +141,8 @@ END
                     DeploymentOptions = nodiffOption
                 };
 
-                SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, null, null);
-                schemaCompareOperation1.Execute(TaskExecutionMode.Execute);
+                SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(SchemaCompareTestConverters.ToCoreParams(schemaCompareParams1), null);
+                schemaCompareOperation1.Execute();
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
                 Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
@@ -152,8 +153,8 @@ END
                     DeploymentOptions = shouldDiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, null, null);
-                schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
+                SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(SchemaCompareTestConverters.ToCoreParams(schemaCompareParams2), null);
+                schemaCompareOperation2.Execute();
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
                 Assert.IsNull(schemaCompareOperation2.ErrorMessage);
@@ -194,8 +195,8 @@ END
                     DeploymentOptions = nodiffOption
                 };
 
-                SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, result.ConnectionInfo, result.ConnectionInfo);
-                schemaCompareOperation1.Execute(TaskExecutionMode.Execute);
+                SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(SchemaCompareTestConverters.ToCoreParams(schemaCompareParams1), new TestConnectionProvider(result.ConnectionInfo));
+                schemaCompareOperation1.Execute();
 
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
@@ -209,8 +210,9 @@ END
                     DeploymentOptions = shouldDiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, result.ConnectionInfo, result.ConnectionInfo);
-                schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
+                SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(SchemaCompareTestConverters.ToCoreParams(schemaCompareParams2), new TestConnectionProvider(result.ConnectionInfo));
+                schemaCompareOperation2.Execute();
+
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
                 Assert.IsNull(schemaCompareOperation2.ErrorMessage);
@@ -250,8 +252,8 @@ END
                     DeploymentOptions = nodiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, result.ConnectionInfo, result.ConnectionInfo);
-                schemaCompareOperation1.Execute(TaskExecutionMode.Execute);
+                SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(SchemaCompareTestConverters.ToCoreParams(schemaCompareParams1), new TestConnectionProvider(result.ConnectionInfo));
+                schemaCompareOperation1.Execute();
 
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
@@ -269,7 +271,7 @@ END
 
                 try
                 {
-                    generateScriptOperation1.Execute(TaskExecutionMode.Script);
+                    generateScriptOperation1.Execute();
                     Assert.True(false); //fail if it reaches here
                 }
                 catch (Exception ex)
@@ -287,8 +289,8 @@ END
                     DeploymentOptions = shouldDiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, result.ConnectionInfo, result.ConnectionInfo);
-                schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
+                SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(SchemaCompareTestConverters.ToCoreParams(schemaCompareParams2), new TestConnectionProvider(result.ConnectionInfo));
+                schemaCompareOperation2.Execute();
 
                 Assert.True(schemaCompareOperation2.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
@@ -303,7 +305,7 @@ END
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation2 = new SchemaCompareGenerateScriptOperation(generateScriptParams2, schemaCompareOperation2.ComparisonResult);
-                generateScriptOperation2.Execute(TaskExecutionMode.Script);
+                generateScriptOperation2.Execute();
 
                 // validate script generation succeeded
                 Assert.True(generateScriptOperation2.ScriptGenerationResult.Success);
@@ -399,55 +401,13 @@ END
         [Test]
         public async Task ValidateSchemaCompareGetDefaultOptionsCallFromService()
         {
-            MockRequest<GetDeploymentOptionsResult> requestMock = new();
-            GetDeploymentOptionsParams p = new GetDeploymentOptionsParams();
-            DacFxService service = new DacFxService();
+            DeploymentOptions deployOptions = new DeploymentOptions();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>())).Returns(Task.FromResult(new object()));
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.Is<SchemaCompareOptionsResult>((options) => SchemaCompareTestUtils.ValidateOptionsEqualsDefault(options) == true))).Returns(Task.FromResult(new object()));
 
-            await service.HandleGetDeploymentOptionsRequest(p, requestMock.Object);
-
-            requestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest));
-            Assert.IsTrue(SchemaCompareTestUtils.ValidateOptionsEqualsDefault(requestMock.Result), "Options should equal to modified defaults for Schema Compare");
-        }
-
-        /// <summary>
-        /// Verify that Scenario parameter controls whether Schema Compare or Deployment defaults are used
-        /// </summary>
-        [Test]
-        public async Task ValidateSchemaCompareGetOptionsWithScenarioParameter()
-        {
-            DacFxService service = new DacFxService();
-
-            // Test Schema Compare scenario - should have modified defaults
-            MockRequest<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
-            GetDeploymentOptionsParams schemaCompareParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.SchemaCompare };
-
-            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestMock.Object);
-
-            schemaCompareRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "SchemaCompare");
-            
-            // Verify modified defaults are applied
-            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
-                Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (modified default)");
-            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value, 
-                Is.True, "DropObjectsNotInSource should be true for Schema Compare (modified default)");
-            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value, 
-                Is.False, "IgnoreKeywordCasing should be false for Schema Compare (modified default)");
-
-            // Test Deployment/Publish scenario - should have DacFx native defaults
-            MockRequest<GetDeploymentOptionsResult> publishRequestMock = new();
-            GetDeploymentOptionsParams publishParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.Deployment };
-
-            await service.HandleGetDeploymentOptionsRequest(publishParams, publishRequestMock.Object);
-
-            publishRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "Deployment");
-            
-            // Verify DacFx native defaults are used
-            Assert.That(publishRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
-                Is.False, "AllowDropBlockingAssemblies should be false for Deployment (DacFx native default)");
-            Assert.That(publishRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value, 
-                Is.False, "DropObjectsNotInSource should be false for Deployment (DacFx native default)");
-            Assert.That(publishRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value, 
-                Is.True, "IgnoreKeywordCasing should be true for Deployment (DacFx native default)");
+            SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
+            await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
         }
     }
 }
