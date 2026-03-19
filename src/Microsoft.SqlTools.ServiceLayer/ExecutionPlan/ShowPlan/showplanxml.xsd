@@ -2467,6 +2467,7 @@
       <xsd:enumeration value="NonClusteredHash" /> 
       <xsd:enumeration value="SelectiveXML" />
       <xsd:enumeration value="SecondarySelectiveXML" />
+      <xsd:enumeration value="Json" />
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="CloneAccessScopeType">
