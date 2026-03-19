@@ -565,6 +565,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         {
             return new Dictionary<string, SqlServerVersion>
             {
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script170Compat.ToString(), SqlServerVersion.Version170},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script160Compat.ToString(), SqlServerVersion.Version160},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script150Compat.ToString(), SqlServerVersion.Version150},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script140Compat.ToString(), SqlServerVersion.Version140},
