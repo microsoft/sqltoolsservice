@@ -280,7 +280,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 										}
 										else
 										{
-												WriteLine("            currentChildren.Add(new FolderNode {");
+												// ServiceBroker uses a special folder node that provides the ServiceBroker SMO object
+												// as the context parent, enabling child queriers to navigate correctly.
+												string folderNodeType = (childName == "ServiceBroker") ? "ServiceBrokerFolderNode" : "FolderNode";
+												WriteLine("            currentChildren.Add(new {0} {{", folderNodeType);
 												WriteLine("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel"));
 												if (type == "Database" && (childName == "BuiltInSchemas" || childName == "Programmability" || childName == "ExternalResources" || childName == "ServiceBroker" || childName == "Storage" || childName == "Security"))
 												{

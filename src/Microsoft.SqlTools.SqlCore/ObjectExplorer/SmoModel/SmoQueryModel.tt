@@ -171,6 +171,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 						WriteLine("}");
 						PopIndent();
 						WriteLine("}");	// close If
+						WriteLine("else");
+						WriteLine("{");
+						PushIndent(indent);
+						WriteLine("Logger.Verbose($\"Expected parent of type `{0}` but actual parent type is {{context.Parent?.GetType().Name ?? \\\"null\\\"}}\");", parentType);
+						PopIndent();
+						WriteLine("}");
 				}
 
 				WriteLine("return Enumerable.Empty<SqlSmoObject>();");
