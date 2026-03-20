@@ -232,12 +232,12 @@
       <Filter Property="IsFileTable" Value="1" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016OrHigher|AzureV12">
+  -->
+  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016OrHigher|AzureV12|SqlOnDemand" SortPriority="Int32.MaxValue">
     <Filters >
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
   </Node>
-  -->
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Or>
