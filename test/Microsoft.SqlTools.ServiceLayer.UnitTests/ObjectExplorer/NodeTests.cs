@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 using Microsoft.Data.SqlClient;
@@ -428,6 +429,59 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Note: would like to verify Database in the context, but cannot since it's a Sealed class and isn't easily mockable
         }
 
+        [Test]
+        public void TablesChildFactoryShouldIncludeExternalTablesFolderAndFactoryShouldReturnExternalTableNodes()
+        {
+            ServiceProvider = CreateProvider();
+            var context = new SmoQueryContext(
+                new Server(new ServerConnection(new SqlConnection(fakeConnectionString))),
+                ServiceProvider);
+            context.ValidFor = ValidForFlag.Sql2022OrHigher;
+
+            var parent = new TestTreeNode(context)
+            {
+                NodeValue = SqlTools.SqlCore.SR.SchemaHierarchy_Tables,
+                NodeType = nameof(NodeTypes.Tables),
+                NodeTypeId = NodeTypes.Tables,
+            };
+
+            var tablesChildFactory = new TablesChildFactory();
+            var tableChildren = tablesChildFactory.Expand(parent, refresh: false, name: null, includeSystemObjects: true, CancellationToken.None).ToList();
+
+            var externalTablesFolder = tableChildren.OfType<FolderNode>().SingleOrDefault(child => child.NodeTypeId == NodeTypes.ExternalTables);
+            Assert.NotNull(externalTablesFolder);
+            Assert.AreEqual(SqlTools.SqlCore.SR.SchemaHierarchy_ExternalTables, externalTablesFolder.NodeValue);
+            Assert.AreEqual(ValidForFlag.Sql2016OrHigher | ValidForFlag.AzureV12 | ValidForFlag.SqlOnDemand, externalTablesFolder.ValidFor);
+            Assert.AreEqual(Int32.MaxValue, externalTablesFolder.SortPriority);
+
+            var externalTablesChildFactory = new ExternalTablesChildFactory();
+            var externalFilter = externalTablesChildFactory.Filters.OfType<NodePropertyFilter>().Single();
+            Assert.AreEqual("IsExternal", externalFilter.Property);
+            Assert.AreEqual(typeof(bool), externalFilter.Type);
+            CollectionAssert.AreEqual(new object[] { 1 }, externalFilter.Values);
+
+            var externalTableNode = externalTablesChildFactory.CreateChild(externalTablesFolder, new Mock<NamedSmoObject>().Object);
+            Assert.AreEqual(NodeTypes.ExternalTable, externalTableNode.NodeTypeId);
+            Assert.AreEqual("ExternalTable", externalTableNode.NodeType);
+
+            // Verify Dropped Ledger Tables sorts before External Tables (both share Int32.MaxValue priority,
+            // tiebreaker is alphabetical: "D" < "E")
+            var droppedLedgerTablesFolder = tableChildren.OfType<FolderNode>().SingleOrDefault(child => child.NodeTypeId == NodeTypes.DroppedLedgerTables);
+            Assert.NotNull(droppedLedgerTablesFolder);
+            Assert.Less(droppedLedgerTablesFolder.CompareTo(externalTablesFolder), 0, "DroppedLedgerTables should sort before ExternalTables");
+        }
+
+        [Test]
+        public void TreeNodeCompareToShouldUseAlphabeticalTiebreakerWhenSortPrioritiesAreEqual()
+        {
+            var nodeA = new FolderNode { NodeValue = "Alpha", SortPriority = Int32.MaxValue };
+            var nodeB = new FolderNode { NodeValue = "Beta",  SortPriority = Int32.MaxValue };
+
+            Assert.Less(nodeA.CompareTo(nodeB), 0, "Alpha should sort before Beta when priorities are equal");
+            Assert.Greater(nodeB.CompareTo(nodeA), 0, "Beta should sort after Alpha when priorities are equal");
+            Assert.AreEqual(0, nodeA.CompareTo(nodeA), "A node should compare equal to itself");
+        }
+
         private void VerifyTreeNode<T>(TreeNode node, string nodeType, string folderValue)
             where T : TreeNode
         {
@@ -435,6 +489,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.NotNull(nodeAsT);
             Assert.AreEqual(nodeType, nodeAsT.NodeType);
             Assert.AreEqual(folderValue, nodeAsT.NodeValue);
+        }
+
+        private sealed class TestTreeNode : TreeNode
+        {
+            private readonly SmoQueryContext context;
+
+            internal TestTreeNode(SmoQueryContext context)
+            {
+                this.context = context;
+            }
+
+            public override object GetContext()
+            {
+                return context;
+            }
         }
     }
 }

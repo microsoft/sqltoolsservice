@@ -107,22 +107,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/testDatabase/Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+
                 "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+
                 "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+
+                "testServer/Databases/testDatabase/Tables/External Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/External Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Tables/External Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/External Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+
                 "testServer/Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+
                 "testServer/Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+
                 "testServer/Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn",
@@ -148,6 +158,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/testDatabase/Tables/System Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/testDatabase/Tables/External Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Tables/External Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",

@@ -305,6 +305,44 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             Assert.AreEqual(3, rootNode.Count, "3 recommendations should be returned by the showplan parser");
         }
 
+        [Test]
+        public void ParseShowPlanWithJsonIndexKind_DoesNotThrow()
+        {
+            // Regression test for https://github.com/microsoft/vscode-mssql/issues/21670
+            // SQL Server 2025 emits IndexKind="Json" for JSON indexes; verify deserialization
+            // succeeds and the value round-trips correctly.
+            const string xml = @"<?xml version=""1.0"" encoding=""utf-16""?>
+<ShowPlanXML Version=""1.539"" Build=""16.0.1000.0"" xmlns=""http://schemas.microsoft.com/sqlserver/2004/07/showplan"">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementCompId=""1"" StatementEstRows=""1"" StatementId=""1""
+                    StatementOptmLevel=""FULL"" StatementSubTreeCost=""0.003"" StatementText=""SELECT 1""
+                    StatementType=""SELECT"">
+          <QueryPlan CachedPlanSize=""16"" CompileTime=""1"" CompileCPU=""1"" CompileMemory=""224"">
+            <RelOp AvgRowSize=""11"" EstimateCPU=""0.0001"" EstimateIO=""0.003"" EstimateRebinds=""0""
+                   EstimateRewinds=""0"" EstimatedExecutionMode=""Row"" EstimateRows=""1""
+                   LogicalOp=""Index Scan"" NodeId=""0"" Parallel=""false"" PhysicalOp=""Index Scan""
+                   EstimatedTotalSubtreeCost=""0.003"">
+              <OutputList />
+              <IndexScan Ordered=""false"" ForcedIndex=""false"" ForceSeek=""false"" NoExpandHint=""false"">
+                <Object Database=""[testdb]"" Schema=""[dbo]"" Table=""[t]"" Index=""[ix_json]"" IndexKind=""Json"" />
+              </IndexScan>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>";
+
+            ShowPlanGraph[] graphs = null;
+            Assert.DoesNotThrow(() => graphs = ShowPlanGraph.ParseShowPlanXML(xml, ShowPlanType.Unknown),
+                "Deserializing a showplan with IndexKind=\"Json\" should not throw");
+            Assert.NotNull(graphs, "parsed graphs should not be null");
+            Assert.AreEqual(1, graphs.Length, "exactly one graph should be parsed");
+        }
+
         private void ReadFile(string fileName)
         {
             Assembly assembly = Assembly.GetAssembly(typeof(ShowPlanXMLTests));
