@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 // this does not need to be an async operation since this only creates and returns the default object
-                CoreOps.Contracts.DeploymentOptions options = CoreOps.Contracts.DeploymentOptions.GetDefaultSchemaCompareOptions();
+                Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions options = Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions.GetDefaultSchemaCompareOptions();
 
                 await requestContext.SendResult(new SchemaCompareOptionsResult()
                 {

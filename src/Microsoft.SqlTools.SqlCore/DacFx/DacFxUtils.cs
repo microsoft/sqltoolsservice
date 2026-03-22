@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.SqlCore.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.DacFx
 {
     /// <summary>
     /// Utility methods for converting DeploymentOptions to DacFx DacDeployOptions.

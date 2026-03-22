@@ -98,6 +98,13 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             var problematicDifferences = new List<SchemaDifference>();
             foreach (SchemaDifference difference in schemaDifferences)
             {
+                // Non-excludable items (e.g. Filegroup) will always fail Exclude().
+                // Skip them to avoid infinite retry loops.
+                if (!Parameters.IncludeRequest && !difference.IsExcludable)
+                {
+                    continue;
+                }
+
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(difference) : this.ComparisonResult.Exclude(difference);
 
                 if (!this.Success)
@@ -106,7 +113,9 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 }
             }
 
-            if (problematicDifferences.Count != 0)
+            // Retry only if progress was made (list shrank), otherwise stop to prevent
+            // infinite recursion when remaining items can never be excluded.
+            if (problematicDifferences.Count != 0 && problematicDifferences.Count < schemaDifferences.Count)
             {
                 IncludeExcludeAllDifferences(problematicDifferences);
             }

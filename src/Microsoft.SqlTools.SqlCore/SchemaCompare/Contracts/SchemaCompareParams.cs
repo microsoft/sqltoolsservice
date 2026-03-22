@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
 {

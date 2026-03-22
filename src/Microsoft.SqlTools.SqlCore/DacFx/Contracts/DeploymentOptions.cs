@@ -14,7 +14,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
+namespace Microsoft.SqlTools.SqlCore.DacFx.Contracts
 {
     /// <summary>
     /// Defines the deployment scenario for determining default options
@@ -79,28 +79,28 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
         public DeploymentOptionProperty<string[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<string[]>
         (
             new string[] {
-                ObjectType.ServerTriggers.ToString(),
-                ObjectType.Routes.ToString(),
-                ObjectType.LinkedServerLogins.ToString(),
-                ObjectType.Endpoints.ToString(),
-                ObjectType.ErrorMessages.ToString(),
-                ObjectType.Files.ToString(),
-                ObjectType.Logins.ToString(),
-                ObjectType.LinkedServers.ToString(),
-                ObjectType.Credentials.ToString(),
-                ObjectType.DatabaseScopedCredentials.ToString(),
-                ObjectType.DatabaseEncryptionKeys.ToString(),
-                ObjectType.MasterKeys.ToString(),
-                ObjectType.DatabaseAuditSpecifications.ToString(),
-                ObjectType.Audits.ToString(),
-                ObjectType.ServerAuditSpecifications.ToString(),
-                ObjectType.CryptographicProviders.ToString(),
-                ObjectType.ServerRoles.ToString(),
-                ObjectType.EventSessions.ToString(),
-                ObjectType.DatabaseOptions.ToString(),
-                ObjectType.EventNotifications.ToString(),
-                ObjectType.ServerRoleMembership.ToString(),
-                ObjectType.AssemblyFiles.ToString()
+                nameof(ObjectType.ServerTriggers),
+                nameof(ObjectType.Routes),
+                nameof(ObjectType.LinkedServerLogins),
+                nameof(ObjectType.Endpoints),
+                nameof(ObjectType.ErrorMessages),
+                nameof(ObjectType.Files),
+                nameof(ObjectType.Logins),
+                nameof(ObjectType.LinkedServers),
+                nameof(ObjectType.Credentials),
+                nameof(ObjectType.DatabaseScopedCredentials),
+                nameof(ObjectType.DatabaseEncryptionKeys),
+                nameof(ObjectType.MasterKeys),
+                nameof(ObjectType.DatabaseAuditSpecifications),
+                nameof(ObjectType.Audits),
+                nameof(ObjectType.ServerAuditSpecifications),
+                nameof(ObjectType.CryptographicProviders),
+                nameof(ObjectType.ServerRoles),
+                nameof(ObjectType.EventSessions),
+                nameof(ObjectType.DatabaseOptions),
+                nameof(ObjectType.EventNotifications),
+                nameof(ObjectType.ServerRoleMembership),
+                nameof(ObjectType.AssemblyFiles)
             }
         );
 

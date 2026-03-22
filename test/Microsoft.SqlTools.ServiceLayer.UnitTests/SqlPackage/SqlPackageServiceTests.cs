@@ -11,7 +11,7 @@ using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
-using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Moq;
 using NUnit.Framework;
 

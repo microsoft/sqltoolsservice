@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
 {

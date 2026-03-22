@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlServer.Dac;
-using DeploymentOptions = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptions;
+using DeploymentOptions = Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions;
 using SchemaCompareEndpointType = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareEndpointType;
 using Moq;
 using System;
@@ -82,7 +82,7 @@ END
         private DeploymentOptions GetExcludeTableValuedFunctionOptions()
         {
             var options = new DeploymentOptions();
-            options.ExcludeObjectTypes = new Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<string[]>
+            options.ExcludeObjectTypes = new Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptionProperty<string[]>
                 (
                     new string[]{
                         Enum.GetName(ObjectType.ServerTriggers),

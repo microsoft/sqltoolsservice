@@ -25,8 +25,8 @@ using Moq;
 using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
-using DeploymentOptions = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptions;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
+using DeploymentOptions = Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -595,7 +595,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
+                        ExcludeObjectTypes = new Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -675,7 +675,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
+                        ExcludeObjectTypes = new Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 

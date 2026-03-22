@@ -8,7 +8,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using DeploymentOptions = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptions;
+using DeploymentOptions = Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -228,9 +228,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         /// </summary>
         /// <param name="expectedBooleanOptionsDictionary"></param>
         /// <param name="dacDeployOptions"></param>
-        private static void VerifyBooleanOptionsDictionary(Dictionary<string, Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, DacDeployOptions dacDeployOptions)
+        private static void VerifyBooleanOptionsDictionary(Dictionary<string, Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, DacDeployOptions dacDeployOptions)
         {
-            foreach (KeyValuePair<string, Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
+            foreach (KeyValuePair<string, Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
             {
                 var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
                 Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {optionRow.Key}");

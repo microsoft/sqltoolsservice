@@ -7,8 +7,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
-
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
@@ -24,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     public class SchemaCompareOptionsResult : ResultStatus
     {
-        public DeploymentOptions DefaultDeploymentOptions { get; set; }        
+        public DeploymentOptions DefaultDeploymentOptions { get; set; }
     }
 
     /// <summary>
