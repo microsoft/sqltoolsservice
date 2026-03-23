@@ -24,6 +24,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
+using Microsoft.SqlTools.ServiceLayer.FlatFile;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
@@ -169,6 +170,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             BlobService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(BlobService.Instance);
+
+            FlatFileService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(FlatFileService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

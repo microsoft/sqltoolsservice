@@ -8,8 +8,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
@@ -86,10 +88,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             };
             ScriptFile scriptFile = new ScriptFile()
             {
+                ClientUri = "script file",
                 Contents = "Select * from sys.all_objects"
             };
 
-            ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { IsConnected = true };
+            ScriptParseInfo scriptParseInfo = new ScriptParseInfo()
+            {
+                IsConnected = true,
+                ParseResult = Parser.IncrementalParse(
+                    scriptFile.Contents,
+                    null,
+                    new ParseOptions(
+                        batchSeparator: "GO",
+                        isQuotedIdentifierSet: true,
+                        compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                        transactSqlVersion: TransactSqlVersion.Current))
+            };
             ScriptDocumentInfo docInfo = new ScriptDocumentInfo(doc, scriptFile, scriptParseInfo);
 
             return docInfo;

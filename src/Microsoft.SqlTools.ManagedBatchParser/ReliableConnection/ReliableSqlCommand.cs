@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public override string CommandText
             {
                 get { return _command.CommandText; }
-                set { _command.CommandText = value; }
+                set { _command.CommandText = value; }  // CodeQL [SM03934] This is a SQL execution tool designed to accept and execute user-provided SQL queries; accepting user-controlled SQL is intentional by design.
             }
 
             /// <summary>

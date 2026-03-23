@@ -330,9 +330,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private static string CreateFileName(Sql3PartIdentifier identifier)
         {
-            if (identifier.DatabaseName != null) return $"{identifier.DatabaseName}.{identifier.SchemaName}.{identifier.ObjectName}.sql";
-            if (identifier.SchemaName != null) return $"{identifier.SchemaName}.{identifier.ObjectName}.sql";
-            return $"{identifier.ObjectName}.sql";
+            string baseFileName;
+
+            if (identifier.DatabaseName != null)
+            {
+                baseFileName = $"{identifier.DatabaseName}.{identifier.SchemaName}.{identifier.ObjectName}.sql";
+            }
+            else if (identifier.SchemaName != null)
+            {
+                baseFileName = $"{identifier.SchemaName}.{identifier.ObjectName}.sql";
+            }
+            else
+            {
+                baseFileName = $"{identifier.ObjectName}.sql";
+            }
+
+            return $"{Path.GetFileNameWithoutExtension(baseFileName)}_{Guid.NewGuid():N}{Path.GetExtension(baseFileName)}";
         }
 
         #region Helper Methods

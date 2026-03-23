@@ -684,7 +684,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             connectionWrapper.InfoMessage += messageHandler;
 
             IDbCommand localCommand = connection.CreateCommand();
-            localCommand.CommandText = script;
+            localCommand.CommandText = script;  // CodeQL [SM03934] This is a SQL execution tool designed to accept and execute user-provided SQL queries; accepting user-controlled SQL is intentional by design.
             localCommand.CommandTimeout = execTimeout;
 
             DbCommandWrapper commandWrapper = null;

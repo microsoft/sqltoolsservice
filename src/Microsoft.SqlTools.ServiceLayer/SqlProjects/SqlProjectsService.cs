@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -25,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
         private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
         private const string SqlCodeAnalysisRulesPropertyName = "SqlCodeAnalysisRules";
+        private const string ProjectGuidPropertyName = "ProjectGuid";
 
         /// <summary>
         /// Gets the singleton instance object
@@ -53,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(GetProjectPropertiesRequest.Type, HandleGetProjectPropertiesRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(SetDatabaseSourceRequest.Type, HandleSetDatabaseSourceRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(SetDatabaseSchemaProviderRequest.Type, HandleSetDatabaseSchemaProviderRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(SetProjectPropertiesRequest.Type, HandleSetProjectPropertiesRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(UpdateCodeAnalysisRulesRequest.Type, HandleUpdateCodeAnalysisRulesRequest, isParallelProcessingSupported: false);
 
             // SQL object script functions
@@ -184,6 +187,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
+        }
+
+        internal async Task HandleSetProjectPropertiesRequest(SetProjectPropertiesParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+
+                // First pass: apply all DacFx-managed properties so they are fully flushed
+                // to disk before any raw XML edits are made against the same file.
+                foreach (KeyValuePair<string, string> entry in requestParams.Properties)
+                {
+                    if (!string.Equals(entry.Key, ProjectGuidPropertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        project.Properties.SetProperty(entry.Key, entry.Value);
+                    }
+                }
+
+                // Second pass: apply XML-only properties (e.g. ProjectGuid) now that DacFx
+                // has finished writing, then evict the cached project so the next load picks
+                // up the updated file.
+                foreach (KeyValuePair<string, string> entry in requestParams.Properties)
+                {
+                    if (string.Equals(entry.Key, ProjectGuidPropertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        SetReadOnlyPropertyInXml(requestParams.ProjectUri, entry.Key, entry.Value);
+                        Projects.TryRemove(requestParams.ProjectUri, out _);
+                    }
+                }
+            }, requestContext);
         }
 
         internal async Task HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams, RequestContext<UpdateCodeAnalysisRulesResult> requestContext)
@@ -635,6 +668,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }
 
             return Projects[projectUri];
+        }
+
+        /// <summary>
+        /// Directly writes or updates a property element in the first &lt;PropertyGroup&gt; of the
+        /// .sqlproj XML file. Used for properties that DacFx exposes as init-only fields with no
+        /// public setter (e.g. <c>ProjectGuid</c>).
+        /// </summary>
+        private static void SetReadOnlyPropertyInXml(string projectUri, string propertyName, string propertyValue)
+        {
+            XDocument doc = XDocument.Load(projectUri);
+            XNamespace ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+
+            XElement? propertyGroup = doc.Root?.Elements(ns + "PropertyGroup").FirstOrDefault();
+            if (propertyGroup == null)
+            {
+                propertyGroup = new XElement(ns + "PropertyGroup");
+                doc.Root?.AddFirst(propertyGroup);
+            }
+
+            XElement? existing = propertyGroup.Element(ns + propertyName);
+            if (existing != null)
+            {
+                existing.Value = propertyValue;
+            }
+            else
+            {
+                propertyGroup.Add(new XElement(ns + propertyName, propertyValue));
+            }
+
+            doc.Save(projectUri);
         }
 
         #endregion
