@@ -51,7 +51,9 @@ function Get-ToolPath {
         [string]$ToolName
     )
 
-    if ($IsWindows) {
+    # $IsWindows is only available in PowerShell Core (6+).
+    # Fall back to $env:OS for Windows PowerShell 5.x compatibility.
+    if ($IsWindows -or $env:OS -eq "Windows_NT") {
         return Join-Path $TOOLS_DIR "$ToolName.exe"
     }
 
