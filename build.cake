@@ -128,7 +128,7 @@ void UpdateXlfTargetsFromSource(string xlfPath)
         }
 
         target.Value = source.Value;
-        target.SetAttributeValue("state", "translated");
+        target.SetAttributeValue("state", "new");
     }
 
     document.Save(xlfPath);
