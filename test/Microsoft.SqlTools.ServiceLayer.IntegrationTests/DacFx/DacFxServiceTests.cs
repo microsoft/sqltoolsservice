@@ -697,7 +697,7 @@ FROM MissingEdgeHubInputStream'";
                     }
                 };
 
-                // Explicitly set DropObjectsNotInSource=true since DeploymentOptions() now uses DacFx native defaults (false)
+                // Override DropObjectsNotInSource to be true to produce DROP statement
                 generateScriptTrueOptionParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
 
                 var generateScriptTrueOptionOperation = new GenerateDeployScriptOperation(generateScriptTrueOptionParams, result.ConnectionInfo);
