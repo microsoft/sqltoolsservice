@@ -36,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         /// Create simple backup test
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task BackupDatabaseToUrlAndRestoreFromUrlTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();

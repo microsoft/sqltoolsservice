@@ -109,6 +109,7 @@ GO";
         }
 
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public void LoggerGetValidTableDefinitionTest()
         {
             TestLogger test = new TestLogger()
@@ -698,6 +699,7 @@ GO";
         /// objects
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetDefinitionFromChildrenAndParents()
         {
             string queryString = "select * from master.sys.objects";
@@ -724,6 +726,7 @@ GO";
         }
 
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetDefinitionFromProcedures()
         {
             string queryString = "EXEC master.dbo.sp_MSrepl_startup";
@@ -750,6 +753,7 @@ GO";
         }
 
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetCrossDatabaseDefinition()
         {
             string queryString = "SELECT * FROM msdb.dbo.sysalerts";

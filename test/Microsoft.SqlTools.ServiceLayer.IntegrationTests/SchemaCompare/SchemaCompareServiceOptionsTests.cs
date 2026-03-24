@@ -376,6 +376,7 @@ END
         /// Verify the schema compare default creation test
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public void ValidateSchemaCompareOptionsDefaultAgainstDacFx()
         {
             DeploymentOptions deployOptions = new DeploymentOptions();

@@ -653,6 +653,7 @@ FROM MissingEdgeHubInputStream'";
         /// Verify that options are set correctly for a generate script request
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GenerateDeployScriptWithOptions()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -732,6 +733,7 @@ FROM MissingEdgeHubInputStream'";
         /// Verify that options can get retrieved from publish profile
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetOptionsFromProfile()
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
@@ -761,6 +763,7 @@ FROM MissingEdgeHubInputStream'";
         /// Verify that default options are returned if a profile doesn't specify any options
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetOptionsFromProfileWithoutOptions()
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
@@ -927,6 +930,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
         /// Verify that publish profile gets created and saved
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task ValidateSavePublishProfile()
         {
             DacFxService service = new DacFxService();

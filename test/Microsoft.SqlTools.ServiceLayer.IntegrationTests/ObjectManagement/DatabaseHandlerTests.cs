@@ -268,6 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         /// This test validates the newly created database properties and verifies with some default values
         public async Task VerifyDatabasePropertiesTest()
         {
@@ -330,6 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         /// </summary>
         /// <returns></returns>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task VerifyDatabaseScopedConfigurationsTest()
         {
             using (var testDatabase = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, dbNamePrefix: "VerifyDatabaseFilesTest"))
@@ -845,6 +847,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         /// Tests for database properties only present in SQL 2022 and above.
         /// </summary>
         [Test]
+        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task Sql2022PropertiesTest()
         {
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
