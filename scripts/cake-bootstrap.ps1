@@ -15,12 +15,9 @@ The build script target to run.
 The build configuration to use.
 .PARAMETER Verbosity
 Specifies the amount of information to be displayed.
-Tells Cake to use the latest Roslyn release.
 .PARAMETER WhatIf
 Performs a dry run of the build script.
 No tasks will be executed.
-.PARAMETER Mono
-Legacy switch retained for compatibility. Ignored by the dotnet-based Cake runner.
 
 .LINK
 http://cakebuild.net
@@ -34,7 +31,6 @@ Param(
     [string]$Verbosity = "Verbose",
     [Alias("DryRun","Noop")]
     [switch]$WhatIf,
-    [switch]$Mono,
     [switch]$SkipToolPackageRestore,
     [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
     [string[]]$ScriptArgs
@@ -83,10 +79,6 @@ function InstallOrUpdate-Tool {
 
 $CAKE_EXE = Get-ToolPath -ToolName "dotnet-cake"
 $T4_EXE = Get-ToolPath -ToolName "t4"
-
-if($Mono.IsPresent) {
-    Write-Host "Ignoring -Mono. The dotnet-based Cake runner does not use the Mono scripting engine."
-}
 
 # Is this a dry run?
 $UseDryRun = "";
