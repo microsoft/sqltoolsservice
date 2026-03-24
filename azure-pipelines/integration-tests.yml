@@ -29,7 +29,7 @@ steps:
   - pwsh: |
       $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.ToCharArray()
       $passwordBody = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
-      $sqlPassword = "A1!$passwordBody"
+      $sqlPassword = "A1!b$passwordBody" # 'A1!' prefix is to meet password complexity requirements for SQL
       Write-Host "##vso[task.setvariable variable=sql_password;issecret=true]$sqlPassword"
       Write-Host "##vso[task.setvariable variable=sqlOnPrem_password;issecret=true]$sqlPassword"
       Write-Host "##vso[task.setvariable variable=sqlAzure_password;issecret=true]$sqlPassword"

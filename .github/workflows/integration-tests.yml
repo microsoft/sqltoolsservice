@@ -36,7 +36,7 @@ jobs:
         run: |
           $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.ToCharArray()
           $passwordBody = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
-          $sqlPassword = "A1!$passwordBody"
+          $sqlPassword = "A1!b$passwordBody" # 'A1!' prefix is to meet password complexity requirements for SQL
           Write-Output "::add-mask::$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "SQL_PASSWORD=$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "sqlOnPrem_password=$sqlPassword"

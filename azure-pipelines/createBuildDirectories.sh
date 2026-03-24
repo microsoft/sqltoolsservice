@@ -17,7 +17,6 @@
 # The script need to run from the repo root
 
 dotnetProjectArray=(
-    "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
     "./src/Microsoft.SqlTools.Hosting"
     "./src/Microsoft.SqlTools.ResourceProvider"
@@ -26,7 +25,6 @@ dotnetProjectArray=(
     "./src/Microsoft.SqlTools.ServiceLayer"
     "./src/Microsoft.SqlTools.Migration"
     "./src/Microsoft.SqlTools.SqlCore"
-    "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
     "./test/Microsoft.SqlTools.Authentication.UnitTests"
     "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
