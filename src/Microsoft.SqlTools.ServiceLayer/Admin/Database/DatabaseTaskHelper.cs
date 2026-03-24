@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     this.prototype = new DatabasePrototypeAzure(context);
                 }
-                else if (majorVersionNumber == 16)
+                else if (majorVersionNumber >= 16)
                 {
                     this.prototype = new DatabasePrototype160(context);
                 }

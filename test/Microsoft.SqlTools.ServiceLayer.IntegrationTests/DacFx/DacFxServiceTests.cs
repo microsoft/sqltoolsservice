@@ -653,7 +653,6 @@ FROM MissingEdgeHubInputStream'";
         /// Verify that options are set correctly for a generate script request
         /// </summary>
         [Test]
-        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GenerateDeployScriptWithOptions()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -698,6 +697,9 @@ FROM MissingEdgeHubInputStream'";
                     }
                 };
 
+                // Explicitly set DropObjectsNotInSource=true since DeploymentOptions() now uses DacFx native defaults (false)
+                generateScriptTrueOptionParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
+
                 var generateScriptTrueOptionOperation = new GenerateDeployScriptOperation(generateScriptTrueOptionParams, result.ConnectionInfo);
                 service.PerformOperation(generateScriptTrueOptionOperation, TaskExecutionMode.Execute);
 
@@ -733,7 +735,6 @@ FROM MissingEdgeHubInputStream'";
         /// Verify that options can get retrieved from publish profile
         /// </summary>
         [Test]
-        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetOptionsFromProfile()
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
@@ -743,6 +744,13 @@ FROM MissingEdgeHubInputStream'";
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
+            // InitializeFromProfile applies SSMS-matching overrides for any options not present in the profile
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -763,12 +771,19 @@ FROM MissingEdgeHubInputStream'";
         /// Verify that default options are returned if a profile doesn't specify any options
         /// </summary>
         [Test]
-        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetOptionsFromProfileWithoutOptions()
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
             expectedResults.BooleanOptionsDictionary["DisableIndexesForDataPhase"].Value = false;
+            // InitializeFromProfile applies SSMS-matching overrides for any options not present in the profile
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -930,7 +945,6 @@ Streaming query statement contains a reference to missing output stream 'Missing
         /// Verify that publish profile gets created and saved
         /// </summary>
         [Test]
-        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task ValidateSavePublishProfile()
         {
             DacFxService service = new DacFxService();

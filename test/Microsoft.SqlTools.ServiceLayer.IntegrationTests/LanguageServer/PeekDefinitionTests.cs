@@ -699,7 +699,6 @@ GO";
         /// objects
         /// </summary>
         [Test]
-        [Ignore("TODO: Fix after Linux integration test pipeline has been established")]
         public async Task GetDefinitionFromChildrenAndParents()
         {
             string queryString = "select * from master.sys.objects";
@@ -716,9 +715,13 @@ GO";
             Assert.NotNull(sysResult);
             Assert.NotNull(masterResult);
 
-            // And I expect the all results to be the same
-            Assert.That(objectResult.Locations, Is.EqualTo(sysResult.Locations), "objectResult and sysResult Locations");
-            Assert.That(objectResult.Locations, Is.EqualTo(masterResult.Locations), "objectResult and masterResult Locations");
+            // All three should resolve to the same sys.objects definition file (same object name prefix and same range)
+            // Each PeekDefinitionAt call creates a new temp file with a unique suffix, so we compare the object name
+            // portion of the URI (before the last underscore+hash) and the range instead of exact URI equality.
+            Assert.That(GetObjectNameFromLocationUri(sysResult.Locations[0].Uri), Is.EqualTo(GetObjectNameFromLocationUri(objectResult.Locations[0].Uri)), "objectResult and sysResult should refer to the same object");
+            Assert.That(objectResult.Locations[0].Range, Is.EqualTo(sysResult.Locations[0].Range), "objectResult and sysResult Locations range");
+            Assert.That(GetObjectNameFromLocationUri(masterResult.Locations[0].Uri), Is.EqualTo(GetObjectNameFromLocationUri(objectResult.Locations[0].Uri)), "objectResult and masterResult should refer to the same object");
+            Assert.That(objectResult.Locations[0].Range, Is.EqualTo(masterResult.Locations[0].Range), "objectResult and masterResult Locations range");
 
             Cleanup(objectResult.Locations);
             Cleanup(sysResult.Locations);
@@ -850,6 +853,20 @@ GO";
         /// <param name="locationsA"></param>
         /// <param name="locationsB"></param>
         /// <returns></returns>
+        /// <summary>
+        /// Extracts the object name portion from a definition location URI, stripping the unique temp suffix.
+        /// Each PeekDefinitionAt call creates a new temp file like "master.sys.objects_<uuid>.sql",
+        /// so this method returns just "master.sys.objects" for comparison purposes.
+        /// </summary>
+        private string GetObjectNameFromLocationUri(string uri)
+        {
+            if (string.IsNullOrEmpty(uri)) return uri;
+            var fileName = System.IO.Path.GetFileNameWithoutExtension(uri);
+            // Strip the last _<hex-uuid> suffix
+            var lastUnderscore = fileName.LastIndexOf('_');
+            return lastUnderscore > 0 ? fileName.Substring(0, lastUnderscore) : fileName;
+        }
+
         private bool CompareLocations(Location[] locationsA, Location[] locationsB)
         {
             HashSet<Location> locationSet = new HashSet<Location>();
