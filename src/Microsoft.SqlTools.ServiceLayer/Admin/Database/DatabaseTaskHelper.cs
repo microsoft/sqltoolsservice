@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     this.prototype = new DatabasePrototypeAzure(context);
                 }
-                else if (majorVersionNumber >= 16)
+                else if (majorVersionNumber >= 16) // No new properties implemented in STS for SQL 2025/SQL 17, so using the same prototype as SQL 2022
                 {
                     this.prototype = new DatabasePrototype160(context);
                 }

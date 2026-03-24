@@ -2211,30 +2211,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
-            foreach (var completionExtension in completionExtensions.Values)
-            {
-                try
-                {
-                    completionExtension.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warning($"Failed to dispose completion extension {completionExtension.Name}: {ex}");
-                }
-            }
-
-            completionExtensions.Clear();
-            extAssemblyLastUpdateTime.Clear();
-
             if (bindingQueue != null)
             {
                 bindingQueue.Dispose();
-            }
-
-            if (workspaceServiceInstance?.Workspace != null)
-            {
-                workspaceServiceInstance.Workspace.Dispose();
-                workspaceServiceInstance.Workspace = null;
             }
         }
     }

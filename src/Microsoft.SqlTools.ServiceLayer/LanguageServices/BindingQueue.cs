@@ -463,47 +463,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
-            try
+            if (this.processQueueCancelToken != null)
             {
-                if (this.processQueueCancelToken != null && !this.processQueueCancelToken.IsCancellationRequested)
-                {
-                    this.processQueueCancelToken.Cancel();
-                }
-
-                if (this.queueProcessorTask != null)
-                {
-                    try
-                    {
-                        this.queueProcessorTask.Wait(TimeSpan.FromSeconds(5));
-                    }
-                    catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
-                    {
-                    }
-                    catch (TaskCanceledException)
-                    {
-                    }
-                }
+                this.processQueueCancelToken.Dispose();
             }
-            finally
+
+            if (itemQueuedEvent != null)
             {
-                if (this.processQueueCancelToken != null)
-                {
-                    this.processQueueCancelToken.Dispose();
-                }
+                itemQueuedEvent.Dispose();
+            }
 
-                if (itemQueuedEvent != null)
+            if (this.BindingContextMap != null)
+            {
+                foreach (var item in this.BindingContextMap)
                 {
-                    itemQueuedEvent.Dispose();
-                }
-
-                if (this.BindingContextMap != null)
-                {
-                    foreach (var item in this.BindingContextMap)
+                    if (item.Value != null && item.Value.ServerConnection != null && item.Value.ServerConnection.SqlConnectionObject != null)
                     {
-                        if (item.Value != null && item.Value.ServerConnection != null && item.Value.ServerConnection.SqlConnectionObject != null)
-                        {
-                            item.Value.ServerConnection.SqlConnectionObject.Close();
-                        }
+                        item.Value.ServerConnection.SqlConnectionObject.Close();
                     }
                 }
             }
