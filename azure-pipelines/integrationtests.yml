@@ -16,20 +16,13 @@ variables:
   testResultsDirectory: '$(Agent.TempDirectory)/integration-test-results'
 
 pool:
-  name: ads-build-1es-hosted-pool
-  demands:
-    - ImageOverride -equals ADS-Linux_Image
+  vmImage: ubuntu-latest
 
 steps:
   - task: UseDotNet@2
     displayName: Use .NET SDK from global.json
     inputs:
       useGlobalJson: true
-
-  - task: Bash@3
-    displayName: Create build directories expected by dotnet build
-    inputs:
-      filePath: ./azure-pipelines/createBuildDirectories.sh
 
   - task: NuGetAuthenticate@1
 
