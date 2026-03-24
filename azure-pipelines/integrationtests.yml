@@ -41,15 +41,9 @@ steps:
     displayName: Install Cake tools
 
   - pwsh: |
-      ./.tools/dotnet-cake build.cake --target=all
-    displayName: Build repository
-
-  - task: PublishBuildArtifacts@1
-    displayName: Upload build logs
-    condition: failed()
-    inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
-      ArtifactName: 'cake-build-logs'
+      ./.tools/dotnet-cake build.cake --target=SRGen
+      ./.tools/dotnet-cake build.cake --target=CodeGen
+    displayName: Generate code
 
   - pwsh: |
       docker pull $(sqlImage)
