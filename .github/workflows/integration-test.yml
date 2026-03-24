@@ -26,12 +26,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Find global.json
-        shell: pwsh
-        run: |
-          Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter global.json -Recurse -File |
-            Select-Object -ExpandProperty FullName
-
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -67,7 +61,7 @@ jobs:
           path: artifacts/logs
           if-no-files-found: ignore
 
-      - name: Start SQL Server 2025 container
+      - name: Start SQL Server container
         shell: pwsh
         run: |
           docker pull mcr.microsoft.com/mssql/server:2025-latest
