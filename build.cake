@@ -306,7 +306,6 @@ Task("Cleanup")
 /// </summary>
 Task("Setup")
 	.IsDependentOn("InstallDotnet")
-	.IsDependentOn("InstallXUnit")
     .IsDependentOn("PopulateRuntimes")
     .Does(() =>
 {
@@ -384,39 +383,6 @@ Task("InstallDotnet")
 			throw new Exception(".NET CLI failed to be installed");
 		}
 	}
-});
-
-/// <summary>
-/// Installs XUnit nuget package
-Task("InstallXUnit")
-	.Does(() =>
-{
-    var requiresLegacyXunit = buildPlan.TestProjects.Values
-        .SelectMany(frameworks => frameworks)
-        .Any(framework => !framework.StartsWith("net", StringComparison.OrdinalIgnoreCase));
-
-    if (!requiresLegacyXunit)
-    {
-        Information("Skipping legacy xUnit console install because no non-.NET test targets are configured.");
-        return;
-    }
-
-	// Install the tools
-    var nugetPath = Environment.GetEnvironmentVariable("NUGET_EXE");
-    var arguments = $"install xunit.runner.console -ExcludeVersion -NoCache -Prerelease -OutputDirectory \"{toolsFolder}\"";
-    if (IsRunningOnWindows())
-    {
-        Run(nugetPath, arguments);
-    }
-    else
-    {
-        if (string.IsNullOrEmpty(nugetPath) || !System.IO.File.Exists(nugetPath))
-        {
-            throw new Exception("NUGET_EXE was not found. Legacy xUnit installation requires a NuGet executable.");
-        }
-
-        Run("mono", $"\"{nugetPath}\" {arguments}");
-    }
 });
 
 /// <summary>
