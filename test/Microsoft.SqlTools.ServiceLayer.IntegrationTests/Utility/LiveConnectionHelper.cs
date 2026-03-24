@@ -17,7 +17,6 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 using System.Threading;
-using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 {
@@ -34,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             string filePath = null;
             if (string.IsNullOrEmpty(fileName))
             {
-                var testScopedFileName = $"{GetSafeCurrentTestName()}_sqltest_{Guid.NewGuid():N}.sql";
+                var testScopedFileName = $"{TestUtilities.GetSafeCurrentTestName()}_sqltest_{Guid.NewGuid():N}.sql";
                 filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), testScopedFileName);
             }
             else
@@ -162,27 +161,5 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             public TextDocumentPosition TextDocumentPosition { get; set; }
         }
 
-        private static string GetSafeCurrentTestName()
-        {
-            var testName = TestContext.CurrentContext?.Test?.Name;
-            if (string.IsNullOrWhiteSpace(testName))
-            {
-                return "sqltest";
-            }
-
-            var invalidFileNameChars = Path.GetInvalidFileNameChars().ToHashSet();
-            var sanitized = new string(testName
-                .Select(ch => invalidFileNameChars.Contains(ch) || char.IsWhiteSpace(ch) ? '_' : ch)
-                .ToArray())
-                .Trim('_');
-
-            if (string.IsNullOrWhiteSpace(sanitized))
-            {
-                sanitized = "sqltest";
-            }
-
-            const int maxLength = 80;
-            return sanitized.Length <= maxLength ? sanitized : sanitized.Substring(0, maxLength);
-        }
     }
 }

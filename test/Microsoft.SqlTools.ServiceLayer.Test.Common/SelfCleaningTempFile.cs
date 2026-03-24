@@ -7,8 +7,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
-using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -18,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public SelfCleaningTempFile()
         {
-            var fileName = $"{GetSafeCurrentTestName()}_{Guid.NewGuid():N}.tmp";
+            var fileName = $"{TestUtilities.GetSafeCurrentTestName()}_{Guid.NewGuid():N}.tmp";
             FilePath = Path.Combine(Path.GetTempPath(), fileName);
             using (File.Create(FilePath))
             {
@@ -58,29 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         #endregion
-
-        private static string GetSafeCurrentTestName()
-        {
-            var testName = TestContext.CurrentContext?.Test?.Name;
-            if (string.IsNullOrWhiteSpace(testName))
-            {
-                return "tempfile";
-            }
-
-            var invalidFileNameChars = Path.GetInvalidFileNameChars().ToHashSet();
-            var sanitized = new string(testName
-                .Select(ch => invalidFileNameChars.Contains(ch) || char.IsWhiteSpace(ch) ? '_' : ch)
-                .ToArray())
-                .Trim('_');
-
-            if (string.IsNullOrWhiteSpace(sanitized))
-            {
-                sanitized = "tempfile";
-            }
-
-            const int maxLength = 80;
-            return sanitized.Length <= maxLength ? sanitized : sanitized.Substring(0, maxLength);
-        }
 
     }
 }
