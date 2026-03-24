@@ -959,8 +959,6 @@ Streaming query statement contains a reference to missing output stream 'Missing
 
             DeploymentOptions deploymentOptions = DeploymentOptions.GetDefaultPublishOptions();
 
-            // a few extra options get added in the publish.xml file, because of the defaults that are set in STS for maintaining compatibility with ADS and SSDT 
-            // these defaults are defined in ..\sqltoolsservice\src\Microsoft.SqlTools.ServiceLayer\DacFx\Contracts\DeploymentOptions.cs
             deploymentOptions.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { nameof(ObjectType.Views) });
             deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.CreateNewDatabase)].Value = true;
             deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropConstraintsNotInSource)].Value = false;
