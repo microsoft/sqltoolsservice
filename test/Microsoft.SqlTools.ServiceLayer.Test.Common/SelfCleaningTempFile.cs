@@ -16,7 +16,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public SelfCleaningTempFile()
         {
-            FilePath = Path.GetTempFileName();
+            var fileName = $"{TestUtilities.GetSafeCurrentTestName()}_{Guid.NewGuid():N}.tmp";
+            FilePath = Path.Combine(Path.GetTempPath(), fileName);
+            using (File.Create(FilePath))
+            {
+            }
+            Console.WriteLine($"Created temp file {FilePath}");
         }
 
         public string FilePath { get; private set; }
@@ -39,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 try
                 {
                     File.Delete(FilePath);
+                    Console.WriteLine($"Cleaned up temp file {FilePath}");
                 }
                 catch
                 {

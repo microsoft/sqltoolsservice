@@ -1,18 +1,18 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
-#addin nuget:?package=fmdev.ResX&version=0.3.2
-#addin nuget:?package=fmdev.XliffParser&version=0.5.6
 
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
-#tool "nuget:?package=Mono.TextTransform&version=1.0.0"
+#load "scripts/xliff.cake"
+#tool "nuget:?package=Microsoft.Data.Tools.StringResourceTool&version=4.3.0"
+#tool "dotnet:?package=dotnet-t4&version=3.0.0"
 
 using System.ComponentModel;
 using System.Net;
+using System.Xml.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Cake.Common.IO;
-using XliffParser;
 
 // Basic arguments
 var target = Argument("target", "Default");
@@ -73,7 +73,14 @@ var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
 var dotnetFolder = System.IO.Path.Combine(workingDirectory, buildPlan.DotNetFolder);
 var dotnetcli = buildPlan.UseSystemDotNetPath ? "dotnet" : System.IO.Path.Combine(System.IO.Path.GetFullPath(dotnetFolder), "dotnet");
 var toolsFolder = System.IO.Path.Combine(workingDirectory, buildPlan.BuildToolsFolder);
-var nugetcli = System.IO.Path.Combine(toolsFolder, "nuget.exe");
+
+// Keep using NuGet CLI for nuspec-based packaging: dotnet has NuGet commands built in,
+// but it does not provide an equivalent to `nuget pack <file.nuspec>`.
+var nugetcli = Environment.GetEnvironmentVariable("NUGET_EXE");
+if (string.IsNullOrWhiteSpace(nugetcli))
+{
+    nugetcli = IsRunningOnWindows() ? "nuget.exe" : "nuget";
+}
 
 var sourceFolder = System.IO.Path.Combine(workingDirectory, "src");
 var testFolder = System.IO.Path.Combine(workingDirectory, "test");
@@ -107,7 +114,6 @@ Task("Cleanup")
 /// </summary>
 Task("Setup")
 	.IsDependentOn("InstallDotnet")
-	.IsDependentOn("InstallXUnit")
     .IsDependentOn("PopulateRuntimes")
     .Does(() =>
 {
@@ -188,24 +194,6 @@ Task("InstallDotnet")
 });
 
 /// <summary>
-/// Installs XUnit nuget package
-Task("InstallXUnit")
-	.Does(() =>
-{
-	// Install the tools
-    var nugetPath = Environment.GetEnvironmentVariable("NUGET_EXE");
-    var arguments = $"install xunit.runner.console -ExcludeVersion -NoCache -Prerelease -OutputDirectory \"{toolsFolder}\"";
-    if (IsRunningOnWindows())
-    {
-        Run(nugetPath, arguments);
-    }
-    else
-    {
-        Run("mono", $"\"{nugetPath}\" {arguments}");
-    }
-});
-
-/// <summary>
 ///  Restore required NuGet packages.
 /// </summary>
 Task("Restore")
@@ -233,13 +221,14 @@ Task("BuildTest")
             var projectFolder = System.IO.Path.Combine(testFolder, project);
             var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
-                Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
+                var exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
-                    })
-                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
+                    });
+
+                ExceptionOnErrorWithLog(exitStatus, $"Building test {project} failed for {framework}. See {logPath} for more details.", logPath);
             }
 
         }
@@ -261,13 +250,14 @@ Task("BuildFx")
             var projectFolder = System.IO.Path.Combine(sourceFolder, project.Name);
             var logPath = System.IO.Path.Combine(logFolder, $"{project.Name}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
-                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                var exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
-                    })
-                .ExceptionOnError($"Building test {project.Name} failed for {framework}. See {logPath} for more details.");
+                    });
+
+                ExceptionOnErrorWithLog(exitStatus, $"Building test {project.Name} failed for {framework}. See {logPath} for more details.", logPath);
             }
         }
     }
@@ -683,7 +673,6 @@ Task("SRGen")
     try
     {
         var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization");
 
         foreach(var project in projects) {
             var projectDir = System.IO.Path.GetDirectoryName(project);
@@ -706,7 +695,23 @@ Task("SRGen")
                 continue;
             }
 
-            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "net6.0", "srgen.dll");
+            var srgenToolSearchRoot = System.IO.Path.Combine(workingDirectory, "tools");
+            var srgenPath = GetFiles(System.IO.Path.Combine(srgenToolSearchRoot, "**", "srgen.dll"))
+                .Select(path => path.FullPath)
+                .FirstOrDefault();
+
+            if (string.IsNullOrEmpty(srgenPath))
+            {
+                srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "net6.0", "srgen.dll");
+            }
+
+            if (!System.IO.File.Exists(srgenPath))
+            {
+                throw new Exception(
+                    "Could not find StringResourceTool (srgen.dll). " +
+                    "dotnet restore does not restore legacy packages.config tools. " +
+                    "Run Cake with tool restore enabled or restore Microsoft.Data.Tools.StringResourceTool into the tools folder.");
+            }
             var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
             var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
             var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
@@ -728,7 +733,7 @@ Task("SRGen")
             }
 
             // Run SRGen
-            var dotnetArgs = string.Format("--roll-forward LatestMajor {0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+            var dotnetArgs = string.Format("exec --roll-forward LatestMajor \"{0}\" -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
             srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
             Information("{0}", dotnetcli);
             Information("{0}", dotnetArgs);
@@ -736,40 +741,15 @@ Task("SRGen")
             .ExceptionOnError("Failed to run SRGen.");
 
             // Update XLF file from new Resx file
-            var doc = new XlfDocument(outputXlf);
-            doc.UpdateFromSource();
-            var outputXlfFile = doc.Files.Single();
-            foreach (var unit in outputXlfFile.TransUnits)
-            {
-                unit.Target = unit.Source;
-            }
-            doc.Save();
+            UpdateXlfTargetsFromSource(outputXlf);
 
             // Update ResX files from new xliff files
             var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
             foreach(var docName in xlfDocNames)
             {
-                // load our language XLIFF
-                var xlfDoc = new XlfDocument(docName);
-                var xlfFile = xlfDoc.Files.Single();
-
-                // load a language template
-                var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
-                var templateDoc = new XlfDocument(templateFileLocation);
-                var templateFile = templateDoc.Files.Single();
-
-                // iterate through our tranlation units and prune invalid units
-                foreach (var unit in xlfFile.TransUnits)
-                {
-                    // if a unit does not have a target it is invalid
-                    if (unit.Target != null) {
-                        templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
-                    }
-                }
-
-                // export modified template to RESX
-                var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));
+                var generatedFileName = CanonicalizeLocalizationFileName(System.IO.Path.GetFileName(docName).Replace("xlf", "resx"));
+                var targetResxPath = System.IO.Path.Combine(localizationDir, generatedFileName);
+                SaveXlfTargetsAsResx(docName, targetResxPath);
             }
         }
     }
@@ -789,7 +769,16 @@ Task("CodeGen")
        var t4Files = GetFiles(sourceFolder + "/**/*.tt");
        foreach(var t4Template in t4Files)
        {
-              TransformTemplate(t4Template, new TextTransformSettings {});
+              var exitCode = StartProcess("t4", new ProcessSettings
+              {
+                  Arguments = new ProcessArgumentBuilder()
+                      .AppendQuoted(t4Template.FullPath)
+              });
+
+              if (exitCode != 0)
+              {
+                  throw new Exception($"Transforming template {t4Template.FullPath} failed.");
+              }
        }
 });
 

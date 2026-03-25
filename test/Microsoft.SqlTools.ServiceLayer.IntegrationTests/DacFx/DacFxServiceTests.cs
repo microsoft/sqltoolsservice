@@ -697,6 +697,9 @@ FROM MissingEdgeHubInputStream'";
                     }
                 };
 
+                // Override DropObjectsNotInSource to be true to produce DROP statement
+                generateScriptTrueOptionParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
+
                 var generateScriptTrueOptionOperation = new GenerateDeployScriptOperation(generateScriptTrueOptionParams, result.ConnectionInfo);
                 service.PerformOperation(generateScriptTrueOptionOperation, TaskExecutionMode.Execute);
 
@@ -737,10 +740,20 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeCompositeObjects)].Value = true;
-            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = true;
+
+            // Default options from DeploymentProfile.InitializeFromProfile() plus overrides from sample...
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = false;
+
+            // ...Plus settings from the test profile
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeCompositeObjects)].Value = true;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -765,7 +778,16 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.BooleanOptionsDictionary["DisableIndexesForDataPhase"].Value = false;
+
+            // Default options from DeploymentProfile.InitializeFromProfile()
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -937,8 +959,6 @@ Streaming query statement contains a reference to missing output stream 'Missing
 
             DeploymentOptions deploymentOptions = DeploymentOptions.GetDefaultPublishOptions();
 
-            // a few extra options get added in the publish.xml file, because of the defaults that are set in STS for maintaining compatibility with ADS and SSDT 
-            // these defaults are defined in ..\sqltoolsservice\src\Microsoft.SqlTools.ServiceLayer\DacFx\Contracts\DeploymentOptions.cs
             deploymentOptions.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { nameof(ObjectType.Views) });
             deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.CreateNewDatabase)].Value = true;
             deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropConstraintsNotInSource)].Value = false;

@@ -38,10 +38,26 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public override void Post(SendOrPostCallback callback, object state)
         {
-            // Add the request to the queue
-            this.requestQueue.Add(
-                new Tuple<SendOrPostCallback, object>(
-                    callback, state));
+            // If the loop has already been shut down, silently drop the post rather than
+            // crashing the caller. This can happen when an async event (e.g. a task-added
+            // notification) fires on a thread-pool thread after EndLoop() has been called
+            // during teardown. The check + Add is not atomic, so we also catch the race.
+            if (this.requestQueue.IsAddingCompleted)
+            {
+                return;
+            }
+
+            try
+            {
+                this.requestQueue.Add(
+                    new Tuple<SendOrPostCallback, object>(
+                        callback, state));
+            }
+            catch (InvalidOperationException)
+            {
+                // CompleteAdding() was called between the IsAddingCompleted check and Add —
+                // the loop is shutting down, so there is nothing to dispatch to.
+            }
         }
 
         #endregion
@@ -74,4 +90,3 @@ namespace Microsoft.SqlTools.Utility
         #endregion
     }
 }
-
