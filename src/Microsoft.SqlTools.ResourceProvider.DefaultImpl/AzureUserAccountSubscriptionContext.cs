@@ -1,9 +1,9 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Rest;
+using Azure.Core;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <summary>
         /// Default constructor to initializes user account and subscription
         /// </summary>
-        public AzureUserAccountSubscriptionContext(AzureSubscriptionIdentifier subscription, ServiceClientCredentials credentials)
+        public AzureUserAccountSubscriptionContext(AzureSubscriptionIdentifier subscription, TokenCredential credentials)
         {
             CommonUtil.CheckForNull(subscription, nameof(subscription));
             CommonUtil.CheckForNull(credentials, nameof(credentials));
@@ -28,14 +28,14 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// Creates a subscription context for connecting with a known access token. This creates a <see cref="TokenCredentials"/> object for use
+        /// Creates a subscription context for connecting with a known access token. This creates a <see cref="StaticTokenCredential"/> object for use
         /// in a request
         /// </summary>
         public static AzureUserAccountSubscriptionContext CreateStringTokenContext(AzureSubscriptionIdentifier subscription, string accessToken)
         {
             CommonUtil.CheckForNull(subscription, nameof(subscription));
             CommonUtil.CheckStringForNullOrEmpty(accessToken, nameof(accessToken));
-            TokenCredentials credentials = new TokenCredentials(accessToken);
+            TokenCredential credentials = new StaticTokenCredential(accessToken);
             return new AzureUserAccountSubscriptionContext(subscription, credentials);
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
         }
 
-        public ServiceClientCredentials Credentials
+        public TokenCredential Credentials
         {
             get;
             private set;

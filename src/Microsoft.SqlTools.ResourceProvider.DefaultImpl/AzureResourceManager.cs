@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -6,22 +6,20 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Azure.Management.ResourceManager;
-using Microsoft.Azure.Management.ResourceManager.Models;
-using Microsoft.Azure.Management.Sql;
-using Microsoft.Azure.Management.Sql.Models;
-using RestFirewallRule = Microsoft.Azure.Management.Sql.Models.FirewallRule;
-using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
-using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
-using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
-using Microsoft.SqlTools.Utility;
-using Microsoft.Rest;
 using System.Globalization;
-using Microsoft.Rest.Azure;
-using Microsoft.SqlTools.ResourceProvider.Core;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Azure;
+using Azure.Core;
+using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
+using Azure.ResourceManager.Sql;
+using Microsoft.SqlTools.ResourceProvider.Core;
+using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
+using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
+using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -69,17 +67,11 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                         Console.WriteLine($"Exception while parsing URI: {e.Message}");
                     }
                 }
-                ServiceClientCredentials credentials = CreateCredentials(subscriptionContext);
-                SqlManagementClient sqlManagementClient = new SqlManagementClient(armUri ?? _resourceManagementUri, credentials)
-                {
-                    SubscriptionId = subscriptionContext.Subscription.SubscriptionId
-                };
 
-                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(armUri ?? _resourceManagementUri, credentials)
-                {
-                    SubscriptionId = subscriptionContext.Subscription.SubscriptionId
-                };
-                return Task.FromResult<IAzureResourceManagementSession>(new AzureResourceManagementSession(sqlManagementClient, resourceManagementClient, subscriptionContext));
+                TokenCredential credentials = GetCredentials(subscriptionContext);
+                ArmClient armClient = CreateArmClient(credentials, subscriptionContext.Subscription.SubscriptionId, armUri);
+
+                return Task.FromResult<IAzureResourceManagementSession>(new AzureResourceManagementSession(armClient, subscriptionContext));
             }
             catch (Exception ex)
             {
@@ -91,10 +83,6 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <summary>
         /// Returns a list of azure databases given subscription resource group name and server name
         /// </summary>
-        /// <param name="azureResourceManagementSession">Subscription Context which includes credentials to use in the resource manager</param>
-        /// <param name="resourceGroupName">Resource Group Name</param>
-        /// <param name="serverName">Server name</param>
-        /// <returns>The list of databases</returns>
         public async Task<IEnumerable<IAzureResource>> GetAzureDatabasesAsync(
             IAzureResourceManagementSession azureResourceManagementSession,
             string resourceGroupName,
@@ -107,10 +95,27 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 
                 if (vsAzureResourceManagementSession != null)
                 {
-                    IEnumerable<Database> databaseListResponse = await ExecuteCloudRequest(
-                        () => vsAzureResourceManagementSession.SqlManagementClient.Databases.ListByServerAsync(resourceGroupName, serverName),
-                        SR.FailedToGetAzureDatabasesErrorMessage);
-                    return databaseListResponse.Select(x => new AzureResourceWrapper(x) { ResourceGroupName = resourceGroupName });
+                    string subId = vsAzureResourceManagementSession.SubscriptionContext.Subscription.SubscriptionId;
+                    SubscriptionResource subRes = vsAzureResourceManagementSession.ArmClient
+                        .GetSubscriptionResource(SubscriptionResource.CreateResourceIdentifier(subId));
+                    ResourceGroupResource rgRes = (await subRes.GetResourceGroupAsync(resourceGroupName)).Value;
+                    SqlServerResource serverRes = (await rgRes.GetSqlServers().GetAsync(serverName, null, CancellationToken.None)).Value;
+
+                    IEnumerable<AzureResourceInfo> databaseList = await ExecuteCloudRequest(async () =>
+                    {
+                        var list = new List<AzureResourceInfo>();
+                        await foreach (SqlDatabaseResource db in serverRes.GetSqlDatabases().GetAllAsync(null))
+                        {
+                            list.Add(new AzureResourceInfo(
+                                db.Data.Name,
+                                db.Data.Id?.ToString(),
+                                db.Data.ResourceType.ToString(),
+                                db.Data.Location.ToString()));
+                        }
+                        return (IEnumerable<AzureResourceInfo>)list;
+                    }, SR.FailedToGetAzureDatabasesErrorMessage);
+
+                    return databaseList.Select(x => new AzureResourceWrapper(x) { ResourceGroupName = resourceGroupName });
                 }
             }
             catch (Exception ex)
@@ -125,8 +130,6 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <summary>
         /// Returns a list of azure servers given subscription
         /// </summary>
-        /// <param name="azureResourceManagementSession">Subscription Context which includes credentials to use in the resource manager</param>
-        /// <returns>The list of Sql server resources</returns>
         public async Task<IEnumerable<IAzureSqlServerResource>> GetSqlServerAzureResourcesAsync(
             IAzureResourceManagementSession azureResourceManagementSession)
         {
@@ -137,18 +140,13 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 AzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as AzureResourceManagementSession;
                 if (vsAzureResourceManagementSession != null)
                 {
-                    IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
-                    IPage<Server> servers = await ExecuteCloudRequest(
-                        () => serverOperations.ListAsync(),
-                        SR.FailedToGetAzureSqlServersWithError);
-                    if (servers != null)
+                    string subId = vsAzureResourceManagementSession.SubscriptionContext.Subscription.SubscriptionId;
+                    SubscriptionResource subRes = vsAzureResourceManagementSession.ArmClient
+                        .GetSubscriptionResource(SubscriptionResource.CreateResourceIdentifier(subId));
+
+                    await foreach (SqlServerResource server in subRes.GetSqlServersAsync(null))
                     {
-                        sqlServers.AddRange(servers.Select(server =>
-                        {
-                            var serverResource = new SqlAzureResource(server);
-                            // TODO ResourceGroup name
-                            return serverResource;
-                        }));
+                        sqlServers.Add(new SqlAzureResource(server.Data));
                     }
                 }
             }
@@ -176,25 +174,30 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 
                 if (vsAzureResourceManagementSession != null)
                 {
-                    var firewallRule = new RestFirewallRule()
+                    string subId = vsAzureResourceManagementSession.SubscriptionContext.Subscription.SubscriptionId;
+                    SubscriptionResource subRes = vsAzureResourceManagementSession.ArmClient
+                        .GetSubscriptionResource(SubscriptionResource.CreateResourceIdentifier(subId));
+                    ResourceGroupResource rgRes = (await subRes.GetResourceGroupAsync(azureSqlServer.ResourceGroupName ?? string.Empty)).Value;
+                    SqlServerResource serverRes = (await rgRes.GetSqlServers().GetAsync(azureSqlServer.Name, null, CancellationToken.None)).Value;
+
+                    var firewallData = new SqlFirewallRuleData
                     {
-                        EndIpAddress = firewallRuleRequest.EndIpAddress.ToString(),
-                        StartIpAddress = firewallRuleRequest.StartIpAddress.ToString()
+                        StartIPAddress = firewallRuleRequest.StartIpAddress.ToString(),
+                        EndIPAddress = firewallRuleRequest.EndIpAddress.ToString()
                     };
-                    IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
-                    var firewallRuleResponse = await ExecuteCloudRequest(
-                        () => firewallRuleOperations.CreateOrUpdateWithHttpMessagesAsync(
-                                                                                azureSqlServer.ResourceGroupName ?? string.Empty,
-                                                                                azureSqlServer.Name,
-                                                                                firewallRuleRequest.FirewallRuleName,
-                                                                                firewallRule,
-                                                                                GetCustomHeaders()),
+
+                    ArmOperation<SqlFirewallRuleResource> operation = await ExecuteCloudRequest(
+                        () => serverRes.GetSqlFirewallRules().CreateOrUpdateAsync(
+                            WaitUntil.Completed,
+                            firewallRuleRequest.FirewallRuleName,
+                            firewallData),
                         SR.FirewallRuleCreationFailedWithError);
-                    var response = firewallRuleResponse.Body;
+
+                    SqlFirewallRuleData result = operation.Value.Data;
                     return new FirewallRuleResponse()
                     {
-                        StartIpAddress = response.StartIpAddress,
-                        EndIpAddress = response.EndIpAddress,
+                        StartIpAddress = result.StartIPAddress,
+                        EndIpAddress = result.EndIPAddress,
                         Created = true
                     };
                 }
@@ -209,17 +212,6 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 TraceException(TraceEventType.Error, (int)TraceId.AzureResource, ex, "Failed to create firewall rule");
                 throw;
             }
-        }
-
-        private Dictionary<string, List<string>> GetCustomHeaders()
-        {
-            // For some unknown reason the firewall rule method defaults to returning XML. Fixes this by adding an Accept header
-            // ensuring it's always JSON
-            var headers = new Dictionary<string, List<string>>();
-            headers["Accept"] = new List<string>() {
-                "application/json"
-            };
-            return headers;
         }
 
         /// <summary>
@@ -250,11 +242,10 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             IAzureUserAccount userAccount, IAzureTenant tenant, string lookupKey,
             CancellationToken cancellationToken, CancellationToken internalCancellationToken)
         {
-
             AzureTenant azureTenant = tenant as AzureTenant;
             if (azureTenant != null)
             {
-                ServiceClientCredentials credentials = CreateCredentials(azureTenant);
+                TokenCredential credentials = CreateCredentials(azureTenant);
                 string armEndpoint = userAccount.UnderlyingAccount.Properties.ProviderSettings?.Settings?.ArmResource?.Endpoint;
                 Uri armUri = null;
                 if (armEndpoint != null)
@@ -268,75 +259,61 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                         Console.WriteLine($"Exception while parsing URI: {e.Message}");
                     }
                 }
-                using (SubscriptionClient client = new SubscriptionClient(armUri ?? _resourceManagementUri, credentials))
+
+                ArmClient armClient = CreateArmClient(credentials, null, armUri);
+
+                var contexts = new List<IAzureUserAccountSubscriptionContext>();
+                await foreach (SubscriptionResource sub in armClient.GetSubscriptions().GetAllAsync())
                 {
-                    IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
-                    return new ServiceResponse<IAzureUserAccountSubscriptionContext>(subs.Select(sub =>
-                    {
-                        AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, armUri ?? _resourceManagementUri);
-                        AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
-                        return context;
-                    }));
+                    AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(
+                        userAccount, azureTenant.TenantId, sub.Data.SubscriptionId, armUri ?? _resourceManagementUri);
+                    contexts.Add(new AzureUserAccountSubscriptionContext(subId, credentials));
                 }
+                return new ServiceResponse<IAzureUserAccountSubscriptionContext>(contexts);
             }
             return new ServiceResponse<IAzureUserAccountSubscriptionContext>();
         }
 
         /// <summary>
-        /// Returns the azure resource groups for given subscription
+        /// Creates an <see cref="ArmClient"/> with optional subscription ID and custom ARM endpoint
         /// </summary>
-        private async Task<IEnumerable<Subscription>> GetSubscriptionsAsync(SubscriptionClient subscriptionClient)
+        private static ArmClient CreateArmClient(TokenCredential credentials, string subscriptionId, Uri armUri)
         {
-            try
+            if (armUri != null)
             {
-                if (subscriptionClient != null)
+                ArmClientOptions options = new ArmClientOptions
                 {
-                    IPage<Subscription> subscriptionList = await ExecuteCloudRequest(
-                        () => subscriptionClient.Subscriptions.ListAsync(),
-                        SR.FailedToGetAzureSubscriptionsErrorMessage);
-                    if (subscriptionList != null)
-                    {
-                        return subscriptionList.AsEnumerable();
-                    }
-                }
-
-                return Enumerable.Empty<Subscription>();
+                    Environment = new ArmEnvironment(armUri, "https://management.azure.com/.default")
+                };
+                return new ArmClient(credentials, subscriptionId, options);
             }
-            catch (Exception ex)
-            {
-                TraceException(TraceEventType.Error, (int)TraceId.AzureResource, ex, "Failed to get azure resource groups");
-                throw;
-            }
+            return subscriptionId != null
+                ? new ArmClient(credentials, subscriptionId)
+                : new ArmClient(credentials);
         }
 
         /// <summary>
-        /// Creates credential instance for given subscription
+        /// Creates a <see cref="TokenCredential"/> for the given tenant
         /// </summary>
-        private ServiceClientCredentials CreateCredentials(IAzureTenant tenant)
+        private TokenCredential CreateCredentials(IAzureTenant tenant)
         {
             AzureTenant azureTenant = tenant as AzureTenant;
 
             if (azureTenant != null)
             {
-                TokenCredentials credentials;
                 if (!string.IsNullOrWhiteSpace(azureTenant.TokenType))
                 {
-                    credentials = new TokenCredentials(azureTenant.AccessToken, azureTenant.TokenType);
+                    return new StaticTokenCredential(azureTenant.AccessToken, azureTenant.TokenType);
                 }
-                else
-                {
-                    credentials = new TokenCredentials(azureTenant.AccessToken);
-                }
-
-                return credentials;
+                return new StaticTokenCredential(azureTenant.AccessToken);
             }
             throw new NotSupportedException("This uses an unknown subscription type");
         }
 
         /// <summary>
-        /// Creates credential instance for given subscription
+        /// Gets the <see cref="TokenCredential"/> from the given subscription context
         /// </summary>
-        private ServiceClientCredentials CreateCredentials(IAzureUserAccountSubscriptionContext subscriptionContext)
+        private TokenCredential GetCredentials(IAzureUserAccountSubscriptionContext subscriptionContext)
         {
             AzureUserAccountSubscriptionContext azureUserSubContext =
                 subscriptionContext as AzureUserAccountSubscriptionContext;
@@ -354,22 +331,15 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             {
                 return await operation();
             }
-            catch (CloudException ex)
+            catch (RequestFailedException ex)
             {
-                if (ex.Body != null && string.Equals(ExpiredTokenCode, ex.Body.Code, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(ExpiredTokenCode, ex.ErrorCode, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Throw an expired token exception, which indicates that the operation could succeed if the user reauthenticates
                     throw new ExpiredTokenException(ex.Message);
                 }
                 throw new AzureResourceFailedException(
-                    string.Format(CultureInfo.CurrentCulture, errorOccurredMsg, ex.Message), ex.Response.StatusCode);
+                    string.Format(CultureInfo.CurrentCulture, errorOccurredMsg, ex.Message), ex.Status);
             }
-            catch (HttpOperationException ex)
-            {
-                throw new AzureResourceFailedException(
-                    string.Format(CultureInfo.CurrentCulture, errorOccurredMsg, ex.Message), ex.Response.StatusCode);
-            }
-
         }
     }
 }

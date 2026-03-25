@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
-using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using NUnit.Framework;
@@ -140,10 +139,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             string serverName = "myserver.database.windows.net";
             var sub1Mock = new Mock<IAzureUserAccountSubscriptionContext>();
             var sub2Mock = new Mock<IAzureUserAccountSubscriptionContext>();
-            var server = new SqlAzureResource(new Azure.Management.Sql.Models.Server("Somewhere", 
-                "1234", "myserver", "SQLServer", 
-                null, null, null, null, null, null, null,
-                fullyQualifiedDomainName: serverName));
+            var serverMock = new Mock<IAzureSqlServerResource>();
+            serverMock.Setup(x => x.Name).Returns("myserver");
+            serverMock.Setup(x => x.FullyQualifiedDomainName).Returns(serverName);
+            var server = serverMock.Object;
             var subsToServers = new List<Tuple<IAzureUserAccountSubscriptionContext, IEnumerable<IAzureSqlServerResource>>>()
             {
                 Tuple.Create(sub1Mock.Object, Enumerable.Empty<IAzureSqlServerResource>()),

@@ -1,11 +1,10 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 using System;
-using Microsoft.Azure.Management.ResourceManager;
-using Microsoft.Azure.Management.Sql;
+using Azure.ResourceManager;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
@@ -13,22 +12,19 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// VS session used by <see cref="AzureResourceManager" />.
-    /// Includes all the clients that the resource management needs to get ther resources
+    /// Includes all the clients that the resource management needs to get their resources
     /// </summary>
     public class AzureResourceManagementSession : IAzureResourceManagementSession
     {
         /// <summary>
         /// Creates the new session for given clients
         /// </summary>
-        /// <param name="sqlManagementClient">Sql Management Client</param>
-        /// <param name="resourceManagementClient">Resource Management Client</param>
+        /// <param name="armClient">ARM client</param>
         /// <param name="subscriptionContext">Subscription Context</param>
-        public AzureResourceManagementSession(SqlManagementClient sqlManagementClient,
-            ResourceManagementClient resourceManagementClient,
+        public AzureResourceManagementSession(ArmClient armClient,
             IAzureUserAccountSubscriptionContext subscriptionContext)
         {
-            SqlManagementClient = sqlManagementClient;
-            ResourceManagementClient = resourceManagementClient;
+            ArmClient = armClient;
             SubscriptionContext = subscriptionContext;
         }
 
@@ -41,22 +37,13 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// Closes the session by disposing the clients
+        /// Closes the session
         /// </summary>
-        /// <returns></returns>
         public bool CloseSession()
         {
             try
             {
-                if (ResourceManagementClient != null)
-                {
-                    ResourceManagementClient.Dispose();
-                }
-
-                if (SqlManagementClient != null)
-                {
-                    SqlManagementClient.Dispose();
-                }
+                ArmClient = null;
                 return true;
             }
             catch (Exception)
@@ -76,17 +63,9 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// Resource Management Client
+        /// ARM client for interacting with Azure Resource Manager
         /// </summary>
-        public ResourceManagementClient ResourceManagementClient
-        {
-            get; set;
-        }
-
-        /// <summary>
-        /// Sql Management Client
-        /// </summary>
-        public SqlManagementClient SqlManagementClient
+        public ArmClient ArmClient
         {
             get; set;
         }

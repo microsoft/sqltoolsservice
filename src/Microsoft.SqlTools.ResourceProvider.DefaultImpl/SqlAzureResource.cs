@@ -1,10 +1,10 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Azure.ResourceManager.Sql;
 using Microsoft.SqlTools.ResourceProvider.Core;
-using Models = Microsoft.Azure.Management.Sql.Models;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -14,15 +14,25 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// </summary>
     public class SqlAzureResource : AzureResourceWrapper, IAzureSqlServerResource
     {
-        private readonly Models.Server _azureSqlServerResource;
+        private readonly SqlServerData _azureSqlServerResource;
 
         /// <summary>
         /// Initializes the resource
         /// </summary>
-        public SqlAzureResource(Models.Server azureResource) : base(azureResource)
+        public SqlAzureResource(SqlServerData azureResource) : base(ToResourceInfo(azureResource))
         {
             CommonUtil.CheckForNull(azureResource, nameof(azureResource));
             _azureSqlServerResource = azureResource;
+        }
+
+        private static AzureResourceInfo ToResourceInfo(SqlServerData data)
+        {
+            CommonUtil.CheckForNull(data, nameof(data));
+            return new AzureResourceInfo(
+                data.Name,
+                data.Id?.ToString(),
+                data.ResourceType.ToString(),
+                data.Location.ToString());
         }
 
         /// <summary>

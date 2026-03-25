@@ -1,14 +1,32 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 using System;
-using Microsoft.Azure.Management.Sql.Models;
 using Microsoft.SqlTools.ResourceProvider.Core;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
+    /// <summary>
+    /// Lightweight data container for an Azure resource, decoupled from any specific SDK type.
+    /// </summary>
+    public sealed class AzureResourceInfo
+    {
+        public string Name { get; }
+        public string Id { get; }
+        public string Type { get; }
+        public string Location { get; set; }
+
+        public AzureResourceInfo(string name, string id, string type, string location)
+        {
+            Name = name;
+            Id = id;
+            Type = type;
+            Location = location;
+        }
+    }
+
     /// <summary>
     /// Implementation for <see cref="IAzureResource" /> using VS services.
     /// Provides information about an Azure resource
@@ -21,7 +39,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <summary>
         /// Initializes the resource
         /// </summary>
-        public AzureResourceWrapper(TrackedResource azureResource)
+        public AzureResourceWrapper(AzureResourceInfo azureResource)
         {
             CommonUtil.CheckForNull(azureResource, nameof(azureResource));
             AzureResource = azureResource;
@@ -127,7 +145,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <summary>
         /// The resource wrapped by this class
         /// </summary>
-        protected TrackedResource AzureResource
+        protected AzureResourceInfo AzureResource
         {
             get;
             set;

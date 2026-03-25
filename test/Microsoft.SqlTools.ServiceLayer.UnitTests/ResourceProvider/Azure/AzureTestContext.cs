@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -9,8 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Management.Sql.Models;
-using Microsoft.Rest;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
@@ -19,7 +17,7 @@ using Moq;
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 {
     /// <summary>
-    /// A container to create test data and mock classes to test azure services and providers 
+    /// A container to create test data and mock classes to test azure services and providers
     /// </summary>
     internal sealed class AzureTestContext
     {
@@ -35,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
                 var azureAccount = new AzureUserAccount();
                 string tenantId = Guid.NewGuid().ToString();
                 AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(azureAccount, tenantId, subscriptionName, null);
-                var subscription = new AzureUserAccountSubscriptionContext(subId, new TokenCredentials("dummy"));
+                var subscription = new AzureUserAccountSubscriptionContext(subId, new StaticTokenCredential("dummy"));
                 accountSubscriptions.Add(subscription);
 
                 var sessionMock = new Mock<IAzureResourceManagementSession>();
@@ -51,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
         private void MockServersAndDatabases(List<string> resourceNames, IAzureResourceManagementSession session)
         {
             IEnumerable<IAzureResource> azureResources = resourceNames.Select(
-                x => new AzureResourceWrapper(new TrackedResource(Guid.NewGuid().ToString(), "id", x, "type")) { ResourceGroupName = Guid.NewGuid().ToString()}
+                x => new AzureResourceWrapper(new AzureResourceInfo(x, "id", "type", "Somewhere")) { ResourceGroupName = Guid.NewGuid().ToString()}
             ).ToList();
 
             List<IAzureSqlServerResource> servers = new List<IAzureSqlServerResource>();
@@ -75,18 +73,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
                                             .Returns(Task.FromResult(databases));
                 }
 
-                Server azureSqlServer = new Server(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), serverName, null, null, null, null, null, null, null, null, fullyQualifiedDomainName: serverName + ".database.windows.net");
-                servers.Add(new SqlAzureResource(azureSqlServer)
-                {
-                    ResourceGroupName = azureResourceWrapper.ResourceGroupName
-                });
+                var serverMock = new Mock<IAzureSqlServerResource>();
+                serverMock.Setup(x => x.Name).Returns(serverName);
+                serverMock.Setup(x => x.FullyQualifiedDomainName).Returns(serverName + ".database.windows.net");
+                serverMock.SetupProperty(x => x.ResourceGroupName, azureResourceWrapper.ResourceGroupName);
+                servers.Add(serverMock.Object);
             }
             AzureResourceManagerMock.Setup(x => x.GetSqlServerAzureResourcesAsync(session))
                                     .Returns(Task.FromResult(servers as IEnumerable<IAzureSqlServerResource>));
         }
 
         internal static string GetServerName(string name)
-        {           
+        {
             string azureResourceName = name;
              int separatorIndex = azureResourceName.IndexOf("/", StringComparison.OrdinalIgnoreCase);
             if (separatorIndex >= 0)
