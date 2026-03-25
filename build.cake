@@ -742,6 +742,10 @@ Task("SRGen")
             Run(dotnetcli, dotnetArgs)
             .ExceptionOnError("Failed to run SRGen.");
 
+            // Normalize generated files to CRLF so output is platform-independent
+            NormalizeToCrlf(outputResx);
+            NormalizeToCrlf(outputCs);
+
             // Update XLF file from new Resx file
             UpdateXlfTargetsFromSource(outputXlf);
 
