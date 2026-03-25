@@ -164,9 +164,11 @@ Task("InstallDotnet")
 		var installScript = $"dotnet-install.{shellExtension}";
 		System.IO.Directory.CreateDirectory(dotnetFolder);
 		var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
-		using (WebClient client = new WebClient())
+		using (var httpClient = new System.Net.Http.HttpClient())
+		using (var stream = httpClient.GetStreamAsync($"{buildPlan.DotNetInstallScriptURL}/{installScript}").GetAwaiter().GetResult())
+		using (var fileStream = System.IO.File.Create(scriptPath))
 		{
-			client.DownloadFile($"{buildPlan.DotNetInstallScriptURL}/{installScript}", scriptPath);
+			stream.CopyTo(fileStream);
 		}
 		if (!IsRunningOnWindows())
 		{
@@ -289,7 +291,7 @@ Task("NugetPackNuspec")
 {
     foreach (var project in buildPlan.FxBuildProjects)
     {
-        if (project.SkipPack != null && project.SkipPack)
+        if (project.SkipPack)
         {
             continue;
         }
