@@ -1,4 +1,4 @@
-#load "runhelpers.cake"
+#load "runHelpers.cake"
 
 using System;
 using System.IO.Compression;
