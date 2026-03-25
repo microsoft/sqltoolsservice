@@ -1,6 +1,6 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
 
-#load "scripts/runhelpers.cake"
+#load "scripts/runHelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
 #load "scripts/xliff.cake"
