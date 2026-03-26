@@ -4,7 +4,7 @@ pr: none
 variables:
   # Major version number for the release
 - name: Major
-  value: '5'
+  value: '6'
   # Minor version number for the release (should be incremented post a stable release)
 - name: Minor
   value: '8'
