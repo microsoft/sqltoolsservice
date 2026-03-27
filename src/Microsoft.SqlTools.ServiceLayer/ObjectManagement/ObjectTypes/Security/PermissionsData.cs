@@ -889,8 +889,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 // note:  this method is called when child colums are being created.
                 //        principal should never be in the removedPrincipals collection.
                 // STrace.Assert(
-                            //  !principal.IsRemoved && !this.removedPrincipals.Contains(principal),
-                            //  "principal shouldn't be in the removed collection when columns are being populated");
+                //  !principal.IsRemoved && !this.removedPrincipals.Contains(principal),
+                //  "principal shouldn't be in the removed collection when columns are being populated");
 
                 // if the principals collection does not exist, create it
 #pragma warning disable IDE0074 // Use compound assignment
@@ -1330,7 +1330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <param name="databaseEngineType"></param>
             /// <param name="engineEdition"></param>
             /// <returns>The relevant permissions</returns>
-            public static ArrayList GetRelevantPermissions(SecurableType type, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+            public static ArrayList GetRelevantPermissions(SecurableType type, Version serverVersion, string databaseName, DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
             {
                 // $CONSIDER caching relevent permission sets
                 ArrayList result = new ArrayList();
@@ -3477,7 +3477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     // STrace.Assert(false, "couldn't get server type, defaulting to Standalone");
 
-            result = Microsoft.SqlServer.Management.Common.DatabaseEngineType.Standalone;
+                    result = Microsoft.SqlServer.Management.Common.DatabaseEngineType.Standalone;
                 }
 
                 return result;
@@ -4175,11 +4175,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 // STrace.Assert((smoObject is TableViewBase) || (smoObject is UserDefinedFunction), "smoObject is not a table, view, or UDF");
                 // STrace.Assert(
-                            //  (SecurableType.Table == type) ||
-                            //  (SecurableType.View == type) ||
-                            //  (SecurableType.FunctionInline == type) ||
-                            //  (SecurableType.FunctionTable == type),
-                            //  "type is not table, view, or table-valued UDF");
+                //  (SecurableType.Table == type) ||
+                //  (SecurableType.View == type) ||
+                //  (SecurableType.FunctionInline == type) ||
+                //  (SecurableType.FunctionTable == type),
+                //  "type is not table, view, or table-valued UDF");
                 CurrentPrincipal = null;
             }
 
@@ -4196,11 +4196,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 : base(type, urn, connectionInfo, serverVersion, exists)
             {
                 // STrace.Assert(
-                            //  (SecurableType.Table == type) ||
-                            //  (SecurableType.View == type) ||
-                            //  (SecurableType.FunctionInline == type) ||
-                            //  (SecurableType.FunctionTable == type),
-                            //  "type is not table, view, or table-valued UDF");
+                //  (SecurableType.Table == type) ||
+                //  (SecurableType.View == type) ||
+                //  (SecurableType.FunctionInline == type) ||
+                //  (SecurableType.FunctionTable == type),
+                //  "type is not table, view, or table-valued UDF");
                 CurrentPrincipal = null;
             }
 
@@ -4847,7 +4847,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 get
                 {
                     return Enum.GetValues<SecurableType>()
-                        .Cast<SecurableType>()
                         .Where(
                             t =>
                                 t.IsValidSchemaBoundSecurable(
@@ -5197,10 +5196,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.removedSecurables = new SecurableDictionary();
 
                 //If we don't have a DatabaseEngineType try to fetch it from our connection now
-                if(this.DatabaseEngineType == DatabaseEngineType.Unknown)
+                if (this.DatabaseEngineType == DatabaseEngineType.Unknown)
                 {
                     var conn = this.connectionInfo as SqlConnectionInfoWithConnection;
-                    if(conn != null)
+                    if (conn != null)
                     {
                         this.databaseEngineType = conn.ServerConnection.DatabaseEngineType;
                     }
@@ -8341,7 +8340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private static Permission viewAnyColumnEncryptionKeyDefinition = null;
             private static Permission viewAnyColumnMasterKeyDefinition = null;
             private static Permission viewDatabaseState = null;
-            private static Permission viewChangeTracking = null;            
+            private static Permission viewChangeTracking = null;
             private static Permission viewAnySensitivityClassification = null;
 
             #endregion
@@ -8467,7 +8466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 unmask = new Permission(SR.Permission_Unmask, DatabasePermission.Unmask);
                 viewAnyColumnEncryptionKeyDefinition = new Permission(SR.Permission_ViewAnyColumnEncryptionKeyDefinition, DatabasePermission.ViewAnyColumnEncryptionKeyDefinition);
                 viewAnyColumnMasterKeyDefinition = new Permission(SR.Permission_ViewAnyColumnMasterKeyDefinition, DatabasePermission.ViewAnyColumnMasterKeyDefinition);
-                viewDatabaseState = new Permission(SR.Permission_ViewDatabaseState, DatabasePermission.ViewDatabaseState);                
+                viewDatabaseState = new Permission(SR.Permission_ViewDatabaseState, DatabasePermission.ViewDatabaseState);
                 viewAnySensitivityClassification = new Permission(SR.Permission_ViewAnySensitivityClassification, DatabasePermission.ViewAnySensitivityClassification);
 
                 databasePermissionsPopulated = true;
@@ -8967,7 +8966,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-             /// <summary>
+            /// <summary>
             /// Gets the one and only AlterAnyFulltextCatalog permission object
             /// </summary>
             public static Permission AlterAnyFulltextCatalog
@@ -8996,7 +8995,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
 
                     return alterAnyMask;
-            }
+                }
             }
 
             /// <summary>
