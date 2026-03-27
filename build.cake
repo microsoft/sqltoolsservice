@@ -45,8 +45,6 @@ public class BuildPlan
     public string DotNetFolder { get; set; }
     public string PackageName { get; set; }
     public string DotNetInstallScriptURL { get; set; }
-    public string DotNetChannel { get; set; }
-    public string DotNetVersion { get; set; }
     public string[] Frameworks { get; set; }
     public string[] Rids { get; set; }
     public string[] MainProjects { get; set; }
@@ -146,7 +144,6 @@ Task("InstallDotnet")
     .Does(() =>
 {
 	// Determine if `dotnet` is installed
-	var dotnetInstalled = true;
 	try
 	{
 		Run(dotnetcli, "--info");
@@ -155,44 +152,46 @@ Task("InstallDotnet")
 	catch(Win32Exception)
 	{
 		// If we get this exception, dotnet isn't installed
-		dotnetInstalled = false;
+		return;
 	}
 
 	// Install dotnet if it isn't already installed
-	if (!dotnetInstalled)
-	{
-		var installScript = $"dotnet-install.{shellExtension}";
-		System.IO.Directory.CreateDirectory(dotnetFolder);
-		var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
-		using (var httpClient = new System.Net.Http.HttpClient())
-		using (var stream = httpClient.GetStreamAsync($"{buildPlan.DotNetInstallScriptURL}/{installScript}").GetAwaiter().GetResult())
-		using (var fileStream = System.IO.File.Create(scriptPath))
-		{
-			stream.CopyTo(fileStream);
-		}
-		if (!IsRunningOnWindows())
-		{
-			Run("chmod", $"+x '{scriptPath}'");
-		}
-		var installArgs = $"-Channel {buildPlan.DotNetChannel}";
-		if (!String.IsNullOrEmpty(buildPlan.DotNetVersion))
-		{
-		  installArgs = $"{installArgs} -Version {buildPlan.DotNetVersion}";
-		}
-		if (!buildPlan.UseSystemDotNetPath)
-		{
-			installArgs = $"{installArgs} -InstallDir {dotnetFolder}";
-		}
-		Run(shell, $"{shellArgument} {scriptPath} {installArgs}");
-		try
-		{
-			Run(dotnetcli, "--info");
-		}
-		catch (Win32Exception)
-		{
-			throw new Exception(".NET CLI failed to be installed");
-		}
-	}
+
+    // Read the required SDK version from global.json
+    var globalJson = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(workingDirectory, "global.json")));
+    var dotnetVersion = globalJson["sdk"]?["version"]?.ToString();
+    if (String.IsNullOrEmpty(dotnetVersion))
+    {
+        throw new Exception("Could not read SDK version from global.json");
+    }
+
+    var installScript = $"dotnet-install.{shellExtension}";
+    System.IO.Directory.CreateDirectory(dotnetFolder);
+    var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
+    using (var httpClient = new System.Net.Http.HttpClient())
+    using (var stream = httpClient.GetStreamAsync($"{buildPlan.DotNetInstallScriptURL}/{installScript}").GetAwaiter().GetResult())
+    using (var fileStream = System.IO.File.Create(scriptPath))
+    {
+        stream.CopyTo(fileStream);
+    }
+    if (!IsRunningOnWindows())
+    {
+        Run("chmod", $"+x '{scriptPath}'");
+    }
+    var installArgs = $"-Version {dotnetVersion}";
+    if (!buildPlan.UseSystemDotNetPath)
+    {
+        installArgs = $"{installArgs} -InstallDir {dotnetFolder}";
+    }
+    Run(shell, $"{shellArgument} {scriptPath} {installArgs}");
+    try
+    {
+        Run(dotnetcli, "--info");
+    }
+    catch (Win32Exception)
+    {
+        throw new Exception(".NET CLI failed to be installed");
+    }
 });
 
 /// <summary>

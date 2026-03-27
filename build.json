@@ -1,9 +1,7 @@
 {
   "UseSystemDotNetPath": "true",
   "DotNetFolder": ".dotnet",
-  "DotNetInstallScriptURL": "https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/",
-  "DotNetChannel": "preview",
-  "DotNetVersion": "5.0.301",
+  "DotNetInstallScriptURL": "https://dot.net/v1/",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
