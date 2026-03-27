@@ -427,3 +427,6 @@ dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 
 # IDE0306: Simplify collection initialization
 dotnet_diagnostic.IDE0306.severity = suggestion
+
+# IDE0270: Use coalesce expression
+dotnet_diagnostic.IDE0270.severity = suggestion
