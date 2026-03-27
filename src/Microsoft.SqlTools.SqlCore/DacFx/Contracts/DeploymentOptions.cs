@@ -294,7 +294,7 @@ namespace Microsoft.SqlTools.SqlCore.DacFx.Contracts
         }
 
         /// <summary>
-        /// Converting ObjectType to String[] as the deployemnt options excludeObjectTypes is string[] but the DacFx DacDeployOptions excludeObjectTypes is of ObjectType[]
+        /// Converting ObjectType to String[] as the deployment options excludeObjectTypes is string[] but the DacFx DacDeployOptions excludeObjectTypes is of ObjectType[]
         /// Loading options from profile and schema compare .scmp file should need this conversion
         /// </summary>
         /// <param name="excludeObjectTypes"></param>
