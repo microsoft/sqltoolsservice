@@ -200,8 +200,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         else
                         {
                             // is a file
-                            int idx = currentValue.IndexOf(".", StringComparison.Ordinal);
-                            currentValue = currentValue.Substring(idx + 1, currentValue.Length - idx - 1);
+                            int idx = currentValue.IndexOf('.', StringComparison.Ordinal);
+                            currentValue = currentValue.Substring(idx + 1);
                             this.backup.DatabaseFiles.Add(currentValue);
                         }
                     }

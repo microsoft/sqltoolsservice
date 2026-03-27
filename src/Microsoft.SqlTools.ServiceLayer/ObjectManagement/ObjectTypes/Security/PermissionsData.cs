@@ -4846,7 +4846,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 get
                 {
-                    return Enum.GetValues(typeof(SecurableType))
+                    return Enum.GetValues<SecurableType>()
                         .Cast<SecurableType>()
                         .Where(
                             t =>

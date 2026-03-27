@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 TSqlModelOptions options = new TSqlModelOptions();
-                SqlServerVersion version = (SqlServerVersion)Enum.Parse(typeof(SqlServerVersion), Parameters.ModelTargetVersion);
+                SqlServerVersion version = Enum.Parse<SqlServerVersion>(Parameters.ModelTargetVersion);
 
                 var model = new TSqlModel(version, options);
                 // read all sql files

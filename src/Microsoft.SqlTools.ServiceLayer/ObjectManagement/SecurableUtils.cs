@@ -370,7 +370,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private static SearchableObjectType ConvertStringToSearchableObjectType(string typeStr)
         {
-            foreach(SearchableObjectType t in Enum.GetValues(typeof(SearchableObjectType)))
+            foreach(SearchableObjectType t in Enum.GetValues<SearchableObjectType>())
             {
                 if (t == SearchableObjectType.LastType)
                 {
@@ -594,7 +594,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         internal static IEnumerable<SecurableType> GetSchemaTypes(Server server)
         {
-            return Enum.GetValues(typeof(SecurableType))
+            return Enum.GetValues<SecurableType>()
                 .Cast<SecurableType>()
                 .Where(
                     t =>
