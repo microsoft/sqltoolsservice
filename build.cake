@@ -229,7 +229,7 @@ Task("BuildTest")
                         StandardErrorWriter = logWriter
                     });
             }
-            ExceptionOnErrorWithLog(exitStatus, $"Building test {project} failed for {framework}. See {logPath} for more details.", logPath);
+            ExceptionOnErrorWithLog(exitStatus, $"Building test project {project} failed for {framework}. See {logPath} for more details.", logPath);
 
         }
     }
@@ -258,7 +258,7 @@ Task("BuildFx")
                         StandardErrorWriter = logWriter
                     });
             }
-            ExceptionOnErrorWithLog(exitStatus, $"Building test {project.Name} failed for {framework}. See {logPath} for more details.", logPath);
+            ExceptionOnErrorWithLog(exitStatus, $"Building project {project.Name} failed for {framework}. See {logPath} for more details.", logPath);
         }
     }
 });

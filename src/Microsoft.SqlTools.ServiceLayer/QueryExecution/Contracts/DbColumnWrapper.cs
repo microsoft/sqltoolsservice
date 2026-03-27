@@ -224,8 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         private void DetermineSqlDbType()
         {
             // Determine the SqlDbType
-            SqlDbType type;
-            if (Enum.TryParse(DataTypeName, true, out type))
+            if (Enum.TryParse(DataTypeName, true, out SqlDbType type))
             {
                 SqlDbType = type;
             }
