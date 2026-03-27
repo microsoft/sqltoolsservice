@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Utility;
 using System;
@@ -15,8 +14,24 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
+namespace Microsoft.SqlTools.SqlCore.DacFx.Contracts
 {
+    /// <summary>
+    /// Defines the deployment scenario for determining default options
+    /// </summary>
+    public enum DeploymentScenario
+    {
+        /// <summary>
+        /// Deployment/Publish scenario - uses DacFx native defaults
+        /// </summary>
+        Deployment = 0,
+
+        /// <summary>
+        /// Schema Compare scenario - uses modified defaults
+        /// </summary>
+        SchemaCompare = 1
+    }
+
     /// <summary>
     /// DeploymentOptionProperty class to define deployment options default value, description, and displayNames
     /// </summary>

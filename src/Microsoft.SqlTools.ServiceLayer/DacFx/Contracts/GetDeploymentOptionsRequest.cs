@@ -7,25 +7,10 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
-    /// <summary>
-    /// Defines the deployment scenario for determining default options
-    /// </summary>
-    public enum DeploymentScenario
-    {
-        /// <summary>
-        /// Deployment/Publish scenario - uses DacFx native defaults
-        /// </summary>
-        Deployment = 0,
-
-        /// <summary>
-        /// Schema Compare scenario - uses modified defaults
-        /// </summary>
-        SchemaCompare = 1
-    }
-
     /// <summary>
     /// Parameters for getting deployment options based on scenario
     /// </summary>

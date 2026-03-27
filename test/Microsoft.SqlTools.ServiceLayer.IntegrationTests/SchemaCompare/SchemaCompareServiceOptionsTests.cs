@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlServer.Dac;
 using System;
 using System.IO;

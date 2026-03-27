@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
 {
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// Deployment options (for Publish, Script operations).
         /// Converted to DacDeployOptions using DacFxUtils.CreateDeploymentOptions.
         /// </summary>
-        public DacFx.Contracts.DeploymentOptions DeploymentOptions { get; set; }
+        public DeploymentOptions DeploymentOptions { get; set; }
 
         /// <summary>
         /// Extract options (for Extract operation)
