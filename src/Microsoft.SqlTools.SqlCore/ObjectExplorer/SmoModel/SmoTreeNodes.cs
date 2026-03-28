@@ -1606,43 +1606,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
-    internal partial class ExternalTablesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.ExternalTables) }; }
-
-        public override IEnumerable<INodeFilter> Filters
-        {
-            get
-            {
-                var filters = new List<INodeFilter>();
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "IsExternal",
-                    Type = typeof(bool),
-                    Values = new List<object> { 1 },
-                });
-                return filters;
-            }
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-            get
-            {
-                return new [] { typeof(SqlTableQuerier), };
-            }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new ExternalTableTreeNode();
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
     internal partial class DroppedLedgerTablesChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.DroppedLedgerTables) }; }
@@ -1687,6 +1650,43 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new TableTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExternalTablesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.ExternalTables) }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsExternal",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ExternalTableTreeNode();
             InitializeChild(parent, child, context);
             return child;
         }

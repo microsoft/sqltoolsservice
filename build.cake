@@ -1,6 +1,6 @@
 #addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
 
-#load "scripts/runhelpers.cake"
+#load "scripts/runHelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
 #load "scripts/xliff.cake"
@@ -45,8 +45,6 @@ public class BuildPlan
     public string DotNetFolder { get; set; }
     public string PackageName { get; set; }
     public string DotNetInstallScriptURL { get; set; }
-    public string DotNetChannel { get; set; }
-    public string DotNetVersion { get; set; }
     public string[] Frameworks { get; set; }
     public string[] Rids { get; set; }
     public string[] MainProjects { get; set; }
@@ -158,39 +156,49 @@ Task("InstallDotnet")
 		dotnetInstalled = false;
 	}
 
-	// Install dotnet if it isn't already installed
-	if (!dotnetInstalled)
+	if (dotnetInstalled)
 	{
-		var installScript = $"dotnet-install.{shellExtension}";
-		System.IO.Directory.CreateDirectory(dotnetFolder);
-		var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
-		using (WebClient client = new WebClient())
-		{
-			client.DownloadFile($"{buildPlan.DotNetInstallScriptURL}/{installScript}", scriptPath);
-		}
-		if (!IsRunningOnWindows())
-		{
-			Run("chmod", $"+x '{scriptPath}'");
-		}
-		var installArgs = $"-Channel {buildPlan.DotNetChannel}";
-		if (!String.IsNullOrEmpty(buildPlan.DotNetVersion))
-		{
-		  installArgs = $"{installArgs} -Version {buildPlan.DotNetVersion}";
-		}
-		if (!buildPlan.UseSystemDotNetPath)
-		{
-			installArgs = $"{installArgs} -InstallDir {dotnetFolder}";
-		}
-		Run(shell, $"{shellArgument} {scriptPath} {installArgs}");
-		try
-		{
-			Run(dotnetcli, "--info");
-		}
-		catch (Win32Exception)
-		{
-			throw new Exception(".NET CLI failed to be installed");
-		}
+		Information("dotnet is already installed; skipping download + install");
+		return;
 	}
+
+	// Install dotnet if it isn't already installed
+
+    // Read the required SDK version from global.json
+    var globalJson = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(workingDirectory, "global.json")));
+    var dotnetVersion = globalJson["sdk"]?["version"]?.ToString();
+    if (String.IsNullOrEmpty(dotnetVersion))
+    {
+        throw new Exception("Could not read SDK version from global.json");
+    }
+
+    var installScript = $"dotnet-install.{shellExtension}";
+    System.IO.Directory.CreateDirectory(dotnetFolder);
+    var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
+    using (var httpClient = new System.Net.Http.HttpClient())
+    using (var stream = httpClient.GetStreamAsync($"{buildPlan.DotNetInstallScriptURL}/{installScript}").GetAwaiter().GetResult())
+    using (var fileStream = System.IO.File.Create(scriptPath))
+    {
+        stream.CopyTo(fileStream);
+    }
+    if (!IsRunningOnWindows())
+    {
+        Run("chmod", $"+x '{scriptPath}'");
+    }
+    var installArgs = $"-Version {dotnetVersion}";
+    if (!buildPlan.UseSystemDotNetPath)
+    {
+        installArgs = $"{installArgs} -InstallDir {dotnetFolder}";
+    }
+    Run(shell, $"{shellArgument} {scriptPath} {installArgs}");
+    try
+    {
+        Run(dotnetcli, "--info");
+    }
+    catch (Win32Exception)
+    {
+        throw new Exception(".NET CLI failed to be installed");
+    }
 });
 
 /// <summary>
@@ -289,7 +297,7 @@ Task("NugetPackNuspec")
 {
     foreach (var project in buildPlan.FxBuildProjects)
     {
-        if (project.SkipPack != null && project.SkipPack)
+        if (project.SkipPack)
         {
             continue;
         }
@@ -739,6 +747,10 @@ Task("SRGen")
             Information("{0}", dotnetArgs);
             Run(dotnetcli, dotnetArgs)
             .ExceptionOnError("Failed to run SRGen.");
+
+            // Normalize generated files to CRLF so output is platform-independent
+            NormalizeToCrlf(outputResx);
+            NormalizeToCrlf(outputCs);
 
             // Update XLF file from new Resx file
             UpdateXlfTargetsFromSource(outputXlf);
