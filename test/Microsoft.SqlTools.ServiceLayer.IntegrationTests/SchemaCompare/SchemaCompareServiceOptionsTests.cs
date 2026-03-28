@@ -380,7 +380,7 @@ END
         [Test]
         public void ValidateSchemaCompareOptionsDefaultAgainstDacFx()
         {
-            DeploymentOptions deployOptions = new DeploymentOptions();
+            DeploymentOptions deployOptions = new DeploymentOptions(DeploymentScenario.SchemaCompare);
             DacDeployOptions dacOptions = new DacDeployOptions();
 
             // Changes to match new defaults

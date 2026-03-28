@@ -5,3 +5,8 @@
 *.resx diff
 
 * text=auto
+
+# Generated localization files — always CRLF so the output is identical
+# regardless of which platform runs the SRGen / xliff Cake tasks.
+src/*/Localization/sr.cs text eol=crlf
+src/*/Localization/sr.resx text eol=crlf

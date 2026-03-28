@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,35 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
-
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,34 +116,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>获取 Azure 数据库时出错</value>
+  <data name="AzureServerNotFound" xml:space="preserve">
+    <value>O servidor que você especificou {0} não existe nas assinaturas em {1}. Você deve ter entrado com uma conta incorreta ou seu servidor foi removido das assinaturas dessa conta. Verifique sua conta e tente novamente.</value>
   </data>
-  <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>获取 Azure 资源组 {0} 时出错</value>
+  <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
+    <value>Ocorreu um erro ao obter as assinaturas do Azure: {0}</value>
   </data>
-  <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>获取 Azure Sql Servers 时出错</value>
+  <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
+    <value>Ocorreu um erro ao obter os bancos de dados de servidores do tipo {0} de {1}</value>
+  </data>
+  <data name="FirewallRuleAccessForbidden" xml:space="preserve">
+    <value>{0} não tem permissão para alterar a regra de firewall do servidor. Tente novamente com uma conta diferente que seja de Proprietário ou Colaborador da assinatura do Azure ou do servidor.</value>
+  </data>
+  <data name="InvalidIpAddress" xml:space="preserve">
+    <value>Endereço IP inválido</value>
+  </data>
+  <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
+    <value>Tipo de Servidor inválido.</value>
+  </data>
+  <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
+    <value>Um dll necessário não pode ser carregado. Repare o aplicativo.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>新建防火墙规则时出错。</value>
+    <value>Ocorreu um erro ao criar uma nova regra de firewall.</value>
   </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>此提供程序不支持的帐户类型 "{0}"</value>
-  </data>
-  <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>获取 Azure Sql Servers {0} 时出错</value>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Não é possível abrir uma regra de firewall para o tipo de conexão especificado</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>新建防火墙规则 {0} 时出错</value>
+    <value>Ocorreu um erro ao criar uma nova regra de firewall: '{0}'</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>获取 Azure 订阅 {0} 时出错</value>
-  </data>
-  <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>执行此操作之前，必须重新对当前用户进行身份验证</value>
-  </data>
-  <data name="UserNotFoundError" xml:space="preserve">
-    <value>找不到用户，无法执行该操作</value>
+  <data name="NoSubscriptionsFound" xml:space="preserve">
+    <value>Nenhuma assinatura foi encontrada para a conta de usuário conectada no momento.</value>
   </data>
 </root>

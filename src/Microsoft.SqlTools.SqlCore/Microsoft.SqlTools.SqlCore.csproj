@@ -31,11 +31,11 @@
 		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" PrivateAssets="all" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Localization\*.resx" />
-		<None Include="Localization\sr.strings" />
+		<EmbeddedResource Include="Localization/*.resx" />
+		<None Include="Localization/sr.strings" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
+		<EmbeddedResource Include="ObjectExplorer/SmoModel/SmoTreeNodesDefinition.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
@@ -46,9 +46,9 @@
 		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="bin\$(Configuration)\**\Microsoft.SqlTools.*.dll">
+		<Content Include="bin/$(Configuration)/**/Microsoft.SqlTools.*.dll">
 			<Pack>true</Pack>
-			<PackagePath>lib\</PackagePath>
+			<PackagePath>lib/</PackagePath>
 		</Content>
 	</ItemGroup>
 </Project>

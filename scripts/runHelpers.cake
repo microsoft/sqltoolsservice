@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 /// <summary>
 ///  Class encompassing the optional settings for running processes.
@@ -61,6 +62,10 @@ public struct ExitStatus
     public static implicit operator int(ExitStatus exitStatus)
     {
         return exitStatus._exitCode;
+    }
+    public override string ToString()
+    {
+        return $"{this._cmd} {this._args}";
     }
     /// <summary>
     ///  Trigger Exception for non-zero exit code.
@@ -182,6 +187,49 @@ ExitStatus RunRestore(string exec, string args, string workingDirectory)
     return exitStatus;
 }
 
+void PrintLogTail(string logPath, int maxLines = 200)
+{
+    if (!System.IO.File.Exists(logPath))
+    {
+        Warning("Log file '{0}' was not found.", logPath);
+        return;
+    }
+
+    Information("Showing last {0} lines from {1}", maxLines, logPath);
+    Information("----- LOG TAIL BEGIN -----");
+
+    var tailLines = new Queue<string>();
+
+    // Read through the log file and keep only the last `maxLines` lines in memory
+    // instead of loading the entire log
+    foreach (var line in System.IO.File.ReadLines(logPath))
+    {
+        tailLines.Enqueue(line);
+        if (tailLines.Count > maxLines)
+        {
+            tailLines.Dequeue();
+        }
+    }
+
+    foreach (var line in tailLines)
+    {
+        Information("{0}", line);
+    }
+
+    Information("----- LOG TAIL END -----");
+}
+
+ExitStatus ExceptionOnErrorWithLog(ExitStatus exitStatus, string errorMessage, string logPath, int maxLines = 200)
+{
+    if ((int)exitStatus != 0)
+    {
+        PrintLogTail(logPath, maxLines);
+        throw new Exception(errorMessage + $"\nCommand: {exitStatus.ToString()}");
+    }
+
+    return exitStatus;
+}
+
 /// <summary>
 ///  Kill the given process and all its child processes.
 /// </summary>
@@ -222,9 +270,10 @@ public void DotnetPackNoBuild(string outputFolder, string projectFolder, string 
 
 public void NugetPackNuspec(string outputFolder, string projectFolder, string project) {
     var logPath = System.IO.Path.Combine(logFolder, $"{project}-NugetPackNuspecpack.log");
+    var nuspecPath = System.IO.Path.Combine(projectFolder, $"{project}.nuspec");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder}",
+        Run(nugetcli, $"pack \"{nuspecPath}\" -OutputDirectory \"{outputFolder}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,

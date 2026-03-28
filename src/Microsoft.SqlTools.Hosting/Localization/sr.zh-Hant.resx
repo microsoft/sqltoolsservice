@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,35 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
-
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,37 +116,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AzureServerNotFound" xml:space="preserve">
-    <value>您指定的伺服器 {0} 不存在於 {1} 的任何訂用帳戶中。可能是您使用不正確的帳戶登入，或您的伺服器已從此帳戶中的訂用帳戶移除。請檢查您的帳戶，然後再試一次。</value>
+  <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
+    <value>無效的 CriticalHandle!</value>
   </data>
-  <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>取得 Azure 訂用帳戶時發生錯誤: {0}</value>
+  <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
+    <value>密碼超過 512 個位元組</value>
   </data>
-  <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>從 {1} 的類型 {0} 伺服器取得資料庫時發生錯誤</value>
+  <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
+    <value>必須指定目標才能刪除認證</value>
   </data>
-  <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} 沒有權限可變更伺服器防火牆規則。請使用其他是 Azure 訂用帳戶或伺服器的「擁有者」或「參與者」之帳戶，再試一次。</value>
+  <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
+    <value>必須指定目標才能檢查認證是否存在</value>
   </data>
-  <data name="InvalidIpAddress" xml:space="preserve">
-    <value>IP 位址無效</value>
+  <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
+    <value>已處置 Win32Credential 物件</value>
   </data>
-  <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>伺服器類型無效。</value>
+  <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
+    <value>MessageReader 的輸入資料流程意外結束，正在終止</value>
   </data>
-  <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>無法載入必要的 dll。請修復您的應用程式。</value>
+  <data name="HostingHeaderMissingColon" xml:space="preserve">
+    <value>訊息標頭必須使用 ':' 分隔金鑰與值</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>建立新的防火牆規則時發生錯誤。</value>
+  <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
+    <value>嚴重錯誤: 必須提供 Content-length 標頭</value>
   </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>無法為指定的連線類型開啟防火牆規則</value>
+  <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
+    <value>嚴重錯誤: Content-Length 值並非整數</value>
   </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>建立新防火牆規則時發生錯誤: '{0}'</value>
+  <data name="ServiceAlreadyRegistered" xml:space="preserve">
+    <value>無法為類型 {0} 註冊服務，一或更多服務已註冊</value>
   </data>
-  <data name="NoSubscriptionsFound" xml:space="preserve">
-    <value>在使用者帳戶中找不到目前登入的訂用帳戶。</value>
+  <data name="MultipleServicesFound" xml:space="preserve">
+    <value>找到類型 {0} 的多個服務，預期只能有 1 個</value>
+  </data>
+  <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
+    <value>類型 {0} 的服務不能由　ExtensionLoader&lt;{1}&gt;　建立</value>
+  </data>
+  <data name="ServiceNotOfExpectedType" xml:space="preserve">
+    <value>類型　{0}　的服務與註冊的類型　{1}　不相容</value>
   </data>
 </root>

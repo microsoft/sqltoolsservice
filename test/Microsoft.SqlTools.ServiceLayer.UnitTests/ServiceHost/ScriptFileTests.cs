@@ -7,6 +7,8 @@
 
 using System;
 using System.Linq;
+using System.IO;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -28,12 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         {
             initialText ??= ScriptFileTests.query;
 
-            string ownerUri = System.IO.Path.GetTempFileName();
+            string ownerUri = Path.Combine(
+                Path.GetTempPath(),
+                $"{TestUtilities.GetSafeCurrentTestName()}_{Guid.NewGuid():N}.tmp");
 
             // Write the query text to a backing file
             lock (fileLock)
             {
-                System.IO.File.WriteAllText(ownerUri, initialText);
+                File.WriteAllText(ownerUri, initialText);
             }
 
             return new ScriptFile(ownerUri, ownerUri, initialText);

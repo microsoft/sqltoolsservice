@@ -4,7 +4,7 @@ WORKINGDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 dotnet restore $WORKINGDIR
 dotnet restore $WORKINGDIR../../src/Microsoft.SqlTools.ServiceLayer/project.json
-dotnet build $WORKINGDIR../../src/Microsoft.SqlTools.ServiceLayer\project.json
+dotnet build $WORKINGDIR../../src/Microsoft.SqlTools.ServiceLayer/project.json
 cd ..
 dotnet restore 
 dotnet build Microsoft.SqlTools.ServiceLayer.TestDriver/project.json

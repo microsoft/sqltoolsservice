@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,35 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
-
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -773,12 +772,16 @@
   </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Die Initialisierung für die Tabelle mit der ID "{0}" wurde nicht ordnungsgemäß ausgeführt.</value>
+    <comment>.
+ Parameters: 0 - tableId (string) </comment>
   </data>
   <data name="TableEditPathNotProvidedException" xml:space="preserve">
     <value>Der Pfad in den Tabellenänderungsinformationen darf nicht leer sein.</value>
   </data>
   <data name="InvalidTableEditPathException" xml:space="preserve">
     <value>Der Pfad "{0}" in den Tabellenänderungsinformationen ist für den Bearbeitungstyp "{1}" ungültig.</value>
+    <comment>.
+ Parameters: 0 - path (string), 1 - editType (string) </comment>
   </data>
   <data name="TableColumnIdentityGroupName" xml:space="preserve">
     <value>Identitätsspezifikation</value>
@@ -827,6 +830,8 @@
   </data>
   <data name="UnknownEnumString" xml:space="preserve">
     <value>Unbekannter Enumerationswert: {0}.</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Gibt an, ob die CHECK-Einschränkung aktiviert ist.</value>
@@ -1112,33 +1117,53 @@
   </data>
   <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>Dem Index „{0}“ sind keine Spalten zugeordnet.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>Für den Fremdschlüssel „{0}“ wurden keine Spalten angegeben.</value>
+    <comment>.
+ Parameters: 0 - foreignKeyName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
     <value>Die Spalte mit dem Namen „{0}“ wurde dem Index „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
     <value>Die Spalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
     <value>Die Fremdspalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
     <value>Der Name „{0}“ wird bereits von einer anderen Einschränkung verwendet. Zeilennummer: {1}.</value>
+    <comment>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
     <value>Der Name „{0}“ wird bereits von einer anderen Spalte verwendet. Zeilennummer: {1}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
     <value>Der Name „{0}“ wird bereits von einem anderen Index verwendet. Zeilennummer: {1}.</value>
+    <comment>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
     <value>Für die Edge-Einschränkung „{0}“ wurden keine Klauseln angegeben.</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
     <value>Das Paar „{0}“ ist bereits durch eine andere Klausel in der Edge-Einschränkung definiert. Zeilennummer: {1}.</value>
+    <comment>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
     <value>Die speicheroptimierte Tabelle muss über einen nicht gruppierten Primärschlüssel verfügen.</value>
@@ -1172,6 +1197,8 @@
   </data>
   <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>Doppelte Spaltennamen können im Primärschlüssel nicht verwendet werden. Spaltenname: {0}</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
     <value>Die speicheroptimierte Tabelle wird für diese Datenbank nicht unterstützt.</value>
@@ -1187,35 +1214,55 @@
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
     <value>Die Spalte mit dem Namen "{0}" wurde bereits in den Index "{1}" eingeschlossen. Zeilennummer: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
     <value>Die eingeschlossene Spalte mit dem Namen "{0}" war bereits Teil des Indexes "{1}" und kann nicht eingeschlossen werden. Zeilennummer: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden und darf nicht Nullwerte zulassen, um Teil eines Primärschlüssels zu sein.</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
     <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden, um Teil des Fremdschlüssels „{1}“ zu sein.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
     <value>Der Hashindex mit dem Namen "{0}" wird für eine nicht speicheroptimierte Tabelle nicht unterstützt.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
     <value>Der Hashindex "{0}" weist keine Bucketanzahl auf.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
     <value>Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index "{1}" bereits hinzugefügt. Zeilennummer: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Ich habe die Zusammenfassung gelesen und bin mir der potenziellen Risiken bewusst.</value>
   </data>
   <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
     <value>Die CREATE TABLE-Berechtigung wurde in der {0}-Datenbank verweigert.</value>
+    <comment>.
+ Parameters: 0 - db (string) </comment>
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>Die ALTER TABLE-Berechtigung wurde für die Tabelle "{0}" verweigert.</value>
+    <comment>.
+ Parameters: 0 - table (string) </comment>
   </data>
 </root>
