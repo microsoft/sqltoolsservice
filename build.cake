@@ -144,6 +144,7 @@ Task("InstallDotnet")
     .Does(() =>
 {
 	// Determine if `dotnet` is installed
+	var dotnetInstalled = true;
 	try
 	{
 		Run(dotnetcli, "--info");
@@ -152,6 +153,12 @@ Task("InstallDotnet")
 	catch(Win32Exception)
 	{
 		// If we get this exception, dotnet isn't installed
+		dotnetInstalled = false;
+	}
+
+	if (dotnetInstalled)
+	{
+		Information("dotnet is already installed; skipping download + install");
 		return;
 	}
 
