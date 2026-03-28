@@ -32,7 +32,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{B7D2
 		scripts\archiving.cake = scripts\archiving.cake
 		scripts\artifacts.cake = scripts\artifacts.cake
 		scripts\cake-bootstrap.ps1 = scripts\cake-bootstrap.ps1
-		scripts\cake-bootstrap.sh = scripts\cake-bootstrap.sh
 		scripts\packages.config = scripts\packages.config
 		scripts\runHelpers.cake = scripts\runHelpers.cake
 	EndProjectSection
