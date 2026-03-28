@@ -773,7 +773,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
-            currentChildren.Add(new FolderNode {
+            currentChildren.Add(new ServiceBrokerFolderNode {
                 NodeValue = SR.SchemaHierarchy_ServiceBroker,
                 NodePathName = (parent.GetContext() as SmoQueryContext).GroupBySchema ? FolderNode.GetSchemaGroupedDatabaseFolderNodePathName(NodeTypes.ServiceBroker) : null,
                 NodeTypeId = NodeTypes.ServiceBroker,
