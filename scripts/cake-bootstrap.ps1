@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 
 .SYNOPSIS
@@ -15,10 +16,6 @@ The build script target to run.
 The build configuration to use.
 .PARAMETER Verbosity
 Specifies the amount of information to be displayed.
-.PARAMETER WhatIf
-Performs a dry run of the build script.
-No tasks will be executed.
-
 .LINK
 http://cakebuild.net
 
@@ -29,8 +26,6 @@ Param(
     [string]$Script = "build.cake",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
     [string]$Verbosity = "Verbose",
-    [Alias("DryRun","Noop")]
-    [switch]$WhatIf,
     [switch]$SkipToolPackageRestore,
     [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
     [string[]]$ScriptArgs
@@ -80,12 +75,6 @@ function InstallOrUpdate-Tool {
 $CAKE_EXE = Get-ToolPath -ToolName "dotnet-cake"
 $T4_EXE = Get-ToolPath -ToolName "t4"
 
-# Is this a dry run?
-$UseDryRun = "";
-if($WhatIf.IsPresent) {
-    $UseDryRun = "-dryrun"
-}
-
 # Make sure tools folder exists
 if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
     Write-Host "Creating tools directory..."
@@ -116,10 +105,6 @@ $cakeArgs = @(
     "--verbosity",
     $Verbosity
 )
-
-if ($WhatIf.IsPresent) {
-    $cakeArgs += "--dryrun"
-}
 
 if ($ScriptArgs) {
     $cakeArgs += $ScriptArgs
