@@ -224,8 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         private void DetermineSqlDbType()
         {
             // Determine the SqlDbType
-            SqlDbType type;
-            if (Enum.TryParse(DataTypeName, true, out type))
+            if (Enum.TryParse(DataTypeName, true, out SqlDbType type))
             {
                 SqlDbType = type;
             }
@@ -243,9 +242,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                         SqlDbType = SqlDbType.VarBinary;
                         break;
                     case "sysname":
-                        SqlDbType = SqlDbType.NVarChar;
-                        break;
-                    case "json":
                         SqlDbType = SqlDbType.NVarChar;
                         break;
                     default:
@@ -299,6 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                 case "json":
                     IsChars = true;
                     IsLong = true;
+                    IsJson = true;
                     break;
                 case "binary":
                 case "image":

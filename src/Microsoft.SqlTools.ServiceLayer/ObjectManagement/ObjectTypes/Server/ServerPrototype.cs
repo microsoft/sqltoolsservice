@@ -702,7 +702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             bool alterServer = false;
             if (this.currentState.FullTextUpgradeOption != this.originalState.FullTextUpgradeOption)
             {
-                server.FullTextService.CatalogUpgradeOption = (FullTextCatalogUpgradeOption)Enum.Parse(typeof(FullTextCatalogUpgradeOption), this.currentState.FullTextUpgradeOption);
+                server.FullTextService.CatalogUpgradeOption = Enum.Parse<FullTextCatalogUpgradeOption>(this.currentState.FullTextUpgradeOption);
                 alterServer = true;
             }
             return alterServer;

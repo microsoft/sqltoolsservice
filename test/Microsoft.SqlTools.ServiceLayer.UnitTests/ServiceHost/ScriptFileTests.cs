@@ -233,9 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         [Test]
         public void ThrowsExceptionWithEditOutsideOfRange()
         {
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     AssertFileChange(
                         "first\r\nsecond\r\nREMOVE\r\nTHESE\r\nLINES\r\nthird",
@@ -406,9 +404,7 @@ First line
         public void ThrowsWhenPositionOutOfRange()
         {
             // Less than line range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),
@@ -416,9 +412,7 @@ First line
                 });
 
             // Greater than line range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),
@@ -426,9 +420,7 @@ First line
                 });
 
             // Less than column range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),
@@ -436,9 +428,7 @@ First line
                 });
 
             // Greater than column range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),

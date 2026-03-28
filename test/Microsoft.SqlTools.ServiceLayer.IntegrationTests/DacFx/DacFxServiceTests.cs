@@ -931,8 +931,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
             Assert.That(options.ObjectTypesDictionary, Is.Not.Null, "Object types dictionary is empty");
 
             // Verify that the objects dictionary has all the item from Enum
-            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), @"ObjectTypesDictionary is missing these objectTypes: {0}",
-                string.Join(", ", Enum.GetNames(typeof(ObjectType)).Except(options.ObjectTypesDictionary.Keys)));
+            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames<ObjectType>().Length), @"ObjectTypesDictionary is missing these objectTypes: {0}",
+                string.Join(", ", Enum.GetNames<ObjectType>().Except(options.ObjectTypesDictionary.Keys)));
 
             // Verify the options in the objects dictionary exists in the ObjectType Enum
             foreach (var objTypeRow in options.ObjectTypesDictionary)
