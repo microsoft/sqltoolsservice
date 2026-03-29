@@ -54,16 +54,6 @@ Enables .NET Framework 4.7.2 support across projects and fixes conditional compi
 - Namespace changed from `Microsoft.SqlTools.ServiceLayer.DacFx.Contracts` → `Microsoft.SqlTools.SqlCore.DacFx.Contracts`
 
 **Content additions:**
-- `NormalizePublishDefaults()` method — Resets STS-specific deployment overrides back to DacFx native defaults for external tool integration:
-  ```
-  DropObjectsNotInSource         → false
-  IgnorePermissions              → true
-  IgnoreRoleMembership           → true
-  IgnoreRouteLifetime            → true
-  IgnoreLoginSids                → true
-  IgnoreNotForReplication         → true
-  DoNotAlterReplicatedObjects    → true
-  ```
 - `GetDefaultSchemaCompareOptions()` static factory method — Returns `DeploymentOptions` with schema-compare-specific defaults (used by the new options endpoint)
 
 ### 2.2 Move `DacFxUtils` to `SqlCore`

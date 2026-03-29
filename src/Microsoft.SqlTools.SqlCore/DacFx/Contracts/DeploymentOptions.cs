@@ -313,18 +313,5 @@ namespace Microsoft.SqlTools.SqlCore.DacFx.Contracts
             return result;
         }
 
-        /// <summary>
-        /// Normalizes the 7 overridden options for Publish/Script SqlPackage command generation.
-        /// </summary>
-        public void NormalizePublishDefaults()
-        {
-            BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = false;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = true;
-            BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = true;
-        }
     }
 }
