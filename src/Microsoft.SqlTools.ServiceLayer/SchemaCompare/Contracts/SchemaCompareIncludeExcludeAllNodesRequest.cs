@@ -9,24 +9,17 @@ using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
-    /// Parameters for a schema compare include specific node request
+    /// Parameters for a schema compare include/exclude all nodes request.
+    /// Extends SqlCore's version with TaskExecutionMode.
     /// </summary>
-    public class SchemaCompareIncludeExcludeAllNodesParams
+    public class SchemaCompareIncludeExcludeAllNodesParams : CoreContracts.SchemaCompareIncludeExcludeAllNodesParams
     {
-        /// <summary>
-        /// Operation id of the schema compare operation
-        /// </summary>
-        public string OperationId { get; set; }
-
-        /// <summary>
-        /// Indicator for include or exclude request
-        /// </summary>
-        public bool IncludeRequest { get; set; }
-
         /// <summary>
         /// Execution mode for the operation. Default is execution
         /// </summary>

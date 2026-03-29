@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using DiffEntry = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DiffEntry;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {

@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
+using Microsoft.SqlTools.SqlCore.DacFx;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
@@ -30,13 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
             = new Dictionary<CommandLineToolAction, Action<SqlPackageCommandParams, SqlPackageCommandBuilder>>
             {
                 {
-                    CommandLineToolAction.Publish, ApplyDeployOptions
+                    CommandLineToolAction.Publish, (p, b) => ApplyDeployOptions(p, b, normalizeDefaults: true)
                 },
                 {
-                    CommandLineToolAction.Script, ApplyDeployOptions
+                    CommandLineToolAction.Script, (p, b) => ApplyDeployOptions(p, b, normalizeDefaults: true)
                 },
                 {
-                    CommandLineToolAction.DeployReport, ApplyDeployOptions
+                    CommandLineToolAction.DeployReport, (p, b) => ApplyDeployOptions(p, b, normalizeDefaults: false)
                 },
                 {
                     CommandLineToolAction.Extract, (p, b) =>
@@ -72,10 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// </summary>
         /// <param name="p">Parameters containing deployment options</param>
         /// <param name="b">Builder to apply options to</param>
-        private static void ApplyDeployOptions(SqlPackageCommandParams p, SqlPackageCommandBuilder b)
+        /// <param name="normalizeDefaults">Whether to normalize STS-overridden defaults to DacFx native defaults</param>
+        private static void ApplyDeployOptions(SqlPackageCommandParams p, SqlPackageCommandBuilder b, bool normalizeDefaults)
         {
             if (p.DeploymentOptions != null)
             {
+                if (normalizeDefaults) p.DeploymentOptions.NormalizePublishDefaults();
                 b.WithDeployOptions(DacFxUtils.CreateDeploymentOptions(p.DeploymentOptions));
             }
         }

@@ -15,6 +15,9 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
+using DiffEntry = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DiffEntry;
+using SchemaCompareEndpointType = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareEndpointType;
+using SchemaCompareObjectId = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareObjectId;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
