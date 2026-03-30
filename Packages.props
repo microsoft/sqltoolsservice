@@ -5,6 +5,7 @@
     <PackageReference Update="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Update="System.Reactive.Core" Version="6.0.0" />
 
+    <PackageReference Update="Azure.Core" Version="1.41.0" />
     <!-- Deprecated: TODO Migrate to Azure.Core -->
     <PackageReference Update="Microsoft.Rest.ClientRuntime" Version="2.3.21" />
     <!-- Deprecated: TODO Migrate to Azure.Core -->
@@ -74,18 +75,17 @@
 
   <!-- The following packages always need to be updated to the current .NET SDK version. -->
   <ItemGroup>
-    <PackageReference Update="Azure.Core" Version="1.41.0" />
-    <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
-    <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
-    <PackageReference Update="System.Composition" Version="8.0.0" />
-    <PackageReference Update="System.Configuration.ConfigurationManager" Version="9.0.4" />
-    <PackageReference Update="System.Drawing.Common" Version="5.0.3" />
-    <PackageReference Update="System.IO.Packaging" Version="9.0.5" />
-    <PackageReference Update="System.Runtime.Caching" Version="9.0.4" />
-    <PackageReference Update="System.Security.Permissions" Version="8.0.0" />
-    <PackageReference Update="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Update="System.Text.Encodings.Web" Version="9.0.5" />
-    <PackageReference Update="System.Text.Json" Version="9.0.5" />
+    <PackageReference Update="Microsoft.Extensions.DependencyModel" Version="10.0.5" />
+    <PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.5" />
+    <PackageReference Update="System.Composition" Version="10.0.5" />
+    <PackageReference Update="System.Configuration.ConfigurationManager" Version="10.0.5" />
+    <PackageReference Update="System.Drawing.Common" Version="10.0.5" />
+    <PackageReference Update="System.IO.Packaging" Version="10.0.5" />
+    <PackageReference Update="System.Runtime.Caching" Version="10.0.5" />
+    <PackageReference Update="System.Security.Permissions" Version="10.0.5" />
+    <PackageReference Update="System.Text.Encoding.CodePages" Version="10.0.5" />
+    <PackageReference Update="System.Text.Encodings.Web" Version="10.0.5" />
+    <PackageReference Update="System.Text.Json" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>

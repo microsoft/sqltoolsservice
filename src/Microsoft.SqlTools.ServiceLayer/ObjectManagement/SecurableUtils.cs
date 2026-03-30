@@ -74,9 +74,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         // This is a set of special database roles exist only in the virtual master database of SQL DB. 
         // https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=azuresqldb-current
-        public static HashSet<string> SpecialDbRolesInSqlDbMaster = new HashSet<string>(){"dbmanager", "loginmanager"};
+        public static HashSet<string> SpecialDbRolesInSqlDbMaster = new HashSet<string>() { "dbmanager", "loginmanager" };
 
-        public static SecurableTypeMetadata[] GetSecurableTypeMetadata(SqlObjectType objectType, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+        public static SecurableTypeMetadata[] GetSecurableTypeMetadata(SqlObjectType objectType, Version serverVersion, string databaseName, DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             List<SecurableTypeMetadata> res = new List<SecurableTypeMetadata>();
             switch (objectType)
@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 case SqlObjectType.ApplicationRole:
                 case SqlObjectType.DatabaseRole:
                 case SqlObjectType.User:
-                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, databaseEngineType == DatabaseEngineType.SqlAzureDatabase ? new SearchableObjectType[] {SearchableObjectType.ServiceQueue} : null, serverVersion, databaseName, databaseEngineType, engineEdition);
+                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, databaseEngineType == DatabaseEngineType.SqlAzureDatabase ? new SearchableObjectType[] { SearchableObjectType.ServiceQueue } : null, serverVersion, databaseName, databaseEngineType, engineEdition);
                     break;
                 default:
                     break;
@@ -96,9 +96,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[]? excludeList, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[]? excludeList, Version serverVersion, string databaseName, DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
-            foreach(SearchableObjectType t in supportedTypes)
+            foreach (SearchableObjectType t in supportedTypes)
             {
                 if (t == SearchableObjectType.LastType || (excludeList != null && excludeList.Contains(t)))
                 {
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 principal = CreatePrincipal(principalExists, principalType, o, null, dataContainer);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return new SecurablePermissions[0];
             }
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// Form the xml to query effective permissions data 
         /// </summary>
         /// <returns></returns>
-        private static XmlDocument ReadEffectivePermissionsXml(Securable securable, Principal principal )
+        private static XmlDocument ReadEffectivePermissionsXml(Securable securable, Principal principal)
         {
             if (securable != null && principal != null)
             {
@@ -268,7 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (principalExists)
             {
-                NamedSmoObject obj = (NamedSmoObject) o;
+                NamedSmoObject obj = (NamedSmoObject)o;
                 return new Principal(obj, dataContainer.ConnectionInfo);
             }
             else
@@ -305,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                               principalType,
                                               principalExists,
                                               dataContainer.ConnectionInfo,
-                                              serverVersion, 
+                                              serverVersion,
                                               databaseEngineType,
                                               databaseEngineEdition);
             }
@@ -370,7 +370,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private static SearchableObjectType ConvertStringToSearchableObjectType(string typeStr)
         {
-            foreach(SearchableObjectType t in Enum.GetValues(typeof(SearchableObjectType)))
+            foreach (SearchableObjectType t in Enum.GetValues<SearchableObjectType>())
             {
                 if (t == SearchableObjectType.LastType)
                 {
@@ -523,7 +523,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     var securable = FindMatchedSecurable(securables, secPerm.Name) ?? principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, secPerm.Schema, dataContainer.ConnectionInfo));
                     var states = principal.GetPermissionStates(securable);
-                    ApplyPermissionStates(secPerm.Permissions, states);                
+                    ApplyPermissionStates(secPerm.Permissions, states);
                 }
 
                 var newSecurableNames = securablePermissions.Select(s => s.Name).ToHashSet();
@@ -594,8 +594,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         internal static IEnumerable<SecurableType> GetSchemaTypes(Server server)
         {
-            return Enum.GetValues(typeof(SecurableType))
-                .Cast<SecurableType>()
+            return Enum.GetValues<SecurableType>()
                 .Where(
                     t =>
                         t.IsValidSchemaBoundSecurable(

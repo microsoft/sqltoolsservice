@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 serverViewInfo.ObjectInfo = serverObjInfo;
                 serverViewInfo.LanguageOptions = (LanguageUtils.GetDefaultLanguageOptions(dataContainer)).Select(element => element.Language.Alias).ToArray();
-                serverViewInfo.FullTextUpgradeOptions = Enum.GetNames(typeof(FullTextCatalogUpgradeOption)).ToArray();
+                serverViewInfo.FullTextUpgradeOptions = Enum.GetNames<FullTextCatalogUpgradeOption>().ToArray();
             }
             var context = new ServerViewContext(requestParams);
             return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });

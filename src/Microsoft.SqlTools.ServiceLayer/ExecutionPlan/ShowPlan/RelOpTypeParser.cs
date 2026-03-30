@@ -493,12 +493,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
                     if (counter.ActualExecutions > 0)
                     {
-                        actualExecutionModeValue = Enum.GetName(typeof(ExecutionModeType), counter.ActualExecutionMode);
+                        actualExecutionModeValue = Enum.GetName(counter.ActualExecutionMode);
                     }
 
                     if (counter.ActualJoinTypeSpecified)
                     {
-                        actualJoinTypeValue = Enum.GetName(typeof(PhysicalOpType), counter.ActualJoinType);
+                        actualJoinTypeValue = Enum.GetName(counter.ActualJoinType);
                     }
 
                     if (counter.IsInterleavedExecuted)
