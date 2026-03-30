@@ -149,7 +149,7 @@ jobs:
 
       - name: Publish integration test report
         if: always()
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         with:
           name: Integration Tests
           path: TestResults/*.trx
