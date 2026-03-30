@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower()
+
+# Set correct environment variable in case non-Windows users are running cross-plat `pwsh`
 if ($IsMacOS) {
     $Env:SQLTOOLSSERVICE_PACKAGE_OSNAME = "osx-$arch"
 } elseif ($IsLinux) {

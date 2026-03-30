@@ -189,7 +189,7 @@ steps:
   displayName: 'Package nuspec projects'
 
 - pwsh: |
-    dotnet tool run dotnet-cake -- build.cake --target=dotnetpackservicetools
+    dotnet tool run dotnet-cake -- build.cake --target=DotnetPackServiceTools
   displayName: 'Build and Package service tool projects'
   env:
     BUILD_DOTNET_TOOL: "true"

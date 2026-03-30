@@ -10,6 +10,7 @@ case "$ARCH" in
     x86_64)        ARCH="x64" ;;
     aarch64|arm64) ARCH="arm64" ;;
     armv7l)        ARCH="arm" ;;
+    i386|i486|i586|i686)       ARCH="x86"  ;;
 esac
 
 case "$(uname -s)" in
