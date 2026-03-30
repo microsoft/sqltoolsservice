@@ -14,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -58,7 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeAllNodesRequest.Type, this.HandleSchemaCompareIncludeExcludeAllNodesRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareSaveScmpRequest.Type, this.HandleSchemaCompareSaveScmpRequest, true);
-            serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest, true);
         }
 
         /// <summary>
@@ -410,27 +408,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
             });
             return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Handles request for schema compare default options
-        /// </summary>
-        internal async Task HandleSchemaCompareGetDefaultOptionsRequest(SchemaCompareGetOptionsParams parameters, RequestContext<SchemaCompareOptionsResult> requestContext)
-        {
-            try
-            {
-                SchemaCompareOptionsResult result = new SchemaCompareOptionsResult()
-                {
-                    DefaultDeploymentOptions = DeploymentOptions.GetDefaultSchemaCompareOptions(),
-                    Success = true,
-                    ErrorMessage = null
-                };
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
         }
 
         private SqlTaskManager SqlTaskManagerInstance

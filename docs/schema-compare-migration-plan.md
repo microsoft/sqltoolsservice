@@ -54,7 +54,6 @@ Enables .NET Framework 4.7.2 support across projects and fixes conditional compi
 - Namespace changed from `Microsoft.SqlTools.ServiceLayer.DacFx.Contracts` → `Microsoft.SqlTools.SqlCore.DacFx.Contracts`
 
 **Content additions:**
-- `GetDefaultSchemaCompareOptions()` static factory method — Returns `DeploymentOptions` with schema-compare-specific defaults (used by the new options endpoint)
 
 ### 2.2 Move `DacFxUtils` to `SqlCore`
 
@@ -145,14 +144,6 @@ Existing ServiceLayer contract files are updated to reference SqlCore base types
 | `SchemaComparePublishDatabaseChangesRequest.cs` | `SchemaComparePublishDatabaseChangesParams` extends SqlCore version, adds `TaskExecutionMode` |
 | `SchemaComparePublishProjectChangesRequest.cs` | `SchemaComparePublishProjectChangesParams` extends SqlCore version, adds `TaskExecutionMode` |
 | `SchemaCompareSaveScmpRequest.cs` | Uses SqlCore types |
-| **`SchemaCompareOptionsRequest.cs` (NEW)** | New contract for `schemaCompare/getDefaultOptions` endpoint |
-
-### 2.6 Add Schema Compare Options Endpoint
-
-New `schemaCompare/getDefaultOptions` endpoint:
-- **Contract:** `SchemaCompareGetDefaultOptionsRequest` in `SchemaCompareOptionsRequest.cs`
-- **Handler:** `HandleSchemaCompareGetDefaultOptionsRequest` added to `SchemaCompareService.cs`
-- Returns `DeploymentOptions.GetDefaultSchemaCompareOptions()` with schema-compare-specific defaults
 
 ### 2.7 Update Using Statements
 

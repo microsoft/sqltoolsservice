@@ -295,14 +295,6 @@ namespace Microsoft.SqlTools.SqlCore.DacFx.Contracts
         }
 
         /// <summary>
-        /// Returns a new <see cref="DeploymentOptions"/> instance with default schema compare settings.
-        /// </summary>
-        public static DeploymentOptions GetDefaultSchemaCompareOptions()
-        {
-            return new DeploymentOptions();
-        }
-
-        /// <summary>
         /// Returns a new <see cref="DeploymentOptions"/> instance with default publish settings, excluding DatabaseScopedCredentials from the exclude list.
         /// </summary>
         public static DeploymentOptions GetDefaultPublishOptions()
