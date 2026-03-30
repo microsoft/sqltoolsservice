@@ -7,6 +7,12 @@
       "commands": [
         "dotnet-cake"
       ]
+    },
+    "dotnet-t4": {
+      "version": "3.0.0",
+      "commands": [
+        "t4"
+      ]
     }
   }
 }

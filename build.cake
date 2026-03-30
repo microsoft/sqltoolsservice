@@ -5,7 +5,6 @@
 #load "scripts/artifacts.cake"
 #load "scripts/xliff.cake"
 #tool "nuget:?package=Microsoft.Data.Tools.StringResourceTool&version=4.3.0"
-#tool "dotnet:?package=dotnet-t4&version=3.0.0"
 
 using System.ComponentModel;
 using System.Net;
@@ -781,9 +780,13 @@ Task("CodeGen")
        var t4Files = GetFiles(sourceFolder + "/**/*.tt");
        foreach(var t4Template in t4Files)
        {
-              var exitCode = StartProcess("t4", new ProcessSettings
+              var exitCode = StartProcess("dotnet", new ProcessSettings
               {
                   Arguments = new ProcessArgumentBuilder()
+                      .Append("tool")
+                      .Append("run")
+                      .Append("t4")
+                      .Append("--")
                       .AppendQuoted(t4Template.FullPath)
               });
 
