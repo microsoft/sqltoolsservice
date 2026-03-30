@@ -72,10 +72,8 @@ steps:
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
-- pwsh: |
-    dotnet tool install --tool-path ./.tools Cake.Tool
-    dotnet tool install --tool-path ./.tools dotnet-t4
-  displayName: 'Install Cake tools'
+- script: dotnet tool restore
+  displayName: 'Restore .NET tools'
 
 - pwsh: |
     $projectFile = '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
@@ -91,7 +89,7 @@ steps:
   condition: eq(variables['Codeql.enabled'], 'True')
 
 - pwsh: |
-    ./.tools/dotnet-cake build.cake --target=all
+    dotnet tool run dotnet-cake -- build.cake --target=all
   displayName: 'Run Cake build'
 
 - task: DotNetCoreCLI@2
@@ -187,11 +185,11 @@ steps:
     arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - pwsh: |
-    ./.tools/dotnet-cake build.cake --target=NugetPackNuspec
+    dotnet tool run dotnet-cake -- build.cake --target=NugetPackNuspec
   displayName: 'Package nuspec projects'
 
 - pwsh: |
-    ./.tools/dotnet-cake build.cake --target=dotnetpackservicetools
+    dotnet tool run dotnet-cake -- build.cake --target=dotnetpackservicetools
   displayName: 'Build and Package service tool projects'
   env:
     BUILD_DOTNET_TOOL: "true"
