@@ -200,7 +200,6 @@ All ServiceLayer files that reference `DeploymentOptions` or `DacFxUtils` are up
 - ✅ Unit tests compile
 - ✅ Integration tests compile
 - ✅ No behavioral changes to existing Schema Compare operations
-- ✅ New `schemaCompare/getDefaultOptions` endpoint works
 
 ---
 
