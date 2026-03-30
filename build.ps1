@@ -7,5 +7,9 @@ if ($IsMacOS) {
 } else {
     $Env:SQLTOOLSSERVICE_PACKAGE_OSNAME = "win-$arch"
 }
-./scripts/cake-bootstrap.ps1 @args
+
+dotnet tool restore
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+dotnet tool run dotnet-cake -- build.cake @args
 exit $LASTEXITCODE

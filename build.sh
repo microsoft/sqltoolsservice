@@ -1,10 +1,22 @@
 #!/bin/bash
-# Handle too many files on osx
-[ "$(uname)" == "Darwin" ] && ulimit -n 4096
+set -e
 
-if ! command -v pwsh &>/dev/null; then
-    echo "Error: pwsh (PowerShell) is required but not found. Install it from https://aka.ms/powershell"
-    exit 1
-fi
+# Handle too many open files on macOS
+[ "$(uname)" = "Darwin" ] && ulimit -n 4096
 
-pwsh ./build.ps1 "$@"
+# Map uname -m values to .NET RID architecture suffixes
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64)        ARCH="x64" ;;
+    aarch64|arm64) ARCH="arm64" ;;
+    armv7l)        ARCH="arm" ;;
+esac
+
+case "$(uname -s)" in
+    Darwin) export SQLTOOLSSERVICE_PACKAGE_OSNAME="osx-$ARCH" ;;
+    Linux)  export SQLTOOLSSERVICE_PACKAGE_OSNAME="linux-$ARCH" ;;
+    *)      export SQLTOOLSSERVICE_PACKAGE_OSNAME="win-$ARCH" ;;
+esac
+
+dotnet tool restore
+dotnet tool run dotnet-cake -- build.cake "$@"
