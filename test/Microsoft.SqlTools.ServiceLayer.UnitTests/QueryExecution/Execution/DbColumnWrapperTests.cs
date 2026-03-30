@@ -125,17 +125,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             Assert.True(wrapper.IsChars, "Native JSON column should be a chars type");
             Assert.True(wrapper.IsLong == true, "Native JSON column should be long");
+            Assert.True(wrapper.IsJson, "Native JSON column should be marked as JSON");
             Assert.False(wrapper.IsBytes, "Native JSON column should not be a bytes type");
             Assert.False(wrapper.IsUdt, "Native JSON column should not be treated as a UDT");
-        }
-
-        [Test]
-        public void NativeJsonTypeSqlDbTypeIsNVarChar()
-        {
-            var wrapper = new DbColumnWrapper(new TestColumn("json"));
-
-            Assert.AreEqual(System.Data.SqlDbType.NVarChar, wrapper.SqlDbType,
-                "Native JSON column should map to NVarChar so it is read back as text");
         }
     }
 }

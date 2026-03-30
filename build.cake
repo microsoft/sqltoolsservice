@@ -228,16 +228,16 @@ Task("BuildTest")
             var project = pair.Key;
             var projectFolder = System.IO.Path.Combine(testFolder, project);
             var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            ExitStatus exitStatus;
             using (var logWriter = new StreamWriter(logPath)) {
-                var exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
+                exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
                     });
-
-                ExceptionOnErrorWithLog(exitStatus, $"Building test {project} failed for {framework}. See {logPath} for more details.", logPath);
             }
+            ExceptionOnErrorWithLog(exitStatus, $"Building test project {project} failed for {framework}. See {logPath} for more details.", logPath);
 
         }
     }
@@ -257,16 +257,16 @@ Task("BuildFx")
         {
             var projectFolder = System.IO.Path.Combine(sourceFolder, project.Name);
             var logPath = System.IO.Path.Combine(logFolder, $"{project.Name}-{framework}-build.log");
+            ExitStatus exitStatus;
             using (var logWriter = new StreamWriter(logPath)) {
-                var exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
                     });
-
-                ExceptionOnErrorWithLog(exitStatus, $"Building test {project.Name} failed for {framework}. See {logPath} for more details.", logPath);
             }
+            ExceptionOnErrorWithLog(exitStatus, $"Building project {project.Name} failed for {framework}. See {logPath} for more details.", logPath);
         }
     }
 });
