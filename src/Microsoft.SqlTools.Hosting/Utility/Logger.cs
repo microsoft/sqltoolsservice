@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.Utility
             int uniqueId;
             try
             {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 uniqueId = Environment.ProcessId;
 #else
                 uniqueId = Process.GetCurrentProcess().Id;

@@ -32,7 +32,7 @@ internal static class KernelJsonSchemaBuilder
         TreatNullObliviousAsNonNullable = true,
     };
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [RequiresUnreferencedCode("Uses reflection to generate JSON schema, making it incompatible with AOT scenarios.")]
     [RequiresDynamicCode("Uses reflection to generate JSON schema, making it incompatible with AOT scenarios.")]
 #endif
@@ -68,7 +68,7 @@ internal static class KernelJsonSchemaBuilder
         return KernelJsonSchema.Parse(jsonObj.ToJsonString(options));
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [RequiresUnreferencedCode("Uses JsonStringEnumConverter and DefaultJsonTypeInfoResolver classes, making it incompatible with AOT scenarios.")]
     [RequiresDynamicCode("Uses JsonStringEnumConverter and DefaultJsonTypeInfoResolver classes, making it incompatible with AOT scenarios.")]
 #endif
