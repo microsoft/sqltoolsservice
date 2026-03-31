@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "cake.tool": {
+      "version": "6.1.0",
+      "commands": [
+        "dotnet-cake"
+      ]
+    },
+    "dotnet-t4": {
+      "version": "3.0.0",
+      "commands": [
+        "t4"
+      ]
+    }
+  }
+}
