@@ -42,7 +42,8 @@
       "Frameworks": [
         "net472",
         "net8.0"
-      ]
+      ],
+      "SkipPack": true
     }
   ],
   "PackageProjects": [
