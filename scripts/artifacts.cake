@@ -1,4 +1,4 @@
-#load "runhelpers.cake"
+#load "runHelpers.cake"
 
 /// <summary>
 ///  Generate the scripts which target the SQLTOOLSSERVICE binaries.

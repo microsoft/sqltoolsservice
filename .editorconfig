@@ -395,6 +395,18 @@ csharp_style_prefer_top_level_statements = true:silent
 # IDE0251: Make member 'readonly'
 dotnet_diagnostic.IDE0251.severity = warning
 
+# IDE0350: Use implicitly typed lambda
+dotnet_diagnostic.IDE0350.severity = suggestion
+
+# CA1872: Prefer 'Convert.ToHexString' and 'Convert.ToHexStringLower' over call chains based on 'BitConverter.ToString'
+dotnet_diagnostic.CA1872.severity = warning
+
+# IDE0330: Use 'System.Threading.Lock'
+dotnet_diagnostic.IDE0330.severity = warning
+
+# IDE0370: Remove unnecessary suppression
+dotnet_diagnostic.IDE0370.severity = warning
+
 [*.{cs,vb}]
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
@@ -412,3 +424,9 @@ tab_width = 4
 indent_size = 4
 end_of_line = crlf
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
+
+# IDE0306: Simplify collection initialization
+dotnet_diagnostic.IDE0306.severity = suggestion
+
+# IDE0270: Use coalesce expression
+dotnet_diagnostic.IDE0270.severity = suggestion

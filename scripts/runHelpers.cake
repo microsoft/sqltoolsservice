@@ -198,8 +198,20 @@ void PrintLogTail(string logPath, int maxLines = 200)
     Information("Showing last {0} lines from {1}", maxLines, logPath);
     Information("----- LOG TAIL BEGIN -----");
 
-    var logLines = System.IO.File.ReadLines(logPath).ToList();
-    foreach (var line in logLines.Skip(System.Math.Max(0, logLines.Count - maxLines)))
+    var tailLines = new Queue<string>();
+
+    // Read through the log file and keep only the last `maxLines` lines in memory
+    // instead of loading the entire log
+    foreach (var line in System.IO.File.ReadLines(logPath))
+    {
+        tailLines.Enqueue(line);
+        if (tailLines.Count > maxLines)
+        {
+            tailLines.Dequeue();
+        }
+    }
+
+    foreach (var line in tailLines)
     {
         Information("{0}", line);
     }

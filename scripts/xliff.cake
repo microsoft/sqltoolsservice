@@ -6,6 +6,22 @@ using System.Xml.Linq;
 var xliffNamespace = (XNamespace)"urn:oasis:names:tc:xliff:document:1.2";
 var xmlNamespace = (XNamespace)"http://www.w3.org/XML/1998/namespace";
 
+/// <summary>
+/// Rewrites a text file in place with CRLF line endings so that generated
+/// localization files are identical regardless of the platform running the build.
+/// </summary>
+void NormalizeToCrlf(string filePath)
+{
+    if (!System.IO.File.Exists(filePath)) return;
+    var content = System.IO.File.ReadAllText(filePath, System.Text.Encoding.UTF8);
+    // Strip UTF-8 BOM character if SRGen emitted one — committed files don't have it.
+    if (content.Length > 0 && content[0] == '\uFEFF')
+        content = content.Substring(1);
+    var normalized = content.Replace("\r\n", "\n").Replace("\n", "\r\n");
+    // Write with explicit no-BOM UTF-8 so the encoder doesn't re-add the preamble.
+    System.IO.File.WriteAllText(filePath, normalized, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+}
+
 XElement CreateResHeader(string name, string value)
 {
     return new XElement("resheader",

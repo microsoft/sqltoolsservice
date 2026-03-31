@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
                     $"DisplayDescription should not be null, empty, or whitespace for {rule.RuleId}"
                 );
                 Assert.IsTrue(
-                    System.Enum.IsDefined(typeof(SqlRuleProblemSeverity), rule.Severity),
+                    System.Enum.IsDefined(rule.Severity),
                     $"Severity should be a defined {nameof(SqlRuleProblemSeverity)} value for {rule.RuleId}"
                 );
             }

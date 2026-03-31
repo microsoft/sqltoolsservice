@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts
         {
             get
             {
-                return string.IsNullOrWhiteSpace(Platform) ? ExternalLanguagePlatform.None : (ExternalLanguagePlatform)Enum.Parse(typeof(ExternalLanguagePlatform), Platform, true);
+                return string.IsNullOrWhiteSpace(Platform) ? ExternalLanguagePlatform.None : Enum.Parse<ExternalLanguagePlatform>(Platform, true);
             }
         }
 

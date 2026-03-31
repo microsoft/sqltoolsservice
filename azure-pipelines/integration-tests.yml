@@ -35,14 +35,12 @@ steps:
       Write-Host "##vso[task.setvariable variable=sqlAzure_password;issecret=true]$sqlPassword"
     displayName: Generate SQL authentication password
 
-  - pwsh: |
-      dotnet tool install --tool-path ./.tools Cake.Tool
-      dotnet tool install --tool-path ./.tools dotnet-t4
-    displayName: Install Cake tools
+  - script: dotnet tool restore
+    displayName: Restore .NET tools
 
   - pwsh: |
-      ./.tools/dotnet-cake build.cake --target=SRGen
-      ./.tools/dotnet-cake build.cake --target=CodeGen
+      dotnet tool run dotnet-cake -- build.cake --target=SRGen
+      dotnet tool run dotnet-cake -- build.cake --target=CodeGen
     displayName: Generate code
 
   - pwsh: |

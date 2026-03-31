@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -42,20 +42,18 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "sqlOnPrem_password=$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "sqlAzure_password=$sqlPassword"
 
-      - name: Install Cake tools
-        shell: pwsh
-        run: |
-          dotnet tool install --tool-path ./.tools Cake.Tool
-          dotnet tool install --tool-path ./.tools dotnet-t4
+      - name: Restore .NET tools
+        run: dotnet tool restore
 
-      - name: Build repository
+      - name: Generate code
         shell: pwsh
         run: |
-          ./.tools/dotnet-cake build.cake --target=all
+          dotnet tool run dotnet-cake -- build.cake --target=SRGen
+          dotnet tool run dotnet-cake -- build.cake --target=CodeGen
 
       - name: Upload build logs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cake-build-logs
           path: artifacts/logs
@@ -149,7 +147,7 @@ jobs:
 
       - name: Publish integration test report
         if: always()
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         with:
           name: Integration Tests
           path: TestResults/*.trx
@@ -158,7 +156,7 @@ jobs:
 
       - name: Upload integration test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: integration-test-results
           path: TestResults/*.trx

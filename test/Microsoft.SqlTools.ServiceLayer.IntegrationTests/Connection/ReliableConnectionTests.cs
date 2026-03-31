@@ -854,7 +854,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Test]
         public void SetLockAndCommandTimeoutThrowsOnNull()
         {
-            Assert.Throws(typeof(ArgumentNullException), () => ReliableConnectionHelper.SetLockAndCommandTimeout(null));
+            Assert.Throws<ArgumentNullException>(() => ReliableConnectionHelper.SetLockAndCommandTimeout(null));
         }
 
         [Test]
