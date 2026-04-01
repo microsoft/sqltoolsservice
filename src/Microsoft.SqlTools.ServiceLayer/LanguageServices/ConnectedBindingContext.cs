@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 catch
                 {
                     // There's nothing else we can do so just default to the highest available version
-                    compatLevel = Enum.GetValues(typeof(SMO.CompatibilityLevel)).Cast<SMO.CompatibilityLevel>().Max();
+                    compatLevel = Enum.GetValues<SMO.CompatibilityLevel>().Cast<SMO.CompatibilityLevel>().Max();
                     Logger.Information($"Failed to get compat level for binding context from querying server - using default of {compatLevel}");
                 }
 

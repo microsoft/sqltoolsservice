@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (configAction != ConfigAction.Drop)
             {
                 // Create data structures
-                int length = Enum.GetValues(typeof(ProxyPrincipalType)).Length;
+                int length = Enum.GetValues<ProxyPrincipalType>().Length;
                 this.principals = new ArrayList[length];
                 for (int i = 0; i < length; ++i)
                 {

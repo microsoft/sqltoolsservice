@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     this.fullTextIndexingEnabled = true;
                 }
 
-                var compatLevelInt = Enum.GetValues(typeof(CompatibilityLevel)).Cast<int>().OrderBy(c => c).ToArray();
+                var compatLevelInt = Enum.GetValues<CompatibilityLevel>().Cast<int>().OrderBy(c => c).ToArray();
                 // SqlServerVersion uses the Information.VersionMajor property which does get vbumped for Azure DB when it adds a new compat level
                 if (!compatLevelInt.Contains(context.SqlServerVersion * 10))
                 {

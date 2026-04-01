@@ -877,7 +877,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     {
                         RestoreItemSource itemSource = new RestoreItemSource();
                         itemSource.RestoreItemLocation = Convert.ToString(mediafamily.Tables[0].Rows[j]["PhysicalDeviceName"], System.Globalization.CultureInfo.InvariantCulture);
-                        BackupDeviceType backupDeviceType = (BackupDeviceType)Enum.Parse(typeof(BackupDeviceType), mediafamily.Tables[0].Rows[j]["BackupDeviceType"].ToString());
+                        BackupDeviceType backupDeviceType = Enum.Parse<BackupDeviceType>(mediafamily.Tables[0].Rows[j]["BackupDeviceType"].ToString());
 
                         if (BackupDeviceType.Disk == backupDeviceType)
                         {
