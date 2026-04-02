@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         {
             if (string.IsNullOrEmpty(accessToken))
             {
-                throw new ArgumentNullException("accessToken");
+                throw new ArgumentNullException(nameof(accessToken));
             }
 
             _accessToken = accessToken;
