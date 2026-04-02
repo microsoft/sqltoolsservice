@@ -33,10 +33,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
         public bool Failed { get; set; }
 
+        /// <summary>
+        /// When true, the FunctionToRun will report numeric progress using InitializeProgress/IncrementProgress
+        /// </summary>
+        public bool ReportProgress { get; set; }
+
+        /// <summary>
+        /// When set, the FunctionToRun will report this phase name
+        /// </summary>
+        public string Phase { get; set; }
+
         public async Task<TaskResult> FunctionToRun(SqlTask sqlTask)
         {
             return await Task.Factory.StartNew(() =>
             {
+                if (ReportProgress)
+                {
+                    sqlTask.InitializeProgress(0, 100, Phase ?? "Starting");
+                }
+
+                int progressStep = 0;
                 while (!IsStopped)
                 {
                     //Just keep running
@@ -49,6 +65,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                         throw new InvalidOperationException();
                     }
                     sqlTask.AddMessage("still running", SqlTaskStatus.InProgress, true);
+
+                    if (ReportProgress && progressStep < 100)
+                    {
+                        progressStep += 10;
+                        sqlTask.IncrementProgress(10, Phase);
+                    }
                 }
                 sqlTask.AddMessage("done!", SqlTaskStatus.Succeeded);
 

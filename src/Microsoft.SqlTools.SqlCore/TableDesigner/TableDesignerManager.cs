@@ -81,9 +81,10 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             };
         }
 
-        public PublishTableChangesResponse PublishTableChanges(TableInfo tableInfo)
+        public PublishTableChangesResponse PublishTableChanges(TableInfo tableInfo, Action<string, int, int, string> progressCallback = null)
         {
             var tableDesigner = this.GetTableDesigner(tableInfo);
+            progressCallback?.Invoke("Committing", 0, 0, null);
             tableDesigner.CommitChanges();
             string oldId = tableInfo.Id;
             if (tableInfo.ProjectFilePath == null)

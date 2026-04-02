@@ -180,6 +180,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.backup.Action = this.backupActionType;
             this.backup.Incremental = this.isBackupIncremental;
 
+            if (this.SqlTask != null)
+            {
+                this.SqlTask.InitializeProgress(0, 100, "Configuring");
+            }
+
             try
             {
                 if (this.backup.Action == BackupActionType.Files)
@@ -298,12 +303,35 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (this.dataContainer.Server.ConnectionContext != null)
                 {
+                    // Subscribe to progress events from SMO
+                    this.backup.PercentCompleteNotification = 5;
+                    int lastPercent = 0;
+                    this.backup.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                    {
+                        if (this.SqlTask != null)
+                        {
+                            int delta = e.Percent - lastPercent;
+                            lastPercent = e.Percent;
+                            this.SqlTask.IncrementProgress(delta, "Backup");
+                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
+                        }
+                    };
+
                     // Execute backup
+                    if (this.SqlTask != null)
+                    {
+                        this.SqlTask.IncrementProgress(0, "Executing");
+                    }
                     this.backup.SqlBackup(this.dataContainer.Server);
 
                     // Verify backup if required
                     if (this.backupInfo.VerifyBackupRequired)
                     {
+                        if (this.SqlTask != null)
+                        {
+                            this.SqlTask.IncrementProgress(0, "Verifying");
+                        }
+
                         Restore restore = new Restore();
                         restore.Devices.AddRange(this.backup.Devices);
                         restore.Database = this.backup.Database;

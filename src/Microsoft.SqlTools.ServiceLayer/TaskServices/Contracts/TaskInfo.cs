@@ -73,5 +73,35 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// Defines if the task can be canceled
         /// </summary>
         public bool IsCancelable { get; set; }
+
+        /// <summary>
+        /// Current progress value toward the goal
+        /// </summary>
+        public int ProgressCurrent { get; set; }
+
+        /// <summary>
+        /// Target progress value. 0 means indeterminate (heartbeat) progress.
+        /// </summary>
+        public int ProgressGoal { get; set; }
+
+        /// <summary>
+        /// Percentage of completion. -1 if indeterminate.
+        /// </summary>
+        public double PercentComplete { get; set; }
+
+        /// <summary>
+        /// Current phase or step name for multi-step operations
+        /// </summary>
+        public string Phase { get; set; }
+
+        /// <summary>
+        /// Accumulated task messages. Allows late-joining clients to see full history.
+        /// </summary>
+        public TaskMessage[] Messages { get; set; }
+
+        /// <summary>
+        /// The number of milliseconds the task has been running (populated when completed)
+        /// </summary>
+        public double Duration { get; set; }
     }
 }

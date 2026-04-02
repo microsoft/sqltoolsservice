@@ -356,6 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                         break;
                     case SqlTaskStatus.InProgress:
                     case SqlTaskStatus.NotStarted:
+                    case SqlTaskStatus.CancelRequested:
                         IsCompleted = false;
                         break;
                     default:
@@ -387,11 +388,72 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
+        /// Current progress value. Used together with ProgressGoal to calculate PercentComplete.
+        /// A value of 0 with ProgressGoal of 0 indicates indeterminate (heartbeat) progress.
+        /// </summary>
+        public int ProgressCurrent { get; private set; }
+
+        /// <summary>
+        /// Target progress value. When greater than 0, enables determinate progress reporting.
+        /// </summary>
+        public int ProgressGoal { get; private set; }
+
+        /// <summary>
+        /// Percentage of completion. Returns -1 if progress is indeterminate (heartbeat mode).
+        /// </summary>
+        public double PercentComplete
+        {
+            get
+            {
+                if (ProgressGoal <= 0)
+                {
+                    return -1;
+                }
+                return Math.Min(100.0, (double)ProgressCurrent / ProgressGoal * 100.0);
+            }
+        }
+
+        /// <summary>
+        /// Current phase or step name for multi-step operations (e.g. "VerifyingBuild", "GeneratingScript").
+        /// </summary>
+        public string Phase { get; private set; }
+
+        /// <summary>
+        /// Initializes progress tracking with a target goal.
+        /// </summary>
+        /// <param name="current">Initial progress value</param>
+        /// <param name="goal">Target progress value. Use 0 for indeterminate (heartbeat) progress.</param>
+        /// <param name="phase">Optional phase name</param>
+        public void InitializeProgress(int current, int goal, string phase = null)
+        {
+            ProgressCurrent = current;
+            ProgressGoal = goal;
+            Phase = phase;
+            OnStatusChanged();
+        }
+
+        /// <summary>
+        /// Increments the current progress by the given delta and optionally updates the phase.
+        /// </summary>
+        /// <param name="delta">Amount to increment progress by</param>
+        /// <param name="phase">Optional new phase name</param>
+        public void IncrementProgress(int delta, string phase = null)
+        {
+            ProgressCurrent += delta;
+            if (phase != null)
+            {
+                Phase = phase;
+            }
+            OnStatusChanged();
+        }
+
+        /// <summary>
         /// Try to cancel the task, and event to cancel the task will be raised 
         /// but the status won't change until that task actually get canceled by it's owner
         /// </summary>
         public void Cancel()
         {
+            TaskStatus = SqlTaskStatus.CancelRequested;
             IsCancelRequested = true;
         }
 
@@ -470,6 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             return new TaskInfo
             {
                 TaskId = this.TaskId.ToString(),
+                Status = this.TaskStatus,
                 DatabaseName = TaskMetadata.DatabaseName,
                 ServerName = TaskMetadata.ServerName,
                 Name = TaskMetadata.Name,
@@ -477,7 +540,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskExecutionMode = TaskMetadata.TaskExecutionMode,
                 IsCancelable = this.TaskToCancel != null,
                 TargetLocation = TaskMetadata.TargetLocation,
-                OperationName = TaskMetadata.OperationName
+                OperationName = TaskMetadata.OperationName,
+                ProgressCurrent = this.ProgressCurrent,
+                ProgressGoal = this.ProgressGoal,
+                PercentComplete = this.PercentComplete,
+                Phase = this.Phase,
+                Messages = this.Messages.ToArray(),
+                Duration = this.IsCompleted ? this.Duration : 0
             };
         }
 
@@ -499,6 +568,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                         switch (TaskStatus)
                         {
                             case SqlTaskStatus.Canceled:
+                            case SqlTaskStatus.CancelRequested:
                             case SqlTaskStatus.Failed:
                                 success = false;
                                 break;

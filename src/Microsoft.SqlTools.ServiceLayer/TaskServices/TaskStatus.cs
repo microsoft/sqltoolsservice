@@ -12,6 +12,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         Succeeded,
         SucceededWithWarning,
         Failed,
-        Canceled
+        Canceled,
+        /// <summary>
+        /// Cancellation has been requested but the operation has not yet stopped.
+        /// This allows the UI to show "cancellation in progress" feedback.
+        /// </summary>
+        CancelRequested
     }
 }

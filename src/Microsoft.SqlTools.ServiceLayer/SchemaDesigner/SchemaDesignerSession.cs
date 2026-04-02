@@ -147,6 +147,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             get { return _initialSchema; }
         }
 
+        internal string ServerName
+        {
+            get { return new SqlConnectionStringBuilder(connectionString).DataSource; }
+        }
+
+        internal string DatabaseName
+        {
+            get { return new SqlConnectionStringBuilder(connectionString).InitialCatalog; }
+        }
+
         public async Task<GetReportResponse> GetReport(SchemaDesignerModel updatedSchema)
         {
             this.CreateOrResetSchemaDesigner();
