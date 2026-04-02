@@ -33,7 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             string filePath = null;
             if (string.IsNullOrEmpty(fileName))
             {
-                filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "sqltest.sql");
+                var testScopedFileName = $"{TestUtilities.GetSafeCurrentTestName()}_sqltest_{Guid.NewGuid():N}.sql";
+                filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), testScopedFileName);
             }
             else
             {
@@ -45,6 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 File.Delete(filePath);
             }
             File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
+            Console.WriteLine($"Using test sql file {filePath}");
             return filePath;
         }
 
@@ -158,5 +160,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 
             public TextDocumentPosition TextDocumentPosition { get; set; }
         }
+
     }
 }

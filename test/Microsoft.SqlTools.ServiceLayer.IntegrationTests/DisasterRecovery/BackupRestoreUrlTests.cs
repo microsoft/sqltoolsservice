@@ -36,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         /// Create simple backup test
         /// </summary>
         [Test]
+        [Ignore("TODO: disabled until we have a better way to run tests with Azure blob storage dependency")]
         public async Task BackupDatabaseToUrlAndRestoreFromUrlTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -202,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                             restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
                             Assert.AreEqual(response.SessionId, restoreDataObject.SessionId);
                             request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
-                            restoreDataObject.Execute((TaskExecutionMode)Enum.Parse(typeof(TaskExecutionMode), executionMode.ToString()));
+                            restoreDataObject.Execute(Enum.Parse<TaskExecutionMode>(executionMode.ToString()));
 
                             if (executionMode.HasFlag(TaskExecutionModeFlag.Execute))
                             {

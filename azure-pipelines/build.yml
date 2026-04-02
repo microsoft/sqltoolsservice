@@ -69,39 +69,34 @@ steps:
   inputs:
     useGlobalJson: true
 
-- task: PowerShell@2
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
+
+- script: dotnet tool restore
+  displayName: 'Restore .NET tools'
+
+- pwsh: |
+    $projectFile = '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
+    $props = New-Object XML
+    $props.Load($projectFile)
+    $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
+    $props.Project.PropertyGroup.Version = $version;
+    $props.Save($projectFile)
   displayName: 'Add version number to SqlCore project for packaging'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
-      $props = New-Object XML
-      $props.Load($projectFile)
-      $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
-      $props.Project.PropertyGroup.Version = $version;
-      $props.Save($projectFile)
 
 - task: CodeQL3000Init@0
   displayName: 'CodeQL Initialize'
   condition: eq(variables['Codeql.enabled'], 'True')
 
-- task: BatchScript@1
-  displayName: 'Run script build.cmd'
-  inputs:
-    filename: build.cmd
-    arguments: '-target=all -mono'
-    
+- pwsh: |
+    dotnet tool run dotnet-cake -- build.cake --target=all
+  displayName: 'Run Cake build'
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: restore
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
-  inputs:
-    command: restore
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.Authentication.UnitTests'
@@ -118,14 +113,6 @@ steps:
     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
-  inputs:
-    command: test
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-    testRunTitle: Kusto.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
-
-- task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.Authentication.UnitTests'
   inputs:
     command: test
@@ -139,7 +126,7 @@ steps:
   displayName: Create Code coverage report
 
 
-- powershell: |
+- pwsh: |
     $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
     gpg.exe --import codecov.asc
@@ -165,26 +152,23 @@ steps:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
 
-- task: PowerShell@2
+- pwsh: |
+    $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
+    $props = New-Object XML
+    $props.Load($projectFile)
+    $propGroup = $props.Project.PropertyGroup;
+    $versionPre = $env:ManagedBatchParserMajor + '.' + $env:ManagedBatchParserMinor + '.'
+    if($env:StableRelease.Equals('true')) {
+        $version = $versionPre + '0';
+    } else {
+        $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
+    }
+    $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
+    $nuspec = New-Object XML
+    $nuspec.Load($nuspecFile)
+    $nuspec.package.metadata.version = $version;
+    $nuspec.Save($nuspecFile)
   displayName: 'Generate ManagedBatchParser Nuspec Version'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
-      $props = New-Object XML
-      $props.Load($projectFile)
-      $propGroup = $props.Project.PropertyGroup;
-      $versionPre = $env:ManagedBatchParserMajor + '.' + $env:ManagedBatchParserMinor + '.'
-      if($env:StableRelease.Equals('true')) {
-          $version = $versionPre + '0';
-      } else {
-          $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
-      }
-      $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
-      $nuspec = New-Object XML
-      $nuspec.Load($nuspecFile)
-      $nuspec.package.metadata.version = $version;
-      $nuspec.Save($nuspecFile)
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -200,29 +184,25 @@ steps:
     custom: pack
     arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
-- task: BatchScript@1
+- pwsh: |
+    dotnet tool run dotnet-cake -- build.cake --target=NugetPackNuspec
   displayName: 'Package nuspec projects'
-  inputs:
-    filename: build.cmd
-    arguments: '-target=NugetPackNuspec -mono'
-    
-- task: BatchScript@1
-  displayName: "Build and Package service tool projects"
+
+- pwsh: |
+    dotnet tool run dotnet-cake -- build.cake --target=DotnetPackServiceTools
+  displayName: 'Build and Package service tool projects'
   env:
     BUILD_DOTNET_TOOL: "true"
-  inputs:
-    filename: build.cmd
-    arguments: "-target=dotnetpackservicetools -mono"
 
 - ${{ each project in parameters.projects }}:
   - ${{ each platform in parameters.platforms }}:
     - task: ArchiveFiles@1
       displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
       inputs:
-        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net8.0'
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net10.0'
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
-        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net8.0.${{ platform.archiveFileFormat }}'
+        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net10.0.${{ platform.archiveFileFormat }}'
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'

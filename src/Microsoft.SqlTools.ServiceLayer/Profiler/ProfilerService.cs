@@ -347,6 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
+            store.Sessions.Refresh();
             Session session = store.Sessions[sessionName] ?? throw new ProfilerException(SR.SessionNotFound);
 
             // Ensure the session is not running before starting it

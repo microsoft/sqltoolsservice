@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
         [Test]
         public void VerifyImportTableShouldReturnFalseGivenInvalidDbName()
         {
-            Assert.Throws(typeof(SqlException), () =>  VerifyModelOperation((dbConnection, databaseName , tableName) =>
+            Assert.Throws<SqlException>(() =>  VerifyModelOperation((dbConnection, databaseName , tableName) =>
             {
                 ModelOperations modelOperations = new ModelOperations();
                 ModelRequestBase request = new ModelRequestBase

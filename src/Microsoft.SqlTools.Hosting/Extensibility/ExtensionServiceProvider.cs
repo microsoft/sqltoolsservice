@@ -22,7 +22,6 @@ namespace Microsoft.SqlTools.Extensibility
             "microsofsqltoolscredentials.dll",
             "microsoft.sqltools.hosting.dll",
             "microsoftsqltoolsservicelayer.dll",
-            "microsoftkustoservicelayer.dll",
             "microsoft.sqltools.sqlcore.dll"
         };
 
@@ -254,6 +253,11 @@ namespace Microsoft.SqlTools.Extensibility
 
         public IEnumerable<T> GetExports<T>()
         {
+            if (!typeof(T).IsAssignableFrom(contractType))
+            {
+                throw new InvalidCastException($"Cannot get exports of type '{typeof(T)}' from a store for contract type '{contractType}'");
+            }
+
             exports ??= host.GetExports(contractType).ToList();
             return exports.Cast<T>();
         }

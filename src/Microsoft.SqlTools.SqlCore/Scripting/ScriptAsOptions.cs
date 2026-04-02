@@ -298,6 +298,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         ///   Script140Compat
         ///   Script150Compat
         ///   Script160Compat
+        ///   Script170Compat
         /// </summary>
         /// <remarks>
         /// The default is Script140Compat.

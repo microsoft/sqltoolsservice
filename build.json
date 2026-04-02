@@ -1,36 +1,30 @@
 {
   "UseSystemDotNetPath": "true",
   "DotNetFolder": ".dotnet",
-  "DotNetInstallScriptURL": "https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/",
-  "DotNetChannel": "preview",
-  "DotNetVersion": "5.0.301",
+  "DotNetInstallScriptURL": "https://dot.net/v1/",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "net8.0"
-    ],
-    "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.SqlTools.Authentication.UnitTests": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
-      "net8.0"
+      "net10.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
-      "net8.0"
+      "net10.0"
     ]
   },
   "Frameworks": [
-    "net8.0"
+    "net10.0"
   ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
-    "Microsoft.Kusto.ServiceLayer",
     "Microsoft.SqlTools.ServiceLayer",
     "Microsoft.SqlTools.ManagedBatchParser",
     "Microsoft.SqlTools.Migration"
@@ -40,7 +34,7 @@
       "Name": "Microsoft.SqlTools.ManagedBatchParser",
       "Frameworks": [
         "net472",
-        "net8.0"
+        "net10.0"
       ]
     }
   ],
@@ -48,8 +42,7 @@
     "Microsoft.SqlTools.Hosting"
   ],
   "DotnetToolProjects": [
-    "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer"
+    "Microsoft.SqlTools.ServiceLayer"
   ],
   "Projects": [
     {

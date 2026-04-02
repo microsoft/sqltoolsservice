@@ -7,6 +7,8 @@
 
 using System;
 using System.Linq;
+using System.IO;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -28,12 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         {
             initialText ??= ScriptFileTests.query;
 
-            string ownerUri = System.IO.Path.GetTempFileName();
+            string ownerUri = Path.Combine(
+                Path.GetTempPath(),
+                $"{TestUtilities.GetSafeCurrentTestName()}_{Guid.NewGuid():N}.tmp");
 
             // Write the query text to a backing file
             lock (fileLock)
             {
-                System.IO.File.WriteAllText(ownerUri, initialText);
+                File.WriteAllText(ownerUri, initialText);
             }
 
             return new ScriptFile(ownerUri, ownerUri, initialText);
@@ -229,9 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         [Test]
         public void ThrowsExceptionWithEditOutsideOfRange()
         {
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     AssertFileChange(
                         "first\r\nsecond\r\nREMOVE\r\nTHESE\r\nLINES\r\nthird",
@@ -402,9 +404,7 @@ First line
         public void ThrowsWhenPositionOutOfRange()
         {
             // Less than line range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),
@@ -412,9 +412,7 @@ First line
                 });
 
             // Greater than line range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),
@@ -422,9 +420,7 @@ First line
                 });
 
             // Less than column range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),
@@ -432,9 +428,7 @@ First line
                 });
 
             // Greater than column range
-            Assert.Throws(
-                typeof(ArgumentOutOfRangeException),
-                () =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
                     scriptFile.CalculatePosition(
                         new BufferPosition(1, 1),

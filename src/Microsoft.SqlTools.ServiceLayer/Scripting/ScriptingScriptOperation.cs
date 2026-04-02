@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.AllowSystemObjects = true;
 
                 ScriptDestination destination = !string.IsNullOrWhiteSpace(this.Parameters.ScriptDestination)
-                    ? (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
+                    ? Enum.Parse<ScriptDestination>(this.Parameters.ScriptDestination)
                     : ScriptDestination.ToSingleFile;
 
                 // SMO is currently hardcoded to produce UTF-8 encoding when running on dotnet core.

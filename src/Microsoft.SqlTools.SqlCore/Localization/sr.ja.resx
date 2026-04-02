@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,35 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
-
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -773,12 +772,16 @@
   </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>ID '{0}' のテーブルの初期化が正しく行われていません</value>
+    <comment>.
+ Parameters: 0 - tableId (string) </comment>
   </data>
   <data name="TableEditPathNotProvidedException" xml:space="preserve">
     <value>テーブル変更情報のパスを空にすることはできません</value>
   </data>
   <data name="InvalidTableEditPathException" xml:space="preserve">
     <value>テーブル変更情報のパス '{0}' が編集の種類に対して無効です: '{1}'</value>
+    <comment>.
+ Parameters: 0 - path (string), 1 - editType (string) </comment>
   </data>
   <data name="TableColumnIdentityGroupName" xml:space="preserve">
     <value>ID の指定</value>
@@ -827,6 +830,8 @@
   </data>
   <data name="UnknownEnumString" xml:space="preserve">
     <value>不明な列挙値: {0}。</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 制約を有効にするかどうかを指定</value>
@@ -1112,33 +1117,53 @@
   </data>
   <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>インデックス '{0}' には関連付けられた列がありません。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>外部キー '{0}' には列が指定されていません。</value>
+    <comment>.
+ Parameters: 0 - foreignKeyName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
     <value>'{0}' という名前の列は既にインデックス '{1}' に追加されています。行番号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
     <value>'{0}' という名前の列は既に外部キー '{1}' に追加されています。行番号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
     <value>'{0}' という名前の外部列は既に外部キー '{1}' に追加されています。行番号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
     <value>名前 '{0}' は既に別の成約により使用されています。行番号: {1}。</value>
+    <comment>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
     <value>名前 '{0}' は既に別の列により使用されています。行番号: {1}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
     <value>名前 '{0}' は既に別のインデックスにより使用されています。行番号: {1}。</value>
+    <comment>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
     <value>エッジ制約 '{0}' に句が指定されていません。</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
     <value>ペア '{0}' は、エッジ制約の別の句で既に定義されています。行番号: {1}。</value>
+    <comment>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
     <value>メモリ最適化テーブルには、非クラスター化プライマリ キーが必要です。</value>
@@ -1172,6 +1197,8 @@
   </data>
   <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>プライマリ キーに重複する列名を使用できません。列名: {0}</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
     <value>メモリ最適化テーブルは、このデータベースではサポートされていません。</value>
@@ -1187,35 +1214,55 @@
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
     <value>'{0}' という名前の列は既にインデックス '{1}' に付加されています。行番号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
     <value>'{0}' という名前の付加列は既にインデックス '{1}' の一部であり、付加することはできません。行番号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>"{0}' という名前の計算列は永続化する必要があり、主キーの一部として null 許容されません。</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
     <value>'{0}' という名前の計算列は、外部キー '{1}' の一部として保持する必要があります。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
     <value>'{0}' という名前のハッシュ インデックスは、非メモリ最適化テーブルではサポートされていません。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
     <value>ハッシュ インデックス '{0}' にはバケット数がありません。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
     <value>'{0}' という名前の列は、クラスター化されていない列ストア インデックス '{1}' に既に追加されています。行番号: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>非クラスター化列ストア インデックス '{0}' には、列が関連付けされていません。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>概要を読み、潜在的なリスクを理解しました。</value>
   </data>
   <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
     <value>データベース '{0}' でCREATE TABLEアクセス許可が拒否されました。</value>
+    <comment>.
+ Parameters: 0 - db (string) </comment>
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>テーブル '{0}' に対する ALTER TABLE 権限が拒否されました。</value>
+    <comment>.
+ Parameters: 0 - table (string) </comment>
   </data>
 </root>

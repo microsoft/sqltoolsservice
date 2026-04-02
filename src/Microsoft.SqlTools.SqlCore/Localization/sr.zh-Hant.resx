@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,35 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
-
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -773,12 +772,16 @@
   </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>識別碼為 '{0}' 的資料表未正確初始化</value>
+    <comment>.
+ Parameters: 0 - tableId (string) </comment>
   </data>
   <data name="TableEditPathNotProvidedException" xml:space="preserve">
     <value>資料表變更資訊中的路徑不可為空白</value>
   </data>
   <data name="InvalidTableEditPathException" xml:space="preserve">
     <value>資料表變更資訊中的路徑 '{0}' 對以下編輯類型無效: '{1}'</value>
+    <comment>.
+ Parameters: 0 - path (string), 1 - editType (string) </comment>
   </data>
   <data name="TableColumnIdentityGroupName" xml:space="preserve">
     <value>識別值規格</value>
@@ -827,6 +830,8 @@
   </data>
   <data name="UnknownEnumString" xml:space="preserve">
     <value>未知的列舉值: {0}。</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>指定是否啟用檢查條件約束</value>
@@ -1112,33 +1117,53 @@
   </data>
   <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>索引 '{0}' 沒有任何相關聯的資料行。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>外部索引鍵 '{0}' 未指定任何資料行。</value>
+    <comment>.
+ Parameters: 0 - foreignKeyName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的資料行已新增至索引 '{1}'。列號: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的資料行已新增至外部索引鍵 '{1}'。列號: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的外部索引鍵資料行已新增至外部索引鍵 '{1}'。列號: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
     <value>名稱 '{0}' 已由另一個限制式使用。列號: {1}。</value>
+    <comment>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
     <value>名稱 '{0}' 已由另一個資料行使用。列號: {1}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
     <value>名稱 '{0}' 已由另一個索引使用。列號: {1}。</value>
+    <comment>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
     <value>邊緣限制式 '{0}' 未指定任何子句。</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
   </data>
   <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
     <value>配對 '{0}' 已由邊緣限制式中的另一個子句定義。列號: {1}。</value>
+    <comment>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </comment>
   </data>
   <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
     <value>經記憶體最佳化的資料表必須具有非叢集主索引鍵。</value>
@@ -1172,6 +1197,8 @@
   </data>
   <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>無法在主索引鍵使用重複的資料行名稱，資料行名稱: {0}</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
     <value>此資料庫不支援經記憶體最佳化的資料表。</value>
@@ -1187,35 +1214,55 @@
   </data>
   <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的資料行已包含於索引 '{1}' 中。列數: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
     <value>所包含名為 '{0}' 已是索引 '{1}' 的一部分，因此無法包含在內。列數: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的計算資料行必須保存且不可為 Null，才能成為主索引鍵的一部分。</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
   </data>
   <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的計算資料行必須保存，才能成為外部索引鍵 '{1}' 的一部分。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
     <value>未經記憶體最佳化的資料表不支援名稱為 '{0}' 的雜湊索引。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
     <value>雜湊索引 '{0}' 沒有貯體計數。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
     <value>名稱為 '{0}' 的資料行已新增至非叢集的資料行存放區索引 '{1}'。列號: {2}。</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>非叢集資料行存放區索引 '{0}' 沒有任何與其相關的資料行。</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>我已閱讀摘要並瞭解潛在風險。</value>
   </data>
   <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
     <value>資料庫 '{0}' 中 CREATE TABLE 權限遭拒。</value>
+    <comment>.
+ Parameters: 0 - db (string) </comment>
   </data>
   <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
     <value>資料表 '{0}' 的 ALTER TABLE 權限遭拒。</value>
+    <comment>.
+ Parameters: 0 - table (string) </comment>
   </data>
 </root>

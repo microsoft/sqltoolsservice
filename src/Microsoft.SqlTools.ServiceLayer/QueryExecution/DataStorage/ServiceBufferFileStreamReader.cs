@@ -260,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 AssureBufferLength(length.ValueLength);
-                fileStream.Read(buffer, 0, length.ValueLength);
+                fileStream.ReadExactly(buffer, 0, length.ValueLength);
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);

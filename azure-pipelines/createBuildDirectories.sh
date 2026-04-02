@@ -17,7 +17,6 @@
 # The script need to run from the repo root
 
 dotnetProjectArray=(
-    "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
     "./src/Microsoft.SqlTools.Hosting"
     "./src/Microsoft.SqlTools.ResourceProvider"
@@ -26,7 +25,7 @@ dotnetProjectArray=(
     "./src/Microsoft.SqlTools.ServiceLayer"
     "./src/Microsoft.SqlTools.Migration"
     "./src/Microsoft.SqlTools.SqlCore"
-    "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
+    "./test/Microsoft.SqlTools.Authentication.UnitTests"
     "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.PerfTests"
@@ -38,8 +37,10 @@ dotnetProjectArray=(
     "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
-# Please update the framework vars when updating target framework for the projects
-framework8="/bin/Debug/net8.0/"
+configurations=(
+    "Debug"
+    "Release"
+)
 
 requiredLocDirectories=(
     "pt-br"
@@ -53,10 +54,13 @@ requiredLocDirectories=(
 for i in "${dotnetProjectArray[@]}"
 do
    : 
-   for k in "${requiredLocDirectories[@]}"
-    do
-        : 
-        output=`mkdir -v -p $i$framework8$k`
-        echo $output
+   for configuration in "${configurations[@]}"
+   do
+      for k in "${requiredLocDirectories[@]}"
+      do
+          :
+          output=`mkdir -v -p "$i/bin/$configuration/net8.0/$k"`
+          echo $output
+      done
     done
 done
