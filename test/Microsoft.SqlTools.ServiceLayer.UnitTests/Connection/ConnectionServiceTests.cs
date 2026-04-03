@@ -2014,6 +2014,49 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
+        public void CreateConnectionStringBuilder_AzureMFA_WithPreAcquiredToken_KeepsAuthNotSpecified()
+        {
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+            var details = new ConnectionDetails()
+            {
+                ServerName = "my-server",
+                DatabaseName = "test",
+                UserName = "user@contoso.com",
+                AuthenticationType = AzureMFA,
+                AzureAccountToken = "pre-acquired-token-from-vscode"
+            };
+
+            var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+            // Authentication should remain NotSpecified so AccessToken can be injected
+            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
+            // AuthenticationType should remain AzureMFA for downstream checks
+            Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA));
+        }
+
+        [Test]
+        public void CreateConnectionStringBuilder_AzureMFA_WithoutToken_SetsActiveDirectoryInteractive()
+        {
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+            var details = new ConnectionDetails()
+            {
+                ServerName = "my-server",
+                DatabaseName = "test",
+                UserName = "user@contoso.com",
+                AuthenticationType = AzureMFA,
+                AzureAccountToken = null
+            };
+
+            var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+            // When no token, should delegate to SqlAuthenticationProvider
+            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive));
+            Assert.That(details.AuthenticationType, Is.EqualTo(ActiveDirectoryInteractive));
+        }
+
+        [Test]
         public async Task TryRequestRefreshAuthToken_SendsNotification_WhenSqlAuthProviderDisabled()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();

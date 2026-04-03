@@ -1454,8 +1454,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             {
                                 connectionBuilder.UserID = connectionDetails.UserName;
                             }
-                            connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
-                            connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                            // Only delegate to SqlAuthenticationProvider (MSAL) when no token
+                            // has been pre-acquired by the client (e.g., VS Code sessions).
+                            // When a token is already provided, keep Authentication as
+                            // NotSpecified so ReliableSqlConnection can inject it via AccessToken.
+                            if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
+                            {
+                                connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
+                                connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                            } else
+                            {
+                                // cannot set UserID when token has been pre-acquired
+                                connectionDetails.UserName = "";
+                                connectionBuilder.UserID = "";
+                            }
                         }
                         break;
                     case ActiveDirectoryInteractive:
@@ -1464,7 +1476,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         {
                             connectionBuilder.UserID = connectionDetails.UserName;
                         }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                        // Only set Authentication when no pre-acquired token is available.
+                        if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
+                        {
+                            connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                        }
                         break;
                     case ActiveDirectoryPassword:
                         // Don't erase username from connection string.
