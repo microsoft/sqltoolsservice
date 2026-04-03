@@ -46,9 +46,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
 
+            if (this.SqlTask != null)
+            {
+                this.SqlTask.InitializeProgress(0, 0, "Publishing");
+            }
+
             // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
             if (this.SqlTask != null)
             {
+                this.SqlTask.IncrementProgress(0, "AddingScripts");
                 this.SqlTask.AddScript(SqlTaskStatus.Succeeded, Result.DatabaseScript);
                 if (!string.IsNullOrEmpty(this.Result.MasterDbScript))
                 {

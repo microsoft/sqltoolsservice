@@ -280,12 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public override void Execute(TaskExecutionMode mode)
         {
             RestorePlanToExecute = null;
-
-            if (this.SqlTask != null)
-            {
-                this.SqlTask.InitializeProgress(0, 100, "Planning");
-            }
-
             UpdateRestoreTaskObject();
             if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
             {
@@ -331,20 +325,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                     if (RestorePlanToExecute != null && RestorePlanToExecute.RestoreOperations.Count > 0)
                     {
-                        if (this.SqlTask != null)
-                        {
-                            this.SqlTask.InitializeProgress(0, 100, "Restore");
-                        }
-
-                        int lastPercent = 0;
                         RestorePlanToExecute.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                         {
-                            if (this.SqlTask != null)
-                            {
-                                int delta = e.Percent - lastPercent;
-                                lastPercent = e.Percent;
-                                this.SqlTask.IncrementProgress(delta);
-                            }
+                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
                         };
                         RestorePlanToExecute.Execute();
                     }

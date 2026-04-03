@@ -87,8 +87,41 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 // Pass in Azure authentication token if needed
                 this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null && this.ConnInfo.ConnectionDetails.AuthenticationType == AzureMFA
-                    ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) 
+                    ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken))
                     : new DacServices(this.ConnectionString);
+
+                // Wire up DacServices progress events to SqlTask for real progress reporting
+                if (this.SqlTask != null)
+                {
+                    int messageCount = 0;
+                    this.SqlTask.InitializeProgress(0, 0, "Initializing");
+
+                    this.DacServices.ProgressChanged += (sender, e) =>
+                    {
+                        if (this.SqlTask != null)
+                        {
+                            this.SqlTask.IncrementProgress(0, e.Message);
+                            this.SqlTask.AddMessage(e.Message, SqlTaskStatus.InProgress);
+                        }
+                    };
+
+                    this.DacServices.Message += (sender, e) =>
+                    {
+                        if (this.SqlTask != null && e.Message != null)
+                        {
+                            messageCount++;
+                            string description = e.Message.Message;
+                            if (!string.IsNullOrEmpty(description))
+                            {
+                                SqlTaskStatus msgStatus = e.Message.MessageType == DacMessageType.Error
+                                    ? SqlTaskStatus.Failed
+                                    : SqlTaskStatus.InProgress;
+                                this.SqlTask.AddMessage(description, msgStatus);
+                            }
+                        }
+                    };
+                }
+
                 Execute();
             }
             catch (Exception e)
