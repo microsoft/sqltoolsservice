@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Data.Tools.Schema.SchemaModel;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
@@ -1382,6 +1383,117 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
             Assert.AreEqual(expectedGuid, getMock.Result.ProjectGuid,
                 "ProjectGuid should match the value written by SetProjectProperties");
+        }
+
+        [Test]
+        public async Task TestCreateSqlProjectFolderStructure()
+        {
+            (DacExtractTarget ExtractTarget, string ExpectedProperty)[] cases =
+            [
+                (DacExtractTarget.File,             "File"),
+                (DacExtractTarget.Flat,             "Flat"),
+                (DacExtractTarget.ObjectType,       "BySchemaType"),
+                (DacExtractTarget.Schema,           "BySchema"),
+                (DacExtractTarget.SchemaObjectType, "BySchemaAndSchemaType"),
+            ];
+
+            foreach (var (extractTarget, expectedProperty) in cases)
+            {
+                string projectUri = TestContext.CurrentContext.GetTestProjectPath($"CreateFolderStructure_{extractTarget}");
+
+                SqlProjectsService service = new();
+                MockRequest<ResultStatus> createMock = new();
+                await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
+                {
+                    ProjectUri = projectUri,
+                    SqlProjectType = ProjectType.SdkStyle,
+                    FolderStructure = extractTarget
+                }, createMock.Object);
+
+                createMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest), $"FolderStructure={extractTarget}");
+                Assert.AreEqual(expectedProperty, service.Projects[projectUri].Properties.DefaultFileStructure,
+                    $"DefaultFileStructure should be '{expectedProperty}' for ExtractTarget.{extractTarget}");
+            }
+
+            // Null FolderStructure should write the default value to the .sqlproj
+            string defaultProjectUri = TestContext.CurrentContext.GetTestProjectPath("CreateFolderStructure_Null");
+            SqlProjectsService defaultService = new();
+            MockRequest<ResultStatus> defaultCreateMock = new();
+            await defaultService.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
+            {
+                ProjectUri = defaultProjectUri,
+                SqlProjectType = ProjectType.SdkStyle,
+                FolderStructure = null
+            }, defaultCreateMock.Object);
+
+            defaultCreateMock.AssertSuccess(nameof(defaultService.HandleCreateSqlProjectRequest), "null FolderStructure");
+            Assert.AreEqual("BySchemaAndSchemaType", defaultService.Projects[defaultProjectUri].Properties.DefaultFileStructure,
+                "DefaultFileStructure should be 'BySchemaAndSchemaType' when FolderStructure is null");
+        }
+
+        [Test]
+        public async Task TestGetProjectPropertiesFolderStructure()
+        {
+            (string PropertyValue, DacExtractTarget ExpectedTarget)[] cases =
+            [
+                ("File",                 DacExtractTarget.File),
+                ("Flat",                 DacExtractTarget.Flat),
+                ("BySchemaType",         DacExtractTarget.ObjectType),
+                ("BySchema",             DacExtractTarget.Schema),
+                ("BySchemaAndSchemaType", DacExtractTarget.SchemaObjectType),
+                ("Undefined",            DacExtractTarget.Flat),  // legacy fallback
+            ];
+
+            foreach (var (propertyValue, expectedTarget) in cases)
+            {
+                string projectUri = TestContext.CurrentContext.GetTestProjectPath($"GetFolderStructure_{propertyValue}");
+                SqlProjectsService service = new();
+
+                MockRequest<ResultStatus> createMock = new();
+                await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
+                {
+                    ProjectUri = projectUri,
+                    SqlProjectType = ProjectType.SdkStyle
+                }, createMock.Object);
+                createMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest));
+
+                service.Projects[projectUri].Properties.DefaultFileStructure = propertyValue;
+
+                MockRequest<GetProjectPropertiesResult> getMock = new();
+                await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+                {
+                    ProjectUri = projectUri
+                }, getMock.Object);
+
+                getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest), $"PropertyValue={propertyValue}");
+                Assert.AreEqual(expectedTarget, getMock.Result.FolderStructure,
+                    $"FolderStructure should be {expectedTarget} for DefaultFileStructure='{propertyValue}'");
+            }
+
+            // An unrecognized value should return null
+            {
+                string projectUri = TestContext.CurrentContext.GetTestProjectPath("GetFolderStructure_Unknown");
+                SqlProjectsService service = new();
+
+                MockRequest<ResultStatus> createMock = new();
+                await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
+                {
+                    ProjectUri = projectUri,
+                    SqlProjectType = ProjectType.SdkStyle
+                }, createMock.Object);
+                createMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest), "setup for unrecognized value");
+
+                service.Projects[projectUri].Properties.DefaultFileStructure = "UnrecognizedValue";
+
+                MockRequest<GetProjectPropertiesResult> getMock = new();
+                await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+                {
+                    ProjectUri = projectUri
+                }, getMock.Object);
+
+                getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest), "unrecognized property value");
+                Assert.IsNull(getMock.Result.FolderStructure, "FolderStructure should be null for an unrecognized DefaultFileStructure value");
+            }
         }
 
         #region Helpers

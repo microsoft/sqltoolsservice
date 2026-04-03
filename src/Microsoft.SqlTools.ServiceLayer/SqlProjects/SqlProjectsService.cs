@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -27,6 +28,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
         private const string SqlCodeAnalysisRulesPropertyName = "SqlCodeAnalysisRules";
         private const string ProjectGuidPropertyName = "ProjectGuid";
+
+        // DefaultFileStructure string values used in .sqlproj XML
+        private const string FileStructureFile = "File";
+        private const string FileStructureFlat = "Flat";
+        private const string FileStructureUndefined = "Undefined";
+        private const string FileStructureBySchemaType = "BySchemaType";
+        private const string FileStructureBySchema = "BySchema";
+        private const string FileStructureBySchemaAndSchemaType = "BySchemaAndSchemaType";
 
         /// <summary>
         /// Gets the singleton instance object
@@ -129,7 +138,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     ProjectType = requestParams.SqlProjectType,
                     TargetPlatform = requestParams.DatabaseSchemaProvider == null ? null : Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider),
-                    BuildSdkVersion = requestParams.BuildSdkVersion
+                    BuildSdkVersion = requestParams.BuildSdkVersion,
+                    FolderStructure = ExtractTargetToDefaultFileStructure(requestParams.FolderStructure)
                 };
 
                 await SqlProject.CreateProjectAsync(requestParams.ProjectUri, createParams);
@@ -174,7 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ProjectStyle = project.SqlProjStyle,
                     DatabaseSchemaProvider = project.Properties.DatabaseSchemaProvider,
                     RunSqlCodeAnalysis = bool.TryParse(project.Properties.GetProperty(RunSqlCodeAnalysisPropertyName), out var runAnalysis) && runAnalysis,
-                    SqlCodeAnalysisRules = project.Properties.GetProperty(SqlCodeAnalysisRulesPropertyName)
+                    SqlCodeAnalysisRules = project.Properties.GetProperty(SqlCodeAnalysisRulesPropertyName),
+                    FolderStructure = DefaultFileStructureToExtractTarget(project.Properties.DefaultFileStructure)
                 };
             }, requestContext);
         }
@@ -668,6 +679,40 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }
 
             return Projects[projectUri];
+        }
+
+        /// <summary>
+        /// Converts a <c>DefaultFileStructure</c> string from the .sqlproj back to a <c>DacExtractTarget</c> enum value.
+        /// </summary>
+        private static DacExtractTarget? DefaultFileStructureToExtractTarget(string? defaultFileStructure)
+        {
+            return defaultFileStructure switch
+            {
+                FileStructureFile => DacExtractTarget.File,
+                FileStructureFlat => DacExtractTarget.Flat,
+                FileStructureUndefined => DacExtractTarget.Flat,   // legacy fallback — old projects written before File/Flat were distinct
+                FileStructureBySchemaType => DacExtractTarget.ObjectType,
+                FileStructureBySchema => DacExtractTarget.Schema,
+                FileStructureBySchemaAndSchemaType => DacExtractTarget.SchemaObjectType,
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Converts a <c>DacExtractTarget</c> enum value to the <c>DefaultFileStructure</c> string for the .sqlproj.
+        /// Returns null for values that don't map to a folder structure (DacPac, SqlProject), which defaults to <c>BySchemaAndSchemaType</c>.
+        /// </summary>
+        private static string? ExtractTargetToDefaultFileStructure(DacExtractTarget? extractTarget)
+        {
+            return extractTarget switch
+            {
+                DacExtractTarget.File => FileStructureFile,
+                DacExtractTarget.Flat => FileStructureFlat,
+                DacExtractTarget.ObjectType => FileStructureBySchemaType,
+                DacExtractTarget.Schema => FileStructureBySchema,
+                DacExtractTarget.SchemaObjectType => FileStructureBySchemaAndSchemaType,
+                _ => null   // DacPac and unrecognized values — default behavior applies
+            };
         }
 
         /// <summary>

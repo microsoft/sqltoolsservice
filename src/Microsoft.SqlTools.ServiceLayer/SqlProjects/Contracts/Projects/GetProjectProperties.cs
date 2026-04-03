@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -74,5 +75,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Serialized code analysis rule overrides (e.g. "+!SR0001;-SR0003"), or null if not set
         /// </summary>
         public string? SqlCodeAnalysisRules { get; set; }
+
+        /// <summary>
+        /// ExtractTarget value representing the folder structure for SQL object files.
+        /// </summary>
+        public DacExtractTarget? FolderStructure { get; set; }
     }
 }

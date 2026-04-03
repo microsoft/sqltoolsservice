@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -30,6 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Version of the Microsoft.Build.Sql SDK for the project, if overriding the default
         /// </summary>
         public string? BuildSdkVersion { get; set; }
+
+        /// <summary>
+        /// Folder structure for SQL object files. Defaults to <c>BySchemaAndSchemaType</c> when null.
+        /// </summary>
+        public DacExtractTarget? FolderStructure { get; set; }
     }
 
     /// <summary>
