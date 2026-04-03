@@ -339,7 +339,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         int lastPercent = 0;
                         RestorePlanToExecute.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                         {
-                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
                             if (this.SqlTask != null)
                             {
                                 int delta = e.Percent - lastPercent;

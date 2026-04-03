@@ -13,7 +13,6 @@ using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.SqlCore.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -92,26 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
-                var operation = new TableDesignerPublishOperation(this.tableDesignerManager, tableInfo);
-                var sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(new TaskMetadata()
-                {
-                    TaskOperation = operation,
-                    Name = SR.PublishChangesTaskName,
-                    ServerName = tableInfo.Server,
-                    DatabaseName = tableInfo.Database,
-                    TargetLocation = tableInfo.ProjectFilePath,
-                    OperationName = nameof(TableDesignerPublishOperation)
-                });
-
-                await sqlTask.RunAsync();
-
-                if (sqlTask.TaskStatus != SqlTaskStatus.Succeeded)
-                {
-                    await requestContext.SendError(operation.ErrorMessage ?? "Task failed");
-                    return;
-                }
-
-                await requestContext.SendResult(operation.PublishResponse);
+                await requestContext.SendResult(this.tableDesignerManager.PublishTableChanges(tableInfo));
             });
         }
 

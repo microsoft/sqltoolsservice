@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
@@ -92,24 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
                 {
-                    var operation = new SchemaDesignerPublishOperation(session);
-                    var sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(new TaskMetadata()
-                    {
-                        TaskOperation = operation,
-                        Name = SR.PublishChangesTaskName,
-                        ServerName = session.ServerName,
-                        DatabaseName = session.DatabaseName,
-                        TargetLocation = session.DatabaseName,
-                        OperationName = nameof(SchemaDesignerPublishOperation)
-                    });
-
-                    await sqlTask.RunAsync();
-
-                    if (sqlTask.TaskStatus != SqlTaskStatus.Succeeded)
-                    {
-                        await requestContext.SendError(operation.ErrorMessage ?? "Task failed");
-                        return;
-                    }
+                    session.PublishSchema();
                 }
                 await requestContext.SendResult(new PublishSessionResponse());
             });
