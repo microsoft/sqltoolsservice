@@ -36,6 +36,14 @@
         "net472",
         "net10.0"
       ]
+    },
+    {
+      "Name": "Microsoft.SqlTools.SqlCore",
+      "Frameworks": [
+        "net472",
+        "net8.0"
+      ],
+      "SkipPack": true
     }
   ],
   "PackageProjects": [

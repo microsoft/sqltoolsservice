@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public async Task WaitForExitAsync()
         {
             this.endpointExitedTask = new TaskCompletionSource<bool>();
-#if NETSTANDARD2_0
+#if !NET8_0_OR_GREATER
             await this.endpointExitedTask.Task;
 #else
             await this.endpointExitedTask.Task.WaitAsync(CancellationToken.None);
