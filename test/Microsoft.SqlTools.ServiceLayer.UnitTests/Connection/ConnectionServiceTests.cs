@@ -2016,44 +2016,60 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void CreateConnectionStringBuilder_AzureMFA_WithPreAcquiredToken_KeepsAuthNotSpecified()
         {
-            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
-
-            var details = new ConnectionDetails()
+            var previousEnableSqlAuthenticationProvider = ConnectionService.Instance.EnableSqlAuthenticationProvider;
+            try
             {
-                ServerName = "my-server",
-                DatabaseName = "test",
-                UserName = "user@contoso.com",
-                AuthenticationType = AzureMFA,
-                AzureAccountToken = "pre-acquired-token-from-vscode"
-            };
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
 
-            var builder = ConnectionService.CreateConnectionStringBuilder(details);
+                var details = new ConnectionDetails()
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = "user@contoso.com",
+                    AuthenticationType = AzureMFA,
+                    AzureAccountToken = "pre-acquired-token-from-vscode"
+                };
 
-            // Authentication should remain NotSpecified so AccessToken can be injected
-            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
-            // AuthenticationType should remain AzureMFA for downstream checks
-            Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA));
+                var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+                // Authentication should remain NotSpecified so AccessToken can be injected
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
+                // AuthenticationType should remain AzureMFA for downstream checks
+                Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA));
+            }
+            finally
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = previousEnableSqlAuthenticationProvider;
+            }
         }
 
         [Test]
         public void CreateConnectionStringBuilder_AzureMFA_WithoutToken_SetsActiveDirectoryInteractive()
         {
-            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
-
-            var details = new ConnectionDetails()
+            var previousEnableSqlAuthenticationProvider = ConnectionService.Instance.EnableSqlAuthenticationProvider;
+            try
             {
-                ServerName = "my-server",
-                DatabaseName = "test",
-                UserName = "user@contoso.com",
-                AuthenticationType = AzureMFA,
-                AzureAccountToken = null
-            };
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
 
-            var builder = ConnectionService.CreateConnectionStringBuilder(details);
+                var details = new ConnectionDetails()
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = "user@contoso.com",
+                    AuthenticationType = AzureMFA,
+                    AzureAccountToken = null
+                };
 
-            // When no token, should delegate to SqlAuthenticationProvider
-            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive));
-            Assert.That(details.AuthenticationType, Is.EqualTo(ActiveDirectoryInteractive));
+                var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+                // When no token, should delegate to SqlAuthenticationProvider
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive));
+                Assert.That(details.AuthenticationType, Is.EqualTo(ActiveDirectoryInteractive));
+            }
+            finally
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = previousEnableSqlAuthenticationProvider;
+            }
         }
 
         [Test]
