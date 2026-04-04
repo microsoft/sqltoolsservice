@@ -2036,6 +2036,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
                 // AuthenticationType should remain AzureMFA for downstream checks
                 Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA));
+                // UserName on the details object should not be mutated
+                Assert.That(details.UserName, Is.EqualTo("user@contoso.com"));
             }
             finally
             {
@@ -2065,6 +2067,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 // When no token, should delegate to SqlAuthenticationProvider
                 Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive));
                 Assert.That(details.AuthenticationType, Is.EqualTo(ActiveDirectoryInteractive));
+            }
+            finally
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = previousEnableSqlAuthenticationProvider;
+            }
+        }
+
+        [Test]
+        public void CreateConnectionStringBuilder_ActiveDirectoryInteractive_WithPreAcquiredToken_KeepsAuthNotSpecified()
+        {
+            var previousEnableSqlAuthenticationProvider = ConnectionService.Instance.EnableSqlAuthenticationProvider;
+            try
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+                var details = new ConnectionDetails()
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = "user@contoso.com",
+                    AuthenticationType = ActiveDirectoryInteractive,
+                    AzureAccountToken = "pre-acquired-token-from-vscode"
+                };
+
+                var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+                // Authentication should be NotSpecified so AccessToken can be injected
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
+                // UserID must not be set when a pre-acquired token is used
+                Assert.That(builder.UserID, Is.Empty);
+                // UserName on the details object should not be mutated
+                Assert.That(details.UserName, Is.EqualTo("user@contoso.com"));
             }
             finally
             {

@@ -1462,24 +1462,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             {
                                 connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
                                 connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
-                            } else
+                            }
+                            else
                             {
-                                // cannot set UserID when token has been pre-acquired
-                                connectionDetails.UserName = "";
+                                // Cannot set UserID when token has been pre-acquired.
+                                // Do not mutate connectionDetails.UserName — only clear the builder field.
                                 connectionBuilder.UserID = "";
+                                // Explicitly clear Authentication in case the builder was initialized
+                                // from a connection string that already includes an Authentication value.
+                                connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
                             }
                         }
                         break;
                     case ActiveDirectoryInteractive:
-                        // Don't erase username from connection string.
-                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
-                        {
-                            connectionBuilder.UserID = connectionDetails.UserName;
-                        }
-                        // Only set Authentication when no pre-acquired token is available.
                         if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
                         {
+                            // Don't erase username from connection string.
+                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                            {
+                                connectionBuilder.UserID = connectionDetails.UserName;
+                            }
                             connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                        }
+                        else
+                        {
+                            // Cannot set UserID when a token has been pre-acquired.
+                            // Do not mutate connectionDetails.UserName — only clear the builder field.
+                            connectionBuilder.UserID = "";
+                            // Explicitly clear Authentication in case the builder was initialized
+                            // from a connection string that already includes an Authentication value.
+                            connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
                         }
                         break;
                     case ActiveDirectoryPassword:
