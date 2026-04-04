@@ -1465,11 +1465,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             }
                             else
                             {
-                                // Cannot set UserID when token has been pre-acquired.
-                                // Do not mutate connectionDetails.UserName — only clear the builder field.
+                                // To work with the provided token, UserID must be unset and the auth method must be NotSpecified.
                                 connectionBuilder.UserID = "";
-                                // Explicitly clear Authentication in case the builder was initialized
-                                // from a connection string that already includes an Authentication value.
                                 connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
                             }
                         }

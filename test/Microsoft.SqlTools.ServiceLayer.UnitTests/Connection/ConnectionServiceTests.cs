@@ -475,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"sa", ""},
         };
 
-      
+
         /// <summary>
         /// Verify that when using sql logins, the password can be empty.
         /// </summary>
@@ -483,15 +483,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void ConnectingWithNoPasswordWorksForSqlLogin(string userName, string password)
         {
             // Connect
-            var connectionResult = 
+            var connectionResult =
                 ConnectionService.CreateConnectionStringBuilder(new ConnectionDetails()
-                    {
-                        ServerName = "my-server",
-                        DatabaseName = "test",
-                        UserName = userName,
-                        Password = password,
-                        AuthenticationType = SqlLogin
-                    });
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = userName,
+                    Password = password,
+                    AuthenticationType = SqlLogin
+                });
 
             Assert.That(connectionResult, Is.Not.Null.Or.Empty, "check that the connection was successful");
         }
@@ -2032,12 +2032,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
                 var builder = ConnectionService.CreateConnectionStringBuilder(details);
 
-                // Authentication should remain NotSpecified so AccessToken can be injected
-                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
-                // AuthenticationType should remain AzureMFA for downstream checks
-                Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA));
-                // UserName on the details object should not be mutated
-                Assert.That(details.UserName, Is.EqualTo("user@contoso.com"));
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified), "Authentication should remain NotSpecified so AccessToken can be injected");
+                Assert.That(builder.UserID, Is.Empty, "UserID must not be set when a pre-acquired token is used");
+                Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA), "AuthenticationType on details should remain AzureMFA for downstream checks");
+                Assert.That(details.UserName, Is.EqualTo("user@contoso.com"), "UserName on details should not be mutated when a pre-acquired token is used");
             }
             finally
             {
