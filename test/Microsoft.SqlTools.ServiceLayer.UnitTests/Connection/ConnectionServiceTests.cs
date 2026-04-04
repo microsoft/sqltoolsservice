@@ -2034,6 +2034,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
                 // Authentication should remain NotSpecified so AccessToken can be injected
                 Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
+                // UserID must not be set when a pre-acquired token is used
+                Assert.That(builder.UserID, Is.Empty);
                 // AuthenticationType should remain AzureMFA for downstream checks
                 Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA));
                 // UserName on the details object should not be mutated
