@@ -1,18 +1,16 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
 
 using Microsoft.SqlServer.Dac;
 using System;
 
-namespace Microsoft.SqlTools.SqlCore.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.Utility
 {
-    /// <summary>
-    /// Simple access token provider for DacFx operations with Azure MFA authentication.
-    /// </summary>
-    internal class AccessTokenProvider : IUniversalAuthProvider
+    public class AccessTokenProvider : IUniversalAuthProvider
     {
         private string _accessToken;
 
@@ -20,7 +18,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         {
             if (string.IsNullOrEmpty(accessToken))
             {
-                throw new ArgumentNullException(nameof(accessToken));
+                throw new ArgumentNullException("accessToken");
             }
 
             _accessToken = accessToken;

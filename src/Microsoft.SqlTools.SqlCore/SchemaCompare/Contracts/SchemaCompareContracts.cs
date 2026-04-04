@@ -17,9 +17,8 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
         Database = 0,
         Dacpac = 1,
         Project = 2
-        // must be kept in-sync with SchemaCompareEndpointType in Azure Data Studio
-        // located at \extensions\mssql\src\mssql.d.ts and in the MSSQL for VSCode Extension
-        // located at \typings\vscode-mssql.d.ts
+        // must be kept in-sync with SchemaCompareEndpointType in the MSSQL for VSCode Extension
+        // located at extensions\mssql\typings\vscode-mssql.d.ts
     }
 
     /// <summary>
