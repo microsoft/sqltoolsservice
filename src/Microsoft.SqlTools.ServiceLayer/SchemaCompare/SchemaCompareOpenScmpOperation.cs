@@ -15,8 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
-using SchemaCompareEndpointType = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareEndpointType;
-using SchemaCompareObjectId = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareObjectId;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -107,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             // if the endpoint is a dacpac, we don't need to parse the xml
             if (endpoint is SchemaCompareDacpacEndpoint dacpacEndpoint)
             {
-                endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                endpointInfo.EndpointType = CoreContracts.SchemaCompareEndpointType.Dacpac;
                 endpointInfo.PackageFilePath = dacpacEndpoint.FilePath;
             }
             else
@@ -157,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.Value);
             endpointInfo.ConnectionDetails.ConnectionString = node.Value;
             endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
-            endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+            endpointInfo.EndpointType = CoreContracts.SchemaCompareEndpointType.Database;
         }
 
         private void SetProjectEndpointInfoFromXML(IEnumerable<XElement> result, SchemaCompareEndpointInfo endpointInfo, string filePath)
@@ -190,17 +189,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
             }
 
-            endpointInfo.EndpointType = SchemaCompareEndpointType.Project;
+            endpointInfo.EndpointType = CoreContracts.SchemaCompareEndpointType.Project;
             endpointInfo.ProjectFilePath = filePath;
         }
 
-        private List<SchemaCompareObjectId> GetExcludedElements(IList<SchemaComparisonExcludedObjectId> excludedObjects)
+        private List<CoreContracts.SchemaCompareObjectId> GetExcludedElements(IList<SchemaComparisonExcludedObjectId> excludedObjects)
         {
-            List<SchemaCompareObjectId> excludedElements = new List<SchemaCompareObjectId>();
+            List<CoreContracts.SchemaCompareObjectId> excludedElements = new List<CoreContracts.SchemaCompareObjectId>();
 
             foreach (SchemaComparisonExcludedObjectId entry in excludedObjects)
             {
-                excludedElements.Add(new SchemaCompareObjectId()
+                excludedElements.Add(new CoreContracts.SchemaCompareObjectId()
                 {
                     NameParts = entry.Identifier.Parts.Cast<string>().ToArray(),
                     SqlObjectType = entry.TypeName

@@ -11,7 +11,7 @@ using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
-using DiffEntry = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DiffEntry;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
-        public List<DiffEntry> AllIncludedOrExcludedDifferences;
+        public List<CoreContracts.DiffEntry> AllIncludedOrExcludedDifferences;
 
 
         public SchemaCompareIncludeExcludeAllNodesOperation(SchemaCompareIncludeExcludeAllNodesParams parameters, SchemaComparisonResult comparisonResult)
@@ -71,12 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 throw;
             }
 
-            this.AllIncludedOrExcludedDifferences = new List<DiffEntry>();
+            this.AllIncludedOrExcludedDifferences = new List<CoreContracts.DiffEntry>();
             if (this.ComparisonResult.Differences != null)
             {
                 foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
-                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
+                    CoreContracts.DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
                     this.AllIncludedOrExcludedDifferences.Add(diffEntry);
                 }
             }
