@@ -1,9 +1,8 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Utility;
 using System;
@@ -15,14 +14,33 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
+namespace Microsoft.SqlTools.SqlCore.DacFx.Contracts
 {
+    /// <summary>
+    /// Defines the deployment scenario for determining default options
+    /// </summary>
+    public enum DeploymentScenario
+    {
+        /// <summary>
+        /// Deployment/Publish scenario - uses DacFx native defaults
+        /// </summary>
+        Deployment = 0,
+
+        /// <summary>
+        /// Schema Compare scenario - uses modified defaults
+        /// </summary>
+        SchemaCompare = 1
+    }
+
     /// <summary>
     /// DeploymentOptionProperty class to define deployment options default value, description, and displayNames
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class DeploymentOptionProperty<T>
     {
+        /// <summary>
+        /// Initializes a new <see cref="DeploymentOptionProperty{T}"/> with a value, optional description, and optional display name.
+        /// </summary>
         public DeploymentOptionProperty(T value, string description = "", string displayName = "")
         {
             this.Value = value;
@@ -48,42 +66,41 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
     /// <summary>
     /// Class to define deployment options.
-    /// These property names will be given to the DeploymentOptions interface defined in ADS 'azuredatastudio\extensions\mssql\src\mssql.d.ts' and 'azuredatastudio\extensions\types\vscode-mssql.d.ts'
-    /// BooleanOptionsDictionary will automatically gets the newly added boolean properties from DacFx, All other types should be added here and ADS
+    /// BooleanOptionsDictionary will automatically get the newly added boolean properties from DacFx.
+    /// All other types should be added here explicitly.
     /// </summary>
     public class DeploymentOptions
     {
         #region Properties
 
         /// <summary>
-        /// These default exclude options are for schema compare extension, It require some default options to be excluded for SC operations
-        /// Where as the publish operation does not require any defaults, removing all default options for publish is handled in <azuredatastudio>\extensions\sql-database-projects\src\dialogs\publishDatabaseDialog.ts
+        /// Default exclude options for schema compare operations
         /// </summary>
         public DeploymentOptionProperty<string[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<string[]>
         (
             new string[] {
-                Enum.GetName(ObjectType.ServerTriggers),
-                Enum.GetName(ObjectType.Routes),
-                Enum.GetName(ObjectType.LinkedServerLogins),
-                Enum.GetName(ObjectType.Endpoints),
-                Enum.GetName(ObjectType.ErrorMessages),
-                Enum.GetName(ObjectType.Files),
-                Enum.GetName(ObjectType.Logins),
-                Enum.GetName(ObjectType.LinkedServers),
-                Enum.GetName(ObjectType.Credentials),
-                Enum.GetName(ObjectType.DatabaseScopedCredentials),
-                Enum.GetName(ObjectType.DatabaseEncryptionKeys),
-                Enum.GetName(ObjectType.MasterKeys),
-                Enum.GetName(ObjectType.DatabaseAuditSpecifications),
-                Enum.GetName(ObjectType.Audits),
-                Enum.GetName(ObjectType.ServerAuditSpecifications),
-                Enum.GetName(ObjectType.CryptographicProviders),
-                Enum.GetName(ObjectType.ServerRoles),
-                Enum.GetName(ObjectType.EventSessions),
-                Enum.GetName(ObjectType.DatabaseOptions),
-                Enum.GetName(ObjectType.EventNotifications),
-                Enum.GetName(ObjectType.ServerRoleMembership),
-                Enum.GetName(ObjectType.AssemblyFiles)
+                nameof(ObjectType.ServerTriggers),
+                nameof(ObjectType.Routes),
+                nameof(ObjectType.LinkedServerLogins),
+                nameof(ObjectType.Endpoints),
+                nameof(ObjectType.ErrorMessages),
+                nameof(ObjectType.Files),
+                nameof(ObjectType.Logins),
+                nameof(ObjectType.LinkedServers),
+                nameof(ObjectType.Credentials),
+                nameof(ObjectType.DatabaseScopedCredentials),
+                nameof(ObjectType.DatabaseEncryptionKeys),
+                nameof(ObjectType.MasterKeys),
+                nameof(ObjectType.DatabaseAuditSpecifications),
+                nameof(ObjectType.Audits),
+                nameof(ObjectType.ServerAuditSpecifications),
+                nameof(ObjectType.CryptographicProviders),
+                nameof(ObjectType.ServerRoles),
+                nameof(ObjectType.EventSessions),
+                nameof(ObjectType.DatabaseOptions),
+                nameof(ObjectType.EventNotifications),
+                nameof(ObjectType.ServerRoleMembership),
+                nameof(ObjectType.AssemblyFiles)
             }
         );
 
@@ -93,15 +110,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; } = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
-        /// Contains object types enum name and its display name from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
-        /// key: optionName, value:DisplayName
+        /// Contains object types enum name and its display name
         /// </summary>
         public Dictionary<string, string> ObjectTypesDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         #endregion
 
         /// <summary>
-        /// Parameterless constructor for JSON deserialization.
-        /// Uses DacFx native defaults (Deployment scenario).
+        /// Initializes a new <see cref="DeploymentOptions"/> instance with Schema Compare defaults.
         /// </summary>
         public DeploymentOptions() : this(DeploymentScenario.Deployment)
         {
@@ -137,20 +152,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             InitializeBooleanTypeOptions(options);
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="DeploymentOptions"/> instance populated from an existing <see cref="DacDeployOptions"/> object.
+        /// </summary>
         public DeploymentOptions(DacDeployOptions options)
         {
             SetOptions(options);
         }
 
         /// <summary>
-        /// initialize deployment options from the options in a publish profile.xml
+        /// Initialize deployment options from the options in a publish profile.xml
         /// </summary>
-        /// <param name="options">options created from the profile</param>
-        /// <param name="profilePath"></param>
-        public async Task InitializeFromProfile(DacDeployOptions options, string profilePath)
+        public Task InitializeFromProfile(DacDeployOptions options, string profilePath)
         {
-            // check if defaults need to be set if they aren't specified in the profile
-            string contents = await File.ReadAllTextAsync(profilePath);
+            string contents = File.ReadAllText(profilePath);
             if (!contents.Contains("<AllowDropBlockingAssemblies>"))
             {
                 options.AllowDropBlockingAssemblies = true;
@@ -181,16 +196,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             }
 
             SetOptions(options);
+            return Task.CompletedTask;
         }
-
         /// <summary>
-        /// Populates BooleanOptionsDictionary with the boolean type properties
+        /// Initializes the BooleanOptionsDictionary by reflecting over all boolean properties of DacDeployOptions.
         /// </summary>
-        /// <param name="options"></param>
         public void InitializeBooleanTypeOptions(DacDeployOptions options)
         {
             PropertyInfo[] dacDeploymentOptionsProperties = options.GetType().GetProperties();
-            foreach (PropertyInfo  prop in dacDeploymentOptionsProperties)
+            foreach (PropertyInfo prop in dacDeploymentOptionsProperties)
             {
                 if (prop != null && prop.PropertyType == typeof(System.Boolean))
                 {
@@ -199,24 +213,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 }
             }
 
-            // Preparing object types dictionary
             InitializeObjectTypesDictionary();
         }
 
+        /// <summary>
+        /// Populates both boolean and non-boolean deployment options from a <see cref="DacDeployOptions"/> instance.
+        /// </summary>
         public void SetOptions(DacDeployOptions options)
         {
-            // Set the default options properties
             InitializeBooleanTypeOptions(options);
             InitializeNonBooleanTypeOptions(options);
         }
 
         /// <summary>
-        /// Preparing all non boolean properties (except BooleanOptionsDictionary)
+        /// Preparing all non boolean properties
         /// </summary>
-        /// <param name="options"></param>
         public void InitializeNonBooleanTypeOptions(DacDeployOptions options)
         {
-            // preparing remaining properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
@@ -242,12 +255,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 string displayName = info?.GetCustomAttribute<DisplayAttribute>().GetName();
                 if (string.IsNullOrEmpty(displayName))
                 {
-                    // not expecting display name for any options as empty string
                     Logger.Error(string.Format($"Display name is empty for the Object type enum {0}", name));
                 }
                 else
                 {
-                    // Add the property to the Dictionary
                     ObjectTypesDictionary[name] = displayName;
                 }
             }
@@ -256,52 +267,43 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// Prepares and returns the value and description of a property
         /// </summary>
-        /// <param name="prop"></param>
-        /// <param name="options"></param>
         public object GetDeploymentOptionProp(PropertyInfo prop, DacDeployOptions options)
         {
             var val = prop.GetValue(options);
-            DescriptionAttribute descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>().FirstOrDefault(); 
+            DescriptionAttribute descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>().FirstOrDefault();
             DisplayNameAttribute displayNameAttribute = prop.GetCustomAttributes<DisplayNameAttribute>().FirstOrDefault();
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType())
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
 
-            // DeploymentOptions ExcludeObjectTypes are String[] type and need special casting here
             if (prop.Name == nameof(this.ExcludeObjectTypes))
             {
                 type = typeof(DeploymentOptionProperty<string[]>);
-                val = val != null ? ConvertObjectTypeToStringArray((ObjectType[])val): new string[] { };
+                val = val != null ? ConvertObjectTypeToStringArray((ObjectType[])val) : new string[] { };
             }
 
-            return Activator.CreateInstance(type, val, 
-                (descriptionAttribute != null ? descriptionAttribute.Description : string.Empty), 
+            return Activator.CreateInstance(type, val,
+                (descriptionAttribute != null ? descriptionAttribute.Description : string.Empty),
                 (displayNameAttribute != null ? displayNameAttribute.DisplayName : string.Empty));
         }
 
         /// <summary>
-        /// Converting ObjectType to String[] as the deployemnt options excludeObjectTypes is string[] but the DacFx DacDeployOptions excludeObjectTypes is of ObjectType[]
-        /// Loading options from profile and schema compare .scmp file should need this conversion
+        /// Converting ObjectType to String[]
         /// </summary>
-        /// <param name="excludeObjectTypes"></param>
-        /// <returns>string[]</returns>
         public string[] ConvertObjectTypeToStringArray(ObjectType[] excludeObjectTypes)
         {
             return excludeObjectTypes.Select(t => t.ToString()).ToArray();
         }
 
         /// <summary>
-        /// Gets default deployment options for Publish operations.
-        /// Returns DacFx native defaults.
+        /// Returns a new <see cref="DeploymentOptions"/> instance with default publish settings, excluding DatabaseScopedCredentials from the exclude list.
         /// </summary>
-        /// <returns>DeploymentOptions configured for Publish</returns>
         public static DeploymentOptions GetDefaultPublishOptions()
         {
             // Publish operations use DacFx native defaults (no SSMS-matching overrides)
             DeploymentOptions result = new DeploymentOptions(DeploymentScenario.Deployment);
-
-            result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != Enum.GetName(ObjectType.DatabaseScopedCredentials)).ToArray(); // re-include database-scoped credentials
-
+            result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != ObjectType.DatabaseScopedCredentials.ToString()).ToArray();
             return result;
         }
+
     }
 }

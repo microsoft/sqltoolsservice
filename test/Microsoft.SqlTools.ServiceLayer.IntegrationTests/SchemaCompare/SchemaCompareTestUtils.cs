@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using NUnit.Framework;
 using System;
 using System.IO;

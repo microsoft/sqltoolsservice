@@ -5,15 +5,22 @@
 
 #nullable disable
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Parameters for a schema compare generate script request.
+    /// Extends SqlCore's version with TaskExecutionMode.
     /// </summary>
-    public class SchemaCompareGenerateScriptParams : SchemaComparePublishDatabaseChangesParams
+    public class SchemaCompareGenerateScriptParams : CoreContracts.SchemaCompareGenerateScriptParams
     {
+        /// <summary>
+        /// Execution mode for the operation. Default is execution
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>

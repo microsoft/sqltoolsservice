@@ -18,6 +18,8 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.DacFx;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 
@@ -422,7 +424,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 };
             }, requestContext);
         }
-
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {

@@ -7,7 +7,6 @@
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -18,6 +17,10 @@ using System;
 using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using DiffEntry = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DiffEntry;
+using SchemaCompareEndpointType = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareEndpointType;
+using SchemaCompareObjectId = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareObjectId;
+using DeploymentOptions = Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;

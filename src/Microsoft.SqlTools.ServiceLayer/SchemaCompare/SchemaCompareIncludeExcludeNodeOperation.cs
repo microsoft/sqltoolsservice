@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -40,8 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
-        public List<DiffEntry> AffectedDependencies;
-        public List<DiffEntry> BlockingDependencies;
+        public List<CoreContracts.DiffEntry> AffectedDependencies;
+        public List<CoreContracts.DiffEntry> BlockingDependencies;
 
 
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
@@ -97,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private SchemaDifference FindDifference(IEnumerable<SchemaDifference> differences, DiffEntry diffEntry)
+        private SchemaDifference FindDifference(IEnumerable<SchemaDifference> differences, CoreContracts.DiffEntry diffEntry)
         {
             foreach (var difference in differences)
             {
@@ -117,11 +118,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return null;
         }
 
-        private bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
+        private bool IsEqual(SchemaDifference difference, CoreContracts.DiffEntry diffEntry)
         {
             bool result = true;
             // Create a diff entry from difference and check if it matches the diff entry passed
-            DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
+            CoreContracts.DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
 
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)

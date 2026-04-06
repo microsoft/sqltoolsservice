@@ -5,33 +5,19 @@
 
 #nullable disable
 
-using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Parameters for a schema compare publish project changes request.
+    /// Extends SqlCore's version with TaskExecutionMode.
     /// </summary>
-    public class SchemaComparePublishProjectChangesParams
+    public class SchemaComparePublishProjectChangesParams : CoreContracts.SchemaComparePublishProjectChangesParams
     {
-        /// <summary>
-        /// Operation id of the schema compare operation
-        /// </summary>
-        public string OperationId { get; set; }
-
-        /// <summary>
-        /// Path of project folder
-        /// </summary>
-        public string TargetProjectPath { get; set; }
-
-        /// <summary>
-        /// folder structure of target folder
-        /// </summary>
-        public DacExtractTarget TargetFolderStructure { get; set; }
-
         /// <summary>
         /// Execution mode for the operation. Default is execution
         /// </summary>

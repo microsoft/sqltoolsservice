@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// Deployment options (for Publish, Script operations).
         /// Converted to DacDeployOptions using DacFxUtils.CreateDeploymentOptions.
         /// </summary>
-        public DacFx.Contracts.DeploymentOptions DeploymentOptions { get; set; }
+        public Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions DeploymentOptions { get; set; }
 
         /// <summary>
         /// Extract options (for Extract operation)
