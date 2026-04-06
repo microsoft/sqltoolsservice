@@ -255,10 +255,11 @@ Task("BuildFx")
         foreach (var framework in project.Frameworks)
         {
             var projectFolder = System.IO.Path.Combine(sourceFolder, project.Name);
+            var projectFile = System.IO.Path.Combine(projectFolder, project.Name + ".csproj");
             var logPath = System.IO.Path.Combine(logFolder, $"{project.Name}-{framework}-build.log");
             ExitStatus exitStatus;
             using (var logWriter = new StreamWriter(logPath)) {
-                exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFile}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,
@@ -476,7 +477,7 @@ void PublishProject(string packageName, string[] projects)
                 var outputFolder = System.IO.Path.Combine(publishFolder, packageName, "default", framework);
                 var publishArguments = "publish";
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
-                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFile}\"";
                 var publishStart = DateTime.Now;
                 Information($"=~= [{(publishStart - overallStart)}] Publishing {project} / {framework}");
                 Run(dotnetcli, publishArguments)

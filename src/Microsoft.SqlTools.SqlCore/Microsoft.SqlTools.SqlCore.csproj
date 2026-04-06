@@ -12,10 +12,18 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
 		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution, and Scripting</Description>
-		<TargetFrameworks>net8.0</TargetFrameworks>
+		<DelaySign>True</DelaySign>
+		<!-- Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in
+		tests with internalsVisibleTo attribute.-->
+		<SignAssembly Condition="$(TargetFramework) == 'net472'">True</SignAssembly>
+		<AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
+		<TargetFrameworks>net472;net8.0</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
+		<!-- Suppress CA1852 (Seal internal types) for net472 since InternalsVisibleTo is
+		     excluded for signed builds, causing false positives on types visible to test projects -->
+		<NoWarn Condition="$(TargetFramework) == 'net472'">$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -37,11 +45,13 @@
 	<ItemGroup>
 		<EmbeddedResource Include="ObjectExplorer/SmoModel/SmoTreeNodesDefinition.xml" />
 	</ItemGroup>
-	<ItemGroup>
+	<ItemGroup Condition="$(TargetFramework) != 'net472'">
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="System.IO.Packaging" />
 		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
