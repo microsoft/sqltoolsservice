@@ -2903,6 +2903,19 @@ namespace Microsoft.SqlTools.SqlCore
             return Keys.GetString(Keys.TableDesignerAlterTablePermissionDenied, table);
         }
 
+        public static string SchemaCompareExcludeIncludeNodeNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaCompareExcludeIncludeNodeNotFound);
+            }
+        }
+
+        public static string OpenScmpConnectionBasedModelParsingError(string endpoint, string error)
+        {
+            return Keys.GetString(Keys.OpenScmpConnectionBasedModelParsingError, endpoint, error);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -4013,6 +4026,12 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string TableDesignerAlterTablePermissionDenied = "TableDesignerAlterTablePermissionDenied";
+
+
+            public const string SchemaCompareExcludeIncludeNodeNotFound = "SchemaCompareExcludeIncludeNodeNotFound";
+
+
+            public const string OpenScmpConnectionBasedModelParsingError = "OpenScmpConnectionBasedModelParsingError";
 
 
             private Keys()

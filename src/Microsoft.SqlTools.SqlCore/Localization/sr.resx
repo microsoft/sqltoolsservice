@@ -1613,4 +1613,13 @@
     <comment>.
  Parameters: 0 - table (string) </comment>
   </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>Failed to find the specified change in the model</value>
+    <comment>.</comment>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>Error encountered while trying to parse connection information for endpoint &apos;{0}&apos; with error message &apos;{1}&apos;</value>
+    <comment>.
+ Parameters: 0 - endpoint (string), 1 - error (string) </comment>
+  </data>
 </root>
