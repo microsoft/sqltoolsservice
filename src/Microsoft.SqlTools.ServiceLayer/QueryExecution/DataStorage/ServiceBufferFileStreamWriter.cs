@@ -187,7 +187,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 else if (ci.IsVector)
                 {
-                    rowBytes += WriteString(ConvertVectorToDisplayString(values[i]));
+                    if (values[i] is global::System.Data.SqlTypes.INullable nullableValue && nullableValue.IsNull)
+                    {
+                        rowBytes += WriteNull();
+                    }
+                    else
+                    {
+                        rowBytes += WriteString(ConvertVectorToDisplayString(values[i]));
+                    }
                 }
                 else
                 {
