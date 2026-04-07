@@ -306,7 +306,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         {
                             this.SqlTask.ReportProgress(e.Percent, "Backup");
                         }
-                        OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
                     };
 
                     this.backup.Information += (object sender, ServerMessageEventArgs e) =>
