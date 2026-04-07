@@ -298,12 +298,58 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (this.dataContainer.Server.ConnectionContext != null)
                 {
+                    // Subscribe to SMO progress and information events for detailed progress reporting
+                    this.backup.PercentCompleteNotification = 5;
+                    int lastPercent = 0;
+                    this.backup.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                    {
+                        if (this.SqlTask != null)
+                        {
+                            int delta = e.Percent - lastPercent;
+                            lastPercent = e.Percent;
+                            this.SqlTask.IncrementProgress(delta, "Backup");
+                        }
+                        OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
+                    };
+
+                    this.backup.Information += (object sender, ServerMessageEventArgs e) =>
+                    {
+                        if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                        {
+                            OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                        }
+                    };
+
+                    this.backup.Complete += (object sender, ServerMessageEventArgs e) =>
+                    {
+                        if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                        {
+                            OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                        }
+                    };
+
+                    if (this.SqlTask != null)
+                    {
+                        this.SqlTask.InitializeProgress(0, 100, "Configuring");
+                        this.SqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress);
+                    }
+
                     // Execute backup
+                    if (this.SqlTask != null)
+                    {
+                        this.SqlTask.IncrementProgress(0, "Executing");
+                    }
                     this.backup.SqlBackup(this.dataContainer.Server);
 
                     // Verify backup if required
                     if (this.backupInfo.VerifyBackupRequired)
                     {
+                        if (this.SqlTask != null)
+                        {
+                            this.SqlTask.IncrementProgress(0, "Verifying");
+                        }
+                        OnMessageAdded(new TaskMessage { Description = "Verifying backup...", Status = SqlTaskStatus.InProgress });
+
                         Restore restore = new Restore();
                         restore.Devices.AddRange(this.backup.Devices);
                         restore.Database = this.backup.Database;

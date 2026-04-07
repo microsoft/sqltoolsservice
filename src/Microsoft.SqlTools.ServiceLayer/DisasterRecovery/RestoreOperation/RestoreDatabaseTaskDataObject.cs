@@ -280,6 +280,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public override void Execute(TaskExecutionMode mode)
         {
             RestorePlanToExecute = null;
+
+            if (this.SqlTask != null)
+            {
+                this.SqlTask.InitializeProgress(0, 100, "Planning");
+                this.SqlTask.AddMessage("Creating restore plan...", SqlTaskStatus.InProgress);
+            }
+
             UpdateRestoreTaskObject();
             if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
             {
@@ -325,10 +332,54 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                     if (RestorePlanToExecute != null && RestorePlanToExecute.RestoreOperations.Count > 0)
                     {
-                        RestorePlanToExecute.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                        int totalOperations = RestorePlanToExecute.RestoreOperations.Count;
+                        int currentOperation = 0;
+
+                        if (this.SqlTask != null)
                         {
-                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
-                        };
+                            this.SqlTask.InitializeProgress(0, 100, "Restore");
+                            this.SqlTask.AddMessage(
+                                string.Format("Restoring {0} backup set(s)...", totalOperations),
+                                SqlTaskStatus.InProgress);
+                        }
+
+                        // Subscribe to each individual restore operation's events for detailed progress
+                        foreach (Restore restoreOp in RestorePlanToExecute.RestoreOperations)
+                        {
+                            int opIndex = currentOperation;
+                            restoreOp.PercentCompleteNotification = 5;
+                            restoreOp.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                            {
+                                // Calculate overall progress across all operations
+                                int overallPercent = ((opIndex * 100) + e.Percent) / totalOperations;
+                                if (this.SqlTask != null)
+                                {
+                                    int delta = overallPercent - this.SqlTask.ProgressCurrent;
+                                    if (delta > 0)
+                                    {
+                                        this.SqlTask.IncrementProgress(delta, "Restore");
+                                    }
+                                }
+                                OnMessageAdded(new TaskMessage
+                                {
+                                    Description = totalOperations > 1
+                                        ? $"Set {opIndex + 1}/{totalOperations}: {e.Percent}%"
+                                        : $"{e.Percent}%",
+                                    Status = SqlTaskStatus.InProgress
+                                });
+                            };
+
+                            restoreOp.Information += (object sender, ServerMessageEventArgs e) =>
+                            {
+                                if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                                {
+                                    OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                                }
+                            };
+
+                            currentOperation++;
+                        }
+
                         RestorePlanToExecute.Execute();
                     }
                 }
