@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.Utility
         public const string dstsAuth = "dstsAuth";
         public const string ActiveDirectoryInteractive = "ActiveDirectoryInteractive";
         public const string ActiveDirectoryPassword = "ActiveDirectoryPassword";
+        public const string ActiveDirectoryDefault = "ActiveDirectoryDefault";
 
         // Microsoft Entra authentication (MSAL) constants
         public const string ApplicationClientId = "a69788c6-1d43-44ed-9ca3-b83e194da255";
