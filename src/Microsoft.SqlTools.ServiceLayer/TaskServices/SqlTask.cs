@@ -506,7 +506,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 OperationName = TaskMetadata.OperationName,
                 PercentComplete = this.PercentComplete,
                 ProgressMessage = this.ProgressMessage,
-                Messages = this.Messages.ToArray(),
                 Duration = this.IsCompleted ? this.Duration : 0
             };
         }

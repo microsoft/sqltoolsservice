@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         }
 
         [Test]
-        public void ToTaskInfoShouldIncludeProgressAndMessages()
+        public void ToTaskInfoShouldIncludeProgress()
         {
             DatabaseOperationStub operation = new DatabaseOperationStub();
             SqlTask sqlTask = new SqlTask(new TaskMetadata
@@ -243,8 +243,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
             Assert.AreEqual(25, taskInfo.PercentComplete);
             Assert.AreEqual("Validating", taskInfo.ProgressMessage);
-            Assert.NotNull(taskInfo.Messages);
-            Assert.True(taskInfo.Messages.Length > 0);
         }
 
         [Test]

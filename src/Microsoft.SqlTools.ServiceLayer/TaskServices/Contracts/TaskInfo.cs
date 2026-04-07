@@ -85,11 +85,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public string ProgressMessage { get; set; }
 
         /// <summary>
-        /// Accumulated task messages. Allows late-joining clients to see full history.
-        /// </summary>
-        public TaskMessage[] Messages { get; set; }
-
-        /// <summary>
         /// The number of milliseconds the task has been running (populated when completed)
         /// </summary>
         public double Duration { get; set; }

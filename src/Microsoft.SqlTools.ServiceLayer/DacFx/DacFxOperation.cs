@@ -93,15 +93,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 // Wire up DacServices progress events to SqlTask for real progress reporting
                 if (this.SqlTask != null)
                 {
-                    this.DacServices.ProgressChanged += (sender, e) =>
-                    {
-                        if (this.SqlTask != null)
-                        {
-                            this.SqlTask.ReportProgress(-1, e.Message);
-                            this.SqlTask.AddMessage(e.Message, SqlTaskStatus.InProgress);
-                        }
-                    };
-
                     this.DacServices.Message += (sender, e) =>
                     {
                         if (this.SqlTask != null && e.Message != null)
