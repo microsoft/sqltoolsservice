@@ -214,6 +214,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         }
 
         [Test]
+        public void ReportProgressShouldThrowGivenInvalidPercent()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => sqlTask.ReportProgress(-2, "Invalid"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sqlTask.ReportProgress(101, "Invalid"));
+        }
+
+        [Test]
+        public void ReportProgressShouldNotRaiseStatusChangedWhenUnchanged()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+            int statusChangedCount = 0;
+
+            sqlTask.StatusChanged += (sender, args) => statusChangedCount++;
+
+            sqlTask.ReportProgress(25, "Step 1");
+            sqlTask.ReportProgress(25, "Step 1");
+
+            Assert.AreEqual(1, statusChangedCount);
+        }
+
+        [Test]
         public void CancelShouldSetCancelRequestedStatus()
         {
             DatabaseOperationStub operation = new DatabaseOperationStub();

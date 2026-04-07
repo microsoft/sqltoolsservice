@@ -405,14 +405,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="message">A message describing the current step.</param>
         public void ReportProgress(int percentComplete, string message)
         {
+            if (percentComplete < -1 || percentComplete > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(percentComplete), "percentComplete must be -1 or between 0 and 100.");
+            }
+
+            if (PercentComplete == percentComplete && string.Equals(ProgressMessage, message, StringComparison.Ordinal))
+            {
+                return;
+            }
+
             PercentComplete = percentComplete;
             ProgressMessage = message;
             OnStatusChanged();
         }
 
         /// <summary>
-        /// Try to cancel the task, and event to cancel the task will be raised 
-        /// but the status won't change until that task actually get canceled by it's owner
+        /// Requests cancellation for the task and updates the task status to CancelRequested
+        /// until the task owner completes cancellation.
         /// </summary>
         public void Cancel()
         {
