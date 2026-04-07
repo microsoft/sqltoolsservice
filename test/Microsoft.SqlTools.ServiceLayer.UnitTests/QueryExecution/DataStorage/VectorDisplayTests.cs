@@ -11,6 +11,7 @@ using System.IO;
 using Microsoft.Data.SqlTypes;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using NUnit.Framework;
 
@@ -171,13 +172,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.AreEqual("[10,20,30]", result);
         }
 
-        [Test]
-        public void ConvertVectorToDisplayString_Null_ReturnsEmpty()
-        {
-            string result = ServiceBufferFileStreamWriter.ConvertVectorToDisplayString(null);
-            Assert.AreEqual(string.Empty, result);
-        }
-
         #endregion
 
         #region End-to-end write/read round-trip test
@@ -207,6 +201,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             Assert.AreEqual(expectedDisplay, result.Value.DisplayValue);
             Assert.AreEqual(expectedDisplay, result.Value.RawObject);
+        }
+
+        [Test]
+        public void VectorColumn_NullWrite_ReadBack_IsNullCell()
+        {
+            // NULL vector values must be written as a null marker (WriteNull), not as an
+            // empty string. The reader must return IsNull=true and DisplayValue=NULL so
+            // the client renders the cell as a null cell, not as an empty string.
+            byte[] storage = new byte[8192];
+            var settings = new QueryExecutionSettings();
+
+            using (var writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), settings))
+            {
+                writer.WriteNull();
+            }
+
+            FileStreamReadResult result;
+            using (var reader = new ServiceBufferFileStreamReader(new MemoryStream(storage), settings))
+            {
+                result = reader.ReadString(0, rowId: 1);
+            }
+
+            Assert.IsTrue(result.Value.IsNull);
+            Assert.AreEqual(Microsoft.SqlTools.ServiceLayer.SR.QueryServiceCellNull, result.Value.DisplayValue);
         }
 
         #endregion

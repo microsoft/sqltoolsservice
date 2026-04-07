@@ -524,8 +524,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return string.Empty;
             if (value is System.Data.SqlTypes.INullable systemNullable && systemNullable.IsNull)
                 return string.Empty;
-            if (value is Microsoft.Data.SqlTypes.INullable microsoftNullable && microsoftNullable.IsNull)
-                return string.Empty;
             if (value is SqlVector<float> floatVector)
                 return FloatSpanToJsonString(floatVector.Memory.Span);
             if (value is SqlBinary sqlBinary)
