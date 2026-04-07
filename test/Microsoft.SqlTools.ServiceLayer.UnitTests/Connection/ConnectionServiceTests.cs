@@ -475,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"sa", ""},
         };
 
-      
+
         /// <summary>
         /// Verify that when using sql logins, the password can be empty.
         /// </summary>
@@ -483,15 +483,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void ConnectingWithNoPasswordWorksForSqlLogin(string userName, string password)
         {
             // Connect
-            var connectionResult = 
+            var connectionResult =
                 ConnectionService.CreateConnectionStringBuilder(new ConnectionDetails()
-                    {
-                        ServerName = "my-server",
-                        DatabaseName = "test",
-                        UserName = userName,
-                        Password = password,
-                        AuthenticationType = SqlLogin
-                    });
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = userName,
+                    Password = password,
+                    AuthenticationType = SqlLogin
+                });
 
             Assert.That(connectionResult, Is.Not.Null.Or.Empty, "check that the connection was successful");
         }
@@ -605,6 +605,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
+            new object[] {"AuthenticationType", "ActiveDirectoryDefault", "Authentication=ActiveDirectoryDefault" },
             new object[] {"Encrypt", "Mandatory", "Encrypt"},
             new object[] {"Encrypt", "Optional", "Encrypt"},
             new object[] {"Encrypt", "Strict", "Encrypt"},
@@ -662,6 +663,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             string connectionString = ConnectionService.BuildConnectionString(details);
 
             Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameter is in the connection string");
+        }
+
+        [Test]
+        public void ActiveDirectoryDefaultAllowsMissingUsernameAndPassword()
+        {
+            string connectionString = ConnectionService.BuildConnectionString(new ConnectionDetails()
+            {
+                ServerName = "my-server",
+                DatabaseName = "test",
+                AuthenticationType = ActiveDirectoryDefault
+            });
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryDefault));
+            Assert.That(builder.UserID, Is.Empty);
+            Assert.That(builder.Password, Is.Empty);
         }
 
         private static readonly object[] optionalEnclaveParameters =
@@ -2011,6 +2029,98 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 h => h.SendEvent(RefreshTokenNotification.Type, It.IsAny<RefreshTokenParams>()),
                 Times.Never,
                 "Should not send RefreshTokenNotification when SqlAuthenticationProvider handles token refresh");
+        }
+
+        [Test]
+        public void CreateConnectionStringBuilder_AzureMFA_WithPreAcquiredToken_KeepsAuthNotSpecified()
+        {
+            var previousEnableSqlAuthenticationProvider = ConnectionService.Instance.EnableSqlAuthenticationProvider;
+            try
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+                var details = new ConnectionDetails()
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = "user@contoso.com",
+                    AuthenticationType = AzureMFA,
+                    AzureAccountToken = "pre-acquired-token-from-vscode"
+                };
+
+                var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified), "Authentication should remain NotSpecified so AccessToken can be injected");
+                Assert.That(builder.UserID, Is.Empty, "UserID must not be set when a pre-acquired token is used");
+
+                Assert.That(details.AuthenticationType, Is.EqualTo(AzureMFA), "AuthenticationType on details should remain AzureMFA for downstream checks");
+                Assert.That(details.UserName, Is.EqualTo("user@contoso.com"), "UserName on details should not be mutated when a pre-acquired token is used");
+            }
+            finally
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = previousEnableSqlAuthenticationProvider;
+            }
+        }
+
+        [Test]
+        public void CreateConnectionStringBuilder_AzureMFA_WithoutToken_SetsActiveDirectoryInteractive()
+        {
+            var previousEnableSqlAuthenticationProvider = ConnectionService.Instance.EnableSqlAuthenticationProvider;
+            try
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+                var details = new ConnectionDetails()
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = "user@contoso.com",
+                    AuthenticationType = AzureMFA,
+                    AzureAccountToken = null
+                };
+
+                var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+                // When no token, should delegate to SqlAuthenticationProvider
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryInteractive));
+                Assert.That(details.AuthenticationType, Is.EqualTo(ActiveDirectoryInteractive));
+            }
+            finally
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = previousEnableSqlAuthenticationProvider;
+            }
+        }
+
+        [Test]
+        public void CreateConnectionStringBuilder_ActiveDirectoryInteractive_WithPreAcquiredToken_KeepsAuthNotSpecified()
+        {
+            var previousEnableSqlAuthenticationProvider = ConnectionService.Instance.EnableSqlAuthenticationProvider;
+            try
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+
+                var details = new ConnectionDetails()
+                {
+                    ServerName = "my-server",
+                    DatabaseName = "test",
+                    UserName = "user@contoso.com",
+                    AuthenticationType = ActiveDirectoryInteractive,
+                    AzureAccountToken = "pre-acquired-token-from-vscode"
+                };
+
+                var builder = ConnectionService.CreateConnectionStringBuilder(details);
+
+                // Authentication should be NotSpecified so AccessToken can be injected
+                Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.NotSpecified));
+                // UserID must not be set when a pre-acquired token is used
+                Assert.That(builder.UserID, Is.Empty);
+                // UserName on the details object should not be mutated
+                Assert.That(details.UserName, Is.EqualTo("user@contoso.com"));
+            }
+            finally
+            {
+                ConnectionService.Instance.EnableSqlAuthenticationProvider = previousEnableSqlAuthenticationProvider;
+            }
         }
 
         [Test]

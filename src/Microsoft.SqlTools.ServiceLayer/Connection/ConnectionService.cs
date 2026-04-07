@@ -1454,17 +1454,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             {
                                 connectionBuilder.UserID = connectionDetails.UserName;
                             }
-                            connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
-                            connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                            // Only delegate to SqlAuthenticationProvider (MSAL) when no token
+                            // has been pre-acquired by the client (e.g., VS Code sessions).
+                            // When a token is already provided, keep Authentication as
+                            // NotSpecified so ReliableSqlConnection can inject it via AccessToken.
+                            if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
+                            {
+                                connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
+                                connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                            }
+                            else
+                            {
+                                // To work with the provided token, UserID must be unset and the auth method must be NotSpecified.
+                                connectionBuilder.UserID = "";
+                                connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
+                            }
                         }
                         break;
                     case ActiveDirectoryInteractive:
-                        // Don't erase username from connection string.
-                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
                         {
-                            connectionBuilder.UserID = connectionDetails.UserName;
+                            // Don't erase username from connection string.
+                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                            {
+                                connectionBuilder.UserID = connectionDetails.UserName;
+                            }
+                            connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                         }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                        else
+                        {
+                            // Cannot set UserID when a token has been pre-acquired.
+                            // Do not mutate connectionDetails.UserName — only clear the builder field.
+                            connectionBuilder.UserID = "";
+                            // Explicitly clear Authentication in case the builder was initialized
+                            // from a connection string that already includes an Authentication value.
+                            connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
+                        }
                         break;
                     case ActiveDirectoryPassword:
                         // Don't erase username from connection string.
@@ -1478,6 +1503,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             connectionBuilder.Password = connectionDetails.Password;
                         }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
+                        break;
+                    case ActiveDirectoryDefault:
+                        // UserID is optional, but if provided it can be used by the driver
+                        // as the client ID for a user-assigned managed identity.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID) && !string.IsNullOrEmpty(connectionDetails.UserName))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryDefault;
                         break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));

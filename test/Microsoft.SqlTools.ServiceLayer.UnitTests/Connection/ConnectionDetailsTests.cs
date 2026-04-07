@@ -334,5 +334,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details1 = details2.Clone();
             Assert.That(details1.IsComparableTo(details2), Is.True, "Same Connection Settings must be comparable.");
         }
+
+        [Test]
+        public void ConnectionProviderOptionsShouldIncludeActiveDirectoryDefault()
+        {
+            ConnectionProviderOptions optionMetadata = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions();
+
+            ConnectionOption authOption = optionMetadata.Options.Single(o => o.Name == "authenticationType");
+
+            Assert.That(authOption.CategoryValues.Select(v => v.Name), Contains.Item("ActiveDirectoryDefault"));
+        }
     }
 }
