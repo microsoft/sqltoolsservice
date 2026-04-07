@@ -513,13 +513,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         internal static string ConvertVectorToDisplayString(object value)
         {
+            if (value is null || value == DBNull.Value)
+                return string.Empty;
+            if (value is System.Data.SqlTypes.INullable systemNullable && systemNullable.IsNull)
+                return string.Empty;
+            if (value is Microsoft.Data.SqlTypes.INullable microsoftNullable && microsoftNullable.IsNull)
+                return string.Empty;
             if (value is SqlVector<float> floatVector)
                 return FloatSpanToJsonString(floatVector.Memory.Span);
             if (value is SqlBinary sqlBinary)
                 return VectorBytesToJsonString(sqlBinary.Value);
             if (value is byte[] bytes)
                 return VectorBytesToJsonString(bytes);
-            return value?.ToString() ?? string.Empty;
+            return value.ToString();
         }
 
         /// <summary>
