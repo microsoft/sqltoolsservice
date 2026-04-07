@@ -388,62 +388,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
-        /// Current progress value. Used together with ProgressGoal to calculate PercentComplete.
-        /// A value of 0 with ProgressGoal of 0 indicates indeterminate (heartbeat) progress.
+        /// Percentage of completion. -1 means indeterminate (heartbeat) progress.
+        /// Valid range: -1, or 0–100.
         /// </summary>
-        public int ProgressCurrent { get; private set; }
+        public int PercentComplete { get; private set; } = -1;
 
         /// <summary>
-        /// Target progress value. When greater than 0, enables determinate progress reporting.
+        /// A message describing the current progress step.
         /// </summary>
-        public int ProgressGoal { get; private set; }
+        public string ProgressMessage { get; private set; }
 
         /// <summary>
-        /// Percentage of completion. Returns -1 if progress is indeterminate (heartbeat mode).
+        /// Reports progress for this task, mirroring the PercentCompleteEventArgs / DacProgressEventArgs pattern.
         /// </summary>
-        public double PercentComplete
+        /// <param name="percentComplete">Percentage 0–100, or -1 for indeterminate (heartbeat) progress.</param>
+        /// <param name="message">A message describing the current step.</param>
+        public void ReportProgress(int percentComplete, string message)
         {
-            get
-            {
-                if (ProgressGoal <= 0)
-                {
-                    return -1;
-                }
-                return Math.Min(100.0, (double)ProgressCurrent / ProgressGoal * 100.0);
-            }
-        }
-
-        /// <summary>
-        /// Current phase or step name for multi-step operations (e.g. "VerifyingBuild", "GeneratingScript").
-        /// </summary>
-        public string Phase { get; private set; }
-
-        /// <summary>
-        /// Initializes progress tracking with a target goal.
-        /// </summary>
-        /// <param name="current">Initial progress value</param>
-        /// <param name="goal">Target progress value. Use 0 for indeterminate (heartbeat) progress.</param>
-        /// <param name="phase">Optional phase name</param>
-        public void InitializeProgress(int current, int goal, string phase = null)
-        {
-            ProgressCurrent = current;
-            ProgressGoal = goal;
-            Phase = phase;
-            OnStatusChanged();
-        }
-
-        /// <summary>
-        /// Increments the current progress by the given delta and optionally updates the phase.
-        /// </summary>
-        /// <param name="delta">Amount to increment progress by</param>
-        /// <param name="phase">Optional new phase name</param>
-        public void IncrementProgress(int delta, string phase = null)
-        {
-            ProgressCurrent += delta;
-            if (phase != null)
-            {
-                Phase = phase;
-            }
+            PercentComplete = percentComplete;
+            ProgressMessage = message;
             OnStatusChanged();
         }
 
@@ -541,10 +504,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 IsCancelable = this.TaskToCancel != null,
                 TargetLocation = TaskMetadata.TargetLocation,
                 OperationName = TaskMetadata.OperationName,
-                ProgressCurrent = this.ProgressCurrent,
-                ProgressGoal = this.ProgressGoal,
                 PercentComplete = this.PercentComplete,
-                Phase = this.Phase,
+                ProgressMessage = this.ProgressMessage,
                 Messages = this.Messages.ToArray(),
                 Duration = this.IsCompleted ? this.Duration : 0
             };

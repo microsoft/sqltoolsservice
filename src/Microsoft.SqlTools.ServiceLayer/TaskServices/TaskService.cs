@@ -131,10 +131,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 {
                     TaskId = sqlTask.TaskId.ToString(),
                     Status = e.TaskData,
-                    ProgressCurrent = sqlTask.ProgressCurrent,
-                    ProgressGoal = sqlTask.ProgressGoal,
                     PercentComplete = sqlTask.PercentComplete,
-                    Phase = sqlTask.Phase
+                    ProgressMessage = sqlTask.ProgressMessage
                 };
 
                 if (sqlTask.IsCompleted)
@@ -172,10 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                     TaskId = sqlTask.TaskId.ToString(),
                     Message = e.TaskData.Description,
                     Status = sqlTask.TaskStatus,
-                    ProgressCurrent = sqlTask.ProgressCurrent,
-                    ProgressGoal = sqlTask.ProgressGoal,
                     PercentComplete = sqlTask.PercentComplete,
-                    Phase = sqlTask.Phase
+                    ProgressMessage = sqlTask.ProgressMessage
                 };
                 await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }

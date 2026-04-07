@@ -172,58 +172,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         }
 
         [Test]
-        public void InitializeProgressShouldSetGoalAndCurrent()
+        public void ReportProgressShouldSetPercentAndMessage()
         {
             DatabaseOperationStub operation = new DatabaseOperationStub();
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
 
-            sqlTask.InitializeProgress(0, 100, "Building");
+            sqlTask.ReportProgress(42, "Building");
 
-            Assert.AreEqual(0, sqlTask.ProgressCurrent);
-            Assert.AreEqual(100, sqlTask.ProgressGoal);
-            Assert.AreEqual(0.0, sqlTask.PercentComplete);
-            Assert.AreEqual("Building", sqlTask.Phase);
+            Assert.AreEqual(42, sqlTask.PercentComplete);
+            Assert.AreEqual("Building", sqlTask.ProgressMessage);
         }
 
         [Test]
-        public void IncrementProgressShouldUpdateCurrentAndPhase()
+        public void ReportProgressShouldSupportIndeterminate()
         {
             DatabaseOperationStub operation = new DatabaseOperationStub();
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
 
-            sqlTask.InitializeProgress(0, 200);
-            sqlTask.IncrementProgress(50, "Deploying");
-
-            Assert.AreEqual(50, sqlTask.ProgressCurrent);
-            Assert.AreEqual(200, sqlTask.ProgressGoal);
-            Assert.AreEqual(25.0, sqlTask.PercentComplete);
-            Assert.AreEqual("Deploying", sqlTask.Phase);
-        }
-
-        [Test]
-        public void PercentCompleteShouldReturnNegativeOneForIndeterminateProgress()
-        {
-            DatabaseOperationStub operation = new DatabaseOperationStub();
-            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
-
-            // Default state (goal = 0) should be indeterminate
+            // Default state should be indeterminate
             Assert.AreEqual(-1, sqlTask.PercentComplete);
 
-            // Explicitly setting goal to 0 should also be indeterminate
-            sqlTask.InitializeProgress(0, 0);
+            // Explicitly reporting -1 should also be indeterminate
+            sqlTask.ReportProgress(-1, "Initializing");
             Assert.AreEqual(-1, sqlTask.PercentComplete);
+            Assert.AreEqual("Initializing", sqlTask.ProgressMessage);
         }
 
         [Test]
-        public void PercentCompleteShouldNotExceed100()
+        public void ReportProgressShouldUpdateValues()
         {
             DatabaseOperationStub operation = new DatabaseOperationStub();
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
 
-            sqlTask.InitializeProgress(0, 50);
-            sqlTask.IncrementProgress(100);
+            sqlTask.ReportProgress(25, "Step 1");
+            Assert.AreEqual(25, sqlTask.PercentComplete);
+            Assert.AreEqual("Step 1", sqlTask.ProgressMessage);
 
-            Assert.AreEqual(100.0, sqlTask.PercentComplete);
+            sqlTask.ReportProgress(75, "Step 2");
+            Assert.AreEqual(75, sqlTask.PercentComplete);
+            Assert.AreEqual("Step 2", sqlTask.ProgressMessage);
         }
 
         [Test]
@@ -249,15 +236,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 DatabaseName = "db"
             }, operation.FunctionToRun, null);
 
-            sqlTask.InitializeProgress(25, 100, "Validating");
+            sqlTask.ReportProgress(25, "Validating");
             sqlTask.AddMessage("Step 1 done", SqlTaskStatus.Succeeded);
 
             var taskInfo = sqlTask.ToTaskInfo();
 
-            Assert.AreEqual(25, taskInfo.ProgressCurrent);
-            Assert.AreEqual(100, taskInfo.ProgressGoal);
-            Assert.AreEqual(25.0, taskInfo.PercentComplete);
-            Assert.AreEqual("Validating", taskInfo.Phase);
+            Assert.AreEqual(25, taskInfo.PercentComplete);
+            Assert.AreEqual("Validating", taskInfo.ProgressMessage);
             Assert.NotNull(taskInfo.Messages);
             Assert.True(taskInfo.Messages.Length > 0);
         }
@@ -268,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             SqlTaskStatus expectedStatus = SqlTaskStatus.Succeeded;
             DatabaseOperationStub operation = new DatabaseOperationStub();
             operation.ReportProgress = true;
-            operation.Phase = "Processing";
+            operation.ProgressMessage = "Processing";
             operation.TaskResult = new TaskResult
             {
                 TaskStatus = expectedStatus
@@ -278,9 +263,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
             {
                 Assert.AreEqual(expectedStatus, sqlTask.TaskStatus);
-                Assert.True(sqlTask.ProgressCurrent > 0);
-                Assert.AreEqual(100, sqlTask.ProgressGoal);
-                Assert.AreEqual("Processing", sqlTask.Phase);
+                Assert.True(sqlTask.PercentComplete > 0);
+                Assert.AreEqual("Processing", sqlTask.ProgressMessage);
             });
             Thread.Sleep(500);
             operation.Stop();

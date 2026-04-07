@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (this.SqlTask != null)
             {
-                this.SqlTask.InitializeProgress(0, 100, "Planning");
+                this.SqlTask.ReportProgress(0, "Planning");
                 this.SqlTask.AddMessage("Creating restore plan...", SqlTaskStatus.InProgress);
             }
 
@@ -337,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                         if (this.SqlTask != null)
                         {
-                            this.SqlTask.InitializeProgress(0, 100, "Restore");
+                            this.SqlTask.ReportProgress(0, "Restoring");
                             this.SqlTask.AddMessage(
                                 string.Format("Restoring {0} backup set(s)...", totalOperations),
                                 SqlTaskStatus.InProgress);
@@ -354,11 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                                 int overallPercent = ((opIndex * 100) + e.Percent) / totalOperations;
                                 if (this.SqlTask != null)
                                 {
-                                    int delta = overallPercent - this.SqlTask.ProgressCurrent;
-                                    if (delta > 0)
-                                    {
-                                        this.SqlTask.IncrementProgress(delta, "Restore");
-                                    }
+                                    this.SqlTask.ReportProgress(overallPercent, "Restoring");
                                 }
                                 OnMessageAdded(new TaskMessage
                                 {

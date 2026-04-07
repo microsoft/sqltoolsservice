@@ -300,14 +300,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     // Subscribe to SMO progress and information events for detailed progress reporting
                     this.backup.PercentCompleteNotification = 5;
-                    int lastPercent = 0;
                     this.backup.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                     {
                         if (this.SqlTask != null)
                         {
-                            int delta = e.Percent - lastPercent;
-                            lastPercent = e.Percent;
-                            this.SqlTask.IncrementProgress(delta, "Backup");
+                            this.SqlTask.ReportProgress(e.Percent, "Backup");
                         }
                         OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
                     };
@@ -330,14 +327,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                     if (this.SqlTask != null)
                     {
-                        this.SqlTask.InitializeProgress(0, 100, "Configuring");
+                        this.SqlTask.ReportProgress(0, "Configuring");
                         this.SqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress);
                     }
 
                     // Execute backup
                     if (this.SqlTask != null)
                     {
-                        this.SqlTask.IncrementProgress(0, "Executing");
+                        this.SqlTask.ReportProgress(0, "Executing");
                     }
                     this.backup.SqlBackup(this.dataContainer.Server);
 
@@ -346,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     {
                         if (this.SqlTask != null)
                         {
-                            this.SqlTask.IncrementProgress(0, "Verifying");
+                            this.SqlTask.ReportProgress(-1, "Verifying");
                         }
                         OnMessageAdded(new TaskMessage { Description = "Verifying backup...", Status = SqlTaskStatus.InProgress });
 

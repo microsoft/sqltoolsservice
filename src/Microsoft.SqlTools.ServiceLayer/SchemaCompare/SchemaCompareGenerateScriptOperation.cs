@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 if (this.SqlTask != null)
                 {
-                    this.SqlTask.InitializeProgress(0, 0, "GeneratingScript");
+                    this.SqlTask.ReportProgress(-1, "Generating script");
                 }
 
                 this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName, this.CancellationToken);
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
                 if (this.SqlTask != null)
                 {
-                    this.SqlTask.IncrementProgress(0, "AddingScripts");
+                    this.SqlTask.ReportProgress(-1, "Adding scripts");
                     this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.ScriptGenerationResult.Script);
                     if (!string.IsNullOrEmpty(this.ScriptGenerationResult.MasterScript))
                     {

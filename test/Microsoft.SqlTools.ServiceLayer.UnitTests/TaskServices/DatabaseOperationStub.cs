@@ -34,14 +34,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         public bool Failed { get; set; }
 
         /// <summary>
-        /// When true, the FunctionToRun will report numeric progress using InitializeProgress/IncrementProgress
+        /// When true, the FunctionToRun will report numeric progress using ReportProgress
         /// </summary>
         public bool ReportProgress { get; set; }
 
         /// <summary>
-        /// When set, the FunctionToRun will report this phase name
+        /// When set, the FunctionToRun will report this message
         /// </summary>
-        public string Phase { get; set; }
+        public string ProgressMessage { get; set; }
 
         public async Task<TaskResult> FunctionToRun(SqlTask sqlTask)
         {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
                 if (ReportProgress)
                 {
-                    sqlTask.InitializeProgress(0, 100, Phase ?? "Starting");
+                    sqlTask.ReportProgress(0, ProgressMessage ?? "Starting");
                 }
 
                 int progressStep = 0;
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                     if (ReportProgress && progressStep < 100)
                     {
                         progressStep += 10;
-                        sqlTask.IncrementProgress(10, Phase);
+                        sqlTask.ReportProgress(progressStep, ProgressMessage);
                     }
                 }
                 sqlTask.AddMessage("done!", SqlTaskStatus.Succeeded);

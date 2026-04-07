@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 if (this.SqlTask != null)
                 {
-                    this.SqlTask.InitializeProgress(0, 0, "Publishing");
+                    this.SqlTask.ReportProgress(-1, "Publishing");
                 }
                 PublishResult = ComparisonResult.PublishChangesToProject(Parameters.TargetProjectPath, Parameters.TargetFolderStructure);
 

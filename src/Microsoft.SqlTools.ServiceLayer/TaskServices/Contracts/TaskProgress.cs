@@ -35,24 +35,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public double Duration { get; set; }
 
         /// <summary>
-        /// Current progress value toward the goal
-        /// </summary>
-        public int ProgressCurrent { get; set; }
-
-        /// <summary>
-        /// Target progress value. 0 means indeterminate (heartbeat) progress.
-        /// </summary>
-        public int ProgressGoal { get; set; }
-
-        /// <summary>
         /// Percentage of completion. -1 if indeterminate.
         /// </summary>
-        public double PercentComplete { get; set; }
+        public int PercentComplete { get; set; }
 
         /// <summary>
-        /// Current phase or step name for multi-step operations
+        /// A message describing the current progress step
         /// </summary>
-        public string Phase { get; set; }
+        public string ProgressMessage { get; set; }
 
     }
 }
