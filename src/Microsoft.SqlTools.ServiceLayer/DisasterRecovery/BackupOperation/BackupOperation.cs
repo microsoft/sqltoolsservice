@@ -324,29 +324,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
                         }
                     };
-
-                    if (this.SqlTask != null)
-                    {
-                        this.SqlTask.ReportProgress(0, "Configuring");
-                        this.SqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress);
-                    }
-
-                    // Execute backup
-                    if (this.SqlTask != null)
-                    {
-                        this.SqlTask.ReportProgress(0, "Executing");
-                    }
                     this.backup.SqlBackup(this.dataContainer.Server);
 
                     // Verify backup if required
                     if (this.backupInfo.VerifyBackupRequired)
                     {
-                        if (this.SqlTask != null)
-                        {
-                            this.SqlTask.ReportProgress(-1, "Verifying");
-                        }
-                        OnMessageAdded(new TaskMessage { Description = "Verifying backup...", Status = SqlTaskStatus.InProgress });
-
                         Restore restore = new Restore();
                         restore.Devices.AddRange(this.backup.Devices);
                         restore.Database = this.backup.Database;

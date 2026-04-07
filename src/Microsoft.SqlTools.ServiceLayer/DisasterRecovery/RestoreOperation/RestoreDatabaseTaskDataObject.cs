@@ -280,13 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public override void Execute(TaskExecutionMode mode)
         {
             RestorePlanToExecute = null;
-
-            if (this.SqlTask != null)
-            {
-                this.SqlTask.ReportProgress(0, "Planning");
-                this.SqlTask.AddMessage("Creating restore plan...", SqlTaskStatus.InProgress);
-            }
-
             UpdateRestoreTaskObject();
             if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
             {
@@ -332,50 +325,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                     if (RestorePlanToExecute != null && RestorePlanToExecute.RestoreOperations.Count > 0)
                     {
-                        int totalOperations = RestorePlanToExecute.RestoreOperations.Count;
-                        int currentOperation = 0;
-
-                        if (this.SqlTask != null)
+                        RestorePlanToExecute.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                         {
-                            this.SqlTask.ReportProgress(0, "Restoring");
-                            this.SqlTask.AddMessage(
-                                string.Format("Restoring {0} backup set(s)...", totalOperations),
-                                SqlTaskStatus.InProgress);
-                        }
-
-                        // Subscribe to each individual restore operation's events for detailed progress
-                        foreach (Restore restoreOp in RestorePlanToExecute.RestoreOperations)
+                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
+                        };
+                        RestorePlanToExecute.Information += (object sender, ServerMessageEventArgs e) =>
                         {
-                            int opIndex = currentOperation;
-                            restoreOp.PercentCompleteNotification = 5;
-                            restoreOp.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                            if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
                             {
-                                // Calculate overall progress across all operations
-                                int overallPercent = ((opIndex * 100) + e.Percent) / totalOperations;
-                                if (this.SqlTask != null)
-                                {
-                                    this.SqlTask.ReportProgress(overallPercent, "Restoring");
-                                }
-                                OnMessageAdded(new TaskMessage
-                                {
-                                    Description = totalOperations > 1
-                                        ? $"Set {opIndex + 1}/{totalOperations}: {e.Percent}%"
-                                        : $"{e.Percent}%",
-                                    Status = SqlTaskStatus.InProgress
-                                });
-                            };
-
-                            restoreOp.Information += (object sender, ServerMessageEventArgs e) =>
+                                OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                            }
+                        };
+                        RestorePlanToExecute.Complete += (object sender, ServerMessageEventArgs e) =>
+                        {
+                            if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
                             {
-                                if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
-                                {
-                                    OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
-                                }
-                            };
-
-                            currentOperation++;
-                        }
-
+                                OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                            }
+                        };
                         RestorePlanToExecute.Execute();
                     }
                 }
