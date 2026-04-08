@@ -13,8 +13,9 @@ using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -24,14 +25,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     internal static partial class SchemaCompareUtils
     {
-        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
+        internal static CoreContracts.DiffEntry CreateDiffEntry(SchemaDifference difference, CoreContracts.DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
         {
             if (difference == null)
             {
                 return null;
             }
 
-            var diffEntry = new DiffEntry();
+            var diffEntry = new CoreContracts.DiffEntry();
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
             diffEntry.Name = difference.Name;
@@ -84,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
             }
 
-            diffEntry.Children = new List<DiffEntry>();
+            diffEntry.Children = new List<CoreContracts.DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
             {
@@ -94,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return diffEntry;
         }
 
-        internal static SchemaComparisonExcludedObjectId CreateExcludedObject(SchemaCompareObjectId sourceObj)
+        internal static SchemaComparisonExcludedObjectId CreateExcludedObject(CoreContracts.SchemaCompareObjectId sourceObj)
         {
             try
             {
@@ -116,17 +117,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             switch (endpointInfo.EndpointType)
             {
-                case SchemaCompareEndpointType.Project:
+                case CoreContracts.SchemaCompareEndpointType.Project:
                     {
                         return endpointInfo?.ExtractTarget != null
                             ? new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider, (DacExtractTarget)endpointInfo?.ExtractTarget)
                             : new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);
                     }
-                case SchemaCompareEndpointType.Dacpac:
+                case CoreContracts.SchemaCompareEndpointType.Dacpac:
                     {
                         return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
                     }
-                case SchemaCompareEndpointType.Database:
+                case CoreContracts.SchemaCompareEndpointType.Database:
                     {
                         string connectionString = GetConnectionString(connInfo, endpointInfo.DatabaseName);
 

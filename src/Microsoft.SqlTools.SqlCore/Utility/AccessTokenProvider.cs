@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using Microsoft.SqlServer.Dac;
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.SqlTools.SqlCore.Utility
 {
-    class AccessTokenProvider : IUniversalAuthProvider
+    public class AccessTokenProvider : IUniversalAuthProvider
     {
         private string _accessToken;
 

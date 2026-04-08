@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
+using Microsoft.SqlTools.SqlCore.DacFx;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlPackage

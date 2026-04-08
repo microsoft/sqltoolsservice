@@ -6,26 +6,11 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
-    /// <summary>
-    /// Defines the deployment scenario for determining default options
-    /// </summary>
-    public enum DeploymentScenario
-    {
-        /// <summary>
-        /// Deployment/Publish scenario - uses DacFx native defaults
-        /// </summary>
-        Deployment = 0,
-
-        /// <summary>
-        /// Schema Compare scenario - uses modified defaults
-        /// </summary>
-        SchemaCompare = 1
-    }
-
     /// <summary>
     /// Parameters for getting deployment options based on scenario
     /// </summary>
@@ -44,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class GetDeploymentOptionsResult : ResultStatus
     {
-        public DeploymentOptions DefaultDeploymentOptions { get; set; }        
+        public DeploymentOptions DefaultDeploymentOptions { get; set; }
     }
 
     /// <summary>

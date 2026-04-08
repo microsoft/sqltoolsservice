@@ -7,7 +7,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
 using Microsoft.SqlTools.Utility;
 using System;

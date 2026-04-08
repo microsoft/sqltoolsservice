@@ -6,10 +6,11 @@
 #nullable disable
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.DacFx;
 using Microsoft.SqlTools.Utility;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 
-        public List<DiffEntry> Differences;
+        public List<CoreContracts.DiffEntry> Differences;
 
         public SchemaCompareOperation(SchemaCompareParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
         {
@@ -112,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     throw new OperationCanceledException(this.CancellationToken);
                 }
 
-                this.Differences = new List<DiffEntry>();
+                this.Differences = new List<CoreContracts.DiffEntry>();
                 if (this.ComparisonResult.Differences != null)
                 {
                     // filter out not included and not excludeable differences
@@ -120,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                     {
-                        DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
+                        CoreContracts.DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
                         this.Differences.Add(diffEntry);
                     }
                 }
