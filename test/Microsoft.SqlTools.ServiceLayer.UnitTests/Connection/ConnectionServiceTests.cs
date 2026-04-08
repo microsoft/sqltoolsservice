@@ -605,6 +605,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
+            new object[] {"AuthenticationType", "ActiveDirectoryDefault", "Authentication=ActiveDirectoryDefault" },
             new object[] {"Encrypt", "Mandatory", "Encrypt"},
             new object[] {"Encrypt", "Optional", "Encrypt"},
             new object[] {"Encrypt", "Strict", "Encrypt"},
@@ -662,6 +663,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             string connectionString = ConnectionService.BuildConnectionString(details);
 
             Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameter is in the connection string");
+        }
+
+        [Test]
+        public void ActiveDirectoryDefaultAllowsMissingUsernameAndPassword()
+        {
+            string connectionString = ConnectionService.BuildConnectionString(new ConnectionDetails()
+            {
+                ServerName = "my-server",
+                DatabaseName = "test",
+                AuthenticationType = ActiveDirectoryDefault
+            });
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryDefault));
+            Assert.That(builder.UserID, Is.Empty);
+            Assert.That(builder.Password, Is.Empty);
         }
 
         private static readonly object[] optionalEnclaveParameters =

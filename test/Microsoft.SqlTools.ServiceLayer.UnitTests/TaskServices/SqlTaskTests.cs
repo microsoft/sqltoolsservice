@@ -170,5 +170,128 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             });
             await taskToVerify;
         }
+
+        [Test]
+        public void ReportProgressShouldSetPercentAndMessage()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+
+            sqlTask.ReportProgress(42, "Building");
+
+            Assert.AreEqual(42, sqlTask.PercentComplete);
+            Assert.AreEqual("Building", sqlTask.ProgressMessage);
+        }
+
+        [Test]
+        public void ReportProgressShouldSupportIndeterminate()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+
+            // Default state should be indeterminate
+            Assert.AreEqual(-1, sqlTask.PercentComplete);
+
+            // Explicitly reporting -1 should also be indeterminate
+            sqlTask.ReportProgress(-1, "Initializing");
+            Assert.AreEqual(-1, sqlTask.PercentComplete);
+            Assert.AreEqual("Initializing", sqlTask.ProgressMessage);
+        }
+
+        [Test]
+        public void ReportProgressShouldUpdateValues()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+
+            sqlTask.ReportProgress(25, "Step 1");
+            Assert.AreEqual(25, sqlTask.PercentComplete);
+            Assert.AreEqual("Step 1", sqlTask.ProgressMessage);
+
+            sqlTask.ReportProgress(75, "Step 2");
+            Assert.AreEqual(75, sqlTask.PercentComplete);
+            Assert.AreEqual("Step 2", sqlTask.ProgressMessage);
+        }
+
+        [Test]
+        public void ReportProgressShouldThrowGivenInvalidPercent()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => sqlTask.ReportProgress(-2, "Invalid"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sqlTask.ReportProgress(101, "Invalid"));
+        }
+
+        [Test]
+        public void ReportProgressShouldNotRaiseStatusChangedWhenUnchanged()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+            int statusChangedCount = 0;
+
+            sqlTask.StatusChanged += (sender, args) => statusChangedCount++;
+
+            sqlTask.ReportProgress(25, "Step 1");
+            sqlTask.ReportProgress(25, "Step 1");
+
+            Assert.AreEqual(1, statusChangedCount);
+        }
+
+        [Test]
+        public void CancelShouldSetCancelRequestedStatus()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
+
+            sqlTask.Cancel();
+
+            Assert.AreEqual(SqlTaskStatus.CancelRequested, sqlTask.TaskStatus);
+            Assert.True(sqlTask.IsCancelRequested);
+            Assert.False(sqlTask.IsCompleted);
+        }
+
+        [Test]
+        public void ToTaskInfoShouldIncludeProgress()
+        {
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            SqlTask sqlTask = new SqlTask(new TaskMetadata
+            {
+                ServerName = "server",
+                DatabaseName = "db"
+            }, operation.FunctionToRun, null);
+
+            sqlTask.ReportProgress(25, "Validating");
+            sqlTask.AddMessage("Step 1 done", SqlTaskStatus.Succeeded);
+
+            var taskInfo = sqlTask.ToTaskInfo();
+
+            Assert.AreEqual(25, taskInfo.PercentComplete);
+            Assert.AreEqual("Validating", taskInfo.ProgressMessage);
+        }
+
+        [Test]
+        public async Task ProgressReportingShouldWorkDuringExecution()
+        {
+            SqlTaskStatus expectedStatus = SqlTaskStatus.Succeeded;
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            operation.ReportProgress = true;
+            operation.ProgressMessage = "Processing";
+            operation.TaskResult = new TaskResult
+            {
+                TaskStatus = expectedStatus
+            };
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
+
+            Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
+            {
+                Assert.AreEqual(expectedStatus, sqlTask.TaskStatus);
+                Assert.True(sqlTask.PercentComplete > 0);
+                Assert.AreEqual("Processing", sqlTask.ProgressMessage);
+            });
+            Thread.Sleep(500);
+            operation.Stop();
+            await taskToVerify;
+        }
     }
 }

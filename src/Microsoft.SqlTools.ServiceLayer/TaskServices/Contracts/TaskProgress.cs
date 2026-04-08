@@ -34,5 +34,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// </summary>
         public double Duration { get; set; }
 
+        /// <summary>
+        /// Percentage of completion. -1 if indeterminate.
+        /// </summary>
+        public int PercentComplete { get; set; }
+
+        /// <summary>
+        /// A message describing the current progress step
+        /// </summary>
+        public string ProgressMessage { get; set; }
+
     }
 }

@@ -1504,6 +1504,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
                         break;
+                    case ActiveDirectoryDefault:
+                        // UserID is optional, but if provided it can be used by the driver
+                        // as the client ID for a user-assigned managed identity.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID) && !string.IsNullOrEmpty(connectionDetails.UserName))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryDefault;
+                        break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }

@@ -327,7 +327,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         RestorePlanToExecute.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                         {
-                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
+                            if (this.SqlTask != null)
+                            {
+                                this.SqlTask.ReportProgress(e.Percent, "Restore");
+                            }
+                        };
+                        RestorePlanToExecute.Information += (object sender, ServerMessageEventArgs e) =>
+                        {
+                            if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                            {
+                                OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                            }
+                        };
+                        RestorePlanToExecute.Complete += (object sender, ServerMessageEventArgs e) =>
+                        {
+                            if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                            {
+                                OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                            }
                         };
                         RestorePlanToExecute.Execute();
                     }

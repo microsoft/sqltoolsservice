@@ -73,5 +73,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// Defines if the task can be canceled
         /// </summary>
         public bool IsCancelable { get; set; }
+
+        /// <summary>
+        /// Percentage of completion. -1 if indeterminate.
+        /// </summary>
+        public int PercentComplete { get; set; }
+
+        /// <summary>
+        /// A message describing the current progress step
+        /// </summary>
+        public string ProgressMessage { get; set; }
+
+        /// <summary>
+        /// The number of milliseconds the task has been running (populated when completed)
+        /// </summary>
+        public double Duration { get; set; }
     }
 }

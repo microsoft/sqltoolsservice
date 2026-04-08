@@ -356,6 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                         break;
                     case SqlTaskStatus.InProgress:
                     case SqlTaskStatus.NotStarted:
+                    case SqlTaskStatus.CancelRequested:
                         IsCompleted = false;
                         break;
                     default:
@@ -387,11 +388,45 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
-        /// Try to cancel the task, and event to cancel the task will be raised 
-        /// but the status won't change until that task actually get canceled by it's owner
+        /// Percentage of completion. -1 means indeterminate (heartbeat) progress.
+        /// Valid range: -1, or 0–100.
+        /// </summary>
+        public int PercentComplete { get; private set; } = -1;
+
+        /// <summary>
+        /// A message describing the current progress step.
+        /// </summary>
+        public string ProgressMessage { get; private set; }
+
+        /// <summary>
+        /// Reports progress for this task, mirroring the PercentCompleteEventArgs / DacProgressEventArgs pattern.
+        /// </summary>
+        /// <param name="percentComplete">Percentage 0–100, or -1 for indeterminate (heartbeat) progress.</param>
+        /// <param name="message">A message describing the current step.</param>
+        public void ReportProgress(int percentComplete, string message)
+        {
+            if (percentComplete < -1 || percentComplete > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(percentComplete), "percentComplete must be -1 or between 0 and 100.");
+            }
+
+            if (PercentComplete == percentComplete && string.Equals(ProgressMessage, message, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            PercentComplete = percentComplete;
+            ProgressMessage = message;
+            OnStatusChanged();
+        }
+
+        /// <summary>
+        /// Requests cancellation for the task and updates the task status to CancelRequested
+        /// until the task owner completes cancellation.
         /// </summary>
         public void Cancel()
         {
+            TaskStatus = SqlTaskStatus.CancelRequested;
             IsCancelRequested = true;
         }
 
@@ -470,6 +505,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             return new TaskInfo
             {
                 TaskId = this.TaskId.ToString(),
+                Status = this.TaskStatus,
                 DatabaseName = TaskMetadata.DatabaseName,
                 ServerName = TaskMetadata.ServerName,
                 Name = TaskMetadata.Name,
@@ -477,7 +513,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskExecutionMode = TaskMetadata.TaskExecutionMode,
                 IsCancelable = this.TaskToCancel != null,
                 TargetLocation = TaskMetadata.TargetLocation,
-                OperationName = TaskMetadata.OperationName
+                OperationName = TaskMetadata.OperationName,
+                PercentComplete = this.PercentComplete,
+                ProgressMessage = this.ProgressMessage,
+                Duration = this.IsCompleted ? this.Duration : 0
             };
         }
 
@@ -499,6 +538,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                         switch (TaskStatus)
                         {
                             case SqlTaskStatus.Canceled:
+                            case SqlTaskStatus.CancelRequested:
                             case SqlTaskStatus.Failed:
                                 success = false;
                                 break;

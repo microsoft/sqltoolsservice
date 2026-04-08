@@ -298,7 +298,31 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (this.dataContainer.Server.ConnectionContext != null)
                 {
-                    // Execute backup
+                    // Subscribe to SMO progress and information events for detailed progress reporting
+                    this.backup.PercentCompleteNotification = 5;
+                    this.backup.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                    {
+                        if (this.SqlTask != null)
+                        {
+                            this.SqlTask.ReportProgress(e.Percent, "Backup");
+                        }
+                    };
+
+                    this.backup.Information += (object sender, ServerMessageEventArgs e) =>
+                    {
+                        if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                        {
+                            OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                        }
+                    };
+
+                    this.backup.Complete += (object sender, ServerMessageEventArgs e) =>
+                    {
+                        if (e.Error != null && !string.IsNullOrEmpty(e.Error.Message))
+                        {
+                            OnMessageAdded(new TaskMessage { Description = e.Error.Message, Status = SqlTaskStatus.InProgress });
+                        }
+                    };
                     this.backup.SqlBackup(this.dataContainer.Server);
 
                     // Verify backup if required
