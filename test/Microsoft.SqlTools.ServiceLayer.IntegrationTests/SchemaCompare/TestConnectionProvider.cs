@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
@@ -53,8 +54,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
         public SchemaCompareEndpointInfo ParseConnectionString(string connectionString)
         {
+            var builder = new SqlConnectionStringBuilder(connectionString);
             return new SchemaCompareEndpointInfo
             {
+                ServerName = builder.DataSource,
+                DatabaseName = builder.InitialCatalog,
+                UserName = builder.UserID,
                 ConnectionString = connectionString
             };
         }

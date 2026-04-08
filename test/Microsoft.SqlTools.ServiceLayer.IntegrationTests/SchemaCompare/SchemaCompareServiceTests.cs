@@ -824,6 +824,7 @@ WITH VALUES
                 Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
 
                 targetInfo.TargetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+                schemaCompareOperation.Parameters.TargetEndpointInfo.TargetScripts = targetInfo.TargetScripts;
 
                 // Verify that there are no differences after the publish by running the comparison again
                 schemaCompareOperation.Execute();
@@ -903,6 +904,7 @@ WITH VALUES
                 Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
 
                 targetInfo.TargetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+                schemaCompareOperation.Parameters.TargetEndpointInfo.TargetScripts = targetInfo.TargetScripts;
 
                 // Verify that there are no differences after the publish by running the comparison again
                 schemaCompareOperation.Execute();
@@ -981,6 +983,7 @@ WITH VALUES
                 Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
 
                 targetInfo.TargetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+                schemaCompareOperation.Parameters.TargetEndpointInfo.TargetScripts = targetInfo.TargetScripts;
 
                 // Verify that there are no differences after the publish by running the comparison again
                 schemaCompareOperation.Execute();
