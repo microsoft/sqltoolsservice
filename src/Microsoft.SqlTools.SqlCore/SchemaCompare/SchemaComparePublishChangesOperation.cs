@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     /// </summary>
     public abstract class SchemaComparePublishChangesOperation : IDisposable
     {
-        public string OperationId { get; private set; }
+        public string OperationId { get; protected set; }
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 

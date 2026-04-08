@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         {
             Validate.IsNotNull(nameof(parameters), parameters);
             Parameters = parameters;
+            OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
         public override void Execute()

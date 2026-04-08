@@ -46,6 +46,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
             this.ScriptHandler = scriptHandler;
+            this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
         public void Execute()
