@@ -7,11 +7,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
     public enum SqlTaskStatus
     {
-        NotStarted,
-        InProgress,
-        Succeeded,
-        SucceededWithWarning,
-        Failed,
-        Canceled
+        NotStarted = 0,
+        InProgress = 1,
+        Succeeded = 2,
+        SucceededWithWarning = 3,
+        Failed = 4,
+        Canceled = 5,
+        CancelRequested = 6
     }
 }
