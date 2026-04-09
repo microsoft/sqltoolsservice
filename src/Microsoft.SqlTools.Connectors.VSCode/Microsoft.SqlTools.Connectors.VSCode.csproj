@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Package references">
+    <PackageReference Include="Microsoft.Bcl.Memory" />
     <PackageReference Include="Microsoft.SemanticKernel" />
     <PackageReference Include="OpenAI" />
     <PackageReference Include="System.ClientModel" />
