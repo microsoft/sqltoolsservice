@@ -1,7 +1,5 @@
-﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
 
 #nullable disable
 using System;
@@ -15,6 +13,8 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using CoreOps = Microsoft.SqlTools.SqlCore.SchemaCompare;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -62,29 +62,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <summary>
         /// Handles schema compare request
         /// </summary>
-        /// <returns></returns>
         public Task HandleSchemaCompareRequest(SchemaCompareParams parameters, RequestContext<SchemaCompareResult> requestContext)
         {
-            ConnectionInfo sourceConnInfo;
-            ConnectionInfo targetConnInfo;
-            ConnectionServiceInstance.TryFindConnection(
-                    parameters.SourceEndpointInfo.OwnerUri,
-                    out sourceConnInfo);
-            ConnectionServiceInstance.TryFindConnection(
-                parameters.TargetEndpointInfo.OwnerUri,
-                out targetConnInfo);
-
             CurrentSchemaCompareTask = Task.Run(async () =>
             {
-                SchemaCompareOperation operation = null;
+                CoreOps.SchemaCompareOperation operation = null;
 
                 try
                 {
-                    operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
+                    var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
+                    // ServiceLayer SchemaCompareParams extends CoreContracts.SchemaCompareParams directly — no conversion needed
+                    operation = new CoreOps.SchemaCompareOperation(parameters, connectionProvider);
                     currentComparisonCancellationAction.Value[operation.OperationId] = operation.Cancel;
-                    operation.Execute(parameters.TaskExecutionMode);
+                    operation.Execute();
 
-                    // add result to dictionary of results
                     schemaCompareResults.Value[operation.OperationId] = operation.ComparisonResult;
 
                     await requestContext.SendResult(new SchemaCompareResult()
@@ -96,7 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         Differences = operation.Differences
                     });
 
-                    // clean up cancellation action now that the operation is complete (using try remove to avoid exception)
                     Action cancelAction = null;
                     currentComparisonCancellationAction.Value.TryRemove(operation.OperationId, out cancelAction);
                 }
@@ -117,7 +107,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <summary>
         /// Handles schema compare cancel request
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaCompareCancelRequest(SchemaCompareCancelParams parameters, RequestContext<ResultStatus> requestContext)
         {
             Action cancelAction = null;
@@ -146,28 +135,37 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <summary>
         /// Handles request for schema compare generate deploy script
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaCompareGenerateScriptRequest(SchemaCompareGenerateScriptParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            SchemaCompareGenerateScriptOperation operation = null;
+            CoreOps.SchemaCompareGenerateScriptOperation coreOp = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaCompareGenerateScriptOperation(parameters, compareResult);
-                SqlTask sqlTask = null;
+
+                // ServiceLayer SchemaCompareGenerateScriptParams extends CoreContracts version — pass directly
+                coreOp = new CoreOps.SchemaCompareGenerateScriptOperation(parameters, compareResult);
+
+                var adapter = new SchemaCompareTaskAdapter(
+                    execute: () => coreOp.Execute(),
+                    cancel: () => coreOp.Cancel(),
+                    getError: () => coreOp.ErrorMessage
+                );
+
+                coreOp.ScriptHandler = new VsCodeScriptHandler(() => adapter.SqlTask);
+
                 TaskMetadata metadata = new TaskMetadata();
-                metadata.TaskOperation = operation;
+                metadata.TaskOperation = adapter;
                 metadata.TaskExecutionMode = parameters.TaskExecutionMode;
                 metadata.ServerName = parameters.TargetServerName;
                 metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.GenerateScriptTaskName;
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
-                    ErrorMessage = operation.ErrorMessage
+                    ErrorMessage = coreOp.ErrorMessage
                 });
             }
             catch (Exception e)
@@ -176,37 +174,44 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
-                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                    ErrorMessage = coreOp == null ? e.Message : coreOp.ErrorMessage,
                 });
             }
         }
 
         /// <summary>
-        /// Handles request for schema compare publish database changes script
+        /// Handles request for schema compare publish database changes
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaComparePublishDatabaseChangesRequest(SchemaComparePublishDatabaseChangesParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            SchemaComparePublishDatabaseChangesOperation operation = null;
+            CoreOps.SchemaComparePublishDatabaseChangesOperation coreOp = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
-                SqlTask sqlTask = null;
+
+                // ServiceLayer SchemaComparePublishDatabaseChangesParams extends CoreContracts version — pass directly
+                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
+
+                var adapter = new SchemaCompareTaskAdapter(
+                    execute: () => coreOp.Execute(),
+                    cancel: () => coreOp.Cancel(),
+                    getError: () => coreOp.ErrorMessage
+                );
+
                 TaskMetadata metadata = new TaskMetadata
                 {
-                    TaskOperation = operation,
+                    TaskOperation = adapter,
                     ServerName = parameters.TargetServerName,
                     DatabaseName = parameters.TargetDatabaseName,
                     Name = SR.PublishChangesTaskName
                 };
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
-                    ErrorMessage = operation.ErrorMessage
+                    ErrorMessage = coreOp.ErrorMessage
                 });
             }
             catch (Exception e)
@@ -215,26 +220,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
-                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                    ErrorMessage = coreOp == null ? e.Message : coreOp.ErrorMessage,
                 });
             }
         }
 
         /// <summary>
-        /// Handles request for schema compare publish database changes script
+        /// Handles request for schema compare publish project changes
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaComparePublishProjectChangesRequest(SchemaComparePublishProjectChangesParams parameters, RequestContext<SchemaComparePublishProjectResult> requestContext)
         {
-            SchemaComparePublishProjectChangesOperation operation = null;
+            CoreOps.SchemaComparePublishProjectChangesOperation coreOp = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaComparePublishProjectChangesOperation(parameters, compareResult);
 
-                TaskMetadata metadata = new()
+                // ServiceLayer SchemaComparePublishProjectChangesParams extends CoreContracts version — pass directly
+                coreOp = new CoreOps.SchemaComparePublishProjectChangesOperation(parameters, compareResult);
+
+                var adapter = new SchemaCompareTaskAdapter(
+                    execute: () => coreOp.Execute(),
+                    cancel: () => coreOp.Cancel(),
+                    getError: () => coreOp.ErrorMessage
+                );
+
+                TaskMetadata metadata = new TaskMetadata
                 {
-                    TaskOperation = operation,
+                    TaskOperation = adapter,
                     TargetLocation = parameters.TargetProjectPath,
                     Name = SR.PublishChangesTaskName
                 };
@@ -244,42 +256,41 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 await requestContext.SendResult(new SchemaComparePublishProjectResult()
                 {
-                    ChangedFiles = operation.PublishResult.ChangedFiles,
-                    AddedFiles = operation.PublishResult.AddedFiles,
-                    DeletedFiles = operation.PublishResult.DeletedFiles,
+                    ChangedFiles = coreOp.PublishResult.ChangedFiles,
+                    AddedFiles = coreOp.PublishResult.AddedFiles,
+                    DeletedFiles = coreOp.PublishResult.DeletedFiles,
                     Success = true,
-                    ErrorMessage = operation.ErrorMessage
+                    ErrorMessage = coreOp.ErrorMessage
                 });
             }
             catch (Exception e)
             {
-                Logger.Error("Failed to publish schema compare database changes. Error: " + e);
+                Logger.Error("Failed to publish schema compare project changes. Error: " + e);
                 await requestContext.SendResult(new SchemaComparePublishProjectResult()
                 {
                     ChangedFiles = Array.Empty<string>(),
                     AddedFiles = Array.Empty<string>(),
                     DeletedFiles = Array.Empty<string>(),
                     Success = false,
-                    ErrorMessage = operation?.ErrorMessage ?? e.Message
+                    ErrorMessage = coreOp?.ErrorMessage ?? e.Message
                 });
             }
         }
 
         /// <summary>
-        /// Handles request for exclude incude node in Schema compare result
+        /// Handles request for include/exclude node in Schema compare result
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaCompareIncludeExcludeNodeRequest(SchemaCompareNodeParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            SchemaCompareIncludeExcludeNodeOperation operation = null;
+            CoreOps.SchemaCompareIncludeExcludeNodeOperation operation = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
 
-                operation.Execute(parameters.TaskExecutionMode);
+                // ServiceLayer SchemaCompareNodeParams extends CoreContracts version — pass directly
+                operation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
+                operation.Execute();
 
-                // update the comparison result if the include/exclude was successful
                 if (operation.Success)
                 {
                     schemaCompareResults.Value[parameters.OperationId] = operation.ComparisonResult;
@@ -304,21 +315,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        // <summary>
-        /// Handles request for exclude incude all nodes in Schema compare result
+        /// <summary>
+        /// Handles request for include/exclude all nodes in Schema compare result
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaCompareIncludeExcludeAllNodesRequest(SchemaCompareIncludeExcludeAllNodesParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            SchemaCompareIncludeExcludeAllNodesOperation operation = null;
+            CoreOps.SchemaCompareIncludeExcludeAllNodesOperation operation = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaCompareIncludeExcludeAllNodesOperation(parameters, compareResult);
 
-                operation.Execute(parameters.TaskExecutionMode);
+                // ServiceLayer SchemaCompareIncludeExcludeAllNodesParams extends CoreContracts version — pass directly
+                operation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(parameters, compareResult);
+                operation.Execute();
 
-                // update the comparison result if the include/exclude was successful
                 if (operation.Success)
                 {
                     schemaCompareResults.Value[parameters.OperationId] = operation.ComparisonResult;
@@ -345,18 +355,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <summary>
         /// Handles schema compare open SCMP request
         /// </summary>
-        /// <returns></returns>
         public async Task HandleSchemaCompareOpenScmpRequest(SchemaCompareOpenScmpParams parameters, RequestContext<SchemaCompareOpenScmpResult> requestContext)
         {
             CurrentSchemaCompareTask = Task.Run(async () =>
             {
-                SchemaCompareOpenScmpOperation operation = null;
+                CoreOps.SchemaCompareOpenScmpOperation operation = null;
 
                 try
                 {
-                    operation = new SchemaCompareOpenScmpOperation(parameters);
-                    operation.Execute(TaskExecutionMode.Execute);
+                    var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
+                    // SchemaCompareOpenScmpParams is identical in both namespaces (only FilePath) — use core type directly
+                    var coreParams = new CoreContracts.SchemaCompareOpenScmpParams
+                    {
+                        FilePath = parameters.FilePath
+                    };
 
+                    operation = new CoreOps.SchemaCompareOpenScmpOperation(coreParams, connectionProvider);
+                    operation.Execute();
+
+                    // The core result type IS the ServiceLayer result type (SchemaCompareOpenScmpResult
+                    // already uses CoreContracts types for its properties), so send directly.
                     await requestContext.SendResult(operation.Result);
                 }
                 catch (Exception e)
@@ -373,22 +391,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <summary>
         /// Handles schema compare save SCMP request
         /// </summary>
-        /// <returns></returns>
         public Task HandleSchemaCompareSaveScmpRequest(SchemaCompareSaveScmpParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            ConnectionInfo sourceConnInfo;
-            ConnectionInfo targetConnInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.SourceEndpointInfo.OwnerUri, out sourceConnInfo);
-            ConnectionServiceInstance.TryFindConnection(parameters.TargetEndpointInfo.OwnerUri, out targetConnInfo);
-
             CurrentSchemaCompareTask = Task.Run(async () =>
             {
-                SchemaCompareSaveScmpOperation operation = null;
+                CoreOps.SchemaCompareSaveScmpOperation operation = null;
 
                 try
                 {
-                    operation = new SchemaCompareSaveScmpOperation(parameters, sourceConnInfo, targetConnInfo);
-                    operation.Execute(parameters.TaskExecutionMode);
+                    var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
+                    // ServiceLayer SchemaCompareSaveScmpParams extends CoreContracts version — pass directly
+                    operation = new CoreOps.SchemaCompareSaveScmpOperation(parameters, connectionProvider);
+                    operation.Execute();
 
                     await requestContext.SendResult(new ResultStatus()
                     {
@@ -399,9 +413,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 catch (Exception e)
                 {
                     Logger.Error("Failed to save scmp file. Error: " + e);
-                    await requestContext.SendResult(new SchemaCompareResult()
+                    await requestContext.SendResult(new ResultStatus()
                     {
-                        OperationId = operation != null ? operation.OperationId : null,
                         Success = false,
                         ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
                     });
