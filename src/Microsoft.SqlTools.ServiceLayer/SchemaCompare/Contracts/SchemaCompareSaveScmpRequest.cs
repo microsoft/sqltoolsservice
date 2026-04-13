@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     internal class SchemaCompareSaveScmpRequest
     {
         public static readonly RequestType<SchemaCompareSaveScmpParams, ResultStatus> Type =
-    RequestType<SchemaCompareSaveScmpParams, ResultStatus>.Create("schemaCompare/saveScmp");
+            RequestType<SchemaCompareSaveScmpParams, ResultStatus>.Create("schemaCompare/saveScmp");
     }
 
 }
