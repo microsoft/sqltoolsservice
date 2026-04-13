@@ -23,6 +23,7 @@ using System.Linq;
 using DiffEntry = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.DiffEntry;
 using SchemaCompareEndpointType = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareEndpointType;
 using SchemaCompareObjectId = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareObjectId;
+using SchemaCompareOpenScmpParams = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts.SchemaCompareOpenScmpParams;
 using DeploymentOptions = Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -146,7 +147,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(null, null));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
 
                 // cleanup
@@ -188,7 +189,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
             }
             finally
@@ -228,7 +229,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(null, null));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
             }
             finally
@@ -270,7 +271,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, null));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
 
                 // cleanup
@@ -310,7 +311,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, null));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
             }
             finally
@@ -346,7 +347,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, null));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation, expectedDifferencesCount: 2);
 
                 // cleanup
@@ -387,7 +388,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(null, null));
                 ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
 
             }
@@ -431,7 +432,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
 
                 // generate script params
                 var generateScriptParams = new SchemaCompareGenerateScriptParams
@@ -479,7 +480,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
 
                 // generate script
                 var generateScriptParams = new SchemaCompareGenerateScriptParams
@@ -534,7 +535,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
 
                 // generate script
                 var generateScriptParams = new SchemaCompareGenerateScriptParams
@@ -585,7 +586,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
 
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
@@ -604,7 +605,7 @@ WITH VALUES
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(new CoreContracts.SchemaComparePublishDatabaseChangesParams { OperationId = publishChangesParams.OperationId, TargetServerName = publishChangesParams.TargetServerName, TargetDatabaseName = publishChangesParams.TargetDatabaseName }, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute();
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -653,7 +654,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
 
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
@@ -673,7 +674,7 @@ WITH VALUES
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(new CoreContracts.SchemaComparePublishDatabaseChangesParams { OperationId = publishChangesParams.OperationId, TargetServerName = publishChangesParams.TargetServerName, TargetDatabaseName = publishChangesParams.TargetDatabaseName }, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute();
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -721,7 +722,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
 
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
@@ -742,7 +743,7 @@ WITH VALUES
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(new CoreContracts.SchemaComparePublishDatabaseChangesParams { OperationId = publishChangesParams.OperationId, TargetServerName = publishChangesParams.TargetServerName, TargetDatabaseName = publishChangesParams.TargetDatabaseName }, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute();
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -793,7 +794,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(null, null));
                 schemaCompareOperation.Execute();
                 (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
 
@@ -815,7 +816,7 @@ WITH VALUES
                     TargetFolderStructure = SqlServer.Dac.DacExtractTarget.Flat,
                 };
 
-                SchemaComparePublishProjectChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishProjectChangesOperation(new CoreContracts.SchemaComparePublishProjectChangesParams { OperationId = publishChangesParams.OperationId, TargetProjectPath = publishChangesParams.TargetProjectPath, TargetFolderStructure = publishChangesParams.TargetFolderStructure }, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishProjectChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishProjectChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute();
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, "");
@@ -873,7 +874,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
                 (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
 
@@ -895,7 +896,7 @@ WITH VALUES
                     TargetFolderStructure = SqlServer.Dac.DacExtractTarget.Flat,
                 };
 
-                SchemaComparePublishProjectChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishProjectChangesOperation(new CoreContracts.SchemaComparePublishProjectChangesParams { OperationId = publishChangesParams.OperationId, TargetProjectPath = publishChangesParams.TargetProjectPath, TargetFolderStructure = publishChangesParams.TargetFolderStructure }, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishProjectChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishProjectChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute();
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, String.Empty);
@@ -952,7 +953,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(null, null));
                 schemaCompareOperation.Execute();
                 (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
 
@@ -974,7 +975,7 @@ WITH VALUES
                     TargetFolderStructure = SqlServer.Dac.DacExtractTarget.Flat,
                 };
 
-                SchemaComparePublishProjectChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishProjectChangesOperation(new CoreContracts.SchemaComparePublishProjectChangesParams { OperationId = publishChangesParams.OperationId, TargetProjectPath = publishChangesParams.TargetProjectPath, TargetFolderStructure = publishChangesParams.TargetFolderStructure }, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishProjectChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishProjectChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute();
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, "");
@@ -1289,7 +1290,7 @@ WITH VALUES
                 FilePath = testScmpFile
             };
 
-            SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new CoreOps.SchemaCompareOpenScmpOperation(new CoreContracts.SchemaCompareOpenScmpParams { FilePath = schemaCompareOpenScmpParams.FilePath }, new TestConnectionProvider(null, null));
+            SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new CoreOps.SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams, new TestConnectionProvider(null, null));
             schemaCompareOpenScmpOperation.Execute();
 
             Assert.NotNull(schemaCompareOpenScmpOperation.Result);
@@ -1479,7 +1480,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.schemaCompareStarted += (sender, e) => { schemaCompareOperation.Cancel(); };
 
                 try
@@ -1538,7 +1539,7 @@ WITH VALUES
                     DeploymentOptions = options
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
 
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
@@ -1606,7 +1607,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, null));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, null));
                 schemaCompareOperation.Execute();
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
@@ -1623,7 +1624,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                SchemaCompareIncludeExcludeNodeOperation t2ExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = t2ExcludeParams.OperationId, DiffEntry = t2ExcludeParams.DiffEntry, IncludeRequest = t2ExcludeParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+                SchemaCompareIncludeExcludeNodeOperation t2ExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(t2ExcludeParams, schemaCompareOperation.ComparisonResult);
                 t2ExcludeOperation.Execute();
                 Assert.False(t2ExcludeOperation.Success, "Excluding Table t2 should fail because view v1 depends on it");
                 Assert.True(t2ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included because the exclude request failed");
@@ -1640,7 +1641,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                SchemaCompareIncludeExcludeNodeOperation v1ExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = v1ExcludeParams.OperationId, DiffEntry = v1ExcludeParams.DiffEntry, IncludeRequest = v1ExcludeParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+                SchemaCompareIncludeExcludeNodeOperation v1ExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(v1ExcludeParams, schemaCompareOperation.ComparisonResult);
                 v1ExcludeOperation.Execute();
                 Assert.True(v1ExcludeOperation.Success, "Excluding View v1 should succeed");
                 Assert.False(v1ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be excluded");
@@ -1657,7 +1658,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                SchemaCompareIncludeExcludeNodeOperation v1IncludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = v1IncludeParams.OperationId, DiffEntry = v1IncludeParams.DiffEntry, IncludeRequest = v1IncludeParams.IncludeRequest }, t2ExcludeOperation.ComparisonResult);
+                SchemaCompareIncludeExcludeNodeOperation v1IncludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(v1IncludeParams, t2ExcludeOperation.ComparisonResult);
                 v1IncludeOperation.Execute();
                 Assert.True(v1IncludeOperation.Success, "Including v1 should succeed");
                 Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be included");
@@ -1702,7 +1703,7 @@ WITH VALUES
                 };
 
                 // Do Schema compare
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
 
                 // Expected 'data loss could occur' warning messages while comparing 
@@ -1754,7 +1755,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                var schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(null, null));
+                var schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(null, null));
                 schemaCompareOperation.Execute();
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
@@ -1769,7 +1770,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                var excludeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(new CoreContracts.SchemaCompareIncludeExcludeAllNodesParams { OperationId = excludeAllNodesParams.OperationId, IncludeRequest = excludeAllNodesParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+                var excludeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(excludeAllNodesParams, schemaCompareOperation.ComparisonResult);
                 excludeAllNodesOperation.Execute();
 
                 Assert.True(excludeAllNodesOperation.Success, "Exclude all operation should succeed");
@@ -1784,7 +1785,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                var includeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(new CoreContracts.SchemaCompareIncludeExcludeAllNodesParams { OperationId = includeAllNodesParams.OperationId, IncludeRequest = includeAllNodesParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+                var includeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(includeAllNodesParams, schemaCompareOperation.ComparisonResult);
                 includeAllNodesOperation.Execute();
 
                 Assert.True(excludeAllNodesOperation.Success, "Include all operation should succeed");
@@ -1825,7 +1826,7 @@ WITH VALUES
                     TargetEndpointInfo = targetInfo
                 };
 
-                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation = new CoreOps.SchemaCompareOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation.Execute();
 
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
@@ -1841,7 +1842,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                var excludeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(new CoreContracts.SchemaCompareIncludeExcludeAllNodesParams { OperationId = excludeAllNodesParams.OperationId, IncludeRequest = excludeAllNodesParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+                var excludeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(excludeAllNodesParams, schemaCompareOperation.ComparisonResult);
                 excludeAllNodesOperation.Execute();
 
                 Assert.True(excludeAllNodesOperation.Success, "Exclude all operation should succeed");
@@ -1856,7 +1857,7 @@ WITH VALUES
                     TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
-                var includeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(new CoreContracts.SchemaCompareIncludeExcludeAllNodesParams { OperationId = includeAllNodesParams.OperationId, IncludeRequest = includeAllNodesParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+                var includeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(includeAllNodesParams, schemaCompareOperation.ComparisonResult);
                 includeAllNodesOperation.Execute();
 
                 Assert.True(excludeAllNodesOperation.Success, "Include all operation should succeed");
@@ -1912,7 +1913,7 @@ WITH VALUES
                 IncludeRequest = false,
                 TaskExecutionMode = TaskExecutionMode.Execute
             };
-            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = schemaCompareExcludeNodeParams.OperationId, DiffEntry = schemaCompareExcludeNodeParams.DiffEntry, IncludeRequest = schemaCompareExcludeNodeParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(schemaCompareExcludeNodeParams, schemaCompareOperation.ComparisonResult);
             nodeExcludeOperation.Execute();
 
             int afterExclude = schemaCompareOperation.ComparisonResult.Differences.Count();
@@ -1927,7 +1928,7 @@ WITH VALUES
                 TaskExecutionMode = TaskExecutionMode.Execute
             };
 
-            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = schemaCompareincludeNodeParams.OperationId, DiffEntry = schemaCompareincludeNodeParams.DiffEntry, IncludeRequest = schemaCompareincludeNodeParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(schemaCompareincludeNodeParams, schemaCompareOperation.ComparisonResult);
             nodeIncludeOperation.Execute();
             int afterInclude = schemaCompareOperation.ComparisonResult.Differences.Count();
 
@@ -1944,7 +1945,7 @@ WITH VALUES
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
             Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
-            SchemaCompareGenerateScriptOperation generateScriptOperation = new CoreOps.SchemaCompareGenerateScriptOperation(new CoreContracts.SchemaCompareGenerateScriptParams { OperationId = generateScriptParams.OperationId, TargetServerName = generateScriptParams.TargetServerName, TargetDatabaseName = generateScriptParams.TargetDatabaseName }, schemaCompareOperation.ComparisonResult);
+            SchemaCompareGenerateScriptOperation generateScriptOperation = new CoreOps.SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
             generateScriptOperation.Execute();
 
             Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
@@ -1964,14 +1965,14 @@ WITH VALUES
                 IncludeRequest = false,
                 TaskExecutionMode = TaskExecutionMode.Execute
             };
-            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = schemaCompareExcludeNodeParams.OperationId, DiffEntry = schemaCompareExcludeNodeParams.DiffEntry, IncludeRequest = schemaCompareExcludeNodeParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(schemaCompareExcludeNodeParams, schemaCompareOperation.ComparisonResult);
             nodeExcludeOperation.Execute();
 
             int afterExclude = schemaCompareOperation.ComparisonResult.Differences.Count();
 
             Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
 
-            generateScriptOperation = new CoreOps.SchemaCompareGenerateScriptOperation(new CoreContracts.SchemaCompareGenerateScriptParams { OperationId = generateScriptParams.OperationId, TargetServerName = generateScriptParams.TargetServerName, TargetDatabaseName = generateScriptParams.TargetDatabaseName }, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation = new CoreOps.SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
             generateScriptOperation.Execute();
 
             Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
@@ -1986,13 +1987,13 @@ WITH VALUES
                 TaskExecutionMode = TaskExecutionMode.Execute
             };
 
-            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(new CoreContracts.SchemaCompareNodeParams { OperationId = schemaCompareincludeNodeParams.OperationId, DiffEntry = schemaCompareincludeNodeParams.DiffEntry, IncludeRequest = schemaCompareincludeNodeParams.IncludeRequest }, schemaCompareOperation.ComparisonResult);
+            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(schemaCompareincludeNodeParams, schemaCompareOperation.ComparisonResult);
             nodeIncludeOperation.Execute();
             int afterInclude = schemaCompareOperation.ComparisonResult.Differences.Count();
 
             Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including:{initial}, now {afterInclude}");
 
-            generateScriptOperation = new CoreOps.SchemaCompareGenerateScriptOperation(new CoreContracts.SchemaCompareGenerateScriptParams { OperationId = generateScriptParams.OperationId, TargetServerName = generateScriptParams.TargetServerName, TargetDatabaseName = generateScriptParams.TargetDatabaseName }, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation = new CoreOps.SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
             generateScriptOperation.Execute();
 
             Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
@@ -2036,7 +2037,7 @@ WITH VALUES
                     FilePath = filePath
                 };
 
-                SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new CoreOps.SchemaCompareOpenScmpOperation(new CoreContracts.SchemaCompareOpenScmpParams { FilePath = schemaCompareOpenScmpParams.FilePath }, new TestConnectionProvider(null, null));
+                SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new CoreOps.SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams, new TestConnectionProvider(null, null));
                 schemaCompareOpenScmpOperation.Execute();
 
                 Assert.NotNull(schemaCompareOpenScmpOperation.Result);
@@ -2178,7 +2179,7 @@ WITH VALUES
             schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.VerifyDeployment)].Value = false;
             schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
 
-            SchemaCompareSaveScmpOperation schemaCompareOperation = new CoreOps.SchemaCompareSaveScmpOperation(ToCoreSaveScmpParams(schemaCompareParams), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+            SchemaCompareSaveScmpOperation schemaCompareOperation = new CoreOps.SchemaCompareSaveScmpOperation(schemaCompareParams, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
             schemaCompareOperation.Execute();
 
             Assert.True(File.Exists(filePath), "SCMP file should be present");
@@ -2309,45 +2310,5 @@ WITH VALUES
             return result;
         }
 
-        private static CoreContracts.SchemaCompareParams ToCoreParams(SchemaCompareParams parameters)
-        {
-            return new CoreContracts.SchemaCompareParams
-            {
-                OperationId = parameters.OperationId,
-                SourceEndpointInfo = ToCoreEndpoint(parameters.SourceEndpointInfo),
-                TargetEndpointInfo = ToCoreEndpoint(parameters.TargetEndpointInfo),
-                DeploymentOptions = parameters.DeploymentOptions
-            };
-        }
-
-        private static CoreContracts.SchemaCompareEndpointInfo ToCoreEndpoint(SchemaCompareEndpointInfo endpoint)
-        {
-            if (endpoint == null) return null;
-            return new CoreContracts.SchemaCompareEndpointInfo
-            {
-                EndpointType = endpoint.EndpointType,
-                ProjectFilePath = endpoint.ProjectFilePath,
-                TargetScripts = endpoint.TargetScripts,
-                DataSchemaProvider = endpoint.DataSchemaProvider,
-                PackageFilePath = endpoint.PackageFilePath,
-                DatabaseName = endpoint.DatabaseName,
-                OwnerUri = endpoint.OwnerUri,
-                ExtractTarget = endpoint.ExtractTarget
-            };
-        }
-
-        private static CoreContracts.SchemaCompareSaveScmpParams ToCoreSaveScmpParams(SchemaCompareSaveScmpParams parameters)
-        {
-            return new CoreContracts.SchemaCompareSaveScmpParams
-            {
-                OperationId = parameters.OperationId,
-                SourceEndpointInfo = ToCoreEndpoint(parameters.SourceEndpointInfo),
-                TargetEndpointInfo = ToCoreEndpoint(parameters.TargetEndpointInfo),
-                DeploymentOptions = parameters.DeploymentOptions,
-                ScmpFilePath = parameters.ScmpFilePath,
-                ExcludedSourceObjects = parameters.ExcludedSourceObjects,
-                ExcludedTargetObjects = parameters.ExcludedTargetObjects
-            };
-        }
     }
 }

@@ -8,7 +8,6 @@ using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using CoreOps = Microsoft.SqlTools.SqlCore.SchemaCompare;
-using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
@@ -143,7 +142,7 @@ END
                     DeploymentOptions = nodiffOption
                 };
 
-                SchemaCompareOperation schemaCompareOperation1 = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams1), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation1 = new CoreOps.SchemaCompareOperation(schemaCompareParams1, new TestConnectionProvider(null, null));
                 schemaCompareOperation1.Execute();
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
                 Assert.IsNull(schemaCompareOperation1.ErrorMessage);
@@ -155,7 +154,7 @@ END
                     DeploymentOptions = shouldDiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation2 = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams2), new TestConnectionProvider(null, null));
+                SchemaCompareOperation schemaCompareOperation2 = new CoreOps.SchemaCompareOperation(schemaCompareParams2, new TestConnectionProvider(null, null));
                 schemaCompareOperation2.Execute();
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
@@ -197,7 +196,7 @@ END
                     DeploymentOptions = nodiffOption
                 };
 
-                SchemaCompareOperation schemaCompareOperation1 = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams1), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation1 = new CoreOps.SchemaCompareOperation(schemaCompareParams1, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation1.Execute();
 
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
@@ -212,7 +211,7 @@ END
                     DeploymentOptions = shouldDiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation2 = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams2), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation2 = new CoreOps.SchemaCompareOperation(schemaCompareParams2, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation2.Execute();
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
@@ -253,7 +252,7 @@ END
                     DeploymentOptions = nodiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation1 = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams1), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation1 = new CoreOps.SchemaCompareOperation(schemaCompareParams1, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation1.Execute();
 
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
@@ -268,7 +267,7 @@ END
                     OperationId = schemaCompareOperation1.OperationId,
                 };
 
-                SchemaCompareGenerateScriptOperation generateScriptOperation1 = new CoreOps.SchemaCompareGenerateScriptOperation(new CoreContracts.SchemaCompareGenerateScriptParams { OperationId = generateScriptParams1.OperationId, TargetServerName = generateScriptParams1.TargetServerName, TargetDatabaseName = generateScriptParams1.TargetDatabaseName }, schemaCompareOperation1.ComparisonResult);
+                SchemaCompareGenerateScriptOperation generateScriptOperation1 = new CoreOps.SchemaCompareGenerateScriptOperation(generateScriptParams1, schemaCompareOperation1.ComparisonResult);
 
                 try
                 {
@@ -290,7 +289,7 @@ END
                     DeploymentOptions = shouldDiffOption,
                 };
 
-                SchemaCompareOperation schemaCompareOperation2 = new CoreOps.SchemaCompareOperation(ToCoreParams(schemaCompareParams2), new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
+                SchemaCompareOperation schemaCompareOperation2 = new CoreOps.SchemaCompareOperation(schemaCompareParams2, new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 schemaCompareOperation2.Execute();
 
                 Assert.True(schemaCompareOperation2.ComparisonResult.IsValid);
@@ -305,7 +304,7 @@ END
                     OperationId = schemaCompareOperation1.OperationId,
                 };
 
-                SchemaCompareGenerateScriptOperation generateScriptOperation2 = new CoreOps.SchemaCompareGenerateScriptOperation(new CoreContracts.SchemaCompareGenerateScriptParams { OperationId = generateScriptParams2.OperationId, TargetServerName = generateScriptParams2.TargetServerName, TargetDatabaseName = generateScriptParams2.TargetDatabaseName }, schemaCompareOperation2.ComparisonResult);
+                SchemaCompareGenerateScriptOperation generateScriptOperation2 = new CoreOps.SchemaCompareGenerateScriptOperation(generateScriptParams2, schemaCompareOperation2.ComparisonResult);
                 generateScriptOperation2.Execute();
 
                 // validate script generation succeeded
@@ -453,31 +452,5 @@ END
                 Is.True, "IgnoreKeywordCasing should be true for Deployment (DacFx native default)");
         }
 
-        private static CoreContracts.SchemaCompareParams ToCoreParams(SchemaCompareParams parameters)
-        {
-            return new CoreContracts.SchemaCompareParams
-            {
-                OperationId = parameters.OperationId,
-                SourceEndpointInfo = ToCoreEndpoint(parameters.SourceEndpointInfo),
-                TargetEndpointInfo = ToCoreEndpoint(parameters.TargetEndpointInfo),
-                DeploymentOptions = parameters.DeploymentOptions
-            };
-        }
-
-        private static CoreContracts.SchemaCompareEndpointInfo ToCoreEndpoint(SchemaCompareEndpointInfo endpoint)
-        {
-            if (endpoint == null) return null;
-            return new CoreContracts.SchemaCompareEndpointInfo
-            {
-                EndpointType = endpoint.EndpointType,
-                ProjectFilePath = endpoint.ProjectFilePath,
-                TargetScripts = endpoint.TargetScripts,
-                DataSchemaProvider = endpoint.DataSchemaProvider,
-                PackageFilePath = endpoint.PackageFilePath,
-                DatabaseName = endpoint.DatabaseName,
-                OwnerUri = endpoint.OwnerUri,
-                ExtractTarget = endpoint.ExtractTarget
-            };
-        }
     }
 }
