@@ -74,8 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 try
                 {
                     var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
-                    var coreParams = ToCoreParams(parameters);
-                    operation = new CoreOps.SchemaCompareOperation(coreParams, connectionProvider);
+                    operation = new CoreOps.SchemaCompareOperation(parameters, connectionProvider);
                     currentComparisonCancellationAction.Value[operation.OperationId] = operation.Cancel;
                     operation.Execute();
 
@@ -113,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// Handles schema compare cancel request
         /// </summary>
         /// <returns></returns>
-        public async Task HandleSchemaCompareCancelRequest(SchemaCompareCancelParams parameters, RequestContext<ResultStatus> requestContext)
+        public async Task HandleSchemaCompareCancelRequest(CoreContracts.SchemaCompareCancelParams parameters, RequestContext<ResultStatus> requestContext)
         {
             Action cancelAction = null;
             if (currentComparisonCancellationAction.Value.TryRemove(parameters.OperationId, out cancelAction))
@@ -149,14 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
 
-                var coreParams = new CoreContracts.SchemaCompareGenerateScriptParams
-                {
-                    OperationId = parameters.OperationId,
-                    TargetServerName = parameters.TargetServerName,
-                    TargetDatabaseName = parameters.TargetDatabaseName
-                };
-
-                coreOp = new CoreOps.SchemaCompareGenerateScriptOperation(coreParams, compareResult);
+                coreOp = new CoreOps.SchemaCompareGenerateScriptOperation(parameters, compareResult);
 
                 var adapter = new SchemaCompareTaskAdapter(
                     execute: () => coreOp.Execute(),
@@ -204,14 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
 
-                var coreParams = new CoreContracts.SchemaComparePublishDatabaseChangesParams
-                {
-                    OperationId = parameters.OperationId,
-                    TargetServerName = parameters.TargetServerName,
-                    TargetDatabaseName = parameters.TargetDatabaseName
-                };
-
-                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(coreParams, compareResult);
+                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
 
                 var adapter = new SchemaCompareTaskAdapter(
                     execute: () => coreOp.Execute(),
@@ -257,14 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
 
-                var coreParams = new CoreContracts.SchemaComparePublishProjectChangesParams
-                {
-                    OperationId = parameters.OperationId,
-                    TargetProjectPath = parameters.TargetProjectPath,
-                    TargetFolderStructure = parameters.TargetFolderStructure
-                };
-
-                coreOp = new CoreOps.SchemaComparePublishProjectChangesOperation(coreParams, compareResult);
+                coreOp = new CoreOps.SchemaComparePublishProjectChangesOperation(parameters, compareResult);
 
                 var adapter = new SchemaCompareTaskAdapter(
                     execute: () => coreOp.Execute(),
@@ -316,14 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
 
-                var coreParams = new CoreContracts.SchemaCompareNodeParams
-                {
-                    OperationId = parameters.OperationId,
-                    DiffEntry = parameters.DiffEntry,
-                    IncludeRequest = parameters.IncludeRequest
-                };
-
-                operation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(coreParams, compareResult);
+                operation = new CoreOps.SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
                 operation.Execute();
 
                 // update the comparison result if the include/exclude was successful
@@ -362,13 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
 
-                var coreParams = new CoreContracts.SchemaCompareIncludeExcludeAllNodesParams
-                {
-                    OperationId = parameters.OperationId,
-                    IncludeRequest = parameters.IncludeRequest
-                };
-
-                operation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(coreParams, compareResult);
+                operation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(parameters, compareResult);
                 operation.Execute();
 
                 // update the comparison result if the include/exclude was successful
@@ -399,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// Handles schema compare open SCMP request
         /// </summary>
         /// <returns></returns>
-        public async Task HandleSchemaCompareOpenScmpRequest(SchemaCompareOpenScmpParams parameters, RequestContext<SchemaCompareOpenScmpResult> requestContext)
+        public async Task HandleSchemaCompareOpenScmpRequest(CoreContracts.SchemaCompareOpenScmpParams parameters, RequestContext<SchemaCompareOpenScmpResult> requestContext)
         {
             CurrentSchemaCompareTask = Task.Run(async () =>
             {
@@ -408,15 +373,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 try
                 {
                     var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
-                    var coreParams = new CoreContracts.SchemaCompareOpenScmpParams
-                    {
-                        FilePath = parameters.FilePath
-                    };
 
-                    operation = new CoreOps.SchemaCompareOpenScmpOperation(coreParams, connectionProvider);
+                    operation = new CoreOps.SchemaCompareOpenScmpOperation(parameters, connectionProvider);
                     operation.Execute();
 
-                    // Map core result back to ServiceLayer format
+                    // Map core result back to ServiceLayer format (adds ConnectionDetails for wire protocol)
                     await requestContext.SendResult(FromCoreOpenScmpResult(operation.Result));
                 }
                 catch (Exception e)
@@ -443,8 +404,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 try
                 {
                     var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
-                    var coreParams = ToCoreSaveScmpParams(parameters);
-                    operation = new CoreOps.SchemaCompareSaveScmpOperation(coreParams, connectionProvider);
+                    operation = new CoreOps.SchemaCompareSaveScmpOperation(parameters, connectionProvider);
                     operation.Execute();
 
                     await requestContext.SendResult(new ResultStatus()
@@ -470,63 +430,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         #region Type Mapping Helpers
 
         /// <summary>
-        /// Maps ServiceLayer SchemaCompareEndpointInfo to SqlCore SchemaCompareEndpointInfo
+        /// Maps SqlCore SchemaCompareEndpointInfo to ServiceLayer format, adding ConnectionDetails
+        /// for database endpoints parsed from SCMP files.
         /// </summary>
-        private static CoreContracts.SchemaCompareEndpointInfo ToCore(SchemaCompareEndpointInfo endpointInfo)
-        {
-            if (endpointInfo == null)
-            {
-                return null;
-            }
-
-            return new CoreContracts.SchemaCompareEndpointInfo
-            {
-                EndpointType = endpointInfo.EndpointType,
-                ProjectFilePath = endpointInfo.ProjectFilePath,
-                TargetScripts = endpointInfo.TargetScripts,
-                DataSchemaProvider = endpointInfo.DataSchemaProvider,
-                PackageFilePath = endpointInfo.PackageFilePath,
-                DatabaseName = endpointInfo.DatabaseName,
-                OwnerUri = endpointInfo.OwnerUri,
-                ExtractTarget = endpointInfo.ExtractTarget
-            };
-        }
-
-        /// <summary>
-        /// Maps ServiceLayer SchemaCompareParams to SqlCore SchemaCompareParams
-        /// </summary>
-        private static CoreContracts.SchemaCompareParams ToCoreParams(SchemaCompareParams parameters)
-        {
-            return new CoreContracts.SchemaCompareParams
-            {
-                OperationId = parameters.OperationId,
-                SourceEndpointInfo = ToCore(parameters.SourceEndpointInfo),
-                TargetEndpointInfo = ToCore(parameters.TargetEndpointInfo),
-                DeploymentOptions = parameters.DeploymentOptions
-            };
-        }
-
-        /// <summary>
-        /// Maps ServiceLayer SchemaCompareSaveScmpParams to SqlCore SchemaCompareSaveScmpParams
-        /// </summary>
-        private static CoreContracts.SchemaCompareSaveScmpParams ToCoreSaveScmpParams(SchemaCompareSaveScmpParams parameters)
-        {
-            return new CoreContracts.SchemaCompareSaveScmpParams
-            {
-                OperationId = parameters.OperationId,
-                SourceEndpointInfo = ToCore(parameters.SourceEndpointInfo),
-                TargetEndpointInfo = ToCore(parameters.TargetEndpointInfo),
-                DeploymentOptions = parameters.DeploymentOptions,
-                ScmpFilePath = parameters.ScmpFilePath,
-                ExcludedSourceObjects = parameters.ExcludedSourceObjects,
-                ExcludedTargetObjects = parameters.ExcludedTargetObjects
-            };
-        }
-
-        /// <summary>
-        /// Maps SqlCore SchemaCompareEndpointInfo back to ServiceLayer format
-        /// </summary>
-        private static SchemaCompareEndpointInfo FromCore(CoreContracts.SchemaCompareEndpointInfo coreEndpoint)
+        private static SchemaCompareEndpointInfo ToServiceLayerEndpoint(CoreContracts.SchemaCompareEndpointInfo coreEndpoint)
         {
             if (coreEndpoint == null)
             {
@@ -542,6 +449,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 PackageFilePath = coreEndpoint.PackageFilePath,
                 DatabaseName = coreEndpoint.DatabaseName,
                 OwnerUri = coreEndpoint.OwnerUri,
+                ServerName = coreEndpoint.ServerName,
+                UserName = coreEndpoint.UserName,
+                ConnectionString = coreEndpoint.ConnectionString,
                 ExtractTarget = coreEndpoint.ExtractTarget
             };
 
@@ -565,8 +475,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 Success = coreResult.Success,
                 ErrorMessage = coreResult.ErrorMessage,
-                SourceEndpointInfo = FromCore(coreResult.SourceEndpointInfo),
-                TargetEndpointInfo = FromCore(coreResult.TargetEndpointInfo),
+                SourceEndpointInfo = ToServiceLayerEndpoint(coreResult.SourceEndpointInfo),
+                TargetEndpointInfo = ToServiceLayerEndpoint(coreResult.TargetEndpointInfo),
                 OriginalTargetName = coreResult.OriginalTargetName,
                 OriginalTargetConnectionString = coreResult.OriginalTargetConnectionString,
                 DeploymentOptions = coreResult.DeploymentOptions,

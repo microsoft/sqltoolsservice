@@ -5,11 +5,11 @@
 
 #nullable disable
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
-using System.Collections.Generic;
 using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
