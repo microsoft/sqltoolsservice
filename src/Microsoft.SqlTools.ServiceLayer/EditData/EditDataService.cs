@@ -87,6 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(EditCancelRequest.Type, HandleCancelRequest, isParallelProcessingSupported: true);
         }
 
         #region Request Handlers
@@ -165,6 +166,35 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Everything was successful, return success
             await requestContext.SendResult(new EditDisposeResult());
+        }
+
+        internal async Task HandleCancelRequest(EditCancelParams cancelParams,
+            RequestContext<EditCancelResult> requestContext)
+        {
+            try
+            {
+                Validate.IsNotNullOrWhitespaceString(nameof(cancelParams.OwnerUri), cancelParams.OwnerUri);
+
+                // Cancel the underlying query in QueryExecutionService.
+                // We do not require an active EditSession because the session may still
+                // be initializing when the user clicks Cancel.
+                Query query;
+                if (queryExecutionService.ActiveQueries.TryGetValue(cancelParams.OwnerUri, out query))
+                {
+                    query.Cancel();
+                }
+
+                await requestContext.SendResult(new EditCancelResult());
+            }
+            catch (InvalidOperationException)
+            {
+                // Query already completed - treat as success
+                await requestContext.SendResult(new EditCancelResult());
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal async Task HandleInitializeRequest(EditInitializeParams initParams,

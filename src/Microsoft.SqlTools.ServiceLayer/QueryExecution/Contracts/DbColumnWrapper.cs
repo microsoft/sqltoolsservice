@@ -57,7 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             "time",
             "datetimeoffset",
             "datetime2",
-            "json"
+            "json",
+            "vector"
         };
 
         private const string SqlXmlDataTypeName = "xml";
@@ -176,6 +177,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsJson { get; set; }
 
         /// <summary>
+        /// Whether or not the column is a SQL Server VECTOR type
+        /// </summary>
+        public bool IsVector { get; private set; }
+
+        /// <summary>
         /// The SqlDbType of the column, for use in a SqlParameter
         /// </summary>
         public SqlDbType SqlDbType { get; private set; }
@@ -244,6 +250,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                     case "sysname":
                         SqlDbType = SqlDbType.NVarChar;
                         break;
+                    case "vector":
+                        SqlDbType = SqlDbType.NVarChar;
+                        break;
                     default:
                         SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.Binary : SqlDbType.Udt;
                         break;
@@ -296,6 +305,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                     IsChars = true;
                     IsLong = true;
                     IsJson = true;
+                    break;
+                case "vector":
+                    IsVector = true;
                     break;
                 case "binary":
                 case "image":

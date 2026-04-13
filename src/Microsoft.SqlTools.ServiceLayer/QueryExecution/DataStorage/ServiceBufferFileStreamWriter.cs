@@ -9,8 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using Microsoft.Data.SqlTypes;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -182,6 +184,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 if (tVal == typeof(DBNull))
                 {
                     rowBytes += WriteNull();
+                }
+                else if (ci.IsVector)
+                {
+                    if (values[i] is global::System.Data.SqlTypes.INullable nullableValue && nullableValue.IsNull)
+                    {
+                        rowBytes += WriteNull();
+                    }
+                    else
+                    {
+                        rowBytes += WriteString(ConvertVectorToDisplayString(values[i]));
+                    }
                 }
                 else
                 {
@@ -498,6 +511,84 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         internal int WriteMoney(SqlMoney val)
         {
             return WriteDecimal(val.Value);
+        }
+
+        /// <summary>
+        /// Converts a vector column value to its JSON array display string.
+        /// Handles SqlVector&lt;float&gt; (the primary type returned by SqlClient for VECTOR columns),
+        /// SqlBinary/byte[] fallbacks, and any other type via ToString().
+        /// </summary>
+        internal static string ConvertVectorToDisplayString(object value)
+        {
+            if (value is null || value == DBNull.Value)
+                return string.Empty;
+            if (value is System.Data.SqlTypes.INullable systemNullable && systemNullable.IsNull)
+                return string.Empty;
+            if (value is SqlVector<float> floatVector)
+                return FloatSpanToJsonString(floatVector.Memory.Span);
+            if (value is SqlBinary sqlBinary)
+                return VectorBytesToJsonString(sqlBinary.Value);
+            if (value is byte[] bytes)
+                return VectorBytesToJsonString(bytes);
+            return value.ToString();
+        }
+
+        /// <summary>
+        /// Converts a span of floats to a JSON array string (e.g. "[1,2,3]").
+        /// </summary>
+        internal static string FloatSpanToJsonString(ReadOnlySpan<float> values)
+        {
+            var sb = new StringBuilder("[");
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (i > 0) sb.Append(',');
+                sb.Append(values[i].ToString("G", CultureInfo.InvariantCulture));
+            }
+            sb.Append(']');
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Converts a raw vector byte array to a JSON array string of floats.
+        /// Handles both the 8-byte-header TDS format (2 flags + 2 dimensions + 4 reserved)
+        /// and the headerless raw-floats format.
+        /// </summary>
+        internal static string VectorBytesToJsonString(byte[] vectorBytes)
+        {
+            if (vectorBytes == null || vectorBytes.Length == 0)
+                return "[]";
+
+            int offset = 0;
+            int floatCount;
+
+            if (vectorBytes.Length >= 8)
+            {
+                ushort dimensions = BitConverter.ToUInt16(vectorBytes, 2);
+                if (dimensions * 4 + 8 == vectorBytes.Length)
+                {
+                    // 8-byte header present: skip it
+                    offset = 8;
+                    floatCount = dimensions;
+                }
+                else
+                {
+                    floatCount = vectorBytes.Length / 4;
+                }
+            }
+            else
+            {
+                floatCount = vectorBytes.Length / 4;
+            }
+
+            var sb = new StringBuilder("[");
+            for (int i = 0; i < floatCount; i++)
+            {
+                if (i > 0) sb.Append(',');
+                float val = BitConverter.ToSingle(vectorBytes, offset + i * 4);
+                sb.Append(val.ToString("G", CultureInfo.InvariantCulture));
+            }
+            sb.Append(']');
+            return sb.ToString();
         }
 
         /// <summary>

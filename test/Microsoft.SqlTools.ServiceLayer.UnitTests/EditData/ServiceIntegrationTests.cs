@@ -283,6 +283,109 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
         }
 
+        #region Cancel Tests
+
+        [Test]
+        public async Task CancelNullOrMissingOwnerUri([Values(null, "", " \t\n\r")] string ownerUri)
+        {
+            // Setup: Create an edit data service with a real query execution service
+            var qes = QueryExecution.Common.GetPrimedExecutionService(null, false, false, false, null);
+            var eds = new EditDataService(qes, null, null);
+
+            // If: I ask to cancel with a null/empty owner URI
+            // Then: An error should be sent
+            string errorMessage = null;
+            var contextMock = RequestContextMocks.Create<EditCancelResult>(null)
+                .AddErrorHandling((msg, code, data) => errorMessage = msg);
+            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = ownerUri }, contextMock.Object);
+            Assert.That(errorMessage, Is.Not.Null, "An error message should have been sent");
+        }
+
+        [Test]
+        public async Task CancelSuccessWithActiveQuery()
+        {
+            // Setup:
+            // ... Create a query execution service with an in-progress query
+            var workspaceService = QueryExecution.Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            var qes = QueryExecution.Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
+            var executeParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = QueryExecution.Common.WholeDocument,
+                OwnerUri = Constants.OwnerUri
+            };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+            qes.ActiveQueries[Constants.OwnerUri].HasExecuted = false; // Fake that it hasn't completed
+
+            // ... Create an edit data service with the query execution service
+            var eds = new EditDataService(qes, null, null);
+
+            // If: I ask to cancel for an owner URI with an active query
+            var efv = new EventFlowValidator<EditCancelResult>()
+                .AddResultValidation(Assert.NotNull)
+                .Complete();
+            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+
+            // Then:
+            // ... It should have completed successfully
+            efv.Validate();
+
+            // ... The query should have been cancelled
+            Assert.That(qes.ActiveQueries[Constants.OwnerUri].HasCancelled, Is.True);
+        }
+
+        [Test]
+        public async Task CancelSuccessWithNoActiveQuery()
+        {
+            // Setup: Create an edit data service with a query execution service that has no active queries
+            var qes = QueryExecution.Common.GetPrimedExecutionService(null, false, false, false, null);
+            var eds = new EditDataService(qes, null, null);
+
+            // If: I ask to cancel for an owner URI with no active query
+            var efv = new EventFlowValidator<EditCancelResult>()
+                .AddResultValidation(Assert.NotNull)
+                .Complete();
+            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+
+            // Then: It should still complete successfully (no-op)
+            efv.Validate();
+        }
+
+        [Test]
+        public async Task CancelQueryAlreadyCompleted()
+        {
+            // Setup:
+            // ... Create a query execution service with an already-completed query
+            var workspaceService = QueryExecution.Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            var qes = QueryExecution.Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
+            var executeParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = QueryExecution.Common.WholeDocument,
+                OwnerUri = Constants.OwnerUri
+            };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+            // Query has already completed execution (HasExecuted is true)
+
+            // ... Create an edit data service with the query execution service
+            var eds = new EditDataService(qes, null, null);
+
+            // If: I ask to cancel a query that has already completed
+            var efv = new EventFlowValidator<EditCancelResult>()
+                .AddResultValidation(Assert.NotNull)
+                .Complete();
+            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+
+            // Then: It should treat it as success (InvalidOperationException is caught)
+            efv.Validate();
+        }
+
+        #endregion
+
         #region Initialize Tests
         [Test]
         [Sequential]

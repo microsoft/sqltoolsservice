@@ -38,9 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="SqlCopilotCommon">
-      <HintPath>..\..\bin\ref\SqlCopilotCommon.dll</HintPath>
-    </Reference>
     <Reference Include="ScriptoriaCommonDefs">
       <HintPath>..\..\bin\ref\ScriptoriaCommonDefs.dll</HintPath>
     </Reference>
