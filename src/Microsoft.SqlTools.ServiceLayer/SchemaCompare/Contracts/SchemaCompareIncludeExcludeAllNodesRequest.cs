@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
