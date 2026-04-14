@@ -5,7 +5,6 @@
 
 #nullable disable
 
-using System;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
@@ -21,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
     {
         public bool Result { get; set;  }
 
-        public Guid TaskId { get; set;  }
+        public int TaskId { get; set;  }
     }
 
     public class CreateDatabaseRequest

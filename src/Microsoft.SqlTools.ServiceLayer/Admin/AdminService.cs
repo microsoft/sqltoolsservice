@@ -7,18 +7,16 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
@@ -108,49 +106,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             CreateDatabaseParams databaseParams,
             RequestContext<CreateDatabaseResponse> requestContext)
         {
-            var response = new CreateDatabaseResponse();
+            var response = new DefaultDatabaseInfoResponse();
             ConnectionInfo connInfo;
             AdminService.ConnectionServiceInstance.TryFindConnection(
                 databaseParams.OwnerUri,
                 out connInfo);
 
-            if (connInfo == null)
+            using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
             {
-                response.Result = false;
-                await requestContext.SendResult(response);
-                return;
+                DatabasePrototype prototype = taskHelper.Prototype;
+                DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
+
+                Database db = prototype.ApplyChanges();
+
+                await requestContext.SendResult(new CreateDatabaseResponse()
+                {
+                    Result = true,
+                    TaskId = 0
+                });
             }
-
-            var operation = new CreateDatabaseOperation(connInfo, databaseParams.DatabaseInfo);
-            TaskMetadata metadata = new TaskMetadata
-            {
-                Name = CreateDatabaseOperation.TaskName,
-                Description = operation.TaskDescription,
-                TaskExecutionMode = TaskExecutionMode.Execute,
-                ServerName = connInfo.ConnectionDetails.ServerName,
-                DatabaseName = operation.DatabaseName ?? connInfo.ConnectionDetails.DatabaseName,
-                TaskOperation = operation,
-                OwnerUri = databaseParams.OwnerUri,
-                OperationName = typeof(CreateDatabaseOperation).Name,
-            };
-            SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
-            await sqlTask.RunAsync();
-
-            if (sqlTask.TaskStatus == SqlTaskStatus.Succeeded)
-            {
-                response.Result = true;
-                response.TaskId = sqlTask.TaskId;
-                await requestContext.SendResult(response);
-                return;
-            }
-
-            if (operation.ExecutionException != null)
-            {
-                ExceptionDispatchInfo.Capture(operation.ExecutionException).Throw();
-            }
-
-            string message = sqlTask.Messages.LastOrDefault()?.Description;
-            throw new Exception(message);
         }
 
         /// <summary>

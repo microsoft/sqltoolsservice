@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using System.Runtime.ExceptionServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -150,6 +151,47 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
             var obj = requestParams.Object.ToObject(handler.GetObjectType());
+
+            if (context.Parameters.ObjectType == SqlObjectType.Database && context.Parameters.IsNewObject)
+            {
+                var databaseHandler = handler as DatabaseHandler;
+                var databaseContext = context as DatabaseViewContext;
+                var databaseInfo = obj as DatabaseInfo;
+
+                var createOperation = new CreateDatabaseOnSaveOperation(databaseHandler, databaseContext, databaseInfo);
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+
+                TaskMetadata metadata = new TaskMetadata
+                {
+                    Name = SR.CreateDatabaseTaskName,
+                    Description = createOperation.TaskDescription,
+                    TaskExecutionMode = TaskExecutionMode.Execute,
+                    ServerName = connInfo?.ConnectionDetails?.ServerName,
+                    DatabaseName = databaseInfo?.Name ?? connInfo?.ConnectionDetails?.DatabaseName,
+                    TaskOperation = createOperation,
+                    OwnerUri = context.Parameters.ConnectionUri,
+                    OperationName = typeof(CreateDatabaseOnSaveOperation).Name,
+                };
+
+                SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
+                await sqlTask.RunAsync();
+
+                if (sqlTask.TaskStatus != SqlTaskStatus.Succeeded)
+                {
+                    if (createOperation.ExecutionException != null)
+                    {
+                        ExceptionDispatchInfo.Capture(createOperation.ExecutionException).Throw();
+                    }
+
+                    string message = sqlTask.Messages.LastOrDefault()?.Description;
+                    throw new Exception(message ?? $"Failed to create database '{databaseInfo?.Name}'.");
+                }
+
+                await requestContext.SendResult(new SaveObjectRequestResponse());
+                return;
+            }
+
             await handler.Save(context, obj as SqlObject);
             await requestContext.SendResult(new SaveObjectRequestResponse());
         }

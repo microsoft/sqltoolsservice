@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
         }
 
         [Test]
-        public async Task CreateDatabaseRequestCreatesCompletedTaskWithIndeterminateProgress()
+        public async Task CreateDatabaseRequestCreatesDatabase()
         {
             string databaseName = GetUniqueDatabaseName("CreateTaskDb");
             databasesToDrop.Add(databaseName);
@@ -84,14 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Result, Is.True);
-
-            SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == typeof(CreateDatabaseOperation).Name && task.TaskMetadata.DatabaseName == databaseName);
-
-            Assert.That(sqlTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
-            Assert.That(sqlTask.TaskMetadata.Name, Is.EqualTo(global::Microsoft.SqlTools.ServiceLayer.SR.CreateDatabaseTaskName));
-            Assert.That(sqlTask.PercentComplete, Is.EqualTo(-1));
-            Assert.That(sqlTask.ProgressMessage, Is.EqualTo($"Create database '{databaseName}'."));
-            Assert.That(sqlTask.Messages.Any(m => !string.IsNullOrWhiteSpace(m.Description)), Is.True);
 
             Assert.That(DatabaseExists(connectionResult.ConnectionInfo, databaseName), Is.True);
         }
