@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 namespace Microsoft.SqlTools.SqlCore.Connection
 {
@@ -10,7 +11,7 @@ namespace Microsoft.SqlTools.SqlCore.Connection
         /// <summary>
         /// Gets or sets the refresh token.
         /// </summary>
-        public string Token { get; set; }
+        public string Token { get; set; } = null!;
 
         /// <summmary>
         /// Gets or sets the token expiration, a Unix epoch 

@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         {
             Parent = serverNode;
             NodeValue = databaseName;
-            var db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, this.NodeValue);
+            var db = new Database(serverNode.GetContextAs<SmoQueryContext>()!.Server, this.NodeValue);
             db.Refresh();
             // If we got this far, the connection is valid. However, it's possible
             // the user connected directly to the master of a readable secondary
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             if (db.State == SqlSmoState.Creating && !IsDWGen3(db))
             {
                 Logger.Information($"Database {databaseName} is in Creating state after initialization, defaulting to master for Object Explorer connections. This is expected when connecting to an Availability Group readable secondary");
-                db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, "master");
+                db = new Database(serverNode.GetContextAs<SmoQueryContext>()!.Server, "master");
                 db.Refresh();
             }
             CacheInfoFromModel(db);
@@ -47,13 +48,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 var db = SmoObject as Database;
                 if (db != null)
                 {
-                    context.Database = db;
+                    context!.Database = db;
                 }
-                context.ValidFor = ServerVersionHelper.GetValidForFlag(context.SqlServerType, db);
+                context!.ValidFor = ServerVersionHelper.GetValidForFlag(context.SqlServerType, db);
             }
         }
 
-        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
+        protected override void PopulateChildren(bool refresh, string? name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
         {
             var smoQueryContext = this.GetContextAs<SmoQueryContext>();
             if (IsAccessible(smoQueryContext))
@@ -70,7 +71,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        public bool IsAccessible(SmoQueryContext context)
+        public bool IsAccessible(SmoQueryContext? context)
         {
             try
             {
@@ -97,14 +98,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        private bool IsDWGen3(Database db)
+        private bool IsDWGen3(Database? db)
         {
             return db != null
                 && db.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse
                 && db.ServerVersion.Major == 12;
         }
 
-        private bool isUnknownDatabaseEdition(Database db)
+        private bool isUnknownDatabaseEdition(Database? db)
         {
             // If the database engine edition is not defined in the enum, it is an unknown edition
             return db != null

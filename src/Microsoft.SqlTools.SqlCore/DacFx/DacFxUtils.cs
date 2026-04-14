@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.SqlCore.DacFx
 
                 DacDeployOptions dacOptions = new DacDeployOptions();
                 Type propType = dacOptions.GetType();
-                Dictionary<string, DeploymentOptionProperty<bool>> booleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>();
+                Dictionary<string, DeploymentOptionProperty<bool>>? booleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
                 foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
                 {
