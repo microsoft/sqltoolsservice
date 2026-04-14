@@ -9,20 +9,10 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
-
-    /// <summary>
-    /// Parameters for a schema compare open scmp file request.
-    /// </summary>
-    public class SchemaCompareOpenScmpParams
-    {
-        /// <summary>
-        /// filepath of scmp
-        /// </summary>
-        public string FilePath { get; set; }
-    }
 
     /// <summary>
     /// Parameters returned from a schema compare open scmp request.
@@ -72,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     class SchemaCompareOpenScmpRequest
     {
-        public static readonly RequestType<SchemaCompareOpenScmpParams, SchemaCompareOpenScmpResult> Type =
-            RequestType<SchemaCompareOpenScmpParams, SchemaCompareOpenScmpResult>.Create("schemaCompare/openScmp");
+        public static readonly RequestType<CoreContracts.SchemaCompareOpenScmpParams, SchemaCompareOpenScmpResult> Type =
+            RequestType<CoreContracts.SchemaCompareOpenScmpParams, SchemaCompareOpenScmpResult>.Create("schemaCompare/openScmp");
     }
 }

@@ -1,9 +1,8 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,23 +10,19 @@ using System.Threading;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
-using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Schema compare load scmp operation
+    /// Host-agnostic schema compare open SCMP file operation
     /// </summary>
-    class SchemaCompareOpenScmpOperation : ITaskOperation
+    public class SchemaCompareOpenScmpOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
-
-        public SqlTask SqlTask { get; set; }
 
         public SchemaCompareOpenScmpParams Parameters { get; set; }
 
@@ -35,10 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         private XDocument scmpInfo { get; set; }
 
-        public SchemaCompareOpenScmpOperation(SchemaCompareOpenScmpParams parameters)
+        private ISchemaCompareConnectionProvider connectionProvider;
+
+        public SchemaCompareOpenScmpOperation(SchemaCompareOpenScmpParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
+            this.connectionProvider = connectionProvider;
         }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
@@ -48,7 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// </summary>
         public string ErrorMessage { get; set; }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
         }
@@ -65,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        public void Execute(TaskExecutionMode mode)
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -106,15 +103,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             // if the endpoint is a dacpac, we don't need to parse the xml
             if (endpoint is SchemaCompareDacpacEndpoint dacpacEndpoint)
             {
-                endpointInfo.EndpointType = CoreContracts.SchemaCompareEndpointType.Dacpac;
+                endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
                 endpointInfo.PackageFilePath = dacpacEndpoint.FilePath;
             }
             else
             {
                 bool isProjectEndpoint = endpoint is SchemaCompareProjectEndpoint;
-                IEnumerable<XElement> result = isProjectEndpoint ? this.scmpInfo.Descendants("ProjectBasedModelProvider"): this.scmpInfo.Descendants("ConnectionBasedModelProvider");
+                IEnumerable<XElement> result = isProjectEndpoint ? this.scmpInfo.Descendants("ProjectBasedModelProvider") : this.scmpInfo.Descendants("ConnectionBasedModelProvider");
                 string searchingFor = source ? "Source" : "Target";
-                
+
                 // need to parse xml
                 try
                 {
@@ -124,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         {
                             if (node.Parent.Name.ToString().Contains(searchingFor))
                             {
-                                if(isProjectEndpoint)
+                                if (isProjectEndpoint)
                                 {
                                     SetProjectEndpointInfoFromXML(result, endpointInfo, ((SchemaCompareProjectEndpoint)endpoint).ProjectFilePath);
                                     break;
@@ -141,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 catch (Exception e)
                 {
                     string info = isProjectEndpoint ? ((SchemaCompareProjectEndpoint)endpoint).ProjectFilePath : ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName;
-                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, info, e.Message);
+                    ErrorMessage = SR.OpenScmpConnectionBasedModelParsingError(info, e.Message);
                     Logger.Error(string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
                     throw;
                 }
@@ -152,11 +149,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         private void SetDatabaseEndpointInfoFromXML(XElement node, SchemaCompareEndpointInfo endpointInfo)
         {
-            // get connection string of database
-            endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.Value);
-            endpointInfo.ConnectionDetails.ConnectionString = node.Value;
-            endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
-            endpointInfo.EndpointType = CoreContracts.SchemaCompareEndpointType.Database;
+            // Use the connection provider to parse the connection string into endpoint info fields
+            SchemaCompareEndpointInfo parsed = this.connectionProvider.ParseConnectionString(node.Value);
+            endpointInfo.ServerName = parsed.ServerName;
+            endpointInfo.DatabaseName = parsed.DatabaseName;
+            endpointInfo.UserName = parsed.UserName;
+            endpointInfo.ConnectionString = node.Value;
+            endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
         }
 
         private void SetProjectEndpointInfoFromXML(IEnumerable<XElement> result, SchemaCompareEndpointInfo endpointInfo, string filePath)
@@ -173,33 +172,35 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             if (fs != null)
             {
                 DacExtractTarget extractTarget;
-                if(fs.FirstOrDefault() != null)     // it is possible that this value is not set
+                if (fs.FirstOrDefault() != null)     // it is possible that this value is not set
                 {
                     if (Enum.TryParse<DacExtractTarget>(fs.FirstOrDefault().Value, out extractTarget))
                     {
                         endpointInfo.ExtractTarget = extractTarget;
-                    } else
+                    }
+                    else
                     {
                         endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set default but log an error
                         Logger.Error(string.Format("Schema compare open scmp operation failed during xml parsing with unknown ExtractTarget"));
                     }
-                } else
+                }
+                else
                 {
                     endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set the default if this value doesn't already exist in the scmp file
                 }
             }
 
-            endpointInfo.EndpointType = CoreContracts.SchemaCompareEndpointType.Project;
+            endpointInfo.EndpointType = SchemaCompareEndpointType.Project;
             endpointInfo.ProjectFilePath = filePath;
         }
 
-        private List<CoreContracts.SchemaCompareObjectId> GetExcludedElements(IList<SchemaComparisonExcludedObjectId> excludedObjects)
+        private List<SchemaCompareObjectId> GetExcludedElements(IList<SchemaComparisonExcludedObjectId> excludedObjects)
         {
-            List<CoreContracts.SchemaCompareObjectId> excludedElements = new List<CoreContracts.SchemaCompareObjectId>();
+            List<SchemaCompareObjectId> excludedElements = new List<SchemaCompareObjectId>();
 
             foreach (SchemaComparisonExcludedObjectId entry in excludedObjects)
             {
-                excludedElements.Add(new CoreContracts.SchemaCompareObjectId()
+                excludedElements.Add(new SchemaCompareObjectId()
                 {
                     NameParts = entry.Identifier.Parts.Cast<string>().ToArray(),
                     SqlObjectType = entry.TypeName

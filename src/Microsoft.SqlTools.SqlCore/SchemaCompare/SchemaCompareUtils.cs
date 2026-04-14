@@ -1,9 +1,8 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,28 +10,27 @@ using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.SqlCore.Utility;
-using static Microsoft.SqlTools.Utility.SqlConstants;
-using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
 
     /// <summary>
     /// Internal class for utilities shared between multiple schema compare operations
     /// </summary>
-    internal static partial class SchemaCompareUtils
+    internal static class SchemaCompareUtils
     {
-        internal static CoreContracts.DiffEntry CreateDiffEntry(SchemaDifference difference, CoreContracts.DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
+        private static readonly Regex ExcessWhitespaceRegex = new Regex(" {2,}", RegexOptions.Compiled);
+
+        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
         {
             if (difference == null)
             {
                 return null;
             }
 
-            var diffEntry = new CoreContracts.DiffEntry();
+            var diffEntry = new DiffEntry();
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
             diffEntry.Name = difference.Name;
@@ -61,9 +59,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
                     // Don't add scripts that start with alter because those are handled by a top level element's create
-                    // ex: if a column changes, then the parent table's script will have the column updated, but GetDiffEntrySourceScript() on the child
-                    // will return an alter table statement for updating that column when getting the child script. The child's alter script is unecessary
-                    // for displaying the script in schema compare because the comparison displays the create scripts
                     if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
@@ -75,9 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
                     // Don't add scripts that start with alter because those are handled by a top level element's create
-                    // ex: if a column changes, then the parent table's script will have the column updated, but GetDiffEntrySourceScript() on the child
-                    // will return an alter table script for updating that column when getting the child script. The child's alter script is unecessary
-                    // for displaying the script in schema compare because the comparison displays the create scripts
                     if (!targetScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
@@ -85,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
             }
 
-            diffEntry.Children = new List<CoreContracts.DiffEntry>();
+            diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
             {
@@ -95,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return diffEntry;
         }
 
-        internal static SchemaComparisonExcludedObjectId CreateExcludedObject(CoreContracts.SchemaCompareObjectId sourceObj)
+        internal static SchemaComparisonExcludedObjectId CreateExcludedObject(SchemaCompareObjectId sourceObj)
         {
             try
             {
@@ -113,47 +105,35 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, ConnectionInfo connInfo)
+        internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, ISchemaCompareConnectionProvider connectionProvider)
         {
             switch (endpointInfo.EndpointType)
             {
-                case CoreContracts.SchemaCompareEndpointType.Project:
+                case SchemaCompareEndpointType.Project:
                     {
                         return endpointInfo?.ExtractTarget != null
                             ? new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider, (DacExtractTarget)endpointInfo?.ExtractTarget)
                             : new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);
                     }
-                case CoreContracts.SchemaCompareEndpointType.Dacpac:
+                case SchemaCompareEndpointType.Dacpac:
                     {
                         return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
                     }
-                case CoreContracts.SchemaCompareEndpointType.Database:
+                case SchemaCompareEndpointType.Database:
                     {
-                        string connectionString = GetConnectionString(connInfo, endpointInfo.DatabaseName);
+                        string connectionString = connectionProvider.GetConnectionString(endpointInfo);
+                        string accessToken = connectionProvider.GetAccessToken(endpointInfo);
 
-                        // Set Access Token only when authentication mode is not specified.
-                        return connInfo.ConnectionDetails?.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA
-                            ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken))
+                        return accessToken != null
+                            ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(accessToken))
                             : new SchemaCompareDatabaseEndpoint(connectionString);
                     }
                 default:
                     {
-                        throw new NotSupportedException($"Endpoint Type {endpointInfo.EndpointType} is not supported");
+                        throw new NotSupportedException(string.Format("Endpoint Type {0} is not supported", endpointInfo.EndpointType));
                     }
             }
         }
-
-        internal static string GetConnectionString(ConnectionInfo connInfo, string databaseName)
-        {
-            if (connInfo == null)
-            {
-                return null;
-            }
-
-            connInfo.ConnectionDetails.DatabaseName = databaseName;
-            return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-        }
-
 
         internal static string RemoveExcessWhitespace(string script)
         {
@@ -162,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // remove leading and trailing whitespace
                 script = script.Trim();
                 // replace all multiple spaces with single space
-                script = GetScriptRegex().Replace(script, " ");
+                script = ExcessWhitespaceRegex.Replace(script, " ");
             }
             return script;
         }
@@ -176,8 +156,5 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             return script;
         }
-
-        [GeneratedRegex(" {2,}")]
-        private static partial Regex GetScriptRegex();
     }
 }

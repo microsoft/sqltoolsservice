@@ -2783,6 +2783,14 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
+        public static string SchemaCompareExcludeIncludeNodeNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaCompareExcludeIncludeNodeNotFound);
+            }
+        }
+
         public static string TableNotInitializedException(string tableId)
         {
             return Keys.GetString(Keys.TableNotInitializedException, tableId);
@@ -2901,6 +2909,11 @@ namespace Microsoft.SqlTools.SqlCore
         public static string TableDesignerAlterTablePermissionDenied(string table)
         {
             return Keys.GetString(Keys.TableDesignerAlterTablePermissionDenied, table);
+        }
+
+        public static string OpenScmpConnectionBasedModelParsingError(string endpoint, string error)
+        {
+            return Keys.GetString(Keys.OpenScmpConnectionBasedModelParsingError, endpoint, error);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -4013,6 +4026,12 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string TableDesignerAlterTablePermissionDenied = "TableDesignerAlterTablePermissionDenied";
+
+
+            public const string SchemaCompareExcludeIncludeNodeNotFound = "SchemaCompareExcludeIncludeNodeNotFound";
+
+
+            public const string OpenScmpConnectionBasedModelParsingError = "OpenScmpConnectionBasedModelParsingError";
 
 
             private Keys()

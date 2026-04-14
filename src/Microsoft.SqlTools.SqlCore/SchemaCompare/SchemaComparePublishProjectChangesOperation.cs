@@ -1,24 +1,20 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
-using System.Threading;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare publish project changes operation
+    /// Host-agnostic schema compare publish project changes operation
     /// </summary>
-    class SchemaComparePublishProjectChangesOperation: SchemaComparePublishChangesOperation
+    public class SchemaComparePublishProjectChangesOperation : SchemaComparePublishChangesOperation
     {
         public SchemaComparePublishProjectChangesParams Parameters { get; }
 
@@ -28,9 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             Validate.IsNotNull(nameof(parameters), parameters);
             Parameters = parameters;
+            OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        public override void Execute()
         {
             if (CancellationToken.IsCancellationRequested)
             {
@@ -40,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 PublishResult = ComparisonResult.PublishChangesToProject(Parameters.TargetProjectPath, Parameters.TargetFolderStructure);
-                
+
                 if (!PublishResult.Success)
                 {
                     ErrorMessage = PublishResult.ErrorMessage;

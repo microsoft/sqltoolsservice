@@ -599,3 +599,7 @@ NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName) = N
 TableDesignerConfirmationText = I have read the summary and understand the potential risks.
 TableDesignerCreateTablePermissionDenied(string db) = CREATE TABLE permission denied in database '{0}'.
 TableDesignerAlterTablePermissionDenied(string table) = ALTER TABLE permission denied for table '{0}'.
+
+# Schema Compare
+SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
+OpenScmpConnectionBasedModelParsingError(string endpoint, string error) = Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'
