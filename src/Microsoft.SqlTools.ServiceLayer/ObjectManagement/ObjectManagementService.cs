@@ -5,6 +5,7 @@
 
 #nullable disable
 using System;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -14,6 +15,7 @@ using System.Collections.Concurrent;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -79,8 +81,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
         {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(requestParams.ConnectionUri, out connInfo);
+
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-            await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
+            var renameOperation = new RenameObjectOperation(handler, requestParams);
+            TaskMetadata renameMetadata = new TaskMetadata
+            {
+                Name = renameOperation.TaskName,
+                Description = renameOperation.TaskDescription,
+                TaskExecutionMode = TaskExecutionMode.Execute,
+                ServerName = connInfo?.ConnectionDetails?.ServerName,
+                DatabaseName = renameOperation.TargetDatabaseName ?? connInfo?.ConnectionDetails?.DatabaseName,
+                TaskOperation = renameOperation,
+                OwnerUri = requestParams.ConnectionUri,
+                OperationName = typeof(RenameObjectOperation).Name,
+            };
+
+            SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(renameMetadata);
+            await sqlTask.RunAsync();
+
+            if (sqlTask.TaskStatus != SqlTaskStatus.Succeeded)
+            {
+                if (renameOperation.ExecutionException != null)
+                {
+                    ExceptionDispatchInfo.Capture(renameOperation.ExecutionException).Throw();
+                }
+
+                string message = sqlTask.Messages.LastOrDefault()?.Description;
+                throw new Exception(message ?? (requestParams.ObjectType == SqlObjectType.Database
+                    ? $"Failed to rename database to '{requestParams.NewName}'."
+                    : $"Failed to rename object to '{requestParams.NewName}'."));
+            }
+
             await requestContext.SendResult(new RenameRequestResponse());
         }
 
@@ -235,8 +268,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            var sqlScript = handler.Drop(requestParams);
-            await requestContext.SendResult(sqlScript);
+            var operation = new DropDatabaseOperation(handler, requestParams);
+
+            if (requestParams.GenerateScript)
+            {
+                operation.Execute(TaskExecutionMode.Script);
+                await requestContext.SendResult(operation.ScriptContent ?? string.Empty);
+                return;
+            }
+
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(requestParams.ConnectionUri, out connInfo);
+            TaskMetadata metadata = new TaskMetadata
+            {
+                Name = DropDatabaseOperation.TaskName,
+                Description = operation.TaskDescription,
+                TaskExecutionMode = TaskExecutionMode.Execute,
+                ServerName = connInfo?.ConnectionDetails?.ServerName,
+                DatabaseName = requestParams.Database ?? connInfo?.ConnectionDetails?.DatabaseName,
+                TaskOperation = operation,
+                OwnerUri = requestParams.ConnectionUri,
+                OperationName = typeof(DropDatabaseOperation).Name,
+            };
+            SqlTaskManager.Instance.CreateAndRun<SqlTask>(metadata);
+
+            await requestContext.SendResult(string.Empty);
         }
 
         internal async Task HandlePurgeQueryStoreDataRequest(PurgeQueryStoreDataRequestParams requestParams, RequestContext<PurgeQueryStoreDataRequestResponse> requestContext)

@@ -871,6 +871,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string CreateDatabaseTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.CreateDatabaseTaskName);
+            }
+        }
+
+        public static string DropDatabaseTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.DropDatabaseTaskName);
+            }
+        }
+
+        public static string RenameTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameTaskName);
+            }
+        }
+
+        public static string RenameTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameTaskDescription);
+            }
+        }
+
         public static string BackupPathIsFolderError
         {
             get
@@ -11450,6 +11482,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string BackupTaskName = "BackupTaskName";
+
+
+            public const string CreateDatabaseTaskName = "CreateDatabaseTaskName";
+
+
+            public const string DropDatabaseTaskName = "DropDatabaseTaskName";
+
+
+            public const string RenameTaskName = "RenameTaskName";
+
+
+            public const string RenameTaskDescription = "RenameTaskDescription";
 
 
             public const string BackupPathIsFolderError = "BackupPathIsFolderError";

@@ -352,6 +352,10 @@ ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error par
 ############################################################################
 # Backup Service
 BackupTaskName = Backup Database
+CreateDatabaseTaskName = Create Database
+DropDatabaseTaskName = Drop Database
+RenameTaskName = Rename {0}
+RenameTaskDescription = Rename {0} to '{1}'.
 
 # Backup File Validation Errors
 BackupPathIsFolderError = Please provide a file path instead of directory path
