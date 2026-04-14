@@ -5,7 +5,6 @@
 
 #nullable disable
 using System;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -82,42 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
         {
-            if (requestParams.ObjectType == SqlObjectType.Database)
-            {
-                throw new InvalidOperationException("Database renames must use objectManagement/renameDatabase.");
-            }
-
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(requestParams.ConnectionUri, out connInfo);
-
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-            var renameOperation = new RenameObjectOperation(handler, requestParams);
-            TaskMetadata renameMetadata = new TaskMetadata
-            {
-                Name = renameOperation.TaskName,
-                Description = renameOperation.TaskDescription,
-                TaskExecutionMode = TaskExecutionMode.Execute,
-                ServerName = connInfo?.ConnectionDetails?.ServerName,
-                DatabaseName = renameOperation.TargetDatabaseName ?? connInfo?.ConnectionDetails?.DatabaseName,
-                TaskOperation = renameOperation,
-                OwnerUri = requestParams.ConnectionUri,
-                OperationName = typeof(RenameObjectOperation).Name,
-            };
-
-            SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(renameMetadata);
-            await sqlTask.RunAsync();
-
-            if (sqlTask.TaskStatus != SqlTaskStatus.Succeeded)
-            {
-                if (renameOperation.ExecutionException != null)
-                {
-                    ExceptionDispatchInfo.Capture(renameOperation.ExecutionException).Throw();
-                }
-
-                string message = sqlTask.Messages.LastOrDefault()?.Description;
-                throw new Exception(message);
-            }
-
+            await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
             await requestContext.SendResult(new RenameRequestResponse());
         }
 
