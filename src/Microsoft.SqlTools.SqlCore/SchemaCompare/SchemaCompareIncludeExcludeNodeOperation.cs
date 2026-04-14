@@ -1,25 +1,22 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Linq;
-using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare include/exclude Node operation
+    /// Host-agnostic schema compare include/exclude node operation
     /// </summary>
-    class SchemaCompareIncludeExcludeNodeOperation : ITaskOperation
+    public class SchemaCompareIncludeExcludeNodeOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
@@ -35,14 +32,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
         public SchemaComparisonResult ComparisonResult { get; set; }
 
         public bool Success { get; set; }
 
-        public List<CoreContracts.DiffEntry> AffectedDependencies;
-        public List<CoreContracts.DiffEntry> BlockingDependencies;
+        public List<DiffEntry> AffectedDependencies;
+        public List<DiffEntry> BlockingDependencies;
 
 
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
@@ -51,31 +46,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.Parameters = parameters;
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
+            this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
         /// <summary>
         /// Exclude will return false if included dependencies are found. Include will also include dependencies that need to be included. 
         /// This is the same behavior as SSDT
         /// </summary>
-        /// <param name="mode"></param>
-        public void Execute(TaskExecutionMode mode)
+        public void Execute()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
             try
             {
-                SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry) ?? throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
+                SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry);
+                if (node == null)
+                {
+                    throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
+                }
+
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
                 // if include request (pass or fail), send dependencies that might have been affected by this request, given by GetIncludeDependencies()
-                if(this.Parameters.IncludeRequest)
+                if (this.Parameters.IncludeRequest)
                 {
                     IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
                     this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                 }
                 else
                 {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
-                    if(this.Success)
+                    if (this.Success)
                     {
                         IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
                         this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
                         this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                     }
-                   
+
                 }
             }
             catch (Exception e)
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private SchemaDifference FindDifference(IEnumerable<SchemaDifference> differences, CoreContracts.DiffEntry diffEntry)
+        private SchemaDifference FindDifference(IEnumerable<SchemaDifference> differences, DiffEntry diffEntry)
         {
             foreach (var difference in differences)
             {
@@ -118,11 +118,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return null;
         }
 
-        private bool IsEqual(SchemaDifference difference, CoreContracts.DiffEntry diffEntry)
+        private bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
         {
             bool result = true;
             // Create a diff entry from difference and check if it matches the diff entry passed
-            CoreContracts.DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
+            DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
 
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // Don't need to check if included is the same when verifying if the difference is equal
                 if (prop.Name != "Included")
                 {
-                    if(!((prop.GetValue(diffEntry) == null &&
+                    if (!((prop.GetValue(diffEntry) == null &&
                         prop.GetValue(entryFromDifference) == null) ||
                         prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString())))
                     {
@@ -142,7 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return result;
         }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
         }

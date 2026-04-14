@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using NUnit.Framework;
 

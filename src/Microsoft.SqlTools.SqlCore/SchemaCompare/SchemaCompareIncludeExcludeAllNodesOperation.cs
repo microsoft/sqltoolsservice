@@ -3,22 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
-using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare include/exclude all Node operation
+    /// Host-agnostic schema compare include/exclude all nodes operation
     /// </summary>
-    class SchemaCompareIncludeExcludeAllNodesOperation : ITaskOperation
+    public class SchemaCompareIncludeExcludeAllNodesOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
@@ -34,13 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
         public SchemaComparisonResult ComparisonResult { get; set; }
 
         public bool Success { get; set; }
 
-        public List<CoreContracts.DiffEntry> AllIncludedOrExcludedDifferences;
+        public List<DiffEntry> AllIncludedOrExcludedDifferences;
 
 
         public SchemaCompareIncludeExcludeAllNodesOperation(SchemaCompareIncludeExcludeAllNodesParams parameters, SchemaComparisonResult comparisonResult)
@@ -49,13 +44,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.Parameters = parameters;
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
+            this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
         /// <summary>
         /// Execute will include/exclude all differences in the schema compare result.
         /// </summary>
-        /// <param name="mode"></param>
-        public void Execute(TaskExecutionMode mode)
+        public void Execute()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -71,12 +66,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 throw;
             }
 
-            this.AllIncludedOrExcludedDifferences = new List<CoreContracts.DiffEntry>();
+            this.AllIncludedOrExcludedDifferences = new List<DiffEntry>();
             if (this.ComparisonResult.Differences != null)
             {
                 foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
-                    CoreContracts.DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
+                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
                     this.AllIncludedOrExcludedDifferences.Add(diffEntry);
                 }
             }

@@ -5,97 +5,38 @@
 
 #nullable disable
 using System.Collections.Generic;
-using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
 
     /// <summary>
-    /// Info needed from endpoints for schema comparison
+    /// Info needed from endpoints for schema comparison.
+    /// Extends SqlCore's host-agnostic endpoint info with ConnectionDetails for the JSON-RPC wire protocol.
     /// </summary>
-    public class SchemaCompareEndpointInfo
+    public class SchemaCompareEndpointInfo : CoreContracts.SchemaCompareEndpointInfo
     {
         /// <summary>
-        /// Gets or sets the type of the endpoint
-        /// </summary>
-        public SchemaCompareEndpointType EndpointType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the project file path
-        /// </summary>
-        public string ProjectFilePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the scripts included in project
-        /// </summary>
-        public string[] TargetScripts { get; set; }
-
-        /// <summary>
-        /// Gets or sets the project data schema provider
-        /// </summary>
-        public string DataSchemaProvider { get; set; }
-
-        /// <summary>
-        /// Gets or sets package filepath
-        /// </summary>
-        public string PackageFilePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets name for the database
-        /// </summary>
-        public string DatabaseName { get; set; }
-
-        /// <summary>
-        /// Connection uri
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Connection details
+        /// Connection details (ServiceLayer/JSON-RPC specific)
         /// </summary>
         public ConnectionDetails ConnectionDetails { get; set; }
-
-        /// <summary>
-        /// Extract target of the project used when extracting a database to file system or updating the project from database
-        /// </summary>
-        public DacExtractTarget? ExtractTarget { get; set; }
     }
 
     /// <summary>
     /// Parameters for a schema compare request.
+    /// Extends SqlCore's host-agnostic params with TaskExecutionMode.
     /// </summary>
-    public class SchemaCompareParams
+    public class SchemaCompareParams : CoreContracts.SchemaCompareParams
     {
         /// <summary>
-        /// Operation id of the schema compare operation
-        /// </summary>
-        public string OperationId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the source endpoint info
-        /// </summary>
-        public SchemaCompareEndpointInfo SourceEndpointInfo { get; set; }
-
-        /// <summary>
-        /// Gets or sets the target endpoint info
-        /// </summary>
-        public SchemaCompareEndpointInfo TargetEndpointInfo { get; set; }
-
-        /// <summary>
-        /// Executation mode for the operation. Default is execution
+        /// Execution mode for the operation. Default is execution
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
-
-        /// <summary>
-        /// gets or sets the deployment options for schema compare
-        /// </summary>
-        public DeploymentOptions DeploymentOptions { get; set; }
     }
 
     /// <summary>

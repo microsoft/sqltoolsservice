@@ -1,22 +1,20 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare generate script operation
+    /// Host-agnostic schema compare generate script operation
     /// </summary>
-    class SchemaCompareGenerateScriptOperation : ITaskOperation
+    public class SchemaCompareGenerateScriptOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
@@ -32,21 +30,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
         public SchemaComparisonResult ComparisonResult { get; set; }
 
         public SchemaCompareScriptGenerationResult ScriptGenerationResult { get; set; }
 
-        public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult)
+        /// <summary>
+        /// Optional script handler for delivering generated scripts to the host.
+        /// </summary>
+        public ISchemaCompareScriptHandler ScriptHandler { get; set; }
+
+        public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult, ISchemaCompareScriptHandler scriptHandler = null)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
+            this.ScriptHandler = scriptHandler;
+            this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
-        public void Execute(TaskExecutionMode mode)
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -57,14 +60,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName, this.CancellationToken);
 
-                // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
-                if (this.SqlTask != null)
+                // deliver scripts to the host via the handler
+                if (this.ScriptHandler != null)
                 {
-                    this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.ScriptGenerationResult.Script);
+                    this.ScriptHandler.OnScriptGenerated(this.ScriptGenerationResult.Script);
                     if (!string.IsNullOrEmpty(this.ScriptGenerationResult.MasterScript))
                     {
                         // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-                        this.SqlTask.AddScript(SqlTaskStatus.Succeeded, ScriptGenerationResult.MasterScript);
+                        this.ScriptHandler.OnMasterScriptGenerated(this.ScriptGenerationResult.MasterScript);
                     }
                 }
                 if (!this.ScriptGenerationResult.Success)
@@ -81,7 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
             this.cancellation.Cancel();

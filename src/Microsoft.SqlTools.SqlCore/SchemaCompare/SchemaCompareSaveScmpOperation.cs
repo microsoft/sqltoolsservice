@@ -1,21 +1,21 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.SqlCore.DacFx;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
-    class SchemaCompareSaveScmpOperation : ITaskOperation
+    /// <summary>
+    /// Host-agnostic schema compare save SCMP file operation
+    /// </summary>
+    public class SchemaCompareSaveScmpOperation : IDisposable
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
@@ -29,25 +29,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public string ErrorMessage { get; set; }
 
-        public SqlTask SqlTask { get; set; }
-
         public SchemaCompareSaveScmpParams Parameters { get; set; }
 
-        public ConnectionInfo SourceConnectionInfo { get; set; }
+        public ISchemaCompareConnectionProvider ConnectionProvider { get; set; }
 
-        public ConnectionInfo TargetConnectionInfo { get; set; }
-
-        public SchemaCompareSaveScmpOperation(SchemaCompareSaveScmpParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
+        public SchemaCompareSaveScmpOperation(SchemaCompareSaveScmpParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
             Validate.IsNotNull("parameters.ScmpFilePath", parameters.ScmpFilePath);
             this.Parameters = parameters;
-            this.SourceConnectionInfo = sourceConnInfo;
-            this.TargetConnectionInfo = targetConnInfo;
+            this.ConnectionProvider = connectionProvider;
             this.OperationId = Guid.NewGuid().ToString();
         }
 
-        public void Execute(TaskExecutionMode mode = TaskExecutionMode.Execute)
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -56,8 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionInfo);
-                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionInfo);
+                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.ConnectionProvider);
+                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.ConnectionProvider);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 
@@ -101,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        // The schema compare public api doesn't currently take a cancellation token for scmp save so the operation can't be cancelled
         public void Cancel()
         {
         }

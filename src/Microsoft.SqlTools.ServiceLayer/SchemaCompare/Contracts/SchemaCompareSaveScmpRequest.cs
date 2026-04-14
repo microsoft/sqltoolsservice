@@ -6,33 +6,28 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using CoreContracts = Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
-    internal class SchemaCompareSaveScmpParams : SchemaCompareParams
+    /// <summary>
+    /// Parameters for a schema compare save SCMP request.
+    /// Extends SqlCore's version with TaskExecutionMode.
+    /// </summary>
+    internal class SchemaCompareSaveScmpParams : CoreContracts.SchemaCompareSaveScmpParams
     {
         /// <summary>
-        /// Gets or sets the File Path for scmp
+        /// Execution mode for the operation. Default is execution
         /// </summary>
-        public string ScmpFilePath { get; set; }
-
-        /// <summary>
-        /// Excluded source objects
-        /// </summary>
-        public SchemaCompareObjectId[] ExcludedSourceObjects { get; set; }
-
-        /// <summary>
-        /// Excluded Target objects
-        /// </summary>
-        public SchemaCompareObjectId[] ExcludedTargetObjects { get; set; }
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     internal class SchemaCompareSaveScmpRequest
     {
         public static readonly RequestType<SchemaCompareSaveScmpParams, ResultStatus> Type =
-    RequestType<SchemaCompareSaveScmpParams, ResultStatus>.Create("schemaCompare/saveScmp");
+            RequestType<SchemaCompareSaveScmpParams, ResultStatus>.Create("schemaCompare/saveScmp");
     }
 
 }
