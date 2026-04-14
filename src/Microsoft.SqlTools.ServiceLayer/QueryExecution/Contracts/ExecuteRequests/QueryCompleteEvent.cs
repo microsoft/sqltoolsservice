@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
@@ -17,12 +16,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// <summary>
         /// URI for the editor that owns the query
         /// </summary>
-        public string OwnerUri { get; set; }
+        public string OwnerUri { get; set; } = null!;
 
         /// <summary>
         /// Summaries of the result sets that were returned with the query
         /// </summary>
-        public BatchSummary[] BatchSummaries { get; set; }
+        public BatchSummary[] BatchSummaries { get; set; } = null!;
 
         /// <summary>
         /// Process ID of the query that was executed

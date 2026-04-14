@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -21,14 +20,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     internal class JobStepSubSystems
     {
         private IDictionary<AgentSubSystem, JobStepSubSystem> subSystems = new Dictionary<AgentSubSystem, JobStepSubSystem>();
-        JobStepData data;
+        JobStepData? data;
 
         public JobStepSubSystems(CDataContainer dataContainer)
             : this(dataContainer, null)
         {
         }
 
-        public JobStepSubSystems(CDataContainer dataContainer, JobStepData data)
+        public JobStepSubSystems(CDataContainer dataContainer, JobStepData? data)
         {
             this.data = data;
             var availableSystems =
@@ -54,9 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             get { return this.subSystems.Keys.OrderBy(k => (int)k).Select(k => this.subSystems[k]).ToArray(); }
         }
 
-        public JobStepSubSystem Lookup(AgentSubSystem key)
+        public JobStepSubSystem? Lookup(AgentSubSystem key)
         {
-            JobStepSubSystem rv = null;
+            JobStepSubSystem? rv = null;
             if (this.subSystems.TryGetValue(key, out JobStepSubSystem? value))
             {
                 return value;
@@ -64,11 +63,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return rv;
         }
 
-        private static TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(AgentSubSystem));
+        private static TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(AgentSubSystem))!;
         // Returns name of the subsystem for a given enum value
         public static string LookupFriendlyName(AgentSubSystem key)
         {
-            return (string)typeConverter.ConvertToString((Enum)key);
+            return typeConverter.ConvertToString((Enum)key) ?? string.Empty;
         }
 
         // Returns name of the subsystem for a given enum value
@@ -76,13 +75,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             // Have to subtract first enum value to bring the 
             // index to 0-based index
-            return typeConverter.ConvertToInvariantString((Enum)key);
+            return typeConverter.ConvertToInvariantString((Enum)key) ?? string.Empty;
         }
 
-        private static JobStepSubSystem CreateJobStepSubSystem(
+        private static JobStepSubSystem? CreateJobStepSubSystem(
             AgentSubSystem agentSubSystem,
             CDataContainer dataContainer,
-            JobStepData data)
+            JobStepData? data)
         {
             switch (agentSubSystem)
             {
