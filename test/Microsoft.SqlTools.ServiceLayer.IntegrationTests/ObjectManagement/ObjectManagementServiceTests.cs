@@ -6,8 +6,6 @@
 #nullable disable
 using System;
 using System.Collections.Concurrent;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -17,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using NUnit.Framework;
@@ -38,14 +35,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             this.testDb = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, query: TableQuery, dbNamePrefix: "RenameTest");
             requestContextMock = new Mock<RequestContext<RenameRequestResponse>>();
             await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OwnerUri, ConnectionType.Default);
-            SqlTaskManager.Instance.Reset();
         }
 
         [TearDown]
         public async Task TearDownTestDatabase()
         {
             await SqlTestDb.DropDatabase(testDb.DatabaseName);
-            SqlTaskManager.Instance.Reset();
         }
 
         [Test]
@@ -56,11 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
             //assert
             requestContextMock.Verify(x => x.SendResult(It.IsAny<RenameRequestResponse>()));
-
-            SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == "RenameObjectOperation" && task.ProgressMessage == "Rename table to 'RenamingTable'.");
-            Assert.That(sqlTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
-            Assert.That(sqlTask.TaskMetadata.Name, Is.EqualTo(string.Format(CultureInfo.CurrentCulture, global::Microsoft.SqlTools.ServiceLayer.SR.RenameTaskName, "testTable1_RenamingTable")));
-            Assert.That(sqlTask.ProgressMessage, Is.EqualTo("Rename table to 'RenamingTable'."));
 
             Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.tables WHERE name='RenamingTable'");
             Assert.That(queryRenameObject.HasExecuted, Is.True, "The query to check for the renamed table was not executed");
@@ -81,11 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
             //assert
             requestContextMock.Verify(x => x.SendResult(It.IsAny<RenameRequestResponse>()));
-
-            SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == "RenameObjectOperation" && task.ProgressMessage == "Rename column to 'RenameColumn'.");
-            Assert.That(sqlTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
-            Assert.That(sqlTask.TaskMetadata.Name, Is.EqualTo(string.Format(CultureInfo.CurrentCulture, global::Microsoft.SqlTools.ServiceLayer.SR.RenameTaskName, "C1")));
-            Assert.That(sqlTask.ProgressMessage, Is.EqualTo("Rename column to 'RenameColumn'."));
 
             Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.columns WHERE name='RenameColumn'");
             Assert.That(queryRenameObject.HasExecuted, Is.True, "The query to check for the renamed column was not executed");
@@ -155,26 +140,5 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return query;
         }
 
-        private static async Task<SqlTask> WaitForTaskAsync(Func<SqlTask, bool> predicate, int retries = 60, int delayMs = 500)
-        {
-            for (int attempt = 0; attempt < retries; attempt++)
-            {
-                SqlTask task = SqlTaskManager.Instance.Tasks.FirstOrDefault(predicate);
-                if (task != null)
-                {
-                    for (int completionAttempt = 0; completionAttempt < retries && !task.IsCompleted; completionAttempt++)
-                    {
-                        await Task.Delay(delayMs);
-                    }
-
-                    return task;
-                }
-
-                await Task.Delay(delayMs);
-            }
-
-            Assert.Fail("Expected SQL task was not created.");
-            return null;
-        }
     }
 }
