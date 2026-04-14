@@ -71,12 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
 
                     SqlTask createTask = SqlTaskManager.Instance.Tasks.FirstOrDefault(task =>
-                        task.TaskMetadata.OperationName == "CreateDatabaseOnSaveOperation" &&
+                        task.TaskMetadata.OperationName == "SaveObjectOperation" &&
                         task.TaskMetadata.DatabaseName == testDatabase.Name);
 
                     Assert.That(createTask, Is.Not.Null, "Expected SQL task for create database on save was not found.");
                     Assert.That(createTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
-                    Assert.That(createTask.TaskMetadata.Name, Is.EqualTo(global::Microsoft.SqlTools.ServiceLayer.SR.CreateDatabaseTaskName));
+                    Assert.That(createTask.TaskMetadata.Name, Is.EqualTo(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Microsoft.SqlTools.ServiceLayer.SR.SaveObjectCreateTaskName, testDatabase.Name)));
 
                     Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
 

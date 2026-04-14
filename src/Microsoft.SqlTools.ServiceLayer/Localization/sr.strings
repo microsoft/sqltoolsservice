@@ -356,6 +356,10 @@ CreateDatabaseTaskName = Create Database
 DropDatabaseTaskName = Drop Database
 RenameTaskName = Rename {0}
 RenameTaskDescription = Rename {0} to '{1}'.
+SaveObjectCreateTaskName = Creating {0}
+SaveObjectUpdateTaskName = Updating {0}
+SaveObjectCreateTaskDescription = Creating {0}.
+SaveObjectUpdateTaskDescription = Updating {0}.
 
 # Backup File Validation Errors
 BackupPathIsFolderError = Please provide a file path instead of directory path
