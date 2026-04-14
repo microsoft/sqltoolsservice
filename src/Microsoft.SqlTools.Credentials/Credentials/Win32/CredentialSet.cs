@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             Target = target;
         }
 
-        public string Target { get; set; }
+        public string? Target { get; set; }
 
 
         public void Dispose()

@@ -15,10 +15,10 @@ namespace Microsoft.SqlTools.Credentials.Win32
         bool disposed;
 
         CredentialType type;
-        string target;
-        SecureString password;
-        string username;
-        string description;
+        string? target;
+        SecureString? password;
+        string? username;
+        string? description;
         DateTime lastWriteTime;
         PersistanceType persistanceType;
         
@@ -27,22 +27,22 @@ namespace Microsoft.SqlTools.Credentials.Win32
         {
         }
 
-        public Win32Credential(string username)
+        public Win32Credential(string? username)
             : this(username, null)
         {
         }
 
-        public Win32Credential(string username, string password)
+        public Win32Credential(string? username, string? password)
             : this(username, password, null)
         {
         }
 
-        public Win32Credential(string username, string password, string target)
+        public Win32Credential(string? username, string? password, string? target)
             : this(username, password, target, CredentialType.Generic)
         {
         }
 
-        public Win32Credential(string username, string password, string target, CredentialType type)
+        public Win32Credential(string? username, string? password, string? target, CredentialType type)
         {
             Username = username;
             Password = password;
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         }
 
 
-        public string Username {
+        public string? Username {
             get
             {
                 CheckNotDisposed();
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 password = null == value ? new SecureString() : value.Copy();
             }
         }
-        public string Target
+        public string? Target
         {
             get
             {
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
         }
 
-        public string Description
+        public string? Description
         {
             get
             {

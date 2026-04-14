@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.Credentials
                 _rawErrno = -1;
             }
 
-            internal Error Error
+            internal readonly Error Error
             {
                 get { return _error; }
             }
