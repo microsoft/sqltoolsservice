@@ -34,7 +34,7 @@ public sealed class VSCodeChatCompletionService : IChatCompletionService //, ITe
     }
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, object?> Attributes => this._client.Attributes;
+    public IReadOnlyDictionary<string, object?> Attributes => this._client.Attributes!;
 
     /// <inheritdoc/>
     public Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(
