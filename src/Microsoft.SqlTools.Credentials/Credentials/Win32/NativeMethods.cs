@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         internal static extern bool CredDelete(StringBuilder target, CredentialType type, int flags);
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        internal static extern bool CredEnumerateW(string filter, int flag, out uint count, out IntPtr pCredentials);
+        internal static extern bool CredEnumerateW(string? filter, int flag, out uint count, out IntPtr pCredentials);
 
         [DllImport("ole32.dll")]
         internal static extern void CoTaskMemFree(IntPtr ptr);

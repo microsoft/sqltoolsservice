@@ -69,11 +69,8 @@ namespace Microsoft.SqlTools.Credentials.Win32
 
         private void LoadInternal()
         {
-            if (Target == null)
-            {
-                throw new InvalidOperationException($"{nameof(Target)} must be set before calling {nameof(Load)}.");
-            }
             IntPtr pCredentials = IntPtr.Zero;
+            // Target may be null — CredEnumerateW accepts null as a wildcard to enumerate all credentials
             bool result = NativeMethods.CredEnumerateW(Target, 0, out uint count, out pCredentials);
             if (!result)
             {
