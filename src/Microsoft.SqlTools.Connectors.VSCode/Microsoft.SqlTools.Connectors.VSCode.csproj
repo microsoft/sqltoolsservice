@@ -10,7 +10,8 @@
     <LangVersion>12.0</LangVersion>
     <!-- CS8632: many files use ? annotations in #nullable disable context (forked from Semantic Kernel)
          IDE0370: unnecessary ! suppressions that result from disabled nullable context -->
-    <NoWarn>IDE0160;CA1848;IDE0270;IDE0005;IDE0024;IDE0042;IDE0073;SKEXP0001;SKEXP0010;CS8600;OPENAI001;CS8632;IDE0370</NoWarn>
+    <!-- IDE0390: async iterator returning IAsyncEnumerable<T> — required to satisfy return type even without await -->
+    <NoWarn>IDE0160;CA1848;IDE0270;IDE0005;IDE0024;IDE0042;IDE0073;SKEXP0001;SKEXP0010;CS8600;OPENAI001;CS8632;IDE0370;IDE0390</NoWarn>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
