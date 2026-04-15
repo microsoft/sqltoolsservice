@@ -12,7 +12,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-    <NoWarn>NU1605</NoWarn>
+    <NoWarn>NU1603;NU1605;NU1608</NoWarn>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <AssemblyTitle>SqlTools Migration Host Protocol Library</AssemblyTitle>
     <Description>Provides message types and client/server APIs for the SqlTools Migration Services JSON protocol.</Description>
@@ -32,7 +32,6 @@
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="System.IO.Packaging" />
     <PackageReference Include="System.Runtime.Caching" />
-    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
