@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -209,14 +210,14 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 // first column
                 selectQuery.AppendFormat("{0}{1}{2}\r\n",
                                          ScriptingGlobals.LeftDelimiter,
-                                         QuoteObjectName(dt.Rows[0][0] as string, ScriptingGlobals.RightDelimiter),
+                                         QuoteObjectName(dt.Rows[0][0] as string ?? string.Empty, ScriptingGlobals.RightDelimiter),
                                          ScriptingGlobals.RightDelimiter);
                 // add all other columns on separate lines. Make the names align.
                 for (int i = 1; i < dt.Rows.Count; i++)
                 {
                     selectQuery.AppendFormat("      ,{0}{1}{2}\r\n",
                                              ScriptingGlobals.LeftDelimiter,
-                                             QuoteObjectName(dt.Rows[i][0] as string, ScriptingGlobals.RightDelimiter),
+                                             QuoteObjectName(dt.Rows[i][0] as string ?? string.Empty, ScriptingGlobals.RightDelimiter),
                                              ScriptingGlobals.RightDelimiter);
                 }
             }

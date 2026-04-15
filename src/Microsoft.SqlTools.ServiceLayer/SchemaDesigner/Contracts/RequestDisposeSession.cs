@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Unique id for the session to dispose
         /// </summary>
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = null!;
     }
 
     public class DisposeSessionResponse

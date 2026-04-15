@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Unique ID to use when sending any requests for objects in the
         /// tree under the node
         /// </summary>
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = null!;
     }
 
     public class GetSessionIdRequest

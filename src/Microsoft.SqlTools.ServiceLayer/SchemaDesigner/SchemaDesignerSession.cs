@@ -33,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             this.connectionString = connectionStringBuilder.ConnectionString;
             this.accessToken = accessToken;
             SessionId = connectionString;
+            this._lastRequestSchema = null!;
+            this.schemaDesigner = null!;
             this._initialSchema = this.createInitialSchema();
         }
 
@@ -97,21 +99,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         string.Equals(t.Schema, fk.ReferencedTableSchema, StringComparison.OrdinalIgnoreCase) &&
                         string.Equals(t.Name, fk.ReferencedTableName, StringComparison.OrdinalIgnoreCase));
 
-                    sourceSchemaTable.ForeignKeys.Add(new SchemaDesignerForeignKey()
+                    sourceSchemaTable.ForeignKeys!.Add(new SchemaDesignerForeignKey()
                     {
                         Id = Guid.NewGuid(),
                         Name = fk.Name,
                         ColumnsIds = fk.Columns
-                            ?.Select(columnName => sourceSchemaTable.Columns
+                            ?.Select(columnName => sourceSchemaTable.Columns!
                                 .FirstOrDefault(c => string.Equals(c.Name, columnName, StringComparison.OrdinalIgnoreCase))?
                                 .Id.ToString())
                             .Where(columnId => !string.IsNullOrEmpty(columnId))
+                            .OfType<string>()
                             .ToList(),
                         ReferencedColumnsIds = fk.ReferencedColumns
-                            ?.Select(columnName => referencedTable?.Columns
+                            ?.Select(columnName => referencedTable?.Columns!
                                 .FirstOrDefault(c => string.Equals(c.Name, columnName, StringComparison.OrdinalIgnoreCase))?
                                 .Id.ToString())
                             .Where(columnId => !string.IsNullOrEmpty(columnId))
+                            .OfType<string>()
                             .ToList(),
                         ReferencedTableId = referencedTable?.Id.ToString(),
                         OnDeleteAction = SchemaDesignerUtils.ConvertSqlForeignKeyActionToOnAction(fk.OnDeleteAction),

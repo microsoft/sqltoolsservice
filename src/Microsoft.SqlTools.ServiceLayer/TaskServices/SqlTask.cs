@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         private bool isCompleted;
         private bool isCancelRequested;
         private bool isDisposed;
-        private readonly object lockObject = new object();
+        private readonly Lock lockObject = new();
         private readonly List<TaskMessage> messages = new List<TaskMessage>();
 
         private DateTime startTime;

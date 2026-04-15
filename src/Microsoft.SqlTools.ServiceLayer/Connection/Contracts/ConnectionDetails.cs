@@ -4,6 +4,7 @@
 //
 
 #nullable disable
+#pragma warning disable CS8632
 
 using Microsoft.SqlTools.Utility;
 

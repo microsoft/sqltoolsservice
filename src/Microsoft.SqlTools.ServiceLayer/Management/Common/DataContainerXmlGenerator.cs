@@ -4,10 +4,12 @@
 //
 
 #nullable disable
+#pragma warning disable CS8632
 
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -47,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// Object to lock on when we are modifying public state
         /// </summary>
-        private object itemStateLock = new object();
+        private Lock itemStateLock = new();
         /// <summary>
         /// Cached UrnPath
         /// </summary>

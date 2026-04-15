@@ -309,17 +309,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path!)), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path)), requestContext);
         }
 
         internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path), requestContext);
         }
 
         internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path), requestContext);
         }
 
         internal async Task HandleMoveSqlObjectScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -416,17 +416,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Add(new NoneItem(requestParams.Path!)), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Add(new NoneItem(requestParams.Path)), requestContext);
         }
 
         internal async Task HandleDeleteNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Delete(requestParams.Path!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Delete(requestParams.Path), requestContext);
         }
 
         internal async Task HandleExcludeNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Exclude(requestParams.Path!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Exclude(requestParams.Path), requestContext);
         }
 
         internal async Task HandleMoveNoneItemRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -527,7 +527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
                         requestParams.SuppressMissingDependencies,
-                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable!),
+                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
                 }
                 else // same database
@@ -561,7 +561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,
                         requestParams.ProjectGuid, requestParams.SuppressMissingDependencies,
-                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable!),
+                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
                 }
                 else // same database
@@ -599,7 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         requestParams.PackageName,
                         requestParams.PackageVersion,
                         requestParams.SuppressMissingDependencies,
-                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable!),
+                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
                 }
                 else // same database
@@ -614,7 +614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
         }
 
         #endregion
@@ -641,14 +641,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name!), requestContext);
         }
 
         internal async Task HandleUpdateSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() =>
             {
-                SqlProject project = GetProject(requestParams.ProjectUri!, onlyLoadProperties: true);
+                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
                 project.SqlCmdVariables.Update(requestParams.Name, requestParams.DefaultValue); // won't throw if doesn't exist
             }, requestContext);
         }

@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
@@ -18,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSessionMonitor : IProfilerSessionMonitor
     {
-        private object sessionsLock = new object();
+        private Lock sessionsLock = new();
 
-        private object listenersLock = new object();
+        private Lock listenersLock = new();
 
         private struct Viewer
         {

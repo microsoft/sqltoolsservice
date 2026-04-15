@@ -6,12 +6,13 @@
 #nullable disable
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class FileUtilities
     {
-        private static readonly object PeekDefinitionTempFolderLock = new object();
+        private static readonly Lock PeekDefinitionTempFolderLock = new();
 
         internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
         internal static string AgentNotebookTempFolder = Path.GetTempPath() + "mssql_notebooks";

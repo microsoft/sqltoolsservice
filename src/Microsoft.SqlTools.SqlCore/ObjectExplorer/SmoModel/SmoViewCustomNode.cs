@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
+#nullable enable
 
 using Microsoft.SqlServer.Management.Smo;
 
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class ViewsChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object smoObject, SmoQueryContext? smoContext)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext? smoContext)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class DroppedLedgerViewsChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object smoObject, SmoQueryContext? smoContext)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext? smoContext)
         {
             return "Ledger";
         }

@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using Microsoft.SqlServer.Management.Smo;
@@ -17,8 +18,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     public class SmoQueryContext
     {
         private Server server;
-        private Database database;
-        private SmoObjectBase parent;
+        private Database? database;
+        private SmoObjectBase? parent;
         private SmoWrapper smoWrapper;
         private ValidForFlag validFor = 0;
 
@@ -26,12 +27,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null, SecurityToken token = null)
+        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, Func<bool>? groupBySchemaFlag = null, SecurityToken? token = null)
             : this(server, serviceProvider, null, groupBySchemaFlag, token)
         {
         }
 
-        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager, Func<bool> groupBySchemaFlag = null, SecurityToken token = null)
+        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper? serverManager, Func<bool>? groupBySchemaFlag = null, SecurityToken? token = null)
         {
             this.server = server;
             ServiceProvider = serviceProvider;
@@ -55,14 +56,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         {
             get
             {
-                return GetObjectWithOpenedConnection(server);
+                return GetObjectWithOpenedConnection(server)!;
             }
         }
 
         /// <summary>
         /// Optional Database context object to query against
         /// </summary>
-        public Database Database
+        public Database? Database
         {
             get
             {
@@ -77,7 +78,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public SmoObjectBase Parent
+        public SmoObjectBase? Parent
         {
             get
             {
@@ -114,7 +115,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T ParentAs<T>()
+        public T? ParentAs<T>()
             where T : TreeNode
         {
             return Parent as T;
@@ -156,7 +157,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        private T GetObjectWithOpenedConnection<T>(T smoObj)
+        private T? GetObjectWithOpenedConnection<T>(T? smoObj)
             where T : SmoObjectBase
         {
             if (smoObj != null)

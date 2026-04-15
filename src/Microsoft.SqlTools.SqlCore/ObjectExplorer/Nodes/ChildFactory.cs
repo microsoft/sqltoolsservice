@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System.Collections.Generic;
 using System.Threading;
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// the string names for each <see cref="TreeNode.NodeType"/> that 
         /// this factory can create children for
         /// </returns>
-        public abstract IEnumerable<string> ApplicableParents();
+        public abstract IEnumerable<string>? ApplicableParents();
 
         /// <summary>
         /// Expands an element in the 
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <param name="includeSystemObjects">include system objects</param>
         /// <param name="cancellationToken">cancellation token</param>
         /// <param name="filters">filters to apply</param>
-        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters);
+        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string? name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters);
 
         /// <summary>
         /// The list of filters that should be applied on the smo object list
@@ -48,17 +49,17 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// Returns the node sub type if the object can have sub types otehr wise returns empty string
         /// </summary>
-        public abstract string GetNodeSubType(object smoObject, SmoQueryContext smoContext);
+        public abstract string GetNodeSubType(object smoObject, SmoQueryContext? smoContext);
 
         /// <summary>
         /// Returns the status of the object assigned to node. If the object doesn't spport status returns empty string
         /// </summary>
-        public abstract string GetNodeStatus(object smoObject, SmoQueryContext smoContext);
+        public abstract string GetNodeStatus(object smoObject, SmoQueryContext? smoContext);
 
         /// <summary>
         /// Returns the custom name of the object assigned to the node. If the object doesn't have custom name, returns empty string
         /// </summary>
-        public abstract string GetNodeCustomName(object smoObject, SmoQueryContext smoContext);
+        public abstract string GetNodeCustomName(object smoObject, SmoQueryContext? smoContext);
         
         /// <summary>
         /// Returns the name of the object as shown in its Object Explorer node path

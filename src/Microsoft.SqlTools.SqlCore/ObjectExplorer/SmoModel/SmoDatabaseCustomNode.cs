@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Utility;
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class DatabasesChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext? smoContext)
         {
             return DatabasesCustomNodeHelper.GetStatus(smoObject, smoContext, CachedSmoProperties);
         }
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext? smoContext)
         {
             try
             {
@@ -57,7 +58,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         private static readonly DatabaseStatus[] UnavailableDatabaseStatuses = { DatabaseStatus.Inaccessible, DatabaseStatus.Offline, DatabaseStatus.Recovering,
             DatabaseStatus.RecoveryPending, DatabaseStatus.Restoring, DatabaseStatus.Suspect, DatabaseStatus.Shutdown };
 
-        internal static bool GetDatabaseIsUnavailable(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
+        internal static bool GetDatabaseIsUnavailable(object smoObject, SmoQueryContext? smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             Database? db = smoObject as Database;
             if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", smoContext, db, supportedProperties))
@@ -85,7 +86,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return false;
         }
 
-        internal static string GetStatus(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
+        internal static string GetStatus(object smoObject, SmoQueryContext? smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             Database? db = smoObject as Database;
             if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", smoContext, db, supportedProperties))

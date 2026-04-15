@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// <summary>
         /// Gets or sets the generated command string
         /// </summary>
-        public string Command { get; set; }
+        public string? Command { get; set; }
 
         /// <summary>
         /// Gets or sets whether the operation was successful
@@ -23,6 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// <summary>
         /// Gets or sets the error message if the operation failed
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

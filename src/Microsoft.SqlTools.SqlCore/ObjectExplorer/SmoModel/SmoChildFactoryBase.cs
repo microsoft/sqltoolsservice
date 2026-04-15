@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -17,14 +18,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     public class SmoChildFactoryBase : ChildFactory
     {
-        private IEnumerable<NodeSmoProperty> smoProperties;
+        private IEnumerable<NodeSmoProperty>? smoProperties;
 
-        public override IEnumerable<string> ApplicableParents()
+        public override IEnumerable<string>? ApplicableParents()
         {
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters = null)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string? name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters = null)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
@@ -63,7 +64,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
         private void OnExpandPopulateFoldersAndFilter(List<TreeNode> allChildren, TreeNode parent, bool includeSystemObjects)
         {
-            SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
+            SmoQueryContext? context = parent.GetContextAs<SmoQueryContext>();
             OnExpandPopulateFolders(allChildren, parent);
             if (!includeSystemObjects)
             {
@@ -74,7 +75,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             {
                 allChildren.RemoveAll(x =>
                 {
-                    FolderNode folderNode = x as FolderNode;
+                    FolderNode? folderNode = x as FolderNode;
                     if (folderNode != null && !ServerVersionHelper.IsValidFor(context.ValidFor, folderNode.ValidFor))
                     {
                         return true;
@@ -114,7 +115,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, IEnumerable<INodeFilter>? appliedFilters = null)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string? name, CancellationToken cancellationToken, IEnumerable<INodeFilter>? appliedFilters = null)
         {
             Logger.Verbose(string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -123,8 +124,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 // This node does not support non-folder children
                 return;
             }
-            SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
-            Validate.IsNotNull(nameof(context), context);
+            SmoQueryContext? nullableCtx = parent.GetContextAs<SmoQueryContext>();
+            Validate.IsNotNull(nameof(nullableCtx), nullableCtx);
+            SmoQueryContext context = nullableCtx!;
 
             var serverValidFor = context.ValidFor;
             if (ShouldFilterNode(parent, serverValidFor))
@@ -141,7 +143,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 {
                     Property = "Name",
                     Type = typeof(string),
-                    Values = new List<object> { name },
+                    Values = new List<object> { name! },
                 });
             }
             if (appliedFilters != null)
@@ -167,8 +169,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                         {
                             Logger.Error("smoObject should not be null");
                         }
-                        TreeNode childNode = CreateChild(parent, smoObject);
-                        if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, serverValidFor))
+                        TreeNode? childNode = CreateChild(parent, smoObject!);
+                        if (childNode != null && PassesFinalFilters(childNode, smoObject!) && !ShouldFilterNode(childNode, serverValidFor))
                         {
                             allChildren.Add(childNode);
                         }
@@ -188,7 +190,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         private bool ShouldFilterNode(TreeNode childNode, ValidForFlag validForFlag)
         {
             bool filterTheNode = false;
-            SmoTreeNode smoTreeNode = childNode as SmoTreeNode;
+            SmoTreeNode? smoTreeNode = childNode as SmoTreeNode;
             if (smoTreeNode != null)
             {
                 if (!ServerVersionHelper.IsValidFor(validForFlag, smoTreeNode.ValidFor))
@@ -208,7 +210,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
 
             Type actualType = querier.GetType();
-            foreach (Type childType in this.GetChildQuerierTypes(parent))
+            foreach (Type childType in this.GetChildQuerierTypes(parent) ?? Array.Empty<Type>())
             {
                 // We will accept any querier that is compatible with the listed querier type
                 if (childType.IsAssignableFrom(actualType))
@@ -246,7 +248,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
         protected virtual void InitializeChild(TreeNode parent, TreeNode child, object context)
         {
-            NamedSmoObject smoObj = context as NamedSmoObject;
+            NamedSmoObject? smoObj = context as NamedSmoObject;
             if (smoObj == null)
             {
                 Debug.WriteLine("context is not a NamedSmoObject. type: " + context.GetType());
@@ -256,7 +258,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 smoProperties = SmoProperties;
                 SmoTreeNode childAsMeItem = (SmoTreeNode)child;
                 childAsMeItem.CacheInfoFromModel(smoObj);
-                SmoQueryContext smoContext = parent.GetContextAs<SmoQueryContext>();
+                SmoQueryContext? smoContext = parent.GetContextAs<SmoQueryContext>();
 
                 // If node has custom name, replaced it with the name already set
                 string customizedName = GetNodeCustomName(context, smoContext);
@@ -271,7 +273,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        internal virtual Type[] ChildQuerierTypes
+        internal virtual Type[]? ChildQuerierTypes
         {
             get
             {
@@ -303,7 +305,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        protected virtual Type[] GetChildQuerierTypes(TreeNode parent)
+        protected virtual Type[]? GetChildQuerierTypes(TreeNode parent)
         {
             return ChildQuerierTypes;
         }
@@ -320,22 +322,22 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return true;
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext? smoContext)
         {
             return string.Empty;
         }
 
-        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext? smoContext)
         {
             return string.Empty;
         }
 
-        public static bool IsPropertySupported(string propertyName, SmoQueryContext context, NamedSmoObject smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
+        public static bool IsPropertySupported(string propertyName, SmoQueryContext? context, NamedSmoObject smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             var property = supportedProperties.FirstOrDefault(x => string.Compare(x.Name, propertyName, StringComparison.InvariantCultureIgnoreCase) == 0);
             if (property != null)
             {
-                return ServerVersionHelper.IsValidFor(context.ValidFor, property.ValidFor);
+                return context != null && ServerVersionHelper.IsValidFor(context.ValidFor, property.ValidFor);
             }
             else
             {
@@ -345,14 +347,14 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
         }
 
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object smoObject, SmoQueryContext? smoContext)
         {
             return string.Empty;
         }
 
         public override string GetNodePathName(object smoObject)
         {
-            return (smoObject as NamedSmoObject).Name;
+            return (smoObject as NamedSmoObject)?.Name ?? string.Empty;
         }
     }
 }

@@ -41,18 +41,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 this.value = ConvertValue(value);
             }
 
-            internal string Name
+            internal readonly string Name
             {
                 get { return this.name; }
             }
 
             internal object Value
             {
-                get { return this.value; }
+                readonly get { return this.value; }
                 set { this.value = ConvertValue(value); }
             }
 
-            public override bool Equals(object obj)
+            public readonly override bool Equals(object obj)
             {
                 if (obj is NameValuePair)
                 {
@@ -61,12 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 return false;
             }
 
-            public bool Equals(NameValuePair other)
+            public readonly bool Equals(NameValuePair other)
             {
                 return Name == other.Name;
             }
 
-            public override int GetHashCode()
+            public readonly override int GetHashCode()
             {
                 return this.name.GetHashCode();
             }

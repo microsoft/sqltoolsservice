@@ -19,33 +19,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts
         /// Command-line arguments containing source/target paths, connection strings, etc.
         /// Populated from UI interactions in the client application.
         /// </summary>
-        public SqlPackageCommandLineArguments CommandLineArguments { get; set; }
+        public SqlPackageCommandLineArguments CommandLineArguments { get; set; } = null!;
 
         /// <summary>
         /// Deployment options (for Publish, Script operations).
         /// Converted to DacDeployOptions using DacFxUtils.CreateDeploymentOptions.
         /// </summary>
-        public Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions DeploymentOptions { get; set; }
+        public Microsoft.SqlTools.SqlCore.DacFx.Contracts.DeploymentOptions DeploymentOptions { get; set; } = null!;
 
         /// <summary>
         /// Extract options (for Extract operation)
         /// </summary>
-        public DacExtractOptions ExtractOptions { get; set; }
+        public DacExtractOptions ExtractOptions { get; set; } = null!;
 
         /// <summary>
         /// Export options (for Export operation)
         /// </summary>
-        public DacExportOptions ExportOptions { get; set; }
+        public DacExportOptions ExportOptions { get; set; } = null!;
 
         /// <summary>
         /// Import options (for Import operation)
         /// </summary>
-        public DacImportOptions ImportOptions { get; set; }
+        public DacImportOptions ImportOptions { get; set; } = null!;
 
         /// <summary>
         /// SQLCMD variables (for Publish, Script operations)
         /// </summary>
-        public Dictionary<string, string> Variables { get; set; }
+        public Dictionary<string, string> Variables { get; set; } = null!;
 
         /// <summary>
         /// Specifies the masking mode for data operations.

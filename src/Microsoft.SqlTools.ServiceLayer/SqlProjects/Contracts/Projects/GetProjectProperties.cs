@@ -7,7 +7,6 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-#nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
@@ -27,28 +26,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// GUID for the SQL project
         /// </summary>
-        public string ProjectGuid { get; set; }
+        public string ProjectGuid { get; set; } = null!;
 
         /// <summary>
         /// Build configuration, defaulted to Debug if not specified
         /// </summary>
-        public string Configuration { get; set; }
+        public string Configuration { get; set; } = null!;
 
         /// <summary>
         /// Build platform, defaulted to AnyCPU if not specified
         /// </summary>
-        public string Platform { get; set; }
+        public string Platform { get; set; } = null!;
 
         /// <summary>
         /// Output path for build, defaulted to "bin/Debug" if not specified.
         /// May be absolute or relative.
         /// </summary>
-        public string OutputPath { get; set; }
+        public string OutputPath { get; set; } = null!;
 
         /// <summary>
         /// Default collation for the project, defaulted to SQL_Latin1_General_CP1_CI_AS if not specified
         /// </summary>
-        public string DefaultCollation { get; set; }
+        public string DefaultCollation { get; set; } = null!;
 
         /// <summary>
         /// Source of the database schema, used in telemetry
@@ -63,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// Database Schema Provider, in the format "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider"
         /// </summary>
-        public string DatabaseSchemaProvider { get; set; }
+        public string DatabaseSchemaProvider { get; set; } = null!;
 
         /// <summary>
         /// Whether SQL code analysis is enabled for the project

@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.Authentication
                                 var result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
                                     .ExecuteAsync(cancellationToken: cancellationToken)
                                     .ConfigureAwait(false);
-                                accessToken = new AccessToken(result!.AccessToken, result!.ExpiresOn);
+                                accessToken = new AccessToken(result.AccessToken, result.ExpiresOn);
                             }
                             catch (Exception e)
                             {

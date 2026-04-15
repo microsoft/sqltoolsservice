@@ -45,29 +45,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? RestrictAccess { get; set; }
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
         public bool? IsFilesTabSupported { get; set; }
-        public DatabaseFile[] Files { get; set; }
+        public DatabaseFile[] Files { get; set; } = null!;
         public FileGroupSummary[]? Filegroups { get; set; }
         public QueryStoreOptions? QueryStoreOptions { get; set; }
         public BackupEncryptor[]? BackupEncryptors { get; set; }
-        public RestorePlanResponse restorePlanResponse { get; set; }
+        public RestorePlanResponse restorePlanResponse { get; set; } = null!;
     }
 
     public class DatabaseScopedConfigurationsInfo
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string ValueForPrimary { get; set; }
-        public string ValueForSecondary { get; set; }
+        public string Name { get; set; } = null!;
+        public string ValueForPrimary { get; set; } = null!;
+        public string ValueForSecondary { get; set; } = null!;
     }
 
     public class DatabaseFile
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Path { get; set; }
-        public string FileGroup { get; set; }
-        public string FileNameWithExtension { get; set; }
+        public string Name { get; set; } = null!;
+        public string Type { get; set; } = null!;
+        public string Path { get; set; } = null!;
+        public string FileGroup { get; set; } = null!;
+        public string FileNameWithExtension { get; set; } = null!;
         public double SizeInMb { get; set; }
         public bool IsAutoGrowthEnabled { get; set; }
         public double AutoFileGrowth { get; set; }
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public class FileGroupSummary
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public FileGroupType Type { get; set; }
         public bool IsReadOnly { get; set; }
         public bool IsDefault { get; set; }
@@ -87,13 +87,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class QueryStoreOptions
     {
-        public string ActualMode { get; set; }
+        public string ActualMode { get; set; } = null!;
         public long DataFlushIntervalInMinutes { get; set; }
-        public string StatisticsCollectionInterval { get; set; }
+        public string StatisticsCollectionInterval { get; set; } = null!;
         public long MaxPlansPerQuery { get; set; }
         public long MaxSizeInMB { get; set; }
-        public string QueryStoreCaptureMode { get; set; }
-        public string SizeBasedCleanupMode { get; set; }
+        public string QueryStoreCaptureMode { get; set; } = null!;
+        public string SizeBasedCleanupMode { get; set; } = null!;
         public long StaleQueryThresholdInDays { get; set; }
         public string? WaitStatisticsCaptureMode { get; set; }
         public QueryStoreCapturePolicyOptions? CapturePolicyOptions { get; set; }
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public class QueryStoreCapturePolicyOptions
     {
         public int ExecutionCount { get; set; }
-        public string StaleThreshold { get; set; }
+        public string StaleThreshold { get; set; } = null!;
         public long TotalCompileCPUTimeInMS { get; set; }
         public long TotalExecutionCPUTimeInMS { get; set; }
     }

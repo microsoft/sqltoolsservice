@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.SqlCore.Connection;
@@ -19,22 +18,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Unique ID to use when sending any requests for objects in the
         /// tree under the node
         /// </summary>
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = null!;
 
         /// <summary>
         /// Information describing the expanded nodes in the tree
         /// </summary>
-        public NodeInfo[] Nodes { get; set; }
+        public NodeInfo[] Nodes { get; set; } = null!;
 
         /// <summary>
         /// Path identifying the node to expand. See <see cref="NodeInfo.NodePath"/> for details
         /// </summary>
-        public string NodePath { get; set; }
+        public string NodePath { get; set; } = null!;
 
         /// <summary>
         /// Error message returned from the engine for a object explorer expand failure reason, if any.
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = null!;
     }
 
     /// <summary>
@@ -44,14 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     {
         /// <summary>
         /// The Id returned from a <see cref="CreateSessionRequest"/>. This
-        /// is used to disambiguate between different trees. 
+        /// is used to disambiguate between different trees.
         /// </summary>
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = null!;
 
         /// <summary>
         /// Path identifying the node to expand. See <see cref="NodeInfo.NodePath"/> for details
         /// </summary>
-        public string NodePath { get; set; }
+        public string NodePath { get; set; } = null!;
 
         /// <summary>
         /// Security token for AzureMFA authentication for refresing access token on connection.

@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// <summary>
         /// Lock objects for serialization
         /// </summary>
-        private readonly object _lockObject = new object();
+        private readonly Lock _lockObject = new();
         private CrossPlatLock? _cacheLock = null;
 
         private AuthenticatorConfiguration _config;

@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
 {
     public class ServerViewInfo : SqlObjectViewInfo
     {
-        public string[] LanguageOptions { get; set; }
-        public string[] FullTextUpgradeOptions { get; set; }
+        public string[] LanguageOptions { get; set; } = null!;
+        public string[] FullTextUpgradeOptions { get; set; } = null!;
     }
 }
