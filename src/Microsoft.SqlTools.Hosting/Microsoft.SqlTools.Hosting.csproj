@@ -13,6 +13,8 @@
 		<Description>Provides hosting services for SqlTools applications.</Description>
 		<TargetFrameworks>net472;netstandard2.0;net10.0</TargetFrameworks>
 		<LangVersion>8.0</LangVersion>
+		<!-- CS8632: Project opts out of nullable analysis via <Nullable>disable</Nullable>; ? annotations in files are informational only -->
+		<NoWarn>$(NoWarn);CS8632</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
