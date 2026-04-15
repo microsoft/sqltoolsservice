@@ -36,7 +36,8 @@
     <!-- NU1902: Microsoft.Rest.ClientRuntime has a known moderate vulnerability; it is deprecated and
          tracked for migration to Azure.Core (see Packages.props) -->
     <!-- NETSDK1187: TransactSql.ScriptDom.Nrt uses non-standard locale casing (zh-HANS/zh-HANT); third-party package issue -->
-    <NoWarn>$(NoWarn);NU1902;NETSDK1187</NoWarn>
+    <!-- IDE0390/IDE0391: async methods without await — intentional for interface implementations and handler stubs -->
+    <NoWarn>$(NoWarn);NU1902;NETSDK1187;IDE0390;IDE0391</NoWarn>
   </PropertyGroup>
 
   <!-- SourceLink: allow SSH config alias 'github.com-work' to be recognized as a GitHub host -->

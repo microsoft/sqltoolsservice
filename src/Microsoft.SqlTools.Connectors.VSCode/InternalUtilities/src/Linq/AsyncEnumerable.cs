@@ -35,6 +35,7 @@ internal static class AsyncEnumerable
     }
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
+#pragma warning disable IDE0390 // Method can be made synchronous
 #pragma warning disable IDE1006 // Naming rule violation: Missing suffix: 'Async'
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(this IEnumerable<T> source)
@@ -46,6 +47,7 @@ internal static class AsyncEnumerable
     }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 #pragma warning restore IDE1006 // Naming rule violation: Missing suffix: 'Async'
+#pragma warning restore IDE0390 // Method can be made synchronous
 
     public static async ValueTask<T?> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
     {
