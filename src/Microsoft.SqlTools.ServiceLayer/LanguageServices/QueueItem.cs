@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the queue item key
         /// </summary>
+#pragma warning disable IDE0370 // Suppression is unnecessary — null! is required here to satisfy CS8618 for properties set by callers before use
         public string Key { get; set; } = null!;
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
         /// </summary>
+#pragma warning restore IDE0370
         public Func<IBindingContext, object>? TimeoutOperation { get; set; }
 
         /// <summary>
@@ -42,12 +44,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Supports returning an object in case of the exception occurring since in some cases we need to be
         /// tolerant of error cases and still return some value
         /// </summary>
+#pragma warning disable IDE0370
         public Func<Exception, object> ErrorHandler { get; set; } = null!;
+#pragma warning restore IDE0370
 
         /// <summary>
         /// Gets or sets an event to signal when this queue item has been processed
         /// </summary>
-        public virtual ManualResetEvent ItemProcessed { get; set; } = null!;
+        public virtual ManualResetEvent ItemProcessed { get; set; }
 
         /// <summary>
         /// Gets or sets the result of the queued task

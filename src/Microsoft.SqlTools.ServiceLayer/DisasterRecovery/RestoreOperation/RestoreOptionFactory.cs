@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             else
             {
                 Logger.Warning($"cannot find restore option builder for {optionKey}");
-                return null;
+                return null!;
             }
         }
 

@@ -90,6 +90,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             this.dataContainer = dataContainer;
+            // urn and securable are set by Initialize()
+            this.urn = null!;
+            this.securable = null!;
 
             Initialize();
         }

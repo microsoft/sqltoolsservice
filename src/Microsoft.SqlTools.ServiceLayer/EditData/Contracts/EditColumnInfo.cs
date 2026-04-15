@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// <summary>
         /// The name of the column
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Whether or not the column can be edited. Columns may not be editable for several reasons,

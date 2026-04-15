@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// <param name="streamerFactory">Factory function to create XELiveEventStreamer instances</param>
     internal class LiveStreamObservable(Func<IXEventFetcher> streamerFactory) : IObservable<ProfilerEvent>
     {
-        private readonly object syncObj = new object();
+        private readonly Lock syncObj = new();
         private readonly List<IObserver<ProfilerEvent>> observers = new List<IObserver<ProfilerEvent>>();
         private readonly Func<IXEventFetcher> streamerFactory = streamerFactory ?? throw new ArgumentNullException(nameof(streamerFactory));
         private CancellationTokenSource? cancellationTokenSource;

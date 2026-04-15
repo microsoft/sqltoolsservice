@@ -175,8 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 var scriptoriaTrace = new CopilotLogger();
                 services.AddSingleton<IScriptoriaTrace>(scriptoriaTrace);
                 services.AddSingleton<ICartridgeContentManagerFactory, CartridgeContentManagerFactory>();
-                services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService!);
-                services.AddSingleton<ICartridgeListener>((sp) => sqlService!);
+                services.AddSingleton<ICartridgeDataAccess>((sp) => sqlService);
+                services.AddSingleton<ICartridgeListener>((sp) => sqlService);
                 services.AddSingleton<ITokenRateLimiter, TokenRateLimiter>();
                 services.AddSingleton<IToolsetFactory, ToolsetFactory>();
                 
@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                         { SqlExecutionContextKeys.EnableAgentsMd, "no" }
                     }
                 };
-                await _executionContext.LoadExecutionContextAsync(cartridgeContextSettings, sqlService!, CancellationToken.None);
+                await _executionContext.LoadExecutionContextAsync(cartridgeContextSettings, sqlService, CancellationToken.None);
 
 
                 // the active cartridge (there can only be one in the current design) is loaded using the current db config 

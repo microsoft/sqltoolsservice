@@ -30,11 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
 
-        private object bindingQueueLock = new object();
+        private Lock bindingQueueLock = new();
 
         private LinkedList<QueueItem> bindingQueue = new LinkedList<QueueItem>();
 
-        private object bindingContextLock = new object();
+        private Lock bindingContextLock = new();
 
         private Task queueProcessorTask;
 

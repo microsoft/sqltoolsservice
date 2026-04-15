@@ -8,6 +8,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer
     /// </summary>
     public static class HostLoader
     {
-        private static object lockObject = new object();
+        private static Lock lockObject = new();
         private static bool isLoaded;
 
         internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext, ServiceLayerCommandOptions? commandOptions, Stream? inputStream = null, Stream? outputStream = null)

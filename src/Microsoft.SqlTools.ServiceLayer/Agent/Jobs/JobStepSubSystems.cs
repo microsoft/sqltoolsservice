@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return rv;
         }
 
-        private static TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(AgentSubSystem))!;
+        private static TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(AgentSubSystem)) ?? throw new InvalidOperationException("TypeConverter not found for AgentSubSystem");
         // Returns name of the subsystem for a given enum value
         public static string LookupFriendlyName(AgentSubSystem key)
         {

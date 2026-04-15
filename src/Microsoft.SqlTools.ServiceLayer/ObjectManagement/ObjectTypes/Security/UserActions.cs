@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             else
             {
-                currentUserType = UserActions.GetCurrentUserTypeForExistingUser(dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
+                currentUserType = UserActions.GetCurrentUserTypeForExistingUser(dataContainer.Server!.GetSmoObject(dataContainer.ObjectUrn) as User);
             }
 
             this.userPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, user, originalData, currentUserType, dataContainer.IsNewObject);

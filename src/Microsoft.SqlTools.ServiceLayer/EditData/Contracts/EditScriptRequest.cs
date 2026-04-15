@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// </summary>
     public class EditScriptResult
     {
-        public string[] Scripts { get; set; }
+        public string[] Scripts { get; set; } = null!;
     }
 
     public class EditScriptRequest

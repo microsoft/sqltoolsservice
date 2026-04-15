@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             var azureEdition =
                 AzureServiceObjectiveInfo.Keys.FirstOrDefault(
                     key => key.Name.ToLowerInvariant().Equals(edition.ToLowerInvariant()));
-            if (azureEdition! != null)
+            if (azureEdition != null)
             {
                 return azureEdition;
             }

@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// disabled until the new refresh token is returned, upon which they will be removed from the map
         /// </summary>
         public readonly ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
-        private readonly object cancellationTokenSourceLock = new object();
+        private readonly Lock cancellationTokenSourceLock = new();
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 

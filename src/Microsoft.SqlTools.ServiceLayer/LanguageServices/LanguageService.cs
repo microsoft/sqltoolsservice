@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ServiceHost serviceHostInstance;
 
-        private object parseMapLock = new object();
+        private Lock parseMapLock = new();
 
         private ScriptParseInfo currentCompletionParseInfo;
 

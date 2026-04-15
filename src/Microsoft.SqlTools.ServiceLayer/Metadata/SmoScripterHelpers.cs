@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         private static ServerConnection? GetServerConnection(DbConnection connection)
         {
             // Get a connection to the database for SMO purposes
-            var sqlConnection = connection as SqlConnection ?? SmoScripterHelpers.TryFindingReliableSqlConnection(connection as ReliableSqlConnection);
+            var sqlConnection = connection as SqlConnection ?? SmoScripterHelpers.TryFindingReliableSqlConnection((connection as ReliableSqlConnection)!);
             if (sqlConnection == null)
             {
                 return null;
@@ -165,6 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 // can be written and read as a single line to and from a temp file. Since scripts aren't
                 // going to be read by people, and sent to Copilot to generate accurate suggestions,
                 // a lack of formatting is fine.
+                if (s == null) continue;
                 var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty).Replace("\t", string.Empty);
                 scripts.Add(script);
             }

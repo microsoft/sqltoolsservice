@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSession : IDisposable
     {
-        private object pollingLock = new object();
+        private Lock pollingLock = new();
         private bool isPolling = false;
         private readonly SessionObserver sessionObserver;
         private readonly IXEventSession xEventSession;

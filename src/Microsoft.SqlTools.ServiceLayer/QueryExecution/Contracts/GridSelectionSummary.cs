@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Selection ranges
         /// </summary>
-        public TableSelectionRange[] Selections { get; set; }
+        public TableSelectionRange[] Selections { get; set; } = null!;
     }
 
     public class GridSelectionSummaryRequest
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Uri to cancel the selection summary for
         /// </summary>
-        public string OwnerUri { get; set; }
+        public string OwnerUri { get; set; } = null!;
     }
 
     public class GridSelectionSummaryCancelEvent
