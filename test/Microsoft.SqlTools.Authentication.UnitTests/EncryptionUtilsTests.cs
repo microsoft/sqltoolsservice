@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.Authentication.UnitTests
             byte[] iv = new byte[16]; // 128-bit IV
 
             // Act
-            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesEncrypt(null, key, iv));
+            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesEncrypt(null!, key, iv));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.Authentication.UnitTests
             byte[] data = new byte[32]; // 256-bit data
 
             // Act
-            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesEncrypt(data, key, null));
+            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesEncrypt(data, key, null!));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.Authentication.UnitTests
             byte[] data = new byte[32]; // 256-bit data
 
             // Act
-            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesEncrypt(data, null, iv));
+            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesEncrypt(data, null!, iv));
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.Authentication.UnitTests
             byte[] iv = new byte[16]; // 128-bit IV
 
             // Act
-            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesDecrypt(null, key, iv));
+            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesDecrypt(null!, key, iv));
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.Authentication.UnitTests
             byte[] data = new byte[32]; // 256-bit data
 
             // Act
-            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesDecrypt(data, key, null));
+            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesDecrypt(data, key, null!));
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.Authentication.UnitTests
             byte[] data = new byte[32]; // 256-bit data
 
             // Act
-            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesDecrypt(data, null, iv));
+            Assert.Throws<ArgumentNullException>(() => EncryptionUtils.AesDecrypt(data, null!, iv));
         }
     }
 }

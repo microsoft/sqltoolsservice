@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.SqlTools.Credentials.Contracts;
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             return DeletePasswordImpl(credentialId);
         }
 
-        public bool TryGetPassword(string credentialId, out string? password)
+        public bool TryGetPassword(string credentialId, [NotNullWhen(true)] out string? password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             return FindPassword(credentialId, out password);
@@ -48,14 +49,15 @@ namespace Microsoft.SqlTools.Credentials.OSX
 
         private bool AddGenericPassword(Credential credential)
         {
-            IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(credential.Password);
+            string password = credential.Password!;
+            IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero,
               InteropUtils.GetLengthInBytes(credential.CredentialId, Encoding.UTF8),
               credential.CredentialId,
               0,
               null,
-              InteropUtils.GetLengthInBytes(credential.Password, Encoding.UTF8),
+              InteropUtils.GetLengthInBytes(password, Encoding.UTF8),
               passwordPtr,
               IntPtr.Zero);
 

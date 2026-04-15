@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
 
@@ -19,6 +20,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// <typeparam name="T">Type of service to be found</typeparam>
         /// <returns>Instance of T or null if not found</returns>
         /// <exception cref="InvalidOperationException">The input sequence contains more than one element.-or-The input sequence is empty.</exception>
+        [return: MaybeNull]
         T GetService<T>();
 
         /// <summary>
@@ -29,6 +31,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// <param name="filter">Filter to use in </param>
         /// <returns>Instance of T or null if not found</returns>
         /// <exception cref="InvalidOperationException">The input sequence contains more than one element.-or-The input sequence is empty.</exception>
+        [return: MaybeNull]
         T GetService<T>(Predicate<T> filter);
 
         /// <summary>
@@ -51,11 +54,13 @@ namespace Microsoft.SqlTools.Extensibility
     public abstract class ServiceProviderBase : IMultiServiceProvider
     {
 
+        [return: MaybeNull]
         public T GetService<T>()
         {
             return GetServices<T>().SingleOrDefault();
         }
 
+        [return: MaybeNull]
         public T GetService<T>(Predicate<T> filter)
         {
             Validate.IsNotNull(nameof(filter), filter);

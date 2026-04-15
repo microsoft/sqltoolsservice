@@ -37,6 +37,7 @@ internal static class AsyncEnumerable
 
 #pragma warning disable IDE1006 // Naming rule violation: Missing suffix: 'Async'
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning disable IDE0390 // Method can be made synchronous
     public static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(this IEnumerable<T> source)
     {
         foreach (var item in source)
@@ -44,20 +45,23 @@ internal static class AsyncEnumerable
             yield return item;
         }
     }
+#pragma warning restore IDE0390 // Method can be made synchronous
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 #pragma warning restore IDE1006 // Naming rule violation: Missing suffix: 'Async'
 
-    public static async ValueTask<T?> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
+    [return: MaybeNull]
+    public static async ValueTask<T> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
     {
         await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             return item;
         }
 
-        return default;
+        return default!;
     }
 
-    public static async ValueTask<T?> LastOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
+    [return: MaybeNull]
+    public static async ValueTask<T> LastOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
     {
         var last = default(T)!; // NB: Only matters when hasLast is set to true.
         var hasLast = false;
@@ -68,7 +72,7 @@ internal static class AsyncEnumerable
             last = item;
         }
 
-        return hasLast ? last! : default;
+        return hasLast ? last! : default!;
     }
 
     public static async ValueTask<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)

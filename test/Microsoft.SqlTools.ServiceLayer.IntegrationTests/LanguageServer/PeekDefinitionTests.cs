@@ -778,7 +778,7 @@ GO";
             Cleanup(definition.Locations);
         }
 
-        private async Task<DefinitionResult> PeekDefinitionAt(string fileContents, int column, string? databasename = null)
+        private async Task<DefinitionResult> PeekDefinitionAt(string fileContents, int column, string databasename = null)
         {
             TextDocumentPosition fnDocument = this.CreateTextDocPositionWithCursor(column, TestUri);
 
@@ -810,7 +810,7 @@ GO";
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
-        private static Uri? GetFilePath(Location location)
+        private static Uri GetFilePath(Location location)
         {
             string filePath = location.Uri;
             Uri fileUri = null;

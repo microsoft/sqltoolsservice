@@ -164,7 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 
             await QueryExecutionService.Instance.HandleResultSubsetRequest(subsetParams, subsetRequestContext.Object);
 
-            return subsetResult.ResultSubset;
+            Assert.NotNull(subsetResult);
+            return subsetResult!.ResultSubset;
         }
 
         /// <summary>

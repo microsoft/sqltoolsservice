@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
             Metadata = metadata;
         }
 
-        public ITrace Trace { get; set; }
+        public ITrace Trace { get; set; } = null!;
         public Task<bool> GetUserNeedsReauthenticationAsync()
         {
             throw new NotImplementedException();
@@ -60,14 +60,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
 
         public bool HasLoginDialog { get; }
 
-        public event EventHandler CurrentAccountChanged;
+        public event EventHandler? CurrentAccountChanged;
 
-        public IUserAccount SetCurrentAccount(object account)
+        public IUserAccount? SetCurrentAccount(object account)
         {
-            if (CurrentAccountChanged != null)
-            {
-                CurrentAccountChanged(this, null);
-            }
+            CurrentAccountChanged?.Invoke(this, EventArgs.Empty);
             return null;
         }
 
@@ -77,6 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
         }
 
         public IExportableMetadata Metadata { get; set; }
-        public ExportableStatus Status { get; }
+        public ExportableStatus Status { get; } = new ExportableStatus();
     }
 }

@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 throw new Exception($"Error creating live connection to {connectParams.Connection.ServerName} (Type={serverType}). Error: {connectionResult.ErrorMessage}");
             }
-            ConnectionInfo? connInfo = null;
+            ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             Assert.That(connInfo, Is.Not.Null, $"Could not find connection {ownerUri} when creating live connection");
             return connInfo;

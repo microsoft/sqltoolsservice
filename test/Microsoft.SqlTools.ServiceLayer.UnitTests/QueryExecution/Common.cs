@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             ConnectionInfo outValMock;
             connectionService
                 .Setup(service => service.TryFindConnection(It.IsAny<string>(), out outValMock))
-                .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
+                .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null!)
                 .Returns(isConnected);
 
             return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage, sizeFactor) };

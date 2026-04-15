@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         public Win32Credential(string? username, string? password, string? target, CredentialType type)
         {
             Username = username;
-            Password = password!;
+            Password = password;
             Target = target;
             Type = type;
             PersistanceType = PersistanceType.Session;
@@ -95,6 +96,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 username = value;
             }
         }
+        [AllowNull]
         public string Password
         {
             get
@@ -107,6 +109,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 SecurePassword = SecureStringHelper.CreateSecureString(string.IsNullOrEmpty(value) ? string.Empty : value);
             }
         }
+        [AllowNull]
         public SecureString SecurePassword
         {
             get
@@ -213,7 +216,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             credential.UserName = Username!;
             credential.CredentialBlob = Marshal.StringToCoTaskMemUni(Password);
             credential.CredentialBlobSize = passwordBytes.Length;
-            credential.Comment = Description!;
+            credential.Comment = Description;
             credential.Type = (int)Type;
             credential.Persist = (int) PersistanceType;
 
@@ -246,6 +249,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
 
             IntPtr credPointer;
 
+            // TODO: Consider validating Target before CredRead so null targets fail with a clearer contract-specific exception.
             bool result = NativeMethods.CredRead(Target!, Type, 0, out credPointer);
             if (!result)
             {
