@@ -34,8 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public RestorePlanDetailInfo? CreateAndValidate(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
         {
             RestorePlanDetailInfo? restorePlanDetailInfo = CreateOptionInfo(optionKey, restoreDataObject);
-            // UpdateOption only dereferences optionInfo when a builder exists for optionKey.
-            UpdateOption(optionKey, restoreDataObject, restorePlanDetailInfo!);
+            if (restorePlanDetailInfo != null)
+            {
+                UpdateOption(optionKey, restoreDataObject, restorePlanDetailInfo);
+            }
             return restorePlanDetailInfo;
         }
 
