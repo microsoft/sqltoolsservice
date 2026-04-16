@@ -28,7 +28,6 @@
 		<PackageReference Include="nunit" />
 		<PackageReference Include="nunit3testadapter" />
 		<PackageReference Include="System.Runtime.Caching" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />

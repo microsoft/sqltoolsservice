@@ -70,7 +70,8 @@ namespace Microsoft.SqlTools.Credentials.Win32
         private void LoadInternal()
         {
             IntPtr pCredentials = IntPtr.Zero;
-            bool result = NativeMethods.CredEnumerateW(Target!, 0, out uint count, out pCredentials);
+            // Target may be null — CredEnumerateW accepts null as a wildcard to enumerate all credentials
+            bool result = NativeMethods.CredEnumerateW(Target, 0, out uint count, out pCredentials);
             if (!result)
             {
                 Logger.Error(string.Format("Win32Exception: {0}", new Win32Exception(Marshal.GetLastWin32Error()).ToString()));
