@@ -30,8 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
         private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
             new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
-        private Lazy<ConcurrentDictionary<string, SchemaComparison>> schemaComparisons =
-            new Lazy<ConcurrentDictionary<string, SchemaComparison>>(() => new ConcurrentDictionary<string, SchemaComparison>());
         private Lazy<ConcurrentDictionary<string, Action>> currentComparisonCancellationAction =
             new Lazy<ConcurrentDictionary<string, Action>>(() => new ConcurrentDictionary<string, Action>());
 
@@ -82,7 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     // add result to dictionary of results
                     schemaCompareResults.Value[operation.OperationId] = operation.ComparisonResult;
-                    schemaComparisons.Value[operation.OperationId] = operation.Comparison;
 
                     await requestContext.SendResult(new SchemaCompareResult()
                     {
@@ -198,10 +195,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                // schemaComparison is optional here for backward compatibility; publish operation handles null.
-                schemaComparisons.Value.TryGetValue(parameters.OperationId, out var schemaComparison);
 
-                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult, schemaComparison);
+                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
 
                 var adapter = new SchemaCompareTaskAdapter(
                     execute: () => coreOp.Execute(),
@@ -211,9 +206,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 coreOp.ProgressChanged += (sender, e) =>
                 {
-                    if (adapter.SqlTask != null && e != null && e.Status != null)
+                    if (adapter.SqlTask != null && e != null)
                     {
-                        adapter.SqlTask.AddMessage(e.Status, SqlTaskStatus.InProgress);
+                        string message = TryGetProgressMessage(e);
+                        if (!string.IsNullOrEmpty(message))
+                        {
+                            adapter.SqlTask.AddMessage(message, SqlTaskStatus.InProgress);
+                        }
                     }
                 };
 
@@ -524,6 +523,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 connectionService = value;
             }
+        }
+
+        private static string TryGetProgressMessage(EventArgs eventArgs)
+        {
+            string[] propertyNames = new[] { "Status", "Message", "StatusMessage" };
+            Type eventType = eventArgs.GetType();
+
+            foreach (string propertyName in propertyNames)
+            {
+                var property = eventType.GetProperty(propertyName);
+                if (property == null || property.PropertyType != typeof(string))
+                {
+                    continue;
+                }
+
+                string value = property.GetValue(eventArgs) as string;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    return value;
+                }
+            }
+
+            return null;
         }
     }
 }

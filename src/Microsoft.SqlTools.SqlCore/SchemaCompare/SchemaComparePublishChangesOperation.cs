@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         /// Raised when DacFx reports progress during publish.
         /// Consumers should subscribe before calling Execute().
         /// </summary>
-        public event EventHandler<SchemaCompareProgressChangedEventArgs> ProgressChanged;
+        public event EventHandler<EventArgs> ProgressChanged;
 
         protected CancellationToken CancellationToken { get { return cancellation.Token; } }
 
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public abstract void Execute();
 
-        protected void OnProgressChanged(object sender, SchemaCompareProgressChangedEventArgs e)
+        protected void OnProgressChanged(object sender, EventArgs e)
             => ProgressChanged?.Invoke(sender, e);
 
         public void Cancel()

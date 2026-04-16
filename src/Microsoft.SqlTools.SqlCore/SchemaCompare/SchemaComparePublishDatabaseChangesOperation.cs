@@ -5,7 +5,7 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
+using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
@@ -18,15 +18,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     /// </summary>
     public class SchemaComparePublishDatabaseChangesOperation : SchemaComparePublishChangesOperation
     {
-        private const string ProgressChangedEventName = "ProgressChanged";
-        private const string DataModelPropertyName = "DataModel";
-        private const string StatusPropertyName = "Status";
-        private const string ProgressCodePropertyName = "ProgressCode";
-
-        private readonly SchemaComparison comparison;
-        private EventInfo progressChangedEvent;
-        private object progressChangedEventSource;
-        private Delegate progressChangedEventHandler;
+        private bool progressSubscribed;
 
         public SchemaComparePublishDatabaseChangesParams Parameters { get; }
 
@@ -34,13 +26,11 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public SchemaComparePublishDatabaseChangesOperation(
             SchemaComparePublishDatabaseChangesParams parameters,
-            SchemaComparisonResult comparisonResult,
-            SchemaComparison comparison = null) : base(comparisonResult)
+            SchemaComparisonResult comparisonResult) : base(comparisonResult)
         {
             Validate.IsNotNull(nameof(parameters), parameters);
             Parameters = parameters;
             OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
-            this.comparison = comparison;
         }
 
         public override void Execute()
@@ -49,7 +39,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             try
             {
-                SubscribeToProgressEvents();
+                SubscribeToProgressChanged();
 
                 PublishResult = ComparisonResult.PublishChangesToDatabase(CancellationToken);
 
@@ -68,91 +58,52 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             }
             finally
             {
-                UnsubscribeFromProgressEvents();
+                UnsubscribeFromProgressChanged();
             }
         }
 
-        private void SubscribeToProgressEvents()
+        private void SubscribeToProgressChanged()
         {
-            if (comparison == null)
-            {
-                return;
-            }
-
-            progressChangedEventSource = comparison;
-            progressChangedEvent = comparison.GetType().GetEvent(ProgressChangedEventName, BindingFlags.Instance | BindingFlags.Public);
-
-            // Current DacFx surfaces schema compare progress on internal DataModel.ProgressChanged
-            if (progressChangedEvent == null)
-            {
-                PropertyInfo dataModelProperty = comparison.GetType().GetProperty(DataModelPropertyName, BindingFlags.Instance | BindingFlags.NonPublic);
-                if (dataModelProperty != null)
-                {
-                    object dataModel = dataModelProperty.GetValue(comparison);
-                    if (dataModel != null)
-                    {
-                        progressChangedEventSource = dataModel;
-                        progressChangedEvent = dataModel.GetType().GetEvent(ProgressChangedEventName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    }
-                }
-            }
-
-            if (progressChangedEvent == null || progressChangedEventSource == null)
-            {
-                return;
-            }
-
-            MethodInfo handlerMethod = GetType().GetMethod(nameof(HandleProgressChanged), BindingFlags.Instance | BindingFlags.NonPublic);
-            if (handlerMethod == null)
-            {
-                Logger.Warning("Unable to subscribe to schema compare publish progress because handler method was not found.");
-                return;
-            }
             try
             {
-                progressChangedEventHandler = Delegate.CreateDelegate(progressChangedEvent.EventHandlerType, this, handlerMethod);
-                progressChangedEvent.AddEventHandler(progressChangedEventSource, progressChangedEventHandler);
+                dynamic comparisonResult = ComparisonResult;
+                comparisonResult.ProgressChanged += (Action<object, object>)HandleProgressChanged;
+                progressSubscribed = true;
             }
-            catch (ArgumentException ex)
+            catch (RuntimeBinderException)
             {
-                Logger.Warning($"Unable to subscribe to schema compare publish progress due to incompatible event signature: {ex.Message}");
+                progressSubscribed = false;
             }
         }
 
-        private void UnsubscribeFromProgressEvents()
+        private void UnsubscribeFromProgressChanged()
         {
-            if (progressChangedEvent != null && progressChangedEventHandler != null && progressChangedEventSource != null)
+            if (!progressSubscribed)
             {
-                progressChangedEvent.RemoveEventHandler(progressChangedEventSource, progressChangedEventHandler);
+                return;
             }
 
-            progressChangedEvent = null;
-            progressChangedEventSource = null;
-            progressChangedEventHandler = null;
+            try
+            {
+                dynamic comparisonResult = ComparisonResult;
+                comparisonResult.ProgressChanged -= (Action<object, object>)HandleProgressChanged;
+            }
+            catch (RuntimeBinderException)
+            {
+                // no-op
+            }
+            finally
+            {
+                progressSubscribed = false;
+            }
         }
 
-        private void HandleProgressChanged(object sender, object progressEventArgs)
+        private void HandleProgressChanged(object sender, object e)
         {
-            string status = null;
-            if (progressEventArgs != null)
+            if (e is EventArgs eventArgs)
             {
-                PropertyInfo statusProperty = progressEventArgs.GetType().GetProperty(StatusPropertyName);
-                if (statusProperty != null)
-                {
-                    status = statusProperty.GetValue(progressEventArgs)?.ToString();
-                }
-
-                if (status == null)
-                {
-                    PropertyInfo progressCodeProperty = progressEventArgs.GetType().GetProperty(ProgressCodePropertyName);
-                    if (progressCodeProperty != null)
-                    {
-                        status = progressCodeProperty.GetValue(progressEventArgs)?.ToString();
-                    }
-                }
+                OnProgressChanged(sender, eventArgs);
             }
-
-            OnProgressChanged(sender, new SchemaCompareProgressChangedEventArgs(status, progressEventArgs));
         }
     }
 }
