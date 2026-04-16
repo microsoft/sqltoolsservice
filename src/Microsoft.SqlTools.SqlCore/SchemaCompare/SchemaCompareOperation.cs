@@ -34,6 +34,8 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 
+        public SchemaComparison Comparison { get; private set; }
+
         public List<DiffEntry> Differences;
 
         public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
@@ -81,6 +83,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.ConnectionProvider);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
+                this.Comparison = comparison;
 
                 if (this.Parameters.DeploymentOptions != null)
                 {

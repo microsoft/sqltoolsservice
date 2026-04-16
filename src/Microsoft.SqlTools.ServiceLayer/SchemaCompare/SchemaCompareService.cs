@@ -30,6 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
         private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
             new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
+        private Lazy<ConcurrentDictionary<string, SchemaComparison>> schemaComparisons =
+            new Lazy<ConcurrentDictionary<string, SchemaComparison>>(() => new ConcurrentDictionary<string, SchemaComparison>());
         private Lazy<ConcurrentDictionary<string, Action>> currentComparisonCancellationAction =
             new Lazy<ConcurrentDictionary<string, Action>>(() => new ConcurrentDictionary<string, Action>());
 
@@ -80,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     // add result to dictionary of results
                     schemaCompareResults.Value[operation.OperationId] = operation.ComparisonResult;
+                    schemaComparisons.Value[operation.OperationId] = operation.Comparison;
 
                     await requestContext.SendResult(new SchemaCompareResult()
                     {
@@ -195,14 +198,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                schemaComparisons.Value.TryGetValue(parameters.OperationId, out SchemaComparison schemaComparison);
 
-                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
+                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult, schemaComparison);
 
                 var adapter = new SchemaCompareTaskAdapter(
                     execute: () => coreOp.Execute(),
                     cancel: () => coreOp.Cancel(),
                     getError: () => coreOp.ErrorMessage
                 );
+
+                coreOp.ProgressChanged += (sender, e) =>
+                {
+                    if (adapter.SqlTask != null && e?.Status != null)
+                    {
+                        adapter.SqlTask.AddMessage(e.Status, SqlTaskStatus.InProgress);
+                    }
+                };
 
                 TaskMetadata metadata = new TaskMetadata
                 {
