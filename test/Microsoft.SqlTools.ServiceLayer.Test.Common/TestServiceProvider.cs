@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             InitializeTestServices();
         }
 
-        private static object _lockObject = new object();
+        private static Lock _lockObject = new Lock();
         private static TestServiceProvider _instance = new TestServiceProvider();
 
 
