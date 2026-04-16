@@ -5,6 +5,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
@@ -17,11 +18,15 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     /// </summary>
     public class SchemaComparePublishDatabaseChangesOperation : SchemaComparePublishChangesOperation
     {
+        private bool progressSubscribed;
+
         public SchemaComparePublishDatabaseChangesParams Parameters { get; }
 
         public SchemaComparePublishResult PublishResult { get; set; }
 
-        public SchemaComparePublishDatabaseChangesOperation(SchemaComparePublishDatabaseChangesParams parameters, SchemaComparisonResult comparisonResult) : base(comparisonResult)
+        public SchemaComparePublishDatabaseChangesOperation(
+            SchemaComparePublishDatabaseChangesParams parameters,
+            SchemaComparisonResult comparisonResult) : base(comparisonResult)
         {
             Validate.IsNotNull(nameof(parameters), parameters);
             Parameters = parameters;
@@ -34,6 +39,8 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             try
             {
+                SubscribeToProgressChanged();
+
                 PublishResult = ComparisonResult.PublishChangesToDatabase(CancellationToken);
 
                 if (!PublishResult.Success)
@@ -48,6 +55,56 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 ErrorMessage = e.Message;
                 Logger.Error(string.Format("Schema compare publish database changes operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
+            }
+            finally
+            {
+                UnsubscribeFromProgressChanged();
+            }
+        }
+
+        private void SubscribeToProgressChanged()
+        {
+            try
+            {
+                dynamic comparisonResult = ComparisonResult;
+                // DacFx progress events are expected to provide sender and event-args objects to the callback.
+                comparisonResult.ProgressChanged += (Action<object, object>)HandleProgressChanged;
+                progressSubscribed = true;
+            }
+            catch (RuntimeBinderException)
+            {
+                progressSubscribed = false;
+                Logger.Warning($"Unable to subscribe to schema compare publish progress on operation {OperationId} because the current DacFx version does not expose SchemaComparisonResult.ProgressChanged.");
+            }
+        }
+
+        private void UnsubscribeFromProgressChanged()
+        {
+            if (!progressSubscribed)
+            {
+                return;
+            }
+
+            try
+            {
+                dynamic comparisonResult = ComparisonResult;
+                comparisonResult.ProgressChanged -= (Action<object, object>)HandleProgressChanged;
+            }
+            catch (RuntimeBinderException)
+            {
+                // no-op
+            }
+            finally
+            {
+                progressSubscribed = false;
+            }
+        }
+
+        private void HandleProgressChanged(object sender, object e)
+        {
+            if (e is EventArgs eventArgs)
+            {
+                OnProgressChanged(sender, eventArgs);
             }
         }
     }

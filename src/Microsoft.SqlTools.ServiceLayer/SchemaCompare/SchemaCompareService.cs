@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     class SchemaCompareService
     {
+        private static readonly string[] progressMessagePropertyNames = new[] { "Status", "Message", "StatusMessage" };
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
@@ -203,6 +204,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     cancel: () => coreOp.Cancel(),
                     getError: () => coreOp.ErrorMessage
                 );
+
+                coreOp.ProgressChanged += (sender, e) =>
+                {
+                    if (adapter.SqlTask != null && e != null)
+                    {
+                        string message = GetProgressMessage(e);
+                        if (!string.IsNullOrEmpty(message))
+                        {
+                            adapter.SqlTask.AddMessage(message, SqlTaskStatus.InProgress);
+                        }
+                    }
+                };
 
                 TaskMetadata metadata = new TaskMetadata
                 {
@@ -511,6 +524,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 connectionService = value;
             }
+        }
+
+        private static string GetProgressMessage(EventArgs eventArgs)
+        {
+            Type eventType = eventArgs.GetType();
+
+            foreach (string propertyName in progressMessagePropertyNames)
+            {
+                var property = eventType.GetProperty(propertyName);
+                if (property == null)
+                {
+                    continue;
+                }
+
+                string value = property.GetValue(eventArgs)?.ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    return value;
+                }
+            }
+
+            return null;
         }
     }
 }
