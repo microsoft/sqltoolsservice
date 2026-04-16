@@ -198,7 +198,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                schemaComparisons.Value.TryGetValue(parameters.OperationId, out SchemaComparison schemaComparison);
+                // schemaComparison is optional here for backward compatibility; publish operation handles null.
+                schemaComparisons.Value.TryGetValue(parameters.OperationId, out var schemaComparison);
 
                 coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult, schemaComparison);
 
@@ -210,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 coreOp.ProgressChanged += (sender, e) =>
                 {
-                    if (adapter.SqlTask != null && e?.Status != null)
+                    if (adapter.SqlTask != null && e != null && e.Status != null)
                     {
                         adapter.SqlTask.AddMessage(e.Status, SqlTaskStatus.InProgress);
                     }
