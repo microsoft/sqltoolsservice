@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     class SchemaCompareService
     {
+        private static readonly string[] progressMessagePropertyNames = new[] { "Status", "Message", "StatusMessage" };
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
@@ -208,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     if (adapter.SqlTask != null && e != null)
                     {
-                        string message = TryGetProgressMessage(e);
+                        string message = GetProgressMessage(e);
                         if (!string.IsNullOrEmpty(message))
                         {
                             adapter.SqlTask.AddMessage(message, SqlTaskStatus.InProgress);
@@ -525,20 +526,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private static string TryGetProgressMessage(EventArgs eventArgs)
+        private static string GetProgressMessage(EventArgs eventArgs)
         {
-            string[] propertyNames = new[] { "Status", "Message", "StatusMessage" };
             Type eventType = eventArgs.GetType();
 
-            foreach (string propertyName in propertyNames)
+            foreach (string propertyName in progressMessagePropertyNames)
             {
                 var property = eventType.GetProperty(propertyName);
-                if (property == null || property.PropertyType != typeof(string))
+                if (property == null)
                 {
                     continue;
                 }
 
-                string value = property.GetValue(eventArgs) as string;
+                string value = property.GetValue(eventArgs)?.ToString();
                 if (!string.IsNullOrEmpty(value))
                 {
                     return value;

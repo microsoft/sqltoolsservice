@@ -67,12 +67,14 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             try
             {
                 dynamic comparisonResult = ComparisonResult;
+                // DacFx progress events are expected to provide sender and event-args objects to the callback.
                 comparisonResult.ProgressChanged += (Action<object, object>)HandleProgressChanged;
                 progressSubscribed = true;
             }
             catch (RuntimeBinderException)
             {
                 progressSubscribed = false;
+                Logger.Warning($"Unable to subscribe to schema compare publish progress on operation {OperationId} because the current DacFx version does not expose SchemaComparisonResult.ProgressChanged.");
             }
         }
 
