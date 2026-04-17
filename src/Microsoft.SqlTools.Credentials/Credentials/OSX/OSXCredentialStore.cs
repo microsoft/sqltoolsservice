@@ -35,26 +35,27 @@ namespace Microsoft.SqlTools.Credentials.OSX
         public bool Save(Credential credential)
         {
             Credential.ValidateForSave(credential);
-            bool result = false;
+            // ValidateForSave guarantees CredentialId and Password are non-null
+            string credentialId = credential.CredentialId!;
 
-            // Note: OSX blocks AddPassword if the credential 
+            // Note: OSX blocks AddPassword if the credential
             // already exists, so for now we delete the password if already present since we're updating
             // the value. In the future, we could consider updating but it's low value to solve this
-            DeletePasswordImpl(credential.CredentialId!);
+            DeletePasswordImpl(credentialId);
 
             // Now add the password
-            result = AddGenericPassword(credential);
-            return result;
+            return AddGenericPassword(credential);
         }
 
         private bool AddGenericPassword(Credential credential)
         {
+            string credentialId = credential.CredentialId!;
             string password = credential.Password ?? string.Empty;
             IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero,
-              InteropUtils.GetLengthInBytes(credential.CredentialId!, Encoding.UTF8),
-              credential.CredentialId!,
+              InteropUtils.GetLengthInBytes(credentialId, Encoding.UTF8),
+              credentialId,
               0,
               null,
               InteropUtils.GetLengthInBytes(password, Encoding.UTF8),
