@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             // Note: OSX blocks AddPassword if the credential 
             // already exists, so for now we delete the password if already present since we're updating
             // the value. In the future, we could consider updating but it's low value to solve this
-            DeletePasswordImpl(credential.CredentialId);
+            DeletePasswordImpl(credential.CredentialId!);
 
             // Now add the password
             result = AddGenericPassword(credential);
@@ -49,12 +49,12 @@ namespace Microsoft.SqlTools.Credentials.OSX
 
         private bool AddGenericPassword(Credential credential)
         {
-            string password = credential.Password!;
+            string password = credential.Password ?? string.Empty;
             IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero,
-              InteropUtils.GetLengthInBytes(credential.CredentialId, Encoding.UTF8),
-              credential.CredentialId,
+              InteropUtils.GetLengthInBytes(credential.CredentialId!, Encoding.UTF8),
+              credential.CredentialId!,
               0,
               null,
               InteropUtils.GetLengthInBytes(password, Encoding.UTF8),

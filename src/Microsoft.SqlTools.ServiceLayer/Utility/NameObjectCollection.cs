@@ -467,7 +467,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="name">property name</param>
         /// <param name="value">property value</param>
         /// <returns>true if succeeded</returns>
-        public bool TryGetPropertyValue(string name, [MaybeNull] out object value)
+        public bool TryGetPropertyValue(string name, [MaybeNullWhen(false)] out object value)
         {
             value = null;
             int index = IndexOf(name);

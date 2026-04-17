@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         public Win32Credential(string? username, string? password, string? target, CredentialType type)
         {
             Username = username;
-            Password = password!;
+            Password = password;
             Target = target;
             Type = type;
             PersistanceType = PersistanceType.Session;

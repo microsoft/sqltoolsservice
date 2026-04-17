@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public const int HundredMillionRows = 100000000;
 
-        public const SelectionData WholeDocument = null;
+        public const SelectionData? WholeDocument = null;
 
         public static readonly ConnectionDetails StandardConnectionDetails = new ConnectionDetails
         {

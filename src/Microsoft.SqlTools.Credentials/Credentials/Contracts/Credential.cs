@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.Credentials.Contracts
         /// <summary>
         /// A unique ID to identify the credential being saved. 
         /// </summary>
-        public string CredentialId { get; set; } = null;
+        public string? CredentialId { get; set; }
 
         /// <summary>
         /// The Password stored for this credential.
