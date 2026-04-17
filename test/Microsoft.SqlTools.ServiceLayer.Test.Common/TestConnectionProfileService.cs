@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public ConnectParams GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
         {
             InstanceInfo instanceInfo = GetInstance(key);
-            return instanceInfo != null ? CreateConnectParams(instanceInfo, key, databaseName) : null;
+            return CreateConnectParams(instanceInfo, key, databaseName);
         }
 
         /// <summary>

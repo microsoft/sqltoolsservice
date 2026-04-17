@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;
-            StringAssert.Contains("SqlPackage", command, "Sqlpacakge command should have SqlPackage");
+            StringAssert.Contains("SqlPackage", command, "SqlPackage command should have SqlPackage");
             StringAssert.Contains("/Action:Publish", command, "Command should have publish action");
             StringAssert.Contains("/SourceFile:\"C:\\test\\database.dacpac\"", command, "command should have the sourceFile");
             StringAssert.Contains("/p:ExcludeObjectTypes=ServerTriggers;ExternalStreamingJobs", command, "Command should return exclude object types");

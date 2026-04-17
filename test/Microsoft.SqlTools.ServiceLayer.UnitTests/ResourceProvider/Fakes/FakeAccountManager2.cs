@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
 
         public bool HasLoginDialog { get; }
 
-        public event EventHandler? CurrentAccountChanged;
+        public event EventHandler CurrentAccountChanged = delegate { };
 
         public IUserAccount? SetCurrentAccount(object account)
         {
