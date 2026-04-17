@@ -6,8 +6,8 @@
 #if !NETCOREAPP
 namespace System.Diagnostics.CodeAnalysis
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
-    internal sealed class MaybeNullAttribute : Attribute
+    [global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Parameter | global::System.AttributeTargets.Property | global::System.AttributeTargets.ReturnValue, Inherited = false)]
+    internal sealed class MaybeNullAttribute : global::System.Attribute
     {
     }
 }
