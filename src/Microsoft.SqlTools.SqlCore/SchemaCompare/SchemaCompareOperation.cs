@@ -124,9 +124,9 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 }
 
                 // Raise Message event for each message from the comparison
-                foreach (var msg in ComparisonResult.GetErrors())
+                foreach (var comparisonMessage in ComparisonResult.GetErrors())
                 {
-                    Message?.Invoke(this, new SchemaCompareMessageEventArgs(msg));
+                    Message?.Invoke(this, new SchemaCompareMessageEventArgs(comparisonMessage));
                 }
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
