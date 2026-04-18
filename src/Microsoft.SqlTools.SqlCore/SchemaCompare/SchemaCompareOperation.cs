@@ -36,6 +36,12 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public List<DiffEntry> Differences;
 
+        /// <summary>
+        /// Raised for each DacFx message produced during the schema comparison.
+        /// Subscribe before calling <see cref="Execute"/> to receive notifications.
+        /// </summary>
+        public event EventHandler<SchemaCompareMessageEventArgs> Message;
+
         public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -115,6 +121,12 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                         DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
                         this.Differences.Add(diffEntry);
                     }
+                }
+
+                // Raise Message event for each message from the comparison
+                foreach (var msg in ComparisonResult.GetErrors())
+                {
+                    Message?.Invoke(this, new SchemaCompareMessageEventArgs(msg));
                 }
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage

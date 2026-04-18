@@ -36,6 +36,12 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             {
                 PublishResult = ComparisonResult.PublishChangesToDatabase(CancellationToken);
 
+                // Raise Message event for each message from the publish operation
+                foreach (var msg in PublishResult.Errors)
+                {
+                    OnMessage(msg);
+                }
+
                 if (!PublishResult.Success)
                 {
                     // Sending only errors and warnings - because overall message might be too big for task view

@@ -5,7 +5,9 @@
 
 using System;
 using System.Threading;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare
@@ -21,6 +23,12 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public string ErrorMessage { get; set; }
 
+        /// <summary>
+        /// Raised for each DacFx message produced during the publish operation.
+        /// Subscribe before calling <see cref="Execute"/> to receive notifications.
+        /// </summary>
+        public event EventHandler<SchemaCompareMessageEventArgs> Message;
+
         protected CancellationToken CancellationToken { get { return cancellation.Token; } }
 
         protected readonly CancellationTokenSource cancellation = new CancellationTokenSource();
@@ -34,6 +42,14 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         }
 
         public abstract void Execute();
+
+        /// <summary>
+        /// Raises the <see cref="Message"/> event for the given <see cref="DacMessage"/>.
+        /// </summary>
+        protected void OnMessage(DacMessage message)
+        {
+            Message?.Invoke(this, new SchemaCompareMessageEventArgs(message));
+        }
 
         public void Cancel()
         {

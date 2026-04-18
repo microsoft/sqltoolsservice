@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -39,6 +40,12 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         /// </summary>
         public ISchemaCompareScriptHandler ScriptHandler { get; set; }
 
+        /// <summary>
+        /// Raised for each DacFx message produced during script generation.
+        /// Subscribe before calling <see cref="Execute"/> to receive notifications.
+        /// </summary>
+        public event EventHandler<SchemaCompareMessageEventArgs> Message;
+
         public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult, ISchemaCompareScriptHandler scriptHandler = null)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -59,6 +66,14 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             try
             {
                 this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName, this.CancellationToken);
+
+                // Raise Message event with the script generation result message
+                if (!string.IsNullOrEmpty(this.ScriptGenerationResult.Message))
+                {
+                    var msgType = this.ScriptGenerationResult.Success ? DacMessageType.Message : DacMessageType.Error;
+                    Message?.Invoke(this, new SchemaCompareMessageEventArgs(
+                        new DacMessage(msgType, 0, this.ScriptGenerationResult.Message, string.Empty, string.Empty)));
+                }
 
                 // deliver scripts to the host via the handler
                 if (this.ScriptHandler != null)

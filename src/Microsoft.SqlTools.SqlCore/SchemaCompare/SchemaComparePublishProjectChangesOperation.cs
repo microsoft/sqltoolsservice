@@ -41,6 +41,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 if (!PublishResult.Success)
                 {
                     ErrorMessage = PublishResult.ErrorMessage;
+                    OnMessage(new DacMessage(DacMessageType.Error, 0, ErrorMessage, string.Empty, string.Empty));
                     throw new DacServicesException(ErrorMessage);
                 }
             }

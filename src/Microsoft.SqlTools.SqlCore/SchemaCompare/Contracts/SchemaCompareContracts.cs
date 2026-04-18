@@ -3,12 +3,34 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
 {
+    /// <summary>
+    /// Event args for schema compare message notifications.
+    /// Mirrors the DacFx <see cref="DacMessageEventArgs"/> pattern so callers
+    /// can subscribe to messages during schema compare operations.
+    /// </summary>
+    public class SchemaCompareMessageEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The DacFx message raised during the operation.
+        /// </summary>
+        public DacMessage Message { get; }
+
+        /// <summary>
+        /// Creates a new <see cref="SchemaCompareMessageEventArgs"/> wrapping the given <see cref="DacMessage"/>.
+        /// </summary>
+        public SchemaCompareMessageEventArgs(DacMessage message)
+        {
+            Message = message;
+        }
+    }
+
     /// <summary>
     /// Types of schema compare endpoints
     /// </summary>
