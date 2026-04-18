@@ -92,6 +92,9 @@ namespace Microsoft.SqlTools.Utility
                             case "-enable-sql-authentication-provider":
                                 EnableSqlAuthenticationProvider = true;
                                 break;
+                            case "-request-mfa-token-from-client":
+                                RequestMfaTokenFromClient = true;
+                                break;
                             case "-enable-connection-pooling":
                                 EnableConnectionPooling = true;
                                 break;
@@ -215,6 +218,14 @@ namespace Microsoft.SqlTools.Utility
         /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
         /// </summary>
         public bool EnableSqlAuthenticationProvider { get; private set; } = false;
+
+        /// <summary>
+        /// When enabled, STS requests MFA tokens from the client (e.g. VS Code) via
+        /// account/securityTokenRequest rather than acquiring them via MSAL.
+        /// Mutually exclusive with EnableSqlAuthenticationProvider.
+        /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
+        /// </summary>
+        public bool RequestMfaTokenFromClient { get; private set; } = false;
 
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.

@@ -653,6 +653,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        public string AccountId
+        {
+            get
+            {
+                return GetOptionValue<string>("accountId");
+            }
+            set
+            {
+                SetOptionValue("accountId", value);
+            }
+        }
+
+        public string TenantId
+        {
+            get
+            {
+                return GetOptionValue<string>("tenantId");
+            }
+            set
+            {
+                SetOptionValue("tenantId", value);
+            }
+        }
+
         /// <summary>
         /// Compares all SQL Server Connection properties to be able to identify differences in current instance and provided instance appropriately.
         /// </summary>
