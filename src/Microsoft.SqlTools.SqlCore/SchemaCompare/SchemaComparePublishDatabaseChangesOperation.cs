@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac.Compare;
@@ -23,6 +24,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     /// </summary>
     public class SchemaComparePublishDatabaseChangesOperation : SchemaComparePublishChangesOperation
     {
+        private static readonly Regex GoRegex = new Regex(@"^\s*GO\s*(\d+)?\s*$", RegexOptions.IgnoreCase);
         private readonly SchemaCompareEndpointInfo _targetEndpointInfo;
         private readonly ISchemaCompareConnectionProvider _connectionProvider;
 
@@ -207,21 +209,45 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 return batches;
             }
 
-            // Match GO on its own line (case-insensitive), optionally with a repeat count
-            string[] parts = Regex.Split(script, @"^\s*GO\s*(\d+)?\s*$",
-                RegexOptions.Multiline | RegexOptions.IgnoreCase);
-
-            foreach (string part in parts)
+            using (StringReader reader = new StringReader(script))
             {
-                // Skip the captured group from the GO repeat count (if any)
-                if (Regex.IsMatch(part.Trim(), @"^\d+$"))
+                List<string> currentBatchLines = new List<string>();
+                string line;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    continue;
+                    Match goMatch = GoRegex.Match(line);
+                    if (goMatch.Success)
+                    {
+                        string batchText = string.Join(Environment.NewLine, currentBatchLines).Trim();
+                        if (!string.IsNullOrWhiteSpace(batchText))
+                        {
+                            int repeatCount = 1;
+                            if (goMatch.Groups[1].Success)
+                            {
+                                if (int.TryParse(goMatch.Groups[1].Value, out int parsedCount) && parsedCount > 0)
+                                {
+                                    repeatCount = parsedCount;
+                                }
+                            }
+
+                            for (int i = 0; i < repeatCount; i++)
+                            {
+                                batches.Add(batchText);
+                            }
+                        }
+
+                        currentBatchLines.Clear();
+                    }
+                    else
+                    {
+                        currentBatchLines.Add(line);
+                    }
                 }
 
-                if (!string.IsNullOrWhiteSpace(part))
+                string finalBatch = string.Join(Environment.NewLine, currentBatchLines).Trim();
+                if (!string.IsNullOrWhiteSpace(finalBatch))
                 {
-                    batches.Add(part.Trim());
+                    batches.Add(finalBatch);
                 }
             }
 

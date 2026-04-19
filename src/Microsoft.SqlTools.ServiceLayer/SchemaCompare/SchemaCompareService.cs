@@ -200,7 +200,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                schemaCompareTargetEndpoints.Value.TryGetValue(parameters.OperationId, out CoreContracts.SchemaCompareEndpointInfo targetEndpointInfo);
+                if (!schemaCompareTargetEndpoints.Value.TryGetValue(parameters.OperationId, out CoreContracts.SchemaCompareEndpointInfo targetEndpointInfo))
+                {
+                    throw new InvalidOperationException($"Target endpoint info not found for schema compare operation '{parameters.OperationId}'.");
+                }
 
                 var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
 

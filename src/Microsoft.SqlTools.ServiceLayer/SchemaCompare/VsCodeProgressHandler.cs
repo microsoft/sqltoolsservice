@@ -6,12 +6,13 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
     /// <summary>
     /// VSCode/ADS implementation of ISchemaCompareProgressHandler.
-    /// Forwards DacServices progress messages to SqlTask.AddMessage(),
+    /// Forwards schema compare publish progress messages to SqlTask.AddMessage(),
     /// which flows through TaskService → TaskStatusChangedNotification → client UI.
     /// </summary>
     internal class VsCodeProgressHandler : ISchemaCompareProgressHandler
@@ -20,9 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public VsCodeProgressHandler(Func<SqlTask> getTask)
         {
-            _getTask = getTask ?? throw new ArgumentNullException(nameof(getTask));
-        }
-
+            Validate.IsNotNull(nameof(getTask), getTask);
+            _getTask = getTask;
+}
         public void OnProgress(string message, bool isError = false)
         {
             if (string.IsNullOrEmpty(message))

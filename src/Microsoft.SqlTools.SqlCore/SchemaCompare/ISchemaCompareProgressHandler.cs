@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     public interface ISchemaCompareProgressHandler
     {
         /// <summary>
-        /// Called for each progress message emitted by DacServices during publish.
+        /// Called for each progress message during publish.
         /// </summary>
         /// <param name="message">The progress message text.</param>
         /// <param name="isError">True if the message is an error; false for informational/warning.</param>
