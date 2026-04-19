@@ -4,9 +4,10 @@
 //
 
 using System;
-using System.Linq;
-using Microsoft.CSharp.RuntimeBinder;
-using Microsoft.SqlServer.Dac;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -14,23 +15,60 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
     /// <summary>
-    /// Host-agnostic schema compare publish database changes operation
+    /// Host-agnostic schema compare publish database changes operation.
+    ///
+    /// Splits the publish into two explicit steps so that DacServices events are accessible:
+    ///   1. GenerateScript() — uses SchemaComparisonResult to produce T-SQL (no DB connection)
+    ///   2. Execute the script via SqlConnection with GO-batch splitting, forwarding
+    ///      step messages to ProgressHandler for display in the host UI.
     /// </summary>
     public class SchemaComparePublishDatabaseChangesOperation : SchemaComparePublishChangesOperation
     {
-        private bool progressSubscribed;
+        private static readonly Regex GoRegex = new Regex(@"^\s*GO\s*(\d+)?\s*$", RegexOptions.IgnoreCase);
+        private readonly SchemaCompareEndpointInfo _targetEndpointInfo;
+        private readonly ISchemaCompareConnectionProvider _connectionProvider;
 
         public SchemaComparePublishDatabaseChangesParams Parameters { get; }
 
-        public SchemaComparePublishResult PublishResult { get; set; }
+        public bool PublishSuccess { get; private set; }
 
+        /// <summary>
+        /// Optional progress handler. Assign before calling Execute() to receive
+        /// step-level messages during publish.
+        /// VSCode/ADS wires this to SqlTask.AddMessage(); SSMS wires it to its own UI.
+        /// </summary>
+        public ISchemaCompareProgressHandler ProgressHandler { get; set; }
+
+        /// <summary>
+        /// Creates a new publish-to-database operation.
+        /// </summary>
+        /// <param name="parameters">Publish parameters (OperationId, TargetDatabaseName, etc.)</param>
+        /// <param name="comparisonResult">The result of the preceding schema comparison.</param>
+        /// <param name="targetEndpointInfo">
+        /// The target database endpoint — used to build the connection string via connectionProvider.
+        /// This is the TargetEndpointInfo from the original SchemaCompareParams.
+        /// </param>
+        /// <param name="connectionProvider">
+        /// Connection provider for resolving connection strings and access tokens.
+        /// The same provider used by SchemaCompareOperation.
+        /// </param>
         public SchemaComparePublishDatabaseChangesOperation(
             SchemaComparePublishDatabaseChangesParams parameters,
-            SchemaComparisonResult comparisonResult) : base(comparisonResult)
+            SchemaComparisonResult comparisonResult,
+            SchemaCompareEndpointInfo targetEndpointInfo,
+            ISchemaCompareConnectionProvider connectionProvider)
+            : base(comparisonResult)
         {
             Validate.IsNotNull(nameof(parameters), parameters);
+            Validate.IsNotNull(nameof(targetEndpointInfo), targetEndpointInfo);
+            Validate.IsNotNull(nameof(connectionProvider), connectionProvider);
+
             Parameters = parameters;
-            OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
+            _targetEndpointInfo = targetEndpointInfo;
+            _connectionProvider = connectionProvider;
+            OperationId = !string.IsNullOrEmpty(parameters.OperationId)
+                ? parameters.OperationId
+                : Guid.NewGuid().ToString();
         }
 
         public override void Execute()
@@ -39,73 +77,181 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             try
             {
-                SubscribeToProgressChanged();
+                // ── Step 1: Generate the deployment script via Schema Compare API ──────────
+                // SchemaComparisonResult.GenerateScript() does the diff work and produces
+                // T-SQL — no database connection is required at this stage.
+                Logger.Verbose($"Schema compare publish operation {OperationId}: generating script for '{Parameters.TargetDatabaseName}'.");
+                ProgressHandler?.OnProgress($"Generating deployment script for '{Parameters.TargetDatabaseName}'...");
 
-                PublishResult = ComparisonResult.PublishChangesToDatabase(CancellationToken);
+                SchemaCompareScriptGenerationResult scriptResult = ComparisonResult.GenerateScript(
+                    Parameters.TargetDatabaseName, CancellationToken);
 
-                if (!PublishResult.Success)
+                if (!scriptResult.Success)
                 {
-                    // Sending only errors and warnings - because overall message might be too big for task view
-                    ErrorMessage = String.Join(Environment.NewLine, this.PublishResult.Errors.Where(x => x.MessageType == DacMessageType.Error || x.MessageType == DacMessageType.Warning));
-                    throw new DacServicesException(ErrorMessage);
+                    ErrorMessage = scriptResult.Message;
+                    throw new Exception(ErrorMessage);
                 }
+
+                CancellationToken.ThrowIfCancellationRequested();
+
+                // ── Step 2: Execute the generated script via SqlConnection ─────────────────
+                // We own the connection — so we control execution and can emit progress.
+                // The script is split on GO batch separators (standard SQLCMD behaviour).
+                string connectionString = _connectionProvider.GetConnectionString(_targetEndpointInfo);
+                string accessToken = _connectionProvider.GetAccessToken(_targetEndpointInfo);
+
+                Logger.Verbose($"Schema compare publish operation {OperationId}: executing script against '{Parameters.TargetDatabaseName}'.");
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        connection.AccessToken = accessToken;
+                    }
+
+                    connection.Open();
+
+                    List<string> batches = SplitIntoBatches(scriptResult.Script);
+                    int batchIndex = 0;
+                    int totalBatches = batches.Count;
+
+                    ProgressHandler?.OnProgress($"Applying {totalBatches} batch(es) to '{Parameters.TargetDatabaseName}'...");
+
+                    foreach (string batch in batches)
+                    {
+                        CancellationToken.ThrowIfCancellationRequested();
+
+                        if (string.IsNullOrWhiteSpace(batch))
+                        {
+                            continue;
+                        }
+
+                        batchIndex++;
+                        ProgressHandler?.OnProgress($"Executing batch {batchIndex} of {totalBatches}...");
+                        Logger.Verbose($"Schema compare publish operation {OperationId}: batch {batchIndex}/{totalBatches}.");
+
+                        using (SqlCommand command = new SqlCommand(batch, connection))
+                        {
+                            command.CommandTimeout = 0; // no timeout — schema changes can be slow
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                // Also execute the master script if present (Azure SQL DB scenario)
+                if (!string.IsNullOrEmpty(scriptResult.MasterScript))
+                {
+                    ProgressHandler?.OnProgress("Applying master database script...");
+                    Logger.Verbose($"Schema compare publish operation {OperationId}: applying master script.");
+
+                    // For master scripts, connect without a database name
+                    SqlConnectionStringBuilder masterBuilder = new SqlConnectionStringBuilder(connectionString)
+                    {
+                        InitialCatalog = "master"
+                    };
+
+                    using (SqlConnection masterConnection = new SqlConnection(masterBuilder.ConnectionString))
+                    {
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            masterConnection.AccessToken = accessToken;
+                        }
+
+                        masterConnection.Open();
+
+                        foreach (string batch in SplitIntoBatches(scriptResult.MasterScript))
+                        {
+                            CancellationToken.ThrowIfCancellationRequested();
+
+                            if (string.IsNullOrWhiteSpace(batch))
+                            {
+                                continue;
+                            }
+
+                            using (SqlCommand cmd = new SqlCommand(batch, masterConnection))
+                            {
+                                cmd.CommandTimeout = 0;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+
+                PublishSuccess = true;
+                ProgressHandler?.OnProgress("Publish completed successfully.");
+                Logger.Verbose($"Schema compare publish operation {OperationId}: completed successfully.");
+            }
+            catch (OperationCanceledException)
+            {
+                ErrorMessage = "Operation was cancelled.";
+                Logger.Warning($"Schema compare publish operation {OperationId}: cancelled.");
+                throw;
             }
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Error(string.Format("Schema compare publish database changes operation {0} failed with exception {1}", this.OperationId, e.Message));
+                PublishSuccess = false;
+                ProgressHandler?.OnProgress($"Publish failed: {e.Message}", isError: true);
+                Logger.Error($"Schema compare publish database changes operation {OperationId} failed with exception {e.Message}");
                 throw;
             }
-            finally
-            {
-                UnsubscribeFromProgressChanged();
-            }
         }
 
-        private void SubscribeToProgressChanged()
+        /// <summary>
+        /// Splits a T-SQL script into executable batches using GO as the batch separator.
+        /// Handles GO on its own line, optionally followed by a count (e.g. GO 2).
+        /// </summary>
+        private static List<string> SplitIntoBatches(string script)
         {
-            try
+            List<string> batches = new List<string>();
+            if (string.IsNullOrEmpty(script))
             {
-                dynamic comparisonResult = ComparisonResult;
-                // DacFx progress events are expected to provide sender and event-args objects to the callback.
-                comparisonResult.ProgressChanged += (Action<object, object>)HandleProgressChanged;
-                progressSubscribed = true;
-            }
-            catch (RuntimeBinderException)
-            {
-                progressSubscribed = false;
-                Logger.Warning($"Unable to subscribe to schema compare publish progress on operation {OperationId} because the current DacFx version does not expose SchemaComparisonResult.ProgressChanged.");
-            }
-        }
-
-        private void UnsubscribeFromProgressChanged()
-        {
-            if (!progressSubscribed)
-            {
-                return;
+                return batches;
             }
 
-            try
+            using (StringReader reader = new StringReader(script))
             {
-                dynamic comparisonResult = ComparisonResult;
-                comparisonResult.ProgressChanged -= (Action<object, object>)HandleProgressChanged;
-            }
-            catch (RuntimeBinderException)
-            {
-                // no-op
-            }
-            finally
-            {
-                progressSubscribed = false;
-            }
-        }
+                List<string> currentBatchLines = new List<string>();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    Match goMatch = GoRegex.Match(line);
+                    if (goMatch.Success)
+                    {
+                        string batchText = string.Join(Environment.NewLine, currentBatchLines).Trim();
+                        if (!string.IsNullOrWhiteSpace(batchText))
+                        {
+                            int repeatCount = 1;
+                            if (goMatch.Groups[1].Success)
+                            {
+                                if (int.TryParse(goMatch.Groups[1].Value, out int parsedCount) && parsedCount > 0)
+                                {
+                                    repeatCount = parsedCount;
+                                }
+                            }
 
-        private void HandleProgressChanged(object sender, object e)
-        {
-            if (e is EventArgs eventArgs)
-            {
-                OnProgressChanged(sender, eventArgs);
+                            for (int i = 0; i < repeatCount; i++)
+                            {
+                                batches.Add(batchText);
+                            }
+                        }
+
+                        currentBatchLines.Clear();
+                    }
+                    else
+                    {
+                        currentBatchLines.Add(line);
+                    }
+                }
+
+                string finalBatch = string.Join(Environment.NewLine, currentBatchLines).Trim();
+                if (!string.IsNullOrWhiteSpace(finalBatch))
+                {
+                    batches.Add(finalBatch);
+                }
             }
+
+            return batches;
         }
     }
 }

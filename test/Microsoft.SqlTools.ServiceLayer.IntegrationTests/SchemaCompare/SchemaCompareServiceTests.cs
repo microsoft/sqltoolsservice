@@ -605,10 +605,14 @@ WITH VALUES
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(
+                    publishChangesParams,
+                    schemaCompareOperation.ComparisonResult,
+                    targetInfo,
+                    new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 publishChangesOperation.Execute();
-                Assert.True(publishChangesOperation.PublishResult.Success);
-                Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
+                Assert.True(publishChangesOperation.PublishSuccess);
+                Assert.IsNull(publishChangesOperation.ErrorMessage);
 
                 // Verify that there are no differences after the publish by running the comparison again
                 schemaCompareOperation.Execute();
@@ -674,10 +678,14 @@ WITH VALUES
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(
+                    publishChangesParams,
+                    schemaCompareOperation.ComparisonResult,
+                    targetInfo,
+                    new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 publishChangesOperation.Execute();
-                Assert.True(publishChangesOperation.PublishResult.Success);
-                Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
+                Assert.True(publishChangesOperation.PublishSuccess);
+                Assert.IsNull(publishChangesOperation.ErrorMessage);
 
                 // Verify that there are no differences after the publish by running the comparison again
                 schemaCompareOperation.Execute();
@@ -743,10 +751,14 @@ WITH VALUES
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new CoreOps.SchemaComparePublishDatabaseChangesOperation(
+                    publishChangesParams,
+                    schemaCompareOperation.ComparisonResult,
+                    targetInfo,
+                    new TestConnectionProvider(result.ConnectionInfo, result.ConnectionInfo));
                 publishChangesOperation.Execute();
-                Assert.True(publishChangesOperation.PublishResult.Success);
-                Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
+                Assert.True(publishChangesOperation.PublishSuccess);
+                Assert.IsNull(publishChangesOperation.ErrorMessage);
 
                 // Verify that there are no differences after the publish by running the comparison again
                 schemaCompareOperation.Execute();
