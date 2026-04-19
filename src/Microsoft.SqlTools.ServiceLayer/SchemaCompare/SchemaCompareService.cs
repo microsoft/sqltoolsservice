@@ -25,12 +25,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     class SchemaCompareService
     {
-        private static readonly string[] progressMessagePropertyNames = new[] { "Status", "Message", "StatusMessage" };
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
         private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
             new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
+        private Lazy<ConcurrentDictionary<string, CoreContracts.SchemaCompareEndpointInfo>> schemaCompareTargetEndpoints =
+            new Lazy<ConcurrentDictionary<string, CoreContracts.SchemaCompareEndpointInfo>>(
+                () => new ConcurrentDictionary<string, CoreContracts.SchemaCompareEndpointInfo>());
         private Lazy<ConcurrentDictionary<string, Action>> currentComparisonCancellationAction =
             new Lazy<ConcurrentDictionary<string, Action>>(() => new ConcurrentDictionary<string, Action>());
 
@@ -81,6 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     // add result to dictionary of results
                     schemaCompareResults.Value[operation.OperationId] = operation.ComparisonResult;
+                    // also store the target endpoint so publish operations can build a connection string
+                    schemaCompareTargetEndpoints.Value[operation.OperationId] = parameters.TargetEndpointInfo;
 
                     await requestContext.SendResult(new SchemaCompareResult()
                     {
@@ -196,8 +200,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                schemaCompareTargetEndpoints.Value.TryGetValue(parameters.OperationId, out CoreContracts.SchemaCompareEndpointInfo targetEndpointInfo);
 
-                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
+                var connectionProvider = new VsCodeConnectionProvider(ConnectionServiceInstance);
+
+                coreOp = new CoreOps.SchemaComparePublishDatabaseChangesOperation(
+                    parameters,
+                    compareResult,
+                    targetEndpointInfo,
+                    connectionProvider);
 
                 var adapter = new SchemaCompareTaskAdapter(
                     execute: () => coreOp.Execute(),
@@ -205,17 +216,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     getError: () => coreOp.ErrorMessage
                 );
 
-                coreOp.ProgressChanged += (sender, e) =>
-                {
-                    if (adapter.SqlTask != null && e != null)
-                    {
-                        string message = GetProgressMessage(e);
-                        if (!string.IsNullOrEmpty(message))
-                        {
-                            adapter.SqlTask.AddMessage(message, SqlTaskStatus.InProgress);
-                        }
-                    }
-                };
+                // Wire progress → SqlTask messages (mirrors DacFxOperation.Message pattern)
+                coreOp.ProgressHandler = new VsCodeProgressHandler(() => adapter.SqlTask);
 
                 TaskMetadata metadata = new TaskMetadata
                 {
@@ -526,26 +528,5 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private static string GetProgressMessage(EventArgs eventArgs)
-        {
-            Type eventType = eventArgs.GetType();
-
-            foreach (string propertyName in progressMessagePropertyNames)
-            {
-                var property = eventType.GetProperty(propertyName);
-                if (property == null)
-                {
-                    continue;
-                }
-
-                string value = property.GetValue(eventArgs)?.ToString();
-                if (!string.IsNullOrEmpty(value))
-                {
-                    return value;
-                }
-            }
-
-            return null;
-        }
     }
 }
