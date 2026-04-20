@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.Migration
                 {
                     baselineResults = GenerateBaselineRecommendations(req, parameters);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     baselineResults = new RecommendationResultSet();
                 }
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.Migration
                 {
                     elasticResults = GenerateElasticRecommendations(req, parameters);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     elasticResults = new RecommendationResultSet();
                 }
@@ -287,7 +287,7 @@ namespace Microsoft.SqlTools.Migration
 
                 await requestContext.SendResult(results);
             }
-            catch (FailedToQueryCountersException e)
+            catch (FailedToQueryCountersException)
             {
                 await requestContext.SendError($"Unable to read collected performance data from {parameters.DataFolder}. Please specify another folder or start data collection instead.");
             }

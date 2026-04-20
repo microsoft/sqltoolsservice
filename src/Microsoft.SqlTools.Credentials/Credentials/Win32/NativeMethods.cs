@@ -18,9 +18,9 @@ namespace Microsoft.SqlTools.Credentials.Win32
             public int Flags;
             public int Type;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string TargetName;
+            public string? TargetName;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string Comment;
+            public string? Comment;
             public long LastWritten;
             public int CredentialBlobSize;
             public IntPtr CredentialBlob;
@@ -28,9 +28,9 @@ namespace Microsoft.SqlTools.Credentials.Win32
             public int AttributeCount;
             public IntPtr Attributes;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string TargetAlias;
+            public string? TargetAlias;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string UserName;
+            public string? UserName;
         }
 
         [DllImport("Advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]

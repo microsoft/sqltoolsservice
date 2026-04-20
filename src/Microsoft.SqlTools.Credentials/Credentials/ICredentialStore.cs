@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.SqlTools.Credentials.Contracts;
 
 namespace Microsoft.SqlTools.Credentials
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.Credentials
         /// <param name="credentialId">The name of the credential to find the password for. This is required</param>
         /// <param name="password">Out value</param>
         /// <returns>true if password was found, false otherwise</returns>
-        bool TryGetPassword(string credentialId, out string? password);
+        bool TryGetPassword(string credentialId, [NotNullWhen(true)] out string? password);
 
         /// <summary>
         /// Deletes a password linked to a given credential

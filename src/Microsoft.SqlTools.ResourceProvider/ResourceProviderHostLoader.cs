@@ -6,6 +6,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.ResourceProvider
     /// </summary>
     public static class ResourceProviderHostLoader
     {
-        private static object lockObject = new object();
+        private static Lock lockObject = new Lock();
         private static bool isLoaded;
 
         internal static UtilityServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)

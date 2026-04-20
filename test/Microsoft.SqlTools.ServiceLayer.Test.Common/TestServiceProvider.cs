@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             InitializeTestServices();
         }
 
-        private static object _lockObject = new object();
+        private static Lock _lockObject = new Lock();
         private static TestServiceProvider _instance = new TestServiceProvider();
 
 
@@ -153,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 throw new Exception($"Error creating live connection to {connectParams.Connection.ServerName} (Type={serverType}). Error: {connectionResult.ErrorMessage}");
             }
-            ConnectionInfo? connInfo = null;
+            ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             Assert.That(connInfo, Is.Not.Null, $"Could not find connection {ownerUri} when creating live connection");
             return connInfo;

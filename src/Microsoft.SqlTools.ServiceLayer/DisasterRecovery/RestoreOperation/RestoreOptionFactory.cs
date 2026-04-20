@@ -31,10 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
-        public RestorePlanDetailInfo CreateAndValidate(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
+        public RestorePlanDetailInfo? CreateAndValidate(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
         {
-            RestorePlanDetailInfo restorePlanDetailInfo = CreateOptionInfo(optionKey, restoreDataObject);
-            UpdateOption(optionKey, restoreDataObject, restorePlanDetailInfo);
+            RestorePlanDetailInfo? restorePlanDetailInfo = CreateOptionInfo(optionKey, restoreDataObject);
+            if (restorePlanDetailInfo != null)
+            {
+                UpdateOption(optionKey, restoreDataObject, restorePlanDetailInfo);
+            }
             return restorePlanDetailInfo;
         }
 
@@ -44,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <param name="optionKey">Option name</param>
         /// <param name="restoreDataObject">Restore task object</param>
         /// <returns></returns>
-        public RestorePlanDetailInfo CreateOptionInfo(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
+        public RestorePlanDetailInfo? CreateOptionInfo(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
         {
             if (optionBuilders.TryGetValue(optionKey, out OptionBuilder? value))
             {
@@ -53,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             else
             {
                 Logger.Warning($"cannot find restore option builder for {optionKey}");
-                return null!;
+                return null;
             }
         }
 

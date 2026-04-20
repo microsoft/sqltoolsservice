@@ -24,40 +24,35 @@ internal static class TypeExtensions
     /// <param name="resultType">The result type of the Nullable generic parameter.</param>
     /// <returns><c>true</c> if the result type was successfully retrieved; otherwise, <c>false</c>.</returns>
     /// TODO [@teresaqhoang]: Issue #4202 Cache Generic Types Extraction - Handlebars
-    public static bool TryGetGenericResultType(this Type? returnType, out Type resultType)
+    public static bool TryGetGenericResultType(this Type? returnType, [NotNullWhen(true)] out Type? resultType)
     {
-        resultType = typeof(object);
-        if (returnType is null)
+        resultType = null;
+        if (returnType is null || !returnType.IsGenericType)
         {
             return false;
         }
 
-        if (returnType.IsGenericType)
+        Type genericTypeDef = returnType.GetGenericTypeDefinition();
+
+        if (genericTypeDef == typeof(Task<>)
+            || genericTypeDef == typeof(Nullable<>)
+            || genericTypeDef == typeof(ValueTask<>))
         {
-            Type genericTypeDef = returnType.GetGenericTypeDefinition();
-
-            if (genericTypeDef == typeof(Task<>)
-                || genericTypeDef == typeof(Nullable<>)
-                || genericTypeDef == typeof(ValueTask<>))
-            {
-                resultType = returnType.GetGenericArguments()[0];
-            }
-            else if (genericTypeDef == typeof(IEnumerable<>)
-                || genericTypeDef == typeof(IList<>)
-                || genericTypeDef == typeof(ICollection<>))
-            {
-                resultType = typeof(List<>).MakeGenericType(returnType.GetGenericArguments()[0]);
-            }
-            else if (genericTypeDef == typeof(IDictionary<,>))
-            {
-                Type[] genericArgs = returnType.GetGenericArguments();
-                resultType = typeof(Dictionary<,>).MakeGenericType(genericArgs[0], genericArgs[1]);
-            }
-
-            return true;
+            resultType = returnType.GetGenericArguments()[0];
+        }
+        else if (genericTypeDef == typeof(IEnumerable<>)
+            || genericTypeDef == typeof(IList<>)
+            || genericTypeDef == typeof(ICollection<>))
+        {
+            resultType = typeof(List<>).MakeGenericType(returnType.GetGenericArguments()[0]);
+        }
+        else if (genericTypeDef == typeof(IDictionary<,>))
+        {
+            Type[] genericArgs = returnType.GetGenericArguments();
+            resultType = typeof(Dictionary<,>).MakeGenericType(genericArgs[0], genericArgs[1]);
         }
 
-        return false;
+        return resultType is not null;
     }
 
     /// <summary>
