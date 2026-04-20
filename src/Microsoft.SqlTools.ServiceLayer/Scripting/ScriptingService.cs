@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -105,6 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // and then build a connection string out of that
             ConnectionInfo connInfo = null;
             string accessToken = null;
+            ServerConnection scriptingServerConnection = null;
             if (parameters.ConnectionString == null)
             {
                 ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
@@ -114,7 +116,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     // Set Access Token only when authentication type is AzureMFA.
                     if (connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                     {
-                        accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                        if (connInfo.AzureTokenFetcher != null)
+                        {
+                            // VS Code accounts mode: open a ServerConnection that uses CallbackAzureAccessToken
+                            // for ScriptAs operations, or fetch a token synchronously for ScriptingScript
+                            // operations (which are short-lived and use the token as a plain string).
+                            scriptingServerConnection = ConnectionService.OpenServerConnection(connInfo, "ScriptAs");
+                            // Also pre-fetch a token string for the ScriptingScriptOperation path, which
+                            // uses it directly when building SMO URNs. Scripting operations complete in
+                            // seconds so a single upfront token is safe.
+                            (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
+                        }
+                        else
+                        {
+                            accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                        }
                     }
                 }
                 else
@@ -132,7 +148,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             else
             {
-                operation = new ScriptAsScriptingOperation(parameters, accessToken);
+                // Use the pre-built ServerConnection when available (VS Code accounts mode) so that
+                // CallbackAzureAccessToken can renew the token if SMO needs to reconnect mid-script.
+                operation = scriptingServerConnection != null
+                    ? new ScriptAsScriptingOperation(parameters, scriptingServerConnection)
+                    : new ScriptAsScriptingOperation(parameters, accessToken);
             }
 
             operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
