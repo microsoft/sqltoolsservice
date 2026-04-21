@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -15,10 +16,10 @@ namespace Microsoft.SqlTools.Credentials.Win32
         bool disposed;
 
         CredentialType type;
-        string target;
-        SecureString password;
-        string username;
-        string description;
+        string? target;
+        SecureString? password;
+        string? username;
+        string? description;
         DateTime lastWriteTime;
         PersistanceType persistanceType;
         
@@ -27,22 +28,22 @@ namespace Microsoft.SqlTools.Credentials.Win32
         {
         }
 
-        public Win32Credential(string username)
+        public Win32Credential(string? username)
             : this(username, null)
         {
         }
 
-        public Win32Credential(string username, string password)
+        public Win32Credential(string? username, string? password)
             : this(username, password, null)
         {
         }
 
-        public Win32Credential(string username, string password, string target)
+        public Win32Credential(string? username, string? password, string? target)
             : this(username, password, target, CredentialType.Generic)
         {
         }
 
-        public Win32Credential(string username, string password, string target, CredentialType type)
+        public Win32Credential(string? username, string? password, string? target, CredentialType type)
         {
             Username = username;
             Password = password;
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         }
 
 
-        public string Username {
+        public string? Username {
             get
             {
                 CheckNotDisposed();
@@ -95,6 +96,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 username = value;
             }
         }
+        [AllowNull]
         public string Password
         {
             get
@@ -107,6 +109,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 SecurePassword = SecureStringHelper.CreateSecureString(string.IsNullOrEmpty(value) ? string.Empty : value);
             }
         }
+        [AllowNull]
         public SecureString SecurePassword
         {
             get
@@ -125,7 +128,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 password = null == value ? new SecureString() : value.Copy();
             }
         }
-        public string Target
+        public string? Target
         {
             get
             {
@@ -139,7 +142,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
         }
 
-        public string Description
+        public string? Description
         {
             get
             {
@@ -209,11 +212,11 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
 
             NativeMethods.CREDENTIAL credential = new NativeMethods.CREDENTIAL();
-            credential.TargetName = Target;
-            credential.UserName = Username;
+            credential.TargetName = Target!;
+            credential.UserName = Username!;
             credential.CredentialBlob = Marshal.StringToCoTaskMemUni(Password);
             credential.CredentialBlobSize = passwordBytes.Length;
-            credential.Comment = Description;
+            credential.Comment = Description!;
             credential.Type = (int)Type;
             credential.Persist = (int) PersistanceType;
 
@@ -246,7 +249,8 @@ namespace Microsoft.SqlTools.Credentials.Win32
 
             IntPtr credPointer;
 
-            bool result = NativeMethods.CredRead(Target, Type, 0, out credPointer);
+            // TODO: Consider validating Target before CredRead so null targets fail with a clearer contract-specific exception.
+            bool result = NativeMethods.CredRead(Target!, Type, 0, out credPointer);
             if (!result)
             {
                 return false;

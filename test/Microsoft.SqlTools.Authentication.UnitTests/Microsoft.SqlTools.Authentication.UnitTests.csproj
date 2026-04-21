@@ -27,8 +27,6 @@
 		<PackageReference Include="nunit" />
 		<PackageReference Include="nunit3testadapter" />
 		<PackageReference Include="System.Runtime.Caching" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />
-		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />

@@ -136,10 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             get
             {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
+                return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             }
         }
 
@@ -304,11 +301,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
 
             // We should get back a non-null ScriptParseInfo
-            ScriptParseInfo? parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
+            ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
             Assert.That(parseInfo, Is.Not.Null, "ScriptParseInfo");
 
             // And we should get back a non-null SignatureHelp
-            SignatureHelp? signatureHelp = await service.GetSignatureHelp(textDocument, result.ScriptFile);
+            SignatureHelp signatureHelp = await service.GetSignatureHelp(textDocument, result.ScriptFile);
             Assert.That(signatureHelp, Is.Not.Null, "SignatureHelp");
         }
 
@@ -341,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         public async Task RebuildIntellisenseCacheClearsScriptParseInfoCorrectly()
         {
             var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
-            LiveConnectionHelper.TestConnectionResult? connectionInfoResult = null;
+            LiveConnectionHelper.TestConnectionResult connectionInfoResult = null;
             try
             {
                 connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
@@ -402,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         public async Task AutoCompleteColumnNameWithEscapeSequence()
         {
             var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
-            LiveConnectionHelper.TestConnectionResult? connectionInfoResult = null;
+            LiveConnectionHelper.TestConnectionResult connectionInfoResult = null;
             try
             {
                 connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);

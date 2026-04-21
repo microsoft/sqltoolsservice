@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         private Dictionary<string, AzureUserAccount> accountsMap;
         private string currentAccountId = null;
         private IEnumerable<IAzureUserAccountSubscriptionContext> _selectedSubscriptions = null;
-        private readonly object _selectedSubscriptionsLockObject = new object();
+        private readonly Lock _selectedSubscriptionsLockObject = new Lock();
         private readonly ConcurrentCache<IEnumerable<IAzureUserAccountSubscriptionContext>> _subscriptionCache =
             new ConcurrentCache<IEnumerable<IAzureUserAccountSubscriptionContext>>();
 

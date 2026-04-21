@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// Create a new JobScheduleData based on the current structure
         /// </summary>
         /// <returns>JobScheduleData object</returns>
-        public JobScheduleData ToJobScheduleData()
+        public readonly JobScheduleData ToJobScheduleData()
         {
             var data = new JobScheduleData();
             data.Name = this.Name;
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #region public properties for use by ExpandFormatString
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public int Frequency
+        public readonly int Frequency
         {
             get
             {
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string StartDate
+        public readonly string StartDate
         {
             get
             {
@@ -216,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string StartTimeOfDay
+        public readonly string StartTimeOfDay
         {
             get
             {
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string EndTimeOfDay
+        public readonly string EndTimeOfDay
         {
             get
             {
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public int TimeInterval
+        public readonly int TimeInterval
         {
             get
             {
@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public int DayOfMonth
+        public readonly int DayOfMonth
         {
             get
             {
@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string WeekOfMonth
+        public readonly string WeekOfMonth
         {
             get
             {
@@ -284,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
         
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string DayOfWeekList
+        public readonly string DayOfWeekList
         {
             get
             {
@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string TimeIntervalUnit
+        public readonly string TimeIntervalUnit
         {
             get
             {
@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string ScheduleRecurrenceAndTimes
+        public readonly string ScheduleRecurrenceAndTimes
         {
             get
             {
@@ -426,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string ScheduleDates
+        public readonly string ScheduleDates
         {
             get
             {
@@ -445,10 +445,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// Called indirectly by ExpandFormatString through a TypeDescriptor lookup
-        public string DayOfWeek
+        public readonly string DayOfWeek
         {
             get
-            {            
+            {
                 var relativeDays = (MonthlyRelativeWeekDays) this.FrequencyInterval;
                 
                 switch (relativeDays)
@@ -501,7 +501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         ///                Weekly = 8 // Schedule is evaluated weekly. 
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
+        public readonly override string ToString()
         {
             string description = this.ComputeDescription();
             return description;
@@ -511,67 +511,67 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #region public properties
         public int ActiveEndDate
         {
-            get { return activeEndDate; }
+            readonly get { return activeEndDate; }
             set { activeEndDate = value; }
         }
 
         public int ActiveEndTimeOfDay
         {
-            get { return activeEndTimeOfDay; }
+            readonly get { return activeEndTimeOfDay; }
             set { activeEndTimeOfDay = value; }
         }
 
         public int ActiveStartDate
         {
-            get { return activeStartDate; }
+            readonly get { return activeStartDate; }
             set { activeStartDate = value; }
         }
 
         public int ActiveStartTimeOfDay
         {
-            get { return activeStartTimeOfDay; }
+            readonly get { return activeStartTimeOfDay; }
             set { activeStartTimeOfDay = value; }
         }
 
         public int FrequencyInterval
         {
-            get { return frequencyInterval; }
+            readonly get { return frequencyInterval; }
             set { frequencyInterval = value; }
         }
 
         public int FrequencyRecurrenceFactor
         {
-            get { return frequencyRecurrenceFactor; }
+            readonly get { return frequencyRecurrenceFactor; }
             set { frequencyRecurrenceFactor = value; }
         }
 
         public int FrequencySubDayInterval
         {
-            get { return frequencySubDayInterval; }
+            readonly get { return frequencySubDayInterval; }
             set { frequencySubDayInterval = value; }
         }
 
         public FrequencyTypes FrequencyTypes
         {
-            get { return frequencyTypes; }
+            readonly get { return frequencyTypes; }
             set { frequencyTypes = value; }
         }
 
         public FrequencySubDayTypes FrequencySubDayTypes
         {
-            get { return frequencySubDayTypes; }
+            readonly get { return frequencySubDayTypes; }
             set { frequencySubDayTypes = value; }
         }
 
         public FrequencyRelativeIntervals FrequencyRelativeIntervals
         {
-            get { return frequencyRelativeIntervals; }
+            readonly get { return frequencyRelativeIntervals; }
             set { frequencyRelativeIntervals = value; }
         }
 
         public string Name
         {
-            get
+            readonly get
             {
                 return this.name;
             }
@@ -583,7 +583,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         public string Description
         {
-            get
+            readonly get
             {
                 return this.description;
             }
@@ -595,13 +595,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         public int ID
         {
-            get { return id; }
+            readonly get { return id; }
             set { id = value; }
         }
 
         public bool IsEnabled
         {
-            get
+            readonly get
             {
                 return this.isEnabled;
             }
@@ -622,7 +622,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// e.g. http://msdn.microsoft.com/library/en-us/tsqlref/ts_sp_adda_6ijp.asp?frame=true
         /// </summary>
         /// <returns>localized description</returns>
-        private string ComputeDescription()
+        private readonly string ComputeDescription()
         {
             try
             {
@@ -669,7 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         /// <param name="format">Format string.</param>
         /// <returns></returns>
-        string ExpandFormatString(string format)
+        readonly string ExpandFormatString(string format)
         {
             var stringBuilder = new StringBuilder();
             int lastIndex = 0;

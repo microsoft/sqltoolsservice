@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the connection string to the database. This is required to get the schema model for the database.
         /// </summary>
-        public string ConnectionString { get; set; }
+        public string ConnectionString { get; set; } = null!;
         /// <summary>
         /// Gets or sets the access token to the database. This is required to get the schema model for the database.
         /// </summary>
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the name of the database. Database name is required to get the schema model for the database.
         /// </summary>
-        public string DatabaseName { get; set; }
+        public string DatabaseName { get; set; } = null!;
     }
 
     public class CreateSessionResponse
@@ -29,19 +29,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// <summary>
         /// Gets or sets the schema model
         /// </summary>
-        public SchemaDesignerModel Schema { get; set; }
+        public SchemaDesignerModel Schema { get; set; } = null!;
         /// <summary>
         /// Gets or sets the datatypes available in the database
         /// </summary>
-        public List<string> DataTypes { get; set; }
+        public List<string> DataTypes { get; set; } = null!;
         /// <summary>
         /// Gets or sets the schema names available in the database
         /// </summary>
-        public List<string> SchemaNames { get; set; }
+        public List<string> SchemaNames { get; set; } = null!;
         /// <summary>
         /// Gets or sets the session id
         /// </summary>
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = null!;
     }
 
     /// <summary>

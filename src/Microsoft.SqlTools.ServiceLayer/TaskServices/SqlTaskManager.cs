@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     public class SqlTaskManager : IDisposable
     {
         private static SqlTaskManager instance = new SqlTaskManager();
-        private static readonly object lockObject = new object();
+        private static readonly Lock lockObject = new();
         private bool isDisposed;
         private readonly ConcurrentDictionary<Guid, SqlTask> tasks = new ConcurrentDictionary<Guid, SqlTask>();
 

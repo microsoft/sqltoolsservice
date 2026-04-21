@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,11 +23,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
     public class TreeNode : IComparable<TreeNode>
     {
         private NodeObservableCollection children = new NodeObservableCollection();
-        private TreeNode parent;
-        private string nodePath;
-        private string label;
-        private string nodePathName;
-        private static Lazy<Dictionary<string, HashSet<ChildFactory>>> ApplicableNodeChildFactories;
+        private TreeNode? parent;
+        private string? nodePath;
+        private string? label;
+        private string? nodePathName;
+        private static Lazy<Dictionary<string, HashSet<ChildFactory>>>? ApplicableNodeChildFactories;
         public const char PathPartSeperator = '/';
 
         /// <summary>
@@ -61,12 +62,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// Value describing this node
         /// </summary>
-        public string NodeValue { get; set; }
+        public string? NodeValue { get; set; }
 
         /// <summary>
         /// The name of this object as included in its node path
         /// </summary>
-        public string NodePathName
+        public string? NodePathName
         {
             get
             {
@@ -85,12 +86,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// Object metadata for smo objects
         /// </summary>
-        public ObjectMetadata ObjectMetadata { get; set; }
+        public ObjectMetadata? ObjectMetadata { get; set; }
 
         /// <summary>
         /// The type of the node - for example Server, Database, Folder, Table
         /// </summary>
-        public string NodeType { get; set; }
+        public string? NodeType { get; set; }
 
         /// <summary>
         // True if the node includes system object
@@ -105,19 +106,19 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// Node Sub type - for example a key can have type as "Key" and sub type as "PrimaryKey"
         /// </summary>
-        public string NodeSubType { get; set; }
+        public string? NodeSubType { get; set; }
 
         /// <summary>
         /// Error message returned from the engine for a object explorer node failure reason, if any.
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
 
         /// <summary>
         /// Node status - for example login can be disabled/enabled
         /// </summary>
-        public string NodeStatus { get; set; }
+        public string? NodeStatus { get; set; }
 
-        public NodeFilterProperty[] FilterProperties { get; set; }
+        public NodeFilterProperty[]? FilterProperties { get; set; }
 
         /// <summary>
         /// Label to display to the user, describing this node.
@@ -125,7 +126,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// for many nodes such as the server, the display label will be different
         /// to the value.
         /// </summary>
-        public string Label
+        public string? Label
         {
             get
             {
@@ -151,12 +152,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// Message to show if this Node is in an error state. This indicates
         /// that children could be retrieved
         /// </summary>
-        public string ErrorStateMessage { get; set; }
+        public string? ErrorStateMessage { get; set; }
 
         /// <summary>
         /// Parent of this node
         /// </summary>
-        public TreeNode Parent
+        public TreeNode? Parent
         {
             get
             {
@@ -182,7 +183,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
             {
                 GenerateNodePath();
             }
-            return nodePath;
+            return nodePath!;
         }
 
         private void GenerateNodePath()
@@ -221,7 +222,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand(string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
+        public IList<TreeNode> Expand(string? name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
         {
             // TODO consider why solution explorer has separate Children and Items options
             if (children.IsInitialized)
@@ -278,7 +279,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// Optional context to help with lookup of children
         /// </summary>
-        public virtual object GetContext()
+        public virtual object? GetContext()
         {
             return null;
         }
@@ -288,13 +289,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// </summary>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <returns>context as expected type of null if it doesn't match</returns>
-        public T GetContextAs<T>()
+        public T? GetContextAs<T>()
             where T : class
         {
             return GetContext() as T;
         }
 
-        public T ParentAs<T>()
+        public T? ParentAs<T>()
             where T : TreeNode
         {
             return Parent as T;
@@ -304,7 +305,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         {
             var factories = new Dictionary<string, HashSet<ChildFactory>>();
 
-            var serviceProvider = this.GetContextAs<SmoQueryContext>().ServiceProvider;
+            var serviceProvider = this.GetContextAs<SmoQueryContext>()!.ServiceProvider;
 
             foreach (var factory in serviceProvider.GetServices<ChildFactory>())
             {
@@ -313,7 +314,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                 {
                     foreach (var parent in parents)
                     {
-                        HashSet<ChildFactory> applicableFactories;
+                        HashSet<ChildFactory>? applicableFactories;
                         if (!factories.TryGetValue(parent, out applicableFactories))
                         {
                             applicableFactories = new HashSet<ChildFactory>();
@@ -326,27 +327,27 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
             ApplicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => factories);
         }
 
-        public IEnumerable<ChildFactory> GetApplicableChildFactories()
+        public IEnumerable<ChildFactory>? GetApplicableChildFactories()
         {
             if (TreeNode.ApplicableNodeChildFactories == null)
             {
                 this.PopulateFactories();
             }
 
-            HashSet<ChildFactory> applicableFactories;
-            if (ApplicableNodeChildFactories.Value.TryGetValue(NodeTypeId.ToString(), out applicableFactories))
+            HashSet<ChildFactory>? applicableFactories;
+            if (ApplicableNodeChildFactories!.Value.TryGetValue(NodeTypeId?.ToString() ?? string.Empty, out applicableFactories))
             {
                 return applicableFactories;
             }
             return null;
         }
 
-        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
+        protected virtual void PopulateChildren(bool refresh, string? name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
         {
             Logger.Verbose(string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
 
-            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+            SmoQueryContext? context = this.GetContextAs<SmoQueryContext>();
             bool includeSystemObjects = context != null && context.Database != null ? DatabaseUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
 
             if (children.IsPopulating || context == null)
@@ -363,7 +364,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
             try
             {
                 ErrorMessage = null;
-                IEnumerable<ChildFactory> childFactories = this.GetApplicableChildFactories();
+                IEnumerable<ChildFactory>? childFactories = this.GetApplicableChildFactories();
                 if (childFactories != null)
                 {
                     foreach (var factory in childFactories)
@@ -372,7 +373,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                         try
                         {
                             Logger.Verbose($"Begin populate children for {this.GetNodePath()} using {factory.GetType()} factory");
-                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken, filters);
+                            IEnumerable<TreeNode>? items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken, filters);
                             Logger.Verbose($"End populate children for {this.GetNodePath()} using {factory.GetType()} factory");
                             if (items != null)
                             {
@@ -429,8 +430,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
             return string.Compare(thisItem.NodeValue, otherItem.NodeValue, StringComparison.OrdinalIgnoreCase);
         }
 
-        public int CompareTo(TreeNode other)
+        public int CompareTo(TreeNode? other)
         {
+            if (other == null)
+            {
+                return 1;
+            }
 
             if (!this.SortPriority.HasValue &&
                 !other.SortPriority.HasValue)

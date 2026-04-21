@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Linq;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.Credentials.Linux
     {
         private const int OwnerAccessMode = 384; // Permission 0600 - owner read/write, nobody else has access
 
-        private object lockObject = new object();
+        private Lock lockObject = new();
 
         private string fileName;
 

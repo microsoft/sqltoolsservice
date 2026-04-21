@@ -1095,6 +1095,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         private ServerData()
         {
+            minMemory = new NumericServerProperty();
+            maxMemory = new NumericServerProperty();
+            blockedProcThreshold = new NumericServerProperty();
+            cursorThreshold = new NumericServerProperty();
+            maxTextReplicationSize = new NumericServerProperty();
+            costThresholdParallelism = new NumericServerProperty();
+            locks = new NumericServerProperty();
+            maxDegreeParallelism = new NumericServerProperty();
+            queryWait = new NumericServerProperty();
+            server = null!;
+            configService = null!;
+            affinityManagerIOMask = new AffinityManager();
+            affinityManagerProcessorMask = new AffinityManager();
         }
 
 

@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
@@ -16,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
         /// <summary>
         /// Gets or sets the filePath
         /// </summary>
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = null!;
     }
 
     public class AzureFunction
@@ -62,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
     /// </summary>
     public class GetAzureFunctionsResult
     {
-        public AzureFunction[] AzureFunctions { get; set; }
+        public AzureFunction[] AzureFunctions { get; set; } = null!;
 
         public GetAzureFunctionsResult(AzureFunction[] azureFunctions)
         {

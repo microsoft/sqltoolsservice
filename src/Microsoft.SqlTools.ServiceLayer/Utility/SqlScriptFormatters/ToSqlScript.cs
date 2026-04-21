@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
                 return "NULL";
             }
 
-            return "0x" + BitConverter.ToString(bytes).Replace("-", string.Empty);
+            return "0x" + Convert.ToHexString(bytes);
         }
         
         private static string FormatBool(object value)

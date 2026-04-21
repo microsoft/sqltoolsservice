@@ -41,9 +41,9 @@ public sealed class VSCodeChatMessageContent : Microsoft.SemanticKernel.ChatMess
     /// Initializes a new instance of the <see cref="VSCodeChatMessageContent"/> class.
     /// </summary>
     internal VSCodeChatMessageContent(LanguageModelChatCompletion completion, string modelId, IReadOnlyDictionary<string, object?>? metadata = null)
-        : base(new AuthorRole(completion.Role.ToString()), CreateContentItems(completion.Content), modelId, completion, System.Text.Encoding.UTF8, CreateMetadataDictionary(completion.ToolCalls, metadata))
+        : base(new AuthorRole(completion.Role.ToString()!), CreateContentItems(completion.Content!), modelId, completion, System.Text.Encoding.UTF8, CreateMetadataDictionary(completion.ToolCalls!, metadata))
     {
-        this.ToolCalls = completion.ToolCalls;
+        this.ToolCalls = completion.ToolCalls ?? [];
     }
 
     /// <summary>
@@ -70,6 +70,7 @@ public sealed class VSCodeChatMessageContent : Microsoft.SemanticKernel.ChatMess
     internal VSCodeChatMessageContent(ChatMessageRole role, string? content, string modelId, ChatTool responseTool, string responseToolParameters, IReadOnlyDictionary<string, object?>? metadata = null)
         : base(new AuthorRole(role.ToString()), content, modelId, content, System.Text.Encoding.UTF8, CreateMetadataDictionary(responseTool, metadata))
     {
+        this.ToolCalls = [];
         this.ResponseTool = responseTool;
         this.ResponseToolParameters = responseToolParameters;
     }
@@ -98,12 +99,12 @@ public sealed class VSCodeChatMessageContent : Microsoft.SemanticKernel.ChatMess
     /// <summary>
     /// ResponseTool
     /// </summary>
-    public ChatTool ResponseTool { get;  }
+    public ChatTool? ResponseTool { get; }
 
     /// <summary>
     /// ResponseToolParameters
     /// </summary>
-    public string ResponseToolParameters { get; }
+    public string? ResponseToolParameters { get; }
 
     /// <summary>
     /// Retrieve the resulting function from the chat result.

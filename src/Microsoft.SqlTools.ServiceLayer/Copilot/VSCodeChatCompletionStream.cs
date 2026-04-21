@@ -4,6 +4,7 @@
 //
 
 #nullable disable
+#pragma warning disable CS8632
 
 using System;
 using System.Collections.Generic;
@@ -150,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                 this.tools = tools;
             }
 
-            public LanguageModelChatCompletion Current => _current!;
+            public LanguageModelChatCompletion Current => _current;
 
             public async ValueTask<bool> MoveNextAsync()
             {

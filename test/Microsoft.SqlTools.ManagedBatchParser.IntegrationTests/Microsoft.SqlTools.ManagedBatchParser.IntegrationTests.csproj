@@ -16,7 +16,6 @@
     <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.UnitTests/Microsoft.SqlTools.ServiceLayer.UnitTests.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Net.Http"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="nunit" />

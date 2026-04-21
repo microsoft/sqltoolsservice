@@ -15,7 +15,8 @@
     <AssemblyTitle>SqlTools Editor Services Host Protocol Library</AssemblyTitle>
     <Description>Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.</Description>
     <!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
-    <NoWarn>$(NoWarn);CS8795</NoWarn>
+    <!-- IDE0390/IDE0391: async methods without await — intentional for interface implementations and handler stubs -->
+    <NoWarn>$(NoWarn);CS8795;IDE0390;IDE0391</NoWarn>
     <TargetFramework>net10.0</TargetFramework>
     <RollForward>Major</RollForward>
   </PropertyGroup>
@@ -78,7 +79,6 @@
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="System.Runtime.Caching" />
-    <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
       <Aliases>ASAScriptDom</Aliases>
     </PackageReference>

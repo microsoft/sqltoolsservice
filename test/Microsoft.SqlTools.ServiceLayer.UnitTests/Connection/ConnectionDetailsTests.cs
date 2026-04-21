@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             long timeout = long.MaxValue;
             int? expectedValue = null;
-            string? expectedEncryptValue = "Mandatory";
+            string expectedEncryptValue = "Mandatory";
             details.Options["connectTimeout"] = timeout;
             details.Options["encrypt"] = expectedEncryptValue;
 
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             long timeout = long.MaxValue;
             int? expectedValue = null;
-            string? expectedEncryptValue = "Strict";
+            string expectedEncryptValue = "Strict";
             details.Options["commandTimeout"] = timeout;
             details.Options["encrypt"] = expectedEncryptValue;
 

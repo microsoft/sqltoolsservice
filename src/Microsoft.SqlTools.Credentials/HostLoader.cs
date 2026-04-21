@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Threading;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -16,7 +17,7 @@ namespace  Microsoft.SqlTools.Credentials.Utility
     /// </summary>
     public static class HostLoader
     {
-        private static object lockObject = new object();
+        private static Lock lockObject = new();
         private static bool isLoaded;
 
         internal static UtilityServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)

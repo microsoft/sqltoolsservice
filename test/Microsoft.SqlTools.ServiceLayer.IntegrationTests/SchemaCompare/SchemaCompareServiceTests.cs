@@ -209,8 +209,8 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
 
-            string? sourceProjectPath = null;
-            string? targetProjectPath = null;
+            string sourceProjectPath = null;
+            string targetProjectPath = null;
 
             try
             {
@@ -295,7 +295,7 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
 
-            string? targetProjectPath = null;
+            string targetProjectPath = null;
 
             try
             {
@@ -369,8 +369,8 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
 
-            string? sourceDacpacFilePath = null;
-            string? targetProjectPath = null;
+            string sourceDacpacFilePath = null;
+            string targetProjectPath = null;
 
             try
             {
@@ -512,7 +512,7 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
 
-            string? sourceProjectPath = null;
+            string sourceProjectPath = null;
 
             try
             {
@@ -638,7 +638,7 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
 
-            string? sourceProjectPath = null;
+            string sourceProjectPath = null;
 
             try
             {
@@ -775,8 +775,8 @@ WITH VALUES
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
             Directory.CreateDirectory(folderPath);
 
-            string? sourceDacpacFilePath = null;
-            string? targetProjectPath = null;
+            string sourceDacpacFilePath = null;
+            string targetProjectPath = null;
 
             try
             {
@@ -857,7 +857,7 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
 
-            string? targetProjectPath = null;
+            string targetProjectPath = null;
 
             try
             {
@@ -934,8 +934,8 @@ WITH VALUES
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
 
-            string? sourceProjectPath = null;
-            string? targetProjectPath = null;
+            string sourceProjectPath = null;
+            string targetProjectPath = null;
 
             try
             {

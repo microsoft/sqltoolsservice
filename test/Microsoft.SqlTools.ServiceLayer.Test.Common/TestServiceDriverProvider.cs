@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        private object fileLock = new Object();
+        private Lock fileLock = new Lock();
 
         /// <summary>
         /// Request a new connection to be created

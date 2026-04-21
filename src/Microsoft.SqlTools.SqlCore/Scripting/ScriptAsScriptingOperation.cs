@@ -638,65 +638,9 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
 
             // for cloud scripting to work we also have to have Script Compat set to 105.
             // the defaults from scripting options should take care of it
-            SqlScriptOptions.ScriptDatabaseEngineType targetDatabaseEngineType;
-            if (server.DatabaseEngineType != null)
-            {
-                scriptingOptions.TargetDatabaseEngineType = server.DatabaseEngineType;
-            }
-            else if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineType>(this.Parameters.ScriptOptions.TargetDatabaseEngineType, out targetDatabaseEngineType))
-            {
-                switch (targetDatabaseEngineType)
-                {
-                    case SqlScriptOptions.ScriptDatabaseEngineType.SingleInstance:
-                        scriptingOptions.TargetDatabaseEngineType = DatabaseEngineType.Standalone;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineType.SqlAzure:
-                        scriptingOptions.TargetDatabaseEngineType = DatabaseEngineType.SqlAzureDatabase;
-                        break;
-                }
-            }
+            scriptingOptions.TargetDatabaseEngineType = server.DatabaseEngineType;
 
-            SqlScriptOptions.ScriptDatabaseEngineEdition targetDatabaseEngineEdition;
-            if (server.DatabaseEngineEdition != null)
-            {
-                scriptingOptions.TargetDatabaseEngineEdition = server.DatabaseEngineEdition;
-            }
-            else if (Enum.TryParse<SqlScriptOptions.ScriptDatabaseEngineEdition>(this.Parameters.ScriptOptions.TargetDatabaseEngineEdition, out targetDatabaseEngineEdition))
-            {
-                switch (targetDatabaseEngineEdition)
-                {
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerPersonalEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Personal;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerStandardEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Standard;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerEnterpriseEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Enterprise;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerExpressEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Express;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlAzureDatabaseEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlDatabase;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlDatawarehouseEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlDataWarehouse;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerStretchEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlStretchDatabase;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerManagedInstanceEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlManagedInstance;
-                        break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerOnDemandEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlOnDemand;
-                        break;
-                    default:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Standard;
-                        break;
-                }
-            }
+            scriptingOptions.TargetDatabaseEngineEdition = server.DatabaseEngineEdition;
 
             if (scriptingOptions.TargetDatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse)
             {

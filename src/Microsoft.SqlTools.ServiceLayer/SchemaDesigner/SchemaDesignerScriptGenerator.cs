@@ -24,12 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach (var table in model.Tables)
+            foreach (var table in model.Tables!)
             {
                 sb.AppendLine(GenerateTableDefinition(table));
             }
 
-            sb.AppendLine(GenerateForeignKeyScripts(model.Tables));
+            sb.AppendLine(GenerateForeignKeyScripts(model.Tables!));
 
             return sb.ToString();
         }
@@ -45,13 +45,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             sb.AppendLine($"CREATE TABLE [{table.Schema}].[{table.Name}] (");
 
             List<string> columnDefinitions = new List<string>();
-            foreach (var column in table.Columns)
+            foreach (var column in table.Columns!)
             {
                 columnDefinitions.Add(GenerateColumnDefinition(column));
             }
 
             // Add primary key constraint if exists
-            var primaryKeyColumns = table.Columns.FindAll(c => c.IsPrimaryKey);
+            var primaryKeyColumns = table.Columns!.FindAll(c => c.IsPrimaryKey);
             if (primaryKeyColumns.Count > 0)
             {
                 string primaryKeyDefinition = $"PRIMARY KEY ({string.Join(", ", primaryKeyColumns.ConvertAll(c => $"[{c.Name}]"))})";
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             List<SchemaDesignerScriptObject> scripts = new List<SchemaDesignerScriptObject>();
 
-            foreach (var table in schema.Tables)
+            foreach (var table in schema.Tables!)
             {
                 scripts.Add(GenerateCreateAsScriptForTable(table));
             }
@@ -209,8 +209,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         /// <param name="dataType">The data type to check.</param>
         /// <returns>True if the data type supports length specification; otherwise, false.</returns>
-        private static bool IsLengthBasedType(string dataType)
+        private static bool IsLengthBasedType(string? dataType)
         {
+            if (dataType == null) return false;
             string[] lengthBasedTypes = { "char", "varchar", "nchar", "nvarchar", "binary", "varbinary" };
             return lengthBasedTypes.Contains(dataType.ToLowerInvariant());
         }
@@ -220,8 +221,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         /// <param name="dataType">The data type to check.</param>
         /// <returns>True if the data type supports precision and scale; otherwise, false.</returns>
-        private static bool IsPrecisionBasedType(string dataType)
+        private static bool IsPrecisionBasedType(string? dataType)
         {
+            if (dataType == null) return false;
             string[] precisionBasedTypes = { "decimal", "numeric", "float", "real" };
             return precisionBasedTypes.Contains(dataType.ToLowerInvariant());
         }
@@ -231,8 +233,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         /// <param name="dataType"> The data type to check.</param>
         /// <returns>>True if the data type is time-based and requires scale specification; otherwise, false.</returns>
-        private static bool IsTimeBasedWithScale(string dataType)
+        private static bool IsTimeBasedWithScale(string? dataType)
         {
+            if (dataType == null) return false;
             string[] timeBasedTypes = { "datetime2", "datetimeoffset", "time" };
             return timeBasedTypes.Contains(dataType.ToLowerInvariant());
         }
@@ -248,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
             foreach (var table in tables)
             {
-                foreach (var fk in table.ForeignKeys)
+                foreach (var fk in table.ForeignKeys!)
                 {
                     sb.AppendLine(GenerateForeignKeyScript(table, fk, tables));
                 }
@@ -277,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
 
             var sourceColumnNames = fk.ColumnsIds
-                .Select(columnId => table.Columns.FirstOrDefault(column => column.Id.ToString() == columnId)?.Name)
+                .Select(columnId => table.Columns!.FirstOrDefault(column => column.Id.ToString() == columnId)?.Name)
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList();
 

@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
                     {
                         TreeNode? node;
                         ServerNode serverNode = new ServerNode(serverInfo, serverConnection, null, options.GroupBySchemaFlagGetter);
-                        TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
+                        TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName ?? string.Empty);
                         if (nodePath == null || nodePath == string.Empty)
                         {
                             nodePath = rootNode.GetNodePath();

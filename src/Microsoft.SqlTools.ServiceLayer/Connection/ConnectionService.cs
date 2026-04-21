@@ -4,12 +4,14 @@
 //
 
 #nullable disable
+#pragma warning disable CS8632
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using System.Globalization;
@@ -92,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// disabled until the new refresh token is returned, upon which they will be removed from the map
         /// </summary>
         public readonly ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
-        private readonly object cancellationTokenSourceLock = new object();
+        private readonly Lock cancellationTokenSourceLock = new();
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
@@ -267,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionService(ISqlConnectionFactory testFactory) => this.connectionFactory = testFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
-        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
+        public virtual bool TryFindConnection(string ownerUri, [NotNullWhen(true)] out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
         /// Refreshes the auth token of a given connection, if needed

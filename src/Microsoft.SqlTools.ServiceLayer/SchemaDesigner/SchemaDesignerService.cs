@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 await requestContext.SendResult(new GetDefinitionResponse()
                 {
-                    Script = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema),
+                    Script = SchemaCreationScriptGenerator.GenerateCreateTableScript(requestParams.UpdatedSchema!),
                 });
             });
         }
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return Utils.HandleRequest<GenerateScriptResponse>(requestContext, async () =>
             {
-                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                if (sessions.TryGetValue(requestParams.SessionId!, out SchemaDesignerSession? session))
                 {
                     await requestContext.SendResult(new GenerateScriptResponse()
                     {
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return Utils.HandleRequest<PublishSessionResponse>(requestContext, async () =>
             {
-                if (sessions.TryGetValue(requestParams.SessionId, out SchemaDesignerSession? session))
+                if (sessions.TryGetValue(requestParams.SessionId!, out SchemaDesignerSession? session))
                 {
                     session.PublishSchema();
                 }
@@ -123,8 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return Utils.HandleRequest<GetReportResponse>(requestContext, async () =>
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId];
-                var report = await session.GetReport(requestParams.UpdatedSchema);
+                SchemaDesignerSession session = sessions[requestParams.SessionId!];
+                var report = await session.GetReport(requestParams.UpdatedSchema!);
                 await requestContext.SendResult(report);
             });
         }

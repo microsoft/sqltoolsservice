@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public VSCodeLanguageModelEndpoint(CopilotConversation conversation, RequestMessageType requestMessageType)
         {
             this.conversation = conversation;
+            this.requestMessageType = requestMessageType;
         }
     
         public LanguageModelChatCompletion SendChatRequest(ChatHistory chatHistory, IList<ChatTool> tools)

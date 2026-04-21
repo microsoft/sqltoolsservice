@@ -382,7 +382,7 @@ internal partial class VSCodeClientCore
                 }).ConfigureAwait(false);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception e)
+            catch (Exception)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
                 //AddResponseMessage(chat, result: null, $"Error: Exception while invoking function. {e.Message}", toolCall, this.Logger);

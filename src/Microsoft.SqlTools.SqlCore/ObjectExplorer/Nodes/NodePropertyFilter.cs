@@ -24,12 +24,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// Filter values
         /// </summary>
-        public List<object> Values { get; set; } = default!;
+        public List<object> Values { get; set; } = default;
 
         /// <summary>
         /// Type of the filter values
         /// </summary>
-        public Type Type { get; set; } = default!;
+        public Type Type { get; set; } = default;
 
         /// <summary>
         /// Indicates which platforms a filter is valid for
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <summary>
         /// The type of the Querier the filter can be applied to
         /// </summary>
-        public Type TypeToReverse { get; set; } = default!;
+        public Type TypeToReverse { get; set; } = default;
 
         /// <summary>
         /// Indicates if the filter is a "not" filter. Eg (not(@IsSystemObject = 0))

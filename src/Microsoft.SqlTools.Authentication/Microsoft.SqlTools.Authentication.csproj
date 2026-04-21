@@ -13,7 +13,6 @@
 		<PackageReference Include="Microsoft.Identity.Client" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="System.Runtime.Caching" />
-		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 
 	<ItemGroup>

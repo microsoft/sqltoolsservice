@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.Credentials
             IntPtr ptr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(value);
             try
             {
-                return Marshal.PtrToStringUni(ptr);
+                return Marshal.PtrToStringUni(ptr) ?? string.Empty;
             }
             finally
             {

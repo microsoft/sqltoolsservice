@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     internal class LocalFileObservable : IObservable<ProfilerEvent>
     {
-        private readonly object syncObj = new object();
+        private readonly Lock syncObj = new();
         private readonly List<IObserver<ProfilerEvent>> observers = new List<IObserver<ProfilerEvent>>();
         private CancellationTokenSource cancellationTokenSource;
         private readonly Func<IXEventFetcher> xeventFetcher;

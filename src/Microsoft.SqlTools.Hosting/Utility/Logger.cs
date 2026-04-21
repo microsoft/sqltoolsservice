@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.Utility
 
         public static string LogFileFullPath
         {
-            get => logFileFullPath!;
+            get => logFileFullPath;
             private set
             {
                 if (value != null)
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.Utility
                     //If the log file path has a directory component then ensure that the directory exists.
                     if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(value)!);
+                        Directory.CreateDirectory(Path.GetDirectoryName(value));
                     }
 
                     logFileFullPath = value;
@@ -66,12 +66,12 @@ namespace Microsoft.SqlTools.Utility
         /// <summary>
         /// Calling this method will turn on inclusion CallStack in the log for all future traces
         /// </summary>
-        public static void StartCallStack() => Listener!.TraceOutputOptions |= TraceOptions.Callstack;
+        public static void StartCallStack() => Listener.TraceOutputOptions |= TraceOptions.Callstack;
 
         /// <summary>
         /// Calling this method will turn off inclusion of CallStack in the log for all future traces
         /// </summary>
-        public static void StopCallStack() => Listener!.TraceOutputOptions &= ~TraceOptions.Callstack;
+        public static void StopCallStack() => Listener.TraceOutputOptions &= ~TraceOptions.Callstack;
 
         /// <summary>
         /// Calls flush on defaultTracingLevel configured listeners.
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.Utility
                 }
                 // configure the listener level filter
                 tracingLevel = value;
-                Listener!.Filter = new EventTypeFilter(tracingLevel);
+                Listener.Filter = new EventTypeFilter(tracingLevel);
             }
         }
 

@@ -12,7 +12,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-    <NoWarn>NU1605</NoWarn>
+    <!-- CS8012: Migration SDK assemblies (SkuRecommendation, Assessment, etc.) are x64-only native libs;
+         win-x86 publish triggers processor-mismatch warning but the binary is never run on x86 -->
+    <NoWarn>NU1603;NU1605;NU1608;CS8012</NoWarn>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <AssemblyTitle>SqlTools Migration Host Protocol Library</AssemblyTitle>
     <Description>Provides message types and client/server APIs for the SqlTools Migration Services JSON protocol.</Description>
@@ -32,7 +34,6 @@
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="System.IO.Packaging" />
     <PackageReference Include="System.Runtime.Caching" />
-    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />

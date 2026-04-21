@@ -47,17 +47,19 @@ internal static class AsyncEnumerable
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 #pragma warning restore IDE1006 // Naming rule violation: Missing suffix: 'Async'
 
-    public static async ValueTask<T?> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
+    [return: MaybeNull]
+    public static async ValueTask<T> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
     {
         await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             return item;
         }
 
-        return default;
+        return default!;
     }
 
-    public static async ValueTask<T?> LastOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
+    [return: MaybeNull]
+    public static async ValueTask<T> LastOrDefaultAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
     {
         var last = default(T)!; // NB: Only matters when hasLast is set to true.
         var hasLast = false;
@@ -68,7 +70,7 @@ internal static class AsyncEnumerable
             last = item;
         }
 
-        return hasLast ? last! : default;
+        return hasLast ? last! : default!;
     }
 
     public static async ValueTask<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)

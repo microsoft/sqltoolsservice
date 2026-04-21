@@ -616,7 +616,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// <see cref="LengthLength"/> + <see cref="ValueLength"/>
             /// </summary>
-            public int TotalLength => LengthLength + ValueLength;
+            public readonly int TotalLength => LengthLength + ValueLength;
         }
 
         #region IDisposable Implementation

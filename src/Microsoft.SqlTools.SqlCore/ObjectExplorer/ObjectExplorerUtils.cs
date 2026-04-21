@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using System.Threading;
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// boolean - true to continue navigating up the tree, false to end the loop
         /// and return early
         /// </returns>
-        public static bool VisitChildAndParents(TreeNode child, Predicate<TreeNode> visitor)
+        public static bool VisitChildAndParents(TreeNode? child, Predicate<TreeNode> visitor)
         {
             if (child == null)
             {

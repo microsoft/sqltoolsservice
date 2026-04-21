@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             Context = string.Join('\n', scripts)
                         });
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         Logger.Error("Failed to read scripts from the script cache");
                         throw;

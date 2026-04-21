@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             // Generate the hex string as the return value
-            ValueAsString = "0x" + BitConverter.ToString((byte[])Value).Replace("-", string.Empty);
+            ValueAsString = "0x" + Convert.ToHexString((byte[])Value);
         }
 
         private void ProcessBooleanCell(string valueAsString)

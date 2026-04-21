@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 
     public class MockRequest<T> where T : ResultStatus
     {
-        private T? result;
+        private T result;
         public T Result => result ?? throw new InvalidOperationException("No result has been sent for the request");
 
         public Mock<RequestContext<T>> Mock;
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         /// </summary>
         /// <param name="handlerName">Name of the handler, recommended to use nameof(service.MyHandler), used in the failure message</param>
         /// <param name="descriptor">Optional extra descriptor, parenthesized in the failure message</param>
-        public void AssertSuccess(string handlerName, string? descriptor = null)
+        public void AssertSuccess(string handlerName, string descriptor = null)
         {
             Assert.IsTrue(this.Result.Success, $"{handlerName}{(descriptor != null ? $" ({descriptor})" : String.Empty)} expected to succeed, but failed with error: '{this.Result.ErrorMessage}'");
         }

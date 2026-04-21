@@ -7,6 +7,7 @@
 
 using System;
 using System.Text;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 	/// </summary>
 	internal class ExecutionHandlerDelegate
 	{        
-        private object cancelCriticalSection = new object();
+        private Lock cancelCriticalSection = new();
         private IManagementAction managementAction;
 
         public ExecutionHandlerDelegate(IManagementAction managementAction)

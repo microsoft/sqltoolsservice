@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// Map of property names to their new values.
         /// </summary>
-        public Dictionary<string, string> Properties { get; set; }
+        public Dictionary<string, string> Properties { get; set; } = null!;
     }
 
     /// <summary>

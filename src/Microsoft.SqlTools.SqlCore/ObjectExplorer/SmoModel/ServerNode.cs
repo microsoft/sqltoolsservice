@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#nullable enable
 
 using System;
 using System.Globalization;
@@ -22,12 +23,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     public class ServerNode : TreeNode
     {
         private ObjectExplorerServerInfo serverInfo;
-        private Lazy<SmoQueryContext> context;
-        private SmoWrapper smoWrapper;
+        private Lazy<SmoQueryContext?> context;
+        private SmoWrapper? smoWrapper;
         private SqlServerType sqlServerType;
         public ServerConnection serverConnection;
 
-        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null, Func<bool> groupBySchemaFlag = null, SecurityToken? accessToken = null)
+        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider? serviceProvider = null, Func<bool>? groupBySchemaFlag = null, SecurityToken? accessToken = null)
             : base()
         {
             Validate.IsNotNull(nameof(ObjectExplorerServerInfo), serverInfo);
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             var assembly = typeof(SqlCore.ObjectExplorer.SmoModel.SmoQuerier).Assembly;
             serviceProvider ??= ExtensionServiceProvider.CreateFromAssembliesInDirectory(Path.GetDirectoryName(assembly.Location), new string[] { Path.GetFileName(assembly.Location) });
             this.serverConnection = serverConnection;
-            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider, groupBySchemaFlag, accessToken));
+            this.context = new Lazy<SmoQueryContext?>(() => CreateContext(serviceProvider, groupBySchemaFlag, accessToken));
             NodeValue = serverInfo.ServerName;
             IsAlwaysLeaf = false;
             NodeType = NodeTypes.Server.ToString();
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// </summary>
         internal string GetConnectionLabel()
         {
-            string userName = serverInfo.UserName;
+            string? userName = serverInfo.UserName;
 
             // TODO Domain and username is not yet supported on .Net Core. 
             // Consider passing as an input from the extension where this can be queried
@@ -114,9 +115,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
        
 
-        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null, SecurityToken token = null)
+        private SmoQueryContext? CreateContext(IMultiServiceProvider serviceProvider, Func<bool>? groupBySchemaFlag = null, SecurityToken? token = null)
         {
-            string exceptionMessage;
+            string? exceptionMessage;
    
             try
             {
@@ -148,7 +149,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             return null;
         }
 
-        public override object GetContext()
+        public override object? GetContext()
         {
             return context.Value;
         }

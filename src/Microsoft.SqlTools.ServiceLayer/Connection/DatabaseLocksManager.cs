@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionService ConnectionService { get; set; }
 
         private Dictionary<string, ManualResetEvent> databaseAccessEvents = new Dictionary<string, ManualResetEvent>();
-        private object databaseAccessLock = new object();
+        private Lock databaseAccessLock = new();
         public const int DefaultWaitToGetFullAccess = 10000;
         public int waitToGetFullAccess = DefaultWaitToGetFullAccess;
 

@@ -208,9 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public readonly override bool Equals(object obj)
         {
-           
+
 
             if (obj == null || !(obj is Range))
             {
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// Overrides the base GetHashCode method
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode()
+        public readonly override int GetHashCode()
         {
             int hash = 17;
             hash = hash * 23 + Start.GetHashCode();
