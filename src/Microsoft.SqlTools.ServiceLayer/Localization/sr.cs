@@ -871,6 +871,70 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string CreateDatabaseTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.CreateDatabaseTaskName);
+            }
+        }
+
+        public static string DropDatabaseTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.DropDatabaseTaskName);
+            }
+        }
+
+        public static string RenameTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameTaskName);
+            }
+        }
+
+        public static string RenameTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameTaskDescription);
+            }
+        }
+
+        public static string SaveObjectCreateTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.SaveObjectCreateTaskName);
+            }
+        }
+
+        public static string SaveObjectUpdateTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.SaveObjectUpdateTaskName);
+            }
+        }
+
+        public static string SaveObjectCreateTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SaveObjectCreateTaskDescription);
+            }
+        }
+
+        public static string SaveObjectUpdateTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SaveObjectUpdateTaskDescription);
+            }
+        }
+
         public static string BackupPathIsFolderError
         {
             get
@@ -11450,6 +11514,30 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string BackupTaskName = "BackupTaskName";
+
+
+            public const string CreateDatabaseTaskName = "CreateDatabaseTaskName";
+
+
+            public const string DropDatabaseTaskName = "DropDatabaseTaskName";
+
+
+            public const string RenameTaskName = "RenameTaskName";
+
+
+            public const string RenameTaskDescription = "RenameTaskDescription";
+
+
+            public const string SaveObjectCreateTaskName = "SaveObjectCreateTaskName";
+
+
+            public const string SaveObjectUpdateTaskName = "SaveObjectUpdateTaskName";
+
+
+            public const string SaveObjectCreateTaskDescription = "SaveObjectCreateTaskDescription";
+
+
+            public const string SaveObjectUpdateTaskDescription = "SaveObjectUpdateTaskDescription";
 
 
             public const string BackupPathIsFolderError = "BackupPathIsFolderError";

@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
@@ -66,8 +67,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     // create and update
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, true, SqlObjectType.Database, "", "");
+                    SqlTaskManager.Instance.Reset();
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.That(DatabaseExists(testDatabase.Name, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+
+                    SqlTask createTask = SqlTaskManager.Instance.Tasks.FirstOrDefault(task =>
+                        task.TaskMetadata.OperationName == "SaveObjectOperation" &&
+                        task.TaskMetadata.DatabaseName == testDatabase.Name);
+
+                    Assert.That(createTask, Is.Not.Null, "Expected SQL task for create database on save was not found.");
+                    Assert.That(createTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
+                    Assert.That(createTask.TaskMetadata.Name, Is.EqualTo(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Microsoft.SqlTools.ServiceLayer.SR.SaveObjectCreateTaskName, testDatabase.Name)));
+
+                    Assert.That(DatabaseExists(testDatabase.Name, server), $"Expected database '{testDatabase.Name}' was not created successfully");
 
                     var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);

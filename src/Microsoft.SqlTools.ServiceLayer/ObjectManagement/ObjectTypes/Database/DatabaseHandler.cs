@@ -654,6 +654,96 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
+        /// Used to rename the specified database.
+        /// </summary>
+        /// <param name="renameParams">The parameters for renaming the database.</param>
+        public string Rename(RenameDatabaseRequestParams renameParams)
+        {
+            Validate.IsNotNull(nameof(renameParams), renameParams);
+
+            Validate.IsNotNullOrWhitespaceString(nameof(renameParams.Database), renameParams.Database);
+            Validate.IsNotNullOrWhitespaceString(nameof(renameParams.NewName), renameParams.NewName);
+
+            var sqlScript = string.Empty;
+            using (var dataContainer = CreateDatabaseDataContainer(renameParams.ConnectionUri, false, renameParams.Database))
+            {
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
+                {
+                    var originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                    var server = smoDatabase.Parent;
+                    var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
+                    if (renameParams.GenerateScript)
+                    {
+                        server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                        server.ConnectionContext.CapturedSql.Clear();
+                    }
+
+                    try
+                    {
+                        bool changedAccess = false;
+                        if (renameParams.DropConnections && originalAccess != DatabaseUserAccess.Single)
+                        {
+                            smoDatabase.DatabaseOptions.UserAccess = DatabaseUserAccess.Single;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            changedAccess = true;
+                        }
+
+                        smoDatabase.Rename(renameParams.NewName);
+
+                        if (changedAccess)
+                        {
+                            var renamedDatabase = server.Databases[renameParams.NewName];
+                            if (renamedDatabase != null)
+                            {
+                                renamedDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                renamedDatabase.Alter();
+                            }
+                        }
+
+                        if (renameParams.GenerateScript)
+                        {
+                            var builder = new StringBuilder();
+                            foreach (var scriptEntry in server.ConnectionContext.CapturedSql.Text)
+                            {
+                                if (!string.IsNullOrWhiteSpace(scriptEntry))
+                                {
+                                    builder.AppendLine(scriptEntry);
+                                    builder.AppendLine("GO");
+                                }
+                            }
+                            sqlScript = builder.ToString();
+                        }
+                    }
+                    catch (SmoException)
+                    {
+                        if (!renameParams.GenerateScript && renameParams.DropConnections && server.Databases.Contains(renameParams.Database))
+                        {
+                            var originalDatabase = server.Databases[renameParams.Database];
+                            originalDatabase.DatabaseOptions.UserAccess = originalAccess;
+                            originalDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                        }
+
+                        throw;
+                    }
+                    finally
+                    {
+                        if (renameParams.GenerateScript)
+                        {
+                            server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
+                        }
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Could not find database '{renameParams.Database}'.");
+                }
+            }
+
+            return sqlScript;
+        }
+
+        /// <summary>
         /// Used to drop the specified database
         /// </summary>
         /// <param name="dropParams">The various parameters needed for the Drop operation</param>

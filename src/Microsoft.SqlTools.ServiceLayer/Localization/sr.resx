@@ -717,6 +717,38 @@
     <value>Backup Database</value>
     <comment></comment>
   </data>
+  <data name="CreateDatabaseTaskName" xml:space="preserve">
+    <value>Create Database</value>
+    <comment></comment>
+  </data>
+  <data name="DropDatabaseTaskName" xml:space="preserve">
+    <value>Drop Database</value>
+    <comment></comment>
+  </data>
+  <data name="RenameTaskName" xml:space="preserve">
+    <value>Rename {0}</value>
+    <comment></comment>
+  </data>
+  <data name="RenameTaskDescription" xml:space="preserve">
+    <value>Rename {0} to &apos;{1}&apos;.</value>
+    <comment></comment>
+  </data>
+  <data name="SaveObjectCreateTaskName" xml:space="preserve">
+    <value>Creating {0}</value>
+    <comment></comment>
+  </data>
+  <data name="SaveObjectUpdateTaskName" xml:space="preserve">
+    <value>Updating {0}</value>
+    <comment></comment>
+  </data>
+  <data name="SaveObjectCreateTaskDescription" xml:space="preserve">
+    <value>Creating {0}.</value>
+    <comment></comment>
+  </data>
+  <data name="SaveObjectUpdateTaskDescription" xml:space="preserve">
+    <value>Updating {0}.</value>
+    <comment></comment>
+  </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
     <value>Please provide a file path instead of directory path</value>
     <comment></comment>
