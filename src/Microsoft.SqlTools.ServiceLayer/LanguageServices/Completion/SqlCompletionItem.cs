@@ -24,7 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         [GeneratedRegex("^[\\p{L}_@#][\\p{L}\\p{N}@$#_]{0,127}$")]
         private static partial Regex GetValidSqlNameRegex();
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]" };
-        private static DelimitedIdentifier FunctionPostfix = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier SnippetFunctionPostfix = new DelimitedIdentifier { Start = "", End = "($0)" };
         private bool _isSnippet;
         private static DelimitedIdentifier[] DelimitedIdentifiers =
@@ -94,7 +93,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                         // and ANSI scalar functions (which don't include the parentheses to match the spec)
                         if (!DeclarationTitle.StartsWith("@@") && !AnsiScalarFunctions.Contains(DeclarationTitle.ToUpperInvariant()))
                         {
-                            InsertText = WithDelimitedIdentifier(SnippetFunctionPostfix, DeclarationTitle);
+                            // Escape snippet metacharacters in the name so VS Code doesn't misinterpret
+                            // identifiers containing $, \, or } as snippet variables or syntax.
+                            string escapedTitle = DeclarationTitle.Replace(@"\", @"\\").Replace("}", @"\}").Replace("$", @"\$");
+                            InsertText = WithDelimitedIdentifier(SnippetFunctionPostfix, escapedTitle);
                             _isSnippet = true;
                         }
                         break;

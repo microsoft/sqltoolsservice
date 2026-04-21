@@ -279,6 +279,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Test]
+        [TestCase("my$func", @"my\$func($0)")]
+        [TestCase("get}val", @"get\}val($0)")]
+        [TestCase(@"back\slash", @"back\\slash($0)")]
+        public void FunctionSnippetShouldEscapeMetacharactersInName(string declarationTitle, string expectedInsertText)
+        {
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, DeclarationType.ScalarValuedFunction, "");
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.AreEqual(expectedInsertText, completionItem.InsertText);
+            Assert.AreEqual(InsertTextFormat.Snippet, completionItem.InsertTextFormat);
+            Assert.AreEqual(declarationTitle, completionItem.Label);
+        }
+
+        [Test]
         [TestCase("@@CONNECTIONS")]
         [TestCase("CURRENT_DATE")]
         [TestCase("CURRENT_TIME")]
