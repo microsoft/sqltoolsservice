@@ -86,7 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <summary>
         /// Gets or sets the AccessTokenCallback on the underlying SqlConnection, allowing the
         /// SQL driver to request fresh tokens automatically on initial connect and after expiry.
-        /// Only valid when Authentication is NotSpecified and AccessToken is not set.
+        /// Should only be used when Authentication is NotSpecified or ActiveDirectoryInteractive,
+        /// and when AccessToken is null (enforced by MDS).
         /// </summary>
         public Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>> AccessTokenCallback
         {

@@ -113,18 +113,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 if (connInfo != null)
                 {
                     parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    // Set Access Token only when authentication type is AzureMFA.
+                    // Access tokens are only needed for AzureMFA connections.
                     if (connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                     {
                         if (connInfo.AzureTokenFetcher != null)
                         {
-                            // VS Code accounts mode: open a ServerConnection that uses CallbackAzureAccessToken
-                            // for ScriptAs operations, or fetch a token synchronously for ScriptingScript
-                            // operations (which are short-lived and use the token as a plain string).
+                            // RequestMfaTokenFromClient: build a renewable ServerConnection for ScriptAs
+                            // (SMO can re-fetch via CallbackAzureAccessToken on reconnect) and a one-shot
+                            // token string for ScriptingScript (short-lived, token as a plain string).
                             scriptingServerConnection = ConnectionService.OpenServerConnection(connInfo, "ScriptAs");
-                            // Also pre-fetch a token string for the ScriptingScriptOperation path, which
-                            // uses it directly when building SMO URNs. Scripting operations complete in
-                            // seconds so a single upfront token is safe.
                             (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
                         }
                         else
@@ -148,8 +145,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             else
             {
-                // Use the pre-built ServerConnection when available (VS Code accounts mode) so that
-                // CallbackAzureAccessToken can renew the token if SMO needs to reconnect mid-script.
+                // Use the renewable ServerConnection when available so SMO can re-fetch the token
+                // via CallbackAzureAccessToken if it needs to reconnect during the scripting operation.
                 operation = scriptingServerConnection != null
                     ? new ScriptAsScriptingOperation(parameters, scriptingServerConnection)
                     : new ScriptAsScriptingOperation(parameters, accessToken);
