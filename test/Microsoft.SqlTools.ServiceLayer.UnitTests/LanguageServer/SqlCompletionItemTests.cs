@@ -265,11 +265,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 {
                     // Global variable functions should not have parentheses
                     Assert.AreEqual(declarationTitle, completionItem.InsertText);
+                    Assert.IsNull(completionItem.InsertTextFormat);
                 }
                 else
                 {
-                    // Other functions should have parentheses
-                    Assert.AreEqual($"{declarationTitle}()", completionItem.InsertText);
+                    // Other functions use snippet format so cursor lands inside parens
+                    Assert.AreEqual($"{declarationTitle}($0)", completionItem.InsertText);
+                    Assert.AreEqual(InsertTextFormat.Snippet, completionItem.InsertTextFormat);
                 }
                 Assert.AreEqual(declarationTitle, completionItem.Detail);
             }
