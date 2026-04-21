@@ -183,9 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool EnableSqlAuthenticationProvider { get; set; }
 
         /// <summary>
-        /// When true, STS requests MFA tokens from the client via account/securityTokenRequest
-        /// (AccessTokenCallback) instead of acquiring them via MSAL.
-        /// Mutually exclusive with EnableSqlAuthenticationProvider.
+        /// When true, STS requests Entra tokens from the client via <c>account/securityTokenRequest</c>
+        /// using <see cref="SqlConnection.AccessTokenCallback"/>, instead of acquiring them via MSAL.
+        /// Mutually exclusive with <see cref="EnableSqlAuthenticationProvider"/>.
         /// </summary>
         public bool RequestMfaTokenFromClient { get; set; }
 
@@ -284,8 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns> True if a refreshed was needed and requested, false otherwise </returns>
         internal async Task<bool> TryRequestRefreshAuthToken(string ownerUri)
         {
-            // When SqlAuthenticationProvider is enabled (MSAL), or when the client provides tokens
-            // via AccessTokenCallback, the driver handles refresh automatically.
+            // Both auth modes handle token refresh on their own:
+            // MSAL via SqlAuthenticationProvider and the callback path via AccessTokenCallback.
             if (this.EnableSqlAuthenticationProvider || this.RequestMfaTokenFromClient)
             {
                 return false;
@@ -697,10 +697,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Creates an async token fetcher that requests a fresh Azure access token from the VS
-        /// Code host via account/securityTokenRequest.  The fetcher is stored on ConnectionInfo
-        /// so that static helpers (OpenSqlConnection, OpenServerConnection) can use it for SMO
-        /// and language-service bindings without needing access to ServiceHost directly.
+        /// Returns an async delegate that requests a fresh Entra access token from the client
+        /// via <c>account/securityTokenRequest</c>.
         /// </summary>
         private Func<Task<(string token, DateTimeOffset expiresOn)>>
             CreateAzureTokenFetcher(string accountId, string tenantId)
@@ -720,14 +718,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Creates a SqlConnection AccessTokenCallback that delegates to <paramref name="tokenFetcher"/>.
-        /// The SqlDriver passes authority/resource/scopes via <see cref="SqlAuthenticationParameters"/>
-        /// but in VS Code accounts mode those are sourced from the fetcher directly.
+        /// Wraps an async token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>.
+        /// The <see cref="SqlAuthenticationParameters"/> supplied by the driver are not used;
+        /// the fetcher uses the account and tenant IDs captured in its closure.
         /// </summary>
         private static Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>>
             ToSqlAccessTokenCallback(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
         {
-            return async (sqlAuthParams, ct) =>
+            return async (_, ct) =>
             {
                 var (token, expiresOn) = await tokenFetcher().ConfigureAwait(false);
                 return new SqlAuthenticationToken(token, expiresOn);
@@ -759,13 +757,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 if (RequestMfaTokenFromClient
                     && connectionInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                 {
-                    // VS Code accounts mode: use AccessTokenCallback so the driver can request
-                    // fresh tokens from the client host automatically (initial connect + refresh).
-                    // Also store the fetcher on ConnectionInfo so that static helpers
-                    // (OpenSqlConnection, OpenServerConnection) can use it for SMO bindings.
+                    // Use AccessTokenCallback so the driver requests tokens on-demand (initial
+                    // connect and every reconnect) rather than holding a static token.
                     var tokenFetcher = CreateAzureTokenFetcher(
                         connectionInfo.ConnectionDetails.AccountId,
                         connectionInfo.ConnectionDetails.TenantId);
+
                     connectionInfo.AzureTokenFetcher = tokenFetcher;
                     connection = connectionInfo.Factory.CreateSqlConnection(connectionString, null, SqlRetryProviders.ServerlessDBRetryProvider());
                     ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher);
@@ -2107,12 +2104,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
 
-                // Fill in Microsoft Entra authentication token if needed.
-                // In VS Code accounts mode AzureTokenFetcher is set and we use AccessTokenCallback
-                // so the driver can renew the token automatically; otherwise fall back to the
-                // static AzureAccountToken pre-acquired by MSAL or the connection dialog.
                 if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                 {
+                    // If the connection should fetch tokens from the client app,
+                    // wrap token fetch helper for the connection
                     sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher);
                 }
                 else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
@@ -2147,8 +2142,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ServerConnection serverConnection;
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                // VS Code accounts mode: wrap the async fetcher in a renewable token so that SMO
-                // can request fresh tokens when the underlying connection needs to be re-authenticated.
+                // RequestMfaTokenFromClient: give SMO a renewable token so it can fetch a fresh
+                // token from the client host whenever it needs to re-authenticate.
                 serverConnection = new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
             }
             else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)

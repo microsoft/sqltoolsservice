@@ -11,8 +11,8 @@ namespace Microsoft.SqlTools.SqlCore.Connection
 {
     /// <summary>
     /// An <see cref="IRenewableToken"/> implementation that fetches and caches Azure access tokens
-    /// via an async callback.  Used in VS Code accounts mode (RequestMfaTokenFromClient) where
-    /// tokens are obtained from the VS Code host rather than from MSAL.
+    /// via an async callback.  Used when the client host provides tokens via
+    /// <c>account/securityTokenRequest</c> (RequestMfaTokenFromClient mode) rather than MSAL.
     /// </summary>
     public class CallbackAzureAccessToken : IRenewableToken
     {
@@ -21,26 +21,20 @@ namespace Microsoft.SqlTools.SqlCore.Connection
         private DateTimeOffset _expiresOn;
         private readonly object _lock = new object();
 
-        // Satisfy the IRenewableToken interface (not used for callback-based tokens)
+        // IRenewableToken metadata — not used in the callback path.
         public DateTimeOffset TokenExpiry { get; set; }
         public string Resource { get; set; }
         public string Tenant { get; set; }
         public string UserId { get; set; }
 
-        /// <summary>
-        /// Creates a new <see cref="CallbackAzureAccessToken"/> with the given async token fetcher.
-        /// The fetcher is called the first time a token is needed and again whenever the cached
-        /// token is within 2 minutes of expiry.
-        /// </summary>
         public CallbackAzureAccessToken(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
         {
             _tokenFetcher = tokenFetcher ?? throw new ArgumentNullException(nameof(tokenFetcher));
-            // Force a fetch on the first call by setting expiry to the past.
             _expiresOn = DateTimeOffset.MinValue;
         }
 
         /// <summary>
-        /// Returns a valid access token, fetching a fresh one from the callback if the cached
+        /// Returns a valid access token, fetching a fresh one via the callback when the cached
         /// token is absent or within 2 minutes of expiry.
         /// </summary>
         public string GetAccessToken()

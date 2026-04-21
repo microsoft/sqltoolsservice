@@ -91,10 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool IsAzureAuth { get; set; }
 
         /// <summary>
-        /// When RequestMfaTokenFromClient is enabled, this async factory fetches a fresh Azure
-        /// access token (token string + expiry) from the VS Code host via account/securityTokenRequest.
-        /// Set during TryOpenConnection for AzureMFA connections in VS Code accounts mode.
-        /// Used by OpenSqlConnection and OpenServerConnection instead of the static AzureAccountToken.
+        /// When RequestMfaTokenFromClient is enabled, fetches a fresh Azure access token from
+        /// the client host via <c>account/securityTokenRequest</c>.  Set during TryOpenConnection
+        /// and used by OpenSqlConnection and OpenServerConnection in place of the static AzureAccountToken.
         /// </summary>
         public Func<Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
 

@@ -220,10 +220,8 @@ namespace Microsoft.SqlTools.Utility
         public bool EnableSqlAuthenticationProvider { get; private set; } = false;
 
         /// <summary>
-        /// When enabled, STS requests MFA tokens from the client (e.g. VS Code) via
-        /// account/securityTokenRequest rather than acquiring them via MSAL.
-        /// Mutually exclusive with EnableSqlAuthenticationProvider.
-        /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
+        /// When enabled, STS requests Entra tokens from the client via <c>account/securityTokenRequest</c>
+        /// rather than acquiring them via MSAL.
         /// </summary>
         public bool RequestMfaTokenFromClient { get; private set; } = false;
 

@@ -32,13 +32,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string [] Scopes { get; set; }
 
         /// <summary>
-        /// Gets or sets the account ID known to the client host (e.g. VS Code account ID).
+        /// Gets or sets the Entra account ID
         /// Populated only when RequestMfaTokenFromClient is enabled; null for MSAL callers.
         /// </summary>
         public string AccountId { get; set; }
 
         /// <summary>
-        /// Gets or sets the Entra tenant ID for the token request.
+        /// Gets or sets the Entra tenant ID
         /// Populated only when RequestMfaTokenFromClient is enabled; null for MSAL callers.
         /// </summary>
         public string TenantId { get; set; }
@@ -57,15 +57,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Token { get; set; }
 
         /// <summary>
-        /// Gets or sets the token expiration as a Unix epoch (seconds).
-        /// Required when responding to RequestMfaTokenFromClient requests.
+        /// Gets or sets the token expiration as Unix epoch.
         /// </summary>
         public long ExpiresOn { get; set; }
     }
 
-    /// <summary>
-    /// SecurityToken Request mapping entry 
-    /// </summary>
     class SecurityTokenRequest
     {
         public static readonly
