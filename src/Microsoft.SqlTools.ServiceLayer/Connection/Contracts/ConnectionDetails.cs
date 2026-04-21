@@ -653,6 +653,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        /// <summary>
+        /// Gets or sets the account ID for Entra accounts used with Entra MFA auth
+        /// </summary>
         public string AccountId
         {
             get
@@ -665,6 +668,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        /// <summary>
+        /// Gets or sets the tenant ID for Entra accounts used with Entra MFA auth
+        /// </summary>
         public string TenantId
         {
             get

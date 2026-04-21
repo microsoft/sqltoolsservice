@@ -33,13 +33,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
         /// <summary>
         /// Gets or sets the Entra account ID
-        /// Populated only when RequestMfaTokenFromClient is enabled; null for MSAL callers.
+        /// Populated only when RequestMfaTokenFromClient is enabled; null for client apps using the shared MSAL cache for auth.
         /// </summary>
         public string AccountId { get; set; }
 
         /// <summary>
         /// Gets or sets the Entra tenant ID
-        /// Populated only when RequestMfaTokenFromClient is enabled; null for MSAL callers.
+        /// Populated only when RequestMfaTokenFromClient is enabled; null for client apps using the shared MSAL cache for auth.
         /// </summary>
         public string TenantId { get; set; }
     }
