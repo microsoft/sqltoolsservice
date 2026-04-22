@@ -37,8 +37,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         public bool GenerateScript { get; set; }
     }
 
+    public class RenameDatabaseResponse
+    {
+        /// <summary>
+        /// The task id associated with the rename operation when executed.
+        /// </summary>
+        public string TaskId { get; set; }
+
+        /// <summary>
+        /// The generated T-SQL script when the request runs in script mode.
+        /// </summary>
+        public string Script { get; set; }
+    }
+
     public class RenameDatabaseRequest
     {
-        public static readonly RequestType<RenameDatabaseRequestParams, string> Type = RequestType<RenameDatabaseRequestParams, string>.Create("objectManagement/renameDatabase");
+        public static readonly RequestType<RenameDatabaseRequestParams, RenameDatabaseResponse> Type = RequestType<RenameDatabaseRequestParams, RenameDatabaseResponse>.Create("objectManagement/renameDatabase");
     }
 }

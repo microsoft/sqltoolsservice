@@ -137,8 +137,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(renamedDatabaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            var requestContext = new Mock<RequestContext<string>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<string>()))
+            RenameDatabaseResponse response = null;
+            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
+                .Callback<RenameDatabaseResponse>(r => response = r)
                 .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
@@ -149,6 +151,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             };
 
             await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
+
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
+            Assert.That(response.Script, Is.Null.Or.Empty);
 
             SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == "RenameDatabaseOperation" && task.TaskMetadata.DatabaseName == renamedDatabaseName);
 
@@ -173,8 +179,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(renamedDatabaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            var requestContext = new Mock<RequestContext<string>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<string>()))
+            RenameDatabaseResponse response = null;
+            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
+                .Callback<RenameDatabaseResponse>(r => response = r)
                 .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
@@ -186,6 +194,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             };
 
             await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
+
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
+            Assert.That(response.Script, Is.Null.Or.Empty);
 
             SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == "RenameDatabaseOperation" && task.TaskMetadata.DatabaseName == renamedDatabaseName);
 
@@ -209,10 +221,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(originalDatabaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            var requestContext = new Mock<RequestContext<string>>();
-            string response = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<string>()))
-                .Callback<string>(r => response = r)
+            RenameDatabaseResponse response = null;
+            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
+                .Callback<RenameDatabaseResponse>(r => response = r)
                 .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
@@ -227,9 +239,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
 
             Assert.That(response, Is.Not.Null);
-            Assert.That(response, Does.Contain($"ALTER DATABASE [{originalDatabaseName}] SET"));
-            Assert.That(response, Does.Contain("SINGLE_USER WITH ROLLBACK IMMEDIATE"));
-            Assert.That(response, Does.Contain($"ALTER DATABASE [{originalDatabaseName}] MODIFY NAME = [{renamedDatabaseName}]"));
+            Assert.That(response.TaskId, Is.Null.Or.Empty);
+            Assert.That(response.Script, Does.Contain($"ALTER DATABASE [{originalDatabaseName}] SET"));
+            Assert.That(response.Script, Does.Contain("SINGLE_USER WITH ROLLBACK IMMEDIATE"));
+            Assert.That(response.Script, Does.Contain($"ALTER DATABASE [{originalDatabaseName}] MODIFY NAME = [{renamedDatabaseName}]"));
 
             SqlTask renameTask = SqlTaskManager.Instance.Tasks.FirstOrDefault(task => task.TaskMetadata.OperationName == "RenameDatabaseOperation" && task.TaskMetadata.DatabaseName == renamedDatabaseName);
             Assert.That(renameTask, Is.Null);
