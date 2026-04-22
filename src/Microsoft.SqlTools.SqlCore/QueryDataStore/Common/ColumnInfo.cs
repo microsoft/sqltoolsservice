@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 
         public virtual string GetLocalizedColumnHeaderWithUnits() => GetLocalizedColumnHeader();
 
-        public string GetLocalizedColumnHeaderInLower() => GetLocalizedColumnHeader().ToLower();
+        public string GetLocalizedColumnHeaderInLower() => GetLocalizedColumnHeader().ToLower(CultureInfo.CurrentUICulture);
 
         /// <summary>
         /// If any derived ColumnInfo have any column specific data to load. They
@@ -84,7 +84,10 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
         /// <param name="leftCi">ColumnInfo on the left side of the operator </param>
         /// <param name="rightCi">ColumnInfo on the right side of the operator</param>
         /// <returns></returns>
-        public static bool operator !=(ColumnInfo leftCi, ColumnInfo rightCi) => !(leftCi == rightCi);
+        public static bool operator !=(ColumnInfo leftCi, ColumnInfo rightCi)
+        {
+            return !(leftCi == rightCi);
+        }
     }
 
     /// <summary>

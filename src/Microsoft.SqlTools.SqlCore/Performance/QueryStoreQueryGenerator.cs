@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance
         public static string GetForcedPlanQuery(long queryId, long planId)
         {
 
-            string query = PlanSummaryQueryGenerator.GetForcedPlanQuery();
+            string query = PlanSummaryQueryGenerator.GetForcedPlanQuery(runForPrimary: true);
             Dictionary<string, object> sqlParams = new()
             {
                 [QueryGeneratorUtils.ParameterQueryId] = queryId,

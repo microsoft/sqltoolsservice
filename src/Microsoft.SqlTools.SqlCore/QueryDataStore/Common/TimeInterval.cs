@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 
         public DateTimeOffset StartDateTimeOffset
         {
-            get
+            readonly get
             {
                 DateTimeOffset result = this.TimeIntervalOptions == TimeIntervalOptions.Custom
                     ? this.startDateTimeInUtc
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 
         public DateTimeOffset EndDateTimeOffset
         {
-            get
+            readonly get
             {
                 DateTimeOffset result = this.TimeIntervalOptions == TimeIntervalOptions.Custom
                     ? this.endDateTimeInUtc
@@ -115,13 +115,13 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 
         public TimeIntervalOptions TimeIntervalOptions
         {
-            get { return this.timeIntervalOptions; }
+            readonly get { return this.timeIntervalOptions; }
             set { this.timeIntervalOptions = value; }
         }
 
-        public TimeSpan TimeSpan => this.EndDateTimeOffset.Subtract(this.StartDateTimeOffset);
+        public readonly TimeSpan TimeSpan => this.EndDateTimeOffset.Subtract(this.StartDateTimeOffset);
 
-        public override string ToString() => TimeIntervalUtils.LocalizedString(this.TimeIntervalOptions);
+        public override readonly string ToString() => TimeIntervalUtils.LocalizedString(this.TimeIntervalOptions);
     }
 
     public static class TimeIntervalUtils

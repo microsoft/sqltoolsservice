@@ -39,20 +39,20 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
         /// </summary>
         /// <param name="other">The PlanKey to compare to</param>
         /// <returns>True if they are equal, false otherwise</returns>
-        public bool Equals(PlanKey other) => this.PlanId == other.PlanId && this.ExecutionType.Equals(other.ExecutionType);
+        public readonly bool Equals(PlanKey other) => this.PlanId == other.PlanId && this.ExecutionType.Equals(other.ExecutionType);
 
         /// <summary>
         /// Override GetHashCode to generate new hash based on PlanId and ExecutionType
         /// </summary>
         /// <returns>New hash code based on PlanId and ExecutionType</returns>
-        public override int GetHashCode() => new { this.PlanId, this.ExecutionType }.GetHashCode();
+        public readonly override int GetHashCode() => new { this.PlanId, this.ExecutionType }.GetHashCode();
 
         /// <summary>
         /// Override the Object level Equals to use PlanKey's Equals
         /// </summary>
         /// <param name="obj">obj of type PlanKey</param>
         /// <returns>True if they are equal, false otherwise</returns>
-        public override bool Equals(object obj)
+        public readonly override bool Equals(object obj)
         {
             if (!(obj is PlanKey))
             {
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
         /// </summary>
         /// <param name="obj">The PlanKey to compare to</param>
         /// <returns>0 if both PlanId and ExecutionTypes are equal</returns>
-        public int CompareTo(object obj)
+        public readonly int CompareTo(object obj)
         {
             if (obj is PlanKey)
             {
@@ -102,6 +102,6 @@ namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
         /// If either one of the plan ID or execution type is invalid, we consider the whole plan key to be invalid.
         /// </summary>
         /// <returns>True if PlanKey contains invalid values, False otherwise</returns>
-        public bool IsEmpty() => this.PlanId == QueryStoreConstants.InvalidPlanId || this.ExecutionType == PlanExecutionType.Invalid;
+        public readonly bool IsEmpty() => this.PlanId == QueryStoreConstants.InvalidPlanId || this.ExecutionType == PlanExecutionType.Invalid;
     }
 }
