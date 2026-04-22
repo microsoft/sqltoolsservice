@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
         {
             if (metricRawNamesList == null || metricRawNamesList.Count == 0)
             {
-                throw new InvalidOperationException(Resources.MetricsNotAvailableInTargetDb);
+                throw new InvalidOperationException(SR.MetricsNotAvailableInTargetDb);
             }
 
             var dbNamesToServerSupportedMetricMapping = MetricUtils.DbNamesToServerSupportedMetricMapping();

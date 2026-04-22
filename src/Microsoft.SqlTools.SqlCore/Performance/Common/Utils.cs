@@ -195,32 +195,32 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
 
             if ((result & (int)QueryStoreReadOnlyReason.StmtHashMapMemoryLimit) != 0)
             {
-                return Resources.QueryStoreReadOnlyReason_StmtHashMapMemoryLimit;
+                return SR.QueryStoreReadOnlyReason_StmtHashMapMemoryLimit;
             }
 
             if ((result & (int)QueryStoreReadOnlyReason.DiskSizeLimit) != 0)
             {
-                return Resources.QueryStoreReadOnlyReason_DbReadOnly;
+                return SR.QueryStoreReadOnlyReason_DbReadOnly;
             }
 
             if ((result & (int)QueryStoreReadOnlyReason.DbInLogAcceptMode) != 0)
             {
-                return Resources.QueryStoreReadOnlyReason_DbInLogAcceptMode;
+                return SR.QueryStoreReadOnlyReason_DbInLogAcceptMode;
             }
 
             if ((result & (int)QueryStoreReadOnlyReason.DbInEmergencyMode) != 0)
             {
-                return Resources.QueryStoreReadOnlyReason_DbInEmergencyMode;
+                return SR.QueryStoreReadOnlyReason_DbInEmergencyMode;
             }
 
             if ((result & (int)QueryStoreReadOnlyReason.DbInSingleUserMode) != 0)
             {
-                return Resources.QueryStoreReadOnlyReason_DbInSingleUserMode;
+                return SR.QueryStoreReadOnlyReason_DbInSingleUserMode;
             }
 
             if ((result & (int)QueryStoreReadOnlyReason.DbReadOnly) != 0)
             {
-                return Resources.QueryStoreReadOnlyReason_DbReadOnly;
+                return SR.QueryStoreReadOnlyReason_DbReadOnly;
             }
 
             return string.Empty;
@@ -232,13 +232,13 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
 
             if (string.IsNullOrWhiteSpace(readOnlyReason))
             {
-                return Resources.QueryStoreReadOnlyToolTip;
+                return SR.QueryStoreReadOnlyToolTip;
             }
 
             return string.Format(
                 CultureInfo.CurrentUICulture,
                 "{0}{1}{2}",
-                Resources.QueryStoreReadOnlyToolTip,
+                SR.QueryStoreReadOnlyToolTip,
                 Environment.NewLine,
                 readOnlyReason);
         }
@@ -307,7 +307,7 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
                         //If containing object doesn't exist anymore, just return the query text
                         if (!reader.Read())
                         {
-                            return string.Join(Environment.NewLine, Resources.InvalidContainingObject, queryText);
+                            return string.Join(Environment.NewLine, SR.InvalidContainingObject, queryText);
                         }
 
                         // validate parent object still contains the query text.
@@ -316,7 +316,7 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
 
                         if (!parentObject.Contains(queryText))
                         {
-                            return string.Join(Environment.NewLine, Resources.InvalidQueryUnderContainingObject, queryText);
+                            return string.Join(Environment.NewLine, SR.InvalidQueryUnderContainingObject, queryText);
                         }
                     }
 
@@ -546,7 +546,7 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
                             waitstats.Add(new ResultSetMapping
                             {
                                 Category = waitCategory.GetLocalizedColumnHeader(),
-                                Value = Resources.MetricOptionQueryWaitTime
+                                Value = SR.MetricOptionQueryWaitTime
                             });
                         }
 
@@ -557,7 +557,7 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
 
                             waitstats.Add(new ResultSetMapping
                             {
-                                Category = string.Format(Resources.TotalWaitCategoryTime, category),
+                                Category = SR.TotalWaitCategoryTime(category),
                                 Value = value.ToString()
                             });
                         }
@@ -610,7 +610,7 @@ THEN 1 ELSE 0 END as ReplicaColumnExists;";
                         {
                             waitstats.Add(new ResultSetMapping
                             {
-                                Category = Resources.QueryIDSearchColumnHeaderQueryID,
+                                Category = SR.QueryIDSearchColumnHeaderQueryID,
                                 Value = statisticMetricCol.GetLocalizedColumnHeaderWithUnits()
                             });
                         }

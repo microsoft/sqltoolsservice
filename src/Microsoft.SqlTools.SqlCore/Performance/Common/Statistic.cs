@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                 .FirstOrDefault() as LocalizedStringAttribute;
 
             if (attribute != null)
-                return Resources.ResourceManager.GetString(attribute.Value);
+                return SR.Keys.GetString(attribute.Value);
 
             // this indicates a code level error
             System.Diagnostics.Debug.Assert(false, $"Unknown Statistic Type {enumValue}");

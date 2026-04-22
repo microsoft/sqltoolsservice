@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelQueryId = @"query_id";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderQueryID;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderQueryID;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelQueryId;
     }
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelObjectId = @"object_id";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderObjectID;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderObjectID;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelObjectId;
     }
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelObjectName = @"object_name";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderObjectName;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderObjectName;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelObjectName;
     }
@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelQueryText = @"query_sql_text";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderQuerySQLText;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderQuerySQLText;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelQueryText;
     }
@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelPlanId = @"plan_id";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderPlanID;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderPlanID;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelPlanId;
     }
@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelExecutionType = @"execution_type";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderExecutionType;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderExecutionType;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelExecutionType;
     }
@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelWaitCategoryDesc = @"wait_category_desc";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderWaitCategoryDesc;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderWaitCategoryDesc;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelWaitCategoryDesc;
     }
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelWaitCategoryId = @"wait_category";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderWaitCategoryId;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderWaitCategoryId;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelWaitCategoryId;
     }
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelNumPlans = @"num_plans";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderNumPlans;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderNumPlans;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelNumPlans;
     }
@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelForcedPlanFailureCount = @"force_failure_count";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderForcedPlanFailureCount;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderForcedPlanFailureCount;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelForcedPlanFailureCount;
     }
@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelForcedPlanId = @"plan_id";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderForcedPlanId;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderForcedPlanId;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelForcedPlanId;
     }
@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelForcedPlanFailureDescp = @"last_force_failure_reason_desc";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderForcedPlanFailureDescp;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderForcedPlanFailureDescp;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelForcedPlanFailureDescp;
     }
@@ -262,7 +262,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelLastCompileStartTime = @"last_compile_start_time";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderLastCompileStartTime;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderLastCompileStartTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelLastCompileStartTime;
     }
@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelLastForcedPlanExecTime = @"last_execution_time";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderLastForcedPlanExecTime;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderLastForcedPlanExecTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelLastForcedPlanExecTime;
     }
@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelLastQueryExecTime = @"last_execution_time";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderLastQueryExecTime;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderLastQueryExecTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelLastQueryExecTime;
     }
@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelPlanForced = @"is_forced_plan";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderPlanForced;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderPlanForced;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelPlanForced;
     }
@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelFirstExecutionTime = @"first_execution_time";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderFirstExecTime;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderFirstExecTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelFirstExecutionTime;
     }
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
     {
         private const string QueryColumnLabelLastExecutionTime = @"last_execution_time";
 
-        public override string GetLocalizedColumnHeader() => Resources.ColumnHeaderLastExecTime;
+        public override string GetLocalizedColumnHeader() => SR.ColumnHeaderLastExecTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelLastExecutionTime;
     }
@@ -318,7 +318,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
         public override string GetLocalizedColumnHeader() =>
             //TODO review localization
-            Resources.IntervalStartTime;
+            SR.IntervalStartTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelBucketStartTime;
     }
@@ -329,7 +329,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
         public override string GetLocalizedColumnHeader() =>
             //TODO review localization
-            Resources.IntervalEndTime;
+            SR.IntervalEndTime;
 
         public override string GetQueryColumnLabel() => QueryColumnLabelBucketEndTime;
     }
@@ -391,13 +391,11 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
         {
             if (TimeInterval.Equals(ComparisonTimeInterval.None))
             {
-                return Resources.ColumnHeaderExecCount;
+                return SR.ColumnHeaderExecCount;
             }
             else
             {
-                return string.Format(
-                    CultureInfo.CurrentUICulture,
-                    Resources.ColumnHeaderMetricTime,
+                return SR.ColumnHeaderMetricTime(
                     MetricUtils.LocalizedString(Metric.ExecutionCount),
                     ComparisonTimeIntervalUtils.LocalizedString(TimeInterval));
             }
@@ -463,18 +461,14 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
         public override string GetLocalizedColumnHeader()
         {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                Resources.ColumnHeaderStatMetric,
+            return SR.ColumnHeaderStatMetric(
                 StatisticUtils.LocalizedString(Statistic),
                 MetricUtils.LocalizedString(Metric));
         }
 
         public override string GetLocalizedColumnHeaderWithUnits()
         {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                Resources.ColumnHeaderStatMetric,
+            return SR.ColumnHeaderStatMetric(
                 StatisticUtils.LocalizedString(Statistic),
                 MetricUtils.LocalizedStringWithUnits(Metric));
         }
@@ -523,9 +517,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
         public override string GetLocalizedColumnHeader()
         {
-            return string.Format(
-                CultureInfo.CurrentUICulture,
-                Resources.ColumnHeaderStatMetricTime,
+            return SR.ColumnHeaderStatMetricTime(
                 StatisticUtils.LocalizedString(Statistic),
                 MetricUtils.LocalizedString(Metric),
                 ComparisonTimeIntervalUtils.LocalizedString(TimeInterval));
@@ -533,9 +525,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
         public override string GetLocalizedColumnHeaderWithUnits()
         {
-            return string.Format(
-                CultureInfo.CurrentUICulture,
-                Resources.ColumnHeaderStatMetricTime,
+            return SR.ColumnHeaderStatMetricTime(
                 StatisticUtils.LocalizedString(Statistic),
                 MetricUtils.LocalizedStringWithUnits(Metric),
                 ComparisonTimeIntervalUtils.LocalizedString(TimeInterval));
@@ -582,22 +572,16 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
         public override string GetLocalizedColumnHeader()
         {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                Statistic.Equals(Statistic.Total)
-                    ? Resources.ColumnHeaderAdditionalWorkload
-                    : Resources.ColumnHeaderRegrPercRecent,
-                MetricUtils.LocalizedString(Metric));
+            return Statistic.Equals(Statistic.Total)
+                ? SR.ColumnHeaderAdditionalWorkload(MetricUtils.LocalizedString(Metric))
+                : SR.ColumnHeaderRegrPercRecent(MetricUtils.LocalizedString(Metric));
         }
 
         public override string GetLocalizedColumnHeaderWithUnits()
         {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                Statistic.Equals(Statistic.Total)
-                    ? Resources.ColumnHeaderAdditionalWorkload
-                    : Resources.ColumnHeaderRegrPercRecent,
-                MetricUtils.LocalizedStringWithUnits(Metric));
+            return Statistic.Equals(Statistic.Total)
+                ? SR.ColumnHeaderAdditionalWorkload(MetricUtils.LocalizedStringWithUnits(Metric))
+                : SR.ColumnHeaderRegrPercRecent(MetricUtils.LocalizedStringWithUnits(Metric));
         }
 
         public override string GetQueryColumnLabel()

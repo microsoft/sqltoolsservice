@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                         StatisticUtils.QueryString(Statistic.Stdev), MetricUtils.QueryString(metric), statsTableName, StatisticUtils.QueryString(Statistic.Avg));
                     return summary;
                 default:
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, Resources.InvalidArgumentMessage, StatisticUtils.LocalizedString(statistic), MetricUtils.LocalizedString(metric)));
+                    throw new ArgumentException(SR.InvalidArgumentMessage(StatisticUtils.LocalizedString(statistic), MetricUtils.LocalizedString(metric)));
             }
 
             //We need to convert units for each metric but not if statistic is Variation
@@ -99,8 +99,8 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                     summary = StatisticUtils.GetAggregationFormulaForWaitStats(statistic, statsTableName);
                     break;
                 default:
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                        Resources.InvalidArgumentMessage, StatisticUtils.LocalizedString(statistic), MetricUtils.LocalizedString(Metric.WaitTime)));
+                    throw new ArgumentException(SR.InvalidArgumentMessage(
+                        StatisticUtils.LocalizedString(statistic), MetricUtils.LocalizedString(Metric.WaitTime)));
             }
 
             return string.Format(CultureInfo.InvariantCulture, ConversionTemplate, summary, Metric.WaitTime.GetConversionFactor(), Metric.WaitTime.GetRoundOffPoints());

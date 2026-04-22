@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                 timeInterval.EndDateTimeOffset.DateTime.ToShortTimeString());
             }
 
-            return string.Format(Resources.TimeIntervalPaneHeader,
+            return SR.TimeIntervalPaneHeader(
                 LocalizedString(timeInterval.TimeIntervalOptions),
                 timeInterval.EndDateTimeOffset.DateTime.ToShortDateString(),
                 timeInterval.EndDateTimeOffset.DateTime.ToShortTimeString());
@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                 .FirstOrDefault() as LocalizedStringAttribute;
 
             if (attribute != null)
-                return Resources.ResourceManager.GetString(attribute.Value);
+                return SR.Keys.GetString(attribute.Value);
 
             // this indicates a code level error
             System.Diagnostics.Debug.Assert(false, $"Unknown TimeIntervalOptions Type {enumValue}");

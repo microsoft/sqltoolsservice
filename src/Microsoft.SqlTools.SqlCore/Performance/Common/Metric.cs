@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                 .FirstOrDefault() as LocalizedStringAttribute;
 
             if (attribute != null)
-                return Resources.ResourceManager.GetString(attribute.Value);
+                return SR.Keys.GetString(attribute.Value);
 
             // this indicates a code level error
             System.Diagnostics.Debug.Assert(false, $"Unknown Metric Type {enumValue}");
@@ -148,8 +148,8 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
                 .FirstOrDefault() as UnitsAttribute;
 
             if (attribute != null)
-                return string.Format(CultureInfo.CurrentUICulture, Resources.MetricOptionWithUnitsTemplate, LocalizedString(enumValue),
-                    Resources.ResourceManager.GetString(attribute.Value));
+                return SR.MetricOptionWithUnitsTemplate(LocalizedString(enumValue),
+                    SR.Keys.GetString(attribute.Value));
 
             return LocalizedString(enumValue);
         }

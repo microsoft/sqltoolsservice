@@ -37,9 +37,9 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
             switch (timeInterval)
             {
                 case ComparisonTimeInterval.History:
-                    return Resources.HistoryLabelText;
+                    return SR.HistoryLabelText;
                 case ComparisonTimeInterval.Recent:
-                    return Resources.RecentLabelText;
+                    return SR.RecentLabelText;
                 default:
                     System.Diagnostics.Trace.TraceError(string.Format("Invalid time interval {0} for ComparisonTimeIntervalUtils.ToString()", timeInterval));
                     return string.Empty;

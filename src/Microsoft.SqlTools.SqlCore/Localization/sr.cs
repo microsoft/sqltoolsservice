@@ -2791,6 +2791,718 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
+        public static string ColumnHeaderExecCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderExecCount);
+            }
+        }
+
+        public static string ColumnHeaderExecutionType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderExecutionType);
+            }
+        }
+
+        public static string ColumnHeaderFirstExecTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderFirstExecTime);
+            }
+        }
+
+        public static string ColumnHeaderForcedPlanFailureCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderForcedPlanFailureCount);
+            }
+        }
+
+        public static string ColumnHeaderForcedPlanFailureDescp
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderForcedPlanFailureDescp);
+            }
+        }
+
+        public static string ColumnHeaderForcedPlanId
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderForcedPlanId);
+            }
+        }
+
+        public static string ColumnHeaderLastCompileStartTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderLastCompileStartTime);
+            }
+        }
+
+        public static string ColumnHeaderLastExecTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderLastExecTime);
+            }
+        }
+
+        public static string ColumnHeaderLastForcedPlanExecTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderLastForcedPlanExecTime);
+            }
+        }
+
+        public static string ColumnHeaderLastQueryExecTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderLastQueryExecTime);
+            }
+        }
+
+        public static string ColumnHeaderNumPlans
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderNumPlans);
+            }
+        }
+
+        public static string ColumnHeaderObjectID
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderObjectID);
+            }
+        }
+
+        public static string ColumnHeaderObjectName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderObjectName);
+            }
+        }
+
+        public static string ColumnHeaderPlanForced
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderPlanForced);
+            }
+        }
+
+        public static string ColumnHeaderPlanForceFailureCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderPlanForceFailureCount);
+            }
+        }
+
+        public static string ColumnHeaderPlanID
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderPlanID);
+            }
+        }
+
+        public static string ColumnHeaderQueryID
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderQueryID);
+            }
+        }
+
+        public static string ColumnHeaderQuerySQLText
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderQuerySQLText);
+            }
+        }
+
+        public static string ColumnHeaderToolTip
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderToolTip);
+            }
+        }
+
+        public static string ColumnHeaderWaitCategoryDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderWaitCategoryDesc);
+            }
+        }
+
+        public static string ColumnHeaderWaitCategoryId
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnHeaderWaitCategoryId);
+            }
+        }
+
+        public static string HistoryLabelText
+        {
+            get
+            {
+                return Keys.GetString(Keys.HistoryLabelText);
+            }
+        }
+
+        public static string IntervalEndTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.IntervalEndTime);
+            }
+        }
+
+        public static string IntervalStartTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.IntervalStartTime);
+            }
+        }
+
+        public static string InvalidContainingObject
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidContainingObject);
+            }
+        }
+
+        public static string InvalidQueryUnderContainingObject
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidQueryUnderContainingObject);
+            }
+        }
+
+        public static string MetricOptionClrTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionClrTime);
+            }
+        }
+
+        public static string MetricOptionCPUTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionCPUTime);
+            }
+        }
+
+        public static string MetricOptionDop
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionDop);
+            }
+        }
+
+        public static string MetricOptionDuration
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionDuration);
+            }
+        }
+
+        public static string MetricOptionExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionExecutions);
+            }
+        }
+
+        public static string MetricOptionLogicalReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionLogicalReads);
+            }
+        }
+
+        public static string MetricOptionLogicalWrites
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionLogicalWrites);
+            }
+        }
+
+        public static string MetricOptionLogMemoryUsed
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionLogMemoryUsed);
+            }
+        }
+
+        public static string MetricOptionMemoryConsumption
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionMemoryConsumption);
+            }
+        }
+
+        public static string MetricOptionPhysicalReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionPhysicalReads);
+            }
+        }
+
+        public static string MetricOptionQueryWaitTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionQueryWaitTime);
+            }
+        }
+
+        public static string MetricOptionRowcount
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionRowcount);
+            }
+        }
+
+        public static string MetricOptionTempDbMemoryUsed
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricOptionTempDbMemoryUsed);
+            }
+        }
+
+        public static string MetricsNotAvailableInTargetDb
+        {
+            get
+            {
+                return Keys.GetString(Keys.MetricsNotAvailableInTargetDb);
+            }
+        }
+
+        public static string QueryIDSearchColumnHeaderQueryID
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryIDSearchColumnHeaderQueryID);
+            }
+        }
+
+        public static string QueryStoreReadOnlyReason_DbInEmergencyMode
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyReason_DbInEmergencyMode);
+            }
+        }
+
+        public static string QueryStoreReadOnlyReason_DbInLogAcceptMode
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyReason_DbInLogAcceptMode);
+            }
+        }
+
+        public static string QueryStoreReadOnlyReason_DbInSingleUserMode
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyReason_DbInSingleUserMode);
+            }
+        }
+
+        public static string QueryStoreReadOnlyReason_DbReadOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyReason_DbReadOnly);
+            }
+        }
+
+        public static string QueryStoreReadOnlyReason_DiskSizeLimit
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyReason_DiskSizeLimit);
+            }
+        }
+
+        public static string QueryStoreReadOnlyReason_StmtHashMapMemoryLimit
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyReason_StmtHashMapMemoryLimit);
+            }
+        }
+
+        public static string QueryStoreReadOnlyToolTip
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryStoreReadOnlyToolTip);
+            }
+        }
+
+        public static string RecentLabelText
+        {
+            get
+            {
+                return Keys.GetString(Keys.RecentLabelText);
+            }
+        }
+
+        public static string ReplicaOptionGeoSecondary
+        {
+            get
+            {
+                return Keys.GetString(Keys.ReplicaOptionGeoSecondary);
+            }
+        }
+
+        public static string ReplicaOptionGeoHASecondary
+        {
+            get
+            {
+                return Keys.GetString(Keys.ReplicaOptionGeoHASecondary);
+            }
+        }
+
+        public static string ReplicaOptionPrimary
+        {
+            get
+            {
+                return Keys.GetString(Keys.ReplicaOptionPrimary);
+            }
+        }
+
+        public static string ReplicaOptionSecondary
+        {
+            get
+            {
+                return Keys.GetString(Keys.ReplicaOptionSecondary);
+            }
+        }
+
+        public static string StatisticsOptionAvg
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionAvg);
+            }
+        }
+
+        public static string StatisticsOptionLast
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionLast);
+            }
+        }
+
+        public static string StatisticsOptionMax
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionMax);
+            }
+        }
+
+        public static string StatisticsOptionMin
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionMin);
+            }
+        }
+
+        public static string StatisticsOptionStddev
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionStddev);
+            }
+        }
+
+        public static string StatisticsOptionTotal
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionTotal);
+            }
+        }
+
+        public static string TimeIntervalOptionAuto
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionAuto);
+            }
+        }
+
+        public static string TimeIntervalOptionDay
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionDay);
+            }
+        }
+
+        public static string TimeIntervalOptionHour
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionHour);
+            }
+        }
+
+        public static string TimeIntervalOptionLast12Hours
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLast12Hours);
+            }
+        }
+
+        public static string TimeIntervalOptionLast15Minutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLast15Minutes);
+            }
+        }
+
+        public static string TimeIntervalOptionLast2Days
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLast2Days);
+            }
+        }
+
+        public static string TimeIntervalOptionLast2Weeks
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLast2Weeks);
+            }
+        }
+
+        public static string TimeIntervalOptionLast30Minutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLast30Minutes);
+            }
+        }
+
+        public static string TimeIntervalOptionLast5Minutes
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLast5Minutes);
+            }
+        }
+
+        public static string TimeIntervalOptionLastDay
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLastDay);
+            }
+        }
+
+        public static string TimeIntervalOptionLastHour
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLastHour);
+            }
+        }
+
+        public static string TimeIntervalOptionLastMonth
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLastMonth);
+            }
+        }
+
+        public static string TimeIntervalOptionLastWeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionLastWeek);
+            }
+        }
+
+        public static string TimeIntervalOptionMinute
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionMinute);
+            }
+        }
+
+        public static string TimeIntervalOptionMonth
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionMonth);
+            }
+        }
+
+        public static string TimeIntervalOptionsAllTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsAllTime);
+            }
+        }
+
+        public static string TimeIntervalOptionsCustom
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsCustom);
+            }
+        }
+
+        public static string TimeIntervalOptionsCustomPaneHeaderText
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsCustomPaneHeaderText);
+            }
+        }
+
+        public static string TimeIntervalOptionsLast3Months
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsLast3Months);
+            }
+        }
+
+        public static string TimeIntervalOptionsLast6Months
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsLast6Months);
+            }
+        }
+
+        public static string TimeIntervalOptionsLastYear
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsLastYear);
+            }
+        }
+
+        public static string TimeIntervalOptionsNow
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionsNow);
+            }
+        }
+
+        public static string TimeIntervalOptionSpecify
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionSpecify);
+            }
+        }
+
+        public static string TimeIntervalOptionWeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeIntervalOptionWeek);
+            }
+        }
+
+        public static string UnitKilobyte
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnitKilobyte);
+            }
+        }
+
+        public static string UnitMicrosecond
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnitMicrosecond);
+            }
+        }
+
+        public static string UnitMillisecond
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnitMillisecond);
+            }
+        }
+
+        public static string StatisticsOptionVariation
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatisticsOptionVariation);
+            }
+        }
+
+        public static string ReplicaNameNotNullEmpty
+        {
+            get
+            {
+                return Keys.GetString(Keys.ReplicaNameNotNullEmpty);
+            }
+        }
+
+        public static string ReplicaIdPositive
+        {
+            get
+            {
+                return Keys.GetString(Keys.ReplicaIdPositive);
+            }
+        }
+
         public static string TableNotInitializedException(string tableId)
         {
             return Keys.GetString(Keys.TableNotInitializedException, tableId);
@@ -2914,6 +3626,51 @@ namespace Microsoft.SqlTools.SqlCore
         public static string OpenScmpConnectionBasedModelParsingError(string endpoint, string error)
         {
             return Keys.GetString(Keys.OpenScmpConnectionBasedModelParsingError, endpoint, error);
+        }
+
+        public static string ColumnHeaderAdditionalWorkload(string metric)
+        {
+            return Keys.GetString(Keys.ColumnHeaderAdditionalWorkload, metric);
+        }
+
+        public static string ColumnHeaderMetricTime(string metric, string timeInterval)
+        {
+            return Keys.GetString(Keys.ColumnHeaderMetricTime, metric, timeInterval);
+        }
+
+        public static string ColumnHeaderRegrPercRecent(string metric)
+        {
+            return Keys.GetString(Keys.ColumnHeaderRegrPercRecent, metric);
+        }
+
+        public static string ColumnHeaderStatMetric(string statistic, string metric)
+        {
+            return Keys.GetString(Keys.ColumnHeaderStatMetric, statistic, metric);
+        }
+
+        public static string ColumnHeaderStatMetricTime(string statistic, string metric, string timeInterval)
+        {
+            return Keys.GetString(Keys.ColumnHeaderStatMetricTime, statistic, metric, timeInterval);
+        }
+
+        public static string InvalidArgumentMessage(string statistic, string metric)
+        {
+            return Keys.GetString(Keys.InvalidArgumentMessage, statistic, metric);
+        }
+
+        public static string MetricOptionWithUnitsTemplate(string metric, string unit)
+        {
+            return Keys.GetString(Keys.MetricOptionWithUnitsTemplate, metric, unit);
+        }
+
+        public static string TimeIntervalPaneHeader(string interval, string date, string time)
+        {
+            return Keys.GetString(Keys.TimeIntervalPaneHeader, interval, date, time);
+        }
+
+        public static string TotalWaitCategoryTime(string waitCategory)
+        {
+            return Keys.GetString(Keys.TotalWaitCategoryTime, waitCategory);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -4032,6 +4789,300 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string OpenScmpConnectionBasedModelParsingError = "OpenScmpConnectionBasedModelParsingError";
+
+
+            public const string ColumnHeaderAdditionalWorkload = "ColumnHeaderAdditionalWorkload";
+
+
+            public const string ColumnHeaderExecCount = "ColumnHeaderExecCount";
+
+
+            public const string ColumnHeaderExecutionType = "ColumnHeaderExecutionType";
+
+
+            public const string ColumnHeaderFirstExecTime = "ColumnHeaderFirstExecTime";
+
+
+            public const string ColumnHeaderForcedPlanFailureCount = "ColumnHeaderForcedPlanFailureCount";
+
+
+            public const string ColumnHeaderForcedPlanFailureDescp = "ColumnHeaderForcedPlanFailureDescp";
+
+
+            public const string ColumnHeaderForcedPlanId = "ColumnHeaderForcedPlanId";
+
+
+            public const string ColumnHeaderLastCompileStartTime = "ColumnHeaderLastCompileStartTime";
+
+
+            public const string ColumnHeaderLastExecTime = "ColumnHeaderLastExecTime";
+
+
+            public const string ColumnHeaderLastForcedPlanExecTime = "ColumnHeaderLastForcedPlanExecTime";
+
+
+            public const string ColumnHeaderLastQueryExecTime = "ColumnHeaderLastQueryExecTime";
+
+
+            public const string ColumnHeaderMetricTime = "ColumnHeaderMetricTime";
+
+
+            public const string ColumnHeaderNumPlans = "ColumnHeaderNumPlans";
+
+
+            public const string ColumnHeaderObjectID = "ColumnHeaderObjectID";
+
+
+            public const string ColumnHeaderObjectName = "ColumnHeaderObjectName";
+
+
+            public const string ColumnHeaderPlanForced = "ColumnHeaderPlanForced";
+
+
+            public const string ColumnHeaderPlanForceFailureCount = "ColumnHeaderPlanForceFailureCount";
+
+
+            public const string ColumnHeaderPlanID = "ColumnHeaderPlanID";
+
+
+            public const string ColumnHeaderQueryID = "ColumnHeaderQueryID";
+
+
+            public const string ColumnHeaderQuerySQLText = "ColumnHeaderQuerySQLText";
+
+
+            public const string ColumnHeaderRegrPercRecent = "ColumnHeaderRegrPercRecent";
+
+
+            public const string ColumnHeaderStatMetric = "ColumnHeaderStatMetric";
+
+
+            public const string ColumnHeaderStatMetricTime = "ColumnHeaderStatMetricTime";
+
+
+            public const string ColumnHeaderToolTip = "ColumnHeaderToolTip";
+
+
+            public const string ColumnHeaderWaitCategoryDesc = "ColumnHeaderWaitCategoryDesc";
+
+
+            public const string ColumnHeaderWaitCategoryId = "ColumnHeaderWaitCategoryId";
+
+
+            public const string HistoryLabelText = "HistoryLabelText";
+
+
+            public const string IntervalEndTime = "IntervalEndTime";
+
+
+            public const string IntervalStartTime = "IntervalStartTime";
+
+
+            public const string InvalidArgumentMessage = "InvalidArgumentMessage";
+
+
+            public const string InvalidContainingObject = "InvalidContainingObject";
+
+
+            public const string InvalidQueryUnderContainingObject = "InvalidQueryUnderContainingObject";
+
+
+            public const string MetricOptionClrTime = "MetricOptionClrTime";
+
+
+            public const string MetricOptionCPUTime = "MetricOptionCPUTime";
+
+
+            public const string MetricOptionDop = "MetricOptionDop";
+
+
+            public const string MetricOptionDuration = "MetricOptionDuration";
+
+
+            public const string MetricOptionExecutions = "MetricOptionExecutions";
+
+
+            public const string MetricOptionLogicalReads = "MetricOptionLogicalReads";
+
+
+            public const string MetricOptionLogicalWrites = "MetricOptionLogicalWrites";
+
+
+            public const string MetricOptionLogMemoryUsed = "MetricOptionLogMemoryUsed";
+
+
+            public const string MetricOptionMemoryConsumption = "MetricOptionMemoryConsumption";
+
+
+            public const string MetricOptionPhysicalReads = "MetricOptionPhysicalReads";
+
+
+            public const string MetricOptionQueryWaitTime = "MetricOptionQueryWaitTime";
+
+
+            public const string MetricOptionRowcount = "MetricOptionRowcount";
+
+
+            public const string MetricOptionTempDbMemoryUsed = "MetricOptionTempDbMemoryUsed";
+
+
+            public const string MetricOptionWithUnitsTemplate = "MetricOptionWithUnitsTemplate";
+
+
+            public const string MetricsNotAvailableInTargetDb = "MetricsNotAvailableInTargetDb";
+
+
+            public const string QueryIDSearchColumnHeaderQueryID = "QueryIDSearchColumnHeaderQueryID";
+
+
+            public const string QueryStoreReadOnlyReason_DbInEmergencyMode = "QueryStoreReadOnlyReason_DbInEmergencyMode";
+
+
+            public const string QueryStoreReadOnlyReason_DbInLogAcceptMode = "QueryStoreReadOnlyReason_DbInLogAcceptMode";
+
+
+            public const string QueryStoreReadOnlyReason_DbInSingleUserMode = "QueryStoreReadOnlyReason_DbInSingleUserMode";
+
+
+            public const string QueryStoreReadOnlyReason_DbReadOnly = "QueryStoreReadOnlyReason_DbReadOnly";
+
+
+            public const string QueryStoreReadOnlyReason_DiskSizeLimit = "QueryStoreReadOnlyReason_DiskSizeLimit";
+
+
+            public const string QueryStoreReadOnlyReason_StmtHashMapMemoryLimit = "QueryStoreReadOnlyReason_StmtHashMapMemoryLimit";
+
+
+            public const string QueryStoreReadOnlyToolTip = "QueryStoreReadOnlyToolTip";
+
+
+            public const string RecentLabelText = "RecentLabelText";
+
+
+            public const string ReplicaOptionGeoSecondary = "ReplicaOptionGeoSecondary";
+
+
+            public const string ReplicaOptionGeoHASecondary = "ReplicaOptionGeoHASecondary";
+
+
+            public const string ReplicaOptionPrimary = "ReplicaOptionPrimary";
+
+
+            public const string ReplicaOptionSecondary = "ReplicaOptionSecondary";
+
+
+            public const string StatisticsOptionAvg = "StatisticsOptionAvg";
+
+
+            public const string StatisticsOptionLast = "StatisticsOptionLast";
+
+
+            public const string StatisticsOptionMax = "StatisticsOptionMax";
+
+
+            public const string StatisticsOptionMin = "StatisticsOptionMin";
+
+
+            public const string StatisticsOptionStddev = "StatisticsOptionStddev";
+
+
+            public const string StatisticsOptionTotal = "StatisticsOptionTotal";
+
+
+            public const string TimeIntervalOptionAuto = "TimeIntervalOptionAuto";
+
+
+            public const string TimeIntervalOptionDay = "TimeIntervalOptionDay";
+
+
+            public const string TimeIntervalOptionHour = "TimeIntervalOptionHour";
+
+
+            public const string TimeIntervalOptionLast12Hours = "TimeIntervalOptionLast12Hours";
+
+
+            public const string TimeIntervalOptionLast15Minutes = "TimeIntervalOptionLast15Minutes";
+
+
+            public const string TimeIntervalOptionLast2Days = "TimeIntervalOptionLast2Days";
+
+
+            public const string TimeIntervalOptionLast2Weeks = "TimeIntervalOptionLast2Weeks";
+
+
+            public const string TimeIntervalOptionLast30Minutes = "TimeIntervalOptionLast30Minutes";
+
+
+            public const string TimeIntervalOptionLast5Minutes = "TimeIntervalOptionLast5Minutes";
+
+
+            public const string TimeIntervalOptionLastDay = "TimeIntervalOptionLastDay";
+
+
+            public const string TimeIntervalOptionLastHour = "TimeIntervalOptionLastHour";
+
+
+            public const string TimeIntervalOptionLastMonth = "TimeIntervalOptionLastMonth";
+
+
+            public const string TimeIntervalOptionLastWeek = "TimeIntervalOptionLastWeek";
+
+
+            public const string TimeIntervalOptionMinute = "TimeIntervalOptionMinute";
+
+
+            public const string TimeIntervalOptionMonth = "TimeIntervalOptionMonth";
+
+
+            public const string TimeIntervalOptionsAllTime = "TimeIntervalOptionsAllTime";
+
+
+            public const string TimeIntervalOptionsCustom = "TimeIntervalOptionsCustom";
+
+
+            public const string TimeIntervalOptionsCustomPaneHeaderText = "TimeIntervalOptionsCustomPaneHeaderText";
+
+
+            public const string TimeIntervalOptionsLast3Months = "TimeIntervalOptionsLast3Months";
+
+
+            public const string TimeIntervalOptionsLast6Months = "TimeIntervalOptionsLast6Months";
+
+
+            public const string TimeIntervalOptionsLastYear = "TimeIntervalOptionsLastYear";
+
+
+            public const string TimeIntervalOptionsNow = "TimeIntervalOptionsNow";
+
+
+            public const string TimeIntervalOptionSpecify = "TimeIntervalOptionSpecify";
+
+
+            public const string TimeIntervalOptionWeek = "TimeIntervalOptionWeek";
+
+
+            public const string TimeIntervalPaneHeader = "TimeIntervalPaneHeader";
+
+
+            public const string TotalWaitCategoryTime = "TotalWaitCategoryTime";
+
+
+            public const string UnitKilobyte = "UnitKilobyte";
+
+
+            public const string UnitMicrosecond = "UnitMicrosecond";
+
+
+            public const string UnitMillisecond = "UnitMillisecond";
+
+
+            public const string StatisticsOptionVariation = "StatisticsOptionVariation";
+
+
+            public const string ReplicaNameNotNullEmpty = "ReplicaNameNotNullEmpty";
+
+
+            public const string ReplicaIdPositive = "ReplicaIdPositive";
 
 
             private Keys()

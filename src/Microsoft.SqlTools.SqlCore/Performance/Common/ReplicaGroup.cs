@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
 
             if (attribute != null)
             {
-                return Resources.ResourceManager.GetString(attribute.Value);
+                return SR.Keys.GetString(attribute.Value);
             }
 
             // this indicates a code level error
@@ -78,11 +78,11 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
         {
             if (string.IsNullOrEmpty(replicaName))
             {
-                throw new ArgumentException(Resources.ReplicaNameNotNullEmpty, nameof(replicaName));
+                throw new ArgumentException(SR.ReplicaNameNotNullEmpty, nameof(replicaName));
             }
             if (replicaGroupId < 0)
             {
-                throw new ArgumentException(Resources.ReplicaIdPositive, nameof(replicaGroupId));
+                throw new ArgumentException(SR.ReplicaIdPositive, nameof(replicaGroupId));
             }
             _replicaGroupId = replicaGroupId;
             _replicaName = replicaName;

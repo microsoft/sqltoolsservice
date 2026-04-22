@@ -36,17 +36,17 @@ namespace Microsoft.SqlTools.SqlCore.Performance.Common
             switch (interval)
             {
                 case BucketInterval.Minute:
-                    return Resources.TimeIntervalOptionMinute;
+                    return SR.TimeIntervalOptionMinute;
                 case BucketInterval.Hour:
-                    return Resources.TimeIntervalOptionHour;
+                    return SR.TimeIntervalOptionHour;
                 case BucketInterval.Day:
-                    return Resources.TimeIntervalOptionDay;
+                    return SR.TimeIntervalOptionDay;
                 case BucketInterval.Week:
-                    return Resources.TimeIntervalOptionWeek;
+                    return SR.TimeIntervalOptionWeek;
                 case BucketInterval.Month:
-                    return Resources.TimeIntervalOptionMonth;
+                    return SR.TimeIntervalOptionMonth;
                 case BucketInterval.Automatic:
-                    return Resources.TimeIntervalOptionAuto;
+                    return SR.TimeIntervalOptionAuto;
                 default:
                     {
                         // this indicates a code level error
