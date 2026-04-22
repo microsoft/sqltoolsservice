@@ -31,7 +31,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
-		<PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
 		<PackageReference Include="Microsoft.SqlServer.DacFx" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
 	</ItemGroup>
 	<ItemGroup>

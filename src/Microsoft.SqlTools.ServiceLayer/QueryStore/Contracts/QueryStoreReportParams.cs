@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts

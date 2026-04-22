@@ -12,14 +12,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries;
-using Microsoft.SqlServer.Management.QueryStoreModel.HighVariation;
-using Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption;
-using Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary;
-using Microsoft.SqlServer.Management.QueryStoreModel.RegressedQueries;
-using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
-using Microsoft.SqlServer.Management.QueryStoreModel.TrackedQueries;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
+using Microsoft.SqlTools.SqlCore.Performance.ForcedPlanQueries;
+using Microsoft.SqlTools.SqlCore.Performance.HighVariation;
+using Microsoft.SqlTools.SqlCore.Performance.OverallResourceConsumption;
+using Microsoft.SqlTools.SqlCore.Performance.PlanSummary;
+using Microsoft.SqlTools.SqlCore.Performance.RegressedQueries;
+using Microsoft.SqlTools.SqlCore.Performance.TopResourceConsumers;
+using Microsoft.SqlTools.SqlCore.Performance.TrackedQueries;
 
 #nullable enable
 
@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance
         public static string GetForcedPlanQuery(long queryId, long planId)
         {
 
-            string query = PlanSummaryQueryGenerator.GetForcedPlanQuery();
+            string query = PlanSummaryQueryGenerator.GetForcedPlanQuery(runForPrimary: true);
             Dictionary<string, object> sqlParams = new()
             {
                 [QueryGeneratorUtils.ParameterQueryId] = queryId,
