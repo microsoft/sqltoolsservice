@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     /// <summary>
     /// This is a list of aggregations that are supported in query store UI. We call them Statistics.

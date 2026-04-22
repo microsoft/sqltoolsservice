@@ -3,9 +3,9 @@
 //------------------------------------------------------------
 
 using System;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.TopResourceConsumers
 {
     public class TopResourceConsumersConfiguration : QueryConfigurationBase, ICloneable
     {

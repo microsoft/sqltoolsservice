@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     // Values in this enum come from EQDSOperationalState in sql engine.
     public enum QueryStoreOperationalStatus

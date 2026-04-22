@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
 {
     /// <summary>
     /// The execution type for each query plan.

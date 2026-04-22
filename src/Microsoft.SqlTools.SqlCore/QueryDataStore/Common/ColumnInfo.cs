@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     /// <summary>
     /// Base class for all column info classes.

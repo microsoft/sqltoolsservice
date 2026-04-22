@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // ------------------------------------------------------------
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Controls
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Controls
 {
     public class ResultSetMapping
     {

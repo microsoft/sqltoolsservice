@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     public static class QueryStoreConstants
     {

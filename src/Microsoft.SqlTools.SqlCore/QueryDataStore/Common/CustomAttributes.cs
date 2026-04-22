@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     /// <summary>
     /// Attribute to allow specifying a LocalizedString value for an enum

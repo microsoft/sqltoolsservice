@@ -5,10 +5,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 using static System.FormattableString;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.ForcedPlanQueries
 {
     /// <summary>
     /// Util Class used to generate the queries required for Forced Plan Queries report

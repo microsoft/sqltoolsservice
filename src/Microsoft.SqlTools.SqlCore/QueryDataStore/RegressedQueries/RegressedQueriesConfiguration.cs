@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.RegressedQueries
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.RegressedQueries
 {
     public class RegressedQueriesConfiguration : QueryConfigurationBase
     {

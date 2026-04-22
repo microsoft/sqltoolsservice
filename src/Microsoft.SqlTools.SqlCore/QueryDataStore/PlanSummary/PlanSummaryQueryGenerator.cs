@@ -4,10 +4,10 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlServer.Management.QueryStoreModel.WaitStats;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.WaitStats;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
 {
     /// <summary>
     /// Class used to generate the queries required for query store UI

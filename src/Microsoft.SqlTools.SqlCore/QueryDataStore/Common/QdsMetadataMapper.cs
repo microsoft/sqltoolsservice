@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     /// <summary>
     /// Class contains logic to map runtime/wait metrics names that are recorded by QDS to equivalent enumerations.

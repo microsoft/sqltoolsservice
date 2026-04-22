@@ -3,9 +3,9 @@
 //------------------------------------------------------------
 
 using System.Collections.Generic;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.OverallResourceConsumption
 {
     /// <summary>
     /// Simple class which holds the Configuration settings for the OverallResourceConsumption Control

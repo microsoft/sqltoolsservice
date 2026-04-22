@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.ForcedPlanQueries
 {
     /// <summary>
     /// Class to stores the configuration for Forced Plan Queries report

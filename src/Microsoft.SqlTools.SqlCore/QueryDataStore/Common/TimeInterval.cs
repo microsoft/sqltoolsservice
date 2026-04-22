@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     [TypeConverter(typeof(TimeIntervalValueConverter))]
     public enum TimeIntervalOptions

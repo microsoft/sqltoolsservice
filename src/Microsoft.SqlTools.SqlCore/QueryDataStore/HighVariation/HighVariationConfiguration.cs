@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.HighVariation
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.HighVariation
 {
     public class HighVariationConfiguration : QueryConfigurationBase
     {

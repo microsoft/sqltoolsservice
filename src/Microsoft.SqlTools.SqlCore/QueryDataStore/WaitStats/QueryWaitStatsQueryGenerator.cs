@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.TopResourceConsumers;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.WaitStats
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.WaitStats
 {
     /// <summary>
     /// Helper Class used to generate the queries required for query store UI wait stats report

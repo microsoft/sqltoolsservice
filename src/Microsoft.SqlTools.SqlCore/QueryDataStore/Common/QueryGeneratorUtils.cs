@@ -5,7 +5,7 @@
 using System;
 using System.Globalization;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     /// <summary>
     /// A collection of commonly used methods to promote code sharing and maintainability

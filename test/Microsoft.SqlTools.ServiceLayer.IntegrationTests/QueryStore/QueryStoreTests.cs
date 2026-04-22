@@ -7,15 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.SqlCore.Performance;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 using Moq;
 using NUnit.Framework;
-using static Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary.PlanSummaryConfiguration;
+using static Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary.PlanSummaryConfiguration;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
 {

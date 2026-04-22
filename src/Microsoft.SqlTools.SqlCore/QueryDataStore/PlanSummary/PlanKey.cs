@@ -3,9 +3,9 @@
 //------------------------------------------------------------
 
 using System;
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
 {
     /// <summary>
     /// Plan Key used to uniquely identify query plans based on the Plan ID and ExecutionType

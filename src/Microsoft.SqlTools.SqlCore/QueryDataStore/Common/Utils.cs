@@ -9,12 +9,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Management.QueryStoreModel.Controls;
-using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
-using Microsoft.SqlServer.Management.QueryStoreModel.WaitStats;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Controls;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.TopResourceConsumers;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.WaitStats;
 using static System.FormattableString;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     public static class Utils
     {

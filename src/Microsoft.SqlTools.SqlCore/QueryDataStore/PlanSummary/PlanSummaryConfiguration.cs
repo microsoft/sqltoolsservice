@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
 {
     /// <summary>
     /// Class for containing the configuration used to generate the PlanSummary View

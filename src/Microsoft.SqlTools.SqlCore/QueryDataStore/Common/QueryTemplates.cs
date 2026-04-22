@@ -4,7 +4,7 @@
 
 using System.Globalization;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.Common
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
 {
     /// <summary>
     /// This lists all the query templates used for various reports under query store

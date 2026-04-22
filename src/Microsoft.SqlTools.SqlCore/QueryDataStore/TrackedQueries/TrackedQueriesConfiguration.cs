@@ -2,10 +2,10 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary;
 
-namespace Microsoft.SqlServer.Management.QueryStoreModel.TrackedQueries
+namespace Microsoft.SqlTools.SqlCore.QueryDataStore.TrackedQueries
 {
     public class TrackedQueriesConfiguration : PlanSummaryConfiguration
     {
