@@ -18,7 +18,7 @@
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <AssemblyTitle>SqlTools Migration Host Protocol Library</AssemblyTitle>
     <Description>Provides message types and client/server APIs for the SqlTools Migration Services JSON protocol.</Description>
-    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
