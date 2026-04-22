@@ -11,13 +11,13 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools Hosting Library</AssemblyTitle>
 		<Description>Provides hosting services for SqlTools applications.</Description>
-		<TargetFrameworks>net472;netstandard2.0;net10.0</TargetFrameworks>
+		<TargetFrameworks>$(SsmsDotNetVersion);netstandard2.0;$(SqlToolsServiceDotNetVersion)</TargetFrameworks>
 		<LangVersion>8.0</LangVersion>
 		<!-- CS8632: Project opts out of nullable analysis via <Nullable>disable</Nullable>; ? annotations in files are informational only -->
 		<NoWarn>$(NoWarn);CS8632</NoWarn>
 		<DelaySign>True</DelaySign>
 		<AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
-		<SignAssembly Condition="$(TargetFramework) == 'net472'">True</SignAssembly>
+		<SignAssembly Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">True</SignAssembly>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
@@ -31,13 +31,17 @@
 		<PackageReference Include="System.Text.Encodings.Web" />
 		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework) != 'net472'">
+	<ItemGroup Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">
+		<PackageReference Update="Microsoft.Extensions.DependencyModel" VersionOverride="$(SsmsSystemNugetVersion)" />
+		<PackageReference Update="System.Text.Json" VersionOverride="$(SsmsSystemNugetVersion)" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
 	</ItemGroup>
 	<!-- InternalsVisibleTo for .NET Framework 4.7.2 must include a strong name key since we're signing the assembly when targeting this framework -->
-	<ItemGroup Condition="$(TargetFramework) == 'net472'">
+	<ItemGroup Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" Key="0024000004800000940000000602000000240000525341310004000001000100272736ad6e5f9586bac2d531eabc3acc666c2f8ec879fa94f8f7b0327d2ff2ed523448f83c3d5c5dd2dfc7bc99c5286b2c125117bf5cbe242b9d41750732b2bdffe649c6efb8e5526d526fdd130095ecdb7bf210809c6cdad8824faa9ac0310ac3cba2aa0523567b2dfa7fe250b30facbd62d4ec99b94ac47c7d3b28f1f6e4c8" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" Key="0024000004800000940000000602000000240000525341310004000001000100272736ad6e5f9586bac2d531eabc3acc666c2f8ec879fa94f8f7b0327d2ff2ed523448f83c3d5c5dd2dfc7bc99c5286b2c125117bf5cbe242b9d41750732b2bdffe649c6efb8e5526d526fdd130095ecdb7bf210809c6cdad8824faa9ac0310ac3cba2aa0523567b2dfa7fe250b30facbd62d4ec99b94ac47c7d3b28f1f6e4c8" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" Key="0024000004800000940000000602000000240000525341310004000001000100272736ad6e5f9586bac2d531eabc3acc666c2f8ec879fa94f8f7b0327d2ff2ed523448f83c3d5c5dd2dfc7bc99c5286b2c125117bf5cbe242b9d41750732b2bdffe649c6efb8e5526d526fdd130095ecdb7bf210809c6cdad8824faa9ac0310ac3cba2aa0523567b2dfa7fe250b30facbd62d4ec99b94ac47c7d3b28f1f6e4c8" />
