@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     // Values in this enum come from EQDSOperationalState in sql engine.
     public enum QueryStoreOperationalStatus

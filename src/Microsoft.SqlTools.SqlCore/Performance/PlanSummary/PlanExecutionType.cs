@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.Performance.PlanSummary
 {
     /// <summary>
     /// The execution type for each query plan.

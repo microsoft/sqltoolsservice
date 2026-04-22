@@ -12,10 +12,10 @@ using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.SqlCore.Performance;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 using Moq;
 using NUnit.Framework;
-using static Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary.PlanSummaryConfiguration;
+using static Microsoft.SqlTools.SqlCore.Performance.PlanSummary.PlanSummaryConfiguration;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
 {

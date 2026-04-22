@@ -5,7 +5,7 @@
 
 using System.Globalization;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// This lists all the query templates used for various reports under query store

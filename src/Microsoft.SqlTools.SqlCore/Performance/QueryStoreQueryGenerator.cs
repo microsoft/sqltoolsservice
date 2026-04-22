@@ -12,14 +12,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.ForcedPlanQueries;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.HighVariation;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.OverallResourceConsumption;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.RegressedQueries;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.TopResourceConsumers;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.TrackedQueries;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
+using Microsoft.SqlTools.SqlCore.Performance.ForcedPlanQueries;
+using Microsoft.SqlTools.SqlCore.Performance.HighVariation;
+using Microsoft.SqlTools.SqlCore.Performance.OverallResourceConsumption;
+using Microsoft.SqlTools.SqlCore.Performance.PlanSummary;
+using Microsoft.SqlTools.SqlCore.Performance.RegressedQueries;
+using Microsoft.SqlTools.SqlCore.Performance.TopResourceConsumers;
+using Microsoft.SqlTools.SqlCore.Performance.TrackedQueries;
 
 #nullable enable
 

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// List of Wait Category enumeration which we support in QDS

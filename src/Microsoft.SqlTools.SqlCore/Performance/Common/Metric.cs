@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// This is the list of data points that are supported in query store UI. We call them metrics.

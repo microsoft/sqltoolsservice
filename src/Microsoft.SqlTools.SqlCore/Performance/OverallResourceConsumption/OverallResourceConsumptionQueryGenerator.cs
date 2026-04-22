@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.OverallResourceConsumption
+namespace Microsoft.SqlTools.SqlCore.Performance.OverallResourceConsumption
 {
     /// <summary>
     /// Class which generates the queries for the Overall Resource Consumption View

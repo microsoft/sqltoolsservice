@@ -6,7 +6,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     [TypeConverter(typeof(BucketIntervalValueConverter))]
     public enum BucketInterval

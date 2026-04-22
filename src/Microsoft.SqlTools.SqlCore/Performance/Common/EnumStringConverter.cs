@@ -7,7 +7,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// Provides core enum to localized string conversion functionality for UI components

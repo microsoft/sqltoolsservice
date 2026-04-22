@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
+using Microsoft.SqlTools.SqlCore.Performance.PlanSummary;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.TrackedQueries
+namespace Microsoft.SqlTools.SqlCore.Performance.TrackedQueries
 {
     public class TrackedQueriesConfiguration : PlanSummaryConfiguration
     {

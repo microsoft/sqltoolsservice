@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// A collection of commonly used methods to promote code sharing and maintainability

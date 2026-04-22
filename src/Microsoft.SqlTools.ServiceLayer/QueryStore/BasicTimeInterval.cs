@@ -6,7 +6,7 @@
 #nullable disable
 
 using System;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 {

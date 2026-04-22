@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     public static class DateTimeOffsetExtension
     {

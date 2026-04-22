@@ -10,12 +10,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Controls;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.TopResourceConsumers;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.WaitStats;
+using Microsoft.SqlTools.SqlCore.Performance.Controls;
+using Microsoft.SqlTools.SqlCore.Performance.TopResourceConsumers;
+using Microsoft.SqlTools.SqlCore.Performance.WaitStats;
 using static System.FormattableString;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     public static class Utils
     {

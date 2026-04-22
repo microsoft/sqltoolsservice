@@ -4,9 +4,9 @@
 //
 
 using System;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.Performance.PlanSummary
 {
     /// <summary>
     /// Plan Key used to uniquely identify query plans based on the Plan ID and ExecutionType

@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.PlanSummary
+namespace Microsoft.SqlTools.SqlCore.Performance.PlanSummary
 {
     /// <summary>
     /// Class for containing the configuration used to generate the PlanSummary View

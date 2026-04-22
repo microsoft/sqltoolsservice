@@ -4,9 +4,9 @@
 //
 
 using System;
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.TopResourceConsumers
+namespace Microsoft.SqlTools.SqlCore.Performance.TopResourceConsumers
 {
     public class TopResourceConsumersConfiguration : QueryConfigurationBase, ICloneable
     {

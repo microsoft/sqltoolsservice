@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// Base class for all column info classes.

@@ -39,7 +39,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization/*.resx" />
-		<EmbeddedResource Include="QueryDataStore/Resources.resx" />
+		<EmbeddedResource Include="Performance/Resources.resx" />
 		<None Include="Localization/sr.strings" />
 	</ItemGroup>
 	<ItemGroup>

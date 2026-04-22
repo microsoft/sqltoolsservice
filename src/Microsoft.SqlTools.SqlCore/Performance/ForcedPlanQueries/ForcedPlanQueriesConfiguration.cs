@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.SqlCore.QueryDataStore.Common;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.ForcedPlanQueries
+namespace Microsoft.SqlTools.SqlCore.Performance.ForcedPlanQueries
 {
     /// <summary>
     /// Class to stores the configuration for Forced Plan Queries report

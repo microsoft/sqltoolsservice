@@ -7,7 +7,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.Common
+namespace Microsoft.SqlTools.SqlCore.Performance.Common
 {
     /// <summary>
     /// This is the list of replicas that are supported in query store UI. We call them ReplicaGroups.

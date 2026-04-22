@@ -5,7 +5,7 @@
 
 using System.Globalization;
 
-namespace Microsoft.SqlTools.SqlCore.QueryDataStore.TrackedQueries
+namespace Microsoft.SqlTools.SqlCore.Performance.TrackedQueries
 {
     public static class QueryIDSearchQueryGenerator
     {
