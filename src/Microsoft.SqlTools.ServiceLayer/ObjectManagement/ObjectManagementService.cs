@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(new RenameRequestResponse());
         }
 
-        internal async Task HandleRenameDatabaseRequest(RenameDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task HandleRenameDatabaseRequest(RenameDatabaseRequestParams requestParams, RequestContext<RenameDatabaseResponse> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var operation = new RenameDatabaseOperation(handler, requestParams);
@@ -95,7 +95,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (requestParams.GenerateScript)
             {
                 operation.Execute(TaskExecutionMode.Script);
-                await requestContext.SendResult(operation.ScriptContent ?? string.Empty);
+                await requestContext.SendResult(new RenameDatabaseResponse
+                {
+                    Script = operation.ScriptContent ?? string.Empty,
+                });
                 return;
             }
 
@@ -112,9 +115,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 OwnerUri = requestParams.ConnectionUri,
                 OperationName = typeof(RenameDatabaseOperation).Name,
             };
-            SqlTaskManager.Instance.CreateAndRun<SqlTask>(metadata);
+            SqlTask sqlTask = SqlTaskManager.Instance.CreateAndRun<SqlTask>(metadata);
 
-            await requestContext.SendResult(string.Empty);
+            await requestContext.SendResult(new RenameDatabaseResponse
+            {
+                TaskId = sqlTask.TaskId.ToString(),
+            });
         }
 
         internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<DropRequestResponse> requestContext)
