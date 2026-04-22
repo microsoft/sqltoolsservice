@@ -11,7 +11,7 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools Hosting Library</AssemblyTitle>
 		<Description>Provides hosting services for SqlTools applications.</Description>
-		<TargetFrameworks>$(SsmsDotNetVersion);netstandard2.0;$(SqlToolsServiceDotNetVersion)</TargetFrameworks>
+		<TargetFrameworks>$(SqlToolsServiceDotNetVersion);$(SsmsDotNetVersion);netstandard2.0</TargetFrameworks>
 		<LangVersion>8.0</LangVersion>
 		<!-- CS8632: Project opts out of nullable analysis via <Nullable>disable</Nullable>; ? annotations in files are informational only -->
 		<NoWarn>$(NoWarn);CS8632</NoWarn>

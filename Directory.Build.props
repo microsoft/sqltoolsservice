@@ -13,7 +13,8 @@
     <SqlToolsServiceDotNetVersion Condition="'$(SqlToolsServiceDotNetVersion)' == ''">net10.0</SqlToolsServiceDotNetVersion>
     <!-- SqlCore is limited by the Sql Fabric workload version -->
     <SqlCoreDotNetVersion Condition="'$(SqlCoreDotNetVersion)' == ''">net8.0</SqlCoreDotNetVersion>
-    <!-- the SsmsDotNetVersion is limited by SSMS -->
+    <!-- the SsmsDotNetVersion is limited by SSMS; when changing this value,
+         search for related compiler directives as well (for example: NET472) -->
     <SsmsDotNetVersion Condition="'$(SsmsDotNetVersion)' == ''">net472</SsmsDotNetVersion>
     <!-- the SsmsSystemNugetVersion is limited by SSMS -->
     <SsmsSystemNugetVersion Condition="'$(SsmsSystemNugetVersion)' == ''">10.0.3</SsmsSystemNugetVersion>

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<!-- Targeting both $(SqlToolsServiceDotNetVersion) and net472 so that other things such as PS cmdlets can use this
+		<!-- Targeting both .NET and NetFx so that other things such as PS cmdlets can use this
 		which need to support a wider range of machines -->
-		<TargetFrameworks>$(SqlToolsServiceDotNetVersion);net472;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>$(SqlToolsServiceDotNetVersion);$(SsmsDotNetVersion);netstandard2.0</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
@@ -10,7 +10,7 @@
 		<DelaySign>True</DelaySign>
 		<!-- Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in
 		tests with internalsVisibleTo attribute.-->
-		<SignAssembly Condition="$(TargetFramework) == 'net472'">True</SignAssembly>
+		<SignAssembly Condition="$(TargetFramework) == '$(SsmsDotNetVersion)'">True</SignAssembly>
 		<AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
