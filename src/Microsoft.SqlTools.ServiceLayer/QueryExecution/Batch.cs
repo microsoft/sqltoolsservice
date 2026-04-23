@@ -694,7 +694,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             else
             {
                 detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}",
-                    errorNumber, errorClass, state, procedure, lineNumber,
+                    errorNumber, errorClass, state, procedure, lineNumber + (Selection != null ? Selection.StartLine : 0),
                     Environment.NewLine, message);
             }
 
