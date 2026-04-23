@@ -22,7 +22,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         public JToken Object { get; set; }
     }
 
-    public class SaveObjectRequestResponse { }
+    public class SaveObjectRequestResponse
+    {
+        /// <summary>
+        /// The task id associated with the save operation.
+        /// </summary>
+        public string TaskId { get; set; }
+
+        /// <summary>
+        /// The task failure message when the save operation completes unsuccessfully.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+    }
 
     public class SaveObjectRequest
     {

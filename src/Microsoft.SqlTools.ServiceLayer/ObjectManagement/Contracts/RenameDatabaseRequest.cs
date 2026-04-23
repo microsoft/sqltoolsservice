@@ -48,6 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// The generated T-SQL script when the request runs in script mode.
         /// </summary>
         public string Script { get; set; }
+
+        /// <summary>
+        /// The task failure message when the rename operation completes unsuccessfully.
+        /// </summary>
+        public string ErrorMessage { get; set; }
     }
 
     public class RenameDatabaseRequest

@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             };
         }
 
-        internal static async Task SaveObject(InitializeViewRequestParams parameters, SqlObject obj)
+        internal static async Task<SaveObjectRequestResponse> SaveObject(InitializeViewRequestParams parameters, SqlObject obj)
         {
             // Initialize the view
             var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
@@ -195,9 +195,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
 
             // Save the object
+            SaveObjectRequestResponse saveResponse = null;
             var saveObjectRequestContext = new Mock<RequestContext<SaveObjectRequestResponse>>();
             saveObjectRequestContext.Setup(x => x.SendResult(It.IsAny<SaveObjectRequestResponse>()))
-                .Returns(Task.FromResult<SaveObjectRequestResponse>(new SaveObjectRequestResponse()));
+                .Callback<SaveObjectRequestResponse>(r => saveResponse = r)
+                .Returns(Task.FromResult(new object()));
             await Service.HandleSaveObjectRequest(new SaveObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) }, saveObjectRequestContext.Object);
 
             // Dispose the view
@@ -205,6 +207,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
                 .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+
+            return saveResponse;
         }
 
         internal static async Task<DatabaseViewInfo> GetDatabaseObject(InitializeViewRequestParams parameters, SqlObject obj)
