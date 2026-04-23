@@ -33,8 +33,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         public bool GenerateScript { get; set; }
     }
 
+    public class DropDatabaseResponse
+    {
+        /// <summary>
+        /// The task id associated with the drop operation when executed.
+        /// </summary>
+        public string TaskId { get; set; }
+
+        /// <summary>
+        /// The generated T-SQL script when the request runs in script mode.
+        /// </summary>
+        public string Script { get; set; }
+
+        /// <summary>
+        /// The task failure message when the drop operation completes unsuccessfully.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+    }
+
     public class DropDatabaseRequest
     {
-        public static readonly RequestType<DropDatabaseRequestParams, string> Type = RequestType<DropDatabaseRequestParams, string>.Create("objectManagement/dropDatabase");
+        public static readonly RequestType<DropDatabaseRequestParams, DropDatabaseResponse> Type = RequestType<DropDatabaseRequestParams, DropDatabaseResponse>.Create("objectManagement/dropDatabase");
     }
 }
