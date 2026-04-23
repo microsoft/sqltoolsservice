@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.SqlCore.Connection
                     _cachedToken = token;
                     _expiresOn = expiresOn;
                 }
+
                 return _cachedToken;
             }
         }
