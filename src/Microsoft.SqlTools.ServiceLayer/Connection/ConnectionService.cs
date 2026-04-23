@@ -99,6 +99,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
+        /// Cache of <see cref="CachingTokenFetcher"/> instances keyed by (accountId, tenantId).
+        /// Shared across all connections so that multiple connections for the same account reuse
+        /// the same cached token rather than each making their own <c>account/securityTokenRequest</c>
+        /// round-trip.
+        /// </summary>
+        private readonly ConcurrentDictionary<(string accountId, string tenantId), CachingTokenFetcher>
+            _azureTokenFetcherCache = new();
+
+        /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
@@ -182,6 +191,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// when user chooses 'Azure MFA'.
         /// </summary>
         public bool EnableSqlAuthenticationProvider { get; set; }
+
+        /// <summary>
+        /// When true, STS requests Entra tokens from the client app via <c>account/securityTokenRequest</c>
+        /// using <see cref="SqlConnection.AccessTokenCallback"/>, instead of acquiring them via MSAL.
+        /// Mutually exclusive with <see cref="EnableSqlAuthenticationProvider"/>.
+        /// </summary>
+        public bool RequestMfaTokenFromClient { get; set; }
 
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
@@ -278,9 +294,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns> True if a refreshed was needed and requested, false otherwise </returns>
         internal async Task<bool> TryRequestRefreshAuthToken(string ownerUri)
         {
-            // When SqlAuthenticationProvider is enabled, the driver handles token refresh
-            // automatically via MSAL — no need for the manual client round-trip.
-            if (this.EnableSqlAuthenticationProvider)
+            // Both auth modes handle token refresh on their own:
+            // MSAL via SqlAuthenticationProvider and the callback path via AccessTokenCallback.
+            if (this.EnableSqlAuthenticationProvider || this.RequestMfaTokenFromClient)
             {
                 return false;
             }
@@ -598,9 +614,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 DbConnection underlyingConnection = reliableConnection != null
                     ? reliableConnection.GetUnderlyingConnection()
                     : connection;
-                
+
                 var serverConnId = (underlyingConnection as SqlConnection).ServerProcessId;
-                if (serverConnId != 0) {
+                if (serverConnId != 0)
+                {
                     // If 0, that would mean the connection is inactive, so there's no 
                     // need to return the connection id.
                     response.ServerConnectionId = serverConnId.ToString();
@@ -671,14 +688,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return serverEdition;
         }
 
-        internal static ConnectionDetails FillInDefaultDetailsForConnections(ConnectionDetails inputConnectionDetails, string featureName) { 
+        internal static ConnectionDetails FillInDefaultDetailsForConnections(ConnectionDetails inputConnectionDetails, string featureName)
+        {
             ConnectionDetails newConnectionDetails = inputConnectionDetails;
 
-            if(string.IsNullOrWhiteSpace(newConnectionDetails.ApplicationName)) 
+            if (string.IsNullOrWhiteSpace(newConnectionDetails.ApplicationName))
             {
                 newConnectionDetails.ApplicationName = ApplicationName;
             }
-            else 
+            else
             {
                 newConnectionDetails.ApplicationName = GetApplicationNameWithFeature(newConnectionDetails.ApplicationName, featureName);
             }
@@ -688,6 +706,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             newConnectionDetails.CommandTimeout = Math.Max(DefaultCommandTimeout, newConnectionDetails.CommandTimeout ?? 0);
 
             return newConnectionDetails;
+        }
+
+        /// <summary>
+        /// Returns a delegate that provides a valid Entra access token for the given account and
+        /// tenant, fetching one from the client via <c>account/securityTokenRequest</c> only when
+        /// the cached token is absent or near expiry.
+        ///
+        /// <see cref="_azureTokenFetcherCache"/> ensures all connections for the same
+        /// (accountId, tenantId) pair share a single <see cref="CachingTokenFetcher"/>, so at
+        /// most one round-trip is made per token lifetime regardless of how many connections are
+        /// open simultaneously.
+        /// </summary>
+        private Func<Task<(string token, DateTimeOffset expiresOn)>>
+            CreateAzureTokenFetcher(string accountId, string tenantId)
+        {
+            var fetcher = _azureTokenFetcherCache.GetOrAdd(
+                (accountId, tenantId),
+                _ => new CachingTokenFetcher(async () =>
+                {
+                    var request = new RequestSecurityTokenParams
+                    {
+                        Provider = "Azure",
+                        AccountId = accountId,
+                        TenantId = tenantId,
+                    };
+
+                    RequestSecurityTokenResponse response =
+                        await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
+                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
+                }));
+
+            return fetcher.GetTokenAsync;
+        }
+
+        /// <summary>
+        /// Wraps a token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>
+        /// </summary>
+        private static Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>>
+            ToSqlAccessTokenCallback(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
+        {
+            return async (_, cancellationToken) =>
+            {
+                var (token, expiresOn) = await tokenFetcher().ConfigureAwait(continueOnCapturedContext: false);
+                return new SqlAuthenticationToken(token, expiresOn);
+            };
         }
 
         /// <summary>
@@ -712,7 +777,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance (with enabled serverless retry logic to handle sleeping serverless databases)
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
+                if (RequestMfaTokenFromClient
+                    && connectionInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+                {
+                    // Use AccessTokenCallback so the driver requests tokens on-demand (initial
+                    // connection and refresh upon token expiration) rather than holding a static token.
+                    var tokenFetcher = CreateAzureTokenFetcher(
+                        connectionInfo.ConnectionDetails.AccountId,
+                        connectionInfo.ConnectionDetails.TenantId);
+
+                    connectionInfo.AzureTokenFetcher = tokenFetcher;
+                    connection = connectionInfo.Factory.CreateSqlConnection(connectionString, null, SqlRetryProviders.ServerlessDBRetryProvider());
+                    ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher);
+                }
+                else
+                {
+                    connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
+                }
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -730,7 +811,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
 
                 // Open the connection
-                await connection.OpenAsync(source.Token);
+                await OpenConnectionAsync(connection, source.Token);
             }
             catch (SqlException ex)
             {
@@ -948,7 +1029,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool ReplaceUri(string originalOwnerUri, string newOwnerUri)
         {
             // Lookup the ConnectionInfo owned by the URI
-            if(OwnerToConnectionMap.TryRemove(originalOwnerUri, out ConnectionInfo info))
+            if (OwnerToConnectionMap.TryRemove(originalOwnerUri, out ConnectionInfo info))
             {
                 info.OwnerUri = newOwnerUri;
                 return OwnerToConnectionMap.TryAdd(newOwnerUri, info);
@@ -1138,6 +1219,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     this.EnableSqlAuthenticationProvider = true;
                     Logger.Information("Registering implementation of SQL Authentication provider for 'Active Directory Interactive' authentication mode.");
                 }
+
+                if (commandOptions.RequestMfaTokenFromClient)
+                {
+                    this.RequestMfaTokenFromClient = true;
+                    Logger.Information("MFA token acquisition delegated to client via account/securityTokenRequest.");
+                }
+
                 if (commandOptions.EnableConnectionPooling)
                 {
                     ConnectionService.EnableConnectionPooling = true;
@@ -1792,7 +1880,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             Logger.Verbose("ClearPooledConnectionsRequest");
             // Run a detached task to clear pools in backend.
-            await Task.Factory.StartNew(() => Task.Run(async () => {
+            await Task.Factory.StartNew(() => Task.Run(async () =>
+            {
 
                 SqlConnection.ClearAllPools();
 
@@ -1809,7 +1898,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (builder.IntegratedSecurity)
             {
                 mappedAuthenticationType = "Integrated";
-            } else if (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive)
+            }
+            else if (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive)
             {
                 mappedAuthenticationType = "AzureMFA";
             }
@@ -2040,13 +2130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
-
-                // Fill in Microsoft Entra authentication token if needed
-                if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
-                {
-                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                }
-
+                ConfigureSqlConnectionAuth(sqlConn, connInfo);
                 sqlConn.Open();
                 return sqlConn;
             }
@@ -2068,20 +2152,63 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
+        /// <summary>
+        /// Opens a <see cref="DbConnection"/> asynchronously. Overridable in tests to avoid real
+        /// network activity without introducing a static hook in the production call path.
+        /// </summary>
+        protected virtual Task OpenConnectionAsync(DbConnection connection, CancellationToken token)
+            => connection.OpenAsync(token);
+
+        /// <summary>
+        /// Test hook: when set, <see cref="OpenServerConnection"/> returns this delegate's result
+        /// instead of creating a real connection.  Always null in production.
+        /// </summary>
+        internal static Func<ConnectionInfo, string, ServerConnection> OpenServerConnectionOverride;
+
         internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
         {
+            if (OpenServerConnectionOverride != null)
+                return OpenServerConnectionOverride(connInfo, featureName);
+
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
-            ServerConnection serverConnection;
+            return CreateServerConnection(sqlConnection, connInfo);
+        }
+
+        /// <summary>
+        /// Selects the correct <see cref="ServerConnection"/> constructor overload based on
+        /// whether the connection uses a callback-based or static Azure token.
+        /// Extracted for unit testability.
+        /// </summary>
+        internal static ServerConnection CreateServerConnection(SqlConnection sqlConnection, ConnectionInfo connInfo)
+        {
+            if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            {
+                // RequestMfaTokenFromClient: give SMO a token with a refresh callback.
+                return new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
+            }
             if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                serverConnection = new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
+                return new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
             }
-            else
-            {
-                serverConnection = new ServerConnection(sqlConnection);
-            }
+            return new ServerConnection(sqlConnection);
+        }
 
-            return serverConnection;
+        /// <summary>
+        /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on
+        /// whether <see cref="ConnectionInfo.AzureTokenFetcher"/> or
+        /// <see cref="ConnectionDetails.AzureAccountToken"/> is present.
+        /// Extracted for unit testability.
+        /// </summary>
+        internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo)
+        {
+            if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            {
+                sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher);
+            }
+            else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            {
+                sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
+            }
         }
 
         public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)

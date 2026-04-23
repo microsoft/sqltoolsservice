@@ -30,6 +30,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the scope array of the authentication request.
         /// </summary>
         public string [] Scopes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Entra account ID
+        /// Populated only when RequestMfaTokenFromClient is enabled; null for client apps using the shared MSAL cache for auth.
+        /// </summary>
+        public string AccountId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Entra tenant ID
+        /// Populated only when RequestMfaTokenFromClient is enabled; null for client apps using the shared MSAL cache for auth.
+        /// </summary>
+        public string TenantId { get; set; }
     }
 
     class RequestSecurityTokenResponse
@@ -43,11 +55,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the access token.
         /// </summary>
         public string Token { get; set; }
+
+        /// <summary>
+        /// Gets or sets the token expiration as Unix epoch.
+        /// </summary>
+        public long ExpiresOn { get; set; }
     }
 
-    /// <summary>
-    /// SecurityToken Request mapping entry 
-    /// </summary>
     class SecurityTokenRequest
     {
         public static readonly
