@@ -791,7 +791,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
 
                 // Open the connection
-                await connection.OpenAsync(source.Token);
+                await OpenConnectionAsync(connection, source.Token);
             }
             catch (SqlException ex)
             {
@@ -2110,18 +2110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
-
-                if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
-                {
-                    // If the connection should fetch tokens from the client app,
-                    // wrap token fetch helper for the connection
-                    sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher);
-                }
-                else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
-                {
-                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                }
-
+                ConfigureSqlConnectionAuth(sqlConn, connInfo);
                 sqlConn.Open();
                 return sqlConn;
             }
@@ -2143,26 +2132,63 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
+        /// <summary>
+        /// Opens a <see cref="DbConnection"/> asynchronously. Overridable in tests to avoid real
+        /// network activity without introducing a static hook in the production call path.
+        /// </summary>
+        protected virtual Task OpenConnectionAsync(DbConnection connection, CancellationToken token)
+            => connection.OpenAsync(token);
+
+        /// <summary>
+        /// Test hook: when set, <see cref="OpenServerConnection"/> returns this delegate's result
+        /// instead of creating a real connection.  Always null in production.
+        /// </summary>
+        internal static Func<ConnectionInfo, string, ServerConnection> OpenServerConnectionOverride;
+
         internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
         {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
-            ServerConnection serverConnection;
+            if (OpenServerConnectionOverride != null)
+                return OpenServerConnectionOverride(connInfo, featureName);
 
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
+            return CreateServerConnection(sqlConnection, connInfo);
+        }
+
+        /// <summary>
+        /// Selects the correct <see cref="ServerConnection"/> constructor overload based on
+        /// whether the connection uses a callback-based or static Azure token.
+        /// Extracted for unit testability.
+        /// </summary>
+        internal static ServerConnection CreateServerConnection(SqlConnection sqlConnection, ConnectionInfo connInfo)
+        {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
                 // RequestMfaTokenFromClient: give SMO a token with a refresh callback.
-                serverConnection = new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
+                return new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
+            }
+            if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            {
+                return new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
+            }
+            return new ServerConnection(sqlConnection);
+        }
+
+        /// <summary>
+        /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on
+        /// whether <see cref="ConnectionInfo.AzureTokenFetcher"/> or
+        /// <see cref="ConnectionDetails.AzureAccountToken"/> is present.
+        /// Extracted for unit testability.
+        /// </summary>
+        internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo)
+        {
+            if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            {
+                sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher);
             }
             else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                serverConnection = new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
+                sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
             }
-            else
-            {
-                serverConnection = new ServerConnection(sqlConnection);
-            }
-
-            return serverConnection;
         }
 
         public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
