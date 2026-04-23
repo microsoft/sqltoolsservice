@@ -7,10 +7,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -215,6 +217,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (BindingContextExists(connectionKey))
             {
                 RemoveBindingContext(connectionKey);
+            }
+        }
+
+        /// <summary>
+        /// Creates a binding context for an offline SQL project using a DacFx metadata provider.
+        /// No server connection is required; the IBinder is built directly from the project model.
+        /// </summary>
+        /// <param name="projectKey">Unique key for this project context, e.g. "project_&lt;uri&gt;"</param>
+        /// <param name="binder">Pre-built binder from BinderProvider.CreateBinder(dacfxProvider)</param>
+        /// <param name="parseOptions">Parse options derived from the project's target platform</param>
+        /// <param name="projectEngine">Project IntelliSense engine (wraps TSqlModel + display provider)</param>
+        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
+            ProjectIntelliSenseEngine projectEngine = null)
+        {
+            if (BindingContextExists(projectKey))
+            {
+                RemoveBindingContext(projectKey);
+            }
+
+            ConnectedBindingContext bindingContext = (ConnectedBindingContext)this.GetOrCreateBindingContext(projectKey);
+            if (bindingContext.BindingLock.WaitOne())
+            {
+                try
+                {
+                    bindingContext.BindingLock.Reset();
+                    bindingContext.Binder = binder;
+                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+                    bindingContext.IsConnected = true;
+                    bindingContext.OverrideParseOptions = parseOptions;
+                    bindingContext.ProjectEngine = projectEngine;
+                }
+                finally
+                {
+                    bindingContext.BindingLock.Set();
+                }
             }
         }
 

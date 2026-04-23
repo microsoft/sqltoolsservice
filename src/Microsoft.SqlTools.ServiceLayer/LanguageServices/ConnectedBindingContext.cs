@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading;
+using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -93,6 +94,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public IBinder Binder { get; set; }
 
         /// <summary>
+        /// Gets or sets an explicit ParseOptions override (used for project-based offline binding
+        /// where no ServerConnection is available to derive options from).
+        /// When set, takes precedence over the connection-derived ParseOptions.
+        /// </summary>
+        public ParseOptions OverrideParseOptions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the per-project IntelliSense engine for project-based offline binding.
+        /// Non-null only for project contexts.  Wraps the <c>TSqlModel</c> and
+        /// <c>IMetadataDisplayInfoProvider</c> and exposes Go-to-Definition via
+        /// <see cref="ProjectIntelliSenseEngine.GetDefinition"/>.
+        /// </summary>
+        public ProjectIntelliSenseEngine ProjectEngine { get; set; }
+
+        /// <summary>
         /// Gets the binding lock object
         /// </summary>
         public ManualResetEvent BindingLock 
@@ -171,6 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
+                if (this.OverrideParseOptions != null)
+                {
+                    return this.OverrideParseOptions;
+                }
                 this.parseOptions ??= new ParseOptions(
                         batchSeparator: LanguageService.DefaultBatchSeperator,
                         isQuotedIdentifierSet: true, 

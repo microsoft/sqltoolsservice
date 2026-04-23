@@ -37,6 +37,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Dac.Projects.IntelliSense;
+using Microsoft.SqlServer.Dac;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -964,7 +966,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        if (connInfo == null || !parseInfo.IsConnected)
+                        // A binding context is ready when IsConnected=true AND a ConnectionKey exists.
+                        // For online files:  connInfo is set, UpdateLanguageServiceOnConnection() set both.
+                        // For project files: connInfo is null, UpdateLanguageServiceOnProjectOpen() set both.
+                        // In both cases the same binding path is used — the key routes to the right context.
+                        bool hasOnlineContext = connInfo != null && parseInfo.IsConnected;
+                        bool hasProjectContext = connInfo == null && parseInfo.IsConnected && parseInfo.ConnectionKey != null;
+                        bool hasBindingContext = hasOnlineContext || hasProjectContext;
+
+                        if (!hasBindingContext)
                         {
                             if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, out ParseResult parseResult))
                             {
@@ -1000,9 +1010,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         parseResults.Add(parseResult);
                                         if (bindingContext.IsConnected && bindingContext.Binder != null)
                                         {
+                                            string dbName = connInfo?.ConnectionDetails?.DatabaseName
+                                                            ?? parseInfo.ProjectDatabaseName;
                                             bindingContext.Binder.Bind(
                                                 parseResults,
-                                                connInfo.ConnectionDetails.DatabaseName,
+                                                dbName,
                                                 BindMode.Batch);
                                         }
                                     }
@@ -1154,6 +1166,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Send a notification to signal that autocomplete is ready
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
             });
+        }
+
+        /// <summary>
+        /// Registers a DacFx-backed offline binding context for a SQL project so that all .sql files
+        /// under the project directory get IntelliSense without a live server connection.
+        /// Called by SqlProjectsService after the TSqlModel is built.
+        /// </summary>
+        /// <param name="projectUri">File path of the .sqlproj</param>
+        /// <param name="metadataProvider">DacFx metadata provider built from the project model</param>
+        /// <param name="parseOptions">Parse options matching the project's target platform</param>
+        /// <param name="databaseName">Logical database name (defaults to project file name)</param>
+        /// <param name="projectEngine">Project IntelliSense engine (wraps TSqlModel + display provider)</param>
+        public async Task UpdateLanguageServiceOnProjectOpen(
+            string projectUri,
+            Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
+            Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
+            string databaseName,
+            ProjectIntelliSenseEngine projectEngine = null)
+        {
+            try
+            {
+                string contextKey = $"project_{projectUri}";
+                var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(metadataProvider);
+
+                ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                {
+                    try
+                    {
+                        this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions, projectEngine);
+                        scriptInfo.ConnectionKey = contextKey;
+                        scriptInfo.IsConnected = true;
+                        scriptInfo.ProjectDatabaseName = databaseName;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    }
+                }
+
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+                Logger.Verbose($"Project IntelliSense ready for {projectUri}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to set up project IntelliSense for {projectUri}: {ex}");
+            }
         }
 
 
@@ -1349,7 +1408,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 
         /// <summary>
-        /// Queue a task to the binding queue
+        /// Queue a task to the binding queue (server-connected path only).
+        /// For project files use <see cref="QueueProjectDefinition"/> instead.
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptParseInfo"></param>
@@ -1467,6 +1527,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
+            // Project file: connInfo is null but IsConnected (project binding context is registered).
+            // Route directly to the engine — no token peeling, raw position only.
+            if (connInfo == null && scriptParseInfo.IsConnected && scriptParseInfo.ConnectionKey != null)
+            {
+                if (RequiresReparse(scriptParseInfo, scriptFile))
+                {
+                    scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+                }
+                return QueueProjectDefinition(textDocumentPosition, scriptParseInfo);
+            }
+
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo).GetAwaiter().GetResult();
@@ -1512,6 +1583,76 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Locations = null
                 };
             }
+        }
+
+        /// <summary>
+        /// Queues a Go-to-Definition binding operation for a SQL project file.
+        /// STS passes only the raw LSP position; no token peeling happens here.
+        /// The <see cref="ProjectIntelliSenseEngine"/> inside the binding context
+        /// extracts the token, runs <c>Resolver.FindCompletions</c> on the already-bound
+        /// parse result, and looks up the result in the TSqlModel.
+        /// </summary>
+        private DefinitionResult QueueProjectDefinition(
+            TextDocumentPosition textDocumentPosition,
+            ScriptParseInfo scriptParseInfo)
+        {
+            // Convert from LSP 0-based to parser 1-based
+            int parserLine   = textDocumentPosition.Position.Line + 1;
+            int parserColumn = textDocumentPosition.Position.Character + 1;
+
+            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                key: scriptParseInfo.ConnectionKey,
+                bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                bindOperation: (bindingContext, cancelToken) =>
+                {
+                    if (bindingContext is ConnectedBindingContext cbc && cbc.ProjectEngine != null)
+                    {
+                        SourceInformation info = cbc.ProjectEngine.GetDefinition(
+                            scriptParseInfo.ParseResult, parserLine, parserColumn);
+
+                        if (info?.SourceName != null)
+                        {
+                            string fileUri = new Uri(info.SourceName).AbsoluteUri;
+                            return new DefinitionResult
+                            {
+                                Locations = new[]
+                                {
+                                    new Location
+                                    {
+                                        Uri = fileUri,
+                                        Range = new Workspace.Contracts.Range
+                                        {
+                                            // LSP is 0-based; DacFx SourceInformation is 1-based
+                                            Start = new Position { Line = info.StartLine - 1, Character = info.StartColumn - 1 },
+                                            End   = new Position { Line = info.StartLine - 1, Character = info.StartColumn - 1 }
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionNoResultsError,
+                        Locations = null
+                    };
+                },
+                timeoutOperation: (_) => new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionTimedoutError,
+                    Locations = null
+                },
+                errorHandler: ex => new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = ex.Message,
+                    Locations = null
+                });
+
+            queueItem.ItemProcessed.WaitOne();
+            return queueItem.GetResultAsT<DefinitionResult>();
         }
 
         /// <summary>

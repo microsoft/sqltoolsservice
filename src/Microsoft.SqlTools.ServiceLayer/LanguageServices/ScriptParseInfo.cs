@@ -37,6 +37,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public string ConnectionKey { get; set; }
 
         /// <summary>
+        /// Gets or sets the logical database name for project-based offline binding.
+        /// Used when no ConnectionInfo is available (i.e. connInfo is null).
+        /// </summary>
+        public string ProjectDatabaseName { get; set; }
+
+        /// <summary>
         /// Gets or sets the previous SQL parse result
         /// </summary>
         public ParseResult ParseResult { get; set; }

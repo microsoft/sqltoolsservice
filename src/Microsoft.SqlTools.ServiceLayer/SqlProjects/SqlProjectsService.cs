@@ -6,15 +6,21 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlServer.Dac.Projects.IntelliSense;
+using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
@@ -114,11 +120,53 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
+            // Kick off async IntelliSense model build so .sql files in this project get completions
+            // without a live server connection. Fire-and-forget: errors are logged inside.
+            _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri));
         }
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => Projects.TryRemove(requestParams.ProjectUri, out _), requestContext);
+        }
+
+        /// <summary>
+        /// Builds a DacFx TSqlModel from the project and registers it with LanguageService so that
+        /// all .sql files in the project get offline schema-aware IntelliSense completions.
+        /// Runs on a background thread; errors are logged and do not affect the project open result.
+        /// </summary>
+        private async Task BuildProjectIntelliSenseAsync(string projectUri)
+        {
+            try
+            {
+                Logger.Verbose($"Building IntelliSense model for project: {projectUri}");
+                SqlProject project = GetProject(projectUri);
+
+                string databaseName = Path.GetFileNameWithoutExtension(projectUri);
+
+                var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+                var provider = new LazySchemaModelMetadataProvider(model, databaseName);
+
+                // Use current parse options (platform-specific options would require mapping
+                // SqlPlatform to TransactSqlVersion/CompatibilityLevel — use defaults for now)
+                var parseOptions = new ParseOptions(
+                    batchSeparator: LanguageService.DefaultBatchSeperator,
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                // Create binder from DacFx-backed provider (offline, no SMO/server connection).
+                // STS owns parse+bind; the engine wraps the TSqlModel for Go-to-Definition source mapping.
+                var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(provider);
+                var engine = new ProjectIntelliSenseEngine(model);
+
+                await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, binder, parseOptions, databaseName, engine);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
+            }
         }
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
