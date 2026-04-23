@@ -98,6 +98,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
+        /// Cache of <see cref="CachingTokenFetcher"/> instances keyed by (accountId, tenantId).
+        /// Shared across all connections so that multiple connections for the same account reuse
+        /// the same cached token rather than each making their own <c>account/securityTokenRequest</c>
+        /// round-trip.
+        /// </summary>
+        private readonly ConcurrentDictionary<(string accountId, string tenantId), CachingTokenFetcher>
+            _azureTokenFetcherCache = new();
+
+        /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
@@ -699,27 +708,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Creates a delegate that requests a fresh Entra access token from the client
-        /// via <c>account/securityTokenRequest</c>.
+        /// Returns a delegate that provides a valid Entra access token for the given account and
+        /// tenant, fetching one from the client via <c>account/securityTokenRequest</c> only when
+        /// the cached token is absent or near expiry.
+        ///
+        /// <see cref="_azureTokenFetcherCache"/> ensures all connections for the same
+        /// (accountId, tenantId) pair share a single <see cref="CachingTokenFetcher"/>, so at
+        /// most one round-trip is made per token lifetime regardless of how many connections are
+        /// open simultaneously.
         /// </summary>
         private Func<Task<(string token, DateTimeOffset expiresOn)>>
             CreateAzureTokenFetcher(string accountId, string tenantId)
         {
-            return async () =>
-            {
-                var request = new RequestSecurityTokenParams
+            var fetcher = _azureTokenFetcherCache.GetOrAdd(
+                (accountId, tenantId),
+                _ => new CachingTokenFetcher(async () =>
                 {
-                    Provider = "Azure",
-                    AccountId = accountId,
-                    TenantId = tenantId,
-                };
+                    var request = new RequestSecurityTokenParams
+                    {
+                        Provider = "Azure",
+                        AccountId = accountId,
+                        TenantId = tenantId,
+                    };
 
-                RequestSecurityTokenResponse response =
-                    await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+                    RequestSecurityTokenResponse response =
+                        await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
+                        .ConfigureAwait(continueOnCapturedContext: false);
 
-                return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
-            };
+                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
+                }));
+
+            return fetcher.GetTokenAsync;
         }
 
         /// <summary>

@@ -175,6 +175,64 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 "AccessToken should not be set for non-AzureMFA connections");
         }
 
+        [Test]
+        public async Task TryOpenConnectionSharesFetcherAcrossConnectionsWithSameAccountAndTenant()
+        {
+            var factory = new CapturingReliableConnectionFactory();
+            var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true };
+            const string uri1 = "test://uri-3-5a";
+            const string uri2 = "test://uri-3-5b";
+
+            // Same account + tenant → should share one CachingTokenFetcher via the dictionary.
+            var details = AzureMfaDetails();
+            var connInfo1 = new ConnectionInfo(factory, uri1, details);
+            var connInfo2 = new ConnectionInfo(factory, uri2, details);
+            svc.OwnerToConnectionMap[uri1] = connInfo1;
+            svc.OwnerToConnectionMap[uri2] = connInfo2;
+
+            await svc.Connect(new ConnectParams { OwnerUri = uri1, Connection = details });
+            await svc.Connect(new ConnectParams { OwnerUri = uri2, Connection = details });
+
+            svc.TryFindConnection(uri1, out var info1);
+            svc.TryFindConnection(uri2, out var info2);
+
+            Assert.That(info1?.AzureTokenFetcher, Is.Not.Null);
+            Assert.That(info2?.AzureTokenFetcher, Is.Not.Null);
+            // Delegate.Target is the CachingTokenFetcher instance the delegate is bound to.
+            // Both should point at the same instance because GetOrAdd returns the existing entry.
+            Assert.That(info1.AzureTokenFetcher.Target, Is.SameAs(info2.AzureTokenFetcher.Target),
+                "connections with the same accountId + tenantId should share one CachingTokenFetcher");
+        }
+
+        [Test]
+        public async Task TryOpenConnectionUsesSeparateFetchersForDifferentAccounts()
+        {
+            var factory = new CapturingReliableConnectionFactory();
+            var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true };
+            const string uri1 = "test://uri-3-6a";
+            const string uri2 = "test://uri-3-6b";
+
+            var details1 = AzureMfaDetails();
+            var details2 = AzureMfaDetails();
+            details2.AccountId = "different-account-id";
+
+            var connInfo1 = new ConnectionInfo(factory, uri1, details1);
+            var connInfo2 = new ConnectionInfo(factory, uri2, details2);
+            svc.OwnerToConnectionMap[uri1] = connInfo1;
+            svc.OwnerToConnectionMap[uri2] = connInfo2;
+
+            await svc.Connect(new ConnectParams { OwnerUri = uri1, Connection = details1 });
+            await svc.Connect(new ConnectParams { OwnerUri = uri2, Connection = details2 });
+
+            svc.TryFindConnection(uri1, out var info1);
+            svc.TryFindConnection(uri2, out var info2);
+
+            Assert.That(info1?.AzureTokenFetcher, Is.Not.Null);
+            Assert.That(info2?.AzureTokenFetcher, Is.Not.Null);
+            Assert.That(info1.AzureTokenFetcher.Target, Is.Not.SameAs(info2.AzureTokenFetcher.Target),
+                "connections with different accountIds should use separate CachingTokenFetcher instances");
+        }
+
         // ---------------------------------------------------------------
         // Category 4 — TryRequestRefreshAuthToken
         // ---------------------------------------------------------------
