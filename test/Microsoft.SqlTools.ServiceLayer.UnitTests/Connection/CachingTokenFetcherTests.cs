@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.SqlCore.Connection;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
     [TestFixture]
     public class CachingTokenFetcherTests
     {
-        private static readonly TimeSpan EarlyRefresh = CachingTokenFetcher.EarlyRefreshWindow;
+        private static readonly TimeSpan EarlyRefresh = CallbackAzureAccessToken.EarlyRefreshWindow;
 
         // ---------------------------------------------------------------
         // Helpers

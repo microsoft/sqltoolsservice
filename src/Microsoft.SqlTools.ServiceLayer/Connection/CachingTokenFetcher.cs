@@ -6,6 +6,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.SqlCore.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -18,11 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     internal sealed class CachingTokenFetcher
     {
-        /// <summary>
-        /// How far before the token's <c>ExpiresOn</c> timestamp a refresh is triggered.
-        /// Matches the window used by <see cref="Microsoft.SqlTools.SqlCore.Connection.CallbackAzureAccessToken"/>.
-        /// </summary>
-        internal static readonly TimeSpan EarlyRefreshWindow = TimeSpan.FromMinutes(2);
 
         private readonly Func<Task<(string token, DateTimeOffset expiresOn)>> _inner;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
@@ -37,10 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         /// <summary>
         /// Returns <c>true</c> when the cached token exists and will not expire within
-        /// <see cref="EarlyRefreshWindow"/>.
+        /// <see cref="CallbackAzureAccessToken.EarlyRefreshWindow"/>.
         /// </summary>
         internal bool IsCacheValid()
-            => _cachedToken != null && DateTimeOffset.UtcNow < _cachedExpiresOn - EarlyRefreshWindow;
+            => _cachedToken != null && DateTimeOffset.UtcNow < _cachedExpiresOn - CallbackAzureAccessToken.EarlyRefreshWindow;
 
         /// <summary>
         /// Returns a valid access token, either from the cache or by invoking the inner delegate.

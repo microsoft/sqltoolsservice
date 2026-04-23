@@ -16,6 +16,12 @@ namespace Microsoft.SqlTools.SqlCore.Connection
     /// </summary>
     public class CallbackAzureAccessToken : IRenewableToken
     {
+        /// <summary>
+        /// How far before a token's expiry timestamp a refresh is triggered.
+        /// Referenced by <c>CachingTokenFetcher</c> in ServiceLayer so both layers use the same window.
+        /// </summary>
+        public static readonly TimeSpan EarlyRefreshWindow = TimeSpan.FromMinutes(2);
+
         private readonly Func<Task<(string token, DateTimeOffset expiresOn)>> _tokenFetcher;
         private string _cachedToken;
         private DateTimeOffset _expiresOn;
@@ -35,13 +41,13 @@ namespace Microsoft.SqlTools.SqlCore.Connection
 
         /// <summary>
         /// Returns a valid access token, fetching a fresh one via the callback when the cached
-        /// token is absent or within 2 minutes of expiry.
+        /// token is absent or within <see cref="EarlyRefreshWindow"/> of expiry.
         /// </summary>
         public string GetAccessToken()
         {
             lock (_lock)
             {
-                if (_cachedToken == null || DateTimeOffset.UtcNow >= _expiresOn.AddMinutes(-2))
+                if (_cachedToken == null || DateTimeOffset.UtcNow >= _expiresOn - EarlyRefreshWindow)
                 {
                     var (token, expiresOn) = _tokenFetcher().GetAwaiter().GetResult();
                     _cachedToken = token;
