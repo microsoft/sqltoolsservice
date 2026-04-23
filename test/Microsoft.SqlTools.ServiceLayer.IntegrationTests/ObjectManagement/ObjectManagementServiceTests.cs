@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         {
             this.testDb = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, query: TableQuery, dbNamePrefix: "RenameTest");
             requestContextMock = new Mock<RequestContext<RenameRequestResponse>>();
-            TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OwnerUri, ConnectionType.Default);
+            await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OwnerUri, ConnectionType.Default);
         }
 
         [TearDown]
@@ -139,5 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             query.ExecutionTask.Wait();
             return query;
         }
+
     }
 }

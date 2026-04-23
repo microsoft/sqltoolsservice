@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
     /// </summary>
     public class SqlPackageServiceTests
     {
-        private SqlPackageService service;
+        private SqlPackageService service = null!;
 
         [SetUp]
         public void Setup()
@@ -81,12 +81,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             // Assert
             Assert.IsNotNull(capturedResult, "Result should not be null");
-            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
-            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
-            StringAssert.Contains("SqlPackage", capturedResult.Command, "Sqlpacakge command should have SqlPackage");
-            StringAssert.Contains("/Action:Publish", capturedResult.Command, "Command should have publish action");
-            StringAssert.Contains("/SourceFile:\"C:\\test\\database.dacpac\"", capturedResult.Command, "command should have the sourceFile");
-            StringAssert.Contains("/p:ExcludeObjectTypes=ServerTriggers;ExternalStreamingJobs", capturedResult.Command, "Command should return exclude object types");
+            var result = capturedResult!;
+            Assert.IsTrue(result.Success, "Command generation should succeed");
+            Assert.IsNotNull(result.Command, "Generated command should not be null");
+            var command = result.Command!;
+            StringAssert.Contains("SqlPackage", command, "SqlPackage command should have SqlPackage");
+            StringAssert.Contains("/Action:Publish", command, "Command should have publish action");
+            StringAssert.Contains("/SourceFile:\"C:\\test\\database.dacpac\"", command, "command should have the sourceFile");
+            StringAssert.Contains("/p:ExcludeObjectTypes=ServerTriggers;ExternalStreamingJobs", command, "Command should return exclude object types");
         }
 
         [Test]
@@ -121,11 +123,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             // Assert
             Assert.IsNotNull(capturedResult, "Result should not be null");
-            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
-            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
-            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
-            StringAssert.Contains("/Action:Extract", capturedResult.Command, "Command should have extract action");
-            StringAssert.Contains("output.dacpac", capturedResult.Command, "Command should contain output file path");
+            var result = capturedResult!;
+            Assert.IsTrue(result.Success, "Command generation should succeed");
+            Assert.IsNotNull(result.Command, "Generated command should not be null");
+            var command = result.Command!;
+            StringAssert.Contains("SqlPackage", command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Extract", command, "Command should have extract action");
+            StringAssert.Contains("output.dacpac", command, "Command should contain output file path");
         }
 
         [Test]
@@ -167,11 +171,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             // Assert
             Assert.IsNotNull(capturedResult, "Result should not be null");
-            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
-            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
-            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
-            StringAssert.Contains("/Action:Script", capturedResult.Command, "Command should have script action");
-            StringAssert.Contains("script.sql", capturedResult.Command, "Command should contain output script path");
+            var result = capturedResult!;
+            Assert.IsTrue(result.Success, "Command generation should succeed");
+            Assert.IsNotNull(result.Command, "Generated command should not be null");
+            var command = result.Command!;
+            StringAssert.Contains("SqlPackage", command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Script", command, "Command should have script action");
+            StringAssert.Contains("script.sql", command, "Command should contain output script path");
         }
 
         [Test]
@@ -205,11 +211,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             // Assert
             Assert.IsNotNull(capturedResult, "Result should not be null");
-            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
-            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
-            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
-            StringAssert.Contains("/Action:Export", capturedResult.Command, "Command should have export action");
-            StringAssert.Contains("temp.bacpac", capturedResult.Command, "Command should contain export file path");
+            var result = capturedResult!;
+            Assert.IsTrue(result.Success, "Command generation should succeed");
+            Assert.IsNotNull(result.Command, "Generated command should not be null");
+            var command = result.Command!;
+            StringAssert.Contains("SqlPackage", command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Export", command, "Command should have export action");
+            StringAssert.Contains("temp.bacpac", command, "Command should contain export file path");
         }
 
         [Test]
@@ -242,11 +250,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             // Assert
             Assert.IsNotNull(capturedResult, "Result should not be null");
-            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
-            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
-            StringAssert.Contains("SqlPackage", capturedResult.Command, "Command should contain SqlPackage");
-            StringAssert.Contains("/Action:Import", capturedResult.Command, "Command should have import action");
-            StringAssert.Contains("data.bacpac", capturedResult.Command, "Command should contain import file path");
+            var result = capturedResult!;
+            Assert.IsTrue(result.Success, "Command generation should succeed");
+            Assert.IsNotNull(result.Command, "Generated command should not be null");
+            var command = result.Command!;
+            StringAssert.Contains("SqlPackage", command, "Command should contain SqlPackage");
+            StringAssert.Contains("/Action:Import", command, "Command should have import action");
+            StringAssert.Contains("data.bacpac", command, "Command should contain import file path");
         }
 
         [Test]
@@ -276,10 +286,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
 
             // Assert
             Assert.IsNotNull(capturedResult, "Result should not be null");
-            Assert.IsTrue(capturedResult.Success, "Command generation should succeed");
-            Assert.IsNotNull(capturedResult.Command, "Generated command should not be null");
-            StringAssert.Contains("/Action:Extract", capturedResult.Command, "Command should have extract action");
-            StringAssert.Contains("password=placeholder", capturedResult.Command, "Command should have unmasked password included");
+            var result = capturedResult!;
+            Assert.IsTrue(result.Success, "Command generation should succeed");
+            Assert.IsNotNull(result.Command, "Generated command should not be null");
+            var command = result.Command!;
+            StringAssert.Contains("/Action:Extract", command, "Command should have extract action");
+            StringAssert.Contains("password=placeholder", command, "Command should have unmasked password included");
         }
     }
 }

@@ -661,14 +661,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Add sheet inside the Xlsx file.
         /// </summary>
-        /// <param name="sheetName">Sheet name</param>
+        /// <param name="sheetName">Sheet name, or null to use the default generated sheet name.</param>
         /// <returns>ExcelSheet for writing the sheet content</returns>
         /// <remarks>
         /// When the sheetName is null, sheet1,sheet2,..., will be used.
         /// The following characters are not allowed in the sheetName
         /// '\', '/','*','[',']',':','?'
         /// </remarks>
-        public ExcelSheet AddSheet(string sheetName, int columnCount)
+        public ExcelSheet AddSheet(string? sheetName, int columnCount)
         {
             string sheetFileName = "sheet" + (sheetNames.Count + 1);
             sheetName ??= sheetFileName;

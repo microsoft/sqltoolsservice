@@ -55,6 +55,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             Reference = 18
     }
 
+    public enum InsertTextFormat
+    {
+        PlainText = 1,
+        Snippet = 2
+    }
+
     public class Command
     {
         /// <summary>
@@ -97,6 +103,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public string FilterText { get; set; }
 
         public string InsertText { get; set; }
+
+        public InsertTextFormat? InsertTextFormat { get; set; }
 
         public TextEdit TextEdit { get; set; }
 

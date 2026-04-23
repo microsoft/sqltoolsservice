@@ -73,10 +73,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// </summary>
         /// <param name="info">The SerializationInfo that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
+#pragma warning disable SYSLIB0051
         protected ServiceExceptionBase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
+#pragma warning restore SYSLIB0051
 
         /// <summary>
         /// The Http status code included in the exception
