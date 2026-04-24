@@ -143,25 +143,34 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
+                string contextKey = $"project_{projectUri}";
+                string projectDir = Path.GetDirectoryName(projectUri) ?? string.Empty;
+                var fileUriList = project.SqlObjectScripts
+                    .Select(s => new Uri(Path.IsPathRooted(s.Path)
+                        ? s.Path
+                        : Path.Combine(projectDir, s.Path)).AbsoluteUri)
+                    .ToList();
+
+                // Stamp files IMMEDIATELY before model load so F12 pressed during model loading
+                // routes to the project path. ParseAndBind will queue a binding operation and block
+                // on the BindingLock — AddProjectContext (called below after model loads) sets that
+                // lock, unblocking any waiting F12 requests automatically.
+                LanguageService.Instance.InitializeProjectFileContexts(fileUriList, contextKey, databaseName);
 
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
                 var provider = new LazySchemaModelMetadataProvider(model, databaseName);
 
-                // Use current parse options (platform-specific options would require mapping
-                // SqlPlatform to TransactSqlVersion/CompatibilityLevel — use defaults for now)
                 var parseOptions = new ParseOptions(
                     batchSeparator: LanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                // Create binder from DacFx-backed provider (offline, no SMO/server connection).
-                // STS owns parse+bind; the engine wraps the TSqlModel for Go-to-Definition source mapping.
-                var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(provider);
                 var engine = new ProjectIntelliSenseEngine(model);
 
+                // AddProjectContext sets the BindingLock, unblocking any F12 requests waiting in the queue.
                 await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
-                    projectUri, binder, parseOptions, databaseName, engine);
+                    projectUri, provider, parseOptions, databaseName, engine);
             }
             catch (Exception ex)
             {
