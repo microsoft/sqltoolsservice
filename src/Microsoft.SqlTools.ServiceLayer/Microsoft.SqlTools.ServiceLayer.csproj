@@ -94,6 +94,7 @@
     <ProjectReference Include="../Microsoft.SqlTools.Authentication/Microsoft.SqlTools.Authentication.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Connectors.VSCode\Microsoft.SqlTools.Connectors.VSCode.csproj" />
+    <PackageReference Include="Microsoft.SqlServer.Dac.Projects.IntelliSense" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\Notice.txt">

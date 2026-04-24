@@ -7,10 +7,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -215,6 +217,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (BindingContextExists(connectionKey))
             {
                 RemoveBindingContext(connectionKey);
+            }
+        }
+
+        /// <summary>
+        /// Creates an offline binding context for a SQL project (no server connection required).
+        /// </summary>
+        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
+            ProjectIntelliSenseEngine projectEngine = null)
+        {
+            if (BindingContextExists(projectKey))
+            {
+                RemoveBindingContext(projectKey);
+            }
+
+            ConnectedBindingContext bindingContext = (ConnectedBindingContext)this.GetOrCreateBindingContext(projectKey);
+            if (bindingContext.BindingLock.WaitOne())
+            {
+                try
+                {
+                    bindingContext.BindingLock.Reset();
+                    bindingContext.Binder = binder;
+                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+                    bindingContext.IsConnected = true;
+                    bindingContext.OverrideParseOptions = parseOptions;
+                    bindingContext.ProjectEngine = projectEngine;
+                }
+                finally
+                {
+                    bindingContext.BindingLock.Set();
+                }
             }
         }
 

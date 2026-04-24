@@ -6,7 +6,9 @@
 #nullable disable
 
 using System;
+using System.Linq;
 using System.Threading;
+using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -15,7 +17,6 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
-using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -91,6 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the binder
         /// </summary>
         public IBinder Binder { get; set; }
+
+        /// <summary>ParseOptions override for project-based offline binding; takes precedence over connection-derived options.</summary>
+        public ParseOptions OverrideParseOptions { get; set; }
+
+        /// <summary>Per-project IntelliSense engine (wraps TSqlModel + display provider). Non-null only for project contexts.</summary>
+        public ProjectIntelliSenseEngine ProjectEngine { get; set; }
 
         /// <summary>
         /// Gets the binding lock object
@@ -171,6 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
+                if (this.OverrideParseOptions != null)
+                {
+                    return this.OverrideParseOptions;
+                }
                 this.parseOptions ??= new ParseOptions(
                         batchSeparator: LanguageService.DefaultBatchSeperator,
                         isQuotedIdentifierSet: true, 
