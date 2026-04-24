@@ -131,15 +131,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
-        /// Builds a DacFx TSqlModel from the project and registers it with LanguageService so that
-        /// all .sql files in the project get offline schema-aware IntelliSense completions.
-        /// Runs on a background thread; errors are logged and do not affect the project open result.
+        /// Builds the TSqlModel for a project and registers it with LanguageService for offline IntelliSense.
+        /// Runs on a background thread; errors do not affect the project open response.
         /// </summary>
         private async Task BuildProjectIntelliSenseAsync(string projectUri)
         {
             try
             {
-                Logger.Verbose($"Building IntelliSense model for project: {projectUri}");
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
@@ -151,10 +149,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         : Path.Combine(projectDir, s.Path)).AbsoluteUri)
                     .ToList();
 
-                // Stamp files IMMEDIATELY before model load so F12 pressed during model loading
-                // routes to the project path. ParseAndBind will queue a binding operation and block
-                // on the BindingLock — AddProjectContext (called below after model loads) sets that
-                // lock, unblocking any waiting F12 requests automatically.
+                // Stamp files before the model finishes loading so that F12 requests arriving
+                // during the load are queued on the binding context rather than rejected.
                 LanguageService.Instance.InitializeProjectFileContexts(fileUriList, contextKey, databaseName);
 
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
@@ -168,7 +164,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 var engine = new ProjectIntelliSenseEngine(model);
 
-                // AddProjectContext sets the BindingLock, unblocking any F12 requests waiting in the queue.
                 await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                     projectUri, provider, parseOptions, databaseName, engine);
             }
