@@ -293,6 +293,44 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.AreEqual(1, batchCompletionCallbacksReceived);
         }
 
+        [Test]
+        public void QueryCreationOffsetsSingleBatchSelectionToDocumentRange()
+        {
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var executionSelection = new SelectionData(4, 7, 4, 15);
+
+            Query query = new Query(
+                "SELECT 1",
+                ci,
+                new QueryExecutionSettings(),
+                fileStreamFactory,
+                executionSelection: executionSelection);
+
+            Assert.AreEqual(4, query.Batches[0].Selection.StartLine);
+            Assert.AreEqual(7, query.Batches[0].Selection.StartColumn);
+        }
+
+        [Test]
+        public void QueryCreationOffsetsMultiBatchSelectionsToDocumentRange()
+        {
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var executionSelection = new SelectionData(4, 7, 6, 8);
+
+            Query query = new Query(
+                $"SELECT 1{Environment.NewLine}GO{Environment.NewLine}SELECT 2",
+                ci,
+                new QueryExecutionSettings(),
+                fileStreamFactory,
+                executionSelection: executionSelection);
+
+            Assert.AreEqual(4, query.Batches[0].Selection.StartLine);
+            Assert.AreEqual(7, query.Batches[0].Selection.StartColumn);
+            Assert.AreEqual(6, query.Batches[1].Selection.StartLine);
+            Assert.AreEqual(0, query.Batches[1].Selection.StartColumn);
+        }
+
         private static void BatchCallbackHelper(Query q, Action<Batch> startCallback, Action<Batch> endCallback,
             Action<ResultMessage> messageCallback)
         {

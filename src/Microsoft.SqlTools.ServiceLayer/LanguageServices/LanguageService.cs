@@ -2150,7 +2150,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        internal sealed class StatementParseInfo
+        {
+            public string StatementText { get; set; }
+
+            public BufferRange StatementRange { get; set; }
+        }
+
         internal string ParseStatementAtPosition(string sql, int line, int column)
+        {
+            return ParseStatementAtPositionInfo(sql, line, column)?.StatementText ?? string.Empty;
+        }
+
+        internal StatementParseInfo ParseStatementAtPositionInfo(string sql, int line, int column)
         {
             // adjust from 0-based to 1-based index
             int parserLine = line + 1;
@@ -2158,56 +2170,77 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // parse current SQL file contents to retrieve a list of errors
             ParseResult parseResult = Parser.Parse(sql, this.DefaultParseOptions);
-            if (parseResult != null && parseResult.Script != null && parseResult.Script.Batches != null)
+            SqlStatement statement = GetStatementAtPosition(parseResult, parserLine, parserColumn);
+            if (statement == null)
             {
-                foreach (var batch in parseResult.Script.Batches)
+                return null;
+            }
+
+            return new StatementParseInfo
+            {
+                StatementText = statement.Sql,
+                StatementRange = new BufferRange(
+                    statement.StartLocation.LineNumber,
+                    statement.StartLocation.ColumnNumber,
+                    statement.EndLocation.LineNumber,
+                    statement.EndLocation.ColumnNumber)
+            };
+        }
+
+        private static SqlStatement GetStatementAtPosition(ParseResult parseResult, int parserLine, int parserColumn)
+        {
+            if (parseResult?.Script?.Batches == null)
+            {
+                return null;
+            }
+
+            foreach (var batch in parseResult.Script.Batches)
+            {
+                if (batch.Statements == null)
                 {
-                    if (batch.Statements == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    // If there is a single statement on the line, track it so that we can return it regardless of where the user's cursor is
-                    SqlStatement lineStatement = null;
-                    bool? lineHasSingleStatement = null;
+                // If there is a single statement on the line, track it so that we can return it regardless of where the user's cursor is
+                SqlStatement lineStatement = null;
+                bool? lineHasSingleStatement = null;
 
-                    // check if the batch matches parameters
-                    if (batch.StartLocation.LineNumber <= parserLine
-                        && batch.EndLocation.LineNumber >= parserLine)
+                // check if the batch matches parameters
+                if (batch.StartLocation.LineNumber <= parserLine
+                    && batch.EndLocation.LineNumber >= parserLine)
+                {
+                    foreach (var statement in batch.Statements)
                     {
-                        foreach (var statement in batch.Statements)
+                        // check if the statement matches parameters
+                        if (statement.StartLocation.LineNumber <= parserLine
+                            && statement.EndLocation.LineNumber >= parserLine)
                         {
-                            // check if the statement matches parameters
-                            if (statement.StartLocation.LineNumber <= parserLine
-                                && statement.EndLocation.LineNumber >= parserLine)
+                            if (statement.EndLocation.LineNumber == parserLine && statement.EndLocation.ColumnNumber < parserColumn
+                                || statement.StartLocation.LineNumber == parserLine && statement.StartLocation.ColumnNumber > parserColumn)
                             {
-                                if (statement.EndLocation.LineNumber == parserLine && statement.EndLocation.ColumnNumber < parserColumn
-                                    || statement.StartLocation.LineNumber == parserLine && statement.StartLocation.ColumnNumber > parserColumn)
+                                if (lineHasSingleStatement == null)
                                 {
-                                    if (lineHasSingleStatement == null)
-                                    {
-                                        lineHasSingleStatement = true;
-                                        lineStatement = statement;
-                                    }
-                                    else if (lineHasSingleStatement == true)
-                                    {
-                                        lineHasSingleStatement = false;
-                                    }
-                                    continue;
+                                    lineHasSingleStatement = true;
+                                    lineStatement = statement;
                                 }
-                                return statement.Sql;
+                                else if (lineHasSingleStatement == true)
+                                {
+                                    lineHasSingleStatement = false;
+                                }
+                                continue;
                             }
+                            return statement;
                         }
                     }
+                }
 
-                    if (lineHasSingleStatement == true)
-                    {
-                        return lineStatement.Sql;
-                    }
+                if (lineHasSingleStatement == true)
+                {
+                    return lineStatement;
                 }
             }
 
-            return string.Empty;
+            return null;
         }
 
         public void Dispose()
