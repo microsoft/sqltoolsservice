@@ -966,13 +966,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        // A binding context is ready when IsConnected=true AND a ConnectionKey exists.
-                        // For online files:  connInfo is set, UpdateLanguageServiceOnConnection() set both.
-                        // For project files: connInfo is null, UpdateLanguageServiceOnProjectOpen() set both.
-                        // In both cases the same binding path is used — the key routes to the right context.
-                        bool hasOnlineContext = connInfo != null && parseInfo.IsConnected;
-                        bool hasProjectContext = connInfo == null && parseInfo.IsConnected && parseInfo.ConnectionKey != null;
-                        bool hasBindingContext = hasOnlineContext || hasProjectContext;
+                        // Both online and project files use the binding queue via ConnectionKey.
+                        // Online: connInfo != null, UpdateLanguageServiceOnConnection set IsConnected+ConnectionKey.
+                        // Project: connInfo is null, InitializeProjectFileContexts set IsConnected+ConnectionKey.
+                        bool hasBindingContext = parseInfo.IsConnected && parseInfo.ConnectionKey != null;
 
                         if (!hasBindingContext)
                         {
@@ -1169,15 +1166,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Registers a DacFx-backed offline binding context for a SQL project so that all .sql files
-        /// under the project directory get IntelliSense without a live server connection.
-        /// Called by SqlProjectsService after the TSqlModel is built.
+        /// Registers an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        /// <param name="projectUri">File path of the .sqlproj</param>
-        /// <param name="metadataProvider">DacFx metadata provider built from the project model</param>
-        /// <param name="parseOptions">Parse options matching the project's target platform</param>
-        /// <param name="databaseName">Logical database name (defaults to project file name)</param>
-        /// <param name="projectEngine">Project IntelliSense engine (wraps TSqlModel + display provider)</param>
         public async Task UpdateLanguageServiceOnProjectOpen(
             string projectUri,
             Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
@@ -1207,7 +1197,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
-                Logger.Verbose($"Project IntelliSense ready for {projectUri}");
             }
             catch (Exception ex)
             {
@@ -1215,17 +1204,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-
         /// <summary>
-        /// Stamps the project binding context onto the <see cref="ScriptParseInfo"/> for every
-        /// .sql file that belongs to the project, so that <see cref="GetDefinition"/> and
-        /// <see cref="ParseAndBind"/> route through the project path without any per-request
-        /// lookup. Called once at project open, immediately after
-        /// <see cref="UpdateLanguageServiceOnProjectOpen"/> registers the binding context.
+        /// Stamps IsConnected=true and the project ConnectionKey onto every .sql file in the project
+        /// so that F12 and ParseAndBind route through the project binding context.
         /// </summary>
-        /// <param name="fileUris">File URIs (as sent by VS Code) of every .sql file in the project.</param>
-        /// <param name="contextKey">The binding-queue key ("project_&lt;uri&gt;") for this project.</param>
-        /// <param name="databaseName">The database name used when binding project files.</param>
         public void InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
         {
             foreach (string fileUri in fileUris)
@@ -1562,7 +1544,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Route directly to the engine — no token peeling, raw position only.
             if (connInfo == null && scriptParseInfo.IsConnected && scriptParseInfo.ConnectionKey != null)
             {
-                ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
                 return QueueProjectDefinition(textDocumentPosition, scriptParseInfo);
             }
             if (RequiresReparse(scriptParseInfo, scriptFile))
@@ -1613,11 +1595,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Queues a Go-to-Definition binding operation for a SQL project file.
-        /// STS passes only the raw LSP position; no token peeling happens here.
-        /// The <see cref="ProjectIntelliSenseEngine"/> inside the binding context
-        /// extracts the token, runs <c>Resolver.FindCompletions</c> on the already-bound
-        /// parse result, and looks up the result in the TSqlModel.
+        /// Queues a Go-to-Definition operation for a SQL project file via the project binding context.
         /// </summary>
         private DefinitionResult QueueProjectDefinition(
             TextDocumentPosition textDocumentPosition,
@@ -1656,9 +1634,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                             };
                         }
-                    }
-                    else
-                    {
                     }
                     return new DefinitionResult
                     {

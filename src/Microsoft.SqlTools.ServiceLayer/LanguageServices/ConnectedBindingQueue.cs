@@ -221,13 +221,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Creates a binding context for an offline SQL project using a DacFx metadata provider.
-        /// No server connection is required; the IBinder is built directly from the project model.
+        /// Creates an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        /// <param name="projectKey">Unique key for this project context, e.g. "project_&lt;uri&gt;"</param>
-        /// <param name="binder">Pre-built binder from BinderProvider.CreateBinder(dacfxProvider)</param>
-        /// <param name="parseOptions">Parse options derived from the project's target platform</param>
-        /// <param name="projectEngine">Project IntelliSense engine (wraps TSqlModel + display provider)</param>
         public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
             ProjectIntelliSenseEngine projectEngine = null)
         {

@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
@@ -16,7 +17,6 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
-using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -93,19 +93,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public IBinder Binder { get; set; }
 
-        /// <summary>
-        /// Gets or sets an explicit ParseOptions override (used for project-based offline binding
-        /// where no ServerConnection is available to derive options from).
-        /// When set, takes precedence over the connection-derived ParseOptions.
-        /// </summary>
+        /// <summary>ParseOptions override for project-based offline binding; takes precedence over connection-derived options.</summary>
         public ParseOptions OverrideParseOptions { get; set; }
 
-        /// <summary>
-        /// Gets or sets the per-project IntelliSense engine for project-based offline binding.
-        /// Non-null only for project contexts.  Wraps the <c>TSqlModel</c> and
-        /// <c>IMetadataDisplayInfoProvider</c> and exposes Go-to-Definition via
-        /// <see cref="ProjectIntelliSenseEngine.GetDefinition"/>.
-        /// </summary>
+        /// <summary>Per-project IntelliSense engine (wraps TSqlModel + display provider). Non-null only for project contexts.</summary>
         public ProjectIntelliSenseEngine ProjectEngine { get; set; }
 
         /// <summary>
