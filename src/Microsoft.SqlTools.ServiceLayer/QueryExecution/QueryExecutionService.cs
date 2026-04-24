@@ -1418,13 +1418,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // If we can't add the query now, it's assumed the query is in progress
+            QueryExecutionInfo queryExecutionInfo = GetQueryExecutionInfo(executeParams);
+
             Query newQuery = new Query(
-                GetSqlText(executeParams),
+                queryExecutionInfo.QueryText,
                 connectionInfo,
                 settings,
                 BufferFileFactory,
                 executeParams.GetFullColumnSchema,
-                applyExecutionSettings);
+                applyExecutionSettings,
+                queryExecutionInfo.ExecutionSelection);
 
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {
@@ -1625,22 +1628,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
         {
+            return GetQueryExecutionInfo(request).QueryText;
+        }
+
+        private QueryExecutionInfo GetQueryExecutionInfo(ExecuteRequestParamsBase request)
+        {
             // If it is a document selection, we'll retrieve the text from the document
             if (request is ExecuteDocumentSelectionParams docRequest)
             {
-                return GetSqlTextFromSelectionData(request.OwnerUri, docRequest.QuerySelection);
+                return new QueryExecutionInfo
+                {
+                    QueryText = GetSqlTextFromSelectionData(request.OwnerUri, docRequest.QuerySelection),
+                    ExecutionSelection = docRequest.QuerySelection
+                };
             }
 
             // If it is a document statement, we'll retrieve the text from the document
             if (request is ExecuteDocumentStatementParams stmtRequest)
             {
-                return GetSqlStatementAtPosition(request.OwnerUri, stmtRequest.Line, stmtRequest.Column);
+                return GetStatementExecutionInfo(request.OwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
             if (request is ExecuteStringParams stringRequest)
             {
-                return stringRequest.Query;
+                return new QueryExecutionInfo
+                {
+                    QueryText = stringRequest.Query
+                };
             }
 
             // Note, this shouldn't be possible due to inheritance rules
@@ -1686,15 +1701,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal string GetSqlStatementAtPosition(string ownerUri, int line, int column)
         {
+            return GetStatementExecutionInfo(ownerUri, line, column).QueryText;
+        }
+
+        private QueryExecutionInfo GetStatementExecutionInfo(string ownerUri, int line, int column)
+        {
             // Get the document from the parameters
             ScriptFile queryFile = WorkspaceService.Workspace.GetFile(ownerUri);
             if (queryFile == null)
             {
-                return string.Empty;
+                return new QueryExecutionInfo { QueryText = string.Empty };
             }
 
-            return LanguageServices.LanguageService.Instance.ParseStatementAtPosition(
-                queryFile.Contents, line, column);
+            LanguageServices.LanguageService.StatementParseInfo statementInfo =
+                LanguageServices.LanguageService.Instance.ParseStatementAtPositionInfo(
+                    queryFile.Contents, line, column);
+
+            if (statementInfo == null)
+            {
+                return new QueryExecutionInfo { QueryText = string.Empty };
+            }
+
+            return new QueryExecutionInfo
+            {
+                QueryText = statementInfo.StatementText,
+                ExecutionSelection = new SelectionData(
+                    statementInfo.StatementRange.Start.Line - 1,
+                    statementInfo.StatementRange.Start.Column - 1,
+                    statementInfo.StatementRange.End.Line - 1,
+                    statementInfo.StatementRange.End.Column - 1)
+            };
         }
 
         /// Internal for testing purposes
@@ -1712,6 +1748,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             public override string ToString()
                 => $"{nameof(Range)} ({nameof(Start)}: {Start}, {nameof(End)}: {End})";
+        }
+
+        private sealed class QueryExecutionInfo
+        {
+            public string QueryText { get; set; }
+
+            public SelectionData ExecutionSelection { get; set; }
         }
 
         internal List<Range> MergeRanges(List<Range> ranges)

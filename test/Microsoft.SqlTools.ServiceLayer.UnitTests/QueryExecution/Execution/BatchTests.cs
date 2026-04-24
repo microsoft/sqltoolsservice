@@ -382,7 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task ServerMessageHandlerOffsetsProcedureErrorLineBySelectionStart()
+        public async Task ServerMessageHandlerShowsProcedureErrorWithBatchStartLine()
         {
             // Set up the batch to track message calls
             var selection = new SelectionData(4, 0, 6, 0);
@@ -398,9 +398,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var errorMessage = "error message";
             await batch.HandleSqlErrorMessage(1, 15, 0, 2, "dbo.test_proc", errorMessage);
 
-            // Then the reported line should be relative to the full script, not the selection start
+            // Then the reported line should remain procedure-local and include the batch start line
             Assert.AreEqual(
-                $"Msg 1, Level 15, State 0, Procedure dbo.test_proc, Line 6{Environment.NewLine}{errorMessage}",
+                $"Msg 1, Level 15, State 0, Procedure dbo.test_proc, Line 2 [Batch Start Line 5]{Environment.NewLine}{errorMessage}",
+                actualMessage);
+        }
+
+        [Test]
+        public async Task ServerMessageHandlerShowsProcedureErrorWithBatchStartLineForSingleLineBatch()
+        {
+            var selection = new SelectionData(17, 0, 17, 22);
+            Batch batch = new Batch(Constants.StandardQuery, selection, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            string actualMessage = null;
+            batch.BatchMessageSent += args =>
+            {
+                actualMessage = args.Message;
+                return Task.CompletedTask;
+            };
+
+            var errorMessage = "error message";
+            await batch.HandleSqlErrorMessage(1, 16, 0, 5, "dbo.LineNumberDemo", errorMessage);
+
+            Assert.AreEqual(
+                $"Msg 1, Level 16, State 0, Procedure dbo.LineNumberDemo, Line 5 [Batch Start Line 18]{Environment.NewLine}{errorMessage}",
                 actualMessage);
         }
 

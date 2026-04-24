@@ -688,13 +688,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (string.IsNullOrEmpty(procedure))
             {
                 detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                    errorNumber, errorClass, state, lineNumber + (Selection != null ? Selection.StartLine : 0),
+                    errorNumber, errorClass, state, GetAbsoluteLineNumber(lineNumber),
                     Environment.NewLine, message);
             }
             else
             {
-                detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}",
-                    errorNumber, errorClass, state, procedure, lineNumber + (Selection != null ? Selection.StartLine : 0),
+                detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}{7}",
+                    errorNumber, errorClass, state, procedure, lineNumber,
+                    GetBatchStartLineSuffix(),
                     Environment.NewLine, message);
             }
 
@@ -731,6 +732,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 HandleOnErrorAction(this, isError);
             }
+        }
+
+        private int GetAbsoluteLineNumber(int lineNumber)
+        {
+            if (Selection == null)
+            {
+                return lineNumber;
+            }
+
+            return lineNumber + Selection.StartLine;
+        }
+
+        private string GetBatchStartLineSuffix()
+        {
+            if (Selection == null)
+            {
+                return string.Empty;
+            }
+
+            return $" [Batch Start Line {Selection.StartLine + 1}]";
         }
 
         /// <summary>
