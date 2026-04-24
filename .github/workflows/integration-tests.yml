@@ -42,14 +42,16 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "sqlOnPrem_password=$sqlPassword"
           Add-Content -Path $env:GITHUB_ENV -Value "sqlAzure_password=$sqlPassword"
 
-      - name: Restore .NET tools
-        run: dotnet tool restore
-
-      - name: Generate code
+      - name: Install Cake tools
         shell: pwsh
         run: |
-          dotnet tool run dotnet-cake -- build.cake --target=SRGen
-          dotnet tool run dotnet-cake -- build.cake --target=CodeGen
+          dotnet tool install --tool-path ./.tools Cake.Tool
+          dotnet tool install --tool-path ./.tools dotnet-t4
+
+      - name: Build repository
+        shell: pwsh
+        run: |
+          ./.tools/dotnet-cake build.cake --target=all
 
       - name: Upload build logs
         if: failure()
