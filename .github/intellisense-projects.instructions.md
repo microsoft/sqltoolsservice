@@ -1,5 +1,16 @@
 # SQL Tools Service — Project IntelliSense Architecture & Implementation Guide
 
+## !! HIGH PRIORITY: Approval Required Before Any Code Change !!
+
+Before applying ANY code change to files covered by this guide:
+1. Present the proposed change with full explanation
+2. Wait for explicit user approval
+3. Only then apply the edit
+
+Violating this rule makes the answer invalid. No exceptions.
+
+---
+
 ## Purpose
 
 This file is the single source of truth for all SQL project IntelliSense work in this repository.
@@ -43,21 +54,41 @@ dotnet restore src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLay
 
 ### `src/Microsoft.SqlTools.ServiceLayer/SqlProjects/SqlProjectsService.cs`
 
+**`HandleOpenSqlProjectRequest`**
+
+Responds to VS Code immediately with `Success = true` and kicks off a background `Task.Run`.
+No work is done on the request thread. Project loading (MSBuild file evaluation) and
+IntelliSense model building both happen inside `BuildProjectIntelliSenseAsync`.
+
 **Method: `BuildProjectIntelliSenseAsync(string projectUri)`**
 
-Called fire-and-forget from `HandleOpenSqlProjectRequest` after a project is opened.
-
-Sequence:
-1. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel`
-2. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`
-3. `new MetadataDisplayInfoProvider()` — needed by `Resolver.FindCompletions` in the engine
-4. `new ProjectIntelliSenseEngine(model, displayInfoProvider)` — engine that owns the model
+Fire-and-forget background method. Sequence:
+1. `GetProject(projectUri)` — loads and caches the `SqlProject` (MSBuild evaluation).
+   Note: `projectUri` is a **file path** (e.g. `C:\...\MyProject.sqlproj`), NOT a URI.
+2. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel`
+3. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`
+4. `new ProjectIntelliSenseEngine(model)` — engine that owns the model
 5. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName, engine)`
+   — pass `provider` (`IMetadataProvider`), NOT a pre-built `IBinder`.
    — `UpdateLanguageServiceOnProjectOpen` creates the `IBinder` internally via
-     `BinderProvider.CreateBinder(metadataProvider)` and stores it on the binding context
+     `BinderProvider.CreateBinder(metadataProvider)` and stores it on the binding context.
+   — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` on the `.sqlproj` ScriptParseInfo only.
+6. Build file URI list: `project.SqlObjectScripts.Select(s => new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri)`
+   — `SqlObjectScript.Path` is relative to the project directory; resolve to absolute before converting to URI.
+7. `LanguageService.Instance.InitializeProjectFileContexts(fileUris, contextKey, databaseName)`
+   — stamps `IsConnected=true` / `ConnectionKey` / `ProjectDatabaseName` on every `.sql` file's `ScriptParseInfo`.
+   — **This is the critical call.** Without it every `.sql` file keeps `IsConnected=false` and
+     F12 falls into the "not connected" error branch regardless of the engine being registered.
 
 **Rule:** This is the only place a `ProjectIntelliSenseEngine` is constructed. The engine is
 passed into STS and stored there. `SqlProjectsService` does not hold a reference to it after this.
+
+**Rule:** Always pass `provider` (not a pre-built `IBinder`) to `UpdateLanguageServiceOnProjectOpen`.
+The method signature is `(string projectUri, IMetadataProvider metadataProvider, ...)`.
+Passing an `IBinder` is a compile error (CS1503).
+
+**Rule:** File URIs passed to `InitializeProjectFileContexts` are built via `new Uri(absolutePath).AbsoluteUri`.
+No manual drive-letter case normalization is needed because `ScriptParseInfoMap` uses `OrdinalIgnoreCase`.
 
 ---
 
@@ -92,6 +123,24 @@ Called by `LanguageService.UpdateLanguageServiceOnProjectOpen`.
 
 ### `src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs`
 
+#### **`ScriptParseInfoMap` (modified)**
+
+```csharp
+private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
+    = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(
+        () => new ConcurrentDictionary<string, ScriptParseInfo>(StringComparer.OrdinalIgnoreCase));
+```
+
+Using `OrdinalIgnoreCase` is required for correctness on Windows. VS Code sends file URIs with a
+lowercase drive letter (`file:///c:/...`) while .NET's `Uri` produces uppercase (`file:///C:/...`).
+Without this, `GetScriptParseInfo(file.ClientUri)` misses the entry stamped by
+`InitializeProjectFileContexts`, returning a blank `ScriptParseInfo` with `IsConnected=false`,
+which causes every F12 to fall through to the "not connected" error branch.
+
+**Rule:** Do not add manual drive-letter case normalization elsewhere — the map handles it.
+
+---
+
 #### **`UpdateLanguageServiceOnProjectOpen` (modified)**
 
 Signature:
@@ -111,15 +160,18 @@ public async Task UpdateLanguageServiceOnProjectOpen(
 
 #### **`GetDefinition` (modified)**
 
-The entry point for F12. Now has a project-file branch at the top:
+The entry point for F12. Has a project-file branch at the top:
 
 ```csharp
 // Project file: connInfo is null but IsConnected (project binding context is registered).
 if (connInfo == null && scriptParseInfo.IsConnected && scriptParseInfo.ConnectionKey != null)
 {
-    // ParseAndBind must run first so the ParseResult has binder annotations.
-    if (RequiresReparse(scriptParseInfo, scriptFile))
-        scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+    // Always ParseAndBind — do not short-circuit with RequiresReparse.
+    // The cached ParseResult may predate the project context (file was open before the model
+    // finished building), so it may have been parsed but never bound. Binder annotations are
+    // required by Resolver.FindCompletions inside the engine. ParseAndBind is incremental:
+    // it reuses the existing parse tree when text is unchanged and just re-runs Bind().
+    scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
     return QueueProjectDefinition(textDocumentPosition, scriptParseInfo);
 }
 ```
@@ -167,27 +219,34 @@ This entire block is gone. `QueueTask` now handles online connections only.
 
 ```
 HandleOpenSqlProjectRequest
-  → BuildProjectIntelliSenseAsync (background Task)
-      → TSqlModelBuilder.LoadModel()           // SqlProjects library builds model
-      → new LazySchemaModelMetadataProvider()  // wraps model for binder
-      → new MetadataDisplayInfoProvider()      // for Resolver
-      → new ProjectIntelliSenseEngine()        // engine owns model + displayInfoProvider
-      → UpdateLanguageServiceOnProjectOpen()
-          → BinderProvider.CreateBinder(provider)
+  → SendResult(Success=true)   ← immediate response; VS Code is never blocked
+  → BuildProjectIntelliSenseAsync (background Task.Run)
+      → GetProject(projectUri)                 // MSBuild file evaluation, loads into cache
+                                               // projectUri = file path, e.g. C:\...\MyProject.sqlproj
+      → TSqlModelBuilder.LoadModel(project)    // SqlProjects library parses all DDL scripts
+      → new LazySchemaModelMetadataProvider()  // wraps model as IMetadataProvider for binder
+      → new ProjectIntelliSenseEngine(model)   // engine owns TSqlModel; used for F12
+      → UpdateLanguageServiceOnProjectOpen(projectUri, provider, ...)
+          // pass provider (IMetadataProvider), NOT a pre-built IBinder
+          → BinderProvider.CreateBinder(provider)   // binder created here, inside this method
           → BindingQueue.AddProjectContext("project_<uri>", binder, parseOptions, engine)
               // engine stored at bindingContext.ProjectEngine
-          → scriptInfo.IsConnected = true
-          → scriptInfo.ConnectionKey = "project_<uri>"
+          → stamps .sqlproj ScriptParseInfo: IsConnected=true, ConnectionKey="project_<uri>"
           → SendEvent(IntelliSenseReadyNotification)
+      → build fileUris from project.SqlObjectScripts:
+          new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri  // relative → absolute → URI
+      → InitializeProjectFileContexts(fileUris, "project_<uri>", databaseName)
+          // stamps every .sql file ScriptParseInfo: IsConnected=true, ConnectionKey, ProjectDatabaseName
+          // WITHOUT THIS CALL: every .sql file has IsConnected=false → F12 returns "not connected"
 ```
 
 ### F12 (Go-to-Definition)
 
 ```
 GetDefinition(position, file, connInfo=null)
-  → scriptParseInfo = GetScriptParseInfo(file.ClientUri)
+  → scriptParseInfo = GetScriptParseInfo(file.ClientUri)   ← OrdinalIgnoreCase lookup
   → connInfo==null + IsConnected + ConnectionKey!=null  ← project file branch
-      → if RequiresReparse: ParseAndBind(scriptFile, null)
+      → ParseAndBind(scriptFile, null)  ← always, not conditional on RequiresReparse
             → IBinder.Bind([parseResult], databaseName, Batch)
                   // binder writes semantic annotations onto the parse tree
       → QueueProjectDefinition(position, scriptParseInfo)
@@ -257,3 +316,73 @@ For each new feature (hover, diagnostics, signature help):
 construction time is the correct O(1) fix for the step 4 scan. This is explicitly NOT the same
 as the rejected "index in STS" — that was about storing navigation state in `LanguageService`
 or `ConnectedBindingContext` alongside the engine.
+
+---
+
+## Known Fixed Bugs (do not re-introduce)
+
+### F12 returned "not connected" for all project .sql files
+
+**Root cause 1 (compile error):** `BuildProjectIntelliSenseAsync` was passing a pre-built `IBinder`
+as argument 2 to `UpdateLanguageServiceOnProjectOpen`, which expects `IMetadataProvider`.
+This caused CS1503 — the project IntelliSense code was never compiled or executed.
+**Fix:** Pass `provider` directly. The method creates the binder internally.
+
+**Root cause 2 (logical bug):** `InitializeProjectFileContexts` was never called.
+Without it, every `.sql` file kept `IsConnected=false` / `ConnectionKey=null`.
+`GetDefinition` checks `connInfo==null && IsConnected && ConnectionKey!=null` — all three
+must be true to enter the project branch. With `IsConnected=false` the check fails and
+every F12 falls into the "not connected" error path.
+**Fix:** After `UpdateLanguageServiceOnProjectOpen`, call `InitializeProjectFileContexts`
+with all `.sql` file URIs from `project.SqlObjectScripts`.
+
+**Do not regress:** Any future refactor of `BuildProjectIntelliSenseAsync` must ensure
+both `UpdateLanguageServiceOnProjectOpen` and `InitializeProjectFileContexts` are called,
+in that order, with matching `contextKey = $"project_{projectUri}"`.
+
+---
+
+## TODO: Remove 2500 per-file `parseTSqlScript` IPC calls on project open
+
+**Problem:**
+When a SQL project is opened in VS Code, `project.ts` (`readSqlObjectScripts`) calls
+`parseTSqlScript` once per `.sql` file in a loop to detect `CREATE TABLE` and tag that file
+as a `TableFileNode` in the project tree. For a 2500-file project this is ~3 minutes of
+blocking IPC calls before the tree renders.
+
+**Why the `TableFileNode` distinction is currently useless:**
+- `TableFileNode` and `SqlObjectFileNode` have identical icons (neither sets `iconPath`).
+- `package.json` has zero `when` clauses referencing `databaseProject.itemType.file.table`.
+- The controller treats both identically in all `switch` blocks (same `exclude`/`delete` paths).
+- `contextValue = "table"` is set but never read anywhere. Dead code carried over from ADS.
+
+**Fix (vscode-mssql only — no STS changes needed):**
+
+In `extensions/sql-database-projects/src/models/project.ts`, method `readSqlObjectScripts`:
+
+Remove the `for` loop that calls `checkForCreateTableStatement` on every file.
+Replace with a simple `.map()` that creates all entries as `SqlObjectFileNode` (pass `false`
+for `containsCreateTableStatement`):
+
+```typescript
+// BEFORE (slow: 2500 IPC calls)
+for (const f of filesSet.values()) {
+    const entry = this.createFileProjectEntry(f, EntryType.File);
+    const containsTable = await this.sqlProjectsService.parseTSqlScript(f.fsPath, ...);
+    entry.containsCreateTableStatement = containsTable;
+    this._sqlObjectScripts.push(entry);
+}
+
+// AFTER (fast: zero IPC calls)
+this._sqlObjectScripts = Array.from(filesSet.values()).map(f =>
+    this.createFileProjectEntry(f, EntryType.File, undefined, false),
+);
+```
+
+**Validation before merging:**
+1. Search `package.json` for `itemType.file.table` — must return zero results (confirms no menu uses it).
+2. Open a large project and verify tree renders immediately.
+3. Verify right-click menu on a table file and a view file show the same options (no regression).
+
+**No STS changes required.** Do not add a notification, do not add `markFileAsTable`, do not
+add `onNotification` to `IExtension`. The fix is purely a deletion in `project.ts`.
