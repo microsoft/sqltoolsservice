@@ -35,17 +35,81 @@ All semantic work lives in `Microsoft.SqlServer.Dac.Projects.IntelliSense`.
 
 | Property | Value |
 |----------|-------|
-| Package | `Microsoft.SqlServer.Dac.Projects.IntelliSense` |
-| Version (local dev) | `0.5.1-local` |
+| Package | `Microsoft.SqlServer.DacFx.Projects` |
+| Version (local dev) | `0.5.22-local` |
 | Source (local) | `./bin/nuget/` (configured in `nuget.config`) |
 | Global packages cache | `C:\.tools\.nuget\packages\` |
+| Version pin file | `Packages.props` |
 
-After repacking the library, clear the cache and restore:
+The IntelliSense DLL (`IsPackable=false`) is bundled inside `Microsoft.SqlServer.DacFx.Projects`.
+After repacking the library from the SqlProjects repo, clear the cache and restore:
 
 ```powershell
-Remove-Item "C:\.tools\.nuget\packages\microsoft.sqlserver.dac.projects.intellisense" -Recurse -Force -ErrorAction SilentlyContinue
+# Pack from SqlProjects repo root
+cd C:\Projects\SqlProjects
+dotnet pack Source/Microsoft.SqlServer.Dac.Projects.csproj `
+    -c Release /p:PackageVersion=0.5.22-local `
+    --output "C:\Projects\sqltoolsservice\bin\nuget"
+
+# Clear cache and restore STS
+Remove-Item "C:\.tools\.nuget\packages\microsoft.sqlserver.dacfx.projects" -Recurse -Force -ErrorAction SilentlyContinue
 cd C:\Projects\sqltoolsservice
 dotnet restore src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj
+dotnet build src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj -c Release --no-restore
+```
+
+The version pin is in `Packages.props`:
+```xml
+<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.5.22-local" />
+```
+
+---
+
+## Core Design: Single BindingQueue, Key-Based Routing
+
+There is **one** `ConnectedBindingQueue` in `LanguageService`. It stores two kinds of binding
+contexts, distinguished only by the `ConnectionKey` string stored on `ScriptParseInfo`:
+
+| Context type | `ConnectionKey` format | Binder source | `ServerConnection` |
+|---|---|---|---|
+| Project (offline) | `"project_{projectUri}"` | `LazySchemaModelMetadataProvider` → `BinderProvider.CreateBinder()` | `null` |
+| Connection (online) | `"{server}_{db}_{user}_{auth}[_...]"` (hash of connection details) | `SmoMetadataProvider.CreateConnectedProvider()` → `BinderProvider.CreateBinder()` | set (live `ServerConnection`) |
+
+**Rule:** All routing decisions MUST be made by inspecting `ConnectionKey` via `IsProjectContext`,
+never by checking `connInfo == null` or `IsConnected` directly.
+
+---
+
+## `IsProjectContext` helper (`LanguageService.cs`)
+
+```csharp
+private static bool IsProjectContext(string connectionKey)
+    => !string.IsNullOrEmpty(connectionKey) &&
+       connectionKey.StartsWith("project_", StringComparison.Ordinal);
+```
+
+Use this everywhere a routing branch is needed. Do NOT add new flags or new branching mechanisms.
+
+---
+
+## `IConnectedBindingQueue` interface
+
+Both context types are registered via the same interface. `LanguageService.BindingQueue` is typed
+as `IConnectedBindingQueue` — **not** the concrete `ConnectedBindingQueue`. `CompletionService`
+also takes `IConnectedBindingQueue`.
+
+```csharp
+public interface IConnectedBindingQueue
+{
+    string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
+    void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
+        ProjectIntelliSenseEngine projectEngine = null);
+    bool IsBindingContextConnected(string key);
+    void Dispose();
+    QueueItem QueueBindingOperation(string key, Func<IBindingContext, CancellationToken, object> bindOperation, ...);
+    void CloseConnections(...);
+    void OpenConnections(...);
+}
 ```
 
 ---
@@ -65,20 +129,23 @@ IntelliSense model building both happen inside `BuildProjectIntelliSenseAsync`.
 Fire-and-forget background method. Sequence:
 1. `GetProject(projectUri)` — loads and caches the `SqlProject` (MSBuild evaluation).
    Note: `projectUri` is a **file path** (e.g. `C:\...\MyProject.sqlproj`), NOT a URI.
-2. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel`
-3. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`
-4. `new ProjectIntelliSenseEngine(model)` — engine that owns the model
-5. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName, engine)`
+2. Build file URI list: `project.SqlObjectScripts.Select(s => new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri)`
+   — `SqlObjectScript.Path` is relative to the project directory; resolve to absolute before converting to URI.
+3. `LanguageService.Instance.InitializeProjectFileContexts(fileUris, contextKey, databaseName)`
+   — **BEFORE `LoadModel`** — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` /
+     `ProjectDatabaseName` on every `.sql` file's `ScriptParseInfo`.
+   — Ensures requests arriving while the model loads are queued against the right key, not rejected.
+   — **Without this call:** every `.sql` file stays `IsConnected=false` → F12 returns "not connected".
+4. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel` (can take
+   seconds on large projects; files are already stamped so requests are accepted during this time)
+5. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`
+6. `new ProjectIntelliSenseEngine(model)` — engine that owns the model
+7. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName, engine)`
    — pass `provider` (`IMetadataProvider`), NOT a pre-built `IBinder`.
    — `UpdateLanguageServiceOnProjectOpen` creates the `IBinder` internally via
      `BinderProvider.CreateBinder(metadataProvider)` and stores it on the binding context.
-   — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` on the `.sqlproj` ScriptParseInfo only.
-6. Build file URI list: `project.SqlObjectScripts.Select(s => new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri)`
-   — `SqlObjectScript.Path` is relative to the project directory; resolve to absolute before converting to URI.
-7. `LanguageService.Instance.InitializeProjectFileContexts(fileUris, contextKey, databaseName)`
-   — stamps `IsConnected=true` / `ConnectionKey` / `ProjectDatabaseName` on every `.sql` file's `ScriptParseInfo`.
-   — **This is the critical call.** Without it every `.sql` file keeps `IsConnected=false` and
-     F12 falls into the "not connected" error branch regardless of the engine being registered.
+   — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` on the `.sqlproj` ScriptParseInfo.
+   — sends `IntelliSenseReadyNotification` to VS Code.
 
 **Rule:** This is the only place a `ProjectIntelliSenseEngine` is constructed. The engine is
 passed into STS and stored there. `SqlProjectsService` does not hold a reference to it after this.
@@ -163,8 +230,9 @@ public async Task UpdateLanguageServiceOnProjectOpen(
 The entry point for F12. Has a project-file branch at the top:
 
 ```csharp
-// Project file: connInfo is null but IsConnected (project binding context is registered).
-if (connInfo == null && scriptParseInfo.IsConnected && scriptParseInfo.ConnectionKey != null)
+// Project file: detect via ConnectionKey prefix, not connInfo==null.
+// (A project file may also have a server connection, so connInfo==null is unreliable.)
+if (IsProjectContext(scriptParseInfo.ConnectionKey))
 {
     // Always ParseAndBind — do not short-circuit with RequiresReparse.
     // The cached ParseResult may predate the project context (file was open before the model
@@ -178,8 +246,8 @@ if (connInfo == null && scriptParseInfo.IsConnected && scriptParseInfo.Connectio
 
 Falls through to the existing SMO path only for online connections.
 
-**Rule:** STS detects project vs. online by `connInfo == null`. It does NOT peel a token
-or extract an identifier string before routing.
+**Rule:** STS detects project vs. online by `IsProjectContext(scriptParseInfo.ConnectionKey)`.
+It does NOT peel a token or extract an identifier string before routing.
 
 #### **`QueueProjectDefinition` (new private method)**
 
@@ -223,6 +291,13 @@ HandleOpenSqlProjectRequest
   → BuildProjectIntelliSenseAsync (background Task.Run)
       → GetProject(projectUri)                 // MSBuild file evaluation, loads into cache
                                                // projectUri = file path, e.g. C:\...\MyProject.sqlproj
+      → build fileUris from project.SqlObjectScripts:
+          new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri  // relative → absolute → URI
+      → InitializeProjectFileContexts(fileUris, "project_<uri>", databaseName)
+          // *** BEFORE LoadModel *** — stamps every .sql file ScriptParseInfo:
+          //   IsConnected=true, ConnectionKey="project_<uri>", ProjectDatabaseName
+          // Requests during model load are queued, not rejected.
+          // WITHOUT THIS CALL: every .sql file keeps IsConnected=false → F12 = "not connected"
       → TSqlModelBuilder.LoadModel(project)    // SqlProjects library parses all DDL scripts
       → new LazySchemaModelMetadataProvider()  // wraps model as IMetadataProvider for binder
       → new ProjectIntelliSenseEngine(model)   // engine owns TSqlModel; used for F12
@@ -233,11 +308,6 @@ HandleOpenSqlProjectRequest
               // engine stored at bindingContext.ProjectEngine
           → stamps .sqlproj ScriptParseInfo: IsConnected=true, ConnectionKey="project_<uri>"
           → SendEvent(IntelliSenseReadyNotification)
-      → build fileUris from project.SqlObjectScripts:
-          new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri  // relative → absolute → URI
-      → InitializeProjectFileContexts(fileUris, "project_<uri>", databaseName)
-          // stamps every .sql file ScriptParseInfo: IsConnected=true, ConnectionKey, ProjectDatabaseName
-          // WITHOUT THIS CALL: every .sql file has IsConnected=false → F12 returns "not connected"
 ```
 
 ### F12 (Go-to-Definition)
@@ -245,7 +315,7 @@ HandleOpenSqlProjectRequest
 ```
 GetDefinition(position, file, connInfo=null)
   → scriptParseInfo = GetScriptParseInfo(file.ClientUri)   ← OrdinalIgnoreCase lookup
-  → connInfo==null + IsConnected + ConnectionKey!=null  ← project file branch
+  → IsProjectContext(scriptParseInfo.ConnectionKey)  ← project file branch
       → ParseAndBind(scriptFile, null)  ← always, not conditional on RequiresReparse
             → IBinder.Bind([parseResult], databaseName, Batch)
                   // binder writes semantic annotations onto the parse tree
@@ -266,13 +336,73 @@ GetDefinition(position, file, connInfo=null)
 ### Completions / Hover (existing, unchanged path)
 
 ```
-ParseAndBind(scriptFile, connInfo=null)
-  → hasProjectContext = (connInfo==null && IsConnected && ConnectionKey != null)
-  → QueueBindingOperation(key="project_<uri>")
-      → IBinder.Bind(parseResults, databaseName, BindMode.Batch)
-          // binder writes semantic annotations onto the parse tree
-          // these annotations are what GetDefinition reads in step 2
+ParseAndBind(scriptFile, connInfo)
+  → parseInfo = GetScriptParseInfo(scriptFile.ClientUri)  ← OrdinalIgnoreCase lookup
+  → hasBindingContext = parseInfo.IsConnected && parseInfo.ConnectionKey != null
+  → QueueBindingOperation(key: parseInfo.ConnectionKey, ...)
+      → TryIncrementalParse() with bindingContext.ParseOptions
+      → bindingContext.Binder.Bind(parseResults, dbName, BindMode.Batch)
+          Project path: binder backed by LazySchemaModelMetadataProvider (TSqlModel)
+          SMO path:     binder backed by SmoMetadataProvider (live server)
+  // dbName: project → parseInfo.ProjectDatabaseName; SMO → connInfo.ConnectionDetails.DatabaseName
 ```
+
+### Connection IntelliSense startup sequence
+
+```
+User connects to a server in vscode-mssql
+  → STS: ConnectionService.Connect()
+      → LanguageService.UpdateLanguageServiceOnConnection(info)
+          Guard: if IsProjectContext(scriptInfo.ConnectionKey) → return
+                 (project files must never have their key overwritten by a server connection)
+          ConnectedBindingQueue.AddConnectionContext(connInfo, featureName)
+              → ServerConnection = OpenServerConnection(connInfo)
+              → SmoMetadataProvider.CreateConnectedProvider(serverConnection)
+              → BinderProvider.CreateBinder(smoMetadataProvider)
+              → bindingContext.IsConnected = true
+              returns connectionKey = hash(server+db+user+auth+...)
+          scriptInfo.ConnectionKey = connectionKey
+          scriptInfo.IsConnected   = true
+      → PrepopulateCommonMetadata() [warm up the binder]
+      → ServiceHost.SendEvent(IntelliSenseReadyNotification)
+```
+
+### `ParseAndBind` — binding context lookup
+
+For project contexts `bindingContext.ServerConnection` is `null` — intentional.
+Only the `QueueTask` (SMO scripter) path accesses `ServerConnection`; it has a null-guard:
+
+```csharp
+// In QueueTask bindOperation lambda:
+if (bindingContext.ServerConnection == null)
+    return new DefinitionResult { IsErrorResult = true, Message = SR.PeekDefinitionNotConnectedError };
+```
+
+### Supported LSP features
+
+| Feature | LSP method | Project path | Online path |
+|---|---|---|---|
+| **Completions** | `textDocument/completion` | ✅ bound ParseResult | ✅ SMO |
+| **Completion resolve** | `textDocument/completionItem/resolve` | ✅ | ✅ |
+| **Go-to-Definition / Peek** | `textDocument/definition` | ✅ `ProjectIntelliSenseEngine` | ✅ SMO `Scripter` |
+| **Hover** | `textDocument/hover` | ✅ | ✅ |
+| **Signature help** | `textDocument/signatureHelp` | ✅ | ✅ |
+| **Syntax parse** | `sqlTools/syntaxParse` | ✅ | ✅ |
+| **Diagnostics** | internal | ✅ (suppressed — no false errors) | ✅ |
+| **References** | `textDocument/references` | ❌ commented out | ❌ |
+| **Document highlight** | `textDocument/documentHighlight` | ❌ commented out | ❌ |
+
+### Diagnostics suppression for project files
+
+```csharp
+// In GetSemanticMarkers():
+bool isProjectFile = IsProjectContext(parseInfo?.ConnectionKey);
+if (isProjectFile)
+    return Array.Empty<ScriptFileMarker>();
+```
+
+The binder reports DDL objects as duplicates (they are already loaded into the metadata model),
+producing false "already exists" errors. Project-level validation belongs to the build step.
 
 ---
 
@@ -280,7 +410,8 @@ ParseAndBind(scriptFile, connInfo=null)
 
 | Invariant | Reason |
 |-----------|--------|
-| `connInfo == null` is the signal for a project file | Online files always have a `ConnectionInfo`; project files never do |
+| `IsProjectContext(ConnectionKey)` is the routing signal | Never use `connInfo == null`; a project file may also have a server connection |
+| `UpdateLanguageServiceOnConnection` must NOT overwrite a project key | Guard: `if (IsProjectContext(...)) return;` at the top of the method |
 | STS passes `(ParseResult, line, col)` to the engine — never a token string | Token peeling bypasses binding; the engine resolves semantically |
 | One `ProjectIntelliSenseEngine` per open project, stored on `ConnectedBindingContext` | Avoids rebuilding the model per request |
 | `QueueProjectDefinition` does not call `GetPeekDefinitionTokens` | That path is for the SMO/online scripter; it pre-extracts tokens because SMO needs a name, not a position |
@@ -295,8 +426,8 @@ For each new feature (hover, diagnostics, signature help):
 
 1. **SqlProjects library**: add `Get*(ParseResult, int, int) → Result` to `ProjectIntelliSenseEngine`
 2. **STS `LanguageService`**: add `Queue*Project(position, scriptParseInfo)` that routes to engine
-3. **STS dispatch**: add `if (connInfo == null ...) return Queue*Project(...)` branch in the
-   existing handler, before the online fallthrough
+3. **STS dispatch**: add `if (IsProjectContext(scriptParseInfo.ConnectionKey)) return Queue*Project(...)` branch
+   in the existing handler, before the online fallthrough
 4. STS **never** calls `Resolver.*` directly for project files — that belongs in the engine
 
 ---
@@ -330,15 +461,16 @@ This caused CS1503 — the project IntelliSense code was never compiled or execu
 
 **Root cause 2 (logical bug):** `InitializeProjectFileContexts` was never called.
 Without it, every `.sql` file kept `IsConnected=false` / `ConnectionKey=null`.
-`GetDefinition` checks `connInfo==null && IsConnected && ConnectionKey!=null` — all three
-must be true to enter the project branch. With `IsConnected=false` the check fails and
-every F12 falls into the "not connected" error path.
-**Fix:** After `UpdateLanguageServiceOnProjectOpen`, call `InitializeProjectFileContexts`
-with all `.sql` file URIs from `project.SqlObjectScripts`.
+`GetDefinition` checks `IsProjectContext(scriptParseInfo.ConnectionKey)` — the key must be
+non-null and start with `"project_"`. With `ConnectionKey=null` the check fails and every F12
+falls into the "not connected" error path.
+**Fix:** Before `LoadModel`, call `InitializeProjectFileContexts` with all `.sql` file URIs from
+`project.SqlObjectScripts`. This stamps `ConnectionKey` and `IsConnected=true` so the routing
+check succeeds even while the model is still loading.
 
 **Do not regress:** Any future refactor of `BuildProjectIntelliSenseAsync` must ensure
-both `UpdateLanguageServiceOnProjectOpen` and `InitializeProjectFileContexts` are called,
-in that order, with matching `contextKey = $"project_{projectUri}"`.
+`InitializeProjectFileContexts` is called BEFORE `LoadModel`, and `UpdateLanguageServiceOnProjectOpen`
+is called after the model is fully built, with matching `contextKey = $"project_{projectUri}"` in both.
 
 ---
 
