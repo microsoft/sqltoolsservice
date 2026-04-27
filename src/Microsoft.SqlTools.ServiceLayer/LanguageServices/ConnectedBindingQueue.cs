@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
@@ -31,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
             ProjectIntelliSenseEngine projectEngine = null);
         bool IsBindingContextConnected(string key);
+        ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
         void Dispose();
         QueueItem QueueBindingOperation(
             string key,
