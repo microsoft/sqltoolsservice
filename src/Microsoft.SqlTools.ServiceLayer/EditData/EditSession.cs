@@ -517,7 +517,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 Name = c.ColumnName,
                 // IsEditable provides a clearer public API name than IsUpdatable
                 IsEditable = c.IsUpdatable,
-                IsNullable = c.AllowDBNull
+                IsNullable = c.AllowDBNull,
+                DataTypeName = c.DataTypeName
             }).ToArray() ?? new EditColumnInfo[0];
         }
 
