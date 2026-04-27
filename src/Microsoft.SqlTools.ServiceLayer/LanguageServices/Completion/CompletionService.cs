@@ -21,12 +21,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// </summary>
     internal class CompletionService
     {
-        private ConnectedBindingQueue BindingQueue { get; set; }
+        private IConnectedBindingQueue BindingQueue { get; set; }
 
         /// <summary>
         /// Created new instance given binding queue
         /// </summary>
-        public CompletionService(ConnectedBindingQueue bindingQueue)
+        public CompletionService(IConnectedBindingQueue bindingQueue)
         {
             BindingQueue = bindingQueue;
         }
@@ -175,8 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             }
 
             result.CompleteResult(completionList);
-            //The bucket for number of milliseconds will take to send back auto complete list
-            connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
+            // connInfo is null for project files (offline IntelliSense — no server connection).
+            connInfo?.IntellisenseMetrics?.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
             return result;
         }
     }
