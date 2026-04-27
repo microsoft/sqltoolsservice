@@ -1139,6 +1139,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
             ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
+
+            // Project files always retain their "project_{uri}" key — a server connection must not
+            // overwrite it and redirect the file to the SMO binder.
+            if (IsProjectContext(scriptInfo.ConnectionKey))
+            {
+                return;
+            }
+
             if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
             {
                 try
@@ -1353,6 +1361,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Returns true when the ConnectionKey identifies a SQL project context (offline, TSqlModel-backed).
+        /// Use this for routing decisions instead of checking connInfo == null.
+        /// </summary>
+        private static bool IsProjectContext(string connectionKey)
+            => !string.IsNullOrEmpty(connectionKey) &&
+               connectionKey.StartsWith("project_", StringComparison.Ordinal);
+
+        /// <summary>
         /// Determines whether a reparse and bind is required to provide autocomplete
         /// </summary>
         /// <param name="info"></param>
@@ -1439,6 +1455,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindingTimeout: LanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
+                    // Project contexts do not have a server connection; only SMO-connected contexts can script objects.
+                    if (bindingContext.ServerConnection == null)
+                    {
+                        return new DefinitionResult
+                        {
+                            IsErrorResult = true,
+                            Message = SR.PeekDefinitionNotConnectedError,
+                            Locations = null
+                        };
+                    }
+
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
 
                     // Script object using SMO
@@ -1540,9 +1567,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
-            // Project file: connInfo is null but IsConnected (project binding context is registered).
-            // Route directly to the engine — no token peeling, raw position only.
-            if (connInfo == null && scriptParseInfo.IsConnected && scriptParseInfo.ConnectionKey != null)
+            // Project file: key starts with "project_" regardless of whether the user also has a
+            // server connection open. Route directly to the engine — no token peeling, raw position only.
+            if (IsProjectContext(scriptParseInfo.ConnectionKey))
             {
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
                 return QueueProjectDefinition(textDocumentPosition, scriptParseInfo);
@@ -2042,12 +2069,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
-            // For project files (connInfo is null but bound via project context), suppress binding
-            // diagnostics. The binder sees DDL objects as duplicates because the same objects are
-            // already loaded into the metadata model — producing false "already exists" errors.
-            // Project-level validation belongs to a build step, not live diagnostics.
+            // For project files, suppress binding diagnostics: the binder sees DDL objects as
+            // duplicates because they are already loaded into the metadata model, producing false
+            // "already exists" errors. Project-level validation belongs to a build step.
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            bool isProjectFile = connInfo == null && parseInfo?.IsConnected == true && parseInfo.ConnectionKey != null;
+            bool isProjectFile = IsProjectContext(parseInfo?.ConnectionKey);
             if (isProjectFile)
             {
                 return Array.Empty<ScriptFileMarker>();
