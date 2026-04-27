@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 LanguageService.Instance.InitializeProjectFileContexts(fileUriList, contextKey, databaseName);
 
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
-                var provider = new LazySchemaModelMetadataProvider(model, databaseName);
+                var projectMetadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
 
                 var parseOptions = new ParseOptions(
                     batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var engine = new ProjectIntelliSenseEngine(model);
 
                 await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
-                    projectUri, provider, parseOptions, databaseName, engine);
+                    projectUri, projectMetadataProvider, parseOptions, databaseName, engine);
             }
             catch (Exception ex)
             {

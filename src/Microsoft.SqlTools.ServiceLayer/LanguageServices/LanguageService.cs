@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+        private IConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
 
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the binding queue instance
         /// Internal for testing purposes only
         /// </summary>
-        internal ConnectedBindingQueue BindingQueue
+        internal IConnectedBindingQueue BindingQueue
         {
             get
             {
@@ -1240,7 +1240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal async Task PrepopulateCommonMetadata(
             ConnectionInfo info,
             ScriptParseInfo scriptInfo,
-            ConnectedBindingQueue bindingQueue)
+            IConnectedBindingQueue bindingQueue)
         {
             if (scriptInfo.IsConnected)
             {
@@ -2041,6 +2041,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var parseResult = await ParseAndBind(scriptFile, connInfo);
 
             _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
+
+            // For project files (connInfo is null but bound via project context), suppress binding
+            // diagnostics. The binder sees DDL objects as duplicates because the same objects are
+            // already loaded into the metadata model — producing false "already exists" errors.
+            // Project-level validation belongs to a build step, not live diagnostics.
+            ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            bool isProjectFile = connInfo == null && parseInfo?.IsConnected == true && parseInfo.ConnectionKey != null;
+            if (isProjectFile)
+            {
+                return Array.Empty<ScriptFileMarker>();
+            }
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();

@@ -28,6 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
         string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
+        void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
+            ProjectIntelliSenseEngine projectEngine = null);
+        bool IsBindingContextConnected(string key);
         void Dispose();
         QueueItem QueueBindingOperation(
             string key,
