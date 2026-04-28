@@ -83,7 +83,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             AuthenticationType = AzureMFA,
             AccountId = "account-id",
             TenantId = "tenant-id",
+            // UserName is required by BuildConnectionString when EnableSqlAuthenticationProvider
+            // is true on the singleton (set by other tests in the full suite); providing a dummy
+            // value keeps the tests hermetic regardless of prior-test contamination.
+            UserName = "test@example.com",
         };
+
+        [SetUp]
+        public void SetUp()
+        {
+            // Reset singleton flags so tests are hermetic regardless of what prior tests in the
+            // full suite may have set. BuildConnectionString reads from Instance, not from a local
+            // ConnectionService instance, so we need the singleton to be clean.
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = false;
+            ConnectionService.Instance.RequestMfaTokenFromClient = false;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = false;
+            ConnectionService.Instance.RequestMfaTokenFromClient = false;
+        }
 
         // ---------------------------------------------------------------
         // Category 3 — TryOpenConnection

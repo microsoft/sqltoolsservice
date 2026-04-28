@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Populated only when RequestMfaTokenFromClient is enabled; null for client apps using the shared MSAL cache for auth.
         /// </summary>
         public string TenantId { get; set; }
+
     }
 
     class RequestSecurityTokenResponse

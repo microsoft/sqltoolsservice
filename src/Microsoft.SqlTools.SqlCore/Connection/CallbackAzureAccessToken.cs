@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.Connection
         public string Tenant { get; set; }
         public string UserId { get; set; }
 
+        /// <param name="tokenFetcher">Delegate that fetches a fresh token on demand.</param>
         public CallbackAzureAccessToken(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
         {
             _tokenFetcher = tokenFetcher ?? throw new ArgumentNullException(nameof(tokenFetcher));

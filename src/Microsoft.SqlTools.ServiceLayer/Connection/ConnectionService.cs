@@ -742,7 +742,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Wraps a token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>
+        /// Wraps a token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>.
         /// </summary>
         private static Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>>
             ToSqlAccessTokenCallback(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
@@ -2159,19 +2159,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             => connection.OpenAsync(token);
 
         /// <summary>
-        /// Test hook: when set, <see cref="OpenServerConnection"/> returns this delegate's result
-        /// instead of creating a real connection.  Always null in production.
+        /// Opens a new <see cref="ServerConnection"/> from a <see cref="ConnectionInfo"/>.
+        /// Virtual so that unit-test subclasses can override it without a static hook.
+        /// All production code that needs an SMO server connection should call
+        /// <see cref="OpenServerConnection"/> (which delegates here via <see cref="Instance"/>),
+        /// or — when operating through an injected <see cref="ConnectionService"/> — call this
+        /// method directly on the injected instance.
         /// </summary>
-        internal static Func<ConnectionInfo, string, ServerConnection> OpenServerConnectionOverride;
-
-        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
+        internal virtual ServerConnection OpenServerConnectionInternal(ConnectionInfo connInfo, string featureName = null)
         {
-            if (OpenServerConnectionOverride != null)
-                return OpenServerConnectionOverride(connInfo, featureName);
-
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
+            var sqlConnection = OpenSqlConnection(connInfo, featureName);
             return CreateServerConnection(sqlConnection, connInfo);
         }
+
+        /// <summary>
+        /// Static convenience wrapper around <see cref="OpenServerConnectionInternal"/> that
+        /// uses the singleton <see cref="Instance"/>.  Existing callers across the codebase
+        /// continue to compile unchanged while still benefiting from the virtual dispatch when
+        /// the singleton is subclassed in integration tests.
+        /// </summary>
+        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
+            => Instance.OpenServerConnectionInternal(connInfo, featureName);
 
         /// <summary>
         /// Selects the correct <see cref="ServerConnection"/> constructor overload based on
@@ -2182,7 +2190,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                // RequestMfaTokenFromClient: give SMO a token with a refresh callback.
                 return new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
             }
             if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)

@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                             // RequestMfaTokenFromClient: build a renewable ServerConnection for ScriptAs
                             // (SMO can re-fetch via CallbackAzureAccessToken on reconnect) and a one-shot
                             // token string for ScriptingScript (short-lived, token as a plain string).
-                            scriptingServerConnection = ConnectionService.OpenServerConnection(connInfo, "ScriptAs");
+                            scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
                             (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
                         }
                         else

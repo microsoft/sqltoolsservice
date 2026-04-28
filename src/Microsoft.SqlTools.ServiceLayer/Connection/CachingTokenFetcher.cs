@@ -3,10 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -19,16 +22,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     internal sealed class CachingTokenFetcher
     {
+        private readonly Func<Task<(string token, DateTimeOffset expiresOn)>> FetchNewToken;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
 
-        private readonly Func<Task<(string token, DateTimeOffset expiresOn)>> _inner;
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
-        private string? _cachedToken;
+        private string _cachedToken;
         private DateTimeOffset _cachedExpiresOn = DateTimeOffset.MinValue;
 
-        internal CachingTokenFetcher(Func<Task<(string token, DateTimeOffset expiresOn)>> inner)
+        internal CachingTokenFetcher(Func<Task<(string token, DateTimeOffset expiresOn)>> fetchNewToken)
         {
-            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            FetchNewToken = fetchNewToken ?? throw new ArgumentNullException(nameof(fetchNewToken));
         }
 
         /// <summary>
@@ -46,7 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Fast path — skip the semaphore when the cache is clearly warm.
             if (IsCacheValid())
             {
-                return (_cachedToken!, _cachedExpiresOn);
+                Logger.Verbose("Azure token cache hit");
+                return (_cachedToken, _cachedExpiresOn);
             }
 
             await _semaphore.WaitAsync().ConfigureAwait(false);
@@ -56,13 +59,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // refreshed the token while we were waiting.
                 if (IsCacheValid())
                 {
-                    return (_cachedToken!, _cachedExpiresOn);
+                    Logger.Verbose("Azure token cache hit (post-lock)");
+                    return (_cachedToken, _cachedExpiresOn);
                 }
 
-                var (token, expiresOn) = await _inner().ConfigureAwait(false);
+                Logger.Verbose("Requesting Azure access token from client");
+                var (token, expiresOn) = await FetchNewToken().ConfigureAwait(false);
                 _cachedToken = token;
                 _cachedExpiresOn = expiresOn;
+                Logger.Information($"Azure access token acquired successfully, expires {expiresOn}");
+
                 return (token, expiresOn);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Azure access token fetch failed: {ex.Message}");
+                throw;
             }
             finally
             {
