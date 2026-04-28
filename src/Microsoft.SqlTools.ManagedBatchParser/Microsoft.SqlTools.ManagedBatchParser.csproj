@@ -10,7 +10,7 @@
 		<DelaySign>True</DelaySign>
 		<!-- Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in
 		tests with internalsVisibleTo attribute.-->
-		<SignAssembly Condition="$(TargetFramework) == '$(SsmsDotNetVersion)'">True</SignAssembly>
+		<SignAssembly Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">True</SignAssembly>
 		<AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
