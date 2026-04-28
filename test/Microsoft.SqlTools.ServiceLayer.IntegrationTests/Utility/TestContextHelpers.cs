@@ -16,6 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 
         public static string GetTestWorkingFolder(this TestContext context) => Path.Join(TestBase.TestRunFolder, TestName);
 
-        public static string GetTestProjectPath(this TestContext context, string? projectName = null) => Path.Join(context.GetTestWorkingFolder(), $"{projectName ?? TestName}.sqlproj");
+        public static string GetTestProjectPath(this TestContext context, string projectName = null) => Path.Join(context.GetTestWorkingFolder(), $"{projectName ?? TestName}.sqlproj");
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
     {
         private static string sqlProjectsFolder = Path.Combine("..", "..", "..", "SchemaCompare", "SqlProjects");
 
-        internal static void VerifyAndCleanup(string? path)
+        internal static void VerifyAndCleanup(string path)
         {
             if (path == null)
             {

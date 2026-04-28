@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -20,12 +18,12 @@ namespace Microsoft.SqlTools.Credentials.Contracts
         /// <summary>
         /// A unique ID to identify the credential being saved. 
         /// </summary>
-        public string CredentialId { get; set; }
-        
+        public string? CredentialId { get; set; }
+
         /// <summary>
-        /// The Password stored for this credential. 
+        /// The Password stored for this credential.
         /// </summary>
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         /// <summary>
         /// Default Constructor
@@ -49,7 +47,7 @@ namespace Microsoft.SqlTools.Credentials.Contracts
         /// </summary>
         /// <param name="credentialId"><see cref="CredentialId"/></param>
         /// <param name="password"><see cref="Password"/></param>
-        public Credential(string credentialId, string password)
+        public Credential(string credentialId, string? password)
         {
             CredentialId = credentialId;
             Password = password;

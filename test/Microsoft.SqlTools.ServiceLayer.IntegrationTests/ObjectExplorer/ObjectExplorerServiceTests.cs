@@ -574,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
             }
             Assert.That(databaseNode, Is.Not.Null, "Database node should not be null");
-            return databaseNode!;
+            return databaseNode;
         }
 
         private async Task ExpandAndVerifyDatabaseNode(string databaseName, ObjectExplorerSession session)

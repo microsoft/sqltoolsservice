@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using System.Globalization;
@@ -283,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionService(ISqlConnectionFactory testFactory) => this.connectionFactory = testFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
-        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
+        public virtual bool TryFindConnection(string ownerUri, [NotNullWhen(true)] out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
         /// Refreshes the auth token of a given connection, if needed

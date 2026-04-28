@@ -55,10 +55,4 @@
 		<PackageReference Include="System.IO.Packaging" />
 		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
-	<ItemGroup>
-		<Content Include="bin/$(Configuration)/**/Microsoft.SqlTools.*.dll">
-			<Pack>true</Pack>
-			<PackagePath>lib/</PackagePath>
-		</Content>
-	</ItemGroup>
 </Project>

@@ -14,6 +14,7 @@ using System.Collections.Concurrent;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -74,6 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(AttachDatabaseRequest.Type, HandleAttachDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest, true);
+            this.serviceHost.SetRequestHandler(RenameDatabaseRequest.Type, HandleRenameDatabaseRequest, true);
             this.serviceHost.SetRequestHandler(PurgeQueryStoreDataRequest.Type, HandlePurgeQueryStoreDataRequest, true);
         }
 
@@ -82,6 +84,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
             await requestContext.SendResult(new RenameRequestResponse());
+        }
+
+        internal async Task HandleRenameDatabaseRequest(RenameDatabaseRequestParams requestParams, RequestContext<RenameDatabaseResponse> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
+            var operation = new RenameDatabaseOperation(handler, requestParams);
+
+            if (requestParams.GenerateScript)
+            {
+                operation.Execute(TaskExecutionMode.Script);
+                await requestContext.SendResult(new RenameDatabaseResponse
+                {
+                    Script = operation.ScriptContent ?? string.Empty,
+                });
+                return;
+            }
+
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(requestParams.ConnectionUri, out connInfo);
+            TaskMetadata metadata = new TaskMetadata
+            {
+                Name = operation.TaskName,
+                Description = operation.TaskDescription,
+                TaskExecutionMode = TaskExecutionMode.Execute,
+                ServerName = connInfo?.ConnectionDetails?.ServerName,
+                DatabaseName = requestParams.NewName ?? connInfo?.ConnectionDetails?.DatabaseName,
+                TaskOperation = operation,
+                OwnerUri = requestParams.ConnectionUri,
+                OperationName = typeof(RenameDatabaseOperation).Name,
+            };
+            SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
+            TaskExecutionResult taskResult = await RunTaskAsync(sqlTask);
+
+            await requestContext.SendResult(new RenameDatabaseResponse
+            {
+                TaskId = taskResult.TaskId,
+                ErrorMessage = taskResult.ErrorMessage,
+            });
         }
 
         internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<DropRequestResponse> requestContext)
@@ -117,9 +157,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
-            var obj = requestParams.Object.ToObject(handler.GetObjectType());
-            await handler.Save(context, obj as SqlObject);
-            await requestContext.SendResult(new SaveObjectRequestResponse());
+            var obj = requestParams.Object.ToObject(handler.GetObjectType()) as SqlObject;
+            var saveOperation = new SaveObjectOperation(handler, context, obj);
+
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+
+            TaskMetadata metadata = new TaskMetadata
+            {
+                Name = saveOperation.TaskName,
+                Description = saveOperation.TaskDescription,
+                TaskExecutionMode = TaskExecutionMode.Execute,
+                ServerName = connInfo?.ConnectionDetails?.ServerName,
+                DatabaseName = saveOperation.TargetDatabaseName ?? connInfo?.ConnectionDetails?.DatabaseName,
+                TaskOperation = saveOperation,
+                OwnerUri = context.Parameters.ConnectionUri,
+                OperationName = typeof(SaveObjectOperation).Name,
+            };
+
+            SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
+            TaskExecutionResult taskResult = await RunTaskAsync(sqlTask, saveOperation.ExecutionException);
+
+            await requestContext.SendResult(new SaveObjectRequestResponse
+            {
+                TaskId = taskResult.TaskId,
+                ErrorMessage = taskResult.ErrorMessage,
+            });
         }
 
         internal async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
@@ -232,11 +295,42 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(sqlScript);
         }
 
-        internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<DropDatabaseResponse> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            var sqlScript = handler.Drop(requestParams);
-            await requestContext.SendResult(sqlScript);
+            var operation = new DropDatabaseOperation(handler, requestParams);
+
+            if (requestParams.GenerateScript)
+            {
+                operation.Execute(TaskExecutionMode.Script);
+                await requestContext.SendResult(new DropDatabaseResponse
+                {
+                    Script = operation.ScriptContent ?? string.Empty,
+                });
+                return;
+            }
+
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(requestParams.ConnectionUri, out connInfo);
+            TaskMetadata metadata = new TaskMetadata
+            {
+                Name = DropDatabaseOperation.TaskName,
+                Description = operation.TaskDescription,
+                TaskExecutionMode = TaskExecutionMode.Execute,
+                ServerName = connInfo?.ConnectionDetails?.ServerName,
+                DatabaseName = requestParams.Database ?? connInfo?.ConnectionDetails?.DatabaseName,
+                TaskOperation = operation,
+                OwnerUri = requestParams.ConnectionUri,
+                OperationName = typeof(DropDatabaseOperation).Name,
+            };
+            SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
+            TaskExecutionResult taskResult = await RunTaskAsync(sqlTask);
+
+            await requestContext.SendResult(new DropDatabaseResponse
+            {
+                TaskId = taskResult.TaskId,
+                ErrorMessage = taskResult.ErrorMessage,
+            });
         }
 
         internal async Task HandlePurgeQueryStoreDataRequest(PurgeQueryStoreDataRequestParams requestParams, RequestContext<PurgeQueryStoreDataRequestResponse> requestContext)
@@ -258,6 +352,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             throw new NotSupportedException($"No handler found for object type '{objectType.ToString()}'");
         }
 
+        private static async Task<TaskExecutionResult> RunTaskAsync(
+            SqlTask sqlTask,
+            Exception executionException = null)
+        {
+            await sqlTask.RunAsync();
+
+            string errorMessage = null;
+            if (sqlTask.TaskStatus != SqlTaskStatus.Succeeded)
+            {
+                errorMessage = executionException?.Message;
+                if (string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    errorMessage = sqlTask.Messages.LastOrDefault(m => !string.IsNullOrWhiteSpace(m.Description))?.Description;
+                }
+            }
+
+            return new TaskExecutionResult
+            {
+                TaskId = sqlTask.TaskId.ToString(),
+                ErrorMessage = errorMessage,
+            };
+        }
+
         private SqlObjectViewContext GetContext(string contextId)
         {
             if (contextMap.TryGetValue(contextId, out SqlObjectViewContext context))
@@ -265,6 +382,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 return context;
             }
             throw new ArgumentException($"Context '{contextId}' not found");
+        }
+
+        private sealed class TaskExecutionResult
+        {
+            public string TaskId { get; set; }
+
+            public string ErrorMessage { get; set; }
         }
     }
 }

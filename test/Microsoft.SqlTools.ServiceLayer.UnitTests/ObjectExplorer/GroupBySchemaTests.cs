@@ -36,9 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             }
         }
 
-        Mock<DatabaseChildFactory> factory;
-        TreeNode node;
-        Mock<SmoQueryContext> context;
+        Mock<DatabaseChildFactory> factory = null!;
+        TreeNode node = null!;
+        Mock<SmoQueryContext> context = null!;
         bool enableGroupBySchema = false;
 
 

@@ -40,12 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public static InstanceInfo? SqlAzure
+        public static InstanceInfo SqlAzure
         {
             get { return GetInstance(SqlAzureInstanceKey); }
         }
 
-        public static InstanceInfo? SqlOnPrem
+        public static InstanceInfo SqlOnPrem
         {
             get { return GetInstance(SqlOnPremInstanceKey); }
         }
@@ -53,23 +53,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Returns the SQL connection info for given version key
         /// </summary>
-        public static InstanceInfo? GetInstance(string key)
+        public static InstanceInfo GetInstance(string key)
         {
-            connectionProfilesCache.TryGetValue(key, out InstanceInfo? instanceInfo);
+            connectionProfilesCache.TryGetValue(key, out InstanceInfo instanceInfo);
             Assert.True(instanceInfo != null, string.Format(CultureInfo.InvariantCulture, "Cannot find any instance for version key: {0}", key));
             return instanceInfo;
         }
 
-        public ConnectParams? GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
+        public ConnectParams GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
         {
-            InstanceInfo? instanceInfo = GetInstance(key);
-            return instanceInfo != null ? CreateConnectParams(instanceInfo, key, databaseName) : null;
+            InstanceInfo instanceInfo = GetInstance(key);
+            return CreateConnectParams(instanceInfo, key, databaseName);
         }
 
         /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        public ConnectParams? GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
+        public ConnectParams GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
         {
             string key = ConvertServerTypeToVersionKey(serverType);
             return GetConnectionParameters(key, databaseName);

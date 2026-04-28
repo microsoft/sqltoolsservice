@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -447,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="name">name name</param>
         /// <param name="value">property value</param>
         /// <returns>true if succeeded</returns>
-        public bool TryGetPropertyValue<T>(string name, out T value)
+        public bool TryGetPropertyValue<T>(string name, [MaybeNullWhen(false)] out T value)
         {
             value = default(T);
             int index = IndexOf(name);
@@ -466,7 +467,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="name">property name</param>
         /// <param name="value">property value</param>
         /// <returns>true if succeeded</returns>
-        public bool TryGetPropertyValue(string name, out object value)
+        public bool TryGetPropertyValue(string name, [MaybeNullWhen(false)] out object value)
         {
             value = null;
             int index = IndexOf(name);
@@ -485,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="name">property name</param>
         /// <param name="value">propetty information</param>
         /// <returns></returns>
-        public bool TryGetProperty(string name, out ISfcProperty property)
+        public bool TryGetProperty(string name, [NotNullWhen(true)] out ISfcProperty property)
         {
             property = null;
             int index = IndexOf(name);
