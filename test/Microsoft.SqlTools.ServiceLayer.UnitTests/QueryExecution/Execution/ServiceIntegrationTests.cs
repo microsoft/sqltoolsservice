@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Test]
         public async Task InterServiceExecuteDocumentSelectionTracksDocumentRelativeBatchSelections()
         {
-            string query = string.Join(Environment.NewLine, new[]
+            string query = string.Join("\r\n", new[]
             {
                 "SELECT 'padding 1';",
                 "GO",
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Test]
         public async Task InterServiceExecuteDocumentStatementTracksDocumentRelativeBatchSelection()
         {
-            string query = string.Join(Environment.NewLine, new[]
+            string query = string.Join("\r\n", new[]
             {
                 "SELECT 'padding 1';",
                 "GO",
@@ -647,9 +647,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             var scriptFile = new ScriptFile
             {
-                ClientUri = Constants.OwnerUri,
-                Contents = query
+                ClientUri = Constants.OwnerUri
             };
+            scriptFile.SetFileContents(query);
 
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
