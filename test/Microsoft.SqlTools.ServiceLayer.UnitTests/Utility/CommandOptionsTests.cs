@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         [Test]
         public void RequestMfaTokenFromClientFlagSetsProperty()
         {
-            var options = new ServiceLayerCommandOptions(new[] { "--request-mfa-token-from-client" });
+            var options = new ServiceLayerCommandOptions(["--request-mfa-token-from-client"]);
 
             Assert.That(options.ShouldExit, Is.False);
             Assert.That(options.RequestMfaTokenFromClient, Is.True);
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         [Test]
         public void RequestMfaTokenFromClientFlagDefaultsFalse()
         {
-            var options = new ServiceLayerCommandOptions(new string[] { });
+            var options = new ServiceLayerCommandOptions([]);
 
             Assert.That(options.RequestMfaTokenFromClient, Is.False);
         }

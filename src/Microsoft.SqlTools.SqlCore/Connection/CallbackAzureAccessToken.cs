@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.SqlCore.Connection
     {
         /// <summary>
         /// How far before a token's expiry timestamp a refresh is triggered.
-        /// Referenced by <c>CachingTokenFetcher</c> in ServiceLayer so both layers use the same window.
+        /// Used to make sure a token doesn't expire in the middle of an operation.
         /// </summary>
         public static readonly TimeSpan EarlyRefreshWindow = TimeSpan.FromMinutes(2);
 
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.SqlCore.Connection
         private DateTimeOffset _expiresOn;
         private readonly object _lock = new object();
 
-        // IRenewableToken metadata — not used in the callback path.
+        // IRenewableToken props; not used in the callback path.
         public DateTimeOffset TokenExpiry { get; set; }
         public string Resource { get; set; }
         public string Tenant { get; set; }

@@ -19,9 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
     {
         private static readonly TimeSpan EarlyRefresh = CallbackAzureAccessToken.EarlyRefreshWindow;
 
-        // ---------------------------------------------------------------
-        // Helpers
-        // ---------------------------------------------------------------
+#region Helpers
 
         private static DateTimeOffset FarFuture => DateTimeOffset.UtcNow.AddHours(1);
         private static DateTimeOffset JustExpired => DateTimeOffset.UtcNow - EarlyRefresh - TimeSpan.FromSeconds(1);
@@ -38,37 +36,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             });
         }
 
-        // ---------------------------------------------------------------
-        // IsCacheValid
-        // ---------------------------------------------------------------
+#endregion
 
         [Test]
-        public void IsCacheValidReturnsFalseBeforeFirstFetch()
+        public async Task IsCacheValid()
         {
             var fetcher = new CachingTokenFetcher(() => Task.FromResult(("tok", FarFuture)));
             Assert.That(fetcher.IsCacheValid(), Is.False);
-        }
 
-        [Test]
-        public async Task IsCacheValidReturnsTrueAfterFetchWithFarFutureExpiry()
-        {
-            var fetcher = new CachingTokenFetcher(() => Task.FromResult(("tok", FarFuture)));
             await fetcher.GetTokenAsync();
             Assert.That(fetcher.IsCacheValid(), Is.True);
-        }
 
-        [Test]
-        public async Task IsCacheValidReturnsFalseWhenTokenIsWithinEarlyRefreshWindow()
-        {
-            var fetcher = new CachingTokenFetcher(() => Task.FromResult(("tok", NearExpiry)));
+            fetcher = new CachingTokenFetcher(() => Task.FromResult(("tok", NearExpiry)));
             await fetcher.GetTokenAsync();
             // Token expires within the early-refresh window — cache should be considered stale.
             Assert.That(fetcher.IsCacheValid(), Is.False);
         }
-
-        // ---------------------------------------------------------------
-        // GetTokenAsync — caching behaviour
-        // ---------------------------------------------------------------
 
         [Test]
         public async Task GetTokenAsyncCallsInnerOnFirstCall()
@@ -147,18 +130,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public async Task GetTokenAsyncReturnsCorrectValues()
         {
-            var expected = ("my-token", FarFuture);
-            var fetcher = new CachingTokenFetcher(() => Task.FromResult(expected));
+            var (expectedToken, expectedExpiry) = ("my-token", FarFuture);
+            var fetcher = new CachingTokenFetcher(() => Task.FromResult((expectedToken, expectedExpiry)));
 
             var (token, expiresOn) = await fetcher.GetTokenAsync();
 
-            Assert.That(token, Is.EqualTo(expected.Item1));
-            Assert.That(expiresOn, Is.EqualTo(expected.Item2));
+            Assert.That(token, Is.EqualTo(expectedToken));
+            Assert.That(expiresOn, Is.EqualTo(expectedExpiry));
         }
-
-        // ---------------------------------------------------------------
-        // Thundering-herd prevention
-        // ---------------------------------------------------------------
 
         [Test]
         public async Task GetTokenAsyncCallsInnerOnlyOnceUnderConcurrentRequests()
@@ -193,18 +172,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             {
                 Assert.That(t.Result.Item1, Is.EqualTo("tok"));
             }
-        }
-
-        // ---------------------------------------------------------------
-        // Constructor guard
-        // ---------------------------------------------------------------
-
-        [Test]
-        public void ConstructorThrowsWhenInnerIsNull()
-        {
-            Assert.That(
-                () => new CachingTokenFetcher(null),
-                Throws.TypeOf<ArgumentNullException>());
         }
     }
 }

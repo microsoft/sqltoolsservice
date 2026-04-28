@@ -31,11 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
     {
         private static readonly DateTimeOffset FarFuture = DateTimeOffset.UtcNow.AddHours(1);
 
-        // ---------------------------------------------------------------
-        // Test-double ConnectionService — overrides OpenServerConnectionInternal
-        // so tests never open a real network connection.
-        // ---------------------------------------------------------------
-
         /// <summary>
         /// Subclass that records whether <see cref="OpenServerConnectionInternal"/> was called
         /// and returns a stub <see cref="ServerConnection"/> instead of opening a real one.
@@ -54,9 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             }
         }
 
-        // ---------------------------------------------------------------
-        // Helpers
-        // ---------------------------------------------------------------
+#region Test Helpers
 
         private static Func<Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher()
             => () => Task.FromResult(("fake-token", FarFuture));
@@ -127,6 +120,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             return connInfo;
         }
 
+#endregion
+
         [SetUp]
         public void SetUp()
         {
@@ -149,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public async Task HandleScriptExecuteCallsOpenServerConnectionWhenFetcherSet()
         {
-            const string uri = "test://6-1";
+            const string uri = "test://test-uri";
             var connInfo = SetupConnectionService(uri, AzureMfaDetails(),
                 out CapturingConnectionService capturingSvc);
             connInfo.AzureTokenFetcher = MakeFetcher();
@@ -164,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public async Task HandleScriptExecuteDoesNotCallOpenServerConnectionWhenStaticTokenSet()
         {
-            const string uri = "test://6-2";
+            const string uri = "test://test-uri";
             var details = AzureMfaDetails();
             details.AzureAccountToken = "static-tok";
             var connInfo = SetupConnectionService(uri, details,
@@ -181,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public async Task HandleScriptExecuteFetchesAccessTokenUpfrontForScriptingScript()
         {
-            const string uri = "test://6-3";
+            const string uri = "test://test-uri";
             var connInfo = SetupConnectionService(uri, AzureMfaDetails(),
                 out CapturingConnectionService _);
 
@@ -192,14 +187,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 return Task.FromResult(("fetched-tok", FarFuture));
             };
 
-            // Use ScriptingScript parameters (Operation = Create, no ScriptAs)
             var svc = new ScriptingService();
             await svc.HandleScriptExecuteRequest(ScriptingScriptParams(uri), MakeRequestContext().Object);
 
-            // One call for OpenServerConnectionInternal's token (via ScriptAs path) +
-            // one explicit call for the ScriptingScript plain-token pre-fetch.
-            // Both share the same CachingTokenFetcher in production but in this test the
-            // fetcher is a plain lambda, so each direct call increments the counter.
             Assert.That(fetcherCallCount, Is.GreaterThanOrEqualTo(1),
                 "AzureTokenFetcher should be called at least once to pre-fetch the token");
         }
@@ -207,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public async Task HandleScriptExecuteSetsNeitherTokenWhenNotAzureMfa()
         {
-            const string uri = "test://6-4";
+            const string uri = "test://test-uri";
             var details = TestObjects.GetTestConnectionDetails(); // SqlLogin
             var connInfo = SetupConnectionService(uri, details,
                 out CapturingConnectionService capturingSvc);

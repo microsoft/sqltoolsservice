@@ -14,15 +14,16 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
-    /// Wraps an async token-fetching delegate and caches the result until the token is close to
+    /// Wraps a token-fetching delegate and caches the result until the token is close to
     /// expiry, avoiding redundant round-trips to the client via <c>account/securityTokenRequest</c>.
-    ///
-    /// Thread-safe: concurrent callers block on a <see cref="SemaphoreSlim"/> and re-use the token
-    /// fetched by whichever caller wins the lock, preventing thundering-herd refreshes.
     /// </summary>
     internal sealed class CachingTokenFetcher
     {
         private readonly Func<Task<(string token, DateTimeOffset expiresOn)>> FetchNewToken;
+
+        /// <summary>
+        /// Semaphore to ensure that only one fetch/refresh operation is in progress at a time for this token.
+        /// </summary>
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
 
         private string _cachedToken;
@@ -41,33 +42,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             => _cachedToken != null && DateTimeOffset.UtcNow < _cachedExpiresOn - CallbackAzureAccessToken.EarlyRefreshWindow;
 
         /// <summary>
-        /// Returns a valid access token, either from the cache or by invoking the inner delegate.
+        /// Returns a valid access token, either from the cache or by invoking the fetch delegate.
         /// </summary>
         public async Task<(string token, DateTimeOffset expiresOn)> GetTokenAsync()
         {
-            // Fast path — skip the semaphore when the cache is clearly warm.
+            // 0. Return cached token if it's still valid
             if (IsCacheValid())
             {
                 Logger.Verbose("Azure token cache hit");
                 return (_cachedToken, _cachedExpiresOn);
             }
 
+            // 1. Wait for exclusive access to refresh the token, in case multiple concurrent callers arrive when the cache is stale.
             await _semaphore.WaitAsync().ConfigureAwait(false);
             try
             {
-                // Re-check after acquiring the semaphore: a concurrent caller may have already
-                // refreshed the token while we were waiting.
+                // 2. After acquiring the semaphore, check the cache again before fetching a new token
+                // in case a concurrent caller already refreshed it while we were waiting.
                 if (IsCacheValid())
                 {
                     Logger.Verbose("Azure token cache hit (post-lock)");
                     return (_cachedToken, _cachedExpiresOn);
                 }
 
+                // 3. Cached token is still invalid; fetch a new token from the client  
                 Logger.Verbose("Requesting Azure access token from client");
                 var (token, expiresOn) = await FetchNewToken().ConfigureAwait(false);
+                Logger.Information($"Azure access token acquired successfully, expires {expiresOn}");
+
                 _cachedToken = token;
                 _cachedExpiresOn = expiresOn;
-                Logger.Information($"Azure access token acquired successfully, expires {expiresOn}");
 
                 return (token, expiresOn);
             }

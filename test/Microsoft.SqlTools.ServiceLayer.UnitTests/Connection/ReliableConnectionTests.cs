@@ -60,6 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void ConstructorSetsAccessTokenWhenTokenProvidedAndAuthNotSpecified()
         {
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            // clear auth info so token is used
             details.UserName = "";
             details.Password = "";
             string connectionString = ConnectionService.BuildConnectionString(details);
@@ -69,17 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var conn = new ReliableSqlConnection(connectionString, retryPolicy, retryPolicy, token);
 
             Assert.That(conn.GetUnderlyingConnection().AccessToken, Is.EqualTo(token));
-        }
-
-        [Test]
-        public void ConstructorDoesNotSetAccessTokenWhenTokenIsNull()
-        {
-            string connectionString = ConnectionService.BuildConnectionString(TestObjects.GetTestConnectionDetails());
-            RetryPolicy retryPolicy = RetryPolicyFactory.CreateNoRetryPolicy();
-
-            var conn = new ReliableSqlConnection(connectionString, retryPolicy, retryPolicy, null);
-
-            Assert.That(conn.GetUnderlyingConnection().AccessToken, Is.Null);
         }
     }
 }

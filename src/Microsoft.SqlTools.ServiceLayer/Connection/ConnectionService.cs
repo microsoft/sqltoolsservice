@@ -98,10 +98,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
-        /// Cache of <see cref="CachingTokenFetcher"/> instances keyed by (accountId, tenantId).
-        /// Shared across all connections so that multiple connections for the same account reuse
-        /// the same cached token rather than each making their own <c>account/securityTokenRequest</c>
-        /// round-trip.
+        /// Map of <see cref="CachingTokenFetcher"/> instances keyed by {accountId, tenantId}
+        /// enabling multiple connections for the same account to share the a cached token + fetcher.
         /// </summary>
         private readonly ConcurrentDictionary<(string accountId, string tenantId), CachingTokenFetcher>
             _azureTokenFetcherCache = new();
@@ -188,6 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used
         /// when user chooses 'Azure MFA'.
+        /// Mutually exclusive with <see cref="RequestMfaTokenFromClient"/>. When both are false, the service will acquire tokens via MSAL by itself.
         /// </summary>
         public bool EnableSqlAuthenticationProvider { get; set; }
 
@@ -709,13 +708,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         /// <summary>
         /// Returns a delegate that provides a valid Entra access token for the given account and
-        /// tenant, fetching one from the client via <c>account/securityTokenRequest</c> only when
-        /// the cached token is absent or near expiry.
-        ///
-        /// <see cref="_azureTokenFetcherCache"/> ensures all connections for the same
-        /// (accountId, tenantId) pair share a single <see cref="CachingTokenFetcher"/>, so at
-        /// most one round-trip is made per token lifetime regardless of how many connections are
-        /// open simultaneously.
+        /// tenant, fetching one from the client via <c>account/securityTokenRequest</c>
+        /// only when a token is not already cached.
         /// </summary>
         private Func<Task<(string token, DateTimeOffset expiresOn)>>
             CreateAzureTokenFetcher(string accountId, string tenantId)
@@ -775,7 +769,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
-                // create a sql connection instance (with enabled serverless retry logic to handle sleeping serverless databases)
+                // create a refresh-hook-enabled connection if configured to request tokens from client
                 if (RequestMfaTokenFromClient
                     && connectionInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                 {
@@ -789,10 +783,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     connection = connectionInfo.Factory.CreateSqlConnection(connectionString, null, SqlRetryProviders.ServerlessDBRetryProvider());
                     ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher);
                 }
-                else
+                else // otherwise create a normal static connection
                 {
                     connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
                 }
+
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -2151,6 +2146,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
+        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
+            => Instance.OpenServerConnectionInternal(connInfo, featureName);
+        
         /// <summary>
         /// Opens a <see cref="DbConnection"/> asynchronously. Overridable in tests to avoid real
         /// network activity without introducing a static hook in the production call path.
@@ -2160,31 +2158,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         /// <summary>
         /// Opens a new <see cref="ServerConnection"/> from a <see cref="ConnectionInfo"/>.
-        /// Virtual so that unit-test subclasses can override it without a static hook.
-        /// All production code that needs an SMO server connection should call
-        /// <see cref="OpenServerConnection"/> (which delegates here via <see cref="Instance"/>),
-        /// or — when operating through an injected <see cref="ConnectionService"/> — call this
-        /// method directly on the injected instance.
+        /// Virtual for unit testability.
         /// </summary>
         internal virtual ServerConnection OpenServerConnectionInternal(ConnectionInfo connInfo, string featureName = null)
         {
-            var sqlConnection = OpenSqlConnection(connInfo, featureName);
+            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
             return CreateServerConnection(sqlConnection, connInfo);
         }
 
         /// <summary>
-        /// Static convenience wrapper around <see cref="OpenServerConnectionInternal"/> that
-        /// uses the singleton <see cref="Instance"/>.  Existing callers across the codebase
-        /// continue to compile unchanged while still benefiting from the virtual dispatch when
-        /// the singleton is subclassed in integration tests.
-        /// </summary>
-        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
-            => Instance.OpenServerConnectionInternal(connInfo, featureName);
-
-        /// <summary>
-        /// Selects the correct <see cref="ServerConnection"/> constructor overload based on
-        /// whether the connection uses a callback-based or static Azure token.
-        /// Extracted for unit testability.
+        /// Constructs a <see cref="ServerConnection"/> depending on whether the connection uses a callback-based or static Azure token.
         /// </summary>
         internal static ServerConnection CreateServerConnection(SqlConnection sqlConnection, ConnectionInfo connInfo)
         {
@@ -2200,10 +2183,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on
-        /// whether <see cref="ConnectionInfo.AzureTokenFetcher"/> or
-        /// <see cref="ConnectionDetails.AzureAccountToken"/> is present.
-        /// Extracted for unit testability.
+        /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on whether
+        /// <see cref="ConnectionInfo.AzureTokenFetcher"/> or <see cref="ConnectionDetails.AzureAccountToken"/> is present.
         /// </summary>
         internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo)
         {

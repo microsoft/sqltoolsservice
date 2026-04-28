@@ -29,10 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
     [TestFixture]
     public class RequestMfaTokenFromClientTests
     {
-        // ---------------------------------------------------------------
-        // Helpers
-        // ---------------------------------------------------------------
-
+#region Test helpers    
         private static readonly DateTimeOffset FarFuture = DateTimeOffset.UtcNow.AddHours(1);
 
         private static Func<Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher(string token = "fake-token")
@@ -89,6 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             UserName = "test@example.com",
         };
 
+#endregion
+
         [SetUp]
         public void SetUp()
         {
@@ -111,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         // ---------------------------------------------------------------
 
         [Test]
-        public async Task TryOpenConnectionSetsAccessTokenCallbackWhenRequestMfaFromClientAndAzureMfa()
+        public async Task TryOpenConnectionSetsAccessTokenCallbackWhenFlagTrue()
         {
             var factory = new CapturingReliableConnectionFactory();
             var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true };
@@ -130,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task TryOpenConnectionSetsStaticTokenWhenFlagFalseAndAzureMfa()
+        public async Task TryOpenConnectionSetsStaticTokenWhenFlagFalse()
         {
             const string staticToken = "static-azure-token";
             var factory = new CapturingReliableConnectionFactory();
@@ -146,9 +145,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             });
 
             Assert.That(factory.LastCreated, Is.Not.Null);
-            // The factory received the static token as an argument (the driver reads it from
-            // AccessToken inside Open(), but Open() may fail on a fake server before we can
-            // re-read it; verifying the argument is sufficient to prove the correct code path).
             Assert.That(factory.LastTokenArgument, Is.EqualTo(staticToken),
                 "factory should have been called with the static token when RequestMfaTokenFromClient is false");
             Assert.That(factory.LastCreated.AccessTokenCallback, Is.Null,
@@ -168,8 +164,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             await svc.Connect(new ConnectParams { OwnerUri = uri, Connection = AzureMfaDetails() });
 
-            // If the connection details changed IsConnectionChanged may have rebuilt connInfo;
-            // retrieve whatever is currently registered.
             svc.TryFindConnection(uri, out var registeredInfo);
             Assert.That(registeredInfo?.AzureTokenFetcher, Is.Not.Null,
                 "AzureTokenFetcher should be set on ConnectionInfo when RequestMfaTokenFromClient is true");
@@ -185,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             await svc.Connect(new ConnectParams
             {
-                OwnerUri = "test://uri-3-4",
+                OwnerUri = "test://test-uri",
                 Connection = details
             });
 
@@ -201,8 +195,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             var factory = new CapturingReliableConnectionFactory();
             var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true };
-            const string uri1 = "test://uri-3-5a";
-            const string uri2 = "test://uri-3-5b";
+            const string uri1 = "test://test-uri-1";
+            const string uri2 = "test://test-uri-2";
 
             // Same account + tenant → should share one CachingTokenFetcher via the dictionary.
             var details = AzureMfaDetails();
@@ -219,8 +213,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.That(info1?.AzureTokenFetcher, Is.Not.Null);
             Assert.That(info2?.AzureTokenFetcher, Is.Not.Null);
-            // Delegate.Target is the CachingTokenFetcher instance the delegate is bound to.
-            // Both should point at the same instance because GetOrAdd returns the existing entry.
             Assert.That(info1.AzureTokenFetcher.Target, Is.SameAs(info2.AzureTokenFetcher.Target),
                 "connections with the same accountId + tenantId should share one CachingTokenFetcher");
         }
@@ -230,8 +222,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             var factory = new CapturingReliableConnectionFactory();
             var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true };
-            const string uri1 = "test://uri-3-6a";
-            const string uri2 = "test://uri-3-6b";
+            const string uri1 = "test://test-uri-1";
+            const string uri2 = "test://test-uri-2";
 
             var details1 = AzureMfaDetails();
             var details2 = AzureMfaDetails();
@@ -254,39 +246,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 "connections with different accountIds should use separate CachingTokenFetcher instances");
         }
 
-        // ---------------------------------------------------------------
-        // Category 4 — TryRequestRefreshAuthToken
-        // ---------------------------------------------------------------
-
         [Test]
-        public async Task TryRequestRefreshAuthTokenReturnsFalseWhenRequestMfaFromClientEnabled()
+        public async Task TryRequestRefreshAuthToken()
         {
             var svc = new ConnectionService(TestObjects.GetTestSqlConnectionFactory())
             {
                 RequestMfaTokenFromClient = true
             };
 
-            bool result = await svc.TryRequestRefreshAuthToken("test://any-uri");
-
+            bool result = await svc.TryRequestRefreshAuthToken("test://test-uri");
             Assert.That(result, Is.False, "TryRequestRefreshAuthToken should return false in RequestMfaTokenFromClient mode");
-        }
 
-        [Test]
-        public async Task TryRequestRefreshAuthTokenReturnsFalseWhenEnableSqlAuthProviderEnabled()
-        {
-            var svc = new ConnectionService(TestObjects.GetTestSqlConnectionFactory())
+            svc = new ConnectionService(TestObjects.GetTestSqlConnectionFactory())
             {
                 EnableSqlAuthenticationProvider = true
             };
 
-            bool result = await svc.TryRequestRefreshAuthToken("test://any-uri");
-
+            result = await svc.TryRequestRefreshAuthToken("test://test-uri");
             Assert.That(result, Is.False, "TryRequestRefreshAuthToken should return false when EnableSqlAuthenticationProvider is true");
         }
-
-        // ---------------------------------------------------------------
-        // Category 5 — ConfigureSqlConnectionAuth (OpenSqlConnection auth logic)
-        // ---------------------------------------------------------------
 
         [Test]
         public void ConfigureSqlConnectionAuthSetsAccessTokenCallbackWhenFetcherSet()
@@ -336,10 +314,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(sqlConn.AccessToken, Is.Null, "AccessToken should not be set for non-AzureMFA auth");
             Assert.That(sqlConn.AccessTokenCallback, Is.Null, "AccessTokenCallback should not be set for non-AzureMFA auth");
         }
-
-        // ---------------------------------------------------------------
-        // Category 5 — CreateServerConnection (OpenServerConnection auth logic)
-        // ---------------------------------------------------------------
 
         [Test]
         public void CreateServerConnectionReturnsCallbackServerConnectionWhenFetcherSet()

@@ -91,9 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool IsAzureAuth { get; set; }
 
         /// <summary>
-        /// When RequestMfaTokenFromClient is enabled, fetches a fresh Azure access token from
-        /// the client host via <c>account/securityTokenRequest</c>.  Set during TryOpenConnection
-        /// and used by OpenSqlConnection and OpenServerConnection in place of the static AzureAccountToken.
+        /// Delegate to fetches a fresh Azure access token from the client via <c>account/securityTokenRequest</c>.
+        /// Only used when RequestMfaTokenFromClient is enabled.
         /// </summary>
         public Func<Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
 

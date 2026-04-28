@@ -107,20 +107,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ConnectionInfo connInfo = null;
             string accessToken = null;
             ServerConnection scriptingServerConnection = null;
+
             if (parameters.ConnectionString == null)
             {
                 ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+
                 if (connInfo != null)
                 {
                     parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    // Access tokens are only needed for AzureMFA connections.
+
+                    // Set Access Token only when authentication type is AzureMFA.
                     if (connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                     {
+                        // If using AzureTokenFetcher, get the token and open a ServerConnection that can be used for scripting with SMO.
                         if (connInfo.AzureTokenFetcher != null)
                         {
-                            // RequestMfaTokenFromClient: build a renewable ServerConnection for ScriptAs
-                            // (SMO can re-fetch via CallbackAzureAccessToken on reconnect) and a one-shot
-                            // token string for ScriptingScript (short-lived, token as a plain string).
                             scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
                             (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
                         }
@@ -145,8 +146,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             else
             {
-                // Use the renewable ServerConnection when available so SMO can re-fetch the token
-                // via CallbackAzureAccessToken if it needs to reconnect during the scripting operation.
                 operation = scriptingServerConnection != null
                     ? new ScriptAsScriptingOperation(parameters, scriptingServerConnection)
                     : new ScriptAsScriptingOperation(parameters, accessToken);
