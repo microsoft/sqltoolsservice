@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -29,8 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
         string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
-        void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
-            ProjectIntelliSenseEngine projectEngine = null);
+        void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions);
         bool IsBindingContextConnected(string key);
         ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
         void Dispose();
@@ -228,8 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Creates an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
-            ProjectIntelliSenseEngine projectEngine = null)
+        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions)
         {
             if (BindingContextExists(projectKey))
             {
@@ -246,7 +243,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                     bindingContext.OverrideParseOptions = parseOptions;
-                    bindingContext.ProjectEngine = projectEngine;
                 }
                 finally
                 {

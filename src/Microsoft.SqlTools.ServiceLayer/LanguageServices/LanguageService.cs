@@ -1180,8 +1180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string projectUri,
             Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
             Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
-            string databaseName,
-            ProjectIntelliSenseEngine projectEngine = null)
+            string databaseName)
         {
             try
             {
@@ -1193,7 +1192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions, projectEngine);
+                        this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions);
                         scriptInfo.ConnectionKey = contextKey;
                         scriptInfo.IsConnected = true;
                         scriptInfo.ProjectDatabaseName = databaseName;
@@ -1637,13 +1636,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindingTimeout: LanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
-                    if (bindingContext is ConnectedBindingContext cbc && cbc.ProjectEngine != null)
+                    if (bindingContext is ConnectedBindingContext cbc && 
+                        cbc.Binder?.MetadataProvider is Microsoft.SqlServer.Dac.Projects.IntelliSense.LazySchemaModelMetadataProvider lazyProvider)
                     {
-                        SourceInformation info = cbc.ProjectEngine.GetDefinition(
+                        // Step 1: Identify the identifier token at the cursor
+                        int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserColumn) ?? -1;
+                        if (tokenIndex < 0)
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+
+                        var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
+                        string tokenText = token?.Text?.Trim('[', ']');
+                        if (string.IsNullOrWhiteSpace(tokenText))
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+
+                        // Step 2: Semantic resolution using SqlParser's Resolver
+                        var declarations = Microsoft.SqlServer.Management.SqlParser.Intellisense.Resolver.FindCompletions(
                             scriptParseInfo.ParseResult, parserLine, parserColumn, cbc.MetadataDisplayInfoProvider);
-                        if (info?.SourceName != null)
+
+                        var match = declarations?.FirstOrDefault(d =>
+                            string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
+
+                        if (match?.DatabaseQualifiedName == null)
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+
+                        // Step 3: Strip database prefix: "master.dbo.Orders" → "dbo.Orders"
+                        string qualifiedName = StripDatabasePrefix(match.DatabaseQualifiedName);
+
+                        // Step 4: Get source information from metadata provider
+                        if (lazyProvider.TryGetSourceInformation(qualifiedName, out var sourceInfo) && sourceInfo?.SourceName != null)
                         {
-                            string fileUri = new Uri(info.SourceName).AbsoluteUri;
+                            string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
                             return new DefinitionResult
                             {
                                 Locations = new[]
@@ -1654,8 +1676,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         Range = new Workspace.Contracts.Range
                                         {
                                             // LSP is 0-based; DacFx SourceInformation is 1-based
-                                            Start = new Position { Line = info.StartLine - 1, Character = info.StartColumn - 1 },
-                                            End   = new Position { Line = info.StartLine - 1, Character = info.StartColumn - 1 }
+                                            Start = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 },
+                                            End   = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 }
                                         }
                                     }
                                 }
@@ -1684,6 +1706,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             queueItem.ItemProcessed.WaitOne();
             return queueItem.GetResultAsT<DefinitionResult>();
+        }
+
+        /// <summary>Strips the leading database name from a three-part qualified name.</summary>
+        private static string StripDatabasePrefix(string databaseQualifiedName)
+        {
+            int dot = databaseQualifiedName.IndexOf('.');
+            return dot >= 0
+                ? databaseQualifiedName.Substring(dot + 1)
+                : databaseQualifiedName;
+        }
+
+        /// <summary>Creates an error DefinitionResult with the specified message.</summary>
+        private static DefinitionResult CreateErrorResult(string message)
+        {
+            return new DefinitionResult
+            {
+                IsErrorResult = true,
+                Message = message,
+                Locations = null
+            };
         }
 
         /// <summary>

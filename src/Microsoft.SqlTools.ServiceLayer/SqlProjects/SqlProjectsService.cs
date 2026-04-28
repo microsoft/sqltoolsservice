@@ -162,10 +162,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                var engine = new ProjectIntelliSenseEngine(model);
-
                 await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
-                    projectUri, projectMetadataProvider, parseOptions, databaseName, engine);
+                    projectUri, projectMetadataProvider, parseOptions, databaseName);
             }
             catch (Exception ex)
             {

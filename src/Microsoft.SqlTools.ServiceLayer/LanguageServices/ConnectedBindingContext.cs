@@ -8,7 +8,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.SqlServer.Dac.Projects.IntelliSense;
 using Microsoft.SqlServer.Management.Common;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -95,9 +94,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>ParseOptions override for project-based offline binding; takes precedence over connection-derived options.</summary>
         public ParseOptions OverrideParseOptions { get; set; }
-
-        /// <summary>Per-project IntelliSense engine (wraps TSqlModel + display provider). Non-null only for project contexts.</summary>
-        public ProjectIntelliSenseEngine ProjectEngine { get; set; }
 
         /// <summary>
         /// Gets the binding lock object

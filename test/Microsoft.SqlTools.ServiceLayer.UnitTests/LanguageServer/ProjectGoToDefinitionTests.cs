@@ -56,7 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 isQuotedIdentifierSet: true,
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);
-            var engine = new ProjectIntelliSenseEngine(model);
 
             var langService = new LanguageService();
 
@@ -67,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             // Mirrors UpdateLanguageServiceOnProjectOpen call
             langService.UpdateLanguageServiceOnProjectOpen(
-                ProjectPath, provider, parseOptions, databaseName, engine)
+                ProjectPath, provider, parseOptions, databaseName)
                 .GetAwaiter().GetResult();
 
             // Mirrors InitializeProjectFileContexts call
