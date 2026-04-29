@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
 @"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
 DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
-With wait_stats AS
+WITH wait_stats AS
 (
 SELECT
     ws.plan_id plan_id,
@@ -26,7 +26,9 @@ SELECT
     MIN(itvl.start_time) first_execution_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+WHERE
+    NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+
 GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.wait_category
 )
 SELECT 
@@ -41,7 +43,9 @@ FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
     JOIN sys.query_store_query q ON q.query_id = p.query_id
     JOIN sys.query_store_query_text qt ON q.query_text_id = qt.query_text_id
-WHERE NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+WHERE
+    NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+
 GROUP BY p.query_id, qt.query_sql_text, q.object_id
 HAVING COUNT(distinct p.plan_id) >= 1
 ORDER BY query_id DESC";
@@ -50,7 +54,7 @@ ORDER BY query_id DESC";
 @"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
 DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
-With wait_stats AS
+WITH wait_stats AS
 (
 SELECT
     ws.plan_id plan_id,
@@ -62,7 +66,9 @@ SELECT
     MIN(itvl.start_time) first_execution_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+WHERE
+    NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+
 GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.wait_category
 ),
 top_wait_stats AS
@@ -79,8 +85,10 @@ FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
     JOIN sys.query_store_query q ON q.query_id = p.query_id
     JOIN sys.query_store_query_text qt ON q.query_text_id = qt.query_text_id
-WHERE NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
-GROUP BY p.query_id, qt.query_sql_text, q.object_id
+WHERE
+    NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+
+GROUP BY p.query_id, qt.query_sql_text, q.object_id 
 ),
 top_other_stats AS
 (
@@ -106,8 +114,10 @@ FROM sys.query_store_runtime_stats rs
     JOIN sys.query_store_plan p ON p.plan_id = rs.plan_id
     JOIN sys.query_store_query q ON q.query_id = p.query_id
     JOIN sys.query_store_query_text qt ON q.query_text_id = qt.query_text_id
-WHERE NOT (rs.first_execution_time > @interval_end_time OR rs.last_execution_time < @interval_start_time)
-GROUP BY p.query_id, qt.query_sql_text, q.object_id
+WHERE
+    NOT (rs.first_execution_time > @interval_end_time OR rs.last_execution_time < @interval_start_time)
+
+GROUP BY p.query_id, qt.query_sql_text, q.object_id 
 )
 SELECT 
     A.query_id query_id,
@@ -188,7 +198,7 @@ WHERE qt.query_sql_text LIKE ('%' + @QuerySearchText + '%')";
 @"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
 DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
-With wait_stats AS
+WITH wait_stats AS
 (
 SELECT
     ws.plan_id plan_id,
@@ -203,7 +213,9 @@ SELECT
     MIN(itvl.start_time) first_execution_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+WHERE
+    NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+
 GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.wait_category
 )
 SELECT 
@@ -219,7 +231,9 @@ FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
     JOIN sys.query_store_query q ON q.query_id = p.query_id
     JOIN sys.query_store_query_text qt ON q.query_text_id = qt.query_text_id
-WHERE NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+WHERE
+    NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+
 GROUP BY p.query_id, qt.query_sql_text, q.object_id
 HAVING COUNT(distinct p.plan_id) >= 1 AND SUM(ws.count_executions) > 1
 ORDER BY query_id DESC";
@@ -228,7 +242,7 @@ ORDER BY query_id DESC";
 @"DECLARE @interval_start_time DATETIMEOFFSET = '2023-06-10T12:34:56.0000000+00:00';
 DECLARE @interval_end_time DATETIMEOFFSET = '2023-06-17T12:34:56.0000000+00:00';
 
-With wait_stats AS
+WITH wait_stats AS
 (
 SELECT
     ws.plan_id plan_id,
@@ -240,7 +254,9 @@ SELECT
     MIN(itvl.start_time) first_execution_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+WHERE
+    NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+
 GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.wait_category
 ),
 wait_stats_variation AS
@@ -257,8 +273,10 @@ FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
     JOIN sys.query_store_query q ON q.query_id = p.query_id
     JOIN sys.query_store_query_text qt ON q.query_text_id = qt.query_text_id
-WHERE NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
-GROUP BY p.query_id, qt.query_sql_text, q.object_id
+WHERE
+    NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+
+GROUP BY p.query_id, qt.query_sql_text, q.object_id 
 ),
 other_stats_variation AS
 (
@@ -284,8 +302,10 @@ FROM sys.query_store_runtime_stats rs
     JOIN sys.query_store_plan p ON p.plan_id = rs.plan_id
     JOIN sys.query_store_query q ON q.query_id = p.query_id
     JOIN sys.query_store_query_text qt ON q.query_text_id = qt.query_text_id
-WHERE NOT (rs.first_execution_time > @interval_end_time OR rs.last_execution_time < @interval_start_time)
-GROUP BY p.query_id, qt.query_sql_text, q.object_id
+WHERE
+    NOT (rs.first_execution_time > @interval_end_time OR rs.last_execution_time < @interval_start_time)
+
+GROUP BY p.query_id, qt.query_sql_text, q.object_id 
 )
 SELECT 
     A.query_id query_id,
@@ -327,7 +347,9 @@ SELECT
     ROUND(CONVERT(float, SUM(ws.total_query_wait_time_ms))*1,2) total_query_wait_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+WHERE
+    NOT (itvl.start_time > @interval_end_time OR itvl.end_time < @interval_start_time)
+
 GROUP BY DATEDIFF(hh, 0, itvl.end_time)
 ),
 UnionAll AS
@@ -345,10 +367,12 @@ SELECT
     ROUND(CONVERT(float, SUM(rs.avg_physical_io_reads*rs.count_executions))*8,2) as total_physical_io_reads,
     ROUND(CONVERT(float, SUM(rs.avg_rowcount*rs.count_executions))*1,0) as total_rowcount,
     ROUND(CONVERT(float, SUM(rs.avg_tempdb_space_used*rs.count_executions))*8,2) as total_tempdb_space_used,
-    DATEADD(hh, ((DATEDIFF(hh, 0, rs.last_execution_time))),0 ) as bucket_start,
-    DATEADD(hh, (1 + (DATEDIFF(hh, 0, rs.last_execution_time))), 0) as bucket_end
+    TODATETIMEOFFSET(DATEADD(hh, ((DATEDIFF(hh, 0, rs.last_execution_time))), 0), DATEPART(tz, @interval_start_time)) as bucket_start,
+    TODATETIMEOFFSET(DATEADD(hh, (1 + (DATEDIFF(hh, 0, rs.last_execution_time))), 0), DATEPART(tz, @interval_start_time)) as bucket_end
 FROM sys.query_store_runtime_stats rs
-WHERE NOT (rs.first_execution_time > @interval_end_time OR rs.last_execution_time < @interval_start_time)
+WHERE 
+    NOT (rs.first_execution_time > @interval_end_time OR rs.last_execution_time < @interval_start_time)
+
 GROUP BY DATEDIFF(hh, 0, rs.last_execution_time)
 )
 SELECT 
@@ -365,7 +389,8 @@ SELECT
     total_rowcount,
     total_tempdb_space_used,
     total_query_wait_time,
-    SWITCHOFFSET(bucket_start, DATEPART(tz, @interval_start_time)) , SWITCHOFFSET(bucket_end, DATEPART(tz, @interval_start_time))
+    bucket_start,
+    bucket_end
 FROM
 (
 SELECT *, ROW_NUMBER() OVER (PARTITION BY bucket_start ORDER BY bucket_start, total_duration DESC) AS RowNumber
@@ -396,7 +421,9 @@ SELECT
     MIN(itvl.start_time) first_execution_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @history_end_time OR itvl.end_time < @history_start_time)
+WHERE
+    NOT (itvl.start_time > @history_end_time OR itvl.end_time < @history_start_time)
+
 GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.wait_category
 ),
 hist AS
@@ -408,7 +435,9 @@ SELECT
     COUNT(distinct p.plan_id) num_plans
 FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
-WHERE NOT (ws.first_execution_time > @history_end_time OR ws.last_execution_time < @history_start_time)
+WHERE
+    NOT (ws.first_execution_time > @history_end_time OR ws.last_execution_time < @history_start_time)
+
 GROUP BY p.query_id
 ),
 recent AS
@@ -420,7 +449,9 @@ SELECT
     COUNT(distinct p.plan_id) num_plans
 FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
-WHERE NOT (ws.first_execution_time > @recent_end_time OR ws.last_execution_time < @recent_start_time)
+WHERE
+    NOT (ws.first_execution_time > @recent_end_time OR ws.last_execution_time < @recent_start_time)
+
 GROUP BY p.query_id
 )
 SELECT 
@@ -487,7 +518,9 @@ SELECT
     MIN(itvl.start_time) first_execution_time
 FROM sys.query_store_wait_stats ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
-WHERE NOT (itvl.start_time > @history_end_time OR itvl.end_time < @history_start_time)
+WHERE
+    NOT (itvl.start_time > @history_end_time OR itvl.end_time < @history_start_time)
+
 GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.wait_category
 ),
 wait_stats_hist AS
@@ -499,7 +532,9 @@ SELECT
     COUNT(distinct p.plan_id) num_plans
 FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
-WHERE NOT (ws.first_execution_time > @history_end_time OR ws.last_execution_time < @history_start_time)
+WHERE
+    NOT (ws.first_execution_time > @history_end_time OR ws.last_execution_time < @history_start_time)
+
 GROUP BY p.query_id
 ),
 other_hist AS
@@ -521,7 +556,9 @@ SELECT
     COUNT(distinct p.plan_id) num_plans
 FROM sys.query_store_runtime_stats rs
     JOIN sys.query_store_plan p ON p.plan_id = rs.plan_id
-WHERE NOT (rs.first_execution_time > @history_end_time OR rs.last_execution_time < @history_start_time)
+WHERE
+    NOT (rs.first_execution_time > @history_end_time OR rs.last_execution_time < @history_start_time)
+
 GROUP BY p.query_id
 ),
 hist AS
@@ -555,7 +592,9 @@ SELECT
     COUNT(distinct p.plan_id) num_plans
 FROM wait_stats ws
     JOIN sys.query_store_plan p ON p.plan_id = ws.plan_id
-WHERE NOT (ws.first_execution_time > @recent_end_time OR ws.last_execution_time < @recent_start_time)
+WHERE
+    NOT (ws.first_execution_time > @recent_end_time OR ws.last_execution_time < @recent_start_time)
+
 GROUP BY p.query_id
 ),
 other_recent AS
@@ -577,7 +616,9 @@ SELECT
     COUNT(distinct p.plan_id) num_plans
 FROM sys.query_store_runtime_stats rs
     JOIN sys.query_store_plan p ON p.plan_id = rs.plan_id
-WHERE NOT (rs.first_execution_time > @recent_end_time OR rs.last_execution_time < @recent_start_time)
+WHERE
+    NOT (rs.first_execution_time > @recent_end_time OR rs.last_execution_time < @recent_start_time)
+
 GROUP BY p.query_id
 ),
 recent AS
@@ -730,6 +771,7 @@ SELECT
     (
     SELECT *, LAST_VALUE(last_query_wait_time_ms) OVER (order by plan_id, runtime_stats_interval_id, execution_type, wait_category) last_query_wait_time
     FROM sys.query_store_wait_stats
+
     )
 AS ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id
@@ -756,6 +798,7 @@ GROUP BY ws.plan_id, ws.runtime_stats_interval_id, ws.execution_type, ws.wait_ca
         WHERE
             p.query_id = @query_id
         AND NOT (ws.first_execution_time > @interval_end_time OR ws.last_execution_time < @interval_start_time)
+
         GROUP BY
             ws.plan_id,
             ws.execution_type,
@@ -804,6 +847,7 @@ SELECT
     (
     SELECT *, LAST_VALUE(last_query_wait_time_ms) OVER (order by plan_id, runtime_stats_interval_id, execution_type, wait_category) last_query_wait_time
     FROM sys.query_store_wait_stats
+
     )
 AS ws
     JOIN sys.query_store_runtime_stats_interval itvl ON itvl.runtime_stats_interval_id = ws.runtime_stats_interval_id

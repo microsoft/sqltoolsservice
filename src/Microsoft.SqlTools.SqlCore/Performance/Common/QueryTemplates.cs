@@ -366,7 +366,7 @@ HAVING COUNT(distinct p.plan_id) >= {minNumberOfQueryPlans} AND SUM({statsAlias}
             string finalSelects,
             int minNumberOfQueryPlans,
             string replicaFilter) =>
-$@"With {waitstatsSubQuery}
+$@"WITH {waitstatsSubQuery}
 wait_stats_variation AS
 (
 {waitStatscteStatement}
@@ -488,7 +488,7 @@ HAVING COUNT(distinct p.plan_id) >= {minNumberOfQueryPlans}";
             string finalSelects,
             int minNumberOfQueryPlans,
             string replicaFilter) =>
-$@"With {waitstatsSubQuery}
+$@"WITH {waitstatsSubQuery}
 top_wait_stats AS
 (
 {topWaitStats}

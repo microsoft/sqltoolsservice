@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.SqlCore.Performance.WaitStats
 {2}
 ){3}";
             return string.Format(tableExpression,
-                addWithClause ? "With " : string.Empty,
+                addWithClause ? "WITH " : string.Empty,
                 waitstatsViewName,
                 GetWaitStatsTableExpressionSubQuery(statisticList, includeQueryExecutionLastWaitTime, endTime, startTime, includeReplicaGroupId),
                 addSeparator ? "," : string.Empty);
