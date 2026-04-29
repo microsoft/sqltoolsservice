@@ -22,7 +22,7 @@
     <!-- TODO: Upgrade package and use Token Credential design -->
     <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="181.15.0" />
-    <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.3.93" />
+    <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.4.63-preview" />
     <PackageReference Update="Microsoft.SqlPackage.Core" Version="0.1.75-preview" />
     <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.6.0" />
     <PackageReference Update="Microsoft.Azure.Kusto.Data" Version="14.0.3" />
@@ -51,7 +51,7 @@
     <PackageReference Update="xunit.runner.visualstudio" Version="2.5.1" />
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Update="Microsoft.SqlServer.TransactSql.ScriptDom.NRT" Version="1.2.10202.1" />
-    <PackageReference Update="Azure.Storage.Blobs" Version="12.18.0" />
+    <PackageReference Update="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageReference Update="coverlet.collector" Version="6.0.0" />
     <PackageReference Update="coverlet.msbuild" Version="6.0.0" />
     <PackageReference Update="Microsoft.SqlServer.XEvent.XELite" Version="2023.1.30.3" />

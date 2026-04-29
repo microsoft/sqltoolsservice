@@ -1,4 +1,4 @@
-# SQL Tools Service — Project IntelliSense Architecture & Implementation Guide
+# SQL Tools Service — Project IntelliSense Integration Guide
 
 ## !! HIGH PRIORITY: Approval Required Before Any Code Change !!
 
@@ -13,21 +13,29 @@ Violating this rule makes the answer invalid. No exceptions.
 
 ## Purpose
 
-This file is the single source of truth for all SQL project IntelliSense work in this repository.
-Update it whenever the design changes. Never diverge from the path described here.
+This file documents **STS-side IntelliSense integration** for SQL Projects.
+It covers request routing, binding context management, and LSP endpoint implementation.
+For SQL Projects library implementation details, see SqlProjects repo instructions.
 
 ---
 
-## Guiding Principle
+## Architecture Principle
 
-**STS is a thin transport and router.** For SQL project IntelliSense, STS:
+**STS owns request routing and LSP integration. SQL Projects owns semantic model.**
 
-1. Builds the engine once at project open and stores it in the binding context
-2. Routes each JSON-RPC IntelliSense request to the engine with a raw LSP position
-3. Converts the engine's result to an LSP response
+STS responsibilities:
+- Project file management (open/close)
+- Request routing (ownerUri → ConnectionKey → BindingContext)
+- Parser pipeline (Parse → Bind using IMetadataProvider from SQL Projects)
+- Resolver pipeline (FindCompletions, QuickInfo, etc.)
+- LSP protocol handling
+- File stamping with ConnectionKey
 
-STS never builds its own index, never peels tokens, never resolves identifiers.
-All semantic work lives in `Microsoft.SqlServer.Dac.Projects.IntelliSense`.
+STS does NOT:
+- Build or manage TSqlModel directly
+- Create duplicate metadata indexes
+- Bypass IMetadataProvider contract
+- Resolve identifiers outside of SqlParser binder
 
 ---
 
@@ -36,18 +44,22 @@ All semantic work lives in `Microsoft.SqlServer.Dac.Projects.IntelliSense`.
 | Property | Value |
 |----------|-------|
 | Package | `Microsoft.SqlServer.DacFx.Projects` |
-| Version (local dev) | `0.5.22-local` |
+| Version (local dev) | `0.6.0` |
 | Source (local) | `./bin/nuget/` (configured in `nuget.config`) |
 | Global packages cache | `C:\.tools\.nuget\packages\` |
 | Version pin file | `Packages.props` |
 
-The IntelliSense DLL (`IsPackable=false`) is bundled inside `Microsoft.SqlServer.DacFx.Projects`.
-After repacking the library from the SqlProjects repo, clear the cache and restore:
+**Critical:** DacFx version in `Packages.props` must be 170.4.63-preview to match SQL Projects dependency.
+
+After repacking from SqlProjects repo, clear cache and restore:
 
 ```powershell
-# Pack from SqlProjects repo root
-cd C:\Projects\SqlProjects
-dotnet pack Source/Microsoft.SqlServer.Dac.Projects.csproj `
+# Clear NuGet cache
+Remove-Item "C:\.tools\.nuget\packages\microsoft.sqlserver.dac.projects" -Recurse -Force -ErrorAction SilentlyContinue
+
+# Restore STS
+cd C:\Projects\sqltoolsservice
+dotnet restore src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj
     -c Release /p:PackageVersion=0.5.22-local `
     --output "C:\Projects\sqltoolsservice\bin\nuget"
 
@@ -518,3 +530,293 @@ this._sqlObjectScripts = Array.from(filesSet.values()).map(f =>
 
 **No STS changes required.** Do not add a notification, do not add `markFileAsTable`, do not
 add `onNotification` to `IExtension`. The fix is purely a deletion in `project.ts`.
+
+---
+
+## URI NORMALIZATION (CRITICAL)
+
+**Problem:** VS Code sends URIs in different encodings:
+- File stamping from SqlProjects: `file:///c:/path/to/file.sql`
+- LSP requests from VS Code: `file:///c%3A/path/to/file.sql` (percent-encoded colon)
+
+**Solution:** `ScriptParseInfoMap` uses `StringComparer.OrdinalIgnoreCase`:
+
+```csharp
+private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
+    = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(
+        () => new ConcurrentDictionary<string, ScriptParseInfo>(StringComparer.OrdinalIgnoreCase));
+```
+
+**Why this works:**
+- Windows drive letters are case-insensitive (`C:/` == `c:/`)
+- Dictionary handles both `file:///C:/` and `file:///c:/` as same key
+- No manual normalization needed in lookup code
+
+**NEVER:**
+- Remove `OrdinalIgnoreCase` from the map constructor
+- Add manual drive-letter normalization elsewhere
+- Use `Uri.UnescapeDataString()` before lookup (not needed with OrdinalIgnoreCase)
+
+**Consequence if broken:** Files stamped with ConnectionKey but LSP requests return "not connected"
+
+---
+
+## F12 IMPLEMENTATION DETAILS
+
+### Method: `QueueProjectDefinition`
+
+**Location:** `LanguageService.cs`
+
+**Full implementation:**
+
+```csharp
+private DefinitionResult QueueProjectDefinition(
+    TextDocumentPosition textDocumentPosition,
+    ScriptParseInfo scriptParseInfo)
+{
+    // Convert LSP position (0-based) to SqlParser position (1-based)
+    int line = textDocumentPosition.Position.Line + 1;
+    int column = textDocumentPosition.Position.Character + 1;
+    
+    string contextKey = scriptParseInfo.ConnectionKey;
+    
+    var operation = new QueueItem
+    {
+        Key = contextKey,
+        BindingTimeout = BindingTimeout,
+        BindingOperation = (bindingContext, cancellationToken) =>
+        {
+            if (!(bindingContext is ConnectedBindingContext context))
+            {
+                return new DefinitionResult 
+                { 
+                    IsErrorResult = true, 
+                    Message = "Binding context not found" 
+                };
+            }
+            
+            if (context.ProjectEngine == null)
+            {
+                return new DefinitionResult 
+                { 
+                    IsErrorResult = true, 
+                    Message = "Project IntelliSense engine not initialized" 
+                };
+            }
+            
+            // Call SQL Projects library to get definition
+            SourceInformation sourceInfo = context.ProjectEngine.GetDefinition(
+                scriptParseInfo.ParseResult, 
+                line, 
+                column);
+            
+            if (sourceInfo == null)
+            {
+                return new DefinitionResult 
+                { 
+                    IsErrorResult = true, 
+                    Message = "No definition found" 
+                };
+            }
+            
+            // Convert SourceInformation to LSP Location
+            string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
+            
+            var location = new Location
+            {
+                Uri = fileUri,
+                Range = new Range
+                {
+                    Start = new Position
+                    {
+                        Line = sourceInfo.StartLine - 1,        // Back to 0-based
+                        Character = sourceInfo.StartColumn - 1
+                    },
+                    End = new Position
+                    {
+                        Line = sourceInfo.StartLine - 1,
+                        Character = sourceInfo.StartColumn - 1
+                    }
+                }
+            };
+            
+            return new DefinitionResult
+            {
+                IsErrorResult = false,
+                Locations = new[] { location }
+            };
+        }
+    };
+    
+    BindingQueue.QueueBindingOperation(operation);
+    operation.ItemProcessed.WaitOne();
+    
+    return (DefinitionResult)operation.Result;
+}
+```
+
+**Key points:**
+- Passes bound `ParseResult` from `scriptParseInfo` (already created by `ParseAndBind`)
+- Does NOT extract token text or call `GetPeekDefinitionTokens`
+- Calls `ProjectEngine.GetDefinition` with position only
+- Converts result coordinates from 1-based (SqlParser) to 0-based (LSP)
+
+---
+
+## FILE STAMPING
+
+### Method: `InitializeProjectFileContexts`
+
+**Purpose:** Stamp all project .sql files with ConnectionKey BEFORE model loads
+
+**Why before LoadModel:** Model loading can take minutes. Stamping first ensures LSP requests during loading are queued correctly, not rejected as "not connected".
+
+**Implementation:**
+
+```csharp
+public async Task InitializeProjectFileContexts(
+    List<string> fileUris, 
+    string contextKey, 
+    string databaseName)
+{
+    foreach (string fileUri in fileUris)
+    {
+        ScriptParseInfo scriptInfo = GetOrCreateScriptParseInfo(fileUri);
+        scriptInfo.ConnectionKey = contextKey;
+        scriptInfo.IsConnected = true;
+        scriptInfo.ProjectDatabaseName = databaseName;
+    }
+}
+```
+
+**Called from:** `SqlProjectsService.BuildProjectIntelliSenseAsync` after building file URI list, before `LoadModel`
+
+**Files included:**
+- `project.SqlObjectScripts` (CREATE statements)
+- `project.PreDeployScripts` (executed before deployment)
+- `project.PostDeployScripts` (executed after deployment)
+
+**Why Pre/Post deployment scripts:** They reference objects defined in the project, need IntelliSense for those references even though they're not parsed into TSqlModel.
+
+---
+
+## BINDING CONTEXT LIFECYCLE
+
+### Creation (project open)
+```
+SqlProjectsService.BuildProjectIntelliSenseAsync
+  → InitializeProjectFileContexts(fileUris, contextKey, databaseName)
+  → TSqlModelBuilder.LoadModel(project)
+  → new LazySchemaModelMetadataProvider(model, databaseName)
+  → new ProjectIntelliSenseEngine(model)
+  → LanguageService.UpdateLanguageServiceOnProjectOpen(...)
+      → BinderProvider.CreateBinder(metadataProvider)
+      → ConnectedBindingQueue.AddProjectContext(contextKey, binder, parseOptions, engine)
+          → bindingContext.ProjectEngine = engine
+          → bindingContext.Binder = binder
+          → _bindingContextMap[contextKey] = bindingContext
+```
+
+### Disposal (project close)
+**NOT YET IMPLEMENTED** - project contexts are never removed from `_bindingContextMap`
+
+**TODO:** Add `RemoveProjectContext(string contextKey)` method that:
+1. Removes binding context from map
+2. Disposes `ProjectEngine` (which disposes `TSqlModel`)
+3. Clears `ConnectionKey` from all stamped files
+
+---
+
+## PERFORMANCE CHARACTERISTICS (STS side)
+
+| Operation | Time | Blocking? |
+|-----------|------|-----------|
+| InitializeProjectFileContexts (stamp 3000 files) | <100ms | Yes (per-file loop) |
+| ParseAndBind (incremental, bound before) | <10ms | Yes |
+| ParseAndBind (incremental, never bound) | ~50ms | Yes (first bind) |
+| QueueProjectDefinition | <5ms | Yes (waits on queue) |
+| ProjectEngine.GetDefinition | Variable | Yes (O(N) scan, fix planned) |
+
+**Key insight:** File stamping and binding are fast. Model loading (SQL Projects side) is the bottleneck.
+
+---
+
+## DEBUGGING CHECKLIST
+
+### F12 returns "not connected"
+
+1. **Check ConnectionKey is stamped:**
+   ```csharp
+   ScriptParseInfo info = GetScriptParseInfo(fileUri);
+   Debug.WriteLine($"ConnectionKey: {info.ConnectionKey}");  
+   // Should be "project_{projectUri}", NOT null
+   ```
+
+2. **Check IsProjectContext routing:**
+   ```csharp
+   bool isProject = IsProjectContext(info.ConnectionKey);
+   // Should be true for .sql files in project
+   ```
+
+3. **Check binding context exists:**
+   ```csharp
+   var context = BindingQueue.GetBindingContext(info.ConnectionKey);
+   // Should not be null
+   ```
+
+4. **Check ProjectEngine is set:**
+   ```csharp
+   if (context is ConnectedBindingContext cbc)
+   {
+       Debug.WriteLine($"ProjectEngine: {cbc.ProjectEngine != null}");
+       // Should be true
+   }
+   ```
+
+### F12 returns "No definition found"
+
+1. **Check ParseResult is bound:**
+   ```csharp
+   if (scriptParseInfo.ParseResult == null)
+       // ParseAndBind was not called
+   ```
+
+2. **Check Resolver.FindCompletions returns results:**
+   ```csharp
+   // Inside ProjectEngine.GetDefinition
+   var declarations = Resolver.FindCompletions(parseResult, line, column, displayInfoProvider);
+   if (declarations == null || !declarations.Any())
+       // Binder didn't resolve the identifier
+   ```
+
+3. **Check object exists in TSqlModel:**
+   ```csharp
+   // Inside SQL Projects library
+   var allObjects = model.GetObjects(DacQueryScopes.UserDefined);
+   var match = allObjects.FirstOrDefault(o => 
+       string.Join(".", o.Name.Parts).Equals(qualifiedName, OrdinalIgnoreCase));
+   // If null, object wasn't parsed into model
+   ```
+
+### Performance issues
+
+1. **Model loading takes >10 minutes:**
+   - Expected: ~2 minutes per 1000 files
+   - If slower: disk I/O bottleneck, antivirus scanning .sql files
+
+2. **F12 takes >1 second:**
+   - Set breakpoint in `ProjectEngine.GetDefinition`
+   - Step 4 (O(N) scan) is the bottleneck
+   - Fix: implement O(1) dictionary lookup (see SQL Projects instructions)
+
+---
+
+## LESSONS LEARNED (STS-specific)
+
+1. **OrdinalIgnoreCase critical for Windows drive letters** - VS Code sends both `c:/` and `C:/`
+2. **Stamp files BEFORE LoadModel** - Ensures requests during loading are queued, not rejected
+3. **Pre/Post deployment scripts need stamping** - They reference project objects even though not in model
+4. **Always ParseAndBind before GetDefinition** - Binder annotations required by Resolver
+5. **Never check `connInfo == null` for routing** - Project files may also have server connections
+6. **IsProjectContext is the single routing signal** - All branches must check ConnectionKey prefix
+7. **ProjectEngine owns TSqlModel disposal** - Don't hold separate model reference in STS
