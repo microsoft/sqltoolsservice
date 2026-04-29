@@ -38,7 +38,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Dac.Projects.IntelliSense;
-using Microsoft.SqlServer.Dac;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -1192,7 +1191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions);
+                        this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider);
                         scriptInfo.ConnectionKey = contextKey;
                         scriptInfo.IsConnected = true;
                         scriptInfo.ProjectDatabaseName = databaseName;
@@ -1637,7 +1636,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     if (bindingContext is ConnectedBindingContext cbc && 
-                        cbc.Binder?.MetadataProvider is Microsoft.SqlServer.Dac.Projects.IntelliSense.LazySchemaModelMetadataProvider lazyProvider)
+                        cbc.MetadataProvider is LazySchemaModelMetadataProvider lazyProvider)
                     {
                         // Step 1: Identify the identifier token at the cursor
                         int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserColumn) ?? -1;

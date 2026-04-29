@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
         string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
-        void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions);
+        void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider metadataProvider = null);
         bool IsBindingContextConnected(string key);
         ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
         void Dispose();
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Creates an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions)
+        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider metadataProvider = null)
         {
             if (BindingContextExists(projectKey))
             {
@@ -240,6 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bindingContext.BindingLock.Reset();
                     bindingContext.Binder = binder;
+                    bindingContext.MetadataProvider = metadataProvider;
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                     bindingContext.OverrideParseOptions = parseOptions;

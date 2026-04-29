@@ -88,6 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public SmoMetadataProvider SmoMetadataProvider { get; set; }
 
         /// <summary>
+        /// Gets or sets the metadata provider (for project-based IntelliSense)
+        /// </summary>
+        public IMetadataProvider MetadataProvider { get; set; }
+
+        /// <summary>
         /// Gets or sets the binder
         /// </summary>
         public IBinder Binder { get; set; }

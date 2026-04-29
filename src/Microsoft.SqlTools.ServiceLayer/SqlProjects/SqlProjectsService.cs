@@ -143,10 +143,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
                 string contextKey = $"project_{projectUri}";
                 string projectDir = Path.GetDirectoryName(projectUri) ?? string.Empty;
-                var fileUriList = project.SqlObjectScripts
-                    .Select(s => new Uri(Path.IsPathRooted(s.Path)
-                        ? s.Path
-                        : Path.Combine(projectDir, s.Path)).AbsoluteUri)
+                
+                // Include all SQL files: Build items, PreDeploy, and PostDeploy
+                var allScripts = new List<string>();
+                foreach (var script in project.SqlObjectScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                foreach (var script in project.PreDeployScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                foreach (var script in project.PostDeployScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                
+                var fileUriList = allScripts
+                    .Select(path => new Uri(Path.IsPathRooted(path)
+                        ? path
+                        : Path.Combine(projectDir, path)).AbsoluteUri)
                     .ToList();
 
                 // Stamp files before the model finishes loading so that F12 requests arriving
