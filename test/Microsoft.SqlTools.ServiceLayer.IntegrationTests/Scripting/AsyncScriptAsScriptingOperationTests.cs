@@ -4,6 +4,7 @@
 //
 
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -138,7 +139,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Assert.That(actualScript, Does.Contain(expectedStr));
             }
 
+            if (scriptingParams.Operation == ScriptingOperationType.Select)
+            {
+                AssertScriptUsesPlatformNewLines(actualScript);
+            }
+
             await testDb.CleanupAsync();
+        }
+
+        private static void AssertScriptUsesPlatformNewLines(string script)
+        {
+            Assert.That(script, Does.Contain(Environment.NewLine));
+
+            if (Environment.NewLine == "\n")
+            {
+                Assert.That(script, Does.Not.Contain("\r\n"));
+            }
+            else
+            {
+                Assert.That(script.Replace("\r\n", string.Empty), Does.Not.Contain("\n"));
+            }
         }
     }
 }

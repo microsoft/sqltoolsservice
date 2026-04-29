@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -123,6 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var script = await ObjectManagementTestUtils.ScriptObject(parametersForCreation, testDatabase);
                     Assert.That(DatabaseExists(testDatabase.Name, server), Is.False, $"Database should not have been created for scripting operation");
                     Assert.That(script.ToLowerInvariant(), Does.Contain($"create database [{testDatabase.Name.ToLowerInvariant()}]"));
+                    AssertScriptUsesPlatformNewLines(script);
                 }
                 finally
                 {
@@ -928,6 +930,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     db.Drop();
                     break;
                 }
+            }
+        }
+
+        private static void AssertScriptUsesPlatformNewLines(string script)
+        {
+            Assert.That(script, Does.Contain(Environment.NewLine));
+
+            if (Environment.NewLine == "\n")
+            {
+                Assert.That(script, Does.Not.Contain("\r\n"));
+            }
+            else
+            {
+                Assert.That(script.Replace("\r\n", string.Empty), Does.Not.Contain("\n"));
             }
         }
     }

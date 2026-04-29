@@ -303,6 +303,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             var showPlanGraphs = ExecutionPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             List<ExecutionPlanRecommendation> rootNode = showPlanGraphs[0].Recommendations;
             Assert.AreEqual(3, rootNode.Count, "3 recommendations should be returned by the showplan parser");
+            AssertScriptUsesPlatformNewLines(rootNode[0].Query);
+        }
+
+        private static void AssertScriptUsesPlatformNewLines(string script)
+        {
+            Assert.That(script, Does.Contain(Environment.NewLine));
+
+            if (Environment.NewLine == "\n")
+            {
+                Assert.That(script, Does.Not.Contain("\r\n"));
+            }
+            else
+            {
+                Assert.That(script.Replace("\r\n", string.Empty), Does.Not.Contain("\n"));
+            }
         }
 
         [Test]
