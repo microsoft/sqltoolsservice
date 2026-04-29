@@ -119,7 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryExecutionSettings settings,
             IFileStreamFactory outputFactory,
             bool getFullColumnSchema = false,
-            bool applyExecutionSettings = false)
+            bool applyExecutionSettings = false,
+            SelectionData executionSelection = null)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -143,12 +144,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             var batchSelection = parserResult
                 .Select((batchDefinition, index) =>
-                    new Batch(batchDefinition.BatchText,
-                        new SelectionData(
+                    new Batch(
+                        batchDefinition.BatchText,
+                        TranslateBatchSelectionToDocument(
+                            new SelectionData(
                             batchDefinition.StartLine - 1,
                             batchDefinition.StartColumn - 1,
                             batchDefinition.EndLine - 1,
                             batchDefinition.EndColumn - 1),
+                            executionSelection),
                         index, outputFactory,
                         batchDefinition.SqlCmdCommand,
                         batchDefinition.BatchExecutionCount,
@@ -166,6 +170,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             this.Settings = settings;
+        }
+
+        private static SelectionData TranslateBatchSelectionToDocument(
+            SelectionData batchSelection,
+            SelectionData executionSelection)
+        {
+            if (batchSelection == null || executionSelection == null)
+            {
+                return batchSelection;
+            }
+
+            return new SelectionData(
+                batchSelection.StartLine + executionSelection.StartLine,
+                batchSelection.StartColumn + (batchSelection.StartLine == 0 ? executionSelection.StartColumn : 0),
+                batchSelection.EndLine + executionSelection.StartLine,
+                batchSelection.EndColumn + (batchSelection.EndLine == 0 ? executionSelection.StartColumn : 0));
         }
 
         #region Events

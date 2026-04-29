@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
@@ -20,6 +21,8 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
@@ -75,6 +78,83 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // The query text should match the expected statement at the cursor
             Assert.AreEqual(expectedQueryText, queryText);
+        }
+
+        [Test]
+        public void ExecuteDocumentStatementTracksStatementRange()
+        {
+            var statement1 = Constants.StandardQuery;
+            var statement2 = "SELECT * FROM sys.databases";
+            string query = string.Format("{0}; {1}", statement1, statement2);
+
+            var statementInfo = LanguageService.Instance.ParseStatementAtPositionInfo(
+                query,
+                line: 0,
+                column: statement1.Length + 2);
+
+            Assert.NotNull(statementInfo);
+            Assert.AreEqual(statement2, statementInfo.StatementText);
+            Assert.AreEqual(1, statementInfo.StatementRange.Start.Line);
+            Assert.AreEqual(statement1.Length + 3, statementInfo.StatementRange.Start.Column);
+        }
+
+        [Test]
+        public async Task InterServiceExecuteDocumentSelectionTracksDocumentRelativeBatchSelections()
+        {
+            string query = string.Join("\r\n", new[]
+            {
+                "SELECT 'padding 1';",
+                "GO",
+                "SELECT 'batch 1';",
+                "GO",
+                "SELECT 'batch 2';"
+            });
+
+            var workspaceService = GetWorkspaceServiceWithScriptFile(query);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
+            var queryParams = new ExecuteDocumentSelectionParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                QuerySelection = new SelectionData(2, 0, 4, "SELECT 'batch 2';".Length)
+            };
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(queryService, queryParams);
+
+            Assert.NotNull(capturedQuery);
+            Assert.AreEqual(2, capturedQuery.BatchSelections.Length);
+            Assert.AreEqual(2, capturedQuery.BatchSelections[0].StartLine);
+            Assert.AreEqual(0, capturedQuery.BatchSelections[0].StartColumn);
+            Assert.AreEqual(4, capturedQuery.BatchSelections[1].StartLine);
+            Assert.AreEqual(0, capturedQuery.BatchSelections[1].StartColumn);
+        }
+
+        [Test]
+        public async Task InterServiceExecuteDocumentStatementTracksDocumentRelativeBatchSelection()
+        {
+            string query = string.Join("\r\n", new[]
+            {
+                "SELECT 'padding 1';",
+                "GO",
+                "    SELECT 'current statement';",
+                "GO",
+                "SELECT 'padding 2';"
+            });
+
+            var workspaceService = GetWorkspaceServiceWithScriptFile(query);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
+            var queryParams = new ExecuteDocumentStatementParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                Line = 2,
+                Column = 8
+            };
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(queryService, queryParams);
+
+            Assert.NotNull(capturedQuery);
+            Assert.AreEqual(1, capturedQuery.BatchSelections.Length);
+            Assert.AreEqual(2, capturedQuery.BatchSelections[0].StartLine);
+            Assert.AreEqual(4, capturedQuery.BatchSelections[0].StartColumn);
         }
 
         [Test]
@@ -559,6 +639,61 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
             var workspaceService = Common.GetPrimedWorkspaceService(query);
             return workspaceService;
+        }
+
+        private static WorkspaceService<SqlToolsSettings> GetWorkspaceServiceWithScriptFile(string query)
+        {
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+
+            var scriptFile = new ScriptFile
+            {
+                ClientUri = Constants.OwnerUri
+            };
+            scriptFile.SetFileContents(query);
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(scriptFile);
+
+            return workspaceService.Object;
+        }
+
+        private static async Task<CapturedQueryInfo> CaptureCreatedQueryAsync(
+            QueryExecutionService queryService,
+            ExecuteRequestParamsBase queryParams)
+        {
+            CapturedQueryInfo capturedQuery = null;
+            var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
+
+            await queryService.InterServiceExecuteQuery(
+                queryParams,
+                null,
+                eventSender,
+                q =>
+                {
+                    capturedQuery = new CapturedQueryInfo
+                    {
+                        BatchSelections = q.Batches
+                            .Select(b => new SelectionData(
+                                b.Selection.StartLine,
+                                b.Selection.StartColumn,
+                                b.Selection.EndLine,
+                                b.Selection.EndColumn))
+                            .ToArray()
+                    };
+
+                    return Task.FromResult(false);
+                },
+                null,
+                null,
+                null);
+
+            return capturedQuery;
+        }
+
+        private sealed class CapturedQueryInfo
+        {
+            public SelectionData[] BatchSelections { get; set; }
         }
     }
 
