@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.SqlParser.Metadata;
 // Provides IMetadataCollection<T> and IMetadataOrderedCollection<T> implementations backed by
 // a Lazy<T[]> so that TSqlModel scans are deferred until the collection is first enumerated.
 
-namespace Microsoft.SqlTools.ServiceLayer.IntelliSense
+namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     /// <summary>
     /// Lazy <see cref="IMetadataCollection{T}"/> that loads items on first access.

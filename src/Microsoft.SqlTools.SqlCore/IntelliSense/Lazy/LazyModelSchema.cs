@@ -9,7 +9,7 @@ using Microsoft.SqlServer.Management.SqlParser.Metadata;
 
 // SSDT counterpart: MetadataProvider/Schema.cs
 
-namespace Microsoft.SqlTools.ServiceLayer.IntelliSense
+namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     /// <summary>
     /// Lazy <see cref="ISchema"/> wrapper backed by <see cref="TSqlModel"/>.

@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 
 // SSDT counterpart: MetadataProvider/SchemaModelMetadataProvider.cs
 
-namespace Microsoft.SqlTools.ServiceLayer.IntelliSense
+namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     /// <summary>
     /// <see cref="MetadataProviderBase"/> backed by a <see cref="TSqlModel"/>. Fully offline — no server connection.

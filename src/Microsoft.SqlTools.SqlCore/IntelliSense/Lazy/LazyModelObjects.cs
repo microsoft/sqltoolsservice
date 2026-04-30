@@ -16,7 +16,7 @@ using Microsoft.SqlServer.Management.SqlParser.Metadata;
 //   MetadataProvider/UserDefinedDataType.cs  → LazyModelUserDefinedDataType
 //   MetadataProvider/UserdefinedTableType.cs → LazyModelUserDefinedTableType
 
-namespace Microsoft.SqlTools.ServiceLayer.IntelliSense
+namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     // =========================================================================
     // Base for all schema-owned objects
