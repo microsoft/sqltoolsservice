@@ -1622,4 +1622,405 @@
     <comment>.
  Parameters: 0 - endpoint (string), 1 - error (string) </comment>
   </data>
+  <data name="ColumnHeaderAdditionalWorkload" xml:space="preserve">
+    <value>Additional {0}</value>
+    <comment>.
+ Parameters: 0 - metric (string) </comment>
+  </data>
+  <data name="ColumnHeaderExecCount" xml:space="preserve">
+    <value>Execution Count</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderExecutionType" xml:space="preserve">
+    <value>Execution Type</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderFirstExecTime" xml:space="preserve">
+    <value>First Execution Time</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderForcedPlanFailureCount" xml:space="preserve">
+    <value>Forced Plan Failure Count</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderForcedPlanFailureDescp" xml:space="preserve">
+    <value>Last Forced Plan Failure Description</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderForcedPlanId" xml:space="preserve">
+    <value>Forced Plan Id</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderLastCompileStartTime" xml:space="preserve">
+    <value>Last Compile Start Time</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderLastExecTime" xml:space="preserve">
+    <value>Last Execution Time</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderLastForcedPlanExecTime" xml:space="preserve">
+    <value>Last Forced Plan Execution Time</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderLastQueryExecTime" xml:space="preserve">
+    <value>Last Query Execution Time</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderMetricTime" xml:space="preserve">
+    <value>{0} {1}</value>
+    <comment>.
+ Parameters: 0 - metric (string), 1 - timeInterval (string) </comment>
+  </data>
+  <data name="ColumnHeaderNumPlans" xml:space="preserve">
+    <value>Plan Count</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderObjectID" xml:space="preserve">
+    <value>Object Id</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderObjectName" xml:space="preserve">
+    <value>Object Name</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderPlanForced" xml:space="preserve">
+    <value>Plan Forced</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderPlanForceFailureCount" xml:space="preserve">
+    <value>plan force failure count</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderPlanID" xml:space="preserve">
+    <value>Plan Id</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderQueryID" xml:space="preserve">
+    <value>Query Id</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderQuerySQLText" xml:space="preserve">
+    <value>Query Sql Text</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderRegrPercRecent" xml:space="preserve">
+    <value>{0} Regression %</value>
+    <comment>.
+ Parameters: 0 - metric (string) </comment>
+  </data>
+  <data name="ColumnHeaderStatMetric" xml:space="preserve">
+    <value>{0} {1}</value>
+    <comment>.
+ Parameters: 0 - statistic (string), 1 - metric (string) </comment>
+  </data>
+  <data name="ColumnHeaderStatMetricTime" xml:space="preserve">
+    <value>{0} {1} {2}</value>
+    <comment>.
+ Parameters: 0 - statistic (string), 1 - metric (string), 2 - timeInterval (string) </comment>
+  </data>
+  <data name="ColumnHeaderToolTip" xml:space="preserve">
+    <value>Click to sort by this column</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderWaitCategoryDesc" xml:space="preserve">
+    <value>Wait Category</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnHeaderWaitCategoryId" xml:space="preserve">
+    <value>Wait Category Id</value>
+    <comment></comment>
+  </data>
+  <data name="HistoryLabelText" xml:space="preserve">
+    <value>History</value>
+    <comment></comment>
+  </data>
+  <data name="IntervalEndTime" xml:space="preserve">
+    <value>Interval End</value>
+    <comment></comment>
+  </data>
+  <data name="IntervalStartTime" xml:space="preserve">
+    <value>Interval Start</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidArgumentMessage" xml:space="preserve">
+    <value>Invalid statistic selection for GetSummary. Statistic = &apos;{0}&apos; Metric = &apos;{1}&apos;.</value>
+    <comment>.
+ Parameters: 0 - statistic (string), 1 - metric (string) </comment>
+  </data>
+  <data name="InvalidContainingObject" xml:space="preserve">
+    <value>-- Containing object no longer exists.</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidQueryUnderContainingObject" xml:space="preserve">
+    <value>-- Containing object no longer contains the selected query text.</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionClrTime" xml:space="preserve">
+    <value>CLR Time</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionCPUTime" xml:space="preserve">
+    <value>CPU Time</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionDop" xml:space="preserve">
+    <value>DOP</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionDuration" xml:space="preserve">
+    <value>Duration</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionExecutions" xml:space="preserve">
+    <value>Execution Count</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionLogicalReads" xml:space="preserve">
+    <value>Logical Reads</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionLogicalWrites" xml:space="preserve">
+    <value>Logical Writes</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionLogMemoryUsed" xml:space="preserve">
+    <value>Log Memory Used</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionMemoryConsumption" xml:space="preserve">
+    <value>Memory Consumption</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionPhysicalReads" xml:space="preserve">
+    <value>Physical Reads</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionQueryWaitTime" xml:space="preserve">
+    <value>Wait Time</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionRowcount" xml:space="preserve">
+    <value>Row Count</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionTempDbMemoryUsed" xml:space="preserve">
+    <value>Temp DB Memory Used</value>
+    <comment></comment>
+  </data>
+  <data name="MetricOptionWithUnitsTemplate" xml:space="preserve">
+    <value>{0} ({1})</value>
+    <comment>.
+ Parameters: 0 - metric (string), 1 - unit (string) </comment>
+  </data>
+  <data name="MetricsNotAvailableInTargetDb" xml:space="preserve">
+    <value>Unable to find available metrics.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryIDSearchColumnHeaderQueryID" xml:space="preserve">
+    <value>Query ID</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyReason_DbInEmergencyMode" xml:space="preserve">
+    <value>Database is in emergency mode.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyReason_DbInLogAcceptMode" xml:space="preserve">
+    <value>Database is in log accept mode.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyReason_DbInSingleUserMode" xml:space="preserve">
+    <value>Database is in single-user mode.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyReason_DbReadOnly" xml:space="preserve">
+    <value>Database is in read-only mode.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyReason_DiskSizeLimit" xml:space="preserve">
+    <value>Query store has reached disk size limit.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyReason_StmtHashMapMemoryLimit" xml:space="preserve">
+    <value>Query store statement hash map has reached memory limit.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryStoreReadOnlyToolTip" xml:space="preserve">
+    <value>Query Store is operating in READ_ONLY mode.</value>
+    <comment></comment>
+  </data>
+  <data name="RecentLabelText" xml:space="preserve">
+    <value>Recent</value>
+    <comment></comment>
+  </data>
+  <data name="ReplicaOptionGeoSecondary" xml:space="preserve">
+    <value>GeoSecondary</value>
+    <comment></comment>
+  </data>
+  <data name="ReplicaOptionGeoHASecondary" xml:space="preserve">
+    <value>GeoHASecondary</value>
+    <comment></comment>
+  </data>
+  <data name="ReplicaOptionPrimary" xml:space="preserve">
+    <value>Primary</value>
+    <comment></comment>
+  </data>
+  <data name="ReplicaOptionSecondary" xml:space="preserve">
+    <value>Secondary</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionAvg" xml:space="preserve">
+    <value>Avg</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionLast" xml:space="preserve">
+    <value>Last</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionMax" xml:space="preserve">
+    <value>Max</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionMin" xml:space="preserve">
+    <value>Min</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionStddev" xml:space="preserve">
+    <value>Std Dev</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionTotal" xml:space="preserve">
+    <value>Total</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionAuto" xml:space="preserve">
+    <value>Automatic</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionDay" xml:space="preserve">
+    <value>Day</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionHour" xml:space="preserve">
+    <value>Hour</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLast12Hours" xml:space="preserve">
+    <value>Last 12 hours</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLast15Minutes" xml:space="preserve">
+    <value>Last 15 minutes</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLast2Days" xml:space="preserve">
+    <value>Last 2 days</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLast2Weeks" xml:space="preserve">
+    <value>Last 2 weeks</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLast30Minutes" xml:space="preserve">
+    <value>Last 30 minutes</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLast5Minutes" xml:space="preserve">
+    <value>Last 5 minutes</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLastDay" xml:space="preserve">
+    <value>Last day</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLastHour" xml:space="preserve">
+    <value>Last hour</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLastMonth" xml:space="preserve">
+    <value>Last month</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionLastWeek" xml:space="preserve">
+    <value>Last week</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionMinute" xml:space="preserve">
+    <value>Minute</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionMonth" xml:space="preserve">
+    <value>Month</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsAllTime" xml:space="preserve">
+    <value>All time</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsCustom" xml:space="preserve">
+    <value>Custom</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsCustomPaneHeaderText" xml:space="preserve">
+    <value>Custom time interval</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsLast3Months" xml:space="preserve">
+    <value>Last 3 months</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsLast6Months" xml:space="preserve">
+    <value>Last 6 months</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsLastYear" xml:space="preserve">
+    <value>Last year</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionsNow" xml:space="preserve">
+    <value>Now</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionSpecify" xml:space="preserve">
+    <value>User defined</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalOptionWeek" xml:space="preserve">
+    <value>Week</value>
+    <comment></comment>
+  </data>
+  <data name="TimeIntervalPaneHeader" xml:space="preserve">
+    <value>{0} ending at {1} {2}</value>
+    <comment>.
+ Parameters: 0 - interval (string), 1 - date (string), 2 - time (string) </comment>
+  </data>
+  <data name="TotalWaitCategoryTime" xml:space="preserve">
+    <value>{0} Wait Time</value>
+    <comment>.
+ Parameters: 0 - waitCategory (string) </comment>
+  </data>
+  <data name="UnitKilobyte" xml:space="preserve">
+    <value>KB</value>
+    <comment></comment>
+  </data>
+  <data name="UnitMicrosecond" xml:space="preserve">
+    <value>μs</value>
+    <comment></comment>
+  </data>
+  <data name="UnitMillisecond" xml:space="preserve">
+    <value>ms</value>
+    <comment></comment>
+  </data>
+  <data name="StatisticsOptionVariation" xml:space="preserve">
+    <value>Variation</value>
+    <comment></comment>
+  </data>
+  <data name="ReplicaNameNotNullEmpty" xml:space="preserve">
+    <value>ReplicaName cannot be Null or Empty</value>
+    <comment></comment>
+  </data>
+  <data name="ReplicaIdPositive" xml:space="preserve">
+    <value>ReplicaGroupId cannot be 0 or negative</value>
+    <comment></comment>
+  </data>
 </root>
