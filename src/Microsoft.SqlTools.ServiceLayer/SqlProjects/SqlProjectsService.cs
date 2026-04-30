@@ -16,7 +16,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.IntelliSense;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
