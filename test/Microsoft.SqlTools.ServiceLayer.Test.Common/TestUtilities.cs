@@ -91,6 +91,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return noCrs.Replace("\n", Environment.NewLine);
         }
 
+        public static void AssertScriptUsesPlatformNewLines(string script)
+        {
+            Assert.That(script, Does.Contain(Environment.NewLine));
+
+            if (Environment.NewLine == "\n")
+            {
+                Assert.That(script, Does.Not.Contain("\r\n"));
+            }
+            else
+            {
+                Assert.That(script.Replace("\r\n", string.Empty), Does.Not.Contain("\n"));
+            }
+        }
+
         /// <summary>
         /// Returns the current NUnit test name sanitized for use as a filename
         /// </summary>
