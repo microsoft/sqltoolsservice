@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.SqlParser.Metadata;
 //   MetadataProvider/Server.cs   → LazyModelServer
 //   MetadataProvider/Database.cs → LazyModelDatabase
 
-namespace Microsoft.SqlTools.ServiceLayer.IntelliSense
+namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     // -------------------------------------------------------------------------
     // LazyModelServer : IServer
