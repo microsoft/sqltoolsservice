@@ -25,5 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// Whether or not the column allows null values
         /// </summary>
         public bool? IsNullable { get; set; }
+
+        /// <summary>
+        /// The provider-specific data type name (e.g. "varchar", "int", "datetime"),
+        /// suitable for surfacing in clients that want to display the column's type.
+        /// </summary>
+        public string? DataTypeName { get; set; }
     }
 }
