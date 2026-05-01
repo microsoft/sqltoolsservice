@@ -5,12 +5,7 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Projects;
-using Microsoft.SqlTools.ServiceLayer.SqlProjects;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using CreateSqlProjectParams = Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
 {
@@ -30,28 +25,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
         }
 
         /// <summary>
-        /// Creates a SQL project using the SqlProjectsService
+        /// Creates a simple test SQL project synchronously
         /// </summary>
-        /// <param name="projectType">SDK-style or Legacy-style project</param>
-        /// <returns>URI of the created project</returns>
-        public static async Task<string> CreateSqlProject(ProjectType projectType = ProjectType.SdkStyle)
+        /// <param name="projectName">Name of the project</param>
+        /// <returns>Path to the created .sqlproj file</returns>
+        public static string CreateTestProject(string projectName)
         {
-            SqlProjectsService service = new();
-            string projectUri = GetTestProjectPath();
+            string projectPath = GetTestProjectPath(projectName);
+            
+            // Delete any existing project first to handle reruns
+            DeleteTestProject(projectPath);
+            
+            var project = SqlProject.CreateProjectAsync(projectPath).GetAwaiter().GetResult();
+            return projectPath;
+        }
 
-            MockRequest<ResultStatus> requestMock = new();
-            await service.HandleCreateSqlProjectRequest(new CreateSqlProjectParams()
+        /// <summary>
+        /// Deletes a test project and its directory
+        /// </summary>
+        /// <param name="projectPath">Path to the .sqlproj file</param>
+        public static void DeleteTestProject(string projectPath)
+        {
+            string? projectDir = Path.GetDirectoryName(projectPath);
+            if (projectDir != null && Directory.Exists(projectDir))
             {
-                ProjectUri = projectUri,
-                SqlProjectType = projectType
-            }, requestMock.Object);
-
-            if (!requestMock.Result.Success)
-            {
-                throw new Exception($"Failed to create SQL project: {requestMock.Result.ErrorMessage}");
+                Directory.Delete(projectDir, recursive: true);
             }
-
-            return projectUri;
         }
     }
 }
