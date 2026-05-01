@@ -158,65 +158,310 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
         internal static string GetTypeSpecifierLabel(DataType dataType, UserDefinedDataTypeCollection uddts)
         {
-            string typeName = string.Empty;
-            if (dataType != null)
+            if (dataType == null)
             {
-                // typeSpecifier might still be in a resolve candidate status.  If so then the
-                // name might be null.  Don't ask for the type specifier name in this case.
-                typeName = dataType.Name;
+                return string.Empty;
+            }
 
-                // This may return [dbo].[MyType], but for the purposes of display we only want MyType
-                if (!string.IsNullOrWhiteSpace(typeName) &&
-                    typeName.EndsWith("]", StringComparison.Ordinal))
-                {
-                    int nameStart = typeName.LastIndexOf('[');
-                    typeName = typeName.Substring(nameStart + 1, typeName.Length - nameStart - 2);
+            string typeName = NormalizeDisplayTypeName(dataType.Name);
+            string systemTypeName = GetUserDefinedSystemTypeName(dataType, uddts);
 
-                }
+            return FormatTypeSpecifierLabel(
+                typeName,
+                systemTypeName,
+                dataType.MaximumLength,
+                dataType.NumericPrecision,
+                dataType.NumericScale,
+                null,
+                null,
+                null,
+                dataType.VectorDimensions,
+                GetOptionalPropertyString(dataType, "VectorBaseType"));
+        }
 
-                if(dataType.SqlDataType == SqlDataType.UserDefinedDataType && uddts != null)
-                {
-                    foreach (UserDefinedDataType item in uddts)
+        internal static string GetTypeSpecifierLabel(Column column, UserDefinedDataTypeCollection uddts)
+        {
+            if (column?.DataType == null)
+            {
+                return string.Empty;
+            }
+
+            string typeName = NormalizeDisplayTypeName(column.DataType.Name);
+            string systemTypeName = NormalizeDisplayTypeName(GetOptionalPropertyString(column, "SystemType"));
+
+            if (string.IsNullOrWhiteSpace(systemTypeName))
+            {
+                systemTypeName = GetUserDefinedSystemTypeName(column.DataType, uddts);
+            }
+
+            if (string.Equals(typeName, "vector", StringComparison.OrdinalIgnoreCase))
+            {
+                systemTypeName = typeName;
+            }
+
+            return FormatTypeSpecifierLabel(
+                typeName,
+                systemTypeName,
+                column.DataType.MaximumLength,
+                column.DataType.NumericPrecision,
+                column.DataType.NumericScale,
+                GetOptionalPropertyString(column, "XmlSchemaNamespaceSchema"),
+                GetOptionalPropertyString(column, "XmlSchemaNamespace"),
+                GetOptionalEnumValue<XmlDocumentConstraint>(column, "XmlDocumentConstraint"),
+                column.DataType.VectorDimensions,
+                GetOptionalPropertyString(column.DataType, "VectorBaseType") ?? GetOptionalPropertyString(column, "VectorBaseType"));
+        }
+
+        internal static string FormatTypeSpecifierLabel(
+            string typeName,
+            string systemTypeName,
+            int? maximumLength,
+            int? numericPrecision,
+            int? numericScale,
+            string xmlSchemaNamespaceSchema,
+            string xmlSchemaNamespace,
+            XmlDocumentConstraint? xmlDocumentConstraint,
+            int? vectorDimensions,
+            string vectorBaseType)
+        {
+            string normalizedTypeName = NormalizeDisplayTypeName(typeName);
+            if (string.IsNullOrWhiteSpace(normalizedTypeName))
+            {
+                return string.Empty;
+            }
+
+            string formattedTypeName = FormatIntrinsicTypeLabel(
+                normalizedTypeName,
+                maximumLength,
+                numericPrecision,
+                numericScale,
+                xmlSchemaNamespaceSchema,
+                xmlSchemaNamespace,
+                xmlDocumentConstraint,
+                vectorDimensions,
+                vectorBaseType);
+
+            string normalizedSystemTypeName = NormalizeDisplayTypeName(systemTypeName);
+            if (string.IsNullOrWhiteSpace(normalizedSystemTypeName)
+                || string.Equals(normalizedTypeName, normalizedSystemTypeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return formattedTypeName;
+            }
+
+            string formattedSystemTypeName = FormatIntrinsicTypeLabel(
+                normalizedSystemTypeName,
+                maximumLength,
+                numericPrecision,
+                numericScale,
+                null,
+                null,
+                null,
+                vectorDimensions,
+                vectorBaseType);
+
+            return $"{normalizedTypeName}({formattedSystemTypeName})";
+        }
+
+        private static string FormatIntrinsicTypeLabel(
+            string typeName,
+            int? maximumLength,
+            int? numericPrecision,
+            int? numericScale,
+            string xmlSchemaNamespaceSchema,
+            string xmlSchemaNamespace,
+            XmlDocumentConstraint? xmlDocumentConstraint,
+            int? vectorDimensions,
+            string vectorBaseType)
+        {
+            switch (typeName.ToLowerInvariant())
+            {
+                case "char":
+                case "nchar":
+                case "varchar":
+                case "nvarchar":
+                case "binary":
+                case "varbinary":
+                    if (maximumLength.HasValue)
                     {
-                        if(item.Name == dataType.Name)
+                        bool isMaxLengthType = (typeName == "varchar" || typeName == "nvarchar" || typeName == "varbinary")
+                            && maximumLength.Value <= 0;
+                        string lengthLabel = isMaxLengthType
+                            ? "max"
+                            : maximumLength.Value.ToString(CultureInfo.InvariantCulture);
+                        return $"{typeName}({lengthLabel})";
+                    }
+                    break;
+                case "numeric":
+                case "decimal":
+                    if (numericPrecision.HasValue && numericScale.HasValue)
+                    {
+                        return string.Format(
+                            CultureInfo.InvariantCulture,
+                            "{0}({1},{2})",
+                            typeName,
+                            numericPrecision.Value,
+                            numericScale.Value);
+                    }
+                    break;
+                case "time":
+                case "datetime2":
+                case "datetimeoffset":
+                    if (numericScale.HasValue)
+                    {
+                        return string.Format(
+                            CultureInfo.InvariantCulture,
+                            "{0}({1})",
+                            typeName,
+                            numericScale.Value);
+                    }
+                    break;
+                case "xml":
+                    if (!string.IsNullOrWhiteSpace(xmlSchemaNamespace)
+                        && !string.IsNullOrWhiteSpace(xmlSchemaNamespaceSchema)
+                        && xmlDocumentConstraint.HasValue)
+                    {
+                        if (xmlDocumentConstraint.Value == XmlDocumentConstraint.Content)
                         {
-                            typeName += $"({item.SystemType})";
-                            break;
+                            return string.Format(
+                                CultureInfo.InvariantCulture,
+                                "XML({0}.{1})",
+                                xmlSchemaNamespaceSchema,
+                                xmlSchemaNamespace);
+                        }
+
+                        if (xmlDocumentConstraint.Value == XmlDocumentConstraint.Document)
+                        {
+                            return string.Format(
+                                CultureInfo.InvariantCulture,
+                                "XML(DOCUMENT {0}.{1})",
+                                xmlSchemaNamespaceSchema,
+                                xmlSchemaNamespace);
                         }
                     }
-                }
 
-                // These types supports detailed information
-                switch (dataType.SqlDataType)
+                    return "XML";
+                case "vector":
+                    if (vectorDimensions.HasValue)
+                    {
+                        if (!string.IsNullOrWhiteSpace(vectorBaseType))
+                        {
+                            return string.Format(
+                                CultureInfo.InvariantCulture,
+                                "vector({0},{1})",
+                                vectorDimensions.Value,
+                                vectorBaseType);
+                        }
+
+                        return string.Format(
+                            CultureInfo.InvariantCulture,
+                            "vector({0})",
+                            vectorDimensions.Value);
+                    }
+                    break;
+            }
+
+            return typeName;
+        }
+
+        private static string GetUserDefinedSystemTypeName(DataType dataType, UserDefinedDataTypeCollection uddts)
+        {
+            if (dataType?.SqlDataType != SqlDataType.UserDefinedDataType || uddts == null)
+            {
+                return string.Empty;
+            }
+
+            string normalizedTypeName = NormalizeDisplayTypeName(dataType.Name);
+            foreach (UserDefinedDataType item in uddts)
+            {
+                string normalizedItemName = NormalizeDisplayTypeName(item.Name);
+                if (string.Equals(normalizedTypeName, normalizedItemName, StringComparison.OrdinalIgnoreCase)
+                    || normalizedTypeName.EndsWith($".{normalizedItemName}", StringComparison.OrdinalIgnoreCase))
                 {
-                    case SqlDataType.Char:
-                    case SqlDataType.NChar:
-                    case SqlDataType.Binary:
-                    case SqlDataType.VarChar:
-                    case SqlDataType.NVarChar:
-                    case SqlDataType.VarBinary:
-                        typeName += $"({dataType.MaximumLength})";
-                        break;
-                    case SqlDataType.Numeric:
-                    case SqlDataType.Decimal:
-                        typeName += $"({dataType.NumericPrecision},{dataType.NumericScale})";
-                        break;
-                    case SqlDataType.DateTime2:
-                    case SqlDataType.Time:
-                    case SqlDataType.DateTimeOffset:
-                        typeName += $"({dataType.NumericScale})";
-                        break;
-                    case SqlDataType.VarBinaryMax:
-                    case SqlDataType.NVarCharMax:
-                    case SqlDataType.VarCharMax:
-                        typeName += "(max)";
-                        break;
-                    case SqlDataType.Vector:
-                        typeName += $"({dataType.VectorDimensions})";
-                        break;
+                    return NormalizeDisplayTypeName(item.SystemType);
                 }
             }
-            return typeName;
+
+            return string.Empty;
+        }
+
+        private static string NormalizeDisplayTypeName(string typeName)
+        {
+            if (string.IsNullOrWhiteSpace(typeName))
+            {
+                return string.Empty;
+            }
+
+            if (typeName.IndexOf('[') < 0)
+            {
+                return typeName;
+            }
+
+            List<string> nameParts = new List<string>();
+            int searchIndex = 0;
+            while (searchIndex < typeName.Length)
+            {
+                int start = typeName.IndexOf('[', searchIndex);
+                if (start < 0)
+                {
+                    break;
+                }
+
+                int end = typeName.IndexOf(']', start + 1);
+                if (end < 0)
+                {
+                    break;
+                }
+
+                nameParts.Add(typeName.Substring(start + 1, end - start - 1));
+                searchIndex = end + 1;
+            }
+
+            return nameParts.Count > 0
+                ? string.Join(".", nameParts)
+                : typeName.Replace("[", string.Empty)
+                    .Replace("]", string.Empty);
+        }
+
+        private static string GetOptionalPropertyString(object target, string propertyName)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var property = target.GetType().GetProperty(propertyName);
+            object value = property?.GetValue(target);
+            return value == null
+                ? null
+                : Convert.ToString(value, CultureInfo.InvariantCulture);
+        }
+
+        private static T? GetOptionalEnumValue<T>(object target, string propertyName) where T : struct
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var property = target.GetType().GetProperty(propertyName);
+            object value = property?.GetValue(target);
+            if (value == null)
+            {
+                return null;
+            }
+
+            if (value is T typedValue)
+            {
+                return typedValue;
+            }
+
+            string stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+            if (Enum.TryParse(stringValue, out T parsedValue))
+            {
+                return parsedValue;
+            }
+
+            return null;
         }
 
         private static string GetKeyString(Column column)
@@ -246,7 +491,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             string label = column.Name;
 
             // Get the column type
-            string columnType = GetTypeSpecifierLabel(column.DataType, uddts);
+            string columnType = GetTypeSpecifierLabel(column, uddts);
             string keyString = GetKeyString(column);
 
             if (keyString != null && !string.IsNullOrWhiteSpace(columnType))
@@ -284,7 +529,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             string isNullable = column.Nullable ? SR.SchemaHierarchy_NullColumn_Label : SR.SchemaHierarchy_NotNullColumn_Label;
 
             // Get the column type
-            string columnType = GetTypeSpecifierLabel(column.DataType, uddts);
+            string columnType = GetTypeSpecifierLabel(column, uddts);
 
             string keyString = GetKeyString(column);
 
@@ -327,13 +572,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             string keyString = GetKeyString(column);
 
             // Get the column type
-            columnType = GetTypeSpecifierLabel(column.DataType, uddts);
+            columnType = GetTypeSpecifierLabel(column, uddts);
 
             if (!string.IsNullOrWhiteSpace(columnType))
             {
                 if (column.Parent is View)
                 {
-                    // View columns are always computed, but SSMS shows then as never computed, so
+                    // View columns are always computed, but Object Explorer shows them as regular columns, so
                     // treat them as simple columns
                     return string.Format(CultureInfo.InvariantCulture,
                                             SimpleColumnLabelWithType,

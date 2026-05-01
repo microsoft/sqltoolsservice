@@ -11,6 +11,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
     public class SmoColumnCustomNodeHelperTests
     {
+        private sealed class TypeLabelTestCase
+        {
+            public string TypeName { get; init; } = null!;
+            public string? SystemTypeName { get; init; }
+            public int? MaximumLength { get; init; }
+            public int? NumericPrecision { get; init; }
+            public int? NumericScale { get; init; }
+            public string? XmlSchemaNamespaceSchema { get; init; }
+            public string? XmlSchemaNamespace { get; init; }
+            public XmlDocumentConstraint? XmlDocumentConstraint { get; init; }
+            public int? VectorDimensions { get; init; }
+            public string? VectorBaseType { get; init; }
+            public string Label { get; init; } = null!;
+        }
+
         [Test]
         public void ShouldCalculateTypeLabels()
         {
@@ -55,6 +70,61 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             foreach (var testCase in cases)
             {
                 string label = SmoColumnCustomNodeHelper.GetTypeSpecifierLabel(testCase.Type, uddts: null);
+                Assert.That(label, Is.EqualTo(testCase.Label), $"Expected label to be {testCase.Label}");
+            }
+        }
+
+        [Test]
+        public void ShouldFormatSpecialTypeLabels()
+        {
+            var cases = new[]
+            {
+                new TypeLabelTestCase
+                {
+                    TypeName = "[dbo].[Name]",
+                    SystemTypeName = "nvarchar",
+                    MaximumLength = 50,
+                    Label = "dbo.Name(nvarchar(50))"
+                },
+                new TypeLabelTestCase
+                {
+                    TypeName = "xml",
+                    SystemTypeName = null,
+                    XmlSchemaNamespaceSchema = "dbo",
+                    XmlSchemaNamespace = "ProductModelXmlSchema",
+                    XmlDocumentConstraint = Microsoft.SqlServer.Management.Smo.XmlDocumentConstraint.Document,
+                    Label = "XML(DOCUMENT dbo.ProductModelXmlSchema)"
+                },
+                new TypeLabelTestCase
+                {
+                    TypeName = "xml",
+                    SystemTypeName = null,
+                    Label = "XML"
+                },
+                new TypeLabelTestCase
+                {
+                    TypeName = "vector",
+                    SystemTypeName = null,
+                    VectorDimensions = 17,
+                    VectorBaseType = "float32",
+                    Label = "vector(17,float32)"
+                }
+            };
+
+            foreach (var testCase in cases)
+            {
+                string label = SmoColumnCustomNodeHelper.FormatTypeSpecifierLabel(
+                    testCase.TypeName,
+                    testCase.SystemTypeName,
+                    testCase.MaximumLength,
+                    testCase.NumericPrecision,
+                    testCase.NumericScale,
+                    testCase.XmlSchemaNamespaceSchema,
+                    testCase.XmlSchemaNamespace,
+                    testCase.XmlDocumentConstraint,
+                    testCase.VectorDimensions,
+                    testCase.VectorBaseType);
+
                 Assert.That(label, Is.EqualTo(testCase.Label), $"Expected label to be {testCase.Label}");
             }
         }
