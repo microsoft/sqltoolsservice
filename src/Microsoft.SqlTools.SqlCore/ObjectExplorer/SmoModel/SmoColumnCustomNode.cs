@@ -163,8 +163,13 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 return string.Empty;
             }
 
-            string typeName = NormalizeDisplayTypeName(dataType.Name);
-            string systemTypeName = GetUserDefinedSystemTypeName(dataType, uddts);
+            bool isXmlType = dataType.SqlDataType == SqlDataType.Xml;
+            string typeName = isXmlType ? "xml" : NormalizeDisplayTypeName(dataType.Name);
+            string systemTypeName = isXmlType ? string.Empty : GetUserDefinedSystemTypeName(dataType, uddts);
+            string xmlSchemaNamespaceSchema = isXmlType ? GetOptionalPropertyString(dataType, "Schema") : null;
+            string xmlSchemaNamespace = isXmlType
+                ? GetXmlCollectionDisplayName(dataType.Name, xmlSchemaNamespaceSchema)
+                : null;
 
             return FormatTypeSpecifierLabel(
                 typeName,
@@ -172,8 +177,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 dataType.MaximumLength,
                 dataType.NumericPrecision,
                 dataType.NumericScale,
-                null,
-                null,
+                xmlSchemaNamespaceSchema,
+                xmlSchemaNamespace,
                 null,
                 dataType.VectorDimensions,
                 GetOptionalPropertyString(dataType, "VectorBaseType"));
@@ -186,8 +191,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 return string.Empty;
             }
 
-            string typeName = NormalizeDisplayTypeName(column.DataType.Name);
-            string systemTypeName = NormalizeDisplayTypeName(GetOptionalPropertyString(column, "SystemType"));
+            bool isXmlType = column.DataType.SqlDataType == SqlDataType.Xml;
+            string typeName = isXmlType ? "xml" : NormalizeDisplayTypeName(column.DataType.Name);
+            string systemTypeName = isXmlType
+                ? string.Empty
+                : NormalizeDisplayTypeName(GetOptionalPropertyString(column, "SystemType"));
 
             if (string.IsNullOrWhiteSpace(systemTypeName))
             {
@@ -199,14 +207,26 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 systemTypeName = typeName;
             }
 
+            string xmlSchemaNamespaceSchema = GetOptionalPropertyString(column, "XmlSchemaNamespaceSchema");
+            if (string.IsNullOrWhiteSpace(xmlSchemaNamespaceSchema) && isXmlType)
+            {
+                xmlSchemaNamespaceSchema = GetOptionalPropertyString(column.DataType, "Schema");
+            }
+
+            string xmlSchemaNamespace = GetOptionalPropertyString(column, "XmlSchemaNamespace");
+            if (string.IsNullOrWhiteSpace(xmlSchemaNamespace) && isXmlType)
+            {
+                xmlSchemaNamespace = GetXmlCollectionDisplayName(column.DataType.Name, xmlSchemaNamespaceSchema);
+            }
+
             return FormatTypeSpecifierLabel(
                 typeName,
                 systemTypeName,
                 column.DataType.MaximumLength,
                 column.DataType.NumericPrecision,
                 column.DataType.NumericScale,
-                GetOptionalPropertyString(column, "XmlSchemaNamespaceSchema"),
-                GetOptionalPropertyString(column, "XmlSchemaNamespace"),
+                xmlSchemaNamespaceSchema,
+                xmlSchemaNamespace,
                 GetOptionalEnumValue<XmlDocumentConstraint>(column, "XmlDocumentConstraint"),
                 column.DataType.VectorDimensions,
                 GetOptionalPropertyString(column.DataType, "VectorBaseType") ?? GetOptionalPropertyString(column, "VectorBaseType"));
@@ -317,19 +337,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                     break;
                 case "xml":
                     if (!string.IsNullOrWhiteSpace(xmlSchemaNamespace)
-                        && !string.IsNullOrWhiteSpace(xmlSchemaNamespaceSchema)
-                        && xmlDocumentConstraint.HasValue)
+                        && !string.IsNullOrWhiteSpace(xmlSchemaNamespaceSchema))
                     {
-                        if (xmlDocumentConstraint.Value == XmlDocumentConstraint.Content)
-                        {
-                            return string.Format(
-                                CultureInfo.InvariantCulture,
-                                "XML({0}.{1})",
-                                xmlSchemaNamespaceSchema,
-                                xmlSchemaNamespace);
-                        }
-
-                        if (xmlDocumentConstraint.Value == XmlDocumentConstraint.Document)
+                        if (xmlDocumentConstraint.HasValue
+                            && xmlDocumentConstraint.Value == XmlDocumentConstraint.Document)
                         {
                             return string.Format(
                                 CultureInfo.InvariantCulture,
@@ -337,6 +348,12 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                                 xmlSchemaNamespaceSchema,
                                 xmlSchemaNamespace);
                         }
+
+                        return string.Format(
+                            CultureInfo.InvariantCulture,
+                            "XML({0}.{1})",
+                            xmlSchemaNamespaceSchema,
+                            xmlSchemaNamespace);
                     }
 
                     return "XML";
@@ -382,6 +399,24 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             }
 
             return string.Empty;
+        }
+
+        private static string GetXmlCollectionDisplayName(string typeName, string xmlSchemaNamespaceSchema)
+        {
+            string normalizedTypeName = NormalizeDisplayTypeName(typeName);
+            if (string.IsNullOrWhiteSpace(normalizedTypeName)
+                || string.Equals(normalizedTypeName, "xml", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(xmlSchemaNamespaceSchema)
+                && normalizedTypeName.StartsWith(xmlSchemaNamespaceSchema + ".", StringComparison.OrdinalIgnoreCase))
+            {
+                return normalizedTypeName.Substring(xmlSchemaNamespaceSchema.Length + 1);
+            }
+
+            return normalizedTypeName;
         }
 
         private static string NormalizeDisplayTypeName(string typeName)

@@ -99,6 +99,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 {
                     TypeName = "xml",
                     SystemTypeName = null,
+                    XmlSchemaNamespaceSchema = "dbo",
+                    XmlSchemaNamespace = "ProductModelXmlSchema",
+                    Label = "XML(dbo.ProductModelXmlSchema)"
+                },
+                new TypeLabelTestCase
+                {
+                    TypeName = "xml",
+                    SystemTypeName = null,
                     Label = "XML"
                 },
                 new TypeLabelTestCase
