@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable enable
+
 using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
@@ -17,6 +19,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     /// <para>
     /// The scope field is <c>DacQueryScopes.UserDefined</c> for project-defined schemas
     /// and <c>DacQueryScopes.BuiltIn</c> for system schemas (sys, INFORMATION_SCHEMA, dbo, guest, …).
+    /// Note: Object collections query BOTH scopes to include all objects (user + system) in the schema.
     /// </para>
     /// </summary>
     internal sealed class LazyModelSchema : ISchema
@@ -46,44 +49,45 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _scope    = scope;
 
             // Capture 'this' — safe because LazyCollection doesn't call back until enumerated.
+            // Query Default scope (UserDefined | BuiltIn) to get both user and system objects.
             _tables = new LazyCollection<ITable>(
-                () => model.GetObjects(_scope, ModelSchema.Table)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.Table)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelTable(this, o))
                            .Cast<ITable>());
 
             _views = new LazyCollection<IView>(
-                () => model.GetObjects(_scope, ModelSchema.View)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.View)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelView(this, o))
                            .Cast<IView>());
 
             _storedProcedures = new LazyCollection<IStoredProcedure>(
-                () => model.GetObjects(_scope, ModelSchema.Procedure)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.Procedure)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelStoredProcedure(this, o))
                            .Cast<IStoredProcedure>());
 
             _scalarValuedFunctions = new LazyCollection<IScalarValuedFunction>(
-                () => model.GetObjects(_scope, ModelSchema.ScalarFunction)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.ScalarFunction)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelScalarFunction(this, o))
                            .Cast<IScalarValuedFunction>());
 
             _tableValuedFunctions = new LazyCollection<ITableValuedFunction>(
-                () => model.GetObjects(_scope, ModelSchema.TableValuedFunction)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.TableValuedFunction)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelTableValuedFunction(this, o))
                            .Cast<ITableValuedFunction>());
 
             _userDefinedDataTypes = new LazyCollection<IUserDefinedDataType>(
-                () => model.GetObjects(_scope, ModelSchema.DataType)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.DataType)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelUserDefinedDataType(this, ObjectName(o)))
                            .Cast<IUserDefinedDataType>());
 
             _userDefinedTableTypes = new LazyCollection<IUserDefinedTableType>(
-                () => model.GetObjects(_scope, ModelSchema.TableType)
+                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.TableType)
                            .Where(o => Match(o))
                            .Select(o => new LazyModelUserDefinedTableType(this, ObjectName(o)))
                            .Cast<IUserDefinedTableType>());

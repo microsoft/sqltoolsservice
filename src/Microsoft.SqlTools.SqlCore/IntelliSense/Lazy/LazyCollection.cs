@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,8 +37,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         public int Count => _items.Value.Length;
 
+#pragma warning disable IDE0370 // Use 'System.Index' operator - null-forgiving needed for net8.0
         public T this[string name] => _items.Value.FirstOrDefault(
             i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase))!;
+#pragma warning restore IDE0370
 
         public bool Contains(string name) =>
             _items.Value.Any(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
@@ -81,8 +85,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public T this[int index] => _items.Value[index];
 
         // Name-based access (IMetadataCollection<T>)
+#pragma warning disable IDE0370 // Use 'System.Index' operator - null-forgiving needed for net8.0
         public T this[string name] => _items.Value.FirstOrDefault(
             i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase))!;
+#pragma warning restore IDE0370
 
         public bool Contains(string name) =>
             _items.Value.Any(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
