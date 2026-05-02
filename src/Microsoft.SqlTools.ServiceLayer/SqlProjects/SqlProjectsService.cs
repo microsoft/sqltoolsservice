@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
