@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         }
 
         public string Name => _name;
-        public bool IsSystemObject => false;
+        public bool IsSystemObject => _schema.IsSystemObject;
         public IDatabaseObject Parent => _schema;
         public ISchema Schema => _schema;
 

@@ -25,9 +25,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     ///   system catalog objects embedded in the DacFx assembly.
     /// </para>
     /// <para>
-    /// Construction is lazy: the constructor only creates the server/database shells.
-    /// Schema collections are built on first access; object and column collections within
-    /// each schema are built on first access within that schema.
+    /// Metadata collections are lazy-loaded: schema collections are built on first access;
+    /// object and column collections within each schema are built on first access.
+    /// The source location index is built eagerly at construction to enable instant
+    /// Go to Definition lookups without delays.
     /// </para>
     /// </summary>
     public sealed class LazySchemaModelMetadataProvider : MetadataProviderBase
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         /// <summary>
         /// Builds the source location index by scanning all user-defined objects in the model.
-        /// Called once during construction.
+        /// Called eagerly during construction to enable instant Go to Definition responses.
         /// </summary>
         private Dictionary<string, SourceInformation> BuildSourceLocationIndex()
         {
