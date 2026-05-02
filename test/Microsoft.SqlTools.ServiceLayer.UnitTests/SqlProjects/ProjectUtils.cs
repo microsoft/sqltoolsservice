@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             // Delete any existing project first to handle reruns
             DeleteTestProject(projectPath);
             
-            var project = SqlProject.CreateProjectAsync(projectPath).GetAwaiter().GetResult();
+            _ = SqlProject.CreateProjectAsync(projectPath).GetAwaiter().GetResult();
             return projectPath;
         }
 

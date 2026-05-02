@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -45,6 +46,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps Project URI to Project
         /// </summary>
         public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
+
+        /// <summary>
+        /// Maps project URI to its TSqlModel and MetadataProvider for offline IntelliSense.
+        /// Both must be disposed when the project is closed.
+        /// </summary>
+        private ConcurrentDictionary<string, (TSqlModel Model, LazySchemaModelMetadataProvider Provider)> projectIntelliSense = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -127,11 +134,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => Projects.TryRemove(requestParams.ProjectUri, out _), requestContext);
+            await RunWithErrorHandling(() =>
+            {
+                Projects.TryRemove(requestParams.ProjectUri, out _);
+                
+                // Dispose TSqlModel and provider to free memory
+                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
+                {
+                    intelliSense.Model?.Dispose();
+                }
+            }, requestContext);
         }
 
         /// <summary>
-        /// Builds the TSqlModel for a project and registers it with LanguageService for offline IntelliSense.
+        /// Builds the TSqlModel for a project and creates a MetadataProvider for offline IntelliSense.
+        /// Stores both in projectIntelliSense cache for disposal on project close.
         /// Runs on a background thread; errors do not affect the project open response.
         /// </summary>
         private async Task BuildProjectIntelliSenseAsync(string projectUri)
@@ -172,6 +189,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
                 var projectMetadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
 
+                // Store for disposal on project close
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider);
+                
                 var parseOptions = new ParseOptions(
                     batchSeparator: LanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
