@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         where T : class, IMetadataObject
     {
         private static readonly LazyCollection<T> s_empty =
-            new LazyCollection<T>(Array.Empty<T>);
+            new LazyCollection<T>(() => Array.Empty<T>());
 
         public static IMetadataCollection<T> Empty => s_empty;
 
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _items.Value.Where(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
 
         public IMetadataCollection<IMetadataObject> AsMetadataObjectCollection =>
-            new LazyCollection<IMetadataObject>(_items.Value.Cast<IMetadataObject>);
+            new LazyCollection<IMetadataObject>(() => _items.Value.Cast<IMetadataObject>());
 
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_items.Value).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => _items.Value.GetEnumerator();
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         where T : class, IMetadataObject
     {
         private static readonly LazyOrderedCollection<T> s_empty =
-            new LazyOrderedCollection<T>(Array.Empty<T>);
+            new LazyOrderedCollection<T>(() => Array.Empty<T>());
 
         public static IMetadataOrderedCollection<T> Empty => s_empty;
 
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _items.Value.Where(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
 
         public IMetadataCollection<IMetadataObject> AsMetadataObjectCollection =>
-            new LazyCollection<IMetadataObject>(_items.Value.Cast<IMetadataObject>);
+            new LazyCollection<IMetadataObject>(() => _items.Value.Cast<IMetadataObject>());
 
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_items.Value).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => _items.Value.GetEnumerator();

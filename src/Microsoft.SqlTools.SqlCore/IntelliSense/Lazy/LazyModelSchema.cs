@@ -17,9 +17,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     /// Lazy <see cref="ISchema"/> wrapper backed by <see cref="TSqlModel"/>.
     /// Each collection (Tables, Views, etc.) is populated on first access only.
     /// <para>
-    /// The scope field is <c>DacQueryScopes.UserDefined</c> for project-defined schemas
-    /// and <c>DacQueryScopes.BuiltIn</c> for system schemas (sys, INFORMATION_SCHEMA, dbo, guest, …).
-    /// Note: Object collections query BOTH scopes to include all objects (user + system) in the schema.
+    /// Object collections query both UserDefined and BuiltIn scopes separately, so each object
+    /// wrapper (LazyModelTable, etc.) knows its true scope regardless of which scope the schema
+    /// was originally created in. This correctly handles schemas like 'dbo' that exist in both scopes.
     /// </para>
     /// </summary>
     internal sealed class LazyModelSchema : ISchema
@@ -49,47 +49,40 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _scope    = scope;
 
             // Capture 'this' — safe because LazyCollection doesn't call back until enumerated.
-            // Query Default scope (UserDefined | BuiltIn) to get both user and system objects.
+            // Query UserDefined and BuiltIn separately so each object knows its true scope.
             _tables = new LazyCollection<ITable>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.Table)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelTable(this, o))
+                () => GetObjectsWithScope(model, ModelSchema.Table)
+                           .Select(pair => new LazyModelTable(this, pair.Object, pair.IsUserDefined))
                            .Cast<ITable>());
 
             _views = new LazyCollection<IView>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.View)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelView(this, o))
+                () => GetObjectsWithScope(model, ModelSchema.View)
+                           .Select(pair => new LazyModelView(this, pair.Object, pair.IsUserDefined))
                            .Cast<IView>());
 
             _storedProcedures = new LazyCollection<IStoredProcedure>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.Procedure)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelStoredProcedure(this, o))
+                () => GetObjectsWithScope(model, ModelSchema.Procedure)
+                           .Select(pair => new LazyModelStoredProcedure(this, pair.Object, pair.IsUserDefined))
                            .Cast<IStoredProcedure>());
 
             _scalarValuedFunctions = new LazyCollection<IScalarValuedFunction>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.ScalarFunction)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelScalarFunction(this, o))
+                () => GetObjectsWithScope(model, ModelSchema.ScalarFunction)
+                           .Select(pair => new LazyModelScalarFunction(this, pair.Object, pair.IsUserDefined))
                            .Cast<IScalarValuedFunction>());
 
             _tableValuedFunctions = new LazyCollection<ITableValuedFunction>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.TableValuedFunction)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelTableValuedFunction(this, o))
+                () => GetObjectsWithScope(model, ModelSchema.TableValuedFunction)
+                           .Select(pair => new LazyModelTableValuedFunction(this, pair.Object, pair.IsUserDefined))
                            .Cast<ITableValuedFunction>());
 
             _userDefinedDataTypes = new LazyCollection<IUserDefinedDataType>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.DataType)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelUserDefinedDataType(this, ObjectName(o)))
+                () => GetObjectsWithScope(model, ModelSchema.DataType)
+                           .Select(pair => new LazyModelUserDefinedDataType(this, ObjectName(pair.Object), pair.IsUserDefined))
                            .Cast<IUserDefinedDataType>());
 
             _userDefinedTableTypes = new LazyCollection<IUserDefinedTableType>(
-                () => model.GetObjects(DacQueryScopes.Default, ModelSchema.TableType)
-                           .Where(o => Match(o))
-                           .Select(o => new LazyModelUserDefinedTableType(this, ObjectName(o)))
+                () => GetObjectsWithScope(model, ModelSchema.TableType)
+                           .Select(pair => new LazyModelUserDefinedTableType(this, ObjectName(pair.Object), pair.IsUserDefined))
                            .Cast<IUserDefinedTableType>());
         }
 
@@ -122,6 +115,46 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
 
         // ── Helpers ──────────────────────────────────────────────────────
+        
+        /// <summary>
+        /// Helper struct to track an object and whether it's user-defined or built-in.
+        /// </summary>
+        private readonly struct ObjectWithScope
+        {
+            public readonly TSqlObject Object;
+            public readonly bool IsUserDefined;
+
+            public ObjectWithScope(TSqlObject obj, bool isUserDefined)
+            {
+                Object = obj;
+                IsUserDefined = isUserDefined;
+            }
+        }
+
+        /// <summary>
+        /// Gets objects from both UserDefined and BuiltIn scopes, tagging each with its source scope.
+        /// This allows objects to have the correct IsSystemObject value regardless of which scope
+        /// their parent schema was created in.
+        /// </summary>
+        private System.Collections.Generic.IEnumerable<ObjectWithScope> GetObjectsWithScope(
+            TSqlModel model, ModelTypeClass objectType)
+        {
+            // Query UserDefined first (user tables, procedures, etc.)
+            var userDefined = model.GetObjects(DacQueryScopes.UserDefined, objectType)
+                .Where(Match)
+                .Select(o => new ObjectWithScope(o, isUserDefined: true));
+
+            // Query BuiltIn (system catalog objects)
+            var builtIn = model.GetObjects(DacQueryScopes.BuiltIn, objectType)
+                .Where(Match)
+                .Select(o => new ObjectWithScope(o, isUserDefined: false));
+
+            // Combine both: UserDefined objects first, then BuiltIn objects
+            // If the same object exists in both scopes (unlikely for tables/views, but possible),
+            // UserDefined wins (appears first in enumeration).
+            return userDefined.Concat(builtIn);
+        }
+
         private bool Match(TSqlObject obj) =>
             obj.Name.Parts.Count >= 2 &&
             string.Equals(obj.Name.Parts[0], _name, System.StringComparison.OrdinalIgnoreCase);
