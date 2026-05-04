@@ -27,15 +27,17 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     {
         protected readonly LazyModelSchema _schema;
         protected readonly string _name;
+        private readonly bool _isUserDefined;
 
-        protected LazySchemaOwnedBase(LazyModelSchema schema, string name)
+        protected LazySchemaOwnedBase(LazyModelSchema schema, string name, bool isUserDefined)
         {
             _schema = schema;
             _name   = name;
+            _isUserDefined = isUserDefined;
         }
 
         public string Name => _name;
-        public bool IsSystemObject => _schema.IsSystemObject;
+        public bool IsSystemObject => !_isUserDefined;  // System objects are NOT user-defined
         public IDatabaseObject Parent => _schema;
         public ISchema Schema => _schema;
 
@@ -52,8 +54,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlObject _tableObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
 
-        public LazyModelTable(LazyModelSchema schema, TSqlObject tableObj)
-            : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1])
+        public LazyModelTable(LazyModelSchema schema, TSqlObject tableObj, bool isUserDefined)
+            : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1], isUserDefined)
         {
             _tableObj = tableObj;
         }
@@ -91,8 +93,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlObject _viewObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
 
-        public LazyModelView(LazyModelSchema schema, TSqlObject viewObj)
-            : base(schema, viewObj.Name.Parts[viewObj.Name.Parts.Count - 1])
+        public LazyModelView(LazyModelSchema schema, TSqlObject viewObj, bool isUserDefined)
+            : base(schema, viewObj.Name.Parts[viewObj.Name.Parts.Count - 1], isUserDefined)
         {
             _viewObj = viewObj;
         }
@@ -136,8 +138,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlObject _procObj;
         private IMetadataOrderedCollection<IParameter>? _parameters;
 
-        public LazyModelStoredProcedure(LazyModelSchema schema, TSqlObject procObj)
-            : base(schema, procObj.Name.Parts[procObj.Name.Parts.Count - 1])
+        public LazyModelStoredProcedure(LazyModelSchema schema, TSqlObject procObj, bool isUserDefined)
+            : base(schema, procObj.Name.Parts[procObj.Name.Parts.Count - 1], isUserDefined)
         {
             _procObj = procObj;
         }
@@ -178,8 +180,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlObject _fnObj;
         private IMetadataOrderedCollection<IParameter>? _parameters;
 
-        public LazyModelScalarFunction(LazyModelSchema schema, TSqlObject fnObj)
-            : base(schema, fnObj.Name.Parts[fnObj.Name.Parts.Count - 1])
+        public LazyModelScalarFunction(LazyModelSchema schema, TSqlObject fnObj, bool isUserDefined)
+            : base(schema, fnObj.Name.Parts[fnObj.Name.Parts.Count - 1], isUserDefined)
         {
             _fnObj = fnObj;
         }
@@ -230,8 +232,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private IMetadataOrderedCollection<IColumn>? _columns;
         private IMetadataOrderedCollection<IParameter>? _parameters;
 
-        public LazyModelTableValuedFunction(LazyModelSchema schema, TSqlObject fnObj)
-            : base(schema, fnObj.Name.Parts[fnObj.Name.Parts.Count - 1])
+        public LazyModelTableValuedFunction(LazyModelSchema schema, TSqlObject fnObj, bool isUserDefined)
+            : base(schema, fnObj.Name.Parts[fnObj.Name.Parts.Count - 1], isUserDefined)
         {
             _fnObj = fnObj;
         }
@@ -288,7 +290,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     // =========================================================================
     internal sealed class LazyModelUserDefinedDataType : LazySchemaOwnedBase, IUserDefinedDataType
     {
-        public LazyModelUserDefinedDataType(LazyModelSchema schema, string name) : base(schema, name) { }
+        public LazyModelUserDefinedDataType(LazyModelSchema schema, string name, bool isUserDefined)
+            : base(schema, name, isUserDefined) { }
 
         // IDataType
         public bool IsCursor => false;
@@ -319,7 +322,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     // =========================================================================
     internal sealed class LazyModelUserDefinedTableType : LazySchemaOwnedBase, IUserDefinedTableType
     {
-        public LazyModelUserDefinedTableType(LazyModelSchema schema, string name) : base(schema, name) { }
+        public LazyModelUserDefinedTableType(LazyModelSchema schema, string name, bool isUserDefined)
+            : base(schema, name, isUserDefined) { }
 
         // IDataType
         public bool IsCursor => false;
