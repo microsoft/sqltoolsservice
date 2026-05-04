@@ -157,6 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Null.Or.Empty);
             Assert.That(response.Script, Does.Contain($"DROP DATABASE [{databaseName}]"));
+            TestUtilities.AssertScriptUsesPlatformNewLines(response.Script);
 
             SqlTask dropTask = SqlTaskManager.Instance.Tasks.FirstOrDefault(task => task.TaskMetadata.OperationName == typeof(DropDatabaseOperation).Name && task.TaskMetadata.DatabaseName == databaseName);
             Assert.That(dropTask, Is.Null);
@@ -313,6 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             Assert.That(response.Script, Does.Contain($"ALTER DATABASE [{originalDatabaseName}] SET"));
             Assert.That(response.Script, Does.Contain("SINGLE_USER WITH ROLLBACK IMMEDIATE"));
             Assert.That(response.Script, Does.Contain($"ALTER DATABASE [{originalDatabaseName}] MODIFY NAME = [{renamedDatabaseName}]"));
+            TestUtilities.AssertScriptUsesPlatformNewLines(response.Script);
 
             SqlTask renameTask = SqlTaskManager.Instance.Tasks.FirstOrDefault(task => task.TaskMetadata.OperationName == "RenameDatabaseOperation" && task.TaskMetadata.DatabaseName == renamedDatabaseName);
             Assert.That(renameTask, Is.Null);

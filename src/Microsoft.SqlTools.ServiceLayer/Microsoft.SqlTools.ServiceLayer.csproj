@@ -69,7 +69,6 @@
     <PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
     <PackageReference Include="Microsoft.SqlPackage.Core" />
-    <PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
     <PackageReference Include="Microsoft.SqlServer.Prose.Import" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />

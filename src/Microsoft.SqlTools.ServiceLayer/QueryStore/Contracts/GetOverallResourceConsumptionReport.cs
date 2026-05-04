@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
+using Microsoft.SqlTools.SqlCore.Performance.OverallResourceConsumption;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable

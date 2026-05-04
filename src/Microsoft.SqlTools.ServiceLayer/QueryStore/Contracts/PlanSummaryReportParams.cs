@@ -5,10 +5,10 @@
 
 #nullable disable
 
-using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary;
+using Microsoft.SqlTools.SqlCore.Performance.Common;
+using Microsoft.SqlTools.SqlCore.Performance.PlanSummary;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using static Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary.PlanSummaryConfiguration;
+using static Microsoft.SqlTools.SqlCore.Performance.PlanSummary.PlanSummaryConfiguration;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {

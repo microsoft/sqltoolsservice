@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         internal static string SelectAllValuesFromTransmissionQueue(Urn urn)
         {
             string script = string.Empty;
+            string newLine = Environment.NewLine;
             StringBuilder selectQuery = new StringBuilder();
 
             /*
@@ -32,9 +33,14 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                  ELSE MESSAGE_BODY
               END
               FROM [new].[sys].[transmission_queue]
-             */
+            */
             selectQuery.Append("SELECT TOP (1000) ");
-            selectQuery.Append("*, casted_message_body = \r\nCASE message_type_name WHEN 'X' \r\n  THEN CAST(message_body AS NVARCHAR(MAX)) \r\n  ELSE message_body \r\nEND \r\n");
+            selectQuery.Append(
+                $"*, casted_message_body = {newLine}" +
+                $"CASE message_type_name WHEN 'X' {newLine}" +
+                $"  THEN CAST(message_body AS NVARCHAR(MAX)) {newLine}" +
+                $"  ELSE message_body {newLine}" +
+                $"END {newLine}");
 
             // from clause
             selectQuery.Append("FROM ");
@@ -65,9 +71,15 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         internal static string SelectAllValues(Urn urn)
         {
             string script = string.Empty;
+            string newLine = Environment.NewLine;
             StringBuilder selectQuery = new StringBuilder();
             selectQuery.Append("SELECT TOP (1000) ");
-            selectQuery.Append("*, casted_message_body = \r\nCASE message_type_name WHEN 'X' \r\n  THEN CAST(message_body AS NVARCHAR(MAX)) \r\n  ELSE message_body \r\nEND \r\n");
+            selectQuery.Append(
+                $"*, casted_message_body = {newLine}" +
+                $"CASE message_type_name WHEN 'X' {newLine}" +
+                $"  THEN CAST(message_body AS NVARCHAR(MAX)) {newLine}" +
+                $"  ELSE message_body {newLine}" +
+                $"END {newLine}");
 
             // from clause
             selectQuery.Append("FROM ");
@@ -199,6 +211,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         public static string SelectFromTableOrView(Server server, Urn urn, bool isDw)
         {
             DataTable dt = GetColumnNames(server, urn, isDw);
+            string newLine = Environment.NewLine;
             StringBuilder selectQuery = new StringBuilder();
 
             // build the first line
@@ -208,17 +221,19 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 selectQuery.Append("SELECT TOP (1000) ");
 
                 // first column
-                selectQuery.AppendFormat("{0}{1}{2}\r\n",
+                selectQuery.AppendFormat("{0}{1}{2}{3}",
                                          ScriptingGlobals.LeftDelimiter,
                                          QuoteObjectName(dt.Rows[0][0] as string ?? string.Empty, ScriptingGlobals.RightDelimiter),
-                                         ScriptingGlobals.RightDelimiter);
+                                         ScriptingGlobals.RightDelimiter,
+                                         newLine);
                 // add all other columns on separate lines. Make the names align.
                 for (int i = 1; i < dt.Rows.Count; i++)
                 {
-                    selectQuery.AppendFormat("      ,{0}{1}{2}\r\n",
+                    selectQuery.AppendFormat("      ,{0}{1}{2}{3}",
                                              ScriptingGlobals.LeftDelimiter,
                                              QuoteObjectName(dt.Rows[i][0] as string ?? string.Empty, ScriptingGlobals.RightDelimiter),
-                                             ScriptingGlobals.RightDelimiter);
+                                             ScriptingGlobals.RightDelimiter,
+                                             newLine);
                 }
             }
             else

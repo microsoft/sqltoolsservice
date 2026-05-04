@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
+using Microsoft.SqlTools.SqlCore.Performance.TopResourceConsumers;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable

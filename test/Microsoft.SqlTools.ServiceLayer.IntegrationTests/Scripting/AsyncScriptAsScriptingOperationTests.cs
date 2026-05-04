@@ -138,6 +138,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Assert.That(actualScript, Does.Contain(expectedStr));
             }
 
+            if (scriptingParams.Operation == ScriptingOperationType.Select)
+            {
+                TestUtilities.AssertScriptUsesPlatformNewLines(actualScript);
+            }
+
             await testDb.CleanupAsync();
         }
     }

@@ -7,7 +7,6 @@
     <Authors>Microsoft</Authors>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <HighEntropyVA>true</HighEntropyVA>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <RootDir>$(MSBuildThisFileDirectory)</RootDir>
 
     <SqlToolsServiceDotNetVersion Condition="'$(SqlToolsServiceDotNetVersion)' == ''">net10.0</SqlToolsServiceDotNetVersion>
