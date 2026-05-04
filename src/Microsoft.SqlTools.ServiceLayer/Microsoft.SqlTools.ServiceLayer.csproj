@@ -17,7 +17,7 @@
     <!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
     <!-- IDE0390/IDE0391: async methods without await — intentional for interface implementations and handler stubs -->
     <NoWarn>$(NoWarn);CS8795;IDE0390;IDE0391</NoWarn>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
     <RollForward>Major</RollForward>
   </PropertyGroup>
 
@@ -69,7 +69,6 @@
     <PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
     <PackageReference Include="Microsoft.SqlPackage.Core" />
-    <PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel" />
     <PackageReference Include="Microsoft.SqlServer.Prose.Import" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />

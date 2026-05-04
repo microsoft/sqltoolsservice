@@ -412,8 +412,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsMgr);
 
                 // missing index template
-                const string createIndexTemplate = "CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]\r\nON {0}.{1} ({2})\r\n";
-                const string addIndexTemplate = "ALTER TABLE {0}.{1}\r\nADD INDEX [<Name of Missing Index, sysname,>]\r\nNONCLUSTERED ({2})\r\n";
+                string createIndexTemplate = $"CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]{Environment.NewLine}ON {{0}}.{{1}} ({{2}}){Environment.NewLine}";
+                string addIndexTemplate = $"ALTER TABLE {{0}}.{{1}}{Environment.NewLine}ADD INDEX [<Name of Missing Index, sysname,>]{Environment.NewLine}NONCLUSTERED ({{2}}){Environment.NewLine}";
                 const string includeTemplate = "INCLUDE ({0})";
 
                 // iterating over all missing index groups

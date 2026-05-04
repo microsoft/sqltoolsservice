@@ -428,7 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 for (int i = 0; i < sc.Count; i ++)
                 {
-                    script.AppendFormat("{0}\r\nGO\r\n", sc[i].ToString());
+                    script.AppendFormat("{0}{1}GO{1}", sc[i].ToString(), Environment.NewLine);
                 }
             }
 

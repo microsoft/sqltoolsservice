@@ -123,6 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var script = await ObjectManagementTestUtils.ScriptObject(parametersForCreation, testDatabase);
                     Assert.That(DatabaseExists(testDatabase.Name, server), Is.False, $"Database should not have been created for scripting operation");
                     Assert.That(script.ToLowerInvariant(), Does.Contain($"create database [{testDatabase.Name.ToLowerInvariant()}]"));
+                    TestUtilities.AssertScriptUsesPlatformNewLines(script);
                 }
                 finally
                 {
@@ -930,5 +931,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 }
             }
         }
+
     }
 }
