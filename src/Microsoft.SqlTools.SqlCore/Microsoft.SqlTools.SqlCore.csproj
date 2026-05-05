@@ -21,6 +21,7 @@
 		<LangVersion>9.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
 		<Version>1.0.0</Version>
+		<VersionSuffix>preview</VersionSuffix>
 		<!-- Suppress CA1852 (Seal internal types) for the SSMS target framework since InternalsVisibleTo is
 		     excluded for signed builds, causing false positives on types visible to test projects -->
 		<NoWarn Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">$(NoWarn);CA1852</NoWarn>
