@@ -90,7 +90,7 @@ steps:
     $baseVersion = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber)
     
     if ($hasPreview) {
-      $version = $baseVersion + '-' + $propGroup.VersionSuffix.'#text'
+      $version = $baseVersion + '-preview'
       Write-Host "##[warning]SqlCore has preview dependencies - package version: $version"
     } else {
       $version = $baseVersion
