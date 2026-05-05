@@ -79,7 +79,7 @@ steps:
     $projectFile = '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
     $props = New-Object XML
     $props.Load($projectFile)
-    $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
+    $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber) + '-preview';
     $props.Project.PropertyGroup.Version = $version;
     $props.Save($projectFile)
   displayName: 'Add version number to SqlCore project for packaging'

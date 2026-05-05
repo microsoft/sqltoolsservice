@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IDatabasePrincipal? Owner => null;
 
         // ── Visitor pattern ──────────────────────────────────────────────
-        public T Accept<T>(ISchemaOwnedObjectVisitor<T> visitor) => throw new System.NotImplementedException("Schema is not schema-owned.");
+        public T Accept<T>(ISchemaOwnedObjectVisitor<T> visitor) => default(T)!;
         public T Accept<T>(IDatabaseOwnedObjectVisitor<T> visitor) => visitor.Visit(this);
         public T Accept<T>(IDatabaseObjectVisitor<T> visitor) => Accept((IDatabaseOwnedObjectVisitor<T>)visitor);
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
