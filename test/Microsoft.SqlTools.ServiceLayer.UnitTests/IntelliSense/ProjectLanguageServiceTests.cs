@@ -268,6 +268,106 @@ END
         }
 
         /// <summary>
+        /// Test Go to Definition with a schema whose name contains a dot (e.g. [SwaggerPetstore.Models]).
+        /// The SqlParser Resolver returns DatabaseQualifiedName = "ProjectDB.SwaggerPetstore.Models.Get0ItemsItem"
+        /// and QueueProjectDefinition must try the full name before stripping the first segment,
+        /// otherwise the source index lookup fails because the key is "SwaggerPetstore.Models.Get0ItemsItem".
+        /// </summary>
+        [Test]
+        public void GoToDefinition_FindsTableDefinitionWithDottedSchemaName()
+        {
+            // Arrange: Create a fresh project with a dotted schema and a table in that schema
+            string projectPath = ProjectUtils.CreateTestProject("DottedSchemaProject");
+            var project = SqlProject.OpenProject(projectPath);
+
+            project.SqlObjectScripts.Add(
+                new SqlObjectScript("Schemas\\SwaggerPetstoreModels.sql"),
+                "CREATE SCHEMA [SwaggerPetstore.Models];");
+
+            string tableScript = @"
+CREATE TABLE [SwaggerPetstore.Models].[Get0ItemsItem] (
+    Id INT PRIMARY KEY,
+    Name NVARCHAR(100)
+);
+";
+            project.SqlObjectScripts.Add(
+                new SqlObjectScript("Tables\\Get0ItemsItem.sql"),
+                tableScript);
+
+            string spScript = @"
+CREATE PROCEDURE [SwaggerPetstore.Models].[GetItem]
+    @Id INT
+AS
+BEGIN
+    SELECT Id, Name
+    FROM [SwaggerPetstore.Models].[Get0ItemsItem]
+    WHERE Id = @Id;
+END
+";
+            project.SqlObjectScripts.Add(
+                new SqlObjectScript("StoredProcedures\\GetItem.sql"),
+                spScript);
+
+            TSqlModel model = null;
+            try
+            {
+                string databaseName = Path.GetFileNameWithoutExtension(projectPath);
+                model = TSqlModelBuilder.LoadModel(project);
+                var metadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
+
+                var parseOptions = new ParseOptions(
+                    batchSeparator: "GO",
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                var langService = new LanguageService();
+                var workspaceService = new WorkspaceService<SqlToolsSettings>();
+                workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+                langService.WorkspaceServiceInstance = workspaceService;
+
+                string projectUri = new Uri(projectPath).AbsoluteUri;
+                string contextKey = $"project_{projectPath}";
+
+                langService.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, metadataProvider, parseOptions, databaseName)
+                    .GetAwaiter().GetResult();
+
+                // Set up the SP file in the workspace
+                string projectDir = Path.GetDirectoryName(projectPath);
+                string spFilePath = Path.Combine(projectDir, "StoredProcedures", "GetItem.sql");
+                string spFileUri = new Uri(spFilePath).AbsoluteUri;
+
+                var scriptFile = workspaceService.Workspace.GetFileBuffer(spFileUri, spScript);
+                langService.InitializeProjectFileContexts(new[] { spFileUri }, contextKey, databaseName);
+
+                // Position cursor on "Get0ItemsItem" in the FROM clause (line 5, "    FROM [SwaggerPetstore.Models].[Get0ItemsItem]")
+                // Line 4 (0-based), character 38 — inside [Get0ItemsItem]
+                var textPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = spFileUri },
+                    Position = new Position { Line = 4, Character = 38 }
+                };
+
+                // Act
+                DefinitionResult result = langService.GetDefinition(textPosition, scriptFile, connInfo: null);
+
+                // Assert: Must succeed and point to Get0ItemsItem.sql
+                Assert.IsNotNull(result, "Definition result should not be null");
+                Assert.IsFalse(result.IsErrorResult, $"Should not have error. Message: {result.Message}");
+                Assert.IsNotNull(result.Locations, "Locations should not be null");
+                Assert.Greater(result.Locations.Length, 0, "Should find at least one location");
+                Assert.IsTrue(result.Locations[0].Uri.Contains("Get0ItemsItem.sql"),
+                    $"Definition should point to Get0ItemsItem.sql. Got: {result.Locations[0].Uri}");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
         /// Test that multiple files can share the same project context
         /// </summary>
         [Test]

@@ -22,7 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
         public void TestCreateMetadataProviderFromSqlProject()
         {
             // Arrange: Create a test SQL project with some tables and stored procedures
-            string projectPath = ProjectUtils.CreateTestProject("TestMetadataProject");
+            // Use unique project name per test run to avoid cross-test interference
+            string projectPath = ProjectUtils.CreateTestProject();
             var project = SqlProject.OpenProject(projectPath);
 
             // Add explicit schema creation so dbo exists in UserDefined scope

@@ -1658,11 +1658,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (match?.DatabaseQualifiedName == null)
                             return CreateErrorResult(SR.PeekDefinitionNoResultsError);
 
-                        // Step 3: Strip database prefix: "master.dbo.Orders" → "dbo.Orders"
-                        string qualifiedName = StripDatabasePrefix(match.DatabaseQualifiedName);
-
-                        // Step 4: Get source information from metadata provider
-                        if (lazyProvider.TryGetSourceInformation(qualifiedName, out var sourceInfo) && sourceInfo?.SourceName != null)
+                        // Step 4: Get source information from metadata provider.
+                        // Try the full DatabaseQualifiedName first — this handles schemas whose names contain
+                        // dots (e.g. [SwaggerPetstore.Models].[Get0ItemsItem]) where the index key is
+                        // "SwaggerPetstore.Models.Get0ItemsItem". Fall back to stripping the database prefix
+                        // for the normal case (e.g. "ProjectDB.dbo.Orders" → "dbo.Orders").
+                        if (!lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out var sourceInfo) || sourceInfo?.SourceName == null)
+                        {
+                            string stripped = StripDatabasePrefix(match.DatabaseQualifiedName);
+                            lazyProvider.TryGetSourceInformation(stripped, out sourceInfo);
+                        }
+                        if (sourceInfo?.SourceName != null)
                         {
                             string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
                             return new DefinitionResult
