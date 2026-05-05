@@ -6,15 +6,19 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
@@ -39,6 +43,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps Project URI to Project
         /// </summary>
         public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
+
+        /// <summary>
+        /// Maps project URI to its TSqlModel and MetadataProvider for offline IntelliSense.
+        /// Both must be disposed when the project is closed.
+        /// </summary>
+        private ConcurrentDictionary<string, (TSqlModel Model, LazySchemaModelMetadataProvider Provider)> projectIntelliSense = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -114,11 +124,52 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
+            // Kick off async IntelliSense model build so .sql files in this project get completions
+            // without a live server connection. Fire-and-forget: errors are logged inside.
+            _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri));
         }
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => Projects.TryRemove(requestParams.ProjectUri, out _), requestContext);
+            await RunWithErrorHandling(() =>
+            {
+                Projects.TryRemove(requestParams.ProjectUri, out _);
+                
+                // Dispose TSqlModel and provider to free memory
+                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
+                {
+                    intelliSense.Model?.Dispose();
+                }
+            }, requestContext);
+        }
+
+        /// <summary>
+        /// Builds the TSqlModel for a project and creates a MetadataProvider for offline IntelliSense.
+        /// Stores both in projectIntelliSense cache for disposal on project close.
+        /// Runs on a background thread; errors do not affect the project open response.
+        /// </summary>
+        private async Task BuildProjectIntelliSenseAsync(string projectUri)
+        {
+            try
+            {
+                SqlProject project = GetProject(projectUri);
+                string databaseName = Path.GetFileNameWithoutExtension(projectUri);
+
+                // Build TSqlModel from project's SQL scripts
+                var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+                
+                // Create MetadataProvider for offline IntelliSense
+                var projectMetadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
+                
+                // Store for disposal on project close
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider);
+                
+                // TODO: Register provider with LanguageService in follow-up PR
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
+            }
         }
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)

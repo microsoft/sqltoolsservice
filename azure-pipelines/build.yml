@@ -76,13 +76,30 @@ steps:
   displayName: 'Restore .NET tools'
 
 - pwsh: |
+    # Detect if SqlCore has preview dependencies to determine package version suffix
     $projectFile = '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
     $props = New-Object XML
     $props.Load($projectFile)
-    $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
-    $props.Project.PropertyGroup.Version = $version;
+    $propGroup = $props.Project.PropertyGroup
+    
+    cd '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.SqlCore'
+    $packages = dotnet list package --include-transitive
+    $hasPreview = ($packages | Select-String "-preview").Count -gt 0
+    
+    # Build version number
+    $baseVersion = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber)
+    
+    if ($hasPreview) {
+      $version = $baseVersion + '-preview'
+      Write-Host "##[warning]SqlCore has preview dependencies - package version: $version"
+    } else {
+      $version = $baseVersion
+      Write-Host "SqlCore has stable dependencies - package version: $version"
+    }
+    
+    $props.Project.PropertyGroup.Version = $version
     $props.Save($projectFile)
-  displayName: 'Add version number to SqlCore project for packaging'
+  displayName: 'Set SqlCore package version based on dependencies'
 
 - task: CodeQL3000Init@0
   displayName: 'CodeQL Initialize'
