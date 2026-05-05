@@ -37,8 +37,17 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         public int Count => _items.Value.Length;
 
-        public T this[string name] =>
-            _items.Value.FirstOrDefault(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
+        public T this[string name]
+        {
+            get
+            {
+                var item = _items.Value.FirstOrDefault(
+                    i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (item == null)
+                    throw new KeyNotFoundException($"Item with name '{name}' not found in collection.");
+                return item;
+            }
+        }
 
         public bool Contains(string name) =>
             _items.Value.Any(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
@@ -83,8 +92,17 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public T this[int index] => _items.Value[index];
 
         // Name-based access (IMetadataCollection<T>)
-        public T this[string name] =>
-            _items.Value.FirstOrDefault(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
+        public T this[string name]
+        {
+            get
+            {
+                var item = _items.Value.FirstOrDefault(
+                    i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (item == null)
+                    throw new KeyNotFoundException($"Item with name '{name}' not found in collection.");
+                return item;
+            }
+        }
 
         public bool Contains(string name) =>
             _items.Value.Any(i => string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase));
