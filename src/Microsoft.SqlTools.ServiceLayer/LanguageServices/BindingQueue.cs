@@ -332,6 +332,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool lockTaken = false;
             try
             {
+                if (queueItem.IsCancellationRequested)
+                {
+                    queueItem.ItemProcessed.Set();
+                    return;
+                }
+
                 // prefer the queue item binding item, otherwise use the context default timeout - timeout is in milliseconds
                 int bindTimeoutInMs = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
 
@@ -361,7 +367,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // execute the binding operation
                 object result = null;
-                CancellationTokenSource cancelToken = new CancellationTokenSource();
+                CancellationTokenSource timeoutCancellationTokenSource = new CancellationTokenSource();
+                CancellationTokenSource cancelToken = CancellationTokenSource.CreateLinkedTokenSource(
+                    timeoutCancellationTokenSource.Token,
+                    queueItem.CancellationToken);
 
                 // run the operation in a separate thread
                 var bindTask = Task.Run(() =>
@@ -402,15 +411,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         // check if the binding tasks completed within the binding timeout                           
-                        if (bindTask.Wait(bindTimeoutInMs))
+                        Task completedTask = Task.WhenAny(
+                            bindTask,
+                            Task.Delay(bindTimeoutInMs),
+                            Task.Delay(Timeout.Infinite, queueItem.CancellationToken)).GetAwaiter().GetResult();
+                        if (completedTask == bindTask)
                         {
                             queueItem.Result = result;
                         }
                         else
                         {
-                            cancelToken.Cancel();
+                            timeoutCancellationTokenSource.Cancel();
                             // if the task didn't complete then call the timeout callback
-                            if (queueItem.TimeoutOperation != null)
+                            if (!queueItem.IsCancellationRequested && queueItem.TimeoutOperation != null)
                             {
                                 queueItem.Result = queueItem.TimeoutOperation(bindingContext);
                             }
@@ -430,6 +443,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             bindingContext.BindingLock.Set();
                         }
+                        cancelToken.Dispose();
+                        timeoutCancellationTokenSource.Dispose();
                         queueItem.ItemProcessed.Set();
                     }
                 });

@@ -173,6 +173,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
         [Test]
+        public async Task CancelTaskGivenUnknownTaskShouldReturnFalse()
+        {
+            bool result = true;
+            var contextMock = RequestContextMocks.Create<bool>(r => result = r).AddErrorHandling(null);
+
+            await service.HandleCancelTaskRequest(new CancelObjectExplorerTaskParams()
+            {
+                TaskId = "missing-task"
+            }, contextMock.Object);
+
+            Assert.False(result);
+        }
+
+        [Test]
         public async Task ExpandNodeGivenInvalidSessionShouldReturnEmptyList()
         {
             ExpandParams expandParams = new ExpandParams()

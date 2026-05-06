@@ -53,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
+        private readonly ObjectExplorerTaskManager taskManager = new();
 
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
@@ -127,6 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest, true);
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest, true);
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest, true);
+            serviceHost.SetRequestHandler(CancelObjectExplorerTaskRequest.Type, HandleCancelTaskRequest, true);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest, true);
             serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest, true);
             serviceHost.SetRequestHandler(GetSessionIdRequest.Type, HandleGetSessionIdRequest, true);
@@ -258,6 +260,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             await context.SendResult(true);
         }
 
+        internal async Task HandleCancelTaskRequest(CancelObjectExplorerTaskParams cancelParams, RequestContext<bool> context)
+        {
+            Logger.Verbose("HandleCancelTaskRequest");
+            Func<Task<bool>> cancelTask = () =>
+            {
+                Validate.IsNotNull(nameof(cancelParams), cancelParams);
+                Validate.IsNotNull(nameof(context), context);
+
+                string taskId = ResolveTaskId(cancelParams);
+                bool canceled = taskManager.Cancel(taskId);
+                return Task.FromResult(canceled);
+            };
+
+            await HandleRequestAsync(cancelTask, context, nameof(HandleCancelTaskRequest));
+        }
+
         internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
         {
 
@@ -319,20 +337,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
         }
 
+        private static string CreateSessionTaskId(string sessionId)
+        {
+            return $"createSession:{sessionId}";
+        }
+
+        private static string ResolveTaskId(ExpandParams expandParams)
+        {
+            return !string.IsNullOrWhiteSpace(expandParams.TaskId)
+                ? expandParams.TaskId
+                : $"expand:{expandParams.SessionId}:{expandParams.NodePath}";
+        }
+
+        private static string ResolveTaskId(CancelObjectExplorerTaskParams cancelParams)
+        {
+            return !string.IsNullOrWhiteSpace(cancelParams.TaskId)
+                ? cancelParams.TaskId
+                : !string.IsNullOrWhiteSpace(cancelParams.NodePath)
+                    ? $"expand:{cancelParams.SessionId}:{cancelParams.NodePath}"
+                    : CreateSessionTaskId(cancelParams.SessionId);
+        }
+
         private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
             Logger.Information("Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {
+                string taskId = CreateSessionTaskId(uri);
+                taskManager.Register(taskId, cancellationTokenSource, () =>
+                {
+                    connectionService.CancelConnect(new CancelConnectParams()
+                    {
+                        OwnerUri = uri,
+                        Type = Connection.ConnectionType.ObjectExplorer
+                    });
+                    return Task.CompletedTask;
+                });
                 Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
                 CreateSessionTask = task;
                 Task.Run(async () =>
                 {
                     ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
-                        settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
+                        settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout,
+                        cancellationTokenSource.Token);
 
-                    if (result != null && !result.IsSuccessful)
+                    if (result != null && !result.IsSuccessful && !result.IsCanceled)
                     {
                         cancellationTokenSource.Cancel();
                         SessionCreatedParameters response = new SessionCreatedParameters
@@ -345,6 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         };
                         await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                     }
+                    CompleteTaskWhenDone(taskId, task);
                     return result;
                 }).ContinueWithOnFaulted(null);
             }
@@ -365,7 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (!sessionMap.TryGetValue(uri, out session))
             {
                 // Establish a connection to the specified server/database
-                session = await DoCreateSession(connectionDetails, uri);
+                session = await DoCreateSession(connectionDetails, uri, cancellationToken);
             }
 
             SessionCreatedParameters response;
@@ -387,12 +438,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null, CancellationToken cancellationToken = default)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters, cancellationToken));
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null, CancellationToken cancellationToken = default)
         {
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
@@ -427,7 +478,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 Logger.Verbose($"No node returned from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = string.Empty, SessionId = session.Uri, NodePath = nodePath };
-                response.Nodes = new NodeInfo[0];
                 return response;
             }
             else
@@ -466,7 +516,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    }
                                }
 
-
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
@@ -488,7 +537,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                        nodes = new NodeInfo[] { errorNode };
                                    }
                                }
-                               response.Nodes = nodes;
+                               if (nodes != null)
+                               {
+                                   response.Nodes = nodes ?? new NodeInfo[] { };
+                               }
                                response.ErrorMessage = node.ErrorMessage;
                                try
                                {
@@ -506,7 +558,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return response;
                            });
                     Logger.Verbose($"Queuing binding operation for {nodePath}");
-                    queueItem.ItemProcessed.WaitOne();
+                    using (cancellationToken.Register(() => queueItem.Cancel()))
+                    {
+                        WaitHandle.WaitAny(new WaitHandle[] { queueItem.ItemProcessed, cancellationToken.WaitHandle });
+                    }
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return response;
+                    }
                     Logger.Verbose($"Done with binding operation for {nodePath}");
                     if (queueItem.GetResultAsT<ExpandResponse>() != null)
                     {
@@ -530,6 +589,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <returns><see cref="ObjectExplorerSession"/> object if successful, null if unsuccessful</returns>
         internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
         {
+            return await DoCreateSession(connectionDetails, uri, CancellationToken.None);
+        }
+
+        internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri, CancellationToken cancellationToken)
+        {
             try
             {
                 ObjectExplorerSession session = null;
@@ -538,7 +602,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
 
                 ConnectionInfo connectionInfo;
-                ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
+                ConnectionCompleteParams connectionResult = await Connect(connectParams, uri, cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 if (!connectionService.TryFindConnection(uri, out connectionInfo))
                 {
                     return null;
@@ -567,7 +635,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return session;
                            });
 
-                queueItem.ItemProcessed.WaitOne();
+                using (cancellationToken.Register(() => queueItem.Cancel()))
+                {
+                    WaitHandle.WaitAny(new WaitHandle[] { queueItem.ItemProcessed, cancellationToken.WaitHandle });
+                }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
                 {
                     session = queueItem.GetResultAsT<ObjectExplorerSession>();
@@ -576,6 +651,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception ex)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 int? errorCode = ex is SqlException sqlEx ? sqlEx.ErrorCode : null;
                 await SendSessionFailedNotification(uri, ex.Message, errorCode);
                 return null;
@@ -584,11 +663,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
+            return await Connect(connectParams, uri, CancellationToken.None);
+        }
+
+        private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri, CancellationToken cancellationToken)
+        {
             string connectionErrorMessage = string.Empty;
             try
             {
                 // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}" : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {
@@ -603,6 +691,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception ex)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 int? errorNum = ex is SqlException sqlEx ? sqlEx.Number : null;
                 await SendSessionFailedNotification(uri, ex.ToString(), errorNum);
                 return null;
@@ -637,36 +729,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            string taskId = ResolveTaskId(expandParams);
+            taskManager.Register(taskId, cancellationTokenSource);
             Task task = ExpandNodeAsync(session, expandParams, cancellationTokenSource.Token, forceRefresh);
             ExpandTask = task;
             Task.Run(async () =>
             {
                 ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
-                    settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
+                    settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout,
+                    cancellationTokenSource.Token);
 
-                if (result != null && !result.IsSuccessful)
+                if (result != null && !result.IsSuccessful && !result.IsCanceled)
                 {
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
                     response.ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
+                CompleteTaskWhenDone(taskId, task);
                 return result;
             }).ContinueWithOnFaulted(null);
         }
 
-        private async Task<ObjectExplorerTaskResult> RunTaskWithTimeout(Task task, int timeoutInSec)
+        private void CompleteTaskWhenDone(string taskId, Task task)
+        {
+            if (task.IsCompleted)
+            {
+                taskManager.Complete(taskId);
+                return;
+            }
+
+            task.ContinueWith(_ => taskManager.Complete(taskId), TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        private async Task<ObjectExplorerTaskResult> RunTaskWithTimeout(Task task, int timeoutInSec, CancellationToken cancellationToken = default)
         {
             ObjectExplorerTaskResult result = new ObjectExplorerTaskResult();
             TimeSpan timeout = TimeSpan.FromSeconds(timeoutInSec);
-            await Task.WhenAny(task, Task.Delay(timeout));
-            result.IsSuccessful = task.IsCompleted;
+            Task completedTask = await Task.WhenAny(task, Task.Delay(timeout), Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken));
+            result.IsCanceled = cancellationToken.IsCancellationRequested || task.IsCanceled;
+            result.IsSuccessful = completedTask == task && task.IsCompleted && !result.IsCanceled;
             if (task.Exception != null)
             {
                 result.IsSuccessful = false;
                 result.Exception = task.Exception;
             }
-            else if (!task.IsCompleted)
+            else if (!task.IsCompleted && !result.IsCanceled)
             {
                 result.Exception = new TimeoutException($"Object Explorer task didn't complete within {timeoutInSec} seconds.");
             }
@@ -685,7 +793,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
             ExpandResponse response = null;
-            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken, expandParams.Filters);
+            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken, expandParams.Filters, cancellationToken);
             if (cancellationToken.IsCancellationRequested)
             {
                 Logger.Verbose("OE expand canceled");
@@ -774,6 +882,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             /// </summary>
             public bool IsSuccessful { get; set; }
             /// <summary>
+            /// Whether cancellation was requested for the task.
+            /// </summary>
+            public bool IsCanceled { get; set; }
+            /// <summary>
             /// The Exception that occurred during execution, if any.
             /// </summary>
             public Exception? Exception { get; set; }
@@ -781,6 +893,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         public void Dispose()
         {
+            taskManager.Dispose();
             if (bindingQueue != null)
             {
                 bindingQueue.OnUnhandledException -= OnUnhandledException;

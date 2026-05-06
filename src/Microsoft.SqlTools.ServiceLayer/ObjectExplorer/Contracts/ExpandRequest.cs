@@ -61,6 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Filters to apply to the expand request
         ///</summary>
         public NodeFilter[]? Filters { get; set; }
+
+        /// <summary>
+        /// Optional task ID used to cancel this expansion.
+        /// </summary>
+        public string? TaskId { get; set; }
     }
 
     /// <summary>

@@ -14,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>    
     public class QueueItem
     {
+        private readonly CancellationTokenSource cancellationTokenSource = new();
+
         /// <summary>
         /// QueueItem constructor
         /// </summary>
@@ -67,6 +69,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the timeout for how long to wait for the binding lock
         /// </summary>
         public int? WaitForLockTimeout { get; set; }
+
+        /// <summary>
+        /// Token requested when this queue item is canceled externally.
+        /// </summary>
+        public CancellationToken CancellationToken => cancellationTokenSource.Token;
+
+        /// <summary>
+        /// Whether cancellation has been requested for this queue item.
+        /// </summary>
+        public bool IsCancellationRequested => cancellationTokenSource.IsCancellationRequested;
+
+        /// <summary>
+        /// Cancels this queued operation.
+        /// </summary>
+        public virtual void Cancel()
+        {
+            if (!cancellationTokenSource.IsCancellationRequested)
+            {
+                cancellationTokenSource.Cancel();
+            }
+        }
 
         /// <summary>
         /// Converts the result of the execution to type T
