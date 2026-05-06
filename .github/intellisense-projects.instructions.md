@@ -350,6 +350,91 @@ any schema not already seen from the explicit-DDL loops.
 
 ---
 
+## TODO: Incremental TSqlModel Updates on File Save
+
+> **CLEANUP NOTE:** Once this feature is fully implemented and tested, remove this entire TODO section and update the "Request Routing", "Binding Context Lifecycle", and "Known Fixed Bugs" sections to reflect the new on-save update flow.
+
+### Goal
+
+When a SQL file in a project is saved, update only that file's objects in the `TSqlModel` and refresh IntelliSense — without rebuilding the entire model from scratch.
+
+### Why DacFx Already Supports It
+
+`TSqlModel` has the exact API needed — no DacFx changes required:
+
+| Method | What it does |
+|--------|-------------|
+| `model.AddOrUpdateObjects(sqlText, filePath, options)` | Replace all objects that came from that file |
+| `model.DeleteObjects(filePath)` | Remove all objects that came from that file |
+
+`TSqlModelBuilder.LoadModel()` already calls `AddOrUpdateObjects` per-file on initial build. Incremental update is just calling it again on the changed file.
+
+### The Trigger: `textDocument/didSave`
+
+`textDocument/didSave` is listed in the STS protocol docs (`docs/guide/jsonrpc_protocol.md`) but **not yet implemented**. The client (vscode-mssql) already sends it — it is standard LSP. No client changes needed.
+
+Hook point: add `HandleDidSaveTextDocumentNotification(uri)` in `LanguageService.cs` and register it in `ServiceHost` alongside the existing `didOpen`/`didChange`/`didClose` registrations.
+
+Trigger on **file save only** — not on every keystroke. Reasons:
+- F12 source locations are file-path-based; they only make sense when on-disk content matches the model.
+- No debouncing needed — saves are infrequent enough to update synchronously.
+- `sourceName` (the key DacFx uses) = file path; stays consistent between model and `_sourceLocations` index.
+
+### Current Bottlenecks (all in sqltoolsservice — nothing in DacFx)
+
+**1 — `LazySchemaModelMetadataProvider._sourceLocations` goes stale**
+Built eagerly in the constructor by scanning all `UserDefined` objects. After `AddOrUpdateObjects()`, new/modified objects are not reflected. Needs a `Refresh()` / `InvalidateSourceLocationIndex()` method that rebuilds the index from the current model state.
+
+**2 — `LazyModelDatabase._schemas` goes stale**
+`_schemas` is a `Lazy<IMetadataCollection<ISchema>>` built once. After a model update, new schemas from the changed file won't appear. The field must be resettable to `null` so the next access re-queries the model. Add a public `InvalidateSchemasCache()` method (or make `_schemas` settable).
+
+**3 — `LazyModelSchema` per-type collections go stale**
+Each collection (Tables, Views, StoredProcedures, etc.) is a `LazyCollection<T>` built once. Same problem. Resetting `_schemas` to null cascades — new `LazyModelSchema` instances are created on next access, so their collections are fresh.
+
+**4 — No file-save detection**
+`HandleDidSaveTextDocumentNotification` does not exist. `HandleDidChangeTextDocumentNotification` updates only the parser cache (`ScriptParseInfo.ParseResult`), not the `TSqlModel`.
+
+**5 — `ConnectedBindingQueue` cannot swap the metadata provider**
+The binding context's `MetadataProvider` and `Binder` are set once at project-open. There is no `UpdateProjectContext(key, newBinder, newProvider)` method. After refreshing the provider, the binder must also be rebuilt via `BinderProvider.CreateBinder(provider)` and pushed onto the existing binding context.
+
+### Required Code Changes
+
+| File | Change |
+|------|--------|
+| `LazyModelServer.cs` (sqltoolsservice) | Expose `LazyModelDatabase` via internal property; add `InvalidateSchemasCache()` |
+| `LazySchemaModelMetadataProvider.cs` (sqltoolsservice) | Add `Refresh()` — rebuilds `_sourceLocations`, calls `database.InvalidateSchemasCache()` |
+| `ConnectedBindingQueue.cs` (sqltoolsservice) | Add `UpdateProjectContext(key, IBinder, IMetadataProvider)` |
+| `LanguageService.cs` (sqltoolsservice) | Add `HandleDidSaveTextDocumentNotification(uri)` + `UpdateProjectContextMetadata(projectUri, provider)` |
+| `ServiceHost.cs` (sqltoolsservice) | Register `textDocument/didSave` → `HandleDidSaveTextDocumentNotification` |
+| `SqlProjectsService.cs` (sqltoolsservice) | Hook: on save of a project file, call `model.AddOrUpdateObjects` / `model.DeleteObjects`, then `provider.Refresh()`, then `UpdateProjectContextMetadata` |
+
+### Save Handler Logic (pseudocode)
+
+```
+OnDidSave(fileUri):
+  if not IsProjectContext(GetScriptParseInfo(fileUri).ConnectionKey): return
+  projectUri = resolve owning project for fileUri
+  (model, provider) = projectIntelliSense[projectUri]
+  filePath = local path of fileUri
+  if File.Exists(filePath):
+    model.AddOrUpdateObjects(File.ReadAllText(filePath), filePath, new TSqlObjectOptions())
+  else:
+    model.DeleteObjects(filePath)
+  provider.Refresh()
+  newBinder = BinderProvider.CreateBinder(provider)
+  LanguageService.UpdateProjectContextMetadata(projectUri, newBinder, provider)
+  SendEvent(IntelliSenseReadyNotification, projectUri)
+```
+
+### What Is NOT Needed
+
+- No debouncing — save events are infrequent.
+- No ScriptDOM incremental parse API — `AddOrUpdateObjects` re-parses only the changed file internally.
+- No vscode-mssql changes — `textDocument/didSave` is already sent by VS Code.
+- No SqlProjects library changes — `TSqlModel.AddOrUpdateObjects` / `DeleteObjects` already exist.
+
+---
+
 ## TODO: Remove 2500 per-file `parseTSqlScript` IPC calls on project open
 
 **Problem:**
