@@ -5,6 +5,10 @@
 
 #nullable disable
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -34,6 +38,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Then the connection's azureAccountToken gets set
             Assert.AreEqual(azureAccountToken, reliableConnection.GetUnderlyingConnection().AccessToken);
+        }
+
+        [Test]
+        public void AccessTokenCallbackRoundTripsToUnderlyingConnection()
+        {
+            string connectionString = ConnectionService.BuildConnectionString(TestObjects.GetTestConnectionDetails());
+            RetryPolicy retryPolicy = RetryPolicyFactory.CreateNoRetryPolicy();
+            var conn = new ReliableSqlConnection(connectionString, retryPolicy, retryPolicy, null);
+
+            Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>> callback =
+                (_, __) => Task.FromResult(new SqlAuthenticationToken("tok", DateTimeOffset.UtcNow.AddHours(1)));
+
+            conn.AccessTokenCallback = callback;
+
+            Assert.That(conn.AccessTokenCallback, Is.SameAs(callback));
+            Assert.That(conn.GetUnderlyingConnection().AccessTokenCallback, Is.SameAs(callback));
+        }
+
+        [Test]
+        public void ConstructorSetsAccessTokenWhenTokenProvidedAndAuthNotSpecified()
+        {
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            // clear auth info so token is used
+            details.UserName = "";
+            details.Password = "";
+            string connectionString = ConnectionService.BuildConnectionString(details);
+            RetryPolicy retryPolicy = RetryPolicyFactory.CreateNoRetryPolicy();
+            const string token = "my-access-token";
+
+            var conn = new ReliableSqlConnection(connectionString, retryPolicy, retryPolicy, token);
+
+            Assert.That(conn.GetUnderlyingConnection().AccessToken, Is.EqualTo(token));
         }
     }
 }

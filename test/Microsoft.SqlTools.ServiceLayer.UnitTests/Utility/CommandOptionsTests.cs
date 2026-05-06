@@ -169,10 +169,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             var args = new string[] { "--log-file", expectedFilePath };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
 
-            // Asserting all options were properly set 
+            // Asserting all options were properly set
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
             Assert.AreEqual(options.LogFilePath, expectedFilePath);
+        }
+
+        [Test]
+        public void RequestMfaTokenFromClientFlagSetsProperty()
+        {
+            var options = new ServiceLayerCommandOptions(["--request-mfa-token-from-client"]);
+
+            Assert.That(options.ShouldExit, Is.False);
+            Assert.That(options.RequestMfaTokenFromClient, Is.True);
+        }
+
+        [Test]
+        public void RequestMfaTokenFromClientFlagDefaultsFalse()
+        {
+            var options = new ServiceLayerCommandOptions([]);
+
+            Assert.That(options.RequestMfaTokenFromClient, Is.False);
         }
     }
 }

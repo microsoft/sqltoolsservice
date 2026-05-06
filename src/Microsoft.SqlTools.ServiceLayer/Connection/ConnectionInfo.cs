@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.SqlCore.Connection;
@@ -88,6 +89,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Returns true if Authentication mode is AzureMFA, determines if Access token is in use.
         /// </summary>
         public bool IsAzureAuth { get; set; }
+
+        /// <summary>
+        /// Delegate to fetches a fresh Azure access token from the client via <c>account/securityTokenRequest</c>.
+        /// Only used when RequestMfaTokenFromClient is enabled.
+        /// </summary>
+        public Func<Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
 
         /// <summary>
         /// Returns the connection Engine Edition

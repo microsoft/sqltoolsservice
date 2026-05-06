@@ -654,6 +654,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
+        /// Gets or sets the account ID for Entra accounts used with Entra MFA auth
+        /// </summary>
+        public string AccountId
+        {
+            get
+            {
+                return GetOptionValue<string>("accountId");
+            }
+            set
+            {
+                SetOptionValue("accountId", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the tenant ID for Entra accounts used with Entra MFA auth
+        /// </summary>
+        public string TenantId
+        {
+            get
+            {
+                return GetOptionValue<string>("tenantId");
+            }
+            set
+            {
+                SetOptionValue("tenantId", value);
+            }
+        }
+
+        /// <summary>
         /// Compares all SQL Server Connection properties to be able to identify differences in current instance and provided instance appropriately.
         /// </summary>
         /// <param name="other">Instance to compare with.</param>
