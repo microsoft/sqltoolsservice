@@ -26,10 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             string projectPath = ProjectUtils.CreateTestProject();
             var project = SqlProject.OpenProject(projectPath);
 
-            // Add explicit schema creation so dbo exists in UserDefined scope
-            string schemaScript = "CREATE SCHEMA dbo;";
-            project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Schemas", "dbo.sql")), schemaScript);
-
             // Add a table script
             string tableScript = @"
 CREATE TABLE dbo.Customers (
@@ -51,7 +47,7 @@ END
             project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")), spScript);
 
             // Debug: Verify scripts were added
-            Assert.AreEqual(3, project.SqlObjectScripts.Count, "Should have 3 scripts in project (schema, table, sproc)");
+            Assert.AreEqual(2, project.SqlObjectScripts.Count, "Should have 2 scripts in project (table, sproc)");
 
             TSqlModel? model = null;
             try

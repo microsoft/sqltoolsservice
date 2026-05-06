@@ -113,6 +113,19 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     schemas.Add(new LazyModelSchema(this, _model, schemaName, DacQueryScopes.BuiltIn));
             }
 
+            // DacFx does not enumerate implicit schemas (e.g. dbo) via GetObjects(Schema) unless
+            // the project contains an explicit CREATE SCHEMA statement. Walk every UserDefined object
+            // and infer schemas from the first name part so that "CREATE TABLE dbo.X" registers dbo.
+            foreach (TSqlObject obj in _model.GetObjects(DacQueryScopes.UserDefined))
+            {
+                if (obj.Name.Parts.Count >= 2)
+                {
+                    string schemaName = obj.Name.Parts[0];
+                    if (seen.Add(schemaName))
+                        schemas.Add(new LazyModelSchema(this, _model, schemaName, DacQueryScopes.UserDefined));
+                }
+            }
+
             return new LazyCollection<ISchema>(schemas.ToArray);
         }
 

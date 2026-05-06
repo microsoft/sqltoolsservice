@@ -1654,6 +1654,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         var declarations = Microsoft.SqlServer.Management.SqlParser.Intellisense.Resolver.FindCompletions(
                             scriptParseInfo.ParseResult, parserLine, parserColumn, cbc.MetadataDisplayInfoProvider);
 
+                        // Step 3: Match the resolved declaration against the token text at the cursor.
+                        // FindCompletions returns all visible objects at this position; we pick the one
+                        // whose unqualified Title equals the token (e.g. "Orders" matches "dbo.Orders").
                         var match = declarations?.FirstOrDefault(d =>
                             string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
 
