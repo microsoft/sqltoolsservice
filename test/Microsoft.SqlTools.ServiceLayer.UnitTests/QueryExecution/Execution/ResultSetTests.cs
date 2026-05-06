@@ -8,14 +8,18 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using NUnit.Framework;
@@ -153,6 +157,115 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public static readonly IEnumerable<object[]> ReadToEndSuccessData = Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(6);
         // using all 6 sets with the parallel test can raise an OutOfMemoryException
         public static readonly IEnumerable<object[]> ReadToEndSuccessDataParallel = Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(3);
+
+        [Test]
+        public async Task RowCountIsNotPublishedUntilRowWriteCompletes()
+        {
+            using ManualResetEventSlim firstWriteStarted = new ManualResetEventSlim(false);
+            using ManualResetEventSlim releaseFirstWrite = new ManualResetEventSlim(false);
+            DelayedFileStreamFactory fileStreamFactory = new DelayedFileStreamFactory(
+                sizeFactor: 1,
+                firstWriteStarted: firstWriteStarted,
+                releaseFirstWrite: releaseFirstWrite);
+
+            DbColumn[] columns = { new TestDbColumn("value") };
+            object[][] rows = { new object[] { "first row" } };
+            DbDataReader mockReader = GetReader(new[] { new TestResultSet(columns, rows) }, false, Constants.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
+
+            Task readTask = Task.Run(() => resultSet.ReadResultToEnd(mockReader, CancellationToken.None));
+            Assert.True(firstWriteStarted.Wait(TimeSpan.FromSeconds(5)), "The test writer did not start writing the first row.");
+
+            Assert.AreEqual(0, resultSet.RowCount, "RowCount should not expose a row while its buffer write is still in progress.");
+
+            releaseFirstWrite.Set();
+            await readTask;
+
+            Assert.AreEqual(1, resultSet.RowCount);
+            Assert.AreEqual("first row", resultSet.GetRow(0)[0].RawObject);
+        }
+
+        [Test]
+        public async Task ConcurrentSubsetReadsDuringStreamingHandleUniqueIdentifierAndLongValues()
+        {
+            const int rowCount = 100;
+            DbColumn[] columns =
+            {
+                new TestDbColumn("id", typeof(Guid)) { DataTypeName = "uniqueidentifier" },
+                new TestDbColumn("event") { ColumnSize = int.MaxValue },
+                new TestDbColumn("created_at_utc", typeof(DateTime)) { DataTypeName = "datetime2", NumericScale = 7 }
+            };
+            object[][] rows = Enumerable.Range(0, rowCount)
+                .Select(i => new object[]
+                {
+                    Guid.NewGuid(),
+                    new string('x', 2048) + i,
+                    new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc).AddTicks(i)
+                })
+                .ToArray();
+
+            DbDataReader mockReader = GetReader(new[] { new TestResultSet(columns, rows) }, false, Constants.StandardQuery);
+            DelayedFileStreamFactory fileStreamFactory = new DelayedFileStreamFactory(
+                sizeFactor: 128,
+                perWriteDelay: TimeSpan.FromMilliseconds(1));
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
+
+            bool readComplete = false;
+            Task subsetReadTask = null;
+            using ManualResetEventSlim subsetReadStarted = new ManualResetEventSlim(false);
+
+            Task AvailableCallback(ResultSet _)
+            {
+                subsetReadTask ??= Task.Run(async () =>
+                {
+                    subsetReadStarted.Set();
+                    while (!Volatile.Read(ref readComplete))
+                    {
+                        long availableRows = resultSet.RowCount;
+                        if (availableRows > 0)
+                        {
+                            int rowsToRead = (int)Math.Min(10, availableRows);
+                            long startRow = availableRows - rowsToRead;
+                            ResultSetSubset subset = await resultSet.GetSubset(startRow, rowsToRead);
+
+                            Assert.AreEqual(subset.RowCount, subset.Rows.Length);
+                            foreach (DbCellValue[] row in subset.Rows)
+                            {
+                                Assert.AreEqual(3, row.Length);
+                                Assert.IsInstanceOf<Guid>(row[0].RawObject);
+                                Assert.IsFalse(string.IsNullOrEmpty(row[1].DisplayValue));
+                                Assert.IsInstanceOf<DateTime>(row[2].RawObject);
+                            }
+                        }
+
+                        await Task.Delay(1);
+                    }
+                });
+
+                return Task.CompletedTask;
+            }
+
+            resultSet.ResultAvailable += AvailableCallback;
+            try
+            {
+                await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+                readComplete = true;
+                Assert.True(subsetReadStarted.Wait(TimeSpan.FromSeconds(5)), "The subset reader did not start while results were streaming.");
+                if (subsetReadTask != null)
+                {
+                    await subsetReadTask;
+                }
+            }
+            finally
+            {
+                readComplete = true;
+                resultSet.ResultAvailable -= AvailableCallback;
+            }
+
+            Assert.AreEqual(rowCount, resultSet.RowCount);
+            ResultSetSubset finalSubset = await resultSet.GetSubset(0, rowCount);
+            Assert.AreEqual(rowCount, finalSubset.RowCount);
+        }
 
         [Test]
         [TestCaseSource(nameof(CallMethodWithoutReadingData))]
@@ -544,6 +657,126 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var command = connection.CreateCommand();
             command.CommandText = query;
             return command.ExecuteReader();
+        }
+
+        private sealed class DelayedFileStreamFactory : IFileStreamFactory
+        {
+            private readonly ConcurrentDictionary<string, byte[]> storage = new ConcurrentDictionary<string, byte[]>();
+            private readonly int sizeFactor;
+            private readonly ManualResetEventSlim firstWriteStarted;
+            private readonly ManualResetEventSlim releaseFirstWrite;
+            private readonly TimeSpan perWriteDelay;
+            private int firstWritePending;
+
+            public DelayedFileStreamFactory(
+                int sizeFactor,
+                ManualResetEventSlim firstWriteStarted = null,
+                ManualResetEventSlim releaseFirstWrite = null,
+                TimeSpan perWriteDelay = default)
+            {
+                this.sizeFactor = sizeFactor;
+                this.firstWriteStarted = firstWriteStarted;
+                this.releaseFirstWrite = releaseFirstWrite;
+                this.perWriteDelay = perWriteDelay;
+                this.firstWritePending = firstWriteStarted == null ? 0 : 1;
+            }
+
+            public QueryExecutionSettings QueryExecutionSettings { get; set; } = new QueryExecutionSettings();
+
+            public string CreateFile()
+            {
+                string fileName = Guid.NewGuid().ToString();
+                storage.TryAdd(fileName, new byte[8192 * sizeFactor]);
+                return fileName;
+            }
+
+            public IFileStreamReader GetReader(string fileName)
+            {
+                return new ServiceBufferFileStreamReader(
+                    new MemoryStream(storage[fileName]),
+                    QueryExecutionSettings);
+            }
+
+            public IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns)
+            {
+                return new DelayedFileStreamWriter(
+                    new ServiceBufferFileStreamWriter(
+                        new MemoryStream(storage[fileName]),
+                        QueryExecutionSettings),
+                    ShouldBlockFirstWrite,
+                    firstWriteStarted,
+                    releaseFirstWrite,
+                    perWriteDelay);
+            }
+
+            public void DisposeFile(string fileName)
+            {
+                storage.TryRemove(fileName, out _);
+            }
+
+            private bool ShouldBlockFirstWrite()
+            {
+                return Interlocked.Exchange(ref firstWritePending, 0) == 1;
+            }
+        }
+
+        private sealed class DelayedFileStreamWriter : IFileStreamWriter
+        {
+            private readonly IFileStreamWriter innerWriter;
+            private readonly Func<bool> shouldBlockFirstWrite;
+            private readonly ManualResetEventSlim firstWriteStarted;
+            private readonly ManualResetEventSlim releaseFirstWrite;
+            private readonly TimeSpan perWriteDelay;
+
+            public DelayedFileStreamWriter(
+                IFileStreamWriter innerWriter,
+                Func<bool> shouldBlockFirstWrite,
+                ManualResetEventSlim firstWriteStarted,
+                ManualResetEventSlim releaseFirstWrite,
+                TimeSpan perWriteDelay)
+            {
+                this.innerWriter = innerWriter;
+                this.shouldBlockFirstWrite = shouldBlockFirstWrite;
+                this.firstWriteStarted = firstWriteStarted;
+                this.releaseFirstWrite = releaseFirstWrite;
+                this.perWriteDelay = perWriteDelay;
+            }
+
+            public int WriteRow(StorageDataReader dataReader)
+            {
+                if (shouldBlockFirstWrite())
+                {
+                    firstWriteStarted.Set();
+                    Assert.True(releaseFirstWrite.Wait(TimeSpan.FromSeconds(5)), "Timed out waiting to release the blocked row write.");
+                }
+
+                if (perWriteDelay > TimeSpan.Zero)
+                {
+                    Thread.Sleep(perWriteDelay);
+                }
+
+                return innerWriter.WriteRow(dataReader);
+            }
+
+            public void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
+            {
+                innerWriter.WriteRow(row, columns);
+            }
+
+            public void Seek(long offset)
+            {
+                innerWriter.Seek(offset);
+            }
+
+            public void FlushBuffer()
+            {
+                innerWriter.FlushBuffer();
+            }
+
+            public void Dispose()
+            {
+                innerWriter.Dispose();
+            }
         }
     }
 }

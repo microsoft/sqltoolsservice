@@ -420,8 +420,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     while (dataReader.Read())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        fileOffsets.Add(totalBytesWritten);
+                        long rowOffset = totalBytesWritten;
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
+                        fileOffsets.Add(rowOffset);
 
                         // Send ResultSetAvailable event after first row is written
                         if (!hasNotifiedResultSetAvailable)
