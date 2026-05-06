@@ -185,15 +185,19 @@ F12 entry point. At the top: if `IsProjectContext(scriptParseInfo.ConnectionKey)
 Queues a binding operation via the project binding context that:
 1. Converts LSP 0-based position → parser 1-based (`line+1`, `col+1`)
 2. Casts `bindingContext.MetadataProvider` to `LazySchemaModelMetadataProvider`
-3. Resolves identifier semantically:
+3. Extracts token text at cursor: `TokenManager.FindToken` + `GetToken`, strips `[`/`]` brackets. This is the bare unqualified name (e.g. `"Orders"`) used only for matching, NOT for source lookup.
+4. Resolves identifier semantically:
    `Resolver.FindCompletions(parseResult, parserLine, parserColumn, bindingContext.MetadataDisplayInfoProvider)`
    — the binder annotations on `ParseResult` are required (set by `ParseAndBind` before this call)
-4. Looks up source location:
+5. Matches the resolved declaration against the token text:
+   `declarations.FirstOrDefault(d => d.Title == tokenText, OrdinalIgnoreCase)`
+   — picks the right declaration from the list; the matched `Declaration.DatabaseQualifiedName` is the fully-qualified name (e.g. `"ProjectDB.dbo.Orders"`).
+6. Looks up source location:
    `lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out sourceInfo)`
    — if not found, strips the database prefix via `StripDatabasePrefix` and tries again
    — this handles dotted schema names (e.g. `"ProjectDB.SwaggerPetstore.Models.Get0ItemsItem"`
      has index key `"SwaggerPetstore.Models.Get0ItemsItem"` after the DB prefix strip)
-5. Converts `SourceInformation` → LSP `Location` (1-based → 0-based, file path → URI)
+7. Converts `SourceInformation` → LSP `Location` (1-based → 0-based, file path → URI)
 
 **Key points:**
 - Passes the already-bound `ParseResult` from `scriptParseInfo` (set by `ParseAndBind`)
@@ -321,6 +325,29 @@ check succeeds even while the model is still loading.
 `InitializeProjectFileContexts` is called BEFORE `LoadModel`, and `UpdateLanguageServiceOnProjectOpen`
 is called after the model is fully built, with matching `contextKey = $"project_{projectUri}"` in both.
 
+### F12 failed for schema-qualified names (`dbo.Orders`) but worked for unqualified (`Orders`)
+
+**Root cause 1 — `LazyCollection.this[string]` threw instead of returning null:**
+`Resolver.FindCompletions` probes `Schemas["dbo"]` by name. The old indexer threw
+`KeyNotFoundException` when the name was not found. The binder expects `null` on miss.
+**Fix:** Both `LazyCollection<T>` and `LazyOrderedCollection<T>` name indexers now return
+`null` on miss (via `FirstOrDefault` + `#pragma warning disable CS8603`) instead of throwing.
+
+**Root cause 2 — `BuildSchemas()` missed implicit schemas:**
+DacFx `GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema)` only returns schemas that
+have an explicit `CREATE SCHEMA` DDL statement. A project with only `CREATE TABLE dbo.X`
+(no `CREATE SCHEMA dbo`) produced an empty schema list, so `Schemas["dbo"]` always missed.
+Unqualified names (`FROM Orders`) worked because `Resolver` enumerates schemas with `foreach`
+rather than by name; the qualified path (`FROM dbo.Orders`) called `Schemas["dbo"]` directly.
+**Fix:** `LazyModelDatabase.BuildSchemas()` now has a third loop that walks all
+`DacQueryScopes.UserDefined` objects and infers schemas from `obj.Name.Parts[0]`, registering
+any schema not already seen from the explicit-DDL loops.
+
+**Do not regress:**
+- Do not restore a throwing indexer in `LazyCollection` or `LazyOrderedCollection`.
+- Do not remove the third infer-from-parts loop in `BuildSchemas()`.
+- Do not add `CREATE SCHEMA dbo` to test projects as a workaround — tests must pass without it.
+
 ---
 
 ## TODO: Remove 2500 per-file `parseTSqlScript` IPC calls on project open
@@ -384,7 +411,8 @@ add `onNotification` to `IExtension`. The fix is purely a deletion in `project.t
 See the [F12 (Go-to-Definition)](#f12-go-to-definition) flow above for the step-by-step walkthrough. Key implementation notes:
 
 - Converts LSP 0-based position to SqlParser 1-based position (`line+1`, `col+1`) before calling `Resolver.FindCompletions`.
-- Uses `TokenManager.FindToken` to get the token text at the cursor for matching against `Declaration.Title`. Token text is used only for matching, not for source lookup.
+- Uses `TokenManager.FindToken` + `GetToken` to extract the bare token text at the cursor (e.g. `"Orders"`). The token text is used **only** to match the correct `Declaration` from the `FindCompletions` result list — it is never used directly for source lookup.
+- `declarations.FirstOrDefault(d => d.Title == tokenText, OrdinalIgnoreCase)` picks the matching declaration whose `DatabaseQualifiedName` (e.g. `"ProjectDB.dbo.Orders"`) drives the source lookup.
 - Tries `match.DatabaseQualifiedName` first in `TryGetSourceInformation`; on miss calls `StripDatabasePrefix` and retries. This two-step lookup handles dotted schema names.
 - Converts `SourceInformation` coordinates from 1-based (SqlParser) to 0-based (LSP) and converts the file path to an absolute URI.
 
