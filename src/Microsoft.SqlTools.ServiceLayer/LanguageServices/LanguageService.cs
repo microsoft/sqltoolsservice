@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private IConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
 
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the binding queue instance
         /// Internal for testing purposes only
         /// </summary>
-        internal IConnectedBindingQueue BindingQueue
+        internal ConnectedBindingQueue BindingQueue
         {
             get
             {
@@ -509,6 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
+                // Retrieve document and connection (null for project files — handled by GetDefinition)
                 ConnectionInfo connInfo;
                 var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 bool isConnected = false;
@@ -534,6 +535,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
+                // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
                 await requestContext.SendResult(Array.Empty<Location>());
             }
 
@@ -1246,7 +1248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal async Task PrepopulateCommonMetadata(
             ConnectionInfo info,
             ScriptParseInfo scriptInfo,
-            IConnectedBindingQueue bindingQueue)
+            ConnectedBindingQueue bindingQueue)
         {
             if (scriptInfo.IsConnected)
             {
@@ -1436,7 +1438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>
         /// Queue a task to the binding queue (server-connected path only).
-        /// For project files use <see cref="QueueProjectDefinition"/> instead.
+        /// For project files use <see cref="QueueProjectTask"/> instead.
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptParseInfo"></param>
@@ -1570,7 +1572,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (IsProjectContext(scriptParseInfo.ConnectionKey))
             {
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
-                return QueueProjectDefinition(textDocumentPosition, scriptParseInfo);
+                return QueueProjectTask(textDocumentPosition, scriptParseInfo);
             }
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
@@ -1622,7 +1624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Queues a Go-to-Definition operation for a SQL project file via the project binding context.
         /// </summary>
-        private DefinitionResult QueueProjectDefinition(
+        private DefinitionResult QueueProjectTask(
             TextDocumentPosition textDocumentPosition,
             ScriptParseInfo scriptParseInfo)
         {

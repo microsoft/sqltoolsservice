@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -28,9 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
         string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
-        void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider metadataProvider = null);
-        bool IsBindingContextConnected(string key);
-        ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
         void Dispose();
         QueueItem QueueBindingOperation(
             string key,

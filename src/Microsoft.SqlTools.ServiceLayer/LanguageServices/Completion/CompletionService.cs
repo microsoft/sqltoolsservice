@@ -21,12 +21,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// </summary>
     internal class CompletionService
     {
-        private IConnectedBindingQueue BindingQueue { get; set; }
+        private ConnectedBindingQueue BindingQueue { get; set; }
 
         /// <summary>
         /// Created new instance given binding queue
         /// </summary>
-        public CompletionService(IConnectedBindingQueue bindingQueue)
+        public CompletionService(ConnectedBindingQueue bindingQueue)
         {
             BindingQueue = bindingQueue;
         }

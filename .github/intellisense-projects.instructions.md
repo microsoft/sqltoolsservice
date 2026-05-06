@@ -49,31 +49,9 @@ STS does NOT:
 | Global packages cache | `C:\.tools\.nuget\packages\` |
 | Version pin file | `Packages.props` |
 
-**Critical:** DacFx version in `Packages.props` must be 170.4.63-preview to match SQL Projects dependency.
+**Critical:** DacFx version in `Packages.props` must match the SQL Projects dependency.
 
-After repacking from SqlProjects repo, clear cache and restore:
-
-```powershell
-# Clear NuGet cache
-Remove-Item "C:\.tools\.nuget\packages\microsoft.sqlserver.dac.projects" -Recurse -Force -ErrorAction SilentlyContinue
-
-# Restore STS
-cd C:\Projects\sqltoolsservice
-dotnet restore src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj
-    -c Release /p:PackageVersion=0.5.22-local `
-    --output "C:\Projects\sqltoolsservice\bin\nuget"
-
-# Clear cache and restore STS
-Remove-Item "C:\.tools\.nuget\packages\microsoft.sqlserver.dacfx.projects" -Recurse -Force -ErrorAction SilentlyContinue
-cd C:\Projects\sqltoolsservice
-dotnet restore src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj
-dotnet build src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj -c Release --no-restore
-```
-
-The version pin is in `Packages.props`:
-```xml
-<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.5.22-local" />
-```
+After repacking from SqlProjects repo: clear the NuGet cache for `microsoft.sqlserver.dacfx.projects`, restore STS, then rebuild. The version pin is a `PackageReference Update` for `Microsoft.SqlServer.DacFx.Projects` in `Packages.props`.
 
 ---
 
@@ -94,35 +72,20 @@ never by checking `connInfo == null` or `IsConnected` directly.
 
 ## `IsProjectContext` helper (`LanguageService.cs`)
 
-```csharp
-private static bool IsProjectContext(string connectionKey)
-    => !string.IsNullOrEmpty(connectionKey) &&
-       connectionKey.StartsWith("project_", StringComparison.Ordinal);
-```
-
-Use this everywhere a routing branch is needed. Do NOT add new flags or new branching mechanisms.
+Returns `true` if `connectionKey` is non-null and starts with `"project_"` (ordinal comparison). Use everywhere a routing branch is needed. Do NOT add new flags or new branching mechanisms.
 
 ---
 
 ## `IConnectedBindingQueue` interface
 
-Both context types are registered via the same interface. `LanguageService.BindingQueue` is typed
-as `IConnectedBindingQueue` — **not** the concrete `ConnectedBindingQueue`. `CompletionService`
-also takes `IConnectedBindingQueue`.
+`IConnectedBindingQueue` is the minimal public contract used by external consumers (`ConnectionService`,
+`DatabaseLocksManager`). It does **not** include project-specific members.
 
-```csharp
-public interface IConnectedBindingQueue
-{
-    string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
-    void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions,
-        ProjectIntelliSenseEngine projectEngine = null);
-    bool IsBindingContextConnected(string key);
-    void Dispose();
-    QueueItem QueueBindingOperation(string key, Func<IBindingContext, CancellationToken, object> bindOperation, ...);
-    void CloseConnections(...);
-    void OpenConnections(...);
-}
-```
+`LanguageService.BindingQueue` is typed as `ConnectedBindingQueue` (concrete type) — **not** the interface —
+because `LanguageService` needs to call `AddProjectContext` and `IsBindingContextConnected` which are
+only on the concrete class. `CompletionService` also uses `ConnectedBindingQueue` directly.
+
+It has 5 members: `CloseConnections`, `OpenConnections`, `AddConnectionContext`, `Dispose`, and `QueueBindingOperation`. `AddProjectContext`, `IsBindingContextConnected`, and `BindingContextMap` are on `ConnectedBindingQueue` and `BindingQueue<T>` — **not** on the interface.
 
 ---
 
@@ -150,51 +113,43 @@ Fire-and-forget background method. Sequence:
    — **Without this call:** every `.sql` file stays `IsConnected=false` → F12 returns "not connected".
 4. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel` (can take
    seconds on large projects; files are already stamped so requests are accepted during this time)
-5. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`
-6. `new ProjectIntelliSenseEngine(model)` — engine that owns the model
-7. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName, engine)`
+5. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`;
+   stored in `projectIntelliSense[projectUri]` alongside the model for disposal on project close
+6. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, projectMetadataProvider, parseOptions, databaseName)`
    — pass `provider` (`IMetadataProvider`), NOT a pre-built `IBinder`.
    — `UpdateLanguageServiceOnProjectOpen` creates the `IBinder` internally via
      `BinderProvider.CreateBinder(metadataProvider)` and stores it on the binding context.
    — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` on the `.sqlproj` ScriptParseInfo.
    — sends `IntelliSenseReadyNotification` to VS Code.
 
-**Rule:** This is the only place a `ProjectIntelliSenseEngine` is constructed. The engine is
-passed into STS and stored there. `SqlProjectsService` does not hold a reference to it after this.
-
 **Rule:** Always pass `provider` (not a pre-built `IBinder`) to `UpdateLanguageServiceOnProjectOpen`.
-The method signature is `(string projectUri, IMetadataProvider metadataProvider, ...)`.
+The method signature is `(string projectUri, IMetadataProvider metadataProvider, ParseOptions parseOptions, string databaseName)`.
 Passing an `IBinder` is a compile error (CS1503).
 
 **Rule:** File URIs passed to `InitializeProjectFileContexts` are built via `new Uri(absolutePath).AbsoluteUri`.
-No manual drive-letter case normalization is needed because `ScriptParseInfoMap` uses `OrdinalIgnoreCase`.
+`ScriptParseInfoMap` uses `OrdinalIgnoreCase` and `GetScriptParseInfo` calls `Uri.UnescapeDataString`,
+so both drive-letter case and percent-encoding differences are handled automatically.
 
 ---
 
 ### `src/Microsoft.SqlTools.ServiceLayer/LanguageServices/ConnectedBindingContext.cs`
 
-**Property added:**
+**Properties added:**
 
-```csharp
-public ProjectIntelliSenseEngine ProjectEngine { get; set; }
-```
-
-- Non-null only for project contexts (set by `AddProjectContext`)
-- Online connection contexts leave this null
-- The engine is the single state object for project IntelliSense; it wraps both the `TSqlModel`
-  and the `IMetadataDisplayInfoProvider`
-
-**What was removed:** `public TSqlModel ProjectModel { get; set; }` — the raw model is no longer
-stored directly; it is encapsulated inside `ProjectEngine`.
+- `MetadataProvider` (`IMetadataProvider`): set by `AddProjectContext`; cast to `LazySchemaModelMetadataProvider` inside `QueueProjectTask` to call `TryGetSourceInformation` for F12 source lookup.
+- `OverrideParseOptions` (`ParseOptions`): set by `AddProjectContext`; the `ParseOptions` property checks this first before constructing defaults, so project files use the correct offline parse options.
 
 ---
 
 ### `src/Microsoft.SqlTools.ServiceLayer/LanguageServices/ConnectedBindingQueue.cs`
 
-**Method: `AddProjectContext(string, IBinder, ParseOptions, ProjectIntelliSenseEngine?)`**
+**Method: `AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider? metadataProvider = null)`**
 
-Registers a binding context keyed by `"project_<projectUri>"`.
-Stores `engine` on `bindingContext.ProjectEngine`.
+Registers an offline binding context keyed by `"project_<projectUri>"` (no server connection required).
+- Stores `binder`, `metadataProvider`, and `parseOptions` on the `ConnectedBindingContext`
+- Sets `IsConnected = true`, `BindingTimeout = DefaultBindingTimeout`
+- The `metadataProvider` (a `LazySchemaModelMetadataProvider`) is used by `QueueProjectTask` for
+  source location lookup via `TryGetSourceInformation`
 
 Called by `LanguageService.UpdateLanguageServiceOnProjectOpen`.
 
@@ -204,17 +159,7 @@ Called by `LanguageService.UpdateLanguageServiceOnProjectOpen`.
 
 #### **`ScriptParseInfoMap` (modified)**
 
-```csharp
-private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
-    = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(
-        () => new ConcurrentDictionary<string, ScriptParseInfo>(StringComparer.OrdinalIgnoreCase));
-```
-
-Using `OrdinalIgnoreCase` is required for correctness on Windows. VS Code sends file URIs with a
-lowercase drive letter (`file:///c:/...`) while .NET's `Uri` produces uppercase (`file:///C:/...`).
-Without this, `GetScriptParseInfo(file.ClientUri)` misses the entry stamped by
-`InitializeProjectFileContexts`, returning a blank `ScriptParseInfo` with `IsConnected=false`,
-which causes every F12 to fall through to the "not connected" error branch.
+Uses `StringComparer.OrdinalIgnoreCase`. Required on Windows because VS Code sends file URIs with a lowercase drive letter (`file:///c:/...`) while .NET's `Uri` produces uppercase (`file:///C:/...`). Without this, `GetScriptParseInfo` misses stamped entries, causing F12 to fall through to "not connected".
 
 **Rule:** Do not add manual drive-letter case normalization elsewhere — the map handles it.
 
@@ -222,74 +167,43 @@ which causes every F12 to fall through to the "not connected" error branch.
 
 #### **`UpdateLanguageServiceOnProjectOpen` (modified)**
 
-Signature:
-```csharp
-public async Task UpdateLanguageServiceOnProjectOpen(
-    string projectUri,
-    IMetadataProvider metadataProvider,
-    ParseOptions parseOptions,
-    string databaseName,
-    ProjectIntelliSenseEngine projectEngine = null)
-```
+Signature: `(string projectUri, IMetadataProvider metadataProvider, ParseOptions parseOptions, string databaseName)`
 
 - Creates the binder internally: `BinderProvider.CreateBinder(metadataProvider)`
-- Registers binding context via `BindingQueue.AddProjectContext(contextKey, binder, parseOptions, engine)`
+- Registers binding context via `BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider)`
 - Sets `scriptInfo.ConnectionKey`, `scriptInfo.IsConnected`, `scriptInfo.ProjectDatabaseName`
 - Sends `IntelliSenseReadyNotification`
 
 #### **`GetDefinition` (modified)**
 
-The entry point for F12. Has a project-file branch at the top:
+F12 entry point. At the top: if `IsProjectContext(scriptParseInfo.ConnectionKey)`, call `ParseAndBind` unconditionally (not gated on `RequiresReparse` — the cached `ParseResult` may predate the project context and be unbound), then call `QueueProjectTask`. Falls through to the SMO path only for online connections.
 
-```csharp
-// Project file: detect via ConnectionKey prefix, not connInfo==null.
-// (A project file may also have a server connection, so connInfo==null is unreliable.)
-if (IsProjectContext(scriptParseInfo.ConnectionKey))
-{
-    // Always ParseAndBind — do not short-circuit with RequiresReparse.
-    // The cached ParseResult may predate the project context (file was open before the model
-    // finished building), so it may have been parsed but never bound. Binder annotations are
-    // required by Resolver.FindCompletions inside the engine. ParseAndBind is incremental:
-    // it reuses the existing parse tree when text is unchanged and just re-runs Bind().
-    scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
-    return QueueProjectDefinition(textDocumentPosition, scriptParseInfo);
-}
-```
+**Rule:** STS detects project vs. online by `IsProjectContext(scriptParseInfo.ConnectionKey)`. It does NOT peel a token or extract an identifier string before routing.
 
-Falls through to the existing SMO path only for online connections.
+#### **`QueueProjectTask` (private method for project F12)**
 
-**Rule:** STS detects project vs. online by `IsProjectContext(scriptParseInfo.ConnectionKey)`.
-It does NOT peel a token or extract an identifier string before routing.
-
-#### **`QueueProjectDefinition` (new private method)**
-
-```csharp
-private DefinitionResult QueueProjectDefinition(
-    TextDocumentPosition textDocumentPosition,
-    ScriptParseInfo scriptParseInfo)
-```
-
-Queues a `BindingOperation` that:
+Queues a binding operation via the project binding context that:
 1. Converts LSP 0-based position → parser 1-based (`line+1`, `col+1`)
-2. Calls `bindingContext.ProjectEngine.GetDefinition(scriptParseInfo.ParseResult, parserLine, parserColumn)`
-   — the `ParseResult` was already bound by `ParseAndBind` before this method was called
-3. Converts `SourceInformation` → LSP `Location` (1-based → 0-based, file path → URI)
+2. Casts `bindingContext.MetadataProvider` to `LazySchemaModelMetadataProvider`
+3. Resolves identifier semantically:
+   `Resolver.FindCompletions(parseResult, parserLine, parserColumn, bindingContext.MetadataDisplayInfoProvider)`
+   — the binder annotations on `ParseResult` are required (set by `ParseAndBind` before this call)
+4. Looks up source location:
+   `lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out sourceInfo)`
+   — if not found, strips the database prefix via `StripDatabasePrefix` and tries again
+   — this handles dotted schema names (e.g. `"ProjectDB.SwaggerPetstore.Models.Get0ItemsItem"`
+     has index key `"SwaggerPetstore.Models.Get0ItemsItem"` after the DB prefix strip)
+5. Converts `SourceInformation` → LSP `Location` (1-based → 0-based, file path → URI)
 
-**Rule:** This method passes the already-bound `ParseResult` and a position to the engine.
-It does not extract tokens, does not call `ScriptDocumentInfo.GetPeekDefinitionTokens`,
-does not call `Resolver` directly.
+**Key points:**
+- Passes the already-bound `ParseResult` from `scriptParseInfo` (set by `ParseAndBind`)
+- Does NOT extract token text or call `GetPeekDefinitionTokens` (that is for the SMO path)
+- Uses `Resolver.FindCompletions` directly in STS — there is no separate `ProjectIntelliSenseEngine`
+- Helper `StripDatabasePrefix` removes the first segment from a dotted name
 
 #### **What was removed from `QueueTask`**
 
-The old project branch:
-```csharp
-if (bindingContext is ConnectedBindingContext cbc && cbc.ProjectModel != null)
-{
-    var info = TSqlModelBuilder.FindDefinition(cbc.ProjectModel, tokenText);  // REMOVED
-    ...
-}
-```
-This entire block is gone. `QueueTask` now handles online connections only.
+The old `cbc.ProjectModel != null` branch (which called `TSqlModelBuilder.FindDefinition` with a token string) is gone. `QueueTask` now handles online (server-connected) paths only. A null guard at the top returns an error `DefinitionResult` when `bindingContext.ServerConnection == null`.
 
 ---
 
@@ -297,98 +211,35 @@ This entire block is gone. `QueueTask` now handles online connections only.
 
 ### Project open
 
-```
-HandleOpenSqlProjectRequest
-  → SendResult(Success=true)   ← immediate response; VS Code is never blocked
-  → BuildProjectIntelliSenseAsync (background Task.Run)
-      → GetProject(projectUri)                 // MSBuild file evaluation, loads into cache
-                                               // projectUri = file path, e.g. C:\...\MyProject.sqlproj
-      → build fileUris from project.SqlObjectScripts:
-          new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri  // relative → absolute → URI
-      → InitializeProjectFileContexts(fileUris, "project_<uri>", databaseName)
-          // *** BEFORE LoadModel *** — stamps every .sql file ScriptParseInfo:
-          //   IsConnected=true, ConnectionKey="project_<uri>", ProjectDatabaseName
-          // Requests during model load are queued, not rejected.
-          // WITHOUT THIS CALL: every .sql file keeps IsConnected=false → F12 = "not connected"
-      → TSqlModelBuilder.LoadModel(project)    // SqlProjects library parses all DDL scripts
-      → new LazySchemaModelMetadataProvider()  // wraps model as IMetadataProvider for binder
-      → new ProjectIntelliSenseEngine(model)   // engine owns TSqlModel; used for F12
-      → UpdateLanguageServiceOnProjectOpen(projectUri, provider, ...)
-          // pass provider (IMetadataProvider), NOT a pre-built IBinder
-          → BinderProvider.CreateBinder(provider)   // binder created here, inside this method
-          → BindingQueue.AddProjectContext("project_<uri>", binder, parseOptions, engine)
-              // engine stored at bindingContext.ProjectEngine
-          → stamps .sqlproj ScriptParseInfo: IsConnected=true, ConnectionKey="project_<uri>"
-          → SendEvent(IntelliSenseReadyNotification)
-```
+`HandleOpenSqlProjectRequest` responds to VS Code immediately with `Success=true`, then kicks off `BuildProjectIntelliSenseAsync` in the background. The sequence is:
+
+1. `GetProject(projectUri)` — MSBuild evaluation. `projectUri` is a file path, not a URI.
+2. Build `fileUris` from `project.SqlObjectScripts`, `PreDeployScripts`, `PostDeployScripts` — resolve relative paths to absolute, then `new Uri(absolutePath).AbsoluteUri`.
+3. `InitializeProjectFileContexts(fileUris, "project_<uri>", databaseName)` — **BEFORE `LoadModel`** — stamps `IsConnected=true`, `ConnectionKey`, `ProjectDatabaseName` on every `.sql` file. Ensures requests during model load are queued, not rejected.
+4. `TSqlModelBuilder.LoadModel(project)` — SqlProjects library parses all DDL scripts.
+5. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`.
+6. `projectIntelliSense[projectUri] = (model, metadataProvider)` — stored for disposal on project close.
+7. `UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName)` — pass `IMetadataProvider`, NOT a pre-built `IBinder`. Creates binder internally, calls `AddProjectContext`, stamps `.sqlproj` `ScriptParseInfo`, sends `IntelliSenseReadyNotification`.
 
 ### F12 (Go-to-Definition)
 
-```
-GetDefinition(position, file, connInfo=null)
-  → scriptParseInfo = GetScriptParseInfo(file.ClientUri)   ← OrdinalIgnoreCase lookup
-  → IsProjectContext(scriptParseInfo.ConnectionKey)  ← project file branch
-      → ParseAndBind(scriptFile, null)  ← always, not conditional on RequiresReparse
-            → IBinder.Bind([parseResult], databaseName, Batch)
-                  // binder writes semantic annotations onto the parse tree
-      → QueueProjectDefinition(position, scriptParseInfo)
-          → BindingQueue.QueueBindingOperation(key="project_<uri>", ...)
-              → bindingContext.ProjectEngine.GetDefinition(parseResult, parserLine, parserColumn)
-                    // Inside SqlProjects library:
-                    // Step 1: TokenManager.FindToken(line, col) → token at cursor
-                    // Step 2: Resolver.FindCompletions(boundParseResult, ...) → Declaration.DatabaseQualifiedName
-                    // Step 3: strip database prefix → schema-qualified name
-                    // Step 4: O(N) scan of model.GetObjects() ← known issue, O(1) fix planned
-                    //         → TSqlObject.GetSourceInformation()
-              → SourceInformation { SourceName (file path), StartLine, StartColumn }
-          → convert to LSP Location (0-based, file URI)
-  → return DefinitionResult
-```
+1. `GetScriptParseInfo(file.ClientUri)` — OrdinalIgnoreCase + `UnescapeDataString` lookup.
+2. `IsProjectContext(scriptParseInfo.ConnectionKey)` — routes to project branch if true.
+3. `ParseAndBind(scriptFile, null)` — always, not gated on `RequiresReparse`. Writes binder annotations onto the parse tree.
+4. `QueueProjectTask(position, scriptParseInfo)` — binding operation calls `Resolver.FindCompletions` to get a `Declaration` with `DatabaseQualifiedName` (e.g. `"ProjectDB.dbo.Customers"`), then `lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out sourceInfo)`. On miss, strips the DB prefix via `StripDatabasePrefix` and retries (handles dotted schemas like `"SwaggerPetstore.Models.Get0ItemsItem"`).
+5. Converts `SourceInformation` (1-based file path) to LSP `Location` (0-based URI).
 
 ### Completions / Hover (existing, unchanged path)
 
-```
-ParseAndBind(scriptFile, connInfo)
-  → parseInfo = GetScriptParseInfo(scriptFile.ClientUri)  ← OrdinalIgnoreCase lookup
-  → hasBindingContext = parseInfo.IsConnected && parseInfo.ConnectionKey != null
-  → QueueBindingOperation(key: parseInfo.ConnectionKey, ...)
-      → TryIncrementalParse() with bindingContext.ParseOptions
-      → bindingContext.Binder.Bind(parseResults, dbName, BindMode.Batch)
-          Project path: binder backed by LazySchemaModelMetadataProvider (TSqlModel)
-          SMO path:     binder backed by SmoMetadataProvider (live server)
-  // dbName: project → parseInfo.ProjectDatabaseName; SMO → connInfo.ConnectionDetails.DatabaseName
-```
+`ParseAndBind` routes to the project binder automatically because `scriptParseInfo.ConnectionKey` is `"project_{uri}"`. The binder is backed by `LazySchemaModelMetadataProvider`. No separate code path is needed for completions. `dbName` for the bind call: project — `parseInfo.ProjectDatabaseName`; SMO — `connInfo.ConnectionDetails.DatabaseName`.
 
 ### Connection IntelliSense startup sequence
 
-```
-User connects to a server in vscode-mssql
-  → STS: ConnectionService.Connect()
-      → LanguageService.UpdateLanguageServiceOnConnection(info)
-          Guard: if IsProjectContext(scriptInfo.ConnectionKey) → return
-                 (project files must never have their key overwritten by a server connection)
-          ConnectedBindingQueue.AddConnectionContext(connInfo, featureName)
-              → ServerConnection = OpenServerConnection(connInfo)
-              → SmoMetadataProvider.CreateConnectedProvider(serverConnection)
-              → BinderProvider.CreateBinder(smoMetadataProvider)
-              → bindingContext.IsConnected = true
-              returns connectionKey = hash(server+db+user+auth+...)
-          scriptInfo.ConnectionKey = connectionKey
-          scriptInfo.IsConnected   = true
-      → PrepopulateCommonMetadata() [warm up the binder]
-      → ServiceHost.SendEvent(IntelliSenseReadyNotification)
-```
+`ConnectionService.Connect()` calls `LanguageService.UpdateLanguageServiceOnConnection`. The guard at the top returns immediately if `IsProjectContext(scriptInfo.ConnectionKey)` — project files must never have their key overwritten by a server connection. For non-project files: `AddConnectionContext` opens a `ServerConnection`, creates a `SmoMetadataProvider` and binder, stamps `ConnectionKey` and `IsConnected=true`, then `PrepopulateCommonMetadata()` warms the binder, then `IntelliSenseReadyNotification` is sent.
 
 ### `ParseAndBind` — binding context lookup
 
-For project contexts `bindingContext.ServerConnection` is `null` — intentional.
-Only the `QueueTask` (SMO scripter) path accesses `ServerConnection`; it has a null-guard:
-
-```csharp
-// In QueueTask bindOperation lambda:
-if (bindingContext.ServerConnection == null)
-    return new DefinitionResult { IsErrorResult = true, Message = SR.PeekDefinitionNotConnectedError };
-```
+For project contexts `bindingContext.ServerConnection` is `null` — intentional. Only the `QueueTask` (SMO scripter) path accesses `ServerConnection`; it has a null-guard at the top that returns an error `DefinitionResult`.
 
 ### Supported LSP features
 
@@ -396,7 +247,7 @@ if (bindingContext.ServerConnection == null)
 |---|---|---|---|
 | **Completions** | `textDocument/completion` | ✅ bound ParseResult | ✅ SMO |
 | **Completion resolve** | `textDocument/completionItem/resolve` | ✅ | ✅ |
-| **Go-to-Definition / Peek** | `textDocument/definition` | ✅ `ProjectIntelliSenseEngine` | ✅ SMO `Scripter` |
+| **Go-to-Definition / Peek** | `textDocument/definition` | ✅ `QueueProjectTask` (`Resolver` + `LazySchemaModelMetadataProvider`) | ✅ SMO `Scripter` |
 | **Hover** | `textDocument/hover` | ✅ | ✅ |
 | **Signature help** | `textDocument/signatureHelp` | ✅ | ✅ |
 | **Syntax parse** | `sqlTools/syntaxParse` | ✅ | ✅ |
@@ -406,15 +257,7 @@ if (bindingContext.ServerConnection == null)
 
 ### Diagnostics suppression for project files
 
-```csharp
-// In GetSemanticMarkers():
-bool isProjectFile = IsProjectContext(parseInfo?.ConnectionKey);
-if (isProjectFile)
-    return Array.Empty<ScriptFileMarker>();
-```
-
-The binder reports DDL objects as duplicates (they are already loaded into the metadata model),
-producing false "already exists" errors. Project-level validation belongs to the build step.
+`GetSemanticMarkers` checks `IsProjectContext(parseInfo?.ConnectionKey)` and returns an empty marker array for project files. The binder reports DDL objects as duplicates (already loaded into the metadata model), producing false errors; project-level validation belongs to the build step.
 
 ---
 
@@ -424,11 +267,11 @@ producing false "already exists" errors. Project-level validation belongs to the
 |-----------|--------|
 | `IsProjectContext(ConnectionKey)` is the routing signal | Never use `connInfo == null`; a project file may also have a server connection |
 | `UpdateLanguageServiceOnConnection` must NOT overwrite a project key | Guard: `if (IsProjectContext(...)) return;` at the top of the method |
-| STS passes `(ParseResult, line, col)` to the engine — never a token string | Token peeling bypasses binding; the engine resolves semantically |
-| One `ProjectIntelliSenseEngine` per open project, stored on `ConnectedBindingContext` | Avoids rebuilding the model per request |
-| `QueueProjectDefinition` does not call `GetPeekDefinitionTokens` | That path is for the SMO/online scripter; it pre-extracts tokens because SMO needs a name, not a position |
+| `QueueProjectTask` uses `Resolver.FindCompletions(parseResult, line, col, ...)` — never a raw token string | Token-string peeling bypasses binding; the binder must annotate identifiers first |
+| `LazySchemaModelMetadataProvider` stored on `ConnectedBindingContext.MetadataProvider` | Avoids rebuilding the metadata index per request |
+| `QueueProjectTask` does not call `GetPeekDefinitionTokens` | That path is for the SMO/online scripter; it pre-extracts tokens because SMO needs a name, not a position |
 | `ParseAndBind` must run before `GetDefinition` | `GetDefinition` reads binder annotations; they only exist after `Bind()` has been called |
-| `ProjectEngine` disposes the `TSqlModel` | Do not hold a separate reference to the model outside the engine |
+| `SqlProjectsService.projectIntelliSense` holds `(TSqlModel, LazySchemaModelMetadataProvider)` | Dispose both on project close; do not hold separate model references in `LanguageService` |
 
 ---
 
@@ -436,11 +279,11 @@ producing false "already exists" errors. Project-level validation belongs to the
 
 For each new feature (hover, diagnostics, signature help):
 
-1. **SqlProjects library**: add `Get*(ParseResult, int, int) → Result` to `ProjectIntelliSenseEngine`
-2. **STS `LanguageService`**: add `Queue*Project(position, scriptParseInfo)` that routes to engine
-3. **STS dispatch**: add `if (IsProjectContext(scriptParseInfo.ConnectionKey)) return Queue*Project(...)` branch
+1. **`LazySchemaModelMetadataProvider`**: add `TryGet*(qualifiedName, out result)` if source lookup is needed
+2. **STS `LanguageService`**: add `QueueProject*(position, scriptParseInfo)` that calls `Resolver.*` + `lazyProvider.TryGet*`
+3. **STS dispatch**: add `if (IsProjectContext(scriptParseInfo.ConnectionKey)) return QueueProject*(...)` branch
    in the existing handler, before the online fallthrough
-4. STS **never** calls `Resolver.*` directly for project files — that belongs in the engine
+4. STS uses `Resolver.*` directly via the binder — there is no separate `ProjectIntelliSenseEngine` to call
 
 ---
 
@@ -448,17 +291,11 @@ For each new feature (hover, diagnostics, signature help):
 
 | Rejected approach | Why |
 |-------------------|-----|
-| STS peeling tokens and passing strings to the library | Bypasses binding; ambiguous when same name exists in two schemas |
-| Dictionary/index in **STS or LanguageService** | "Yet another metadata index" outside the engine — explicitly prohibited by the design doc |
-| SMO scripting for project files | SMO requires a live server connection |
+| Extracting token text as a string and doing string-match source lookup | `Resolver.FindCompletions` returns the binder-resolved `DatabaseQualifiedName` which is unambiguous even when the same short name exists in multiple schemas |
+| Dictionary/index in **STS or LanguageService** separate from the metadata provider | `LazySchemaModelMetadataProvider` owns its own `_sourceLocations` index; no duplicate index in STS |
+| SMO scripting for project files | SMO requires a live server connection (`ServerConnection == null` for project contexts) |
 | Re-parsing files from disk in STS on each F12 | The bound `ParseResult` from `ParseAndBind` already exists; use it |
-| Storing raw `TSqlModel` on `ConnectedBindingContext` | Replaced by `ProjectEngine` which encapsulates model + display provider |
-| Global scan of `model.GetObjects()` by unqualified name | Non-deterministic; use binder-resolved schema-qualified name |
-
-**Note:** A `Dictionary<string, TSqlObject>` built **inside `ProjectIntelliSenseEngine`** at
-construction time is the correct O(1) fix for the step 4 scan. This is explicitly NOT the same
-as the rejected "index in STS" — that was about storing navigation state in `LanguageService`
-or `ConnectedBindingContext` alongside the engine.
+| Storing raw `TSqlModel` directly on `ConnectedBindingContext` | `SqlProjectsService.projectIntelliSense` holds it; `ConnectedBindingContext.MetadataProvider` holds the wrapped provider |
 
 ---
 
@@ -502,26 +339,7 @@ blocking IPC calls before the tree renders.
 
 **Fix (vscode-mssql only — no STS changes needed):**
 
-In `extensions/sql-database-projects/src/models/project.ts`, method `readSqlObjectScripts`:
-
-Remove the `for` loop that calls `checkForCreateTableStatement` on every file.
-Replace with a simple `.map()` that creates all entries as `SqlObjectFileNode` (pass `false`
-for `containsCreateTableStatement`):
-
-```typescript
-// BEFORE (slow: 2500 IPC calls)
-for (const f of filesSet.values()) {
-    const entry = this.createFileProjectEntry(f, EntryType.File);
-    const containsTable = await this.sqlProjectsService.parseTSqlScript(f.fsPath, ...);
-    entry.containsCreateTableStatement = containsTable;
-    this._sqlObjectScripts.push(entry);
-}
-
-// AFTER (fast: zero IPC calls)
-this._sqlObjectScripts = Array.from(filesSet.values()).map(f =>
-    this.createFileProjectEntry(f, EntryType.File, undefined, false),
-);
-```
+In `extensions/sql-database-projects/src/models/project.ts`, method `readSqlObjectScripts`: remove the `for` loop that calls `checkForCreateTableStatement` on every file. Replace with a `.map()` that creates all entries as `SqlObjectFileNode` with `containsCreateTableStatement = false`.
 
 **Validation before merging:**
 1. Search `package.json` for `itemType.file.table` — must return zero results (confirms no menu uses it).
@@ -539,23 +357,19 @@ add `onNotification` to `IExtension`. The fix is purely a deletion in `project.t
 - File stamping from SqlProjects: `file:///c:/path/to/file.sql`
 - LSP requests from VS Code: `file:///c%3A/path/to/file.sql` (percent-encoded colon)
 
-**Solution:** `ScriptParseInfoMap` uses `StringComparer.OrdinalIgnoreCase`:
+**Solution:** Two-layer normalization in `GetScriptParseInfo`:
 
-```csharp
-private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
-    = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(
-        () => new ConcurrentDictionary<string, ScriptParseInfo>(StringComparer.OrdinalIgnoreCase));
-```
+1. `ScriptParseInfoMap` uses `StringComparer.OrdinalIgnoreCase` (set in the map constructor).
+2. `GetScriptParseInfo` calls `Uri.UnescapeDataString(uri)` before the dictionary lookup.
 
-**Why this works:**
-- Windows drive letters are case-insensitive (`C:/` == `c:/`)
-- Dictionary handles both `file:///C:/` and `file:///c:/` as same key
-- No manual normalization needed in lookup code
+**Why both are needed:**
+- `OrdinalIgnoreCase`: handles drive-letter case differences (`C:/` == `c:/`)
+- `UnescapeDataString`: handles percent-encoded URIs (`file:///c%3A/...` → `file:///c:/...`)
 
 **NEVER:**
 - Remove `OrdinalIgnoreCase` from the map constructor
 - Add manual drive-letter normalization elsewhere
-- Use `Uri.UnescapeDataString()` before lookup (not needed with OrdinalIgnoreCase)
+- Remove the `Uri.UnescapeDataString` call in `GetScriptParseInfo`
 
 **Consequence if broken:** Files stamped with ConnectionKey but LSP requests return "not connected"
 
@@ -563,103 +377,16 @@ private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
 
 ## F12 IMPLEMENTATION DETAILS
 
-### Method: `QueueProjectDefinition`
+### Method: `QueueProjectTask`
 
 **Location:** `LanguageService.cs`
 
-**Full implementation:**
+See the [F12 (Go-to-Definition)](#f12-go-to-definition) flow above for the step-by-step walkthrough. Key implementation notes:
 
-```csharp
-private DefinitionResult QueueProjectDefinition(
-    TextDocumentPosition textDocumentPosition,
-    ScriptParseInfo scriptParseInfo)
-{
-    // Convert LSP position (0-based) to SqlParser position (1-based)
-    int line = textDocumentPosition.Position.Line + 1;
-    int column = textDocumentPosition.Position.Character + 1;
-    
-    string contextKey = scriptParseInfo.ConnectionKey;
-    
-    var operation = new QueueItem
-    {
-        Key = contextKey,
-        BindingTimeout = BindingTimeout,
-        BindingOperation = (bindingContext, cancellationToken) =>
-        {
-            if (!(bindingContext is ConnectedBindingContext context))
-            {
-                return new DefinitionResult 
-                { 
-                    IsErrorResult = true, 
-                    Message = "Binding context not found" 
-                };
-            }
-            
-            if (context.ProjectEngine == null)
-            {
-                return new DefinitionResult 
-                { 
-                    IsErrorResult = true, 
-                    Message = "Project IntelliSense engine not initialized" 
-                };
-            }
-            
-            // Call SQL Projects library to get definition
-            SourceInformation sourceInfo = context.ProjectEngine.GetDefinition(
-                scriptParseInfo.ParseResult, 
-                line, 
-                column);
-            
-            if (sourceInfo == null)
-            {
-                return new DefinitionResult 
-                { 
-                    IsErrorResult = true, 
-                    Message = "No definition found" 
-                };
-            }
-            
-            // Convert SourceInformation to LSP Location
-            string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
-            
-            var location = new Location
-            {
-                Uri = fileUri,
-                Range = new Range
-                {
-                    Start = new Position
-                    {
-                        Line = sourceInfo.StartLine - 1,        // Back to 0-based
-                        Character = sourceInfo.StartColumn - 1
-                    },
-                    End = new Position
-                    {
-                        Line = sourceInfo.StartLine - 1,
-                        Character = sourceInfo.StartColumn - 1
-                    }
-                }
-            };
-            
-            return new DefinitionResult
-            {
-                IsErrorResult = false,
-                Locations = new[] { location }
-            };
-        }
-    };
-    
-    BindingQueue.QueueBindingOperation(operation);
-    operation.ItemProcessed.WaitOne();
-    
-    return (DefinitionResult)operation.Result;
-}
-```
-
-**Key points:**
-- Passes bound `ParseResult` from `scriptParseInfo` (already created by `ParseAndBind`)
-- Does NOT extract token text or call `GetPeekDefinitionTokens`
-- Calls `ProjectEngine.GetDefinition` with position only
-- Converts result coordinates from 1-based (SqlParser) to 0-based (LSP)
+- Converts LSP 0-based position to SqlParser 1-based position (`line+1`, `col+1`) before calling `Resolver.FindCompletions`.
+- Uses `TokenManager.FindToken` to get the token text at the cursor for matching against `Declaration.Title`. Token text is used only for matching, not for source lookup.
+- Tries `match.DatabaseQualifiedName` first in `TryGetSourceInformation`; on miss calls `StripDatabasePrefix` and retries. This two-step lookup handles dotted schema names.
+- Converts `SourceInformation` coordinates from 1-based (SqlParser) to 0-based (LSP) and converts the file path to an absolute URI.
 
 ---
 
@@ -667,62 +394,26 @@ private DefinitionResult QueueProjectDefinition(
 
 ### Method: `InitializeProjectFileContexts`
 
-**Purpose:** Stamp all project .sql files with ConnectionKey BEFORE model loads
+**Purpose:** Stamp all project `.sql` files with `ConnectionKey`, `IsConnected=true`, and `ProjectDatabaseName` BEFORE `LoadModel` runs.
 
 **Why before LoadModel:** Model loading can take minutes. Stamping first ensures LSP requests during loading are queued correctly, not rejected as "not connected".
 
-**Implementation:**
+**Called from:** `SqlProjectsService.BuildProjectIntelliSenseAsync` after building the file URI list, before `TSqlModelBuilder.LoadModel`.
 
-```csharp
-public async Task InitializeProjectFileContexts(
-    List<string> fileUris, 
-    string contextKey, 
-    string databaseName)
-{
-    foreach (string fileUri in fileUris)
-    {
-        ScriptParseInfo scriptInfo = GetOrCreateScriptParseInfo(fileUri);
-        scriptInfo.ConnectionKey = contextKey;
-        scriptInfo.IsConnected = true;
-        scriptInfo.ProjectDatabaseName = databaseName;
-    }
-}
-```
-
-**Called from:** `SqlProjectsService.BuildProjectIntelliSenseAsync` after building file URI list, before `LoadModel`
-
-**Files included:**
-- `project.SqlObjectScripts` (CREATE statements)
-- `project.PreDeployScripts` (executed before deployment)
-- `project.PostDeployScripts` (executed after deployment)
-
-**Why Pre/Post deployment scripts:** They reference objects defined in the project, need IntelliSense for those references even though they're not parsed into TSqlModel.
+**Files included:** `project.SqlObjectScripts` (CREATE statements), `project.PreDeployScripts`, `project.PostDeployScripts`. Pre/Post deploy scripts reference project objects and need IntelliSense even though they are not parsed into `TSqlModel`.
 
 ---
 
 ## BINDING CONTEXT LIFECYCLE
 
-### Creation (project open)
-```
-SqlProjectsService.BuildProjectIntelliSenseAsync
-  → InitializeProjectFileContexts(fileUris, contextKey, databaseName)
-  → TSqlModelBuilder.LoadModel(project)
-  → new LazySchemaModelMetadataProvider(model, databaseName)
-  → new ProjectIntelliSenseEngine(model)
-  → LanguageService.UpdateLanguageServiceOnProjectOpen(...)
-      → BinderProvider.CreateBinder(metadataProvider)
-      → ConnectedBindingQueue.AddProjectContext(contextKey, binder, parseOptions, engine)
-          → bindingContext.ProjectEngine = engine
-          → bindingContext.Binder = binder
-          → _bindingContextMap[contextKey] = bindingContext
-```
+**Creation** (project open): `SqlProjectsService.BuildProjectIntelliSenseAsync` stamps file contexts via `InitializeProjectFileContexts`, loads the model via `TSqlModelBuilder.LoadModel`, creates `LazySchemaModelMetadataProvider`, stores `(model, metadataProvider)` in `projectIntelliSense[projectUri]`, then calls `UpdateLanguageServiceOnProjectOpen`. That method creates the binder via `BinderProvider.CreateBinder(metadataProvider)` and calls `ConnectedBindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider)`, which stores all three on the binding context and adds it to `_bindingContextMap`.
 
 ### Disposal (project close)
 **NOT YET IMPLEMENTED** - project contexts are never removed from `_bindingContextMap`
 
 **TODO:** Add `RemoveProjectContext(string contextKey)` method that:
 1. Removes binding context from map
-2. Disposes `ProjectEngine` (which disposes `TSqlModel`)
+2. Disposes the `TSqlModel` and `LazySchemaModelMetadataProvider` stored in `SqlProjectsService.projectIntelliSense[projectUri]`
 3. Clears `ConnectionKey` from all stamped files
 
 ---
@@ -734,8 +425,8 @@ SqlProjectsService.BuildProjectIntelliSenseAsync
 | InitializeProjectFileContexts (stamp 3000 files) | <100ms | Yes (per-file loop) |
 | ParseAndBind (incremental, bound before) | <10ms | Yes |
 | ParseAndBind (incremental, never bound) | ~50ms | Yes (first bind) |
-| QueueProjectDefinition | <5ms | Yes (waits on queue) |
-| ProjectEngine.GetDefinition | Variable | Yes (O(N) scan, fix planned) |
+| QueueProjectTask | <5ms | Yes (waits on queue) |
+| Resolver.FindCompletions + TryGetSourceInformation | <5ms | Yes (O(1) via index) |
 
 **Key insight:** File stamping and binding are fast. Model loading (SQL Projects side) is the bottleneck.
 
@@ -745,58 +436,16 @@ SqlProjectsService.BuildProjectIntelliSenseAsync
 
 ### F12 returns "not connected"
 
-1. **Check ConnectionKey is stamped:**
-   ```csharp
-   ScriptParseInfo info = GetScriptParseInfo(fileUri);
-   Debug.WriteLine($"ConnectionKey: {info.ConnectionKey}");  
-   // Should be "project_{projectUri}", NOT null
-   ```
-
-2. **Check IsProjectContext routing:**
-   ```csharp
-   bool isProject = IsProjectContext(info.ConnectionKey);
-   // Should be true for .sql files in project
-   ```
-
-3. **Check binding context exists:**
-   ```csharp
-   var context = BindingQueue.GetBindingContext(info.ConnectionKey);
-   // Should not be null
-   ```
-
-4. **Check ProjectEngine is set:**
-   ```csharp
-   if (context is ConnectedBindingContext cbc)
-   {
-       Debug.WriteLine($"ProjectEngine: {cbc.ProjectEngine != null}");
-       // Should be true
-   }
-   ```
+1. Check `scriptParseInfo.ConnectionKey` for the file URI — must be `"project_{projectUri}"`, not null. If null, `InitializeProjectFileContexts` was not called, or the URI passed to `GetScriptParseInfo` doesn't match the stamped URI (check case and percent-encoding).
+2. Verify `IsProjectContext(connectionKey)` returns true.
+3. Verify a binding context exists in `BindingQueue.BindingContextMap` for that key. If missing, `AddProjectContext` was not called (check `UpdateLanguageServiceOnProjectOpen` completed).
+4. Check `(ConnectedBindingContext).MetadataProvider` is a `LazySchemaModelMetadataProvider`. If null, `AddProjectContext` was called without the metadata provider argument.
 
 ### F12 returns "No definition found"
 
-1. **Check ParseResult is bound:**
-   ```csharp
-   if (scriptParseInfo.ParseResult == null)
-       // ParseAndBind was not called
-   ```
-
-2. **Check Resolver.FindCompletions returns results:**
-   ```csharp
-   // Inside ProjectEngine.GetDefinition
-   var declarations = Resolver.FindCompletions(parseResult, line, column, displayInfoProvider);
-   if (declarations == null || !declarations.Any())
-       // Binder didn't resolve the identifier
-   ```
-
-3. **Check object exists in TSqlModel:**
-   ```csharp
-   // Inside SQL Projects library
-   var allObjects = model.GetObjects(DacQueryScopes.UserDefined);
-   var match = allObjects.FirstOrDefault(o => 
-       string.Join(".", o.Name.Parts).Equals(qualifiedName, OrdinalIgnoreCase));
-   // If null, object wasn't parsed into model
-   ```
+1. Verify `scriptParseInfo.ParseResult` is not null — `ParseAndBind` must have been called before `QueueProjectTask`.
+2. Set a breakpoint in the `QueueProjectTask` binding operation lambda and verify `Resolver.FindCompletions` returns results. If empty: the `ParseResult` was not bound, or the cursor position conversion is wrong.
+3. If `Resolver.FindCompletions` returns results but `TryGetSourceInformation` misses: inspect `match.DatabaseQualifiedName` and compare against the keys in `LazySchemaModelMetadataProvider._sourceLocations`. Step through `StripDatabasePrefix` to verify the fallback key.
 
 ### Performance issues
 
@@ -805,18 +454,19 @@ SqlProjectsService.BuildProjectIntelliSenseAsync
    - If slower: disk I/O bottleneck, antivirus scanning .sql files
 
 2. **F12 takes >1 second:**
-   - Set breakpoint in `ProjectEngine.GetDefinition`
-   - Step 4 (O(N) scan) is the bottleneck
-   - Fix: implement O(1) dictionary lookup (see SQL Projects instructions)
+   - Set breakpoint in `QueueProjectTask` bindOperation lambda
+   - Check `Resolver.FindCompletions` call time vs `TryGetSourceInformation` call time
+   - `LazySchemaModelMetadataProvider._sourceLocations` is an O(1) dictionary; if slow, the bottleneck is `Resolver.FindCompletions`
 
 ---
 
 ## LESSONS LEARNED (STS-specific)
 
 1. **OrdinalIgnoreCase critical for Windows drive letters** - VS Code sends both `c:/` and `C:/`
-2. **Stamp files BEFORE LoadModel** - Ensures requests during loading are queued, not rejected
-3. **Pre/Post deployment scripts need stamping** - They reference project objects even though not in model
-4. **Always ParseAndBind before GetDefinition** - Binder annotations required by Resolver
-5. **Never check `connInfo == null` for routing** - Project files may also have server connections
-6. **IsProjectContext is the single routing signal** - All branches must check ConnectionKey prefix
-7. **ProjectEngine owns TSqlModel disposal** - Don't hold separate model reference in STS
+2. **UnescapeDataString also required** - VS Code sends `%3A` for `:` in URIs; `GetScriptParseInfo` must decode before lookup
+3. **Stamp files BEFORE LoadModel** - Ensures requests during loading are queued, not rejected
+4. **Pre/Post deployment scripts need stamping** - They reference project objects even though not in model
+5. **Always ParseAndBind before GetDefinition** - Binder annotations required by Resolver
+6. **Never check `connInfo == null` for routing** - Project files may also have server connections
+7. **IsProjectContext is the single routing signal** - All branches must check ConnectionKey prefix
+8. **`SqlProjectsService.projectIntelliSense` holds TSqlModel** - Dispose (model, metadataProvider) on project close; `LanguageService` does not own the model

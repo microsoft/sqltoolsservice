@@ -270,7 +270,7 @@ END
         /// <summary>
         /// Test Go to Definition with a schema whose name contains a dot (e.g. [SwaggerPetstore.Models]).
         /// The SqlParser Resolver returns DatabaseQualifiedName = "ProjectDB.SwaggerPetstore.Models.Get0ItemsItem"
-        /// and QueueProjectDefinition must try the full name before stripping the first segment,
+        /// and QueueProjectTask must try the full name before stripping the first segment,
         /// otherwise the source index lookup fails because the key is "SwaggerPetstore.Models.Get0ItemsItem".
         /// </summary>
         [Test]
