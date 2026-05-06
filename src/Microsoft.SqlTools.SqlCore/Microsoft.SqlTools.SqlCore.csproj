@@ -24,7 +24,7 @@
 		<!-- Suppress CA1852 (Seal internal types) for the SSMS target framework since InternalsVisibleTo is
 		     excluded for signed builds, causing false positives on types visible to test projects -->
 		<NoWarn Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">$(NoWarn);CA1852</NoWarn>
-		<NoWarn>$(NoWarn);NU5104</NoWarn><!-- SqlCore intentionally consumes preview DacFx and SqlProjects -->
+		<WarningsNotAsErrors>$(WarningsNotAsErrors);NU5104</WarningsNotAsErrors> <!-- SqlCore intentionally consumes preview DacFx and SqlProjects -->
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
