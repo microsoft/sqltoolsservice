@@ -12,7 +12,10 @@ using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -45,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 
             // Add schema
             _project.SqlObjectScripts.Add(
-                new SqlObjectScript("Schemas\\dbo.sql"),
+                new SqlObjectScript(Path.Combine("Schemas", "dbo.sql")),
                 "CREATE SCHEMA dbo;");
 
             // Add a table with columns
@@ -57,7 +60,7 @@ CREATE TABLE dbo.Customers (
 );
 ";
             _project.SqlObjectScripts.Add(
-                new SqlObjectScript("Tables\\Customers.sql"),
+                new SqlObjectScript(Path.Combine("Tables", "Customers.sql")),
                 tableScript);
 
             // Add stored procedure that references the table
@@ -72,7 +75,7 @@ BEGIN
 END
 ";
             _project.SqlObjectScripts.Add(
-                new SqlObjectScript("StoredProcedures\\GetCustomer.sql"),
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")),
                 spScript);
 
             // Build TSqlModel
@@ -99,7 +102,7 @@ END
 
             // Set up project context
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectPath}";
+            _contextKey = $"project_{_projectUri}";
 
             // Call UpdateLanguageServiceOnProjectOpen
             _langService.UpdateLanguageServiceOnProjectOpen(
@@ -196,13 +199,13 @@ END
             _langService.InitializeProjectFileContexts(
                 new[] { spFileUri }, _contextKey, "LanguageServiceTestProject");
 
-            // Position cursor on "Customers" in the FROM clause (line 5, column 15 approximately)
-            // Line 5: "    FROM dbo.Customers "
-            //                       ^-- cursor here on 'Customers'
+            // Position cursor on "Customers" in the FROM clause.
+            // Line 6 (0-based): "    FROM dbo.Customers " — the script starts with a leading \n.
+            // "    FROM dbo." is 13 chars, so char 15 is inside "Customers".
             var textPosition = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier { Uri = spFileUri },
-                Position = new Position { Line = 5, Character = 15 }
+                Position = new Position { Line = 6, Character = 15 }
             };
 
             // Act: Request definition
@@ -281,7 +284,7 @@ END
             var project = SqlProject.OpenProject(projectPath);
 
             project.SqlObjectScripts.Add(
-                new SqlObjectScript("Schemas\\SwaggerPetstoreModels.sql"),
+                new SqlObjectScript(Path.Combine("Schemas", "SwaggerPetstoreModels.sql")),
                 "CREATE SCHEMA [SwaggerPetstore.Models];");
 
             string tableScript = @"
@@ -291,7 +294,7 @@ CREATE TABLE [SwaggerPetstore.Models].[Get0ItemsItem] (
 );
 ";
             project.SqlObjectScripts.Add(
-                new SqlObjectScript("Tables\\Get0ItemsItem.sql"),
+                new SqlObjectScript(Path.Combine("Tables", "Get0ItemsItem.sql")),
                 tableScript);
 
             string spScript = @"
@@ -305,7 +308,7 @@ BEGIN
 END
 ";
             project.SqlObjectScripts.Add(
-                new SqlObjectScript("StoredProcedures\\GetItem.sql"),
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetItem.sql")),
                 spScript);
 
             TSqlModel model = null;
@@ -327,7 +330,7 @@ END
                 langService.WorkspaceServiceInstance = workspaceService;
 
                 string projectUri = new Uri(projectPath).AbsoluteUri;
-                string contextKey = $"project_{projectPath}";
+                string contextKey = $"project_{projectUri}";
 
                 langService.UpdateLanguageServiceOnProjectOpen(
                     projectUri, metadataProvider, parseOptions, databaseName)
@@ -341,12 +344,13 @@ END
                 var scriptFile = workspaceService.Workspace.GetFileBuffer(spFileUri, spScript);
                 langService.InitializeProjectFileContexts(new[] { spFileUri }, contextKey, databaseName);
 
-                // Position cursor on "Get0ItemsItem" in the FROM clause (line 5, "    FROM [SwaggerPetstore.Models].[Get0ItemsItem]")
-                // Line 4 (0-based), character 38 — inside [Get0ItemsItem]
+                // Position cursor on "Get0ItemsItem" in the FROM clause.
+                // Line 6 (0-based): "    FROM [SwaggerPetstore.Models].[Get0ItemsItem]" — the script starts with a leading \n.
+                // "    FROM [SwaggerPetstore.Models].[" is 35 chars, so char 38 is inside "Get0ItemsItem".
                 var textPosition = new TextDocumentPosition
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = spFileUri },
-                    Position = new Position { Line = 4, Character = 38 }
+                    Position = new Position { Line = 6, Character = 38 }
                 };
 
                 // Act
@@ -365,6 +369,139 @@ END
                 model?.Dispose();
                 ProjectUtils.DeleteTestProject(projectPath);
             }
+        }
+
+        /// <summary>
+        /// Completions after "dbo.Customers." should include column names from the model.
+        /// Exercises LazyModelTable.Columns → TSqlObject.GetReferenced(Table.Columns).
+        /// </summary>
+        [Test]
+        public void Completions_ColumnNamesAppearsAfterTableDotAlias()
+        {
+            // Arrange: open a query file that aliases the table then types "c."
+            string queryUri = "file:///test_query.sql";
+            // The trailing space after "c." gives the parser a clean token boundary
+            string queryContent = "SELECT c. FROM dbo.Customers AS c";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, queryContent);
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+
+            // Position: line 0 (0-based), character 9 — right after the dot in "c."
+            var position = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 9 }
+            };
+
+            // Act
+            var completions = _langService.GetCompletionItems(position, scriptFile, connInfo: null)
+                                          .GetAwaiter().GetResult();
+
+            // Assert: at least CustomerId, CustomerName, Email should appear
+            Assert.IsNotNull(completions, "Completions should not be null");
+            var names = completions.Select(c => c.Label).ToList();
+            Assert.IsTrue(names.Any(n => string.Equals(n, "CustomerId",   StringComparison.OrdinalIgnoreCase)),
+                $"Expected 'CustomerId' in completions. Got: {string.Join(", ", names.Take(20))}");
+            Assert.IsTrue(names.Any(n => string.Equals(n, "CustomerName", StringComparison.OrdinalIgnoreCase)),
+                $"Expected 'CustomerName' in completions. Got: {string.Join(", ", names.Take(20))}");
+            Assert.IsTrue(names.Any(n => string.Equals(n, "Email",        StringComparison.OrdinalIgnoreCase)),
+                $"Expected 'Email' in completions. Got: {string.Join(", ", names.Take(20))}");
+        }
+
+        /// <summary>
+        /// Hover on "Customers" should return a tooltip containing "table" and "Customers".
+        /// Exercises Resolver.GetQuickInfo → bound ParseResult.
+        /// </summary>
+        [Test]
+        public void Hover_ReturnsTableTooltip()
+        {
+            // Arrange
+            string queryUri = "file:///test_hover.sql";
+            string queryContent = "SELECT * FROM dbo.Customers";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, queryContent);
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+
+            // ParseAndBind must run before GetHoverItem — hover reads the already-bound ParseResult;
+            // it does not call ParseAndBind itself.
+            _langService.ParseAndBind(scriptFile, connInfo: null).GetAwaiter().GetResult();
+
+            // Position: line 0, character 22 — inside "Customers"
+            var position = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 22 }
+            };
+
+            // Act
+            var hover = _langService.GetHoverItem(position, scriptFile);
+
+            // Assert: hover tooltip should mention "table" and "Customers"
+            Assert.IsNotNull(hover, "Hover result should not be null");
+            // Contents is MarkedString[] — each entry has a .Value string
+            var markedStrings = hover.Contents as MarkedString[];
+            Assert.IsNotNull(markedStrings, "Hover contents should be a MarkedString array");
+            string hoverText = string.Join(" ", markedStrings.Select(m => m.Value));
+            StringAssert.Contains("Customers", hoverText, "Hover should mention the table name");
+            StringAssert.Contains("table", hoverText, "Hover should identify the object type as table");
+        }
+
+        /// <summary>
+        /// Regression: F12 on a schema-qualified two-part name ("dbo.Customers") must succeed and
+        /// return the correct source file and a valid (>=0) line number.
+        /// The LazyCollection name indexer previously threw KeyNotFoundException on cache miss;
+        /// it now returns null so the binder can continue resolving.
+        /// </summary>
+        [Test]
+        public void GoToDefinition_SchemaQualifiedName_ResolvesToCorrectFileAndLine()
+        {
+            // Arrange: cursor on "Customers" in "SELECT * FROM dbo.Customers" (line 0, char 22)
+            string queryUri = "file:///test_schemaqualified.sql";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+
+            var position = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 22 }
+            };
+
+            // Act
+            DefinitionResult result = _langService.GetDefinition(position, scriptFile, connInfo: null);
+
+            // Assert: resolves to Customers.sql at a valid line
+            Assert.IsNotNull(result, "Definition result should not be null");
+            Assert.IsFalse(result.IsErrorResult, $"Should not have error. Message: {result.Message}");
+            Assert.IsTrue(result.Locations[0].Uri.Contains("Customers.sql"),
+                $"Should point to Customers.sql. Got: {result.Locations[0].Uri}");
+            // DacFx source locations are 1-based; QueueProjectTask converts to 0-based.
+            Assert.GreaterOrEqual(result.Locations[0].Range.Start.Line, 0,
+                "Source line should be a valid 0-based line number");
+        }
+
+        /// <summary>
+        /// Regression: UpdateLanguageServiceOnConnection must NOT overwrite the "project_" context key
+        /// with a live-connection key when the user also opens a server connection on the same file.
+        /// </summary>
+        [Test]
+        public void ServerConnection_DoesNotOverwriteProjectContextKey()
+        {
+            // Arrange: confirm the project URI has the project context key
+            var parseInfo = _langService.GetScriptParseInfo(_projectUri);
+            Assert.IsNotNull(parseInfo);
+            string originalKey = parseInfo.ConnectionKey;
+            Assert.IsTrue(originalKey.StartsWith("project_", StringComparison.Ordinal),
+                "Key should start with 'project_' before any connection attempt");
+
+            // Act: simulate what UpdateLanguageServiceOnConnection does — it should bail out early
+            // because IsProjectContext returns true (the OwnerUri already has a project_ key).
+            // We pass a real ConnectionInfo pointing at the project URI so the guard can read OwnerUri.
+            var fakeDetails = new ConnectionDetails { ServerName = "fakeserver", DatabaseName = "fakedb" };
+            var fakeConn = new ConnectionInfo(factory: null, ownerUri: _projectUri, details: fakeDetails);
+            _langService.UpdateLanguageServiceOnConnection(fakeConn).GetAwaiter().GetResult();
+
+            // Assert: key must still be the project key
+            var parseInfoAfter = _langService.GetScriptParseInfo(_projectUri);
+            Assert.AreEqual(originalKey, parseInfoAfter.ConnectionKey,
+                "Project context key must not be overwritten by a server connection");
         }
 
         /// <summary>
