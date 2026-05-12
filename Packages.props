@@ -22,9 +22,9 @@
     <!-- TODO: Upgrade package and use Token Credential design -->
     <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="181.15.0" />
-    <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.4.63-preview" />
+    <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.4.77-preview" />
     <PackageReference Update="Microsoft.SqlPackage.Core" Version="0.1.75-preview" />
-    <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.6.3-preview" />
+    <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.6.5-preview" />
     <PackageReference Update="Microsoft.Azure.Kusto.Data" Version="14.0.3" />
     <PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
     <PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
@@ -69,7 +69,7 @@
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
     <PackageReference Update="Azure.Identity" version="1.17.1" />
-    <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.5" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.15.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

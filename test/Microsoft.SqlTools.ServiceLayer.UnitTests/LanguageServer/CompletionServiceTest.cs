@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo()
             {
-                IsConnected = true,
+                BindingContextKind = BindingContextKind.LiveConnection,
                 ParseResult = Parser.IncrementalParse(
                     scriptFile.Contents,
                     null,
