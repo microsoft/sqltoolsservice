@@ -83,7 +83,7 @@ END
 
             // Create metadata provider
             string databaseName = Path.GetFileNameWithoutExtension(_projectPath);
-            var metadataProvider = new LazySchemaModelMetadataProvider(_model, databaseName);
+            var metadataProvider = new TSqlModelMetadataProvider(_model, databaseName);
 
             // Set up parse options
             var parseOptions = new ParseOptions(
@@ -316,7 +316,7 @@ END
             {
                 string databaseName = Path.GetFileNameWithoutExtension(projectPath);
                 model = TSqlModelBuilder.LoadModel(project);
-                var metadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
+                var metadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
                 var parseOptions = new ParseOptions(
                     batchSeparator: "GO",
@@ -373,7 +373,7 @@ END
 
         /// <summary>
         /// Completions after "dbo.Customers." should include column names from the model.
-        /// Exercises LazyModelTable.Columns → TSqlObject.GetReferenced(Table.Columns).
+        /// Exercises TSqlModelTable.Columns → TSqlObject.GetReferenced(Table.Columns).
         /// </summary>
         [Test]
         public void Completions_ColumnNamesAppearsAfterTableDotAlias()

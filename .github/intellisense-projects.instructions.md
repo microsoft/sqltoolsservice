@@ -104,31 +104,33 @@ IntelliSense model building both happen inside `BuildProjectIntelliSenseAsync`.
 Fire-and-forget background method. Sequence:
 1. `GetProject(projectUri)` — loads and caches the `SqlProject` (MSBuild evaluation).
    Note: `projectUri` is a **file path** (e.g. `C:\...\MyProject.sqlproj`), NOT a URI.
-2. Build file URI list: `project.SqlObjectScripts.Select(s => new Uri(Path.Combine(projectDir, s.Path)).AbsoluteUri)`
-   — `SqlObjectScript.Path` is relative to the project directory; resolve to absolute before converting to URI.
-3. `LanguageService.Instance.InitializeProjectFileContexts(fileUris, contextKey, databaseName)`
-   — **BEFORE `LoadModel`** — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` /
-     `ProjectDatabaseName` on every `.sql` file's `ScriptParseInfo`.
-   — Ensures requests arriving while the model loads are queued against the right key, not rejected.
-   — **Without this call:** every `.sql` file stays `IsConnected=false` → F12 returns "not connected".
-4. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel` (can take
-   seconds on large projects; files are already stamped so requests are accepted during this time)
+2. Derive `projectDir` from the file path — **CRITICAL:** use `Path.GetDirectoryName(new Uri(projectUri).LocalPath)`,
+   NOT `Path.GetDirectoryName(projectUri)`. `projectUri` is a file path but may contain characters
+   that make `Path.GetDirectoryName` return a wrong value. The `Uri` round-trip normalises it.
+3. Build file URI list: for each script path in `SqlObjectScripts`, `PreDeployScripts`, `PostDeployScripts`:
+   - If absolute: `new Uri(path).AbsoluteUri`
+   - If relative: `new Uri(Path.Combine(projectDir, path)).AbsoluteUri`
+4. `TSqlModelBuilder.LoadModel(project)` — parses all DDL scripts into a `TSqlModel`.
 5. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`;
-   stored in `projectIntelliSense[projectUri]` alongside the model for disposal on project close
-6. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, projectMetadataProvider, parseOptions, databaseName)`
+   stored in `projectIntelliSense[projectUri]` alongside the model for disposal on project close.
+6. `LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList)`
    — pass `provider` (`IMetadataProvider`), NOT a pre-built `IBinder`.
-   — `UpdateLanguageServiceOnProjectOpen` creates the `IBinder` internally via
-     `BinderProvider.CreateBinder(metadataProvider)` and stores it on the binding context.
-   — stamps `IsConnected=true` / `ConnectionKey="project_<uri>"` on the `.sqlproj` ScriptParseInfo.
-   — sends `IntelliSenseReadyNotification` to VS Code.
+   — pass `fileUriList` as the last argument so the method stamps files after the context is ready.
+   — `UpdateLanguageServiceOnProjectOpen` calls `AddProjectContext` FIRST, then stamps all files.
+   — sends `IntelliSenseReadyNotification` to VS Code (visible as a status bar update in VS Code).
 
 **Rule:** Always pass `provider` (not a pre-built `IBinder`) to `UpdateLanguageServiceOnProjectOpen`.
-The method signature is `(string projectUri, IMetadataProvider metadataProvider, ParseOptions parseOptions, string databaseName)`.
+The method signature is `(string projectUri, IMetadataProvider metadataProvider, ParseOptions parseOptions, string databaseName, IEnumerable<string> fileUris = null)`.
 Passing an `IBinder` is a compile error (CS1503).
 
-**Rule:** File URIs passed to `InitializeProjectFileContexts` are built via `new Uri(absolutePath).AbsoluteUri`.
+**Rule:** File URIs are built via `new Uri(absolutePath).AbsoluteUri`.
 `ScriptParseInfoMap` uses `OrdinalIgnoreCase` and `GetScriptParseInfo` calls `Uri.UnescapeDataString`,
 so both drive-letter case and percent-encoding differences are handled automatically.
+
+**Rule:** Do NOT call `InitializeProjectFileContexts` before `LoadModel`. Files must only be stamped
+after `AddProjectContext` has registered a fully-populated binding context. Stamping before causes a
+race: if a request arrives between stamp and `AddProjectContext`, `GetOrCreateBindingContext` creates
+an empty context with null `MetadataProvider`, and F12 silently fails.
 
 ---
 
@@ -167,12 +169,19 @@ Uses `StringComparer.OrdinalIgnoreCase`. Required on Windows because VS Code sen
 
 #### **`UpdateLanguageServiceOnProjectOpen` (modified)**
 
-Signature: `(string projectUri, IMetadataProvider metadataProvider, ParseOptions parseOptions, string databaseName)`
+Signature: `(string projectUri, IMetadataProvider metadataProvider, ParseOptions parseOptions, string databaseName, IEnumerable<string> fileUris = null)`
 
-- Creates the binder internally: `BinderProvider.CreateBinder(metadataProvider)`
-- Registers binding context via `BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider)`
-- Sets `scriptInfo.ConnectionKey`, `scriptInfo.IsConnected`, `scriptInfo.ProjectDatabaseName`
-- Sends `IntelliSenseReadyNotification`
+Order of operations inside this method is critical:
+1. `BinderProvider.CreateBinder(metadataProvider)` — creates the binder
+2. `BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider)` — registers the **fully-populated** binding context FIRST
+3. Stamps the `.sqlproj` URI's `ScriptParseInfo`: `ConnectionKey`, `IsConnected=true`, `ProjectDatabaseName`
+4. `InitializeProjectFileContexts(fileUris, contextKey, databaseName)` — stamps all `.sql` files (only if `fileUris != null`)
+5. Sends `IntelliSenseReadyNotification` — visible in VS Code status bar as an IntelliSense status text update
+
+**Why this order matters:** `AddProjectContext` must run before any file is stamped. Once a file has
+`IsConnected=true` and a `ConnectionKey`, any incoming LSP request will call `GetOrCreateBindingContext`
+for that key. If the context doesn't exist yet, an empty context (null `MetadataProvider`) is created
+and F12 fails silently. With `AddProjectContext` first, the context is always populated before requests can reach it.
 
 #### **`GetDefinition` (modified)**
 
@@ -218,12 +227,12 @@ The old `cbc.ProjectModel != null` branch (which called `TSqlModelBuilder.FindDe
 `HandleOpenSqlProjectRequest` responds to VS Code immediately with `Success=true`, then kicks off `BuildProjectIntelliSenseAsync` in the background. The sequence is:
 
 1. `GetProject(projectUri)` — MSBuild evaluation. `projectUri` is a file path, not a URI.
-2. Build `fileUris` from `project.SqlObjectScripts`, `PreDeployScripts`, `PostDeployScripts` — resolve relative paths to absolute, then `new Uri(absolutePath).AbsoluteUri`.
-3. `InitializeProjectFileContexts(fileUris, "project_<uri>", databaseName)` — **BEFORE `LoadModel`** — stamps `IsConnected=true`, `ConnectionKey`, `ProjectDatabaseName` on every `.sql` file. Ensures requests during model load are queued, not rejected.
+2. Derive `projectDir` using `Path.GetDirectoryName(new Uri(projectUri).LocalPath)` — NOT `Path.GetDirectoryName(projectUri)`.
+3. Build `fileUriList` from `project.SqlObjectScripts`, `PreDeployScripts`, `PostDeployScripts` — resolve relative paths with `Path.Combine(projectDir, path)`, then `new Uri(absolutePath).AbsoluteUri`.
 4. `TSqlModelBuilder.LoadModel(project)` — SqlProjects library parses all DDL scripts.
 5. `new LazySchemaModelMetadataProvider(model, databaseName)` — wraps model as `IMetadataProvider`.
 6. `projectIntelliSense[projectUri] = (model, metadataProvider)` — stored for disposal on project close.
-7. `UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName)` — pass `IMetadataProvider`, NOT a pre-built `IBinder`. Creates binder internally, calls `AddProjectContext`, stamps `.sqlproj` `ScriptParseInfo`, sends `IntelliSenseReadyNotification`.
+7. `UpdateLanguageServiceOnProjectOpen(projectUri, provider, parseOptions, databaseName, fileUriList)` — pass `IMetadataProvider` and `fileUriList`. Inside: calls `AddProjectContext` FIRST (binding context fully populated), THEN stamps all files, THEN sends `IntelliSenseReadyNotification`.
 
 ### F12 (Go-to-Definition)
 
@@ -312,18 +321,20 @@ as argument 2 to `UpdateLanguageServiceOnProjectOpen`, which expects `IMetadataP
 This caused CS1503 — the project IntelliSense code was never compiled or executed.
 **Fix:** Pass `provider` directly. The method creates the binder internally.
 
-**Root cause 2 (logical bug):** `InitializeProjectFileContexts` was never called.
-Without it, every `.sql` file kept `IsConnected=false` / `ConnectionKey=null`.
-`GetDefinition` checks `IsProjectContext(scriptParseInfo.ConnectionKey)` — the key must be
-non-null and start with `"project_"`. With `ConnectionKey=null` the check fails and every F12
-falls into the "not connected" error path.
-**Fix:** Before `LoadModel`, call `InitializeProjectFileContexts` with all `.sql` file URIs from
-`project.SqlObjectScripts`. This stamps `ConnectionKey` and `IsConnected=true` so the routing
-check succeeds even while the model is still loading.
+**Root cause 2 (logical bug):** `InitializeProjectFileContexts` was called BEFORE `LoadModel`.
+This created a race: files were stamped with `IsConnected=true` pointing to `"project_x"`, but
+`AddProjectContext` (which puts the real binding context into `BindingContextMap`) hadn't run yet.
+If any LSP request arrived during model loading, `GetOrCreateBindingContext("project_x")` created
+an empty context with `MetadataProvider=null`. F12 then ran against this empty context and silently
+returned no results. One project reliably reproduced this; another project was fast enough to
+never hit the race window.
+**Fix:** Move `InitializeProjectFileContexts` to AFTER `AddProjectContext` inside
+`UpdateLanguageServiceOnProjectOpen`. Pass `fileUriList` into `UpdateLanguageServiceOnProjectOpen`
+as an optional parameter. The order is now: `AddProjectContext` (context fully populated) →
+stamp `.sqlproj` URI → `InitializeProjectFileContexts` (stamp `.sql` files) → send ready notification.
 
-**Do not regress:** Any future refactor of `BuildProjectIntelliSenseAsync` must ensure
-`InitializeProjectFileContexts` is called BEFORE `LoadModel`, and `UpdateLanguageServiceOnProjectOpen`
-is called after the model is fully built, with matching `contextKey = $"project_{projectUri}"` in both.
+**Do not regress:** `InitializeProjectFileContexts` must NEVER be called before `AddProjectContext`.
+Files must only be stamped after the binding context exists and has `MetadataProvider` set.
 
 ### F12 failed for schema-qualified names (`dbo.Orders`) but worked for unqualified (`Orders`)
 
@@ -507,11 +518,14 @@ See the [F12 (Go-to-Definition)](#f12-go-to-definition) flow above for the step-
 
 ### Method: `InitializeProjectFileContexts`
 
-**Purpose:** Stamp all project `.sql` files with `ConnectionKey`, `IsConnected=true`, and `ProjectDatabaseName` BEFORE `LoadModel` runs.
+**Purpose:** Stamp all project `.sql` files with `ConnectionKey`, `IsConnected=true`, and `ProjectDatabaseName`.
 
-**Why before LoadModel:** Model loading can take minutes. Stamping first ensures LSP requests during loading are queued correctly, not rejected as "not connected".
+**MUST be called AFTER `AddProjectContext`** — never before. Files are only stamped once the binding
+context is fully populated. If stamped before, an incoming LSP request can hit `GetOrCreateBindingContext`
+before `AddProjectContext` runs, creating an empty context with `MetadataProvider=null`.
 
-**Called from:** `SqlProjectsService.BuildProjectIntelliSenseAsync` after building the file URI list, before `TSqlModelBuilder.LoadModel`.
+**Called from:** `LanguageService.UpdateLanguageServiceOnProjectOpen`, after `AddProjectContext` and after
+stamping the `.sqlproj` URI, before sending `IntelliSenseReadyNotification`.
 
 **Files included:** `project.SqlObjectScripts` (CREATE statements), `project.PreDeployScripts`, `project.PostDeployScripts`. Pre/Post deploy scripts reference project objects and need IntelliSense even though they are not parsed into `TSqlModel`.
 
@@ -519,7 +533,7 @@ See the [F12 (Go-to-Definition)](#f12-go-to-definition) flow above for the step-
 
 ## BINDING CONTEXT LIFECYCLE
 
-**Creation** (project open): `SqlProjectsService.BuildProjectIntelliSenseAsync` stamps file contexts via `InitializeProjectFileContexts`, loads the model via `TSqlModelBuilder.LoadModel`, creates `LazySchemaModelMetadataProvider`, stores `(model, metadataProvider)` in `projectIntelliSense[projectUri]`, then calls `UpdateLanguageServiceOnProjectOpen`. That method creates the binder via `BinderProvider.CreateBinder(metadataProvider)` and calls `ConnectedBindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider)`, which stores all three on the binding context and adds it to `_bindingContextMap`.
+**Creation** (project open): `SqlProjectsService.BuildProjectIntelliSenseAsync` loads the model via `TSqlModelBuilder.LoadModel`, creates `LazySchemaModelMetadataProvider`, stores `(model, metadataProvider)` in `projectIntelliSense[projectUri]`, then calls `UpdateLanguageServiceOnProjectOpen(projectUri, metadataProvider, parseOptions, databaseName, fileUriList)`. That method: (1) creates the binder via `BinderProvider.CreateBinder(metadataProvider)`, (2) calls `ConnectedBindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider)` — stores all three on the binding context and adds it to `BindingContextMap` with `IsConnected=true`, (3) stamps the `.sqlproj` URI, (4) calls `InitializeProjectFileContexts(fileUriList)` to stamp all `.sql` files. File stamping always happens AFTER the binding context is fully populated.
 
 ### Disposal (project close)
 **NOT YET IMPLEMENTED** - project contexts are never removed from `_bindingContextMap`
@@ -551,8 +565,8 @@ See the [F12 (Go-to-Definition)](#f12-go-to-definition) flow above for the step-
 
 1. Check `scriptParseInfo.ConnectionKey` for the file URI — must be `"project_{projectUri}"`, not null. If null, `InitializeProjectFileContexts` was not called, or the URI passed to `GetScriptParseInfo` doesn't match the stamped URI (check case and percent-encoding).
 2. Verify `IsProjectContext(connectionKey)` returns true.
-3. Verify a binding context exists in `BindingQueue.BindingContextMap` for that key. If missing, `AddProjectContext` was not called (check `UpdateLanguageServiceOnProjectOpen` completed).
-4. Check `(ConnectedBindingContext).MetadataProvider` is a `LazySchemaModelMetadataProvider`. If null, `AddProjectContext` was called without the metadata provider argument.
+3. Verify a binding context exists in `BindingQueue.BindingContextMap` for that key. If missing, `AddProjectContext` was not called — check `UpdateLanguageServiceOnProjectOpen` completed without exception.
+4. Check `(ConnectedBindingContext).MetadataProvider` is a `LazySchemaModelMetadataProvider`. If null, `InitializeProjectFileContexts` was called before `AddProjectContext` (race condition — files were stamped before the context was populated).
 
 ### F12 returns "No definition found"
 

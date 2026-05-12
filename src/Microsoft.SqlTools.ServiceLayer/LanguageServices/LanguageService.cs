@@ -1181,19 +1181,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string projectUri,
             Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
             Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
-            string databaseName)
+            string databaseName,
+            IEnumerable<string> fileUris = null)
         {
             try
             {
                 string contextKey = $"project_{projectUri}";
                 var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(metadataProvider);
 
+                // Register the binding context with MetadataProvider FIRST, before stamping any files.
+                // This ensures no file can be routed to an empty context.
+                this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider);
+
+                // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
                 if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
-                        this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider);
                         scriptInfo.ConnectionKey = contextKey;
                         scriptInfo.IsConnected = true;
                         scriptInfo.ProjectDatabaseName = databaseName;
@@ -1202,6 +1207,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
+                }
+
+                // Stamp all .sql files — binding context is ready so IsConnected=true is safe
+                if (fileUris != null)
+                {
+                    InitializeProjectFileContexts(fileUris, contextKey, databaseName);
                 }
 
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
@@ -1213,8 +1224,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Stamps IsConnected=true and the project ConnectionKey onto every .sql file in the project
-        /// so that F12 and ParseAndBind route through the project binding context.
+        /// Stamps the project ConnectionKey and IsConnected=true onto every .sql file in the project.
+        /// Must only be called AFTER AddProjectContext has registered the binding context, so that
+        /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
         /// </summary>
         public void InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
         {
@@ -1638,7 +1650,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     if (bindingContext is ConnectedBindingContext cbc && 
-                        cbc.MetadataProvider is LazySchemaModelMetadataProvider lazyProvider)
+                        cbc.MetadataProvider is TSqlModelMetadataProvider lazyProvider)
                     {
                         // Step 1: Identify the identifier token at the cursor
                         int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserColumn) ?? -1;

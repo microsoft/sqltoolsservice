@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 
-// SSDT counterpart: MetadataProvider/SchemaModelMetadataProvider.cs
+// SSDT counterpart: MetadataProvider/SchemaModelMetadataProvider.cs → TSqlModelMetadataProvider
 
 namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
@@ -31,16 +31,16 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     /// Go to Definition lookups without delays.
     /// </para>
     /// </summary>
-    public sealed class LazySchemaModelMetadataProvider : MetadataProviderBase
+    public sealed class TSqlModelMetadataProvider : MetadataProviderBase
     {
         private readonly TSqlModel _model;
-        private readonly LazyModelServer _server;
+        private readonly TSqlModelServer _server;
         private readonly Dictionary<string, SourceInformation> _sourceLocations;
 
         /// <summary>
         /// Initializes a new lazy provider from an already-loaded <paramref name="model"/>.
         /// </summary>
-        public LazySchemaModelMetadataProvider(TSqlModel model, string databaseName)
+        public TSqlModelMetadataProvider(TSqlModel model, string databaseName)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 throw new ArgumentNullException(nameof(databaseName));
 
             _model = model;
-            _server = new LazyModelServer(model, databaseName);
+            _server = new TSqlModelServer(model, databaseName);
             _sourceLocations = BuildSourceLocationIndex();
         }
 

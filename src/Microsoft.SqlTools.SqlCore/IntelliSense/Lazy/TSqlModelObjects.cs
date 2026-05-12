@@ -10,26 +10,26 @@ using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 
 // SSDT counterparts:
-//   MetadataProvider/Table.cs                → LazyModelTable
-//   MetadataProvider/View.cs                 → LazyModelView
-//   MetadataProvider/StoredProcedure.cs      → LazyModelStoredProcedure
-//   MetadataProvider/ScalarValuedFunction.cs → LazyModelScalarFunction
-//   MetadataProvider/TableValuedFunction.cs  → LazyModelTableValuedFunction
-//   MetadataProvider/UserDefinedDataType.cs  → LazyModelUserDefinedDataType
-//   MetadataProvider/UserdefinedTableType.cs → LazyModelUserDefinedTableType
+//   MetadataProvider/Table.cs                → TSqlModelTable
+//   MetadataProvider/View.cs                 → TSqlModelView
+//   MetadataProvider/StoredProcedure.cs      → TSqlModelStoredProcedure
+//   MetadataProvider/ScalarValuedFunction.cs → TSqlModelScalarFunction
+//   MetadataProvider/TableValuedFunction.cs  → TSqlModelTableValuedFunction
+//   MetadataProvider/UserDefinedDataType.cs  → TSqlModelUserDefinedDataType
+//   MetadataProvider/UserdefinedTableType.cs → TSqlModelUserDefinedTableType
 
 namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     // =========================================================================
     // Base for all schema-owned objects
     // =========================================================================
-    internal abstract class LazySchemaOwnedBase : ISchemaOwnedObject
+    internal abstract class TSqlModelSchemaObject : ISchemaOwnedObject
     {
-        protected readonly LazyModelSchema _schema;
+        protected readonly TSqlModelSchema _schema;
         protected readonly string _name;
         private readonly bool _isUserDefined;
 
-        protected LazySchemaOwnedBase(LazyModelSchema schema, string name, bool isUserDefined)
+        protected TSqlModelSchemaObject(TSqlModelSchema schema, string name, bool isUserDefined)
         {
             _schema = schema;
             _name   = name;
@@ -47,14 +47,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelTable : ITable
+    // TSqlModelTable : ITable
     // =========================================================================
-    internal sealed class LazyModelTable : LazySchemaOwnedBase, ITable
+    internal sealed class TSqlModelTable : TSqlModelSchemaObject, ITable
     {
         private readonly TSqlObject _tableObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
 
-        public LazyModelTable(LazyModelSchema schema, TSqlObject tableObj, bool isUserDefined)
+        public TSqlModelTable(TSqlModelSchema schema, TSqlObject tableObj, bool isUserDefined)
             : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1], isUserDefined)
         {
             _tableObj = tableObj;
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
                 () => _tableObj.GetReferenced(Table.Columns)
-                               .Select(c => new LazyModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
+                               .Select(c => new TSqlModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
                                .Cast<IColumn>());
 
         public TabularType TabularType => TabularType.Table;
@@ -86,14 +86,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelView : IView
+    // TSqlModelView : IView
     // =========================================================================
-    internal sealed class LazyModelView : LazySchemaOwnedBase, IView
+    internal sealed class TSqlModelView : TSqlModelSchemaObject, IView
     {
         private readonly TSqlObject _viewObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
 
-        public LazyModelView(LazyModelSchema schema, TSqlObject viewObj, bool isUserDefined)
+        public TSqlModelView(TSqlModelSchema schema, TSqlObject viewObj, bool isUserDefined)
             : base(schema, viewObj.Name.Parts[viewObj.Name.Parts.Count - 1], isUserDefined)
         {
             _viewObj = viewObj;
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
                 () => _viewObj.GetReferenced(View.Columns)
-                              .Select(c => new LazyModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
+                              .Select(c => new TSqlModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
                               .Cast<IColumn>());
 
         public TabularType TabularType => TabularType.View;
@@ -131,14 +131,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelStoredProcedure : IStoredProcedure
+    // TSqlModelStoredProcedure : IStoredProcedure
     // =========================================================================
-    internal sealed class LazyModelStoredProcedure : LazySchemaOwnedBase, IStoredProcedure
+    internal sealed class TSqlModelStoredProcedure : TSqlModelSchemaObject, IStoredProcedure
     {
         private readonly TSqlObject _procObj;
         private IMetadataOrderedCollection<IParameter>? _parameters;
 
-        public LazyModelStoredProcedure(LazyModelSchema schema, TSqlObject procObj, bool isUserDefined)
+        public TSqlModelStoredProcedure(TSqlModelSchema schema, TSqlObject procObj, bool isUserDefined)
             : base(schema, procObj.Name.Parts[procObj.Name.Parts.Count - 1], isUserDefined)
         {
             _procObj = procObj;
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _procObj
                     .GetReferenced(Procedure.Parameters)
-                    .Select(p => (IParameter)new LazyModelParameter(
+                    .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
 
@@ -173,14 +173,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelScalarFunction : IScalarValuedFunction
+    // TSqlModelScalarFunction : IScalarValuedFunction
     // =========================================================================
-    internal sealed class LazyModelScalarFunction : LazySchemaOwnedBase, IScalarValuedFunction
+    internal sealed class TSqlModelScalarFunction : TSqlModelSchemaObject, IScalarValuedFunction
     {
         private readonly TSqlObject _fnObj;
         private IMetadataOrderedCollection<IParameter>? _parameters;
 
-        public LazyModelScalarFunction(LazyModelSchema schema, TSqlObject fnObj, bool isUserDefined)
+        public TSqlModelScalarFunction(TSqlModelSchema schema, TSqlObject fnObj, bool isUserDefined)
             : base(schema, fnObj.Name.Parts[fnObj.Name.Parts.Count - 1], isUserDefined)
         {
             _fnObj = fnObj;
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
                     .GetReferenced(ScalarFunction.Parameters)
-                    .Select(p => (IParameter)new LazyModelParameter(
+                    .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
 
@@ -224,15 +224,15 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelTableValuedFunction : ITableValuedFunction
+    // TSqlModelTableValuedFunction : ITableValuedFunction
     // =========================================================================
-    internal sealed class LazyModelTableValuedFunction : LazySchemaOwnedBase, ITableValuedFunction
+    internal sealed class TSqlModelTableValuedFunction : TSqlModelSchemaObject, ITableValuedFunction
     {
         private readonly TSqlObject _fnObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
         private IMetadataOrderedCollection<IParameter>? _parameters;
 
-        public LazyModelTableValuedFunction(LazyModelSchema schema, TSqlObject fnObj, bool isUserDefined)
+        public TSqlModelTableValuedFunction(TSqlModelSchema schema, TSqlObject fnObj, bool isUserDefined)
             : base(schema, fnObj.Name.Parts[fnObj.Name.Parts.Count - 1], isUserDefined)
         {
             _fnObj = fnObj;
@@ -242,7 +242,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
                 () => _fnObj.GetReferenced(TableValuedFunction.Columns)
-                            .Select(c => new LazyModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
+                            .Select(c => new TSqlModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
                             .Cast<IColumn>());
 
         public TabularType TabularType => TabularType.TableValuedFunction;
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
                     .GetReferenced(TableValuedFunction.Parameters)
-                    .Select(p => (IParameter)new LazyModelParameter(
+                    .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
 
@@ -286,11 +286,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelUserDefinedDataType : IUserDefinedDataType
+    // TSqlModelUserDefinedDataType : IUserDefinedDataType
     // =========================================================================
-    internal sealed class LazyModelUserDefinedDataType : LazySchemaOwnedBase, IUserDefinedDataType
+    internal sealed class TSqlModelUserDefinedDataType : TSqlModelSchemaObject, IUserDefinedDataType
     {
-        public LazyModelUserDefinedDataType(LazyModelSchema schema, string name, bool isUserDefined)
+        public TSqlModelUserDefinedDataType(TSqlModelSchema schema, string name, bool isUserDefined)
             : base(schema, name, isUserDefined) { }
 
         // IDataType
@@ -318,11 +318,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelUserDefinedTableType : IUserDefinedTableType
+    // TSqlModelUserDefinedTableType : IUserDefinedTableType
     // =========================================================================
-    internal sealed class LazyModelUserDefinedTableType : LazySchemaOwnedBase, IUserDefinedTableType
+    internal sealed class TSqlModelUserDefinedTableType : TSqlModelSchemaObject, IUserDefinedTableType
     {
-        public LazyModelUserDefinedTableType(LazyModelSchema schema, string name, bool isUserDefined)
+        public TSqlModelUserDefinedTableType(TSqlModelSchema schema, string name, bool isUserDefined)
             : base(schema, name, isUserDefined) { }
 
         // IDataType
@@ -353,13 +353,13 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelParameter : IScalarParameter
+    // TSqlModelParameter : IScalarParameter
     // Implements IScalarParameter (not just IParameter) because IMetadataObjectVisitor<T>
     // dispatches on the concrete parameter kind. We always produce scalar parameters.
     // =========================================================================
-    internal sealed class LazyModelParameter : IScalarParameter
+    internal sealed class TSqlModelParameter : IScalarParameter
     {
-        public LazyModelParameter(string name, bool isOutput)
+        public TSqlModelParameter(string name, bool isOutput)
         {
             Name     = name;
             IsOutput = isOutput;
@@ -387,14 +387,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
-    // LazyModelColumn : IColumn
+    // TSqlModelColumn : IColumn
     // =========================================================================
-    internal sealed class LazyModelColumn : IColumn
+    internal sealed class TSqlModelColumn : IColumn
     {
         private readonly ITabular _parent;
         private readonly string _name;
 
-        public LazyModelColumn(ITabular parent, string name)
+        public TSqlModelColumn(ITabular parent, string name)
         {
             _parent = parent;
             _name   = name;

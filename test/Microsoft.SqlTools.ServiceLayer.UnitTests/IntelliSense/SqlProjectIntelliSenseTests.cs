@@ -59,7 +59,7 @@ END
                 var allObjects = model.GetObjects(DacQueryScopes.All).ToList();
                 Assert.Greater(allObjects.Count, 0, $"Model should have objects. Project directory: {project.DirectoryPath}");
                 
-                var metadataProvider = new LazySchemaModelMetadataProvider(model, "TestDatabase");
+                var metadataProvider = new TSqlModelMetadataProvider(model, "TestDatabase");
 
                 // Assert: Verify that the MetadataProvider contains our objects
                 Assert.IsNotNull(metadataProvider, "MetadataProvider should not be null");

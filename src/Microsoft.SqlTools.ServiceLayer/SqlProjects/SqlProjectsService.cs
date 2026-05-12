@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// Maps project URI to its TSqlModel and MetadataProvider for offline IntelliSense.
         /// Both must be disposed when the project is closed.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, LazySchemaModelMetadataProvider Provider)> projectIntelliSense = new();
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider)> projectIntelliSense = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
                 string contextKey = $"project_{projectUri}";
-                string projectDir = Path.GetDirectoryName(projectUri) ?? string.Empty;
+                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath) ?? string.Empty;
                 
                 // Include all SQL files: Build items, PreDeploy, and PostDeploy
                 var allScripts = new List<string>();
@@ -182,12 +182,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         : Path.Combine(projectDir, path)).AbsoluteUri)
                     .ToList();
 
-                // Stamp files before the model finishes loading so that F12 requests arriving
-                // during the load are queued on the binding context rather than rejected.
-                LanguageService.Instance.InitializeProjectFileContexts(fileUriList, contextKey, databaseName);
-
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
-                var projectMetadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
+                var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
                 // Store for disposal on project close
                 projectIntelliSense[projectUri] = (model, projectMetadataProvider);
@@ -199,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     transactSqlVersion: TransactSqlVersion.Current);
 
                 await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
-                    projectUri, projectMetadataProvider, parseOptions, databaseName);
+                    projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
             }
             catch (Exception ex)
             {
