@@ -399,6 +399,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceSaveAsExcelMaxRowsExceeded(long maxRows)
+        {
+            return Keys.GetString(Keys.QueryServiceSaveAsExcelMaxRowsExceeded, maxRows);
+        }
+
         public static string QueryServiceResultSetNotRead
         {
             get
@@ -11268,6 +11273,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceSaveAsInProgress = "QueryServiceSaveAsInProgress";
+
+
+            public const string QueryServiceSaveAsExcelMaxRowsExceeded = "QueryServiceSaveAsExcelMaxRowsExceeded";
 
 
             public const string QueryServiceSaveAsFail = "QueryServiceSaveAsFail";

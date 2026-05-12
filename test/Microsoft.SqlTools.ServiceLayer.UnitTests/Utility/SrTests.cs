@@ -79,6 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.QueryServiceResultSetRowCountOutOfRange);
             Assert.NotNull(ServiceLayerSr.QueryServiceResultSetStartRowOutOfRange);
             Assert.NotNull(ServiceLayerSr.QueryServiceSaveAsFail("",""));
+            Assert.NotNull(ServiceLayerSr.QueryServiceSaveAsExcelMaxRowsExceeded(0));
             Assert.NotNull(ServiceLayerSr.QueryServiceSaveAsInProgress);
             Assert.NotNull(ServiceLayerSr.QueryServiceSaveAsMiscStartingError);
             Assert.NotNull(ServiceLayerSr.QueryServiceSaveAsResultSetNotComplete);

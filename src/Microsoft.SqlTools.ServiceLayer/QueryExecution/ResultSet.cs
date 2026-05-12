@@ -36,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
         private const uint MaxResultsTimerPulseMilliseconds = 1000;
         private const uint MinResultTimerPulseMilliseconds = 10;
+        private const long MaxExcelWorksheetRows = 1048576;
         #endregion
 
         #region Member Variables
@@ -552,6 +553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Create the new task
             var saveAsTask = new Task(async () =>
             {
+                bool createdOutputFile = false;
                 try
                 {
                     // Set row counts depending on whether save request is for entire set or a subset
@@ -565,9 +567,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // ReSharper restore PossibleInvalidOperationException
                     }
 
+                    if (saveParams is SaveResultsAsExcelRequestParams excelSaveParams &&
+                        rowEndIndex - rowStartIndex + (excelSaveParams.IncludeHeaders ? 1 : 0) > MaxExcelWorksheetRows)
+                    {
+                        throw new InvalidOperationException(SR.QueryServiceSaveAsExcelMaxRowsExceeded(MaxExcelWorksheetRows));
+                    }
+
                     using (var fileReader = fileFactory.GetReader(outputFileName))
                     using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
+                        createdOutputFile = true;
                         DateTime recentLogTime;
 
                         // Some writers (like Excel) require the column widths before any of the rows have been written so we need to loop over
@@ -612,7 +621,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 catch (Exception e)
                 {
-                    fileFactory.DisposeFile(saveParams.FilePath);
+                    if (createdOutputFile)
+                    {
+                        fileFactory.DisposeFile(saveParams.FilePath);
+                    }
+
                     if (failureHandler != null)
                     {
                         await failureHandler(saveParams, e.Message);
