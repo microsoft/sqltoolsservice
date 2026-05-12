@@ -9,7 +9,7 @@ using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 
-// SSDT counterpart: MetadataProvider/Schema.cs
+// SSDT counterpart: MetadataProvider/Schema.cs → TSqlModelSchema
 
 namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
@@ -18,13 +18,13 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     /// Each collection (Tables, Views, etc.) is populated on first access only.
     /// <para>
     /// Object collections query both UserDefined and BuiltIn scopes separately, so each object
-    /// wrapper (LazyModelTable, etc.) knows its true scope regardless of which scope the schema
+    /// wrapper (TSqlModelTable, etc.) knows its true scope regardless of which scope the schema
     /// was originally created in. This correctly handles schemas like 'dbo' that exist in both scopes.
     /// </para>
     /// </summary>
-    internal sealed class LazyModelSchema : ISchema
+    internal sealed class TSqlModelSchema : ISchema
     {
-        private readonly LazyModelDatabase _database;
+        private readonly TSqlModelDatabase _database;
         private readonly TSqlModel _model;
         private readonly string _name;
         private readonly DacQueryScopes _scope;
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly IMetadataCollection<IUserDefinedDataType>  _userDefinedDataTypes;
         private readonly IMetadataCollection<IUserDefinedTableType> _userDefinedTableTypes;
 
-        public LazyModelSchema(LazyModelDatabase database, TSqlModel model, string schemaName,
+        public TSqlModelSchema(TSqlModelDatabase database, TSqlModel model, string schemaName,
             DacQueryScopes scope = DacQueryScopes.UserDefined)
         {
             _database = database;
@@ -52,37 +52,37 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             // Query UserDefined and BuiltIn separately so each object knows its true scope.
             _tables = new LazyCollection<ITable>(
                 () => GetObjectsWithScope(model, ModelSchema.Table)
-                           .Select(pair => new LazyModelTable(this, pair.Object, pair.IsUserDefined))
+                           .Select(pair => new TSqlModelTable(this, pair.Object, pair.IsUserDefined))
                            .Cast<ITable>());
 
             _views = new LazyCollection<IView>(
                 () => GetObjectsWithScope(model, ModelSchema.View)
-                           .Select(pair => new LazyModelView(this, pair.Object, pair.IsUserDefined))
+                           .Select(pair => new TSqlModelView(this, pair.Object, pair.IsUserDefined))
                            .Cast<IView>());
 
             _storedProcedures = new LazyCollection<IStoredProcedure>(
                 () => GetObjectsWithScope(model, ModelSchema.Procedure)
-                           .Select(pair => new LazyModelStoredProcedure(this, pair.Object, pair.IsUserDefined))
+                           .Select(pair => new TSqlModelStoredProcedure(this, pair.Object, pair.IsUserDefined))
                            .Cast<IStoredProcedure>());
 
             _scalarValuedFunctions = new LazyCollection<IScalarValuedFunction>(
                 () => GetObjectsWithScope(model, ModelSchema.ScalarFunction)
-                           .Select(pair => new LazyModelScalarFunction(this, pair.Object, pair.IsUserDefined))
+                           .Select(pair => new TSqlModelScalarFunction(this, pair.Object, pair.IsUserDefined))
                            .Cast<IScalarValuedFunction>());
 
             _tableValuedFunctions = new LazyCollection<ITableValuedFunction>(
                 () => GetObjectsWithScope(model, ModelSchema.TableValuedFunction)
-                           .Select(pair => new LazyModelTableValuedFunction(this, pair.Object, pair.IsUserDefined))
+                           .Select(pair => new TSqlModelTableValuedFunction(this, pair.Object, pair.IsUserDefined))
                            .Cast<ITableValuedFunction>());
 
             _userDefinedDataTypes = new LazyCollection<IUserDefinedDataType>(
                 () => GetObjectsWithScope(model, ModelSchema.DataType)
-                           .Select(pair => new LazyModelUserDefinedDataType(this, ObjectName(pair.Object), pair.IsUserDefined))
+                           .Select(pair => new TSqlModelUserDefinedDataType(this, ObjectName(pair.Object), pair.IsUserDefined))
                            .Cast<IUserDefinedDataType>());
 
             _userDefinedTableTypes = new LazyCollection<IUserDefinedTableType>(
                 () => GetObjectsWithScope(model, ModelSchema.TableType)
-                           .Select(pair => new LazyModelUserDefinedTableType(this, ObjectName(pair.Object), pair.IsUserDefined))
+                           .Select(pair => new TSqlModelUserDefinedTableType(this, ObjectName(pair.Object), pair.IsUserDefined))
                            .Cast<IUserDefinedTableType>());
         }
 

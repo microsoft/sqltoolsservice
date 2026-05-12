@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -215,6 +216,49 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (BindingContextExists(connectionKey))
             {
                 RemoveBindingContext(connectionKey);
+            }
+        }
+
+        /// <summary>
+        /// Removes the offline binding context registered for a SQL project.
+        /// Drops the binder and MetadataProvider reference so GC can collect them.
+        /// </summary>
+        public void RemoveProjectContext(string projectKey)
+        {
+            if (BindingContextExists(projectKey))
+            {
+                RemoveBindingContext(projectKey);
+            }
+        }
+
+        /// <summary>
+        /// Creates an offline binding context for a SQL project (no server connection required).
+        /// </summary>
+        public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider metadataProvider = null)
+        {
+            if (BindingContextExists(projectKey))
+            {
+                RemoveBindingContext(projectKey);
+            }
+
+            ConnectedBindingContext bindingContext = (ConnectedBindingContext)this.GetOrCreateBindingContext(projectKey);
+            if (bindingContext.BindingLock.WaitOne())
+            {
+                try
+                {
+                    bindingContext.BindingLock.Reset();
+                    bindingContext.Binder = binder;
+                    bindingContext.MetadataProvider = metadataProvider;
+                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+                    bindingContext.IsProjectContext = true;
+                    // IsConnected intentionally left false: no live server connection.
+                    // ParseOptions are fixed at context creation; no server query needed.
+                    bindingContext.ProjectParseOptions = parseOptions;
+                }
+                finally
+                {
+                    bindingContext.BindingLock.Set();
+                }
             }
         }
 

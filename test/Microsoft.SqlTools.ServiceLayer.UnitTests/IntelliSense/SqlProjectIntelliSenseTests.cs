@@ -22,12 +22,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
         public void TestCreateMetadataProviderFromSqlProject()
         {
             // Arrange: Create a test SQL project with some tables and stored procedures
-            string projectPath = ProjectUtils.CreateTestProject("TestMetadataProject");
+            // Use unique project name per test run to avoid cross-test interference
+            string projectPath = ProjectUtils.CreateTestProject();
             var project = SqlProject.OpenProject(projectPath);
-
-            // Add explicit schema creation so dbo exists in UserDefined scope
-            string schemaScript = "CREATE SCHEMA dbo;";
-            project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Schemas", "dbo.sql")), schemaScript);
 
             // Add a table script
             string tableScript = @"
@@ -50,7 +47,7 @@ END
             project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")), spScript);
 
             // Debug: Verify scripts were added
-            Assert.AreEqual(3, project.SqlObjectScripts.Count, "Should have 3 scripts in project (schema, table, sproc)");
+            Assert.AreEqual(2, project.SqlObjectScripts.Count, "Should have 2 scripts in project (table, sproc)");
 
             TSqlModel? model = null;
             try
@@ -62,7 +59,7 @@ END
                 var allObjects = model.GetObjects(DacQueryScopes.All).ToList();
                 Assert.Greater(allObjects.Count, 0, $"Model should have objects. Project directory: {project.DirectoryPath}");
                 
-                var metadataProvider = new LazySchemaModelMetadataProvider(model, "TestDatabase");
+                var metadataProvider = new TSqlModelMetadataProvider(model, "TestDatabase");
 
                 // Assert: Verify that the MetadataProvider contains our objects
                 Assert.IsNotNull(metadataProvider, "MetadataProvider should not be null");

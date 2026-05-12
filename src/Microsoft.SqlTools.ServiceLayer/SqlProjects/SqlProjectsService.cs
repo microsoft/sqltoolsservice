@@ -13,9 +13,12 @@ using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -45,10 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
 
         /// <summary>
-        /// Maps project URI to its TSqlModel and MetadataProvider for offline IntelliSense.
-        /// Both must be disposed when the project is closed.
+        /// Maps project URI to its IntelliSense state for offline IntelliSense.
+        /// On close: Model must be disposed; binding context and ScriptParseInfo entries
+        /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, LazySchemaModelMetadataProvider Provider)> projectIntelliSense = new();
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -135,9 +139,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 Projects.TryRemove(requestParams.ProjectUri, out _);
                 
-                // Dispose TSqlModel and provider to free memory
+                // Full IntelliSense teardown:
+                // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
+                // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
+                // 3. Dispose TSqlModel to free DacFx unmanaged resources
                 if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
                 {
+                    LanguageService.Instance.TearDownProjectContext(
+                        requestParams.ProjectUri,
+                        intelliSense.ContextKey,
+                        intelliSense.FileUris);
                     intelliSense.Model?.Dispose();
                 }
             }, requestContext);
@@ -153,18 +164,47 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             try
             {
                 SqlProject project = GetProject(projectUri);
-                string databaseName = Path.GetFileNameWithoutExtension(projectUri);
 
-                // Build TSqlModel from project's SQL scripts
+                string databaseName = Path.GetFileNameWithoutExtension(projectUri);
+                string contextKey = $"project_{projectUri}";
+                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath)
+                    ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
+                
+                // Include all SQL files: Build items, PreDeploy, and PostDeploy
+                var allScripts = new List<string>();
+                foreach (var script in project.SqlObjectScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                foreach (var script in project.PreDeployScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                foreach (var script in project.PostDeployScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                
+                var fileUriList = allScripts
+                    .Select(path => new Uri(Path.IsPathRooted(path)
+                        ? path
+                        : Path.Combine(projectDir, path)).AbsoluteUri)
+                    .ToList();
+
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+                var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
+
+                // Store everything needed for full teardown on project close
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, fileUriList);
                 
-                // Create MetadataProvider for offline IntelliSense
-                var projectMetadataProvider = new LazySchemaModelMetadataProvider(model, databaseName);
-                
-                // Store for disposal on project close
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider);
-                
-                // TODO: Register provider with LanguageService in follow-up PR
+                var parseOptions = new ParseOptions(
+                    batchSeparator: LanguageService.DefaultBatchSeperator,
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
             }
             catch (Exception ex)
             {

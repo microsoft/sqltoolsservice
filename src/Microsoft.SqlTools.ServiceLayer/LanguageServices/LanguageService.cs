@@ -37,6 +37,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -111,7 +112,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private ConcurrentDictionary<string, bool> nonMssqlUriMap = new();
 
         private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
-            = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(() => new());
+            = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(
+                () => new ConcurrentDictionary<string, ScriptParseInfo>(StringComparer.OrdinalIgnoreCase));
 
         private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new();
         private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new();
@@ -507,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
-                // Retrieve document and connection
+                // Retrieve document and connection (null for project files — handled by GetDefinition)
                 ConnectionInfo connInfo;
                 var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 bool isConnected = false;
@@ -958,13 +960,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
+
             return Task.Run(() =>
             {
                 if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
                     try
                     {
-                        if (connInfo == null || !parseInfo.IsConnected)
+                        // Both online and project files use the binding queue via ConnectionKey.
+                        // Online: connInfo != null, UpdateLanguageServiceOnConnection set IsConnected.
+                        // Project: connInfo is null, InitializeProjectFileContexts set IsProjectContext.
+                        bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProjectContext) && parseInfo.ConnectionKey != null;
+
+                        if (!hasBindingContext)
                         {
                             if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, out ParseResult parseResult))
                             {
@@ -998,11 +1006,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                         List<ParseResult> parseResults = new List<ParseResult>();
                                         parseResults.Add(parseResult);
-                                        if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                        if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
                                         {
+                                            string dbName = connInfo?.ConnectionDetails?.DatabaseName
+                                                            ?? parseInfo.ProjectDatabaseName;
                                             bindingContext.Binder.Bind(
                                                 parseResults,
-                                                connInfo.ConnectionDetails.DatabaseName,
+                                                dbName,
                                                 BindMode.Batch);
                                         }
                                     }
@@ -1130,6 +1140,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
             ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
+
+            // Project files always retain their "project_{uri}" key — a server connection must not
+            // overwrite it and redirect the file to the SMO binder.
+            if (IsProjectContext(scriptInfo.ConnectionKey))
+            {
+                return;
+            }
+
             if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
             {
                 try
@@ -1156,6 +1174,100 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             });
         }
 
+        /// <summary>
+        /// Registers an offline binding context for a SQL project (no server connection required).
+        /// </summary>
+        public async Task UpdateLanguageServiceOnProjectOpen(
+            string projectUri,
+            Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
+            Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
+            string databaseName,
+            IEnumerable<string> fileUris = null)
+        {
+            try
+            {
+                string contextKey = $"project_{projectUri}";
+                var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(metadataProvider);
+
+                // Register the binding context with MetadataProvider FIRST, before stamping any files.
+                // This ensures no file can be routed to an empty context.
+                this.BindingQueue.AddProjectContext(contextKey, binder, parseOptions, metadataProvider);
+
+                // Stamp the .sqlproj URI itself
+                ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                {
+                    try
+                    {
+                        scriptInfo.ConnectionKey = contextKey;
+                        scriptInfo.IsProjectContext = true;
+                        scriptInfo.ProjectDatabaseName = databaseName;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    }
+                }
+
+                // Stamp all .sql files with project context so HasBindingContext returns true
+                if (fileUris != null)
+                {
+                    InitializeProjectFileContexts(fileUris, contextKey, databaseName);
+                }
+
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to set up project IntelliSense for {projectUri}: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Stamps the project ConnectionKey and IsProjectContext=true onto every .sql file in the project.
+        /// Must only be called AFTER AddProjectContext has registered the binding context, so that
+        /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
+        /// </summary>
+        public void InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
+        {
+            foreach (string fileUri in fileUris)
+            {
+                ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                {
+                    try
+                    {
+                        scriptInfo.ConnectionKey = contextKey;
+                        scriptInfo.IsProjectContext = true;
+                        scriptInfo.ProjectDatabaseName = databaseName;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tears down the IntelliSense binding context for a closed SQL project.
+        /// Removes the binding context from the queue (releasing the MetadataProvider reference)
+        /// and removes ScriptParseInfo entries for all project files and the .sqlproj itself.
+        /// </summary>
+        public void TearDownProjectContext(string projectUri, string contextKey, IEnumerable<string> fileUris)
+        {
+            this.BindingQueue.RemoveProjectContext(contextKey);
+
+            RemoveScriptParseInfo(projectUri);
+
+            if (fileUris != null)
+            {
+                foreach (string fileUri in fileUris)
+                {
+                    RemoveScriptParseInfo(fileUri);
+                }
+            }
+        }
 
         /// <summary>
         /// Preinitialize the parser and binder with common metadata.
@@ -1281,6 +1393,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Returns true when the ConnectionKey identifies a SQL project context (offline, TSqlModel-backed).
+        /// Use this for routing decisions instead of checking connInfo == null.
+        /// </summary>
+        private static bool IsProjectContext(string connectionKey)
+            => !string.IsNullOrEmpty(connectionKey) &&
+               connectionKey.StartsWith("project_", StringComparison.Ordinal);
+
+        /// <summary>
         /// Determines whether a reparse and bind is required to provide autocomplete
         /// </summary>
         /// <param name="info"></param>
@@ -1349,7 +1469,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 
         /// <summary>
-        /// Queue a task to the binding queue
+        /// Queue a task to the binding queue (server-connected path only).
+        /// For project files use <see cref="QueueProjectTask"/> instead.
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptParseInfo"></param>
@@ -1366,6 +1487,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bindingTimeout: LanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
+                    // Project contexts do not have a server connection; only SMO-connected contexts can script objects.
+                    if (bindingContext.ServerConnection == null)
+                    {
+                        return new DefinitionResult
+                        {
+                            IsErrorResult = true,
+                            Message = SR.PeekDefinitionNotConnectedError,
+                            Locations = null
+                        };
+                    }
+
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
 
                     // Script object using SMO
@@ -1467,6 +1599,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
+            // Project file: key starts with "project_" regardless of whether the user also has a
+            // server connection open. Route directly to the engine — no token peeling, raw position only.
+            if (IsProjectContext(scriptParseInfo.ConnectionKey))
+            {
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+                return QueueProjectTask(textDocumentPosition, scriptParseInfo);
+            }
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo).GetAwaiter().GetResult();
@@ -1512,6 +1651,123 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Locations = null
                 };
             }
+        }
+
+        /// <summary>
+        /// Queues a Go-to-Definition operation for a SQL project file via the project binding context.
+        /// </summary>
+        private DefinitionResult QueueProjectTask(
+            TextDocumentPosition textDocumentPosition,
+            ScriptParseInfo scriptParseInfo)
+        {
+            // Convert from LSP 0-based to parser 1-based
+            int parserLine   = textDocumentPosition.Position.Line + 1;
+            int parserColumn = textDocumentPosition.Position.Character + 1;
+
+            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                key: scriptParseInfo.ConnectionKey,
+                bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                bindOperation: (bindingContext, cancelToken) =>
+                {
+                    if (bindingContext is ConnectedBindingContext cbc && 
+                        cbc.MetadataProvider is TSqlModelMetadataProvider lazyProvider)
+                    {
+                        // Step 1: Identify the identifier token at the cursor
+                        int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserColumn) ?? -1;
+                        if (tokenIndex < 0)
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+
+                        var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
+                        string tokenText = token?.Text?.Trim('[', ']');
+                        if (string.IsNullOrWhiteSpace(tokenText))
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+
+                        // Step 2: Semantic resolution using SqlParser's Resolver
+                        var declarations = Microsoft.SqlServer.Management.SqlParser.Intellisense.Resolver.FindCompletions(
+                            scriptParseInfo.ParseResult, parserLine, parserColumn, cbc.MetadataDisplayInfoProvider);
+
+                        // Step 3: Match the resolved declaration against the token text at the cursor.
+                        // FindCompletions returns all visible objects at this position; we pick the one
+                        // whose unqualified Title equals the token (e.g. "Orders" matches "dbo.Orders").
+                        var match = declarations?.FirstOrDefault(d =>
+                            string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
+
+                        if (match?.DatabaseQualifiedName == null)
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+
+                        // Step 4: Get source information from metadata provider.
+                        // Try the full DatabaseQualifiedName first — this handles schemas whose names contain
+                        // dots (e.g. [SwaggerPetstore.Models].[Get0ItemsItem]) where the index key is
+                        // "SwaggerPetstore.Models.Get0ItemsItem". Fall back to stripping the database prefix
+                        // for the normal case (e.g. "ProjectDB.dbo.Orders" → "dbo.Orders").
+                        if (!lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out var sourceInfo) || sourceInfo?.SourceName == null)
+                        {
+                            string stripped = StripDatabasePrefix(match.DatabaseQualifiedName);
+                            lazyProvider.TryGetSourceInformation(stripped, out sourceInfo);
+                        }
+                        if (sourceInfo?.SourceName != null)
+                        {
+                            string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
+                            return new DefinitionResult
+                            {
+                                Locations = new[]
+                                {
+                                    new Location
+                                    {
+                                        Uri = fileUri,
+                                        Range = new Workspace.Contracts.Range
+                                        {
+                                            // LSP is 0-based; DacFx SourceInformation is 1-based
+                                            Start = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 },
+                                            End   = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 }
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionNoResultsError,
+                        Locations = null
+                    };
+                },
+                timeoutOperation: (_) => new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionTimedoutError,
+                    Locations = null
+                },
+                errorHandler: ex => new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = ex.Message,
+                    Locations = null
+                });
+
+            queueItem.ItemProcessed.WaitOne();
+            return queueItem.GetResultAsT<DefinitionResult>();
+        }
+
+        /// <summary>Strips the leading database name from a three-part qualified name.</summary>
+        private static string StripDatabasePrefix(string databaseQualifiedName)
+        {
+            int dot = databaseQualifiedName.IndexOf('.');
+            return dot >= 0
+                ? databaseQualifiedName.Substring(dot + 1)
+                : databaseQualifiedName;
+        }
+
+        /// <summary>Creates an error DefinitionResult with the specified message.</summary>
+        private static DefinitionResult CreateErrorResult(string message)
+        {
+            return new DefinitionResult
+            {
+                IsErrorResult = true,
+                Message = message,
+                Locations = null
+            };
         }
 
         /// <summary>
@@ -1897,6 +2153,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
+            // For project files, suppress binding diagnostics: the binder sees DDL objects as
+            // duplicates because they are already loaded into the metadata model, producing false
+            // "already exists" errors. Project-level validation belongs to a build step.
+            ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            bool isProjectFile = IsProjectContext(parseInfo?.ConnectionKey);
+            if (isProjectFile)
+            {
+                return Array.Empty<ScriptFileMarker>();
+            }
+
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
             if (parseResult != null && parseResult.Errors != null)
@@ -2093,6 +2359,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>
         internal ScriptParseInfo? GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
+            // Normalize: decode percent-encoded chars (e.g. %3A -> :) so that
+            // file:///c%3A/... (VS Code) and file:///C:/... (new Uri().AbsoluteUri) map to the same key.
+            uri = Uri.UnescapeDataString(uri);
             lock (this.parseMapLock)
             {
                 if (this.ScriptParseInfoMap.TryGetValue(uri, out ScriptParseInfo value))

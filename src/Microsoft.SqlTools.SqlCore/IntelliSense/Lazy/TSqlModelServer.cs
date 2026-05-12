@@ -12,21 +12,21 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 
 // SSDT counterparts:
-//   MetadataProvider/Server.cs   → LazyModelServer
-//   MetadataProvider/Database.cs → LazyModelDatabase
+//   MetadataProvider/Server.cs   → TSqlModelServer
+//   MetadataProvider/Database.cs → TSqlModelDatabase
 
 namespace Microsoft.SqlTools.SqlCore.IntelliSense
 {
     // -------------------------------------------------------------------------
-    // LazyModelServer : IServer
+    // TSqlModelServer : IServer
     // -------------------------------------------------------------------------
-    internal sealed class LazyModelServer : IServer
+    internal sealed class TSqlModelServer : IServer
     {
-        private readonly LazyModelDatabase _database;
+        private readonly TSqlModelDatabase _database;
 
-        public LazyModelServer(TSqlModel model, string databaseName)
+        public TSqlModelServer(TSqlModel model, string databaseName)
         {
-            _database = new LazyModelDatabase(this, model, databaseName);
+            _database = new TSqlModelDatabase(this, model, databaseName);
         }
 
         public string Name => string.Empty;
@@ -46,30 +46,30 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // -------------------------------------------------------------------------
-    // LazyModelDatabase : IDatabase
+    // TSqlModelDatabase : IDatabase
     // NOTE: CollationInfo is hardcoded to Default — known gap for case-sensitive databases.
     // -------------------------------------------------------------------------
-    internal sealed class LazyModelDatabase : IDatabase
+    internal sealed class TSqlModelDatabase : IDatabase
     {
-        private readonly LazyModelServer _server;
+        private readonly TSqlModelServer _server;
         private readonly TSqlModel _model;
         private readonly string _name;
         private IMetadataCollection<ISchema>? _schemas;
 
         private readonly DatabaseCompatibilityLevel _compatLevel;
 
-        public LazyModelDatabase(LazyModelServer server, TSqlModel model, string name)
+        public TSqlModelDatabase(TSqlModelServer server, TSqlModel model, string name)
         {
-            _server      = server;
-            _model       = model;
-            _name        = name;
+            _server = server;
+            _model = model;
+            _name = name;
             _compatLevel = MapCompatibilityLevel(model.Version);
         }
 
         private static DatabaseCompatibilityLevel MapCompatibilityLevel(SqlServerVersion v) =>
             v switch
             {
-                SqlServerVersion.Sql90  => DatabaseCompatibilityLevel.Version90,
+                SqlServerVersion.Sql90 => DatabaseCompatibilityLevel.Version90,
                 SqlServerVersion.Sql100 => DatabaseCompatibilityLevel.Version100,
                 SqlServerVersion.Sql110 => DatabaseCompatibilityLevel.Version110,
                 SqlServerVersion.Sql120 => DatabaseCompatibilityLevel.Version120,
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 SqlServerVersion.Sql140 => DatabaseCompatibilityLevel.Version140,
                 SqlServerVersion.Sql150 => DatabaseCompatibilityLevel.Version150,
                 SqlServerVersion.Sql160 => DatabaseCompatibilityLevel.Version160,
-                _                       => DatabaseCompatibilityLevel.Version170,  // Sql170 + future
+                _ => DatabaseCompatibilityLevel.Version170,
             };
 
         public string Name => _name;
@@ -85,6 +85,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IDatabaseObject Parent => _server;
         public CollationInfo CollationInfo => CollationInfo.Default;
         public DatabaseCompatibilityLevel CompatibilityLevel => _compatLevel;
+        // Read by the SqlParser binder (DatabaseEx.DefaultSchema) to resolve unqualified names
+        // e.g. "SELECT * FROM Orders" → looks up "Orders" in "dbo". If null, the binder falls
+        // back to an empty schema and bare-name completions/hover silently return nothing.
         public string DefaultSchemaName => "dbo";
         public IUser? Owner => null;
 
@@ -92,31 +95,57 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         private IMetadataCollection<ISchema> BuildSchemas()
         {
-            // Query UserDefined and BuiltIn scopes separately so each LazyModelSchema receives
-            // the correct scope for its child-object queries.
-            // BuiltIn covers sys, INFORMATION_SCHEMA, dbo, guest, etc. — embedded in DacFx,
-            // no server connection needed.
             var schemas = new List<ISchema>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (TSqlObject s in _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema))
+            // 1) Source of truth: user-defined objects
+            foreach (var obj in _model.GetObjects(DacQueryScopes.UserDefined))
             {
-                string schemaName = s.Name.Parts[0];
-                if (seen.Add(schemaName))
-                    schemas.Add(new LazyModelSchema(this, _model, schemaName, DacQueryScopes.UserDefined));
+                if (obj.Name.Parts.Count >= 2)
+                {
+                    var schemaName = obj.Name.Parts[0];
+
+                    if (seen.Add(schemaName))
+                    {
+                        schemas.Add(new TSqlModelSchema(
+                            this,
+                            _model,
+                            schemaName,
+                            DacQueryScopes.UserDefined));
+                    }
+                }
             }
 
-            foreach (TSqlObject s in _model.GetObjects(DacQueryScopes.BuiltIn, ModelSchema.Schema))
+            // 2) Explicit CREATE SCHEMA (edge case: empty schema)
+            foreach (var s in _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema))
             {
-                string schemaName = s.Name.Parts[0];
+                var schemaName = s.Name.Parts[0];
+
                 if (seen.Add(schemaName))
-                    schemas.Add(new LazyModelSchema(this, _model, schemaName, DacQueryScopes.BuiltIn));
+                {
+                    schemas.Add(new TSqlModelSchema(
+                        this,
+                        _model,
+                        schemaName,
+                        DacQueryScopes.UserDefined));
+                }
             }
 
-            return new LazyCollection<ISchema>(schemas.ToArray);
+            // 3) Built-in schemas only if not already claimed by user objects above
+            foreach (var s in _model.GetObjects(DacQueryScopes.BuiltIn, ModelSchema.Schema))
+            {
+                var schemaName = s.Name.Parts[0];
+                if (seen.Add(schemaName))
+                    schemas.Add(new TSqlModelSchema(
+                        this,
+                        _model,
+                        schemaName,
+                        DacQueryScopes.BuiltIn));
+            }
+
+            return new LazyCollection<ISchema>(() => schemas.ToArray());
         }
 
-        // Empty collections — not needed for basic IntelliSense
         public IMetadataCollection<IApplicationRole> ApplicationRoles => LazyCollection<IApplicationRole>.Empty;
         public IMetadataCollection<IAsymmetricKey> AsymmetricKeys => LazyCollection<IAsymmetricKey>.Empty;
         public IMetadataCollection<ICertificate> Certificates => LazyCollection<ICertificate>.Empty;
@@ -124,8 +153,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataCollection<IDatabaseDdlTrigger> Triggers => LazyCollection<IDatabaseDdlTrigger>.Empty;
         public IMetadataCollection<IUser> Users => LazyCollection<IUser>.Empty;
 
-        // IServerOwnedObject
         public IServer Server => _server;
+
         public T Accept<T>(IServerOwnedObjectVisitor<T> visitor) => visitor.Visit(this);
         public T Accept<T>(IDatabaseObjectVisitor<T> visitor) => Accept((IServerOwnedObjectVisitor<T>)visitor);
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
