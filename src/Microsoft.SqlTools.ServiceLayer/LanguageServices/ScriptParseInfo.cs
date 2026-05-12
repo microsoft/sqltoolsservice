@@ -32,6 +32,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public bool IsConnected { get; set; }
 
         /// <summary>
+        /// True when this file is bound to an offline SQL project context (TSqlModel) rather than
+        /// a live server connection. When true, connInfo will be null in all language-service handlers.
+        /// </summary>
+        public bool IsProjectContext { get; set; }
+
+        /// <summary>
         /// Gets or sets the binding queue connection context key
         /// </summary>
         public string ConnectionKey { get; set; }

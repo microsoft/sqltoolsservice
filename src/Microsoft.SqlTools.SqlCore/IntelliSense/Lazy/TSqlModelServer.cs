@@ -85,6 +85,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IDatabaseObject Parent => _server;
         public CollationInfo CollationInfo => CollationInfo.Default;
         public DatabaseCompatibilityLevel CompatibilityLevel => _compatLevel;
+        // Read by the SqlParser binder (DatabaseEx.DefaultSchema) to resolve unqualified names
+        // e.g. "SELECT * FROM Orders" → looks up "Orders" in "dbo". If null, the binder falls
+        // back to an empty schema and bare-name completions/hover silently return nothing.
         public string DefaultSchemaName => "dbo";
         public IUser? Owner => null;
 

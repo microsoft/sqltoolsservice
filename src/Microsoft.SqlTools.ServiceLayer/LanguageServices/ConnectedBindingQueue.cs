@@ -220,6 +220,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Removes the offline binding context registered for a SQL project.
+        /// Drops the binder and MetadataProvider reference so GC can collect them.
+        /// </summary>
+        public void RemoveProjectContext(string projectKey)
+        {
+            if (BindingContextExists(projectKey))
+            {
+                RemoveBindingContext(projectKey);
+            }
+        }
+
+        /// <summary>
         /// Creates an offline binding context for a SQL project (no server connection required).
         /// </summary>
         public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider metadataProvider = null)
@@ -238,8 +250,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     bindingContext.Binder = binder;
                     bindingContext.MetadataProvider = metadataProvider;
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
-                    bindingContext.IsConnected = true;
-                    bindingContext.OverrideParseOptions = parseOptions;
+                    bindingContext.IsProjectContext = true;
+                    // IsConnected intentionally left false: no live server connection.
+                    // ParseOptions are fixed at context creation; no server query needed.
+                    bindingContext.ProjectParseOptions = parseOptions;
                 }
                 finally
                 {

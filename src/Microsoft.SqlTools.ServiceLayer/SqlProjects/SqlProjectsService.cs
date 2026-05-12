@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -48,10 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
 
         /// <summary>
-        /// Maps project URI to its TSqlModel and MetadataProvider for offline IntelliSense.
-        /// Both must be disposed when the project is closed.
+        /// Maps project URI to its IntelliSense state for offline IntelliSense.
+        /// On close: Model must be disposed; binding context and ScriptParseInfo entries
+        /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider)> projectIntelliSense = new();
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -138,9 +139,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 Projects.TryRemove(requestParams.ProjectUri, out _);
                 
-                // Dispose TSqlModel and provider to free memory
+                // Full IntelliSense teardown:
+                // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
+                // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
+                // 3. Dispose TSqlModel to free DacFx unmanaged resources
                 if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
                 {
+                    LanguageService.Instance.TearDownProjectContext(
+                        requestParams.ProjectUri,
+                        intelliSense.ContextKey,
+                        intelliSense.FileUris);
                     intelliSense.Model?.Dispose();
                 }
             }, requestContext);
@@ -159,7 +167,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
                 string contextKey = $"project_{projectUri}";
-                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath) ?? string.Empty;
+                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath)
+                    ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
                 
                 // Include all SQL files: Build items, PreDeploy, and PostDeploy
                 var allScripts = new List<string>();
@@ -185,8 +194,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
-                // Store for disposal on project close
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider);
+                // Store everything needed for full teardown on project close
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, fileUriList);
                 
                 var parseOptions = new ParseOptions(
                     batchSeparator: LanguageService.DefaultBatchSeperator,

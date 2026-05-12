@@ -58,8 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             bool useLowerCaseSuggestions)
         {
             AutoCompletionResult result = new AutoCompletionResult();
-            // check if the file is connected and the file lock is available
-            if (scriptDocumentInfo.ScriptParseInfo.IsConnected && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
+            // check if the file has a binding context ready and the file lock is available
+            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProjectContext) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
             {
                 try
                 {
@@ -163,20 +163,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 scriptDocumentInfo.TokenText);
 
 
-            // Expanding star expressions in query only when the script is connected to a database
-            // as the parser requires a connection to determine column names
-            if (connInfo != null)
+            // Star expansion uses the binder's BoundTables — works for both live and project contexts.
+            // Returns null if not a star expression, so safe to always call.
+            CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
+            if (starExpansionSuggestion != null)
             {
-                CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
-                if (starExpansionSuggestion != null)
-                {
-                    completionList = [.. starExpansionSuggestion, .. completionList];
-                }
+                completionList = [.. starExpansionSuggestion, .. completionList];
             }
 
             result.CompleteResult(completionList);
-            // connInfo is null for project files (offline IntelliSense — no server connection).
-            connInfo?.IntellisenseMetrics?.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
+            if (!scriptParseInfo.IsProjectContext)
+            {
+                connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
+            }
             return result;
         }
     }

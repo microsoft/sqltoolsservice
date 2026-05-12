@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Map from context keys to binding context instances
         /// Internal for testing purposes only
         /// </summary>
-        public ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
+        internal ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
 
         internal ConcurrentDictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new();
 

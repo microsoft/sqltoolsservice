@@ -968,9 +968,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         // Both online and project files use the binding queue via ConnectionKey.
-                        // Online: connInfo != null, UpdateLanguageServiceOnConnection set IsConnected+ConnectionKey.
-                        // Project: connInfo is null, InitializeProjectFileContexts set IsConnected+ConnectionKey.
-                        bool hasBindingContext = parseInfo.IsConnected && parseInfo.ConnectionKey != null;
+                        // Online: connInfo != null, UpdateLanguageServiceOnConnection set IsConnected.
+                        // Project: connInfo is null, InitializeProjectFileContexts set IsProjectContext.
+                        bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProjectContext) && parseInfo.ConnectionKey != null;
 
                         if (!hasBindingContext)
                         {
@@ -1006,7 +1006,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                         List<ParseResult> parseResults = new List<ParseResult>();
                                         parseResults.Add(parseResult);
-                                        if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                        if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
                                         {
                                             string dbName = connInfo?.ConnectionDetails?.DatabaseName
                                                             ?? parseInfo.ProjectDatabaseName;
@@ -1200,7 +1200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.IsConnected = true;
+                        scriptInfo.IsProjectContext = true;
                         scriptInfo.ProjectDatabaseName = databaseName;
                     }
                     finally
@@ -1209,7 +1209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
 
-                // Stamp all .sql files — binding context is ready so IsConnected=true is safe
+                // Stamp all .sql files with project context so HasBindingContext returns true
                 if (fileUris != null)
                 {
                     InitializeProjectFileContexts(fileUris, contextKey, databaseName);
@@ -1224,7 +1224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Stamps the project ConnectionKey and IsConnected=true onto every .sql file in the project.
+        /// Stamps the project ConnectionKey and IsProjectContext=true onto every .sql file in the project.
         /// Must only be called AFTER AddProjectContext has registered the binding context, so that
         /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
         /// </summary>
@@ -1238,13 +1238,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.IsConnected = true;
+                        scriptInfo.IsProjectContext = true;
                         scriptInfo.ProjectDatabaseName = databaseName;
                     }
                     finally
                     {
                         Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tears down the IntelliSense binding context for a closed SQL project.
+        /// Removes the binding context from the queue (releasing the MetadataProvider reference)
+        /// and removes ScriptParseInfo entries for all project files and the .sqlproj itself.
+        /// </summary>
+        public void TearDownProjectContext(string projectUri, string contextKey, IEnumerable<string> fileUris)
+        {
+            this.BindingQueue.RemoveProjectContext(contextKey);
+
+            RemoveScriptParseInfo(projectUri);
+
+            if (fileUris != null)
+            {
+                foreach (string fileUri in fileUris)
+                {
+                    RemoveScriptParseInfo(fileUri);
                 }
             }
         }

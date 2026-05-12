@@ -43,9 +43,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Gets or sets a flag indicating if the binder is connected
+        /// Gets or sets a flag indicating if the binder has a live server connection (SMO).
+        /// False for project-based offline contexts even though they are fully ready to bind.
         /// </summary>
         public bool IsConnected { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag indicating this is an offline project-based binding context.
+        /// When true, <see cref="IsConnected"/> is false, <see cref="ServerConnection"/> is null,
+        /// and <see cref="ParseOptions"/> is served from <see cref="ProjectParseOptions"/>.
+        /// </summary>
+        public bool IsProjectContext { get; set; }
 
         /// <summary>
         /// Gets or sets the binding server connection
@@ -97,8 +105,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public IBinder Binder { get; set; }
 
-        /// <summary>ParseOptions override for project-based offline binding; takes precedence over connection-derived options.</summary>
-        public ParseOptions OverrideParseOptions { get; set; }
+        /// <summary>
+        /// Parse options for project-based offline binding contexts.
+        /// Set at context creation time; only read when <see cref="IsProjectContext"/> is true.
+        /// </summary>
+        public ParseOptions ProjectParseOptions { get; set; }
 
         /// <summary>
         /// Gets the binding lock object
@@ -153,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                return this.IsConnected
+                return (this.IsConnected && !this.IsProjectContext)
                     ? GetTransactSqlVersion(this.Server)
                     : TransactSqlVersion.Current;
             }
@@ -166,22 +177,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                return this.IsConnected
+                return (this.IsConnected && !this.IsProjectContext)
                     ? GetDatabaseCompatibilityLevel(this.Server)
                     : DatabaseCompatibilityLevel.Current;
             }
         }
 
         /// <summary>
-        /// Gets the current ParseOptions
+        /// Gets the current ParseOptions. For project contexts returns the options supplied at
+        /// context creation time; for connected contexts derives options from the server connection.
         /// </summary>
         public ParseOptions ParseOptions
         {
             get
             {
-                if (this.OverrideParseOptions != null)
+                if (this.IsProjectContext)
                 {
-                    return this.OverrideParseOptions;
+                    return this.ProjectParseOptions;
                 }
                 this.parseOptions ??= new ParseOptions(
                         batchSeparator: LanguageService.DefaultBatchSeperator,

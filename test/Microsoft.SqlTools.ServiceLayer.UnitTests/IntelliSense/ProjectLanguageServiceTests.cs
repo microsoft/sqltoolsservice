@@ -127,8 +127,9 @@ END
             var parseInfo = _langService.GetScriptParseInfo(_projectUri);
             Assert.IsNotNull(parseInfo, "ScriptParseInfo should be created for project URI");
 
-            // Verify: Should be marked as connected (offline connection)
-            Assert.IsTrue(parseInfo.IsConnected, "Project should be marked as connected");
+            // Verify: Should be marked as a project context (not a live SMO connection)
+            Assert.IsTrue(parseInfo.IsProjectContext, "Project should be marked as project context");
+            Assert.IsFalse(parseInfo.IsConnected, "Project files should not be marked as SMO-connected");
 
             // Verify: Should have project connection key
             Assert.AreEqual(_contextKey, parseInfo.ConnectionKey, "Connection key should match project context key");
@@ -161,7 +162,8 @@ END
             {
                 var parseInfo = _langService.GetScriptParseInfo(fileUri);
                 Assert.IsNotNull(parseInfo, $"ScriptParseInfo should exist for {fileUri}");
-                Assert.IsTrue(parseInfo.IsConnected, $"File {fileUri} should be marked as connected");
+                Assert.IsTrue(parseInfo.IsProjectContext, $"File {fileUri} should be marked as project context");
+                Assert.IsFalse(parseInfo.IsConnected, $"File {fileUri} should not be marked as SMO-connected");
                 Assert.AreEqual(_contextKey, parseInfo.ConnectionKey, 
                     $"File {fileUri} should have project connection key");
                 Assert.AreEqual("LanguageServiceTestProject", parseInfo.ProjectDatabaseName,
