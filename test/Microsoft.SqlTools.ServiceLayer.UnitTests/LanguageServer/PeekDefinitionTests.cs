@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public async Task DefinitionsHandlerWithNoConnectionTest()
         {
             InitializeTestObjects();
-            scriptParseInfo.IsConnected = false;
+            scriptParseInfo.BindingContextKind = BindingContextKindEnum.None;
             // request definition
             var definitionTask = await Task.WhenAny(langService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
             await definitionTask;

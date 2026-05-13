@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents("koko wants a bananas");
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.None };
 
             var scriptDocumentInfo = new TestScriptDocumentInfo(
                 new TextDocumentPosition()
@@ -191,7 +191,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 }, scriptFile, scriptInfo);
 
             AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
-
         }
 
         [Test]
@@ -200,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents("koko wants a bananas");
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.None };
 
             var scriptDocumentInfo = new TestScriptDocumentInfo(
                 new TextDocumentPosition()
@@ -231,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo
             {
-                IsConnected = true,
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
                 ConnectionKey = "test-connection-key",
                 ParseResult = Parser.IncrementalParse("SELECT 1", null, parseOptions)
             };
@@ -296,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo
             {
-                IsConnected = true,
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
                 ConnectionKey = "test-connection-key",
                 ParseResult = Parser.IncrementalParse("SELECT 1", null, parseOptions)
             };

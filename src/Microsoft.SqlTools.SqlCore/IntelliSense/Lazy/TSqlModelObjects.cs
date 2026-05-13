@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
                 () => _tableObj.GetReferenced(Table.Columns)
-                               .Select(c => new TSqlModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
+                               .Select(c => new TSqlModelColumn(this, c))
                                .Cast<IColumn>());
 
         public TabularType TabularType => TabularType.Table;
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
                 () => _viewObj.GetReferenced(View.Columns)
-                              .Select(c => new TSqlModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
+                              .Select(c => new TSqlModelColumn(this, c))
                               .Cast<IColumn>());
 
         public TabularType TabularType => TabularType.View;
@@ -242,7 +242,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
                 () => _fnObj.GetReferenced(TableValuedFunction.Columns)
-                            .Select(c => new TSqlModelColumn(this, c.Name.Parts[c.Name.Parts.Count - 1]))
+                            .Select(c => new TSqlModelColumn(this, c))
                             .Cast<IColumn>());
 
         public TabularType TabularType => TabularType.TableValuedFunction;
@@ -393,19 +393,31 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     {
         private readonly ITabular _parent;
         private readonly string _name;
+        private readonly TSqlObject _colObj;
 
-        public TSqlModelColumn(ITabular parent, string name)
+        public TSqlModelColumn(ITabular parent, TSqlObject colObj)
         {
             _parent = parent;
-            _name   = name;
+            _colObj = colObj;
+            _name   = colObj.Name.Parts[colObj.Name.Parts.Count - 1];
         }
 
         public string Name => _name;
 
 
         // IScalar
-        public IScalarDataType? DataType => null;
-        public bool Nullable => true;
+        public IScalarDataType? DataType
+        {
+            get
+            {
+                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType).FirstOrDefault();
+                if (typeObj == null) return null;
+                string typeName = typeObj.Name.Parts[typeObj.Name.Parts.Count - 1];
+                return new TSqlModelNamedDataType(typeName);
+            }
+        }
+
+        public bool Nullable => _colObj.GetProperty<bool>(Column.Nullable);
         public ScalarType ScalarType => ScalarType.Column;
 
         // IColumn properties
@@ -427,5 +439,39 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         // IMetadataObject
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IColumn)this);
+    }
+
+    // =========================================================================
+    // TSqlModelNamedDataType : IScalarDataType
+    // Minimal IScalarDataType wrapper around a raw type name string (e.g. "datetime", "int").
+    // Used by TSqlModelColumn.DataType to feed the hover tooltip formatter.
+    // =========================================================================
+    internal sealed class TSqlModelNamedDataType : IScalarDataType
+    {
+        private readonly string _name;
+
+        public TSqlModelNamedDataType(string name) { _name = name; }
+
+        // IMetadataObject
+        public string Name => _name;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
+
+        // IDataType
+        public bool IsCursor  => false;
+        public bool IsScalar  => true;
+        public bool IsTable   => false;
+        public bool IsUnknown => false;
+
+        // IScalarDataType
+        public ISystemDataType? BaseSystemDataType => null;
+        public bool IsClr    => false;
+        public bool IsSystem => true;
+        public bool IsVoid   => false;
+        public bool IsXml    => false;
+
+        // IDataType casts
+        public IScalarDataType? AsScalarDataType => this;
+        public ITableDataType?  AsTableDataType  => null;
+        public IUserDefinedType? AsUserDefinedType => null;
     }
 }
