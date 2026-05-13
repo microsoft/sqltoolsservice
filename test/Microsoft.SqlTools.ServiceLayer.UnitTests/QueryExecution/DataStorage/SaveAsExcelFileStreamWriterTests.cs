@@ -61,6 +61,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.That(sheet3Xml, Does.Contain("<v>5</v>"));
         }
 
+        [TestCase(1, 3)]
+        [TestCase(2, 2)]
+        public void WriteRowCreatesAdditionalWorksheetsWithoutHeadersWhenRowLimitIsReached(
+            int maxWorksheetRows,
+            int expectedWorksheetCount)
+        {
+            var stream = new NonClosingMemoryStream();
+            var columns = new[] { new DbColumnWrapper(new TestDbColumn("id")) };
+            var saveParams = new SaveResultsAsExcelRequestParams
+            {
+                IncludeHeaders = false
+            };
+
+            using (var writer = new SaveAsExcelFileStreamWriter(stream, saveParams, columns, maxWorksheetRows))
+            {
+                for (int rowNumber = 1; rowNumber <= 3; rowNumber++)
+                {
+                    writer.WriteRow(CreateRow(rowNumber), columns);
+                }
+            }
+
+            string workbookXml = ReadZipEntry(stream, "xl/workbook.xml");
+            Assert.That(CountSheets(workbookXml), Is.EqualTo(expectedWorksheetCount));
+
+            for (int sheetNumber = 1; sheetNumber <= expectedWorksheetCount; sheetNumber++)
+            {
+                string sheetXml = ReadZipEntry(stream, $"xl/worksheets/sheet{sheetNumber}.xml");
+                Assert.That(sheetXml, Does.Not.Contain("<t>id</t>"));
+                Assert.That(CountRows(sheetXml), Is.LessThanOrEqualTo(maxWorksheetRows));
+            }
+        }
+
         private static IList<DbCellValue> CreateRow(int value)
         {
             return new[] { CreateCell(value) };
@@ -93,6 +125,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             {
                 count++;
                 index += "<row ".Length;
+            }
+
+            return count;
+        }
+
+        private static int CountSheets(string workbookXml)
+        {
+            int count = 0;
+            int index = 0;
+
+            while ((index = workbookXml.IndexOf("<sheet ", index, StringComparison.Ordinal)) >= 0)
+            {
+                count++;
+                index += "<sheet ".Length;
             }
 
             return count;

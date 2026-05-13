@@ -192,12 +192,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             sheet?.Dispose();
             sheet = null;
 
-            // Get rid of any paint object from the auto-sizing
-            paint?.Dispose();
-            paint = null;
-
             // Create the blank sheet
-            sheet = helper.AddSheet(null, ColumnCount);
+            sheet = helper.AddSheet(null, columns.Count);
             currentWorksheetRowCount = 0;
 
             // The XLSX format has strict ordering requirements so these must be done in the proper order
