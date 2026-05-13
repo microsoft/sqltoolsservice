@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// <summary>
     /// Identifies what kind of binding context backs a SQL file.
     /// </summary>
-    public enum BindingContextKind
+    public enum BindingContextKindEnum
     {
         /// <summary>
         /// No binding context; IntelliSense is not available for this file.
@@ -47,11 +47,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>
         /// Identifies what kind of binding context backs this file.
-        /// <see cref="BindingContextKind.LiveConnection"/> — live SMO connection, connInfo is non-null.
-        /// <see cref="BindingContextKind.Project"/>        — offline TSqlModel, connInfo is always null.
-        /// <see cref="BindingContextKind.None"/>           — no context yet; IntelliSense unavailable.
+        /// <see cref="BindingContextKindEnum.LiveConnection"/> — live SMO connection, connInfo is non-null.
+        /// <see cref="BindingContextKindEnum.Project"/>        — offline TSqlModel, connInfo is always null.
+        /// <see cref="BindingContextKindEnum.None"/>           — no context yet; IntelliSense unavailable.
         /// </summary>
-        public BindingContextKind BindingContextKind { get; set; }
+        public BindingContextKindEnum BindingContextKind { get; set; }
+
+        /// <summary>True when backed by a live SMO connection.</summary>
+        public bool IsConnected => BindingContextKind == BindingContextKindEnum.LiveConnection;
+
+        /// <summary>True when backed by an offline SQL project model.</summary>
+        public bool IsProject => BindingContextKind == BindingContextKindEnum.Project;
+
+        /// <summary>True when no binding context is available (IntelliSense unavailable).</summary>
+        public bool IsNone => BindingContextKind == BindingContextKindEnum.None;
 
         /// <summary>
         /// Gets or sets the binding queue connection context key

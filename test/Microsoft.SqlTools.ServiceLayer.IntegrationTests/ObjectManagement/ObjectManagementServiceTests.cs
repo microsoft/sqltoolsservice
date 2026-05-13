@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public async Task TestRenameColumnNotExisting()
+        public void TestRenameColumnNotExisting()
         {
             Assert.That(async () =>
             {
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public async Task TestRenameTableNotExisting()
+        public void TestRenameTableNotExisting()
         {
             Assert.That(async () =>
             {
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public async Task TestConnectionNotFound()
+        public void TestConnectionNotFound()
         {
             var testRenameRequestParams = new RenameRequestParams
             {
