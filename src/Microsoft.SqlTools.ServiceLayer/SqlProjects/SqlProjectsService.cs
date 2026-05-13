@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// On close: Model must be disposed; binding context and ScriptParseInfo entries
         /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new();
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Monotonically-increasing generation counter per project URI.
