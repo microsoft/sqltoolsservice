@@ -84,25 +84,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public async Task TestRenameColumnNotExisting()
+        public void TestRenameColumnNotExisting()
         {
-            Assert.That(async () =>
-            {
-                await ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName)), requestContextMock.Object);
-            }, Throws.Exception.TypeOf<FailedOperationException>(), "Did find the column, which should not have existed");
+            Assert.ThrowsAsync<FailedOperationException>(
+                () => ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName)), requestContextMock.Object),
+                "Did find the column, which should not have existed");
         }
 
         [Test]
-        public async Task TestRenameTableNotExisting()
+        public void TestRenameTableNotExisting()
         {
-            Assert.That(async () =>
-            {
-                await ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
-            }, Throws.Exception.TypeOf<FailedOperationException>(), "Did find the table, which should not have existed");
+            Assert.ThrowsAsync<FailedOperationException>(
+                () => ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object),
+                "Did find the table, which should not have existed");
         }
 
         [Test]
-        public async Task TestConnectionNotFound()
+        public void TestConnectionNotFound()
         {
             var testRenameRequestParams = new RenameRequestParams
             {
@@ -110,11 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 ConnectionUri = "NOT_EXISTING",
                 ObjectUrn = String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName),
             };
-            Assert.That(async () =>
-            {
-                await ObjectManagementTestUtils.Service.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object);
-
-            }, Throws.Exception.TypeOf<Exception>(), "Did find the connection, which should not have existed");
+            Exception ex = Assert.ThrowsAsync<Exception>(
+                () => ObjectManagementTestUtils.Service.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object),
+                "Did find the connection, which should not have existed");
+            Assert.That(ex.Message, Does.Contain("connection could not be found").IgnoreCase);
         }
 
         private RenameRequestParams InitRequestParams(string newName, string UrnOfObject)
