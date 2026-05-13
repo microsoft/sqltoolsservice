@@ -6,15 +6,22 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
@@ -39,6 +46,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps Project URI to Project
         /// </summary>
         public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
+
+        /// <summary>
+        /// Maps project URI to its IntelliSense state for offline IntelliSense.
+        /// On close: Model must be disposed; binding context and ScriptParseInfo entries
+        /// must be removed using ContextKey and FileUris.
+        /// </summary>
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -114,11 +128,88 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
+            // Kick off async IntelliSense model build so .sql files in this project get completions
+            // without a live server connection. Fire-and-forget: errors are logged inside.
+            _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri));
         }
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => Projects.TryRemove(requestParams.ProjectUri, out _), requestContext);
+            await RunWithErrorHandling(() =>
+            {
+                Projects.TryRemove(requestParams.ProjectUri, out _);
+                
+                // Full IntelliSense teardown:
+                // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
+                // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
+                // 3. Dispose TSqlModel to free DacFx unmanaged resources
+                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
+                {
+                    LanguageService.Instance.TearDownProjectContext(
+                        requestParams.ProjectUri,
+                        intelliSense.ContextKey,
+                        intelliSense.FileUris);
+                    intelliSense.Model?.Dispose();
+                }
+            }, requestContext);
+        }
+
+        /// <summary>
+        /// Builds the TSqlModel for a project and creates a MetadataProvider for offline IntelliSense.
+        /// Stores both in projectIntelliSense cache for disposal on project close.
+        /// Runs on a background thread; errors do not affect the project open response.
+        /// </summary>
+        private async Task BuildProjectIntelliSenseAsync(string projectUri)
+        {
+            try
+            {
+                SqlProject project = GetProject(projectUri);
+
+                string databaseName = Path.GetFileNameWithoutExtension(projectUri);
+                string contextKey = $"project_{projectUri}";
+                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath)
+                    ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
+                
+                // Include all SQL files: Build items, PreDeploy, and PostDeploy
+                var allScripts = new List<string>();
+                foreach (var script in project.SqlObjectScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                foreach (var script in project.PreDeployScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                foreach (var script in project.PostDeployScripts)
+                {
+                    allScripts.Add(script.Path);
+                }
+                
+                var fileUriList = allScripts
+                    .Select(path => new Uri(Path.IsPathRooted(path)
+                        ? path
+                        : Path.Combine(projectDir, path)).AbsoluteUri)
+                    .ToList();
+
+                var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+                var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
+
+                // Store everything needed for full teardown on project close
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, fileUriList);
+                
+                var parseOptions = new ParseOptions(
+                    batchSeparator: LanguageService.DefaultBatchSeperator,
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
+            }
         }
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)

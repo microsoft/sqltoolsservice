@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -105,16 +106,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // and then build a connection string out of that
             ConnectionInfo connInfo = null;
             string accessToken = null;
+            ServerConnection scriptingServerConnection = null;
+
             if (parameters.ConnectionString == null)
             {
                 ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+
                 if (connInfo != null)
                 {
                     parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+
                     // Set Access Token only when authentication type is AzureMFA.
                     if (connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                     {
-                        accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                        // If using AzureTokenFetcher, get the token and open a ServerConnection that can be used for scripting with SMO.
+                        if (connInfo.AzureTokenFetcher != null)
+                        {
+                            scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
+                            (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
+                        }
+                        else
+                        {
+                            accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                        }
                     }
                 }
                 else
@@ -132,7 +146,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             else
             {
-                operation = new ScriptAsScriptingOperation(parameters, accessToken);
+                operation = scriptingServerConnection != null
+                    ? new ScriptAsScriptingOperation(parameters, scriptingServerConnection)
+                    : new ScriptAsScriptingOperation(parameters, accessToken);
             }
 
             operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
