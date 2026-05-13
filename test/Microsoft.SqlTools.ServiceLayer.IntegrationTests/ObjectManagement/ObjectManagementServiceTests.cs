@@ -108,9 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 ConnectionUri = "NOT_EXISTING",
                 ObjectUrn = String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName),
             };
-            Assert.ThrowsAsync<Exception>(
+            Exception ex = Assert.ThrowsAsync<Exception>(
                 () => ObjectManagementTestUtils.Service.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object),
                 "Did find the connection, which should not have existed");
+            Assert.That(ex.Message, Is.EqualTo("The connection could not be found"));
         }
 
         private RenameRequestParams InitRequestParams(string newName, string UrnOfObject)
