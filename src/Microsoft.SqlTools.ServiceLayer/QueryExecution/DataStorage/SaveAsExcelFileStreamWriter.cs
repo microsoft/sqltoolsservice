@@ -26,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         // Pixel width of auto-filter button
         private const float AutoFilterPixelWidth = 17F;
+
+        // Maximum rows allowed in a single Excel worksheet.
+        private const int MaxWorksheetRows = 1048576;
         
         #region Member Variables
 
@@ -54,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// request params.
         /// </param>
         public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
-            : this(stream, requestParams, columns, SaveAsExcelFileStreamWriterHelper.MaxWorksheetRows)
+            : this(stream, requestParams, columns, MaxWorksheetRows)
         {
         }
 

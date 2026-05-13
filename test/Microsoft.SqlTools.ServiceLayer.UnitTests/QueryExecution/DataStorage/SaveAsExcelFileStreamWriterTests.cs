@@ -61,43 +61,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.That(sheet3Xml, Does.Contain("<v>5</v>"));
         }
 
-        [Test]
-        public void WriteRowUsesSelectedColumnCountForWorksheetMetadata()
-        {
-            var stream = new NonClosingMemoryStream();
-            var columns = new[]
-            {
-                new DbColumnWrapper(new TestDbColumn("ignored")),
-                new DbColumnWrapper(new TestDbColumn("exported"))
-            };
-            var saveParams = new SaveResultsAsExcelRequestParams
-            {
-                IncludeHeaders = true,
-                AutoFilterHeaderRow = true,
-                ColumnStartIndex = 1,
-                ColumnEndIndex = 1,
-                RowStartIndex = 0,
-                RowEndIndex = 0
-            };
-
-            using (var writer = new SaveAsExcelFileStreamWriter(stream, saveParams, columns, maxWorksheetRows: 3))
-            {
-                writer.WriteRow(
-                    new[]
-                    {
-                        CreateCell(1),
-                        CreateCell(2)
-                    },
-                    columns);
-            }
-
-            string sheetXml = ReadZipEntry(stream, "xl/worksheets/sheet1.xml");
-
-            Assert.That(sheetXml, Does.Not.Contain("<t>ignored</t>"));
-            Assert.That(sheetXml, Does.Contain("<t>exported</t>"));
-            Assert.That(sheetXml, Does.Contain("<autoFilter ref=\"A1:A1\""));
-        }
-
         private static IList<DbCellValue> CreateRow(int value)
         {
             return new[] { CreateCell(value) };

@@ -366,11 +366,6 @@
     <value>A save request to the same path is in progress</value>
     <comment></comment>
   </data>
-  <data name="QueryServiceSaveAsExcelMaxRowsExceeded" xml:space="preserve">
-    <value>Excel worksheets support a maximum of {0} rows. Save fewer rows or use CSV for larger result sets.</value>
-    <comment>.
- Parameters: 0 - maxRows (long) </comment>
-  </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>Failed to save {0}: {1}</value>
     <comment>.

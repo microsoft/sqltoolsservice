@@ -158,8 +158,6 @@ QueryServiceSaveAsMiscStartingError = Internal error occurred while starting sav
 
 QueryServiceSaveAsInProgress = A save request to the same path is in progress
 
-QueryServiceSaveAsExcelMaxRowsExceeded(long maxRows) = Excel worksheets support a maximum of {0} rows. Save fewer rows or use CSV for larger result sets.
-
 QueryServiceSaveAsFail(string fileName, string message) = Failed to save {0}: {1}
 
 ### MISC

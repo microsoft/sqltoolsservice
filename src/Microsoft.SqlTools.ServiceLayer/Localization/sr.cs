@@ -10800,11 +10800,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, underlyingType, columnName);
         }
 
-        public static string QueryServiceSaveAsExcelMaxRowsExceeded(long maxRows)
-        {
-            return Keys.GetString(Keys.QueryServiceSaveAsExcelMaxRowsExceeded, maxRows);
-        }
-
         public static string QueryServiceSaveAsFail(string fileName, string message)
         {
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
@@ -11273,9 +11268,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceSaveAsInProgress = "QueryServiceSaveAsInProgress";
-
-
-            public const string QueryServiceSaveAsExcelMaxRowsExceeded = "QueryServiceSaveAsExcelMaxRowsExceeded";
 
 
             public const string QueryServiceSaveAsFail = "QueryServiceSaveAsFail";

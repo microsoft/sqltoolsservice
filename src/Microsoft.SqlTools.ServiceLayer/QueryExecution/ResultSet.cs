@@ -553,7 +553,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Create the new task
             var saveAsTask = new Task(async () =>
             {
-                bool createdOutputFile = false;
                 try
                 {
                     // Set row counts depending on whether save request is for entire set or a subset
@@ -570,7 +569,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     using (var fileReader = fileFactory.GetReader(outputFileName))
                     using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
-                        createdOutputFile = true;
                         DateTime recentLogTime;
 
                         // Some writers (like Excel) require the column widths before any of the rows have been written so we need to loop over
@@ -615,11 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 catch (Exception e)
                 {
-                    if (createdOutputFile)
-                    {
-                        fileFactory.DisposeFile(saveParams.FilePath);
-                    }
-
+                    fileFactory.DisposeFile(saveParams.FilePath);
                     if (failureHandler != null)
                     {
                         await failureHandler(saveParams, e.Message);
