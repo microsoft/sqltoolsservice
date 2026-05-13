@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             scriptParseInfo = new ScriptParseInfo();
             langService.AddOrUpdateScriptParseInfo(this.testScriptUri, scriptParseInfo);
-            scriptParseInfo.BindingContextKind = BindingContextKind.LiveConnection;
+            scriptParseInfo.BindingContextKind = BindingContextKindEnum.LiveConnection;
             scriptParseInfo.ConnectionKey = langService.BindingQueue.AddConnectionContext(connectionInfo);
 
             // setup the binding context object

@@ -128,7 +128,7 @@ END
             Assert.IsNotNull(parseInfo, "ScriptParseInfo should be created for project URI");
 
             // Verify: Should be marked as a project context (not a live SMO connection)
-            Assert.AreEqual(BindingContextKind.Project, parseInfo.BindingContextKind, "Project should be marked as project context");
+            Assert.IsTrue(parseInfo.IsProject, "Project should be marked as project context");
 
             // Verify: Should have project connection key
             Assert.AreEqual(_contextKey, parseInfo.ConnectionKey, "Connection key should match project context key");
@@ -161,7 +161,7 @@ END
             {
                 var parseInfo = _langService.GetScriptParseInfo(fileUri);
                 Assert.IsNotNull(parseInfo, $"ScriptParseInfo should exist for {fileUri}");
-                Assert.AreEqual(BindingContextKind.Project, parseInfo.BindingContextKind, $"File {fileUri} should be marked as project context");
+                Assert.IsTrue(parseInfo.IsProject, $"File {fileUri} should be marked as project context");
                 Assert.AreEqual(_contextKey, parseInfo.ConnectionKey, 
                     $"File {fileUri} should have project connection key");
                 Assert.AreEqual("LanguageServiceTestProject", parseInfo.ProjectDatabaseName,

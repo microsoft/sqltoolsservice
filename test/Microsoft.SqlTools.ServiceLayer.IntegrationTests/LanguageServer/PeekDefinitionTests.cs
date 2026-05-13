@@ -202,7 +202,7 @@ GO";
                 Line = 1,
                 Character = 14
             };
-            ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { BindingContextKind = BindingContextKind.LiveConnection };
+            ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { BindingContextKind = BindingContextKindEnum.LiveConnection };
             Mock<IBindingContext> bindingContextMock = new Mock<IBindingContext>();
             DefinitionResult result = scripter.GetScript(scriptParseInfo.ParseResult, position, bindingContextMock.Object.MetadataDisplayInfoProvider, new Sql3PartIdentifier {ObjectName = objectName});
 
@@ -259,7 +259,7 @@ GO";
             ScriptFile scriptFile = connectionResult.ScriptFile;
             scriptFile.Contents = "select * from dbo.func ()";
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKind.LiveConnection };
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
             languageService.ScriptParseInfoMap.TryAdd(scriptFile.ClientUri, scriptInfo);
 
             // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
@@ -795,7 +795,7 @@ GO";
             service.BindingQueue = bindingQueue;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKind.LiveConnection };
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
             await service.ParseAndBind(scriptFile, connInfo);
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
             service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
