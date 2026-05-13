@@ -967,9 +967,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        // Both online and project files use the binding queue via ConnectionKey.
-                        // Online: connInfo != null, UpdateLanguageServiceOnConnection set IsConnected.
-                        // Project: connInfo is null, InitializeProjectFileContexts set IsProjectContext.
+                        // Files with a binding context of LiveConnection or Project use the binding queue.
+                        // BindingContextKind.None means there is no binding context available.
+                        // A ConnectionKey is still required because binding operations are queued through it. 
                         bool hasBindingContext = parseInfo.BindingContextKind != BindingContextKind.None && parseInfo.ConnectionKey != null;
 
                         if (!hasBindingContext)
