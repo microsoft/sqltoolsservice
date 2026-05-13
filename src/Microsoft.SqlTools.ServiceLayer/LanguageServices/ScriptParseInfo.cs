@@ -12,6 +12,25 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     /// <summary>
+    /// Identifies what kind of binding context backs a SQL file.
+    /// </summary>
+    public enum BindingContextKindEnum
+    {
+        /// <summary>
+        /// No binding context; IntelliSense is not available for this file.
+        /// </summary>
+        None,
+        /// <summary>
+        /// Backed by a live SMO server connection. <c>connInfo</c> is non-null.
+        /// </summary>
+        LiveConnection,
+        /// <summary>
+        /// Backed by an offline TSqlModel built from a SQL project. <c>connInfo</c> is always null.
+        /// </summary>
+        Project
+    }
+
+    /// <summary>
     /// Class for storing cached metadata regarding a parsed SQL file
     /// </summary>
     public class ScriptParseInfo
@@ -27,15 +46,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Gets or sets a flag determining is the LanguageService is connected
+        /// Identifies what kind of binding context backs this file.
+        /// <see cref="BindingContextKindEnum.LiveConnection"/> — live SMO connection, connInfo is non-null.
+        /// <see cref="BindingContextKindEnum.Project"/>        — offline TSqlModel, connInfo is always null.
+        /// <see cref="BindingContextKindEnum.None"/>           — no context yet; IntelliSense unavailable.
         /// </summary>
-        public bool IsConnected { get; set; }
+        public BindingContextKindEnum BindingContextKind { get; set; }
 
-        /// <summary>
-        /// True when this file is bound to an offline SQL project context (TSqlModel) rather than
-        /// a live server connection. When true, connInfo will be null in all language-service handlers.
-        /// </summary>
-        public bool IsProjectContext { get; set; }
+        /// <summary>True when backed by a live SMO connection.</summary>
+        public bool IsConnected => BindingContextKind == BindingContextKindEnum.LiveConnection;
+
+        /// <summary>True when backed by an offline SQL project model.</summary>
+        public bool IsProject => BindingContextKind == BindingContextKindEnum.Project;
+
+        /// <summary>True when no binding context is available (IntelliSense unavailable).</summary>
+        public bool IsNone => BindingContextKind == BindingContextKindEnum.None;
 
         /// <summary>
         /// Gets or sets the binding queue connection context key

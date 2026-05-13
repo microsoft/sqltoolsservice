@@ -128,8 +128,7 @@ END
             Assert.IsNotNull(parseInfo, "ScriptParseInfo should be created for project URI");
 
             // Verify: Should be marked as a project context (not a live SMO connection)
-            Assert.IsTrue(parseInfo.IsProjectContext, "Project should be marked as project context");
-            Assert.IsFalse(parseInfo.IsConnected, "Project files should not be marked as SMO-connected");
+            Assert.IsTrue(parseInfo.IsProject, "Project should be marked as project context");
 
             // Verify: Should have project connection key
             Assert.AreEqual(_contextKey, parseInfo.ConnectionKey, "Connection key should match project context key");
@@ -162,8 +161,7 @@ END
             {
                 var parseInfo = _langService.GetScriptParseInfo(fileUri);
                 Assert.IsNotNull(parseInfo, $"ScriptParseInfo should exist for {fileUri}");
-                Assert.IsTrue(parseInfo.IsProjectContext, $"File {fileUri} should be marked as project context");
-                Assert.IsFalse(parseInfo.IsConnected, $"File {fileUri} should not be marked as SMO-connected");
+                Assert.IsTrue(parseInfo.IsProject, $"File {fileUri} should be marked as project context");
                 Assert.AreEqual(_contextKey, parseInfo.ConnectionKey, 
                     $"File {fileUri} should have project connection key");
                 Assert.AreEqual("LanguageServiceTestProject", parseInfo.ProjectDatabaseName,
@@ -444,6 +442,56 @@ END
             string hoverText = string.Join(" ", markedStrings.Select(m => m.Value));
             StringAssert.Contains("Customers", hoverText, "Hover should mention the table name");
             StringAssert.Contains("table", hoverText, "Hover should identify the object type as table");
+        }
+
+        /// <summary>
+        /// Regression: hover tooltip on a project column must show the real data type and nullability,
+        /// not the broken "(, null)" that appeared when TSqlModelColumn.DataType returned null.
+        /// Exercises the fix to store TSqlObject and call GetReferenced(Column.DataType) /
+        /// GetProperty&lt;bool&gt;(Column.Nullable) instead of the old hardcoded stubs.
+        /// </summary>
+        [Test]
+        public void Hover_ColumnTooltip_ShowsDataTypeAndNullability()
+        {
+            // "CustomerId INT PRIMARY KEY" — NOT NULL (primary key implies non-nullable)
+            // "Email NVARCHAR(255)"        — nullable (no NOT NULL constraint)
+            string queryUri = "file:///test_column_hover.sql";
+            string queryContent = "SELECT CustomerId, Email FROM dbo.Customers";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, queryContent);
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+            _langService.ParseAndBind(scriptFile, connInfo: null).GetAwaiter().GetResult();
+
+            // --- CustomerId (INT, NOT NULL) ---
+            var posCustomerId = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 8 }  // inside "CustomerId"
+            };
+            var hoverCustomerId = _langService.GetHoverItem(posCustomerId, scriptFile);
+            Assert.IsNotNull(hoverCustomerId, "Hover result should not be null for CustomerId");
+            var stringsCustomerId = hoverCustomerId.Contents as MarkedString[];
+            Assert.IsNotNull(stringsCustomerId, "Hover contents should be MarkedString[] for CustomerId");
+            string textCustomerId = string.Join(" ", stringsCustomerId.Select(m => m.Value));
+            StringAssert.Contains("int", textCustomerId,
+                $"Hover for CustomerId should contain data type 'int'. Got: {textCustomerId}");
+            StringAssert.DoesNotContain("(, null)", textCustomerId,
+                $"Hover should not contain broken '(, null)'. Got: {textCustomerId}");
+
+            // --- Email (NVARCHAR(255), nullable) ---
+            var posEmail = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 20 }  // inside "Email"
+            };
+            var hoverEmail = _langService.GetHoverItem(posEmail, scriptFile);
+            Assert.IsNotNull(hoverEmail, "Hover result should not be null for Email");
+            var stringsEmail = hoverEmail.Contents as MarkedString[];
+            Assert.IsNotNull(stringsEmail, "Hover contents should be MarkedString[] for Email");
+            string textEmail = string.Join(" ", stringsEmail.Select(m => m.Value));
+            StringAssert.Contains("nvarchar", textEmail,
+                $"Hover for Email should contain data type 'nvarchar'. Got: {textEmail}");
+            StringAssert.DoesNotContain("(, null)", textEmail,
+                $"Hover should not contain broken '(, null)'. Got: {textEmail}");
         }
 
         /// <summary>

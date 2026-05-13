@@ -52,7 +52,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// On close: Model must be disposed; binding context and ScriptParseInfo entries
         /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new();
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Monotonically-increasing generation counter per project URI.
+        /// Incremented on every Open and Close. A background build task captures the generation
+        /// at start and checks it at each commit point; if the generation has changed the task
+        /// knows it is no longer the owner and must discard its results.
+        /// </summary>
+        private ConcurrentDictionary<string, int> projectGenerations = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes the service instance
@@ -128,9 +136,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
+            // Bump the generation so any previously in-flight build for this URI is invalidated,
+            // then capture the new generation into the background task as its ownership token.
+            int generation = projectGenerations.AddOrUpdate(
+                requestParams.ProjectUri, 1, (_, prev) => prev + 1);
             // Kick off async IntelliSense model build so .sql files in this project get completions
             // without a live server connection. Fire-and-forget: errors are logged inside.
-            _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri));
+            _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
         }
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -138,7 +150,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             await RunWithErrorHandling(() =>
             {
                 Projects.TryRemove(requestParams.ProjectUri, out _);
-                
+
+                // Bump the generation to invalidate any in-flight IntelliSense build.
+                // The background task checks this at each commit point and will discard
+                // its model if it sees the generation has changed.
+                projectGenerations.AddOrUpdate(
+                    requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+
                 // Full IntelliSense teardown:
                 // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
                 // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
@@ -159,8 +177,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// Stores both in projectIntelliSense cache for disposal on project close.
         /// Runs on a background thread; errors do not affect the project open response.
         /// </summary>
-        private async Task BuildProjectIntelliSenseAsync(string projectUri)
+        /// <param name="projectUri">URI of the project being opened.</param>
+        /// <param name="generation">Ownership token captured at the moment the task was started.
+        /// If the current generation for this URI differs at any commit point, the task is stale
+        /// (project was closed or re-opened) and must discard its results.</param>
+        private async Task BuildProjectIntelliSenseAsync(string projectUri, int generation)
         {
+            TSqlModel? model = null;
             try
             {
                 SqlProject project = GetProject(projectUri);
@@ -169,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 string contextKey = $"project_{projectUri}";
                 string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath)
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
-                
+
                 // Include all SQL files: Build items, PreDeploy, and PostDeploy
                 var allScripts = new List<string>();
                 foreach (var script in project.SqlObjectScripts)
@@ -184,19 +207,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     allScripts.Add(script.Path);
                 }
-                
+
                 var fileUriList = allScripts
                     .Select(path => new Uri(Path.IsPathRooted(path)
                         ? path
                         : Path.Combine(projectDir, path)).AbsoluteUri)
                     .ToList();
 
-                var model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+                model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+
+                // Gate 1: after the expensive load — verify we are still the owner.
+                if (!IsCurrentGeneration(projectUri, generation))
+                {
+                    model.Dispose();
+                    return;
+                }
+
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
-                // Store everything needed for full teardown on project close
+                // Store everything needed for full teardown on project close.
                 projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, fileUriList);
-                
+
+                // Gate 2: before registering the binding context — verify we are still the owner.
+                // (Close may have run between Gate 1 and here.)
+                if (!IsCurrentGeneration(projectUri, generation))
+                {
+                    projectIntelliSense.TryRemove(projectUri, out _);
+                    model.Dispose();
+                    return;
+                }
+
                 var parseOptions = new ParseOptions(
                     batchSeparator: LanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
@@ -209,8 +249,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             catch (Exception ex)
             {
                 Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
+                model?.Dispose();
             }
         }
+
+        /// <summary>
+        /// Returns true when <paramref name="generation"/> still matches the current generation
+        /// for the given project URI, meaning no Open or Close has superseded this build task.
+        /// </summary>
+        private bool IsCurrentGeneration(string projectUri, int generation)
+            => projectGenerations.TryGetValue(projectUri, out int current) && current == generation;
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {

@@ -967,10 +967,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        // Both online and project files use the binding queue via ConnectionKey.
-                        // Online: connInfo != null, UpdateLanguageServiceOnConnection set IsConnected.
-                        // Project: connInfo is null, InitializeProjectFileContexts set IsProjectContext.
-                        bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProjectContext) && parseInfo.ConnectionKey != null;
+                        // Files with a binding context of LiveConnection or Project use the binding queue.
+                        // BindingContextKind.None means there is no binding context available.
+                        // A ConnectionKey is still required because binding operations are queued through it. 
+                        bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProject) && parseInfo.ConnectionKey != null;
 
                         if (!hasBindingContext)
                         {
@@ -1141,9 +1141,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
 
-            // Project files always retain their "project_{uri}" key — a server connection must not
+            // Project files always retain their Project context — a server connection must not
             // overwrite it and redirect the file to the SMO binder.
-            if (IsProjectContext(scriptInfo.ConnectionKey))
+            if (scriptInfo.IsProject)
             {
                 return;
             }
@@ -1153,12 +1153,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
-                    scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
+                    scriptInfo.BindingContextKind = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey)
+                        ? BindingContextKindEnum.LiveConnection
+                        : BindingContextKindEnum.None;
                 }
                 catch (Exception ex)
                 {
                     Logger.Error("Unknown error in OnConnection " + ex.ToString());
-                    scriptInfo.IsConnected = false;
+                    scriptInfo.BindingContextKind = BindingContextKindEnum.None;
                 }
                 finally
                 {
@@ -1200,7 +1202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.IsProjectContext = true;
+                        scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
                         scriptInfo.ProjectDatabaseName = databaseName;
                     }
                     finally
@@ -1209,7 +1211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
 
-                // Stamp all .sql files with project context so HasBindingContext returns true
+                // Stamp all .sql files with project context (IsProject == true)
                 if (fileUris != null)
                 {
                     InitializeProjectFileContexts(fileUris, contextKey, databaseName);
@@ -1224,7 +1226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Stamps the project ConnectionKey and IsProjectContext=true onto every .sql file in the project.
+        /// Stamps the project ConnectionKey and BindingContextKindEnum.Project onto every .sql file in the project.
         /// Must only be called AFTER AddProjectContext has registered the binding context, so that
         /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
         /// </summary>
@@ -1238,7 +1240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.IsProjectContext = true;
+                        scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
                         scriptInfo.ProjectDatabaseName = databaseName;
                     }
                     finally
@@ -1391,14 +1393,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return !CurrentWorkspaceSettings.IsSuggestionsEnabled
                 || ShouldSkipNonMssqlFile(uri);
         }
-
-        /// <summary>
-        /// Returns true when the ConnectionKey identifies a SQL project context (offline, TSqlModel-backed).
-        /// Use this for routing decisions instead of checking connInfo == null.
-        /// </summary>
-        private static bool IsProjectContext(string connectionKey)
-            => !string.IsNullOrEmpty(connectionKey) &&
-               connectionKey.StartsWith("project_", StringComparison.Ordinal);
 
         /// <summary>
         /// Determines whether a reparse and bind is required to provide autocomplete
@@ -1599,9 +1593,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
-            // Project file: key starts with "project_" regardless of whether the user also has a
-            // server connection open. Route directly to the engine — no token peeling, raw position only.
-            if (IsProjectContext(scriptParseInfo.ConnectionKey))
+            // Project file: route directly to the offline engine — no token peeling, raw position only.
+            if (scriptParseInfo.IsProject)
             {
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
                 return QueueProjectTask(textDocumentPosition, scriptParseInfo);
@@ -2157,8 +2150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // duplicates because they are already loaded into the metadata model, producing false
             // "already exists" errors. Project-level validation belongs to a build step.
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            bool isProjectFile = IsProjectContext(parseInfo?.ConnectionKey);
-            if (isProjectFile)
+            if (parseInfo?.IsProject == true)
             {
                 return Array.Empty<ScriptFileMarker>();
             }
