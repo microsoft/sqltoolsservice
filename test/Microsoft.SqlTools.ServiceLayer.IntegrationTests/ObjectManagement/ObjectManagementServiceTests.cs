@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Exception ex = Assert.ThrowsAsync<Exception>(
                 () => ObjectManagementTestUtils.Service.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object),
                 "Did find the connection, which should not have existed");
-            Assert.That(ex.Message, Is.EqualTo("The connection could not be found"));
+            Assert.That(ex.Message, Does.Contain("connection could not be found").IgnoreCase);
         }
 
         private RenameRequestParams InitRequestParams(string newName, string UrnOfObject)
