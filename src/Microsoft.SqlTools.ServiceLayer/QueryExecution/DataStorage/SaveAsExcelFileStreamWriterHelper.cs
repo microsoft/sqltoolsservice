@@ -58,6 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
     internal sealed class SaveAsExcelFileStreamWriterHelper : IDisposable
     {
+        internal const int MaxWorksheetRows = 1048576;
+
         /// <summary>
         /// Present a Excel sheet
         /// </summary>
@@ -587,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// </summary>
             public void AssureRowReference()
             {
-                if (currRow > 1048576)
+                if (currRow > MaxWorksheetRows)
                 {
                     throw new InvalidOperationException("max row number is 1048576, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
                 }

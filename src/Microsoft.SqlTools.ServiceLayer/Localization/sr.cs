@@ -399,11 +399,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string QueryServiceSaveAsExcelMaxRowsExceeded(long maxRows)
-        {
-            return Keys.GetString(Keys.QueryServiceSaveAsExcelMaxRowsExceeded, maxRows);
-        }
-
         public static string QueryServiceResultSetNotRead
         {
             get
@@ -10803,6 +10798,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string QueryServiceUnsupportedSqlVariantType(string underlyingType, string columnName)
         {
             return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, underlyingType, columnName);
+        }
+
+        public static string QueryServiceSaveAsExcelMaxRowsExceeded(long maxRows)
+        {
+            return Keys.GetString(Keys.QueryServiceSaveAsExcelMaxRowsExceeded, maxRows);
         }
 
         public static string QueryServiceSaveAsFail(string fileName, string message)

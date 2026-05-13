@@ -36,7 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
         private const uint MaxResultsTimerPulseMilliseconds = 1000;
         private const uint MinResultTimerPulseMilliseconds = 10;
-        private const long MaxExcelWorksheetRows = 1048576;
         #endregion
 
         #region Member Variables
@@ -565,12 +564,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         rowEndIndex = saveParams.RowEndIndex.Value + 1;
                         rowStartIndex = saveParams.RowStartIndex.Value;
                         // ReSharper restore PossibleInvalidOperationException
-                    }
-
-                    if (saveParams is SaveResultsAsExcelRequestParams excelSaveParams &&
-                        rowEndIndex - rowStartIndex + (excelSaveParams.IncludeHeaders ? 1 : 0) > MaxExcelWorksheetRows)
-                    {
-                        throw new InvalidOperationException(SR.QueryServiceSaveAsExcelMaxRowsExceeded(MaxExcelWorksheetRows));
                     }
 
                     using (var fileReader = fileFactory.GetReader(outputFileName))

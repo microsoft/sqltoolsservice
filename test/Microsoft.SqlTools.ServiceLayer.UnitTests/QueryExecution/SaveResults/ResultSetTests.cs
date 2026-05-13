@@ -156,40 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 Times.Exactly((int) (saveParams.RowEndIndex - saveParams.RowStartIndex  + 1)));
         }
 
-        [Test]
-        public async Task SaveAsExcelFailsBeforeWritingWhenRowSelectionExceedsWorksheetLimit()
-        {
-            IFileStreamFactory resultFactory = MemoryFileSystem.GetFileStreamFactory();
-            ResultSet rs = new ResultSet(
-                Common.Ordinal, Common.Ordinal,
-                resultFactory);
-            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, Constants.StandardQuery), CancellationToken.None);
-
-            var saveParams = new SaveResultsAsExcelRequestParams
-            {
-                FilePath = Constants.OwnerUri,
-                IncludeHeaders = true,
-                RowStartIndex = 0,
-                RowEndIndex = 1048575,
-                ColumnStartIndex = 0,
-                ColumnEndIndex = 0
-            };
-
-            var saveFactory = new Mock<IFileStreamFactory>();
-            string failureMessage = null;
-
-            rs.SaveAs(saveParams, saveFactory.Object, null, (_, message) =>
-            {
-                failureMessage = message;
-                return Task.CompletedTask;
-            });
-            await rs.SaveTasks[Constants.OwnerUri];
-
-            Assert.That(failureMessage, Is.EqualTo(SR.QueryServiceSaveAsExcelMaxRowsExceeded(1048576)));
-            saveFactory.Verify(f => f.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()), Times.Never);
-            saveFactory.Verify(f => f.DisposeFile(It.IsAny<string>()), Times.Never);
-        }
-
         private static Mock<IFileStreamWriter> GetMockWriter()
         {
             var mockWriter = new Mock<IFileStreamWriter>();
