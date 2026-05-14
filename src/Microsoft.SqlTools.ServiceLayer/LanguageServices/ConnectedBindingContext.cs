@@ -24,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class ConnectedBindingContext : IBindingContext
     {
+        private const int CompatibilityProbeTimeoutSeconds = 5;
+
         private ParseOptions parseOptions;
 
         private ManualResetEvent bindingLock;
@@ -31,6 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private ServerConnection serverConnection;
 
         private SMO.Server server;
+
+        private DatabaseCompatibilityLevel? cachedDatabaseCompatibilityLevel;
+
+        private TransactSqlVersion? cachedTransactSqlVersion;
+
+        private DateTime? noOpBinderExpiresAtUtc;
 
         /// <summary>
         /// Connected binding context constructor
@@ -70,8 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // reset the parse options so the get recreated for the current connection
                 this.parseOptions = null;
+                this.cachedDatabaseCompatibilityLevel = null;
+                this.cachedTransactSqlVersion = null;
                 // Set up a SMO Server to query when determing parse options and we don't have a metadataprovider 
-                this.server = new SMO.Server(this.serverConnection);
+                this.server = this.serverConnection == null ? null : new SMO.Server(this.serverConnection);
             }
         }
 
@@ -104,6 +114,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the binder
         /// </summary>
         public IBinder Binder { get; set; }
+
+        internal bool IsDead => this.noOpBinderExpiresAtUtc.HasValue &&
+                                DateTime.UtcNow >= this.noOpBinderExpiresAtUtc.Value;
+
+        internal void UseNoOpBinder(TimeSpan lifetime)
+        {
+            this.Binder = NoOpBinder.Instance;
+            this.IsConnected = true;
+            this.noOpBinderExpiresAtUtc = DateTime.UtcNow.Add(lifetime);
+        }
+
+        internal void MarkConnected()
+        {
+            this.IsConnected = true;
+            this.noOpBinderExpiresAtUtc = null;
+        }
 
         /// <summary>
         /// Parse options for project-based offline binding contexts.
@@ -164,9 +190,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                return (this.IsConnected && !this.IsProjectContext)
-                    ? GetTransactSqlVersion(this.Server)
-                    : TransactSqlVersion.Current;
+                EnsureServerVersionInfo();
+                return this.cachedTransactSqlVersion ?? TransactSqlVersion.Current;
             }
         }
 
@@ -177,9 +202,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                return (this.IsConnected && !this.IsProjectContext)
-                    ? GetDatabaseCompatibilityLevel(this.Server)
-                    : DatabaseCompatibilityLevel.Current;
+                EnsureServerVersionInfo();
+                return this.cachedDatabaseCompatibilityLevel ?? DatabaseCompatibilityLevel.Current;
             }
         }
 
@@ -204,20 +228,49 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        private void EnsureServerVersionInfo()
+        {
+            if (this.cachedDatabaseCompatibilityLevel.HasValue && this.cachedTransactSqlVersion.HasValue)
+            {
+                return;
+            }
+
+            if (!this.IsConnected || this.IsProjectContext || this.Server == null)
+            {
+                this.cachedDatabaseCompatibilityLevel = DatabaseCompatibilityLevel.Current;
+                this.cachedTransactSqlVersion = TransactSqlVersion.Current;
+                return;
+            }
+
+            try
+            {
+                if (this.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+                {
+                    this.cachedDatabaseCompatibilityLevel = DatabaseCompatibilityLevel.Azure;
+                    this.cachedTransactSqlVersion = TransactSqlVersion.Azure;
+                    return;
+                }
+
+                SMO.CompatibilityLevel compatibilityLevel = GetServerCompatibilityLevel(this.Server);
+                this.cachedDatabaseCompatibilityLevel = ToDatabaseCompatibilityLevel(compatibilityLevel);
+                this.cachedTransactSqlVersion = ToTransactSqlVersion(this.Server.VersionMajor, compatibilityLevel);
+            }
+            catch (Exception ex)
+            {
+                Logger.Information($"Failed to initialize binding parse options - using current defaults. Exception: {ex}");
+                this.cachedDatabaseCompatibilityLevel = DatabaseCompatibilityLevel.Current;
+                this.cachedTransactSqlVersion = TransactSqlVersion.Current;
+            }
+        }
+
 
         /// <summary>
         /// Gets the database compatibility level for a given server connection
         /// </summary>
         /// <param name="server"></param>
-        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(SMO.Server server)
+        private static DatabaseCompatibilityLevel ToDatabaseCompatibilityLevel(SMO.CompatibilityLevel compatibilityLevel)
         {
-            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
-            {
-                return DatabaseCompatibilityLevel.Azure;
-            }
-
-            // Get the actual compat level of the database we're connected to
-            switch (GetServerCompatibilityLevel(server))
+            switch (compatibilityLevel)
             {
                 case SMO.CompatibilityLevel.Version80:
                     return DatabaseCompatibilityLevel.Version80;
@@ -244,17 +297,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets the transaction sql version for a given server connection
         /// </summary>
         /// <param name="server"></param>
-        private static TransactSqlVersion GetTransactSqlVersion(SMO.Server server)
+        private static TransactSqlVersion ToTransactSqlVersion(int serverVersionMajor, SMO.CompatibilityLevel compatibilityLevel)
         {
-            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
-            {
-                return TransactSqlVersion.Azure;
-            }
-
             // Determine the language version to use - we can't just use VersionMajor directly because there are engine versions (such as MI)
             // whose language version they support is higher than the actual server version. So we choose the highest compat level from
             // between the server version and compat level
-            var compatLevel = Math.Max(server.VersionMajor * 10, (int)GetServerCompatibilityLevel(server));
+            var compatLevel = Math.Max(serverVersionMajor * 10, (int)compatibilityLevel);
             switch (compatLevel)
             {
                 case 90:
@@ -288,8 +336,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             server.SetDefaultInitFields(typeof(SMO.Database), nameof(SMO.Database.CompatibilityLevel));
 
             SMO.CompatibilityLevel compatLevel;
+            int originalStatementTimeout = server.ConnectionContext.StatementTimeout;
             try
             {
+                server.ConnectionContext.StatementTimeout = originalStatementTimeout <= 0
+                    ? CompatibilityProbeTimeoutSeconds
+                    : Math.Min(originalStatementTimeout, CompatibilityProbeTimeoutSeconds);
                 // First try the master DB since it will have the highest compat level for that instance
                 compatLevel = server.Databases["master"].CompatibilityLevel;
                 Logger.Information($"Got compat level for binding context {compatLevel} after querying master");
@@ -309,6 +361,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Logger.Information($"Failed to get compat level for binding context from querying server - using default of {compatLevel}");
                 }
 
+            }
+            finally
+            {
+                server.ConnectionContext.StatementTimeout = originalStatementTimeout;
             }
             return compatLevel;
         }

@@ -5,9 +5,11 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -79,5 +81,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the current autocomplete suggestion list
         /// </summary>
         public IEnumerable<Declaration> CurrentSuggestions { get; set; }
+
+        public CompletionItem[] LastSuccessfulCompletionItems { get; set; }
+
+        public string LastCompletionSqlText { get; set; }
+
+        public string LastCompletionTokenText { get; set; }
+
+        public int LastCompletionParserLine { get; set; }
+
+        public int LastCompletionParserColumn { get; set; }
+
+        public DateTime LastCompletionUpdatedUtc { get; set; }
     }
 }

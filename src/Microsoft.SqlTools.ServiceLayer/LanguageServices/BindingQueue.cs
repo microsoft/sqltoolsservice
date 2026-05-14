@@ -14,8 +14,9 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -25,6 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     public class BindingQueue<T> : IDisposable where T : IBindingContext, new()
     {
         internal const int QueueThreadStackSize = 5 * 1024 * 1024;
+
+        private const string DisconnectedBindingContextKey = "disconnected_binding_context";
 
         private CancellationTokenSource processQueueCancelToken = null;
 
@@ -48,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
 
-        internal ConcurrentDictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new();
+        internal ConcurrentDictionary<string, Task> BindingContextTasks { get; set; } = new();
 
         /// <summary>
         /// Constructor for a binding queue instance
@@ -123,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="key"></param>
         public bool IsBindingContextConnected(string key)
         {
+            key = NormalizeBindingContextKey(key);
             lock (this.bindingContextLock)
             {
                 IBindingContext context;
@@ -138,38 +142,46 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or creates a binding context for the provided context key
         /// </summary>
         /// <param name="key"></param>
-        protected IBindingContext GetOrCreateBindingContext(string key)
+        protected virtual IBindingContext GetOrCreateBindingContext(string key)
         {
-            // use a default binding context for disconnected requests
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                key = "disconnected_binding_context";
-            }
+            key = NormalizeBindingContextKey(key);
 
             lock (this.bindingContextLock)
             {
-                if (!this.BindingContextMap.ContainsKey(key))
+                if (this.BindingContextMap.TryGetValue(key, out IBindingContext existingContext))
                 {
-                    var bindingContext = new T();
-                    this.BindingContextMap.TryAdd(key, bindingContext);
-                    this.BindingContextTasks.TryAdd(bindingContext, Task.Run(() => null));
+                    return existingContext;
+                }
+            }
+
+            IBindingContext bindingContext = CreateBindingContext(key);
+
+            lock (this.bindingContextLock)
+            {
+                if (this.BindingContextMap.TryGetValue(key, out IBindingContext existingContext))
+                {
+                    DisconnectBindingContextAsync(bindingContext, disconnectImmediately: true);
+                    return existingContext;
                 }
 
-                return this.BindingContextMap[key];
+                this.BindingContextMap.TryAdd(key, bindingContext);
+                this.BindingContextTasks.TryAdd(key, Task.CompletedTask);
+                return bindingContext;
             }
+        }
+
+        protected virtual IBindingContext CreateBindingContext(string key)
+        {
+            return new T();
         }
 
         protected IEnumerable<IBindingContext> GetBindingContexts(string keyPrefix)
         {
-            // use a default binding context for disconnected requests
-            if (string.IsNullOrWhiteSpace(keyPrefix))
-            {
-                keyPrefix = "disconnected_binding_context";
-            }
+            keyPrefix = NormalizeBindingContextKey(keyPrefix);
 
             lock (this.bindingContextLock)
             {
-                return this.BindingContextMap.Where(x => x.Key.StartsWith(keyPrefix)).Select(v => v.Value);
+                return this.BindingContextMap.Where(x => x.Key.StartsWith(keyPrefix)).Select(v => v.Value).ToList();
             }
         }
 
@@ -178,6 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         protected bool BindingContextExists(string key)
         {
+            key = NormalizeBindingContextKey(key);
             lock (this.bindingContextLock)
             {
                 return this.BindingContextMap.ContainsKey(key);
@@ -188,26 +201,59 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Remove the binding queue entry
         /// </summary>
         protected void RemoveBindingContext(string key)
+            => RemoveBindingContext(key, removeTaskChain: true, disconnectImmediately: true);
+
+        protected void RemoveBindingContext(string key, bool removeTaskChain, bool disconnectImmediately)
         {
+            key = NormalizeBindingContextKey(key);
             lock (this.bindingContextLock)
             {
                 if (this.BindingContextMap.TryGetValue(key, out IBindingContext? bindingContext))
                 {
-                    // disconnect existing connection
-                    if (bindingContext.ServerConnection != null && bindingContext.ServerConnection.IsOpen)
-                    {
-                        // Disconnecting can take some time so run it in a separate task so that it doesn't block removal
-                        Task.Run(() =>
-                        {
-                            bindingContext.ServerConnection.Cancel();
-                            bindingContext.ServerConnection.Disconnect();
-                        });
-                    }
+                    DisconnectBindingContextAsync(bindingContext, disconnectImmediately);
 
                     // remove key from the map
                     this.BindingContextMap.TryRemove(key, out _);
-                    this.BindingContextTasks.TryRemove(bindingContext, out _);
+                    if (removeTaskChain)
+                    {
+                        this.BindingContextTasks.TryRemove(key, out _);
+                    }
                 }
+            }
+        }
+
+        private bool RemoveBindingContextIfCurrent(
+            string key,
+            IBindingContext bindingContext,
+            bool removeTaskChain,
+            bool disconnectImmediately)
+        {
+            key = NormalizeBindingContextKey(key);
+            lock (this.bindingContextLock)
+            {
+                if (this.BindingContextMap.TryGetValue(key, out IBindingContext? currentContext) &&
+                    ReferenceEquals(currentContext, bindingContext))
+                {
+                    DisconnectBindingContextAsync(bindingContext, disconnectImmediately);
+                    this.BindingContextMap.TryRemove(key, out _);
+                    if (removeTaskChain)
+                    {
+                        this.BindingContextTasks.TryRemove(key, out _);
+                    }
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsCurrentBindingContext(string key, IBindingContext bindingContext)
+        {
+            key = NormalizeBindingContextKey(key);
+            lock (this.bindingContextLock)
+            {
+                return this.BindingContextMap.TryGetValue(key, out IBindingContext? currentContext) &&
+                       ReferenceEquals(currentContext, bindingContext);
             }
         }
 
@@ -291,18 +337,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
 
-                        IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
-                        if (bindingContext == null)
-                        {
-                            queueItem.ItemProcessed.Set();
-                            continue;
-                        }
+                        string bindingContextKey = NormalizeBindingContextKey(queueItem.Key);
+                        Task bindingContextTask = this.BindingContextTasks.GetOrAdd(bindingContextKey, Task.CompletedTask);
 
-                        var bindingContextTask = this.BindingContextTasks[bindingContext];
+                        // Run in the binding context task in case this task has to wait for a previous binding operation.
+                        // Resolve the context inside the continuation so a timed-out operation can evict the old SMO
+                        // objects before the next queued item starts.
+                        this.BindingContextTasks[bindingContextKey] = bindingContextTask.ContinueWith(
+                            task =>
+                            {
+                                IBindingContext bindingContext = GetOrCreateBindingContext(bindingContextKey);
+                                if (bindingContext == null)
+                                {
+                                    queueItem.ItemProcessed.Set();
+                                    return;
+                                }
 
-                        // Run in the binding context task in case this task has to wait for a previous binding operation
-                        this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith(
-                            task => DispatchQueueItem(bindingContext, queueItem)
+                                DispatchQueueItem(bindingContextKey, bindingContext, queueItem);
+                            }
                         , TaskContinuationOptions.RunContinuationsAsynchronously);
 
                         // if a queue processing cancellation was requested then exit the loop
@@ -327,9 +379,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private void DispatchQueueItem(IBindingContext bindingContext, QueueItem queueItem)
+        private void DispatchQueueItem(string bindingContextKey, IBindingContext bindingContext, QueueItem queueItem)
         {
             bool lockTaken = false;
+            CancellationTokenSource cancelToken = null;
+            Task bindTask = null;
             try
             {
                 // prefer the queue item binding item, otherwise use the context default timeout - timeout is in milliseconds
@@ -338,33 +392,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // handle the case a previous binding operation is still running
                 if (!bindingContext.BindingLock.WaitOne(queueItem.WaitForLockTimeout ?? 0))
                 {
-                    try
-                    {
-                        Logger.Warning("Binding queue operation timed out waiting for previous operation to finish");
-                        queueItem.Result = queueItem.TimeoutOperation != null
-                            ? queueItem.TimeoutOperation(bindingContext)
-                            : null;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Exception running binding queue lock timeout handler: " + ex.ToString());
-                    }
-                    finally
-                    {
-                        queueItem.ItemProcessed.Set();
-                    }
+                    Logger.Warning("Binding queue operation timed out waiting for previous operation to finish");
+                    queueItem.Result = RunTimeoutOperation(bindingContext, queueItem, "lock wait timeout");
+                    queueItem.ItemProcessed.Set();
+                    return;
                 }
 
                 bindingContext.BindingLock.Reset();
-
                 lockTaken = true;
 
                 // execute the binding operation
                 object result = null;
-                CancellationTokenSource cancelToken = new CancellationTokenSource();
+                cancelToken = new CancellationTokenSource();
 
                 // run the operation in a separate thread
-                var bindTask = Task.Run(() =>
+                bindTask = Task.Run(() =>
                 {
                     try
                     {
@@ -375,77 +417,183 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     catch (Exception ex)
                     {
                         Logger.Error("Unexpected exception on the binding queue: " + ex.ToString());
-                        if (queueItem.ErrorHandler != null)
-                        {
-                            try
-                            {
-                                result = queueItem.ErrorHandler(ex);
-                            }
-                            catch (Exception ex2)
-                            {
-                                Logger.Error("Unexpected exception in binding queue error handler: " + ex2.ToString());
-                            }
-                        }
-                        if (IsExceptionOfType(ex, typeof(SqlException)) || IsExceptionOfType(ex, typeof(SocketException)))
+                        result = RunErrorHandler(queueItem, ex);
+                        if (ShouldRemoveBindingContextOnException(ex) && IsCurrentBindingContext(bindingContextKey, bindingContext))
                         {
                             if (this.OnUnhandledException != null)
                             {
-                                this.OnUnhandledException(queueItem.Key, ex);
+                                this.OnUnhandledException(bindingContextKey, ex);
                             }
-                            RemoveBindingContext(queueItem.Key);
+                            Logger.Warning($"Removing binding context '{bindingContextKey}' after binding exception of type {ex.GetType().Name}");
+                            RemoveBindingContextIfCurrent(
+                                bindingContextKey,
+                                bindingContext,
+                                removeTaskChain: false,
+                                disconnectImmediately: true);
                         }
                     }
                 });
 
-                Task.Run(() =>
+                try
                 {
-                    try
+                    // check if the binding task completed within the binding timeout
+                    if (bindTask.Wait(bindTimeoutInMs))
                     {
-                        // check if the binding tasks completed within the binding timeout                           
-                        if (bindTask.Wait(bindTimeoutInMs))
+                        queueItem.Result = result;
+                    }
+                    else
+                    {
+                        Logger.Warning($"Binding queue operation for '{bindingContextKey}' timed out after {bindTimeoutInMs} ms");
+                        cancelToken.Cancel();
+                        queueItem.Result = RunTimeoutOperation(bindingContext, queueItem, "bind timeout");
+
+                        if (ShouldEvictBindingContextOnTimeout(bindingContext, queueItem))
                         {
-                            queueItem.Result = result;
+                            bool removed = RemoveBindingContextIfCurrent(
+                                bindingContextKey,
+                                bindingContext,
+                                removeTaskChain: false,
+                                disconnectImmediately: false);
+                            if (removed)
+                            {
+                                Logger.Warning($"Evicted binding context '{bindingContextKey}' after bind timeout");
+                            }
+                            ScheduleOrphanedContextCleanup(bindingContext, bindTask, cancelToken);
+                            cancelToken = null;
                         }
                         else
                         {
-                            cancelToken.Cancel();
-                            // if the task didn't complete then call the timeout callback
-                            if (queueItem.TimeoutOperation != null)
-                            {
-                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
-                            }
-                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
-                            // Give the task a chance to complete before moving on to the next operation
                             bindTask.Wait();
                         }
                     }
-                    catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Binding queue task completion threw exception " + ex.ToString());
+                }
+                finally
+                {
+                    // set item processed to avoid deadlocks
+                    if (lockTaken)
                     {
-                        Logger.Error("Binding queue task completion threw exception " + ex.ToString());
+                        bindingContext.BindingLock.Set();
                     }
-                    finally
-                    {
-                        // set item processed to avoid deadlocks 
-                        if (lockTaken)
-                        {
-                            bindingContext.BindingLock.Set();
-                        }
-                        queueItem.ItemProcessed.Set();
-                    }
-                });
+                    queueItem.ItemProcessed.Set();
+                    cancelToken?.Dispose();
+                }
             }
             catch (Exception ex)
             {
                 // catch and log any exceptions raised in the binding calls
-                // set item processed to avoid deadlocks 
+                // set item processed to avoid deadlocks
                 Logger.Error("Binding queue threw exception " + ex.ToString());
-                // set item processed to avoid deadlocks 
                 if (lockTaken)
                 {
                     bindingContext.BindingLock.Set();
                 }
                 queueItem.ItemProcessed.Set();
+                cancelToken?.Dispose();
             }
+        }
+
+        protected virtual bool ShouldEvictBindingContextOnTimeout(IBindingContext bindingContext, QueueItem queueItem)
+        {
+            return true;
+        }
+
+        private object RunTimeoutOperation(IBindingContext bindingContext, QueueItem queueItem, string reason)
+        {
+            if (queueItem.TimeoutOperation == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                Logger.Verbose($"Running binding queue timeout handler due to {reason}");
+                return queueItem.TimeoutOperation(bindingContext);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Exception running binding queue timeout handler: " + ex.ToString());
+                return null;
+            }
+        }
+
+        private object RunErrorHandler(QueueItem queueItem, Exception ex)
+        {
+            if (queueItem.ErrorHandler == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return queueItem.ErrorHandler(ex);
+            }
+            catch (Exception ex2)
+            {
+                Logger.Error("Unexpected exception in binding queue error handler: " + ex2.ToString());
+                return null;
+            }
+        }
+
+        private void ScheduleOrphanedContextCleanup(
+            IBindingContext bindingContext,
+            Task bindTask,
+            CancellationTokenSource cancelToken)
+        {
+            bindTask.ContinueWith(
+                task =>
+                {
+                    try
+                    {
+                        if (task.IsFaulted && task.Exception != null)
+                        {
+                            Logger.Error("Binding queue threw exception after timeout " + task.Exception);
+                        }
+                        DisconnectBindingContextAsync(bindingContext, disconnectImmediately: true);
+                    }
+                    finally
+                    {
+                        cancelToken.Dispose();
+                    }
+                },
+                TaskContinuationOptions.RunContinuationsAsynchronously);
+        }
+
+        private static string NormalizeBindingContextKey(string key)
+        {
+            return string.IsNullOrWhiteSpace(key)
+                ? DisconnectedBindingContextKey
+                : key;
+        }
+
+        private void DisconnectBindingContextAsync(IBindingContext bindingContext, bool disconnectImmediately)
+        {
+            if (bindingContext?.ServerConnection == null || !bindingContext.ServerConnection.IsOpen)
+            {
+                return;
+            }
+
+            if (!disconnectImmediately)
+            {
+                return;
+            }
+
+            // Disconnecting can take some time so run it in a separate task so that it doesn't block removal.
+            Task.Run(() =>
+            {
+                try
+                {
+                    bindingContext.ServerConnection.Cancel();
+                    bindingContext.ServerConnection.Disconnect();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Exception disconnecting binding context: " + ex.ToString());
+                }
+            });
         }
 
         /// <summary>
@@ -484,6 +632,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
+        }
+
+        private bool ShouldRemoveBindingContextOnException(Exception ex)
+        {
+            return IsExceptionOfType(ex, typeof(SqlException)) ||
+                   IsExceptionOfType(ex, typeof(SocketException)) ||
+                   IsExceptionOfType(ex, typeof(ConnectionException)) ||
+                   IsExceptionOfType(ex, typeof(SqlParserInternalBinderError));
         }
 
         private bool IsExceptionOfType(Exception ex, Type t)

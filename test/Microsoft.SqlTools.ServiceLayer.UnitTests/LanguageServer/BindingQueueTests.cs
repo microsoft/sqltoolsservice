@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -216,56 +217,89 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         /// <summary>
         /// Queue a task with a long operation causing a timeout 
-        /// and make sure subsequent tasks don't execute while task is completing
+        /// and make sure subsequent tasks can continue on a fresh context
         /// </summary>
         [Test]
-        public void QueueWithTimeoutDoesNotRunNextTask()
+        public void QueueWithTimeoutDoesNotBlockNextTask()
         {
             string operationKey = "testkey";
-            ManualResetEvent firstEventExecuted = new ManualResetEvent(false);
+            ManualResetEvent firstEventStarted = new ManualResetEvent(false);
+            ManualResetEvent releaseFirstEvent = new ManualResetEvent(false);
             ManualResetEvent secondEventExecuted = new ManualResetEvent(false);
+            IBindingContext firstContext = null;
+            IBindingContext secondContext = null;
             bool firstOperationCanceled = false;
             bool secondOperationExecuted = false;
             InitializeTestSettings();
 
-            this.bindCallbackDelay = 1000;
-            var totalTimeout = (this.bindCallbackDelay + this.bindingContext.BindingTimeout) * 2;
-
             this.bindingQueue.QueueBindingOperation(
                 key: operationKey,
-                bindingTimeout: bindCallbackDelay / 2,
+                bindingTimeout: 100,
                 bindOperation: (bindingContext, cancellationToken) =>
                 {
-                    secondEventExecuted.WaitOne();
+                    firstContext = bindingContext;
+                    firstEventStarted.Set();
+                    releaseFirstEvent.WaitOne(2000);
                     if (cancellationToken.IsCancellationRequested)
                     {
                         firstOperationCanceled = true;
                     }
-                    firstEventExecuted.Set();
                     return null;
                 },
                 timeoutOperation: TestTimeoutOperation);
 
             this.bindingQueue.QueueBindingOperation(
                 key: operationKey,
-                bindingTimeout: bindCallbackDelay,
+                bindingTimeout: 1000,
                 bindOperation: (bindingContext, cancellationToken) =>
                 {
+                    secondContext = bindingContext;
                     secondOperationExecuted = true;
                     secondEventExecuted.Set();
                     return null;
-                },
-                waitForLockTimeout: totalTimeout
+                }
             );
 
-            var result = firstEventExecuted.WaitOne(totalTimeout);
-            Assert.False(result);
+            Assert.True(firstEventStarted.WaitOne(1000));
+            Assert.True(secondEventExecuted.WaitOne(1000));
+            releaseFirstEvent.Set();
 
             this.bindingQueue.StopQueueProcessor(15000);
 
             Assert.AreEqual(1, this.timeoutCallCount);
-            Assert.False(firstOperationCanceled);
-            Assert.False(secondOperationExecuted);
+            Assert.True(firstOperationCanceled);
+            Assert.True(secondOperationExecuted);
+            Assert.False(ReferenceEquals(firstContext, secondContext));
+        }
+
+        [Test]
+        public void QueueLockTimeoutDoesNotRunBindOperation()
+        {
+            string operationKey = "testkey";
+            InitializeTestSettings();
+            TestBindingContext lockedContext = new TestBindingContext();
+            lockedContext.BindingLock.Reset();
+            this.bindingQueue.BindingContextMap.TryAdd(operationKey, lockedContext);
+            this.bindingQueue.BindingContextTasks.TryAdd(operationKey, Task.FromResult(0));
+
+            bool bindOperationExecuted = false;
+            QueueItem queueItem = this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                bindingTimeout: 1000,
+                waitForLockTimeout: 50,
+                bindOperation: (bindingContext, cancellationToken) =>
+                {
+                    bindOperationExecuted = true;
+                    return null;
+                },
+                timeoutOperation: TestTimeoutOperation);
+
+            Assert.True(queueItem.ItemProcessed.WaitOne(1000));
+            lockedContext.BindingLock.Set();
+            this.bindingQueue.StopQueueProcessor(15000);
+
+            Assert.False(bindOperationExecuted);
+            Assert.AreEqual(1, this.timeoutCallCount);
         }
     }
 }

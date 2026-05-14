@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -83,6 +84,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     Monitor.Exit(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock);
                 }
             }
+            if (result.CompletionItems == null)
+            {
+                result = CreateStaleOrDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+            }
             Logger.Verbose($"Sending completion result for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
             return result;
         }
@@ -99,17 +104,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 bindingTimeout: LanguageService.BindingTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
-                    return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);
+                    return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider, cancelToken);
                 },
                 timeoutOperation: (bindingContext) =>
                 {
-                    // return the default list if the connected bind fails
-                    return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    // return cached/default list if the connected bind fails
+                    return CreateStaleOrDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 },
                 errorHandler: ex =>
                 {
-                    // return the default list if an unexpected exception occurs
-                    return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    // return cached/default list if an unexpected exception occurs
+                    return CreateStaleOrDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 });
             return queueItem;
         }
@@ -138,11 +143,47 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             return result;
         }
 
+        private AutoCompletionResult CreateStaleOrDefaultCompletionItems(
+            ScriptParseInfo scriptParseInfo,
+            ScriptDocumentInfo scriptDocumentInfo,
+            bool useLowerCaseSuggestions)
+        {
+            AutoCompletionResult result = new AutoCompletionResult();
+            CompletionItem[] staleCompletionItems = TryGetStaleCompletionItems(scriptParseInfo, scriptDocumentInfo);
+            if (staleCompletionItems != null)
+            {
+                Logger.Information("Returning stale completion items after binding timeout or failure");
+                result.CompleteResult(staleCompletionItems);
+                return result;
+            }
+
+            return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+        }
+
+        private static CompletionItem[] TryGetStaleCompletionItems(
+            ScriptParseInfo scriptParseInfo,
+            ScriptDocumentInfo scriptDocumentInfo)
+        {
+            if (scriptParseInfo.LastSuccessfulCompletionItems == null ||
+                scriptParseInfo.LastSuccessfulCompletionItems.Length == 0 ||
+                DateTime.UtcNow - scriptParseInfo.LastCompletionUpdatedUtc > TimeSpan.FromSeconds(10) ||
+                scriptParseInfo.LastCompletionParserLine != scriptDocumentInfo.ParserLine ||
+                scriptParseInfo.LastCompletionParserColumn != scriptDocumentInfo.ParserColumn ||
+                !string.Equals(scriptParseInfo.LastCompletionTokenText, scriptDocumentInfo.TokenText, StringComparison.Ordinal) ||
+                !string.Equals(scriptParseInfo.LastCompletionSqlText, scriptDocumentInfo.Contents, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return scriptParseInfo.LastSuccessfulCompletionItems;
+        }
+
         private AutoCompletionResult CreateCompletionsFromSqlParser(
             ConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            MetadataDisplayInfoProvider metadataDisplayInfoProvider)
+            MetadataDisplayInfoProvider metadataDisplayInfoProvider,
+            CancellationToken cancellationToken)
         {
             AutoCompletionResult result = new AutoCompletionResult();
             IEnumerable<Declaration> suggestions = SqlParserWrapper.FindCompletions(
@@ -160,7 +201,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 scriptDocumentInfo.StartLine,
                 scriptDocumentInfo.StartColumn,
                 scriptDocumentInfo.EndColumn,
-                scriptDocumentInfo.TokenText);
+                scriptDocumentInfo.TokenText,
+                cancellationToken,
+                LanguageService.BindingTimeout);
 
 
             // Star expansion uses the binder's BoundTables — works for both live and project contexts.
@@ -172,6 +215,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             }
 
             result.CompleteResult(completionList);
+            if (completionList != null && completionList.Length > 0)
+            {
+                scriptParseInfo.LastSuccessfulCompletionItems = completionList;
+                scriptParseInfo.LastCompletionSqlText = scriptDocumentInfo.Contents;
+                scriptParseInfo.LastCompletionTokenText = scriptDocumentInfo.TokenText;
+                scriptParseInfo.LastCompletionParserLine = scriptDocumentInfo.ParserLine;
+                scriptParseInfo.LastCompletionParserColumn = scriptDocumentInfo.ParserColumn;
+                scriptParseInfo.LastCompletionUpdatedUtc = DateTime.UtcNow;
+            }
             if (!scriptParseInfo.IsProject)
             {
                 connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);

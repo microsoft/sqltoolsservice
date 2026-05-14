@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             };
 
             bindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
-            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.FromResult(0));
+            bindingQueue.BindingContextTasks.TryAdd(scriptParseInfo.ConnectionKey, Task.FromResult(0));
 
             int callingThreadId = Environment.CurrentManagedThreadId;
             int parserThreadId = callingThreadId;
@@ -308,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             };
 
             bindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
-            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.FromResult(0));
+            bindingQueue.BindingContextTasks.TryAdd(scriptParseInfo.ConnectionKey, Task.FromResult(0));
 
             bool dedicatedThreadCreated = false;
 

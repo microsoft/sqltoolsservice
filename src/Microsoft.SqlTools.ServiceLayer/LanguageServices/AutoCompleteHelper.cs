@@ -7,7 +7,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -691,16 +693,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int row,
             int startColumn,
             int endColumn,
-            string tokenText = null)
+            string tokenText = null,
+            CancellationToken cancellationToken = default,
+            int maxMilliseconds = LanguageService.BindingTimeout)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             foreach (var autoCompleteItem in suggestions)
             {
-                SqlCompletionItem sqlCompletionItem = new SqlCompletionItem(autoCompleteItem, tokenText);
+                if (cancellationToken.IsCancellationRequested ||
+                    (maxMilliseconds > 0 && stopwatch.ElapsedMilliseconds > maxMilliseconds))
+                {
+                    Logger.Warning($"Stopped materializing completion declarations after {stopwatch.ElapsedMilliseconds} ms");
+                    break;
+                }
 
-                // convert the completion item candidates into CompletionItems
-                completions.Add(sqlCompletionItem.CreateCompletionItem(row, startColumn, endColumn));
+                try
+                {
+                    SqlCompletionItem sqlCompletionItem = new SqlCompletionItem(autoCompleteItem, tokenText);
+
+                    // convert the completion item candidates into CompletionItems
+                    completions.Add(sqlCompletionItem.CreateCompletionItem(row, startColumn, endColumn));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning("Skipping completion declaration that failed to materialize: " + ex.Message);
+                }
             }
 
             return completions.ToArray();

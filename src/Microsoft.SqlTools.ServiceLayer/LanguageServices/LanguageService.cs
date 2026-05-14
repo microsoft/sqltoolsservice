@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private const int OneSecond = 1000;
 
-        private const int PrepopulateBindTimeout = 60000;
+        private const int PrepopulateBindTimeout = 5000;
 
         internal const string DefaultBatchSeperator = "GO";
 
@@ -1006,6 +1006,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                         List<ParseResult> parseResults = new List<ParseResult>();
                                         parseResults.Add(parseResult);
+                                        if (cancelToken.IsCancellationRequested)
+                                        {
+                                            return null;
+                                        }
+
                                         if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
                                         {
                                             string dbName = connInfo?.ConnectionDetails?.DatabaseName
@@ -1019,10 +1024,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     catch (ConnectionException)
                                     {
                                         Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                        throw;
                                     }
                                     catch (SqlParserInternalBinderError)
                                     {
                                         Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                        throw;
                                     }
                                     catch (Exception ex)
                                     {
@@ -1279,27 +1286,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="info"></param>
         /// <param name="scriptInfo"></param>
-        internal async Task PrepopulateCommonMetadata(
+        internal Task PrepopulateCommonMetadata(
             ConnectionInfo info,
             ScriptParseInfo scriptInfo,
             ConnectedBindingQueue bindingQueue)
         {
-            if (scriptInfo.IsConnected)
+            if (!scriptInfo.IsConnected)
             {
-                var fileUri = info.OwnerUri;
-                var scriptFile = CurrentWorkspace.GetFile(fileUri);
-                if (scriptFile == null)
-                {
-                    return;
-                }
+                return Task.CompletedTask;
+            }
 
-                await ParseAndBind(scriptFile, info).ContinueWith(t =>
+            var fileUri = info.OwnerUri;
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            _ = Task.Run(async () =>
+            {
+                try
                 {
-                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                    await ParseAndBind(scriptFile, info).ConfigureAwait(false);
+
+                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                     {
                         try
                         {
-                            QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            bindingQueue.QueueBindingOperation(
                                 key: scriptInfo.ConnectionKey,
                                 bindingTimeout: PrepopulateBindTimeout,
                                 waitForLockTimeout: PrepopulateBindTimeout,
@@ -1313,6 +1327,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     {
                                         List<ParseResult> parseResults = new List<ParseResult>();
                                         parseResults.Add(parseResult);
+                                        if (cancelToken.IsCancellationRequested)
+                                        {
+                                            return null;
+                                        }
+
                                         bindingContext.Binder.Bind(
                                             parseResults,
                                             info.ConnectionDetails.DatabaseName,
@@ -1324,7 +1343,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                             bindingContext.MetadataDisplayInfoProvider);
 
                                         // this forces lazy evaluation of the suggestion metadata
-                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
+                                            suggestions, 1, 8, 8, cancellationToken: cancelToken, maxMilliseconds: PrepopulateBindTimeout);
 
                                         parseResult = Parser.Parse(
                                             "exec ",
@@ -1332,6 +1352,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                         parseResults = new List<ParseResult>();
                                         parseResults.Add(parseResult);
+                                        if (cancelToken.IsCancellationRequested)
+                                        {
+                                            return null;
+                                        }
+
                                         bindingContext.Binder.Bind(
                                             parseResults,
                                             info.ConnectionDetails.DatabaseName,
@@ -1343,12 +1368,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                             bindingContext.MetadataDisplayInfoProvider);
 
                                         // this forces lazy evaluation of the suggestion metadata
-                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
+                                            suggestions, 1, 6, 6, cancellationToken: cancelToken, maxMilliseconds: PrepopulateBindTimeout);
                                     }
                                     return null;
                                 });
-
-                            queueItem.ItemProcessed.WaitOne();
                         }
                         catch (Exception ex)
                         {
@@ -1359,8 +1383,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             Monitor.Exit(scriptInfo.BuildingMetadataLock);
                         }
                     }
-                });
-            }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Exception scheduling PrepopulateCommonMetadata " + ex.ToString());
+                }
+            });
+
+            return Task.CompletedTask;
         }
 
         private bool ShouldSkipNonMssqlFile(TextDocumentPosition textDocPosition)
