@@ -8,6 +8,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -17,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -586,6 +588,492 @@ END
                         $"All files should share the same connection key. File: {Path.GetFileName(new Uri(fileUri).LocalPath)}");
                 }
             }
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Incremental IntelliSense update tests
+    // Verify that TSqlModelMetadataProvider.UpdateForFileChange patches the
+    // metadata wrappers without rebuilding the entire schema.
+    // ────────────────────────────────────────────────────────────────────────
+    [TestFixture]
+    public class IncrementalIntelliSenseUpdateTests
+    {
+        private const string DbName = "TestDb";
+        private const string Source1 = @"C:\fake\project\Table1.sql";
+        private const string Source2 = @"C:\fake\project\Table2.sql";
+
+        private static TSqlModel BuildModel(params (string sql, string source)[] files)
+        {
+            var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+            foreach (var (sql, source) in files)
+                model.AddOrUpdateObjects(sql, source, new TSqlObjectOptions());
+            return model;
+        }
+
+        [Test]
+        public void AddTable_AppearsInSchema_OtherTableUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE TABLE [dbo].[Orders] ([Id] INT)", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.Tables["Orders"], Is.Not.Null, "Orders should exist before add");
+            Assert.That(db.Schemas["dbo"]?.Tables["Customers"], Is.Null, "Customers should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE TABLE [dbo].[Customers] ([Id] INT)", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.Tables["Customers"], Is.Not.Null, "Customers should appear after add");
+            Assert.That(db.Schemas["dbo"]?.Tables["Orders"], Is.Not.Null, "Orders should still exist after add");
+        }
+
+        [Test]
+        public void DeleteTable_DisappearsFromSchema_OtherTableUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE TABLE [dbo].[Orders] ([Id] INT)", Source1),
+                ("CREATE TABLE [dbo].[Customers] ([Id] INT)", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.Tables["Orders"], Is.Not.Null, "Orders before delete");
+            Assert.That(db.Schemas["dbo"]?.Tables["Customers"], Is.Not.Null, "Customers before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.Tables["Customers"], Is.Null, "Customers should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.Tables["Orders"], Is.Not.Null, "Orders should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyTable_ColumnsRefreshed_OtherTableUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE TABLE [dbo].[Orders] ([Id] INT)", Source1),
+                ("CREATE TABLE [dbo].[Customers] ([Id] INT)", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            int ordersColsBefore = db.Schemas["dbo"]!.Tables["Orders"]!.Columns.Count;
+            int customersColsBefore = db.Schemas["dbo"]!.Tables["Customers"]!.Columns.Count;
+            Assert.That(ordersColsBefore, Is.EqualTo(1), "Orders should have 1 column before modify");
+            Assert.That(customersColsBefore, Is.EqualTo(1), "Customers should have 1 column before modify");
+
+            model.AddOrUpdateObjects("CREATE TABLE [dbo].[Orders] ([Id] INT, [Name] NVARCHAR(100))", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]!.Tables["Orders"]!.Columns.Count, Is.EqualTo(2), "Orders should have 2 columns after modify");
+            Assert.That(db.Schemas["dbo"]!.Tables["Customers"]!.Columns.Count, Is.EqualTo(1), "Customers column count should be unchanged");
+        }
+
+        [Test]
+        public void UpdateForFileChange_PatchesSourceLocationIndex()
+        {
+            using var model = BuildModel(
+                ("CREATE TABLE [dbo].[Orders] ([Id] INT)", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+
+            Assert.That(provider.TryGetSourceInformation("dbo.Orders", out var info1), Is.True, "Should find dbo.Orders before update");
+            Assert.That(info1!.SourceName, Is.EqualTo(Source1).IgnoreCase);
+
+            model.DeleteObjects(Source1);
+            model.AddOrUpdateObjects("CREATE TABLE [dbo].[Orders] ([Id] INT)", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: true);
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(provider.TryGetSourceInformation("dbo.Orders", out var info2), Is.True, "Should still find dbo.Orders after update");
+            Assert.That(info2!.SourceName, Is.EqualTo(Source2).IgnoreCase, "Source should now point to Source2");
+        }
+
+        [Test]
+        public async Task UpdateProjectIntelliSenseAsync_NoException_WhenProjectNotOpen()
+        {
+            var service = new SqlProjectsService();
+            string tempSql = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.sql");
+
+            try
+            {
+                await File.WriteAllTextAsync(tempSql, "CREATE TABLE [dbo].[T] ([Id] INT)");
+                await service.UpdateProjectIntelliSenseAsync("file:///does/not/exist.sqlproj", tempSql, deleted: false);
+            }
+            finally
+            {
+                if (File.Exists(tempSql)) File.Delete(tempSql);
+            }
+        }
+
+        // ── Views ─────────────────────────────────────────────────────────────────
+
+        [Test]
+        public void AddView_AppearsInSchema_OtherViewUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE VIEW [dbo].[OrderView] AS SELECT 1 AS Id", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.Views["OrderView"], Is.Not.Null, "OrderView should exist before add");
+            Assert.That(db.Schemas["dbo"]?.Views["CustomerView"], Is.Null, "CustomerView should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE VIEW [dbo].[CustomerView] AS SELECT 2 AS Id", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.Views["CustomerView"], Is.Not.Null, "CustomerView should appear after add");
+            Assert.That(db.Schemas["dbo"]?.Views["OrderView"], Is.Not.Null, "OrderView should still exist after add");
+        }
+
+        [Test]
+        public void DeleteView_DisappearsFromSchema_OtherViewUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE VIEW [dbo].[OrderView] AS SELECT 1 AS Id", Source1),
+                ("CREATE VIEW [dbo].[CustomerView] AS SELECT 2 AS Id", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.Views["OrderView"], Is.Not.Null, "OrderView before delete");
+            Assert.That(db.Schemas["dbo"]?.Views["CustomerView"], Is.Not.Null, "CustomerView before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.Views["CustomerView"], Is.Null, "CustomerView should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.Views["OrderView"], Is.Not.Null, "OrderView should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyView_StillAccessibleAfterUpdate_OtherViewUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE VIEW [dbo].[OrderView] AS SELECT 1 AS Id", Source1),
+                ("CREATE VIEW [dbo].[CustomerView] AS SELECT 1 AS Id", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            // Touch both to ensure the collection is initialized
+            _ = db.Schemas["dbo"]?.Views["OrderView"];
+            _ = db.Schemas["dbo"]?.Views["CustomerView"];
+
+            model.AddOrUpdateObjects("CREATE VIEW [dbo].[OrderView] AS SELECT 1 AS Id, 2 AS Extra", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.Views["OrderView"], Is.Not.Null, "OrderView should still exist after modify");
+            Assert.That(db.Schemas["dbo"]?.Views["CustomerView"], Is.Not.Null, "CustomerView should be unaffected by modify");
+        }
+
+        // ── Stored Procedures ─────────────────────────────────────────────────────
+
+        [Test]
+        public void AddStoredProcedure_AppearsInSchema_OtherProcedureUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE PROCEDURE [dbo].[GetOrders] AS BEGIN SELECT 1 END", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetOrders"], Is.Not.Null, "GetOrders should exist before add");
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetCustomers"], Is.Null, "GetCustomers should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE PROCEDURE [dbo].[GetCustomers] AS BEGIN SELECT 2 END", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetCustomers"], Is.Not.Null, "GetCustomers should appear after add");
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetOrders"], Is.Not.Null, "GetOrders should still exist after add");
+        }
+
+        [Test]
+        public void DeleteStoredProcedure_DisappearsFromSchema_OtherProcedureUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE PROCEDURE [dbo].[GetOrders] AS BEGIN SELECT 1 END", Source1),
+                ("CREATE PROCEDURE [dbo].[GetCustomers] AS BEGIN SELECT 2 END", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetOrders"], Is.Not.Null, "GetOrders before delete");
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetCustomers"], Is.Not.Null, "GetCustomers before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetCustomers"], Is.Null, "GetCustomers should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetOrders"], Is.Not.Null, "GetOrders should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyStoredProcedure_StillAccessibleAfterUpdate_OtherProcedureUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE PROCEDURE [dbo].[GetOrders] AS BEGIN SELECT 1 END", Source1),
+                ("CREATE PROCEDURE [dbo].[GetCustomers] AS BEGIN SELECT 2 END", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            _ = db.Schemas["dbo"]?.StoredProcedures["GetOrders"];
+            _ = db.Schemas["dbo"]?.StoredProcedures["GetCustomers"];
+
+            model.AddOrUpdateObjects("CREATE PROCEDURE [dbo].[GetOrders] @Id INT AS BEGIN SELECT @Id END", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetOrders"], Is.Not.Null, "GetOrders should still exist after modify");
+            Assert.That(db.Schemas["dbo"]?.StoredProcedures["GetCustomers"], Is.Not.Null, "GetCustomers should be unaffected by modify");
+        }
+
+        // ── Scalar Functions ──────────────────────────────────────────────────────
+
+        [Test]
+        public void AddScalarFunction_AppearsInSchema_OtherFunctionUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE FUNCTION [dbo].[GetCount]() RETURNS INT AS BEGIN RETURN 1 END", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetCount"], Is.Not.Null, "GetCount should exist before add");
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetTotal"], Is.Null, "GetTotal should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE FUNCTION [dbo].[GetTotal]() RETURNS INT AS BEGIN RETURN 2 END", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetTotal"], Is.Not.Null, "GetTotal should appear after add");
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetCount"], Is.Not.Null, "GetCount should still exist after add");
+        }
+
+        [Test]
+        public void DeleteScalarFunction_DisappearsFromSchema_OtherFunctionUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE FUNCTION [dbo].[GetCount]() RETURNS INT AS BEGIN RETURN 1 END", Source1),
+                ("CREATE FUNCTION [dbo].[GetTotal]() RETURNS INT AS BEGIN RETURN 2 END", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetCount"], Is.Not.Null, "GetCount before delete");
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetTotal"], Is.Not.Null, "GetTotal before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetTotal"], Is.Null, "GetTotal should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetCount"], Is.Not.Null, "GetCount should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyScalarFunction_StillAccessibleAfterUpdate_OtherFunctionUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE FUNCTION [dbo].[GetCount]() RETURNS INT AS BEGIN RETURN 1 END", Source1),
+                ("CREATE FUNCTION [dbo].[GetTotal]() RETURNS INT AS BEGIN RETURN 2 END", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            _ = db.Schemas["dbo"]?.ScalarValuedFunctions["GetCount"];
+            _ = db.Schemas["dbo"]?.ScalarValuedFunctions["GetTotal"];
+
+            model.AddOrUpdateObjects("CREATE FUNCTION [dbo].[GetCount]() RETURNS BIGINT AS BEGIN RETURN 99 END", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetCount"], Is.Not.Null, "GetCount should still exist after modify");
+            Assert.That(db.Schemas["dbo"]?.ScalarValuedFunctions["GetTotal"], Is.Not.Null, "GetTotal should be unaffected by modify");
+        }
+
+        // ── Table-Valued Functions ────────────────────────────────────────────────
+
+        [Test]
+        public void AddTableValuedFunction_AppearsInSchema_OtherFunctionUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE FUNCTION [dbo].[GetOrderRows]() RETURNS TABLE AS RETURN (SELECT 1 AS Id)", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetOrderRows"], Is.Not.Null, "GetOrderRows should exist before add");
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetCustomerRows"], Is.Null, "GetCustomerRows should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE FUNCTION [dbo].[GetCustomerRows]() RETURNS TABLE AS RETURN (SELECT 2 AS Id)", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetCustomerRows"], Is.Not.Null, "GetCustomerRows should appear after add");
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetOrderRows"], Is.Not.Null, "GetOrderRows should still exist after add");
+        }
+
+        [Test]
+        public void DeleteTableValuedFunction_DisappearsFromSchema_OtherFunctionUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE FUNCTION [dbo].[GetOrderRows]() RETURNS TABLE AS RETURN (SELECT 1 AS Id)", Source1),
+                ("CREATE FUNCTION [dbo].[GetCustomerRows]() RETURNS TABLE AS RETURN (SELECT 2 AS Id)", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetOrderRows"], Is.Not.Null, "GetOrderRows before delete");
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetCustomerRows"], Is.Not.Null, "GetCustomerRows before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetCustomerRows"], Is.Null, "GetCustomerRows should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetOrderRows"], Is.Not.Null, "GetOrderRows should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyTableValuedFunction_StillAccessibleAfterUpdate_OtherFunctionUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE FUNCTION [dbo].[GetOrderRows]() RETURNS TABLE AS RETURN (SELECT 1 AS Id)", Source1),
+                ("CREATE FUNCTION [dbo].[GetCustomerRows]() RETURNS TABLE AS RETURN (SELECT 2 AS Id)", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            _ = db.Schemas["dbo"]?.TableValuedFunctions["GetOrderRows"];
+            _ = db.Schemas["dbo"]?.TableValuedFunctions["GetCustomerRows"];
+
+            model.AddOrUpdateObjects("CREATE FUNCTION [dbo].[GetOrderRows]() RETURNS TABLE AS RETURN (SELECT 1 AS Id, 2 AS Extra)", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetOrderRows"], Is.Not.Null, "GetOrderRows should still exist after modify");
+            Assert.That(db.Schemas["dbo"]?.TableValuedFunctions["GetCustomerRows"], Is.Not.Null, "GetCustomerRows should be unaffected by modify");
+        }
+
+        // ── User-Defined Data Types ───────────────────────────────────────────────
+
+        [Test]
+        public void AddUserDefinedDataType_AppearsInSchema_OtherTypeUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE TYPE [dbo].[PhoneNumber] FROM NVARCHAR(20) NOT NULL", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PhoneNumber"], Is.Not.Null, "PhoneNumber should exist before add");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PostalCode"], Is.Null, "PostalCode should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE TYPE [dbo].[PostalCode] FROM NVARCHAR(10) NOT NULL", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PostalCode"], Is.Not.Null, "PostalCode should appear after add");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PhoneNumber"], Is.Not.Null, "PhoneNumber should still exist after add");
+        }
+
+        [Test]
+        public void DeleteUserDefinedDataType_DisappearsFromSchema_OtherTypeUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE TYPE [dbo].[PhoneNumber] FROM NVARCHAR(20) NOT NULL", Source1),
+                ("CREATE TYPE [dbo].[PostalCode] FROM NVARCHAR(10) NOT NULL", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PhoneNumber"], Is.Not.Null, "PhoneNumber before delete");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PostalCode"], Is.Not.Null, "PostalCode before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PostalCode"], Is.Null, "PostalCode should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PhoneNumber"], Is.Not.Null, "PhoneNumber should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyUserDefinedDataType_StillAccessibleAfterUpdate_OtherTypeUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE TYPE [dbo].[PhoneNumber] FROM NVARCHAR(20) NOT NULL", Source1),
+                ("CREATE TYPE [dbo].[PostalCode] FROM NVARCHAR(10) NOT NULL", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            _ = db.Schemas["dbo"]?.UserDefinedDataTypes["PhoneNumber"];
+            _ = db.Schemas["dbo"]?.UserDefinedDataTypes["PostalCode"];
+
+            model.AddOrUpdateObjects("CREATE TYPE [dbo].[PhoneNumber] FROM NVARCHAR(30) NOT NULL", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PhoneNumber"], Is.Not.Null, "PhoneNumber should still exist after modify");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedDataTypes["PostalCode"], Is.Not.Null, "PostalCode should be unaffected by modify");
+        }
+
+        // ── User-Defined Table Types ──────────────────────────────────────────────
+
+        [Test]
+        public void AddUserDefinedTableType_AppearsInSchema_OtherTypeUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE TYPE [dbo].[IdTable] AS TABLE (Id INT PRIMARY KEY)", Source1));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable should exist before add");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Null, "NameTable should not exist before add");
+
+            model.AddOrUpdateObjects("CREATE TYPE [dbo].[NameTable] AS TABLE (Name NVARCHAR(100))", Source2, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source2, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Not.Null, "NameTable should appear after add");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable should still exist after add");
+        }
+
+        [Test]
+        public void DeleteUserDefinedTableType_DisappearsFromSchema_OtherTypeUntouched()
+        {
+            using var model = BuildModel(
+                ("CREATE TYPE [dbo].[IdTable] AS TABLE (Id INT PRIMARY KEY)", Source1),
+                ("CREATE TYPE [dbo].[NameTable] AS TABLE (Name NVARCHAR(100))", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable before delete");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Not.Null, "NameTable before delete");
+
+            model.DeleteObjects(Source2);
+            provider.UpdateForFileChange(Source2, deleted: true);
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Null, "NameTable should be gone after delete");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable should be unaffected by delete");
+        }
+
+        [Test]
+        public void ModifyUserDefinedTableType_StillAccessibleAfterUpdate_OtherTypeUnchanged()
+        {
+            using var model = BuildModel(
+                ("CREATE TYPE [dbo].[IdTable] AS TABLE (Id INT PRIMARY KEY)", Source1),
+                ("CREATE TYPE [dbo].[NameTable] AS TABLE (Name NVARCHAR(100))", Source2));
+
+            var provider = new TSqlModelMetadataProvider(model, DbName);
+            var db = provider.Server.Databases[DbName];
+
+            _ = db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"];
+            _ = db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"];
+
+            model.AddOrUpdateObjects("CREATE TYPE [dbo].[IdTable] AS TABLE (Id INT PRIMARY KEY, Code NVARCHAR(10))", Source1, new TSqlObjectOptions());
+            provider.UpdateForFileChange(Source1, deleted: false);
+
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable should still exist after modify");
+            Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Not.Null, "NameTable should be unaffected by modify");
         }
     }
 }
