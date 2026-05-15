@@ -5,16 +5,17 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Run Local Publish",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Microsoft.SqlTools.ServiceLayer/bin/Debug/net8.0/MicrosoftSqlToolsServiceLayer.dll",
+            "preLaunchTask": "local publish",
+            "program": "${workspaceFolder}/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0/MicrosoftSqlToolsServiceLayer.dll",
+            "windows": {
+                "program": "${workspaceFolder}/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0/MicrosoftSqlToolsServiceLayer.exe"
+            },
             "args": [],
-            "cwd": "${workspaceFolder}/src/Microsoft.SqlTools.ServiceLayer",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "externalTerminal",
+            "cwd": "${workspaceFolder}/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0",
+            "console": "integratedTerminal",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
@@ -26,6 +27,6 @@
             "requireExactSource": false,
             "justMyCode": false,
             "enableStepFiltering": false
-        },
+        }
     ]
 }
