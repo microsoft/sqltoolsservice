@@ -10,6 +10,30 @@
                 "${workspaceFolder}/sqltoolsservice.sln"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "local publish",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/build.sh",
+                "--target=LocalPublish",
+                "--configuration=Debug"
+            ],
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/build.ps1",
+                    "--target=LocalPublish",
+                    "--configuration=Debug"
+                ]
+            },
+            "group": "build",
+            "problemMatcher": "$msCompile"
         }
     ]
 }
