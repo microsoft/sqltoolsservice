@@ -29,6 +29,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _database = new TSqlModelDatabase(this, model, databaseName);
         }
 
+        internal TSqlModelDatabase Database => _database;
+
         public string Name => string.Empty;
         public bool IsSystemObject => false;
         public IDatabaseObject Parent => null!;

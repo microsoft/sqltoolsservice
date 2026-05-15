@@ -33,6 +33,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -318,6 +319,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Register the file open update handler
             WorkspaceServiceInstance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
+
+            // Register the file save update handler
+            WorkspaceServiceInstance.RegisterTextDocSaveCallback(HandleDidSaveTextDocumentNotification);
 
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(StartUpdateLanguageServiceOnConnection);
@@ -695,6 +699,31 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
+            }
+        }
+
+        /// <summary>
+        /// Handle the file save notification
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidSaveTextDocumentNotification(
+            string uri,
+            EventContext eventContext)
+        {
+            try
+            {
+                ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: false);
+                if (parseInfo == null || !parseInfo.IsProject) return;
+                string contextKey = parseInfo.ConnectionKey;
+                if (contextKey == null || !contextKey.StartsWith("project_", StringComparison.Ordinal)) return;
+                string projectUri = contextKey.Substring("project_".Length);
+                await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
             }
         }
 
