@@ -13,6 +13,7 @@ using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.SqlCore.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -27,6 +28,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         public TableDesignerService()
         {
+            this.tableDesignerManager.ProgressChanged += async (_, args) =>
+            {
+                if (this.ServiceHost != null)
+                {
+                    await this.SendProgress(args.SessionId, args.Operation, args.Status, args.Message);
+                }
+            };
+            this.tableDesignerManager.MessageReceived += async (_, args) =>
+            {
+                if (this.ServiceHost != null)
+                {
+                    await this.SendMessage(
+                        args.SessionId,
+                        args.Operation,
+                        args.MessageType,
+                        args.Message,
+                        args.Number,
+                        args.Prefix,
+                        args.Progress,
+                        args.SchemaName,
+                        args.TableName);
+                }
+            };
         }
 
         public TableDesignerSettings Settings { get; private set; } = new TableDesignerSettings();
@@ -71,11 +95,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return Task.FromResult(0);
         }
 
-        private Task HandleInitializeTableDesignerRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
+        private Task HandleInitializeTableDesignerRequest(InitializeTableDesignerRequestParams requestParams, RequestContext<TableDesignerInfo> requestContext)
         {
             return Utils.HandleRequest<TableDesignerInfo>(requestContext, async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo));
+                string sessionId = requestParams.SessionId;
+                TableInfo tableInfo = requestParams.TableInfo;
+                tableInfo.Id = sessionId;
+                await this.SendProgress(sessionId, "initialize", "started", "Initializing table designer");
+                try
+                {
+                    TableDesignerInfo result = this.tableDesignerManager.InitializeTableDesigner(tableInfo);
+                    await this.SendProgress(sessionId, "initialize", "completed", "Table designer initialized");
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception ex)
+                {
+                    await this.SendMessage(sessionId, "initialize", "error", ex.Message);
+                    await this.SendProgress(sessionId, "initialize", "error", ex.Message);
+                    throw;
+                }
             });
         }
 
@@ -91,7 +130,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.PublishTableChanges(tableInfo));
+                await this.SendProgress(tableInfo.Id, "publish", "started", "Publishing table changes");
+                try
+                {
+                    string originalId = tableInfo.Id;
+                    PublishTableChangesResponse result = this.tableDesignerManager.PublishTableChanges(tableInfo);
+                    await this.SendProgress(originalId, "publish", "completed", "Table changes published");
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception ex)
+                {
+                    await this.SendMessage(tableInfo.Id, "publish", "error", ex.Message);
+                    await this.SendProgress(tableInfo.Id, "publish", "error", ex.Message);
+                    throw;
+                }
             });
         }
 
@@ -107,7 +159,55 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.GeneratePreviewReport(tableInfo));
+                await this.SendProgress(tableInfo.Id, "generatePreviewReport", "started", "Generating preview report");
+                try
+                {
+                    GeneratePreviewReportResult result = this.tableDesignerManager.GeneratePreviewReport(tableInfo);
+                    await this.SendProgress(tableInfo.Id, "generatePreviewReport", "completed", "Preview report generated");
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception ex)
+                {
+                    await this.SendMessage(tableInfo.Id, "generatePreviewReport", "error", ex.Message);
+                    await this.SendProgress(tableInfo.Id, "generatePreviewReport", "error", ex.Message);
+                    throw;
+                }
+            });
+        }
+
+        private Task SendProgress(string sessionId, string operation, string status, string message)
+        {
+            return this.ServiceHost.SendEvent(TableDesignerProgressNotification.Type, new TableDesignerProgressNotificationParams
+            {
+                SessionId = sessionId,
+                Operation = operation,
+                Status = status,
+                Message = message
+            });
+        }
+
+        private Task SendMessage(
+            string sessionId,
+            string operation,
+            string messageType,
+            string message,
+            int number = 0,
+            string prefix = null,
+            double? progress = null,
+            string schemaName = null,
+            string tableName = null)
+        {
+            return this.ServiceHost.SendEvent(TableDesignerMessageNotification.Type, new TableDesignerMessageNotificationParams
+            {
+                SessionId = sessionId,
+                Operation = operation,
+                MessageType = messageType,
+                Message = message,
+                Number = number,
+                Prefix = prefix,
+                Progress = progress,
+                SchemaName = schemaName,
+                TableName = tableName
             });
         }
 

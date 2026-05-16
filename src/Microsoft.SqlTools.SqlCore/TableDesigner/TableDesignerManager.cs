@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
         private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
+        public event EventHandler<TableDesignerProgressEventArgs> ProgressChanged;
+        public event EventHandler<TableDesignerMessageEventArgs> MessageReceived;
         public bool AllowDisableAndReenableDdlTriggers { get; set; } = true;
         public TableDesignerInfo InitializeTableDesigner(TableInfo tableInfo)
         {
@@ -100,7 +102,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             this.idTableMap.Remove(oldId);
             // Recreate the table designer after the changes are published to make sure the table information is up to date.
             // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
-            this.CreateTableDesigner(tableInfo);
+            this.CreateTableDesigner(tableInfo, oldId);
             this.UpdateTableTitleInfo(tableInfo);
             return new PublishTableChangesResponse()
             {
@@ -1703,7 +1705,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 });
             }
         }
-        private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
+        private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo, string progressSessionId = null)
         {
             Dac.TableDesigner tableDesigner;
             if (tableInfo.TableScriptPath == null)
@@ -1732,6 +1734,10 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 tableDesigner = new Dac.TableDesigner(tableInfo.ProjectFilePath, tableInfo.TableScriptPath, tableInfo.AllScripts, tableInfo.TargetVersion);
             }
+            string eventSessionId = progressSessionId ?? tableInfo.Id;
+            tableDesigner.ProgressChanged += (_, args) => this.OnDesignerProgressChanged(eventSessionId, args);
+            tableDesigner.Message += (_, args) => this.OnDesignerMessage(eventSessionId, args);
+            tableDesigner.Initialize();
             this.idTableMap[tableInfo.Id] = tableDesigner;
             if (tableInfo.IsNewTable)
             {
@@ -1757,6 +1763,33 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private void OnDesignerProgressChanged(string sessionId, Dac.DesignerProgressEventArgs args)
+        {
+            this.ProgressChanged?.Invoke(this, new TableDesignerProgressEventArgs()
+            {
+                SessionId = sessionId,
+                Operation = args.Operation.ToString(),
+                Status = args.Status.ToString(),
+                Message = args.Message
+            });
+        }
+
+        private void OnDesignerMessage(string sessionId, Dac.DesignerMessageEventArgs args)
+        {
+            this.MessageReceived?.Invoke(this, new TableDesignerMessageEventArgs()
+            {
+                SessionId = sessionId,
+                Operation = args.Operation.ToString(),
+                MessageType = args.MessageType.ToString(),
+                Message = args.Message,
+                Number = args.Number,
+                Prefix = args.Prefix,
+                Progress = args.Progress,
+                SchemaName = args.SchemaName,
+                TableName = args.TableName,
+            });
         }
 
         private void UpdateTableTitleInfo(TableInfo tableInfo)
