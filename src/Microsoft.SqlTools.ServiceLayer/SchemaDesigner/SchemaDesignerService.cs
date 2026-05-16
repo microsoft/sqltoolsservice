@@ -87,7 +87,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     {
                         Script = await session.GenerateScript(),
                     });
+                    return;
                 }
+
+                throw CreateSessionNotFoundException(requestParams.SessionId);
             });
         }
 
@@ -99,8 +102,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 {
                     var metadata = new TaskMetadata()
                     {
-                        Name = "Publish Schema Designer Changes",
-                        Description = "Publishing schema designer changes",
+                        Name = SR.SchemaDesignerPublishTaskName,
+                        Description = SR.SchemaDesignerPublishTaskDescription,
                         TaskExecutionMode = TaskExecutionMode.Execute,
                         DatabaseName = session.DatabaseName,
                         ServerName = session.ServerName,
@@ -124,12 +127,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     await sqlTask.RunAsync();
                     if (sqlTask.TaskStatus == SqlTaskStatus.Failed)
                     {
-                        throw new Exception(sqlTask.GetLastMessage()?.Description ?? "Schema designer publish failed.");
+                        throw new Exception(sqlTask.GetLastMessage()?.Description ?? SR.SchemaDesignerPublishFailed);
                     }
 
                     return;
                 }
-                await requestContext.SendResult(new PublishSessionResponse());
+
+                throw CreateSessionNotFoundException(requestParams.SessionId);
             });
         }
 
@@ -159,10 +163,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return Utils.HandleRequest<GetReportResponse>(requestContext, async () =>
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId!];
+                SchemaDesignerSession session = sessions.TryGetValue(requestParams.SessionId!, out SchemaDesignerSession? activeSession)
+                    ? activeSession
+                    : throw CreateSessionNotFoundException(requestParams.SessionId);
                 var report = await session.GetReport(requestParams.UpdatedSchema!);
                 await requestContext.SendResult(report);
             });
+        }
+
+        private static Exception CreateSessionNotFoundException(string? sessionId)
+        {
+            return new KeyNotFoundException(SR.SchemaDesignerSessionNotFound(sessionId ?? string.Empty));
         }
 
         private EventHandler<SchemaDesignerProgressNotificationParams> CreateProgressNotificationHandler()

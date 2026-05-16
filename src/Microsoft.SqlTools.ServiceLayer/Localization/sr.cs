@@ -967,6 +967,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerPublishTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerPublishTaskName);
+            }
+        }
+
+        public static string TableDesignerPublishTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerPublishTaskDescription);
+            }
+        }
+
+        public static string TableDesignerPublishFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerPublishFailed);
+            }
+        }
+
+        public static string SchemaDesignerPublishTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerPublishTaskName);
+            }
+        }
+
+        public static string SchemaDesignerPublishTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerPublishTaskDescription);
+            }
+        }
+
+        public static string SchemaDesignerPublishFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerPublishFailed);
+            }
+        }
+
         public static string ConflictWithNoRecovery
         {
             get
@@ -10740,6 +10788,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
         }
 
+        public static string SchemaDesignerSessionNotFound(string sessionId)
+        {
+            return Keys.GetString(Keys.SchemaDesignerSessionNotFound, sessionId);
+        }
+
         public static string ConnectionServiceDbErrorDefaultNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceDbErrorDefaultNotConnected, uri);
@@ -11550,6 +11603,27 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TaskCompleted = "TaskCompleted";
+
+
+            public const string TableDesignerPublishTaskName = "TableDesignerPublishTaskName";
+
+
+            public const string TableDesignerPublishTaskDescription = "TableDesignerPublishTaskDescription";
+
+
+            public const string TableDesignerPublishFailed = "TableDesignerPublishFailed";
+
+
+            public const string SchemaDesignerPublishTaskName = "SchemaDesignerPublishTaskName";
+
+
+            public const string SchemaDesignerPublishTaskDescription = "SchemaDesignerPublishTaskDescription";
+
+
+            public const string SchemaDesignerPublishFailed = "SchemaDesignerPublishFailed";
+
+
+            public const string SchemaDesignerSessionNotFound = "SchemaDesignerSessionNotFound";
 
 
             public const string ConflictWithNoRecovery = "ConflictWithNoRecovery";

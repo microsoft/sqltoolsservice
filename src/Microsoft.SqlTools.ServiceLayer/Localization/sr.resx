@@ -765,6 +765,34 @@
     <value>Completed</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerPublishTaskName" xml:space="preserve">
+    <value>Publish Table Designer Changes</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerPublishTaskDescription" xml:space="preserve">
+    <value>Publishing table designer changes</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerPublishFailed" xml:space="preserve">
+    <value>Table designer publish failed.</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaDesignerPublishTaskName" xml:space="preserve">
+    <value>Publish Schema Designer Changes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaDesignerPublishTaskDescription" xml:space="preserve">
+    <value>Publishing schema designer changes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaDesignerPublishFailed" xml:space="preserve">
+    <value>Schema designer publish failed.</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaDesignerSessionNotFound" xml:space="preserve">
+    <value>Schema designer session '{0}' was not found.</value>
+    <comment></comment>
+  </data>
   <data name="ConflictWithNoRecovery" xml:space="preserve">
     <value>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</value>
     <comment></comment>

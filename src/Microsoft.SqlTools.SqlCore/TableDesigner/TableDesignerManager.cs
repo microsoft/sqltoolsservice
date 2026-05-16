@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             this.idTableMap.Remove(oldId);
             // Recreate the table designer after the changes are published to make sure the table information is up to date.
             // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
-            this.CreateTableDesigner(tableInfo, oldId);
+            this.CreateTableDesigner(tableInfo);
             this.UpdateTableTitleInfo(tableInfo);
             return new PublishTableChangesResponse()
             {
@@ -1705,7 +1705,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 });
             }
         }
-        private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo, string progressSessionId = null)
+        private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
             Dac.TableDesigner tableDesigner;
             if (tableInfo.TableScriptPath == null)
@@ -1734,9 +1734,8 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 tableDesigner = new Dac.TableDesigner(tableInfo.ProjectFilePath, tableInfo.TableScriptPath, tableInfo.AllScripts, tableInfo.TargetVersion);
             }
-            string eventSessionId = progressSessionId ?? tableInfo.Id;
-            tableDesigner.ProgressChanged += (_, args) => this.OnDesignerProgressChanged(eventSessionId, args);
-            tableDesigner.Message += (_, args) => this.OnDesignerMessage(eventSessionId, args);
+            tableDesigner.ProgressChanged += (_, args) => this.OnDesignerProgressChanged(tableInfo.Id, args);
+            tableDesigner.Message += (_, args) => this.OnDesignerMessage(tableInfo.Id, args);
             tableDesigner.Initialize();
             this.idTableMap[tableInfo.Id] = tableDesigner;
             if (tableInfo.IsNewTable)

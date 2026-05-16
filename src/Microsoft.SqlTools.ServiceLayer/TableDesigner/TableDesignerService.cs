@@ -104,22 +104,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<TableDesignerInfo>(requestContext, async () =>
             {
-                string sessionId = requestParams.SessionId;
-                TableInfo tableInfo = requestParams.TableInfo;
+                TableInfo tableInfo = requestParams.TableInfo ?? throw new ArgumentNullException(nameof(requestParams.TableInfo));
+                string sessionId = string.IsNullOrWhiteSpace(requestParams.SessionId)
+                    ? !string.IsNullOrWhiteSpace(tableInfo.Id) ? tableInfo.Id : Guid.NewGuid().ToString()
+                    : requestParams.SessionId;
                 tableInfo.Id = sessionId;
-                await this.SendProgress(sessionId, "initialize", "started", "Initializing table designer");
-                try
-                {
-                    TableDesignerInfo result = this.tableDesignerManager.InitializeTableDesigner(tableInfo);
-                    await this.SendProgress(sessionId, "initialize", "completed", "Table designer initialized");
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception ex)
-                {
-                    await this.SendMessage(sessionId, "initialize", "error", ex.Message);
-                    await this.SendProgress(sessionId, "initialize", "error", ex.Message);
-                    throw;
-                }
+                await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo));
             });
         }
 
@@ -138,8 +128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 string originalId = tableInfo.Id;
                 var metadata = new TaskMetadata()
                 {
-                    Name = "Publish Table Designer Changes",
-                    Description = "Publishing table designer changes",
+                    Name = SR.TableDesignerPublishTaskName,
+                    Description = SR.TableDesignerPublishTaskDescription,
                     TaskExecutionMode = TaskExecutionMode.Execute,
                     DatabaseName = tableInfo.Database,
                     ServerName = tableInfo.Server,
@@ -152,16 +142,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     this.publishSqlTasks[originalId] = task;
                     try
                     {
-                        await this.SendProgress(originalId, "publish", "started", "Publishing table changes");
-                        task.ReportProgress(-1, "Publishing table changes");
-
                         PublishTableChangesResponse result = await Task.Run(() =>
                         {
                             return this.tableDesignerManager.PublishTableChanges(tableInfo);
                         });
 
-                        await this.SendProgress(originalId, "publish", "completed", "Table changes published");
-                        task.ReportProgress(100, "Table changes published");
                         await requestContext.SendResult(result);
 
                         return new TaskResult()
@@ -171,8 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                     catch (Exception ex)
                     {
-                        await this.SendMessage(originalId, "publish", "error", ex.Message);
-                        await this.SendProgress(originalId, "publish", "error", ex.Message);
                         return new TaskResult()
                         {
                             TaskStatus = SqlTaskStatus.Failed,
@@ -188,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 await sqlTask.RunAsync();
                 if (sqlTask.TaskStatus == SqlTaskStatus.Failed)
                 {
-                    throw new Exception(sqlTask.GetLastMessage()?.Description ?? "Table designer publish failed.");
+                    throw new Exception(sqlTask.GetLastMessage()?.Description ?? SR.TableDesignerPublishFailed);
                 }
             });
         }
@@ -248,24 +231,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
-                await this.SendProgress(tableInfo.Id, "generatePreviewReport", "started", "Generating preview report");
-                try
-                {
-                    GeneratePreviewReportResult result = this.tableDesignerManager.GeneratePreviewReport(tableInfo);
-                    await this.SendProgress(tableInfo.Id, "generatePreviewReport", "completed", "Preview report generated");
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception ex)
-                {
-                    await this.SendMessage(tableInfo.Id, "generatePreviewReport", "error", ex.Message);
-                    await this.SendProgress(tableInfo.Id, "generatePreviewReport", "error", ex.Message);
-                    throw;
-                }
+                await requestContext.SendResult(this.tableDesignerManager.GeneratePreviewReport(tableInfo));
             });
         }
 
         private Task SendProgress(string sessionId, string operation, string status, string message)
         {
+            if (this.ServiceHost == null)
+            {
+                return Task.CompletedTask;
+            }
+
             return this.ServiceHost.SendEvent(TableDesignerProgressNotification.Type, new TableDesignerProgressNotificationParams
             {
                 SessionId = sessionId,
@@ -286,6 +262,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             string schemaName = null,
             string tableName = null)
         {
+            if (this.ServiceHost == null)
+            {
+                return Task.CompletedTask;
+            }
+
             return this.ServiceHost.SendEvent(TableDesignerMessageNotification.Type, new TableDesignerMessageNotificationParams
             {
                 SessionId = sessionId,
