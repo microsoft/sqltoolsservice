@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         private static Exception CreateSessionNotFoundException(string? sessionId)
         {
-            return new KeyNotFoundException(SR.SchemaDesignerSessionNotFound(sessionId ?? string.Empty));
+            return new KeyNotFoundException(string.Format(SR.SchemaDesignerSessionNotFound, sessionId ?? string.Empty));
         }
 
         private EventHandler<SchemaDesignerProgressNotificationParams> CreateProgressNotificationHandler()

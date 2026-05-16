@@ -1015,6 +1015,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaDesignerSessionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerSessionNotFound);
+            }
+        }
+
         public static string ConflictWithNoRecovery
         {
             get
@@ -10786,11 +10794,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
-        }
-
-        public static string SchemaDesignerSessionNotFound(string sessionId)
-        {
-            return Keys.GetString(Keys.SchemaDesignerSessionNotFound, sessionId);
         }
 
         public static string ConnectionServiceDbErrorDefaultNotConnected(string uri)
