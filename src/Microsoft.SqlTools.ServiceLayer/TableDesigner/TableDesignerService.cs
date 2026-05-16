@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -13,6 +14,7 @@ using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.SqlCore.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
@@ -23,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public sealed class TableDesignerService : IDisposable
     {
         private TableDesignerManager tableDesignerManager = new TableDesignerManager();
+        private readonly ConcurrentDictionary<string, SqlTask> publishSqlTasks = new ConcurrentDictionary<string, SqlTask>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -30,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             this.tableDesignerManager.ProgressChanged += async (_, args) =>
             {
+                this.ReportTaskProgress(args);
                 if (this.ServiceHost != null)
                 {
                     await this.SendProgress(args.SessionId, args.Operation, args.Status, args.Message);
@@ -37,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             };
             this.tableDesignerManager.MessageReceived += async (_, args) =>
             {
+                this.ReportTaskMessage(args);
                 if (this.ServiceHost != null)
                 {
                     await this.SendMessage(
@@ -130,21 +135,105 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
-                await this.SendProgress(tableInfo.Id, "publish", "started", "Publishing table changes");
-                try
+                string originalId = tableInfo.Id;
+                var metadata = new TaskMetadata()
                 {
-                    string originalId = tableInfo.Id;
-                    PublishTableChangesResponse result = this.tableDesignerManager.PublishTableChanges(tableInfo);
-                    await this.SendProgress(originalId, "publish", "completed", "Table changes published");
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception ex)
+                    Name = "Publish Table Designer Changes",
+                    Description = "Publishing table designer changes",
+                    TaskExecutionMode = TaskExecutionMode.Execute,
+                    DatabaseName = tableInfo.Database,
+                    ServerName = tableInfo.Server,
+                    TargetLocation = tableInfo.ProjectFilePath,
+                    OperationName = "TableDesignerPublish",
+                };
+
+                SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata, async (task) =>
                 {
-                    await this.SendMessage(tableInfo.Id, "publish", "error", ex.Message);
-                    await this.SendProgress(tableInfo.Id, "publish", "error", ex.Message);
-                    throw;
+                    this.publishSqlTasks[originalId] = task;
+                    try
+                    {
+                        await this.SendProgress(originalId, "publish", "started", "Publishing table changes");
+                        task.ReportProgress(-1, "Publishing table changes");
+
+                        PublishTableChangesResponse result = await Task.Run(() =>
+                        {
+                            return this.tableDesignerManager.PublishTableChanges(tableInfo);
+                        });
+
+                        await this.SendProgress(originalId, "publish", "completed", "Table changes published");
+                        task.ReportProgress(100, "Table changes published");
+                        await requestContext.SendResult(result);
+
+                        return new TaskResult()
+                        {
+                            TaskStatus = SqlTaskStatus.Succeeded,
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        await this.SendMessage(originalId, "publish", "error", ex.Message);
+                        await this.SendProgress(originalId, "publish", "error", ex.Message);
+                        return new TaskResult()
+                        {
+                            TaskStatus = SqlTaskStatus.Failed,
+                            ErrorMessage = ex.Message,
+                        };
+                    }
+                    finally
+                    {
+                        this.publishSqlTasks.TryRemove(originalId, out _);
+                    }
+                });
+
+                await sqlTask.RunAsync();
+                if (sqlTask.TaskStatus == SqlTaskStatus.Failed)
+                {
+                    throw new Exception(sqlTask.GetLastMessage()?.Description ?? "Table designer publish failed.");
                 }
             });
+        }
+
+        private void ReportTaskProgress(TableDesignerProgressEventArgs args)
+        {
+            if (IsPublishOperation(args.Operation) && this.publishSqlTasks.TryGetValue(args.SessionId, out SqlTask sqlTask))
+            {
+                sqlTask.ReportProgress(GetTaskPercent(args.Status), args.Message);
+            }
+        }
+
+        private void ReportTaskMessage(TableDesignerMessageEventArgs args)
+        {
+            if (IsPublishOperation(args.Operation) && this.publishSqlTasks.TryGetValue(args.SessionId, out SqlTask sqlTask))
+            {
+                if (!string.IsNullOrWhiteSpace(args.Message))
+                {
+                    sqlTask.AddMessage(
+                        args.Message,
+                        IsErrorMessage(args.MessageType) ? SqlTaskStatus.Failed : SqlTaskStatus.InProgress);
+                }
+
+                if (args.Progress.HasValue)
+                {
+                    sqlTask.ReportProgress(
+                        Math.Min(100, Math.Max(0, (int)Math.Round(args.Progress.Value * 100))),
+                        args.Message);
+                }
+            }
+        }
+
+        private static bool IsPublishOperation(string operation)
+        {
+            return string.Equals(operation, "Publish", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsErrorMessage(string messageType)
+        {
+            return string.Equals(messageType, "Error", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int GetTaskPercent(string status)
+        {
+            return string.Equals(status, "Completed", StringComparison.OrdinalIgnoreCase) ? 100 : -1;
         }
 
         private Task HandleGenerateScriptRequest(TableInfo tableInfo, RequestContext<string> requestContext)

@@ -107,16 +107,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                         OperationName = "SchemaDesignerPublish",
                     };
 
-                    var sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata, (task) =>
+                    var sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata, async (task) =>
                     {
-                        return Task.Run(() =>
+                        await Task.Run(() =>
                         {
                             session.PublishSchema(task);
-                            return new TaskResult()
-                            {
-                                TaskStatus = SqlTaskStatus.Succeeded,
-                            };
                         });
+
+                        await requestContext.SendResult(new PublishSessionResponse());
+                        return new TaskResult()
+                        {
+                            TaskStatus = SqlTaskStatus.Succeeded,
+                        };
                     });
 
                     await sqlTask.RunAsync();
@@ -124,6 +126,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     {
                         throw new Exception(sqlTask.GetLastMessage()?.Description ?? "Schema designer publish failed.");
                     }
+
+                    return;
                 }
                 await requestContext.SendResult(new PublishSessionResponse());
             });
