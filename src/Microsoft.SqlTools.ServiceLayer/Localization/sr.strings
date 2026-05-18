@@ -369,6 +369,13 @@ InvalidBackupPathError =  The provided path is invalid
 # Task Service
 TaskInProgress = In progress
 TaskCompleted = Completed
+TableDesignerPublishTaskName = Publish Table Designer Changes
+TableDesignerPublishTaskDescription = Publishing table designer changes
+TableDesignerPublishFailed = Table designer publish failed.
+SchemaDesignerPublishTaskName = Publish Schema Designer Changes
+SchemaDesignerPublishTaskDescription = Publishing schema designer changes
+SchemaDesignerPublishFailed = Schema designer publish failed.
+SchemaDesignerSessionNotFound = Schema designer session '{0}' was not found.
 
 ###########################################################################
 # Restore

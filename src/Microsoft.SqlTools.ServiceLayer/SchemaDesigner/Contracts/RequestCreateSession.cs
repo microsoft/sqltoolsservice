@@ -11,6 +11,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
     public class CreateSessionRequest
     {
         /// <summary>
+        /// Gets or sets the session id to use for this schema designer session.
+        /// </summary>
+        public string SessionId { get; set; } = null!;
+        /// <summary>
         /// Gets or sets the connection string to the database. This is required to get the schema model for the database.
         /// </summary>
         public string ConnectionString { get; set; } = null!;
