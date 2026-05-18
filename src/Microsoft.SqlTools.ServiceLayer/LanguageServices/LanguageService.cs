@@ -33,6 +33,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -67,6 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public const string SQL_LANG = "SQL";
 
         public const string SQL_CMD_LANG = "SQLCMD";
+
+        internal const string ProjectContextKeyPrefix = "project_";
 
         private const int OneSecond = 1000;
 
@@ -318,6 +321,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Register the file open update handler
             WorkspaceServiceInstance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
+
+            // Register the file save update handler
+            WorkspaceServiceInstance.RegisterTextDocSaveCallback(HandleDidSaveTextDocumentNotification);
 
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(StartUpdateLanguageServiceOnConnection);
@@ -695,6 +701,51 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
+            }
+        }
+
+        /// <summary>
+        /// Handle the file save notification
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidSaveTextDocumentNotification(
+            string uri,
+            EventContext eventContext)
+        {
+            try
+            {
+                // Only process .sql files — saving the .sqlproj itself (or any other non-SQL file)
+                // must not feed non-SQL content into TSqlModel.AddOrUpdateObjects.
+                if (!string.Equals(Path.GetExtension(uri), ".sql", StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: false);
+                if (parseInfo == null || !parseInfo.IsProject)
+                {
+                    return;
+                }
+
+                string contextKey = parseInfo.ConnectionKey;                
+                if (contextKey == null || !contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal)) 
+                {
+                    return;
+                }
+
+                // Guard: the .sqlproj URI itself is stamped as a project file; skip it explicitly.
+                string projectUri = contextKey.Substring(ProjectContextKeyPrefix.Length);
+                if (string.Equals(uri, projectUri, StringComparison.OrdinalIgnoreCase)) 
+                {
+                    return;
+                }
+                await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
             }
         }
 
@@ -1188,7 +1239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                string contextKey = $"project_{projectUri}";
+                string contextKey = $"{ProjectContextKeyPrefix}{projectUri}";
                 var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(metadataProvider);
 
                 // Register the binding context with MetadataProvider FIRST, before stamping any files.

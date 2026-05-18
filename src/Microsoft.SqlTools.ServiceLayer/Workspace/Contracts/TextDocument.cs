@@ -87,6 +87,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             EventType<DidCloseTextDocumentParams>.Create("textDocument/didClose");
     }
 
+    public class DidSaveTextDocumentNotification
+    {
+        public static readonly
+            EventType<DidSaveTextDocumentParams> Type =
+            EventType<DidSaveTextDocumentParams>.Create("textDocument/didSave");
+    }
+
+    public class DidSaveTextDocumentParams
+    {
+        /// <summary>
+        /// Gets or sets the saved document identifier.
+        /// </summary>
+        public TextDocumentItem TextDocument { get; set; }
+    }
+
     public class DidChangeTextDocumentNotification
     {
         public static readonly

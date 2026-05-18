@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// On close: Model must be disposed; binding context and ScriptParseInfo entries
         /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, IReadOnlyList<string> FileUris)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Monotonically-increasing generation counter per project URI.
@@ -189,8 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"project_{projectUri}";
-                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath)
+                string contextKey = $"{LanguageService.ProjectContextKeyPrefix}{projectUri}";
+                string projectDir = Path.GetDirectoryName(UriToLocalPath(new Uri(projectUri)))
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
 
                 // Include all SQL files: Build items, PreDeploy, and PostDeploy
@@ -208,11 +208,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     allScripts.Add(script.Path);
                 }
 
-                var fileUriList = allScripts
-                    .Select(path => new Uri(Path.IsPathRooted(path)
+                var fileUriList = new HashSet<string>(
+                    allScripts.Select(path => new Uri(Path.IsPathRooted(path)
                         ? path
-                        : Path.Combine(projectDir, path)).AbsoluteUri)
-                    .ToList();
+                        : Path.Combine(projectDir, path)).AbsoluteUri),
+                    StringComparer.OrdinalIgnoreCase);
 
                 model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
 
@@ -225,8 +225,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
+                var parseOptions = new ParseOptions(
+                    batchSeparator: LanguageService.DefaultBatchSeperator,
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
                 // Store everything needed for full teardown on project close.
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, fileUriList);
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions);
 
                 // Gate 2: before registering the binding context — verify we are still the owner.
                 // (Close may have run between Gate 1 and here.)
@@ -236,12 +242,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     model.Dispose();
                     return;
                 }
-
-                var parseOptions = new ParseOptions(
-                    batchSeparator: LanguageService.DefaultBatchSeperator,
-                    isQuotedIdentifierSet: true,
-                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
-                    transactSqlVersion: TransactSqlVersion.Current);
 
                 await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                     projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
@@ -448,22 +448,127 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path)), requestContext);
+            await RunWithErrorHandling(async () =>
+            {
+                SqlProject project = GetProject(requestParams.ProjectUri);
+                project.SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path));
+                // Incrementally update the IntelliSense model for the new file.
+                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: false);
+            }, requestContext);
         }
 
         internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path), requestContext);
+            await RunWithErrorHandling(async () =>
+            {
+                SqlProject project = GetProject(requestParams.ProjectUri);
+                project.SqlObjectScripts.Delete(requestParams.Path);
+                // Incrementally remove the deleted file's objects from the IntelliSense model.
+                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
+            }, requestContext);
         }
 
         internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path), requestContext);
+            await RunWithErrorHandling(async () =>
+            {
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path);
+                // Remove the excluded file's objects from the IntelliSense model.
+                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
+            }, requestContext);
         }
 
         internal async Task HandleMoveSqlObjectScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            await RunWithErrorHandling(async () =>
+            {
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath);
+                // The IntelliSense model is path-keyed, so a rename is a delete + add:
+                // (1) Purge the old path's objects from the model and source location index.
+                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
+                // (2) Read the file at its new path and re-register its objects under the new key.
+                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.DestinationPath, deleted: false);
+            }, requestContext);
+        }
+
+        internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted)
+        {
+            if (!projectIntelliSense.TryGetValue(projectUri, out var state)) return;
+            try
+            {
+                string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
+                if (!deleted)
+                {
+                    if (!File.Exists(sourceName)) return;
+                    string sqlText = await File.ReadAllTextAsync(sourceName).ConfigureAwait(false);
+                    if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
+                    state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                }
+                else
+                {
+                    if (!projectIntelliSense.ContainsKey(projectUri)) return;
+                    state.Model.DeleteObjects(sourceName);
+                }
+                state.Provider.UpdateForFileChange(sourceName, deleted);
+
+                // The binder built at project-open time holds a snapshot of the metadata.
+                // After mutating the provider, recreate the binder so alias resolution (e.g.
+                // "p." after "FROM sss.packages p") and object enumeration ("sss.") pick up
+                // the updated schema.
+                var newBinder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
+                LanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
+
+                // Stamp the file URI with the project context so IntelliSense works when the
+                // user opens the file. For deletes the file is gone so nothing to stamp.
+                if (!deleted)
+                {
+                    string fileUri = new Uri(sourceName).AbsoluteUri;
+                    lock (state.FileUris) { state.FileUris.Add(fileUri); }
+                    LanguageService.Instance.InitializeProjectFileContexts(
+                        new[] { fileUri }, state.ContextKey, state.DatabaseName);
+                }
+                else
+                {
+                    // Immediately remove the stale ScriptParseInfo so the context key for this
+                    // file does not outlive the file's presence in the project. Also drop it
+                    // from the FileUris set so TearDownProjectContext won't try it again on close.
+                    string fileUri = new Uri(sourceName).AbsoluteUri;
+                    lock (state.FileUris) { state.FileUris.Remove(fileUri); }
+                    LanguageService.Instance.RemoveScriptParseInfo(fileUri);
+                }
+            }
+            catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
+        }
+
+        private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
+        {
+            // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
+            if (Uri.TryCreate(filePathOrUri, UriKind.Absolute, out Uri? parsedUri) && parsedUri.IsFile)
+                return Path.GetFullPath(UriToLocalPath(parsedUri));
+
+            // Already an absolute OS path — normalise separators/casing via Path.GetFullPath.
+            if (Path.IsPathRooted(filePathOrUri))
+                return Path.GetFullPath(filePathOrUri);
+
+            // Relative path — resolve against the project directory.
+            // Use UriToLocalPath so the same "/c:/..." stripping applies to projectUri.
+            string projectLocal = new Uri(projectUri) is Uri pu ? UriToLocalPath(pu) : projectUri;
+            string projectDir = Path.GetDirectoryName(projectLocal) ?? string.Empty;
+            return Path.GetFullPath(Path.Combine(projectDir, filePathOrUri));
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Uri"/> with <see cref="Uri.IsFile"/> == true to an OS-native
+        /// absolute path, stripping the spurious leading '/' that some .NET runtimes return from
+        /// <see cref="Uri.LocalPath"/> on Windows (e.g. "/c:/Users/..." → "c:/Users/...").
+        /// </summary>
+        private static string UriToLocalPath(Uri uri)
+        {
+            string localPath = uri.LocalPath;
+            // On Windows, Uri.LocalPath can start with "/c:/" — strip the leading slash.
+            int start = (localPath.Length >= 3 && localPath[0] == '/' &&
+                         char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
+            return localPath.Substring(start);
         }
 
         #endregion

@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
             TextDocCloseCallbacks = new List<TextDocCloseCallback>();
+            TextDocSaveCallbacks = new List<TextDocSaveCallback>();
 
             CurrentSettings = new TConfig();
         }
@@ -99,6 +100,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile, EventContext eventContext);
 
         /// <summary>
+        /// Delegate for callbacks that occur when a text document is saved
+        /// </summary>
+        /// <param name="uri">URI of the saved document</param>
+        /// <param name="eventContext">Context of the event</param>
+        public delegate Task TextDocSaveCallback(string uri, EventContext eventContext);
+
+        /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
         private List<ConfigChangeCallback> ConfigChangeCallbacks { get; set; }
@@ -118,6 +126,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
 
+        /// <summary>
+        /// List of callbacks to call when a text document is saved
+        /// </summary>
+        private List<TextDocSaveCallback> TextDocSaveCallbacks { get; set; }
+
 
         #endregion
 
@@ -133,6 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
             serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
             serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
+            serviceHost.SetEventHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
             serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
 
             // Register an initialization handler that sets the workspace path
@@ -183,12 +197,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         /// <summary>
-        /// Adds a new task to be called when a text document closes.
+        /// Adds a new task to be called when a text document is closed.
         /// </summary>
         /// <param name="task">Delegate to call when the document closes</param>
         public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
         {
             TextDocCloseCallbacks.Add(task);
+        }
+
+        /// <summary>
+        /// Adds a new task to be called when a text document is saved.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document is saved</param>
+        public void RegisterTextDocSaveCallback(TextDocSaveCallback task)
+        {
+            TextDocSaveCallbacks.Add(task);
         }
 
         /// <summary>
@@ -315,6 +338,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 Logger.Error("Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return;
+            }
+        }
+
+        internal async Task HandleDidSaveTextDocumentNotification(
+            DidSaveTextDocumentParams saveParams,
+            EventContext eventContext)
+        {
+            try
+            {
+                Logger.Verbose("HandleDidSaveTextDocumentNotification");
+
+                if (IsScmEvent(saveParams.TextDocument.Uri))
+                {
+                    return;
+                }
+
+                var handlers = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri, eventContext));
+                await Task.WhenAll(handlers);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
                 return;
             }
         }
