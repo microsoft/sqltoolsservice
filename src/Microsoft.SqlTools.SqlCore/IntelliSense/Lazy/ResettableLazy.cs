@@ -14,10 +14,16 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     /// access re-evaluates. Used to replace stale table wrappers after an incremental
     /// DacFx model update without rebuilding the entire schema collection.
     /// </summary>
+    /// <remarks>
+    /// Thread-safety: <see cref="Value"/> is safe to call concurrently with <see cref="Reset()"/>
+    /// or <see cref="Reset(Func{T})"/>. The lock ensures that <c>_factory</c> and <c>_lazy</c>
+    /// are always updated as an atomic pair so no reader can observe a mismatched combination.
+    /// </remarks>
     internal sealed class ResettableLazy<T>
     {
-        private volatile Lazy<T> _lazy;
+        private Lazy<T> _lazy;
         private Func<T> _factory;
+        private readonly object _lock = new object();
 
         public ResettableLazy(Func<T> factory)
         {
@@ -25,19 +31,35 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _lazy = new Lazy<T>(factory);
         }
 
-        public T Value => _lazy.Value;
+        public T Value
+        {
+            get
+            {
+                // Read the current Lazy<T> snapshot outside the lock; Lazy<T> itself is
+                // thread-safe for concurrent Value reads.
+                Lazy<T> lazy;
+                lock (_lock) { lazy = _lazy; }
+                return lazy.Value;
+            }
+        }
 
         /// <summary>Resets to the original factory; next <see cref="Value"/> access re-evaluates.</summary>
         public void Reset()
         {
-            _lazy = new Lazy<T>(_factory);
+            lock (_lock)
+            {
+                _lazy = new Lazy<T>(_factory);
+            }
         }
 
         /// <summary>Switches to a new factory and resets; next <see cref="Value"/> uses the new factory.</summary>
         public void Reset(Func<T> newFactory)
         {
-            _factory = newFactory;
-            _lazy = new Lazy<T>(newFactory);
+            lock (_lock)
+            {
+                _factory = newFactory;
+                _lazy = new Lazy<T>(newFactory);
+            }
         }
     }
 }

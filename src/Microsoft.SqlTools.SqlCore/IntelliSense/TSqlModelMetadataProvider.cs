@@ -179,15 +179,15 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
             foreach (QualifiedSqlObject q in oldSet)
                 if (!newSet.Contains(q))
-                    ((TSqlModelSchema?)db.Schemas[q.SchemaName])?.RemoveObject(q.ObjectName, q.ObjectType);
+                    db.GetSchema(q.SchemaName)?.RemoveObject(q.ObjectName, q.ObjectType);
 
             foreach (QualifiedSqlObject q in newSet)
                 if (!oldSet.Contains(q))
-                    ((TSqlModelSchema?)db.Schemas[q.SchemaName])?.AddObject(q.ObjectName, q.ObjectType);
+                    db.EnsureSchema(q.SchemaName).AddObject(q.ObjectName, q.ObjectType);
 
             foreach (QualifiedSqlObject q in newSet)
                 if (oldSet.Contains(q))
-                    ((TSqlModelSchema?)db.Schemas[q.SchemaName])?.ResetObject(q.ObjectName, q.ObjectType);
+                    db.GetSchema(q.SchemaName)?.ResetObject(q.ObjectName, q.ObjectType);
 
             // ── Step 3: Patch source location index (F12) ─────────────────────────
             lock (_sourceLock)

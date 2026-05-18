@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// On close: Model must be disposed; binding context and ScriptParseInfo entries
         /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, IReadOnlyList<string> FileUris, ParseOptions ParseOptions)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Monotonically-increasing generation counter per project URI.
@@ -189,8 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"project_{projectUri}";
-                string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath)
+                string contextKey = $"{LanguageService.ProjectContextKeyPrefix}{projectUri}";
+                string projectDir = Path.GetDirectoryName(UriToLocalPath(new Uri(projectUri)))
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
 
                 // Include all SQL files: Build items, PreDeploy, and PostDeploy
@@ -208,11 +208,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     allScripts.Add(script.Path);
                 }
 
-                var fileUriList = allScripts
-                    .Select(path => new Uri(Path.IsPathRooted(path)
+                var fileUriList = new HashSet<string>(
+                    allScripts.Select(path => new Uri(Path.IsPathRooted(path)
                         ? path
-                        : Path.Combine(projectDir, path)).AbsoluteUri)
-                    .ToList();
+                        : Path.Combine(projectDir, path)).AbsoluteUri),
+                    StringComparer.OrdinalIgnoreCase);
 
                 model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
 
@@ -523,8 +523,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 if (!deleted)
                 {
                     string fileUri = new Uri(sourceName).AbsoluteUri;
+                    lock (state.FileUris) { state.FileUris.Add(fileUri); }
                     LanguageService.Instance.InitializeProjectFileContexts(
                         new[] { fileUri }, state.ContextKey, state.DatabaseName);
+                }
+                else
+                {
+                    // Immediately remove the stale ScriptParseInfo so the context key for this
+                    // file does not outlive the file's presence in the project. Also drop it
+                    // from the FileUris set so TearDownProjectContext won't try it again on close.
+                    string fileUri = new Uri(sourceName).AbsoluteUri;
+                    lock (state.FileUris) { state.FileUris.Remove(fileUri); }
+                    LanguageService.Instance.RemoveScriptParseInfo(fileUri);
                 }
             }
             catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
@@ -534,23 +544,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
             if (Uri.TryCreate(filePathOrUri, UriKind.Absolute, out Uri? parsedUri) && parsedUri.IsFile)
-            {
-                // Uri.LocalPath gives the OS-native path. On Windows this is normally "C:\Users\..."
-                // but some .NET versions return "/c:/Users/..." with a spurious leading slash.
-                // Detect that case (letter followed by colon after the slash) and skip the slash.
-                string localPath = parsedUri.LocalPath;
-                int start = (localPath.Length >= 3 && localPath[0] == '/' &&
-                             char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
-                return Path.GetFullPath(localPath.Substring(start));
-            }
+                return Path.GetFullPath(UriToLocalPath(parsedUri));
 
             // Already an absolute OS path — normalise separators/casing via Path.GetFullPath.
             if (Path.IsPathRooted(filePathOrUri))
                 return Path.GetFullPath(filePathOrUri);
 
             // Relative path — resolve against the project directory.
-            string projectDir = Path.GetDirectoryName(new Uri(projectUri).LocalPath) ?? string.Empty;
+            // Use UriToLocalPath so the same "/c:/..." stripping applies to projectUri.
+            string projectLocal = new Uri(projectUri) is Uri pu ? UriToLocalPath(pu) : projectUri;
+            string projectDir = Path.GetDirectoryName(projectLocal) ?? string.Empty;
             return Path.GetFullPath(Path.Combine(projectDir, filePathOrUri));
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Uri"/> with <see cref="Uri.IsFile"/> == true to an OS-native
+        /// absolute path, stripping the spurious leading '/' that some .NET runtimes return from
+        /// <see cref="Uri.LocalPath"/> on Windows (e.g. "/c:/Users/..." → "c:/Users/...").
+        /// </summary>
+        private static string UriToLocalPath(Uri uri)
+        {
+            string localPath = uri.LocalPath;
+            // On Windows, Uri.LocalPath can start with "/c:/" — strip the leading slash.
+            int start = (localPath.Length >= 3 && localPath[0] == '/' &&
+                         char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
+            return localPath.Substring(start);
         }
 
         #endregion
