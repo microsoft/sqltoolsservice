@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
         private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
+        public event EventHandler<TableDesignerProgressEventArgs> ProgressChanged;
+        public event EventHandler<TableDesignerMessageEventArgs> MessageReceived;
         public bool AllowDisableAndReenableDdlTriggers { get; set; } = true;
         public TableDesignerInfo InitializeTableDesigner(TableInfo tableInfo)
         {
@@ -1732,6 +1734,9 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 tableDesigner = new Dac.TableDesigner(tableInfo.ProjectFilePath, tableInfo.TableScriptPath, tableInfo.AllScripts, tableInfo.TargetVersion);
             }
+            tableDesigner.ProgressChanged += (_, args) => this.OnDesignerProgressChanged(tableInfo.Id, args);
+            tableDesigner.Message += (_, args) => this.OnDesignerMessage(tableInfo.Id, args);
+            tableDesigner.Initialize();
             this.idTableMap[tableInfo.Id] = tableDesigner;
             if (tableInfo.IsNewTable)
             {
@@ -1757,6 +1762,33 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private void OnDesignerProgressChanged(string sessionId, Dac.DesignerProgressEventArgs args)
+        {
+            this.ProgressChanged?.Invoke(this, new TableDesignerProgressEventArgs()
+            {
+                SessionId = sessionId,
+                Operation = args.Operation.ToString(),
+                Status = args.Status.ToString(),
+                Message = args.Message
+            });
+        }
+
+        private void OnDesignerMessage(string sessionId, Dac.DesignerMessageEventArgs args)
+        {
+            this.MessageReceived?.Invoke(this, new TableDesignerMessageEventArgs()
+            {
+                SessionId = sessionId,
+                Operation = args.Operation.ToString(),
+                MessageType = args.MessageType.ToString(),
+                Message = args.Message,
+                Number = args.Number,
+                Prefix = args.Prefix,
+                Progress = args.Progress,
+                SchemaName = args.SchemaName,
+                TableName = args.TableName,
+            });
         }
 
         private void UpdateTableTitleInfo(TableInfo tableInfo)

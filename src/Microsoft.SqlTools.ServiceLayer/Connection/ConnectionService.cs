@@ -1598,6 +1598,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryDefault;
                         break;
+                    case ActiveDirectoryServicePrincipal:
+                        // UserID is the Application (Client) ID; Password is the client secret.
+                        // SqlClient performs the OAuth client-credentials flow natively.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        if (string.IsNullOrEmpty(connectionBuilder.Password))
+                        {
+                            connectionBuilder.Password = connectionDetails.Password;
+                        }
+                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryServicePrincipal;
+                        break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }

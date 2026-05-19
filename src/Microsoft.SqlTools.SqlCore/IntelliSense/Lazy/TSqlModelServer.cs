@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
@@ -28,6 +29,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             _database = new TSqlModelDatabase(this, model, databaseName);
         }
+
+        internal TSqlModelDatabase Database => _database;
 
         public string Name => string.Empty;
         public bool IsSystemObject => false;
@@ -54,7 +57,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlModelServer _server;
         private readonly TSqlModel _model;
         private readonly string _name;
-        private IMetadataCollection<ISchema>? _schemas;
+
+        // Mutable schema map — supports EnsureSchema for incremental adds without rebuilding.
+        private Dictionary<string, TSqlModelSchema>? _schemaMap;
+        private readonly object _schemaLock = new object();
 
         private readonly DatabaseCompatibilityLevel _compatLevel;
 
@@ -91,12 +97,38 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public string DefaultSchemaName => "dbo";
         public IUser? Owner => null;
 
-        public IMetadataCollection<ISchema> Schemas => _schemas ??= BuildSchemas();
-
-        private IMetadataCollection<ISchema> BuildSchemas()
+        /// <summary>
+        /// Returns a live view of all schemas. Each call reflects the current state of the
+        /// schema map, including schemas added by <see cref="EnsureSchema"/> after first access.
+        /// </summary>
+        public IMetadataCollection<ISchema> Schemas
         {
-            var schemas = new List<ISchema>();
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            get
+            {
+                EnsureSchemaMap();
+                lock (_schemaLock)
+                {
+                    // Snapshot the current values; the binder is recreated after every incremental
+                    // update so a per-call snapshot is always fresh enough.
+                    var snapshot = _schemaMap!.Values.ToArray<ISchema>();
+                    return new LazyCollection<ISchema>(() => snapshot);
+                }
+            }
+        }
+
+        private void EnsureSchemaMap()
+        {
+            if (_schemaMap != null) return;
+            lock (_schemaLock)
+            {
+                if (_schemaMap != null) return;
+                _schemaMap = BuildSchemaMap();
+            }
+        }
+
+        private Dictionary<string, TSqlModelSchema> BuildSchemaMap()
+        {
+            var map = new Dictionary<string, TSqlModelSchema>(StringComparer.OrdinalIgnoreCase);
 
             // 1) Source of truth: user-defined objects
             foreach (var obj in _model.GetObjects(DacQueryScopes.UserDefined))
@@ -104,15 +136,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 if (obj.Name.Parts.Count >= 2)
                 {
                     var schemaName = obj.Name.Parts[0];
-
-                    if (seen.Add(schemaName))
-                    {
-                        schemas.Add(new TSqlModelSchema(
-                            this,
-                            _model,
-                            schemaName,
-                            DacQueryScopes.UserDefined));
-                    }
+                    if (!map.ContainsKey(schemaName))
+                        map[schemaName] = new TSqlModelSchema(this, _model, schemaName, DacQueryScopes.UserDefined);
                 }
             }
 
@@ -120,30 +145,54 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             foreach (var s in _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema))
             {
                 var schemaName = s.Name.Parts[0];
-
-                if (seen.Add(schemaName))
-                {
-                    schemas.Add(new TSqlModelSchema(
-                        this,
-                        _model,
-                        schemaName,
-                        DacQueryScopes.UserDefined));
-                }
+                if (!map.ContainsKey(schemaName))
+                    map[schemaName] = new TSqlModelSchema(this, _model, schemaName, DacQueryScopes.UserDefined);
             }
 
             // 3) Built-in schemas only if not already claimed by user objects above
             foreach (var s in _model.GetObjects(DacQueryScopes.BuiltIn, ModelSchema.Schema))
             {
                 var schemaName = s.Name.Parts[0];
-                if (seen.Add(schemaName))
-                    schemas.Add(new TSqlModelSchema(
-                        this,
-                        _model,
-                        schemaName,
-                        DacQueryScopes.BuiltIn));
+                if (!map.ContainsKey(schemaName))
+                    map[schemaName] = new TSqlModelSchema(this, _model, schemaName, DacQueryScopes.BuiltIn);
             }
 
-            return new LazyCollection<ISchema>(() => schemas.ToArray());
+            return map;
+        }
+
+        /// <summary>
+        /// Returns the <see cref="TSqlModelSchema"/> for <paramref name="schemaName"/>,
+        /// creating a new user-defined schema wrapper if one does not yet exist.
+        /// Used by <see cref="TSqlModelMetadataProvider.UpdateForFileChange"/> to handle
+        /// files that introduce objects in a schema not present at project-open time.
+        /// </summary>
+        internal TSqlModelSchema EnsureSchema(string schemaName)
+        {
+            EnsureSchemaMap();
+            lock (_schemaLock)
+            {
+                if (!_schemaMap!.TryGetValue(schemaName, out var schema))
+                {
+                    schema = new TSqlModelSchema(this, _model, schemaName, DacQueryScopes.UserDefined);
+                    _schemaMap[schemaName] = schema;
+                }
+                return schema;
+            }
+        }
+
+        /// <summary>
+        /// Returns the <see cref="TSqlModelSchema"/> for <paramref name="schemaName"/>,
+        /// or null if the schema is not in the map. Used for remove/reset operations
+        /// where creating a phantom schema would be incorrect.
+        /// </summary>
+        internal TSqlModelSchema? GetSchema(string schemaName)
+        {
+            if (_schemaMap == null) return null;
+            lock (_schemaLock)
+            {
+                _schemaMap.TryGetValue(schemaName, out var schema);
+                return schema;
+            }
         }
 
         public IMetadataCollection<IApplicationRole> ApplicationRoles => LazyCollection<IApplicationRole>.Empty;

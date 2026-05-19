@@ -26,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         // Pixel width of auto-filter button
         private const float AutoFilterPixelWidth = 17F;
+
+        // Maximum rows allowed in a single Excel worksheet.
+        private const int MaxWorksheetRows = 1048576;
         
         #region Member Variables
 
@@ -34,8 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly int columnEndIndex;
         private readonly int columnStartIndex;
         private readonly SaveAsExcelFileStreamWriterHelper helper;
+        private readonly int maxWorksheetRows;
 
-        private bool headerWritten;
+        private int currentWorksheetRowCount;
         private SaveAsExcelFileStreamWriterHelper.ExcelSheet sheet;
 
         private SKPaint paint;
@@ -53,9 +57,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// request params.
         /// </param>
         public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : this(stream, requestParams, columns, MaxWorksheetRows)
+        {
+        }
+
+        internal SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns, int maxWorksheetRows)
             : base(stream, requestParams, columns)
         {
+            if (maxWorksheetRows < 1 || (requestParams.IncludeHeaders && maxWorksheetRows < 2))
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxWorksheetRows));
+            }
+
             saveParams = requestParams;
+            this.maxWorksheetRows = maxWorksheetRows;
             helper = new SaveAsExcelFileStreamWriterHelper(stream);
 
             // Do some setup if the caller requested automatically sized columns
@@ -153,53 +168,70 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </param>
         public override void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
-            // Check to make sure the sheet has been created
-            if (sheet == null)
-            {
-                // Get rid of any paint object from the auto-sizing
-                paint?.Dispose();
-
-                // Create the blank sheet
-                sheet = helper.AddSheet(null, columns.Count);
-
-                // The XLSX format has strict ordering requirements so these must be done in the proper order
-                
-                // First freeze the header row if the caller has requested header rows and that the header should be frozen
-                if (saveParams.IncludeHeaders && saveParams.FreezeHeaderRow)
-                {
-                    sheet.FreezeHeaderRow();
-                }
-
-                // Next if column widths have been specified they should be saved to the sheet
-                if (columnWidths != null)
-                {
-                    sheet.WriteColumnInformation(columnWidths);
-                }
-
-                // Lastly enable auto filter if the caller has requested header rows and that the header should be frozen 
-                if (saveParams.IncludeHeaders && saveParams.AutoFilterHeaderRow)
-                {
-                    sheet.EnableAutoFilter();
-                }
-            }
-
-            // Write out the header if we haven't already and the user chose to have it
-            if (saveParams.IncludeHeaders && !headerWritten)
-            {
-                sheet.AddRow();
-                for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
-                {
-                    // Add the header text and bold if requested
-                    sheet.AddCell(columns[i].ColumnName, saveParams.BoldHeaderRow);
-                }
-                headerWritten = true;
-            }
+            EnsureSheetWithSpaceForRow(columns);
 
             sheet.AddRow();
             for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
             {
                 sheet.AddCell(row[i]);
             }
+
+            currentWorksheetRowCount++;
+        }
+
+        private void EnsureSheetWithSpaceForRow(IReadOnlyList<DbColumnWrapper> columns)
+        {
+            if (sheet == null || currentWorksheetRowCount >= maxWorksheetRows)
+            {
+                StartNewSheet(columns);
+            }
+        }
+
+        private void StartNewSheet(IReadOnlyList<DbColumnWrapper> columns)
+        {
+            sheet?.Dispose();
+            sheet = null;
+
+            // Create the blank sheet
+            sheet = helper.AddSheet(null, columns.Count);
+            currentWorksheetRowCount = 0;
+
+            // The XLSX format has strict ordering requirements so these must be done in the proper order
+
+            // First freeze the header row if the caller has requested header rows and that the header should be frozen
+            if (saveParams.IncludeHeaders && saveParams.FreezeHeaderRow)
+            {
+                sheet.FreezeHeaderRow();
+            }
+
+            // Next if column widths have been specified they should be saved to the sheet
+            if (columnWidths != null)
+            {
+                sheet.WriteColumnInformation(columnWidths);
+            }
+
+            // Lastly enable auto filter if the caller has requested header rows and that the header should be filtered
+            if (saveParams.IncludeHeaders && saveParams.AutoFilterHeaderRow)
+            {
+                sheet.EnableAutoFilter();
+            }
+
+            if (saveParams.IncludeHeaders)
+            {
+                WriteHeaderRow(columns);
+            }
+        }
+
+        private void WriteHeaderRow(IReadOnlyList<DbColumnWrapper> columns)
+        {
+            sheet.AddRow();
+            for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
+            {
+                // Add the header text and bold if requested
+                sheet.AddCell(columns[i].ColumnName, saveParams.BoldHeaderRow);
+            }
+
+            currentWorksheetRowCount++;
         }
 
         private bool disposed;
@@ -208,8 +240,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (disposed)
                 return;
 
-            sheet.Dispose();
-            helper.Dispose();
+            if (disposing)
+            {
+                paint?.Dispose();
+                sheet?.Dispose();
+                helper.Dispose();
+            }
 
             disposed = true;
             base.Dispose(disposing);

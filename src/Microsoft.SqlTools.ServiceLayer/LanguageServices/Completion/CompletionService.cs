@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             AutoCompletionResult result = new AutoCompletionResult();
             // check if the file has a binding context ready and the file lock is available
-            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProjectContext) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
+            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
             {
                 try
                 {
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             }
 
             result.CompleteResult(completionList);
-            if (!scriptParseInfo.IsProjectContext)
+            if (!scriptParseInfo.IsProject)
             {
                 connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
             }
