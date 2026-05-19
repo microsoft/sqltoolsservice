@@ -5571,6 +5571,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>Microsoft Entra ID - Default</value>
     <comment></comment>
   </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal" xml:space="preserve">
+    <value>Microsoft Entra ID - Service Principal</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionConfigOptions_user_displayName" xml:space="preserve">
     <value>User name</value>
     <comment></comment>

@@ -10231,6 +10231,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal);
+            }
+        }
+
         public static string ConnectionConfigOptions_user_displayName
         {
             get
@@ -15182,6 +15190,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault = "ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault";
+
+
+            public const string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal = "ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal";
 
 
             public const string ConnectionConfigOptions_user_displayName = "ConnectionConfigOptions_user_displayName";
