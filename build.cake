@@ -498,9 +498,13 @@ void PublishProject(string packageName, string[] projects)
                     }
                 }
         }
-        CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
     }
 
+    if (packageName == buildPlan.PackageName)
+    {
+        var framework = buildPlan.Frameworks.Single();
+        CreateRunScript(System.IO.Path.Combine(publishFolder, packageName, "default"), scriptFolder, framework);
+    }
 }
 
 
@@ -613,7 +617,7 @@ Task("Install")
             foreach (string file in System.IO.Directory.GetFiles(outputFolder, "*", SearchOption.AllDirectories))
                 System.IO.File.Copy(file, System.IO.Path.Combine(targetFolder, file.Substring(outputFolder.Length + 1)), true);
         }
-        CreateRunScript(installFolder, scriptFolder);
+        CreateRunScript(installFolder, scriptFolder, buildPlan.Frameworks.Single());
     }
 });
 
