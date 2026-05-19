@@ -76,7 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_SqlLogin, Name = SqlLogin },
                             new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_Integrated, Name = Integrated },
                             new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_AzureMFA, Name = AzureMFA },
-                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault, Name = ActiveDirectoryDefault }
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault, Name = ActiveDirectoryDefault },
+                            new CategoryValue { DisplayName = SR.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal, Name = ActiveDirectoryServicePrincipal }
                         ],
                         IsIdentity = true,
                         IsRequired = true,
