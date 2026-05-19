@@ -6,18 +6,12 @@
    "configurations": [
         {
             "name": "Run Local Publish",
-            "type": "coreclr",
+            "type": "node-terminal",
             "request": "launch",
-            "preLaunchTask": "local publish",
-            "program": "${workspaceFolder}/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0/MicrosoftSqlToolsServiceLayer.dll",
+            "command": "bash ${workspaceFolder}/build.sh --target=LocalPublish --configuration=Debug",
             "windows": {
-                "program": "${workspaceFolder}/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0/MicrosoftSqlToolsServiceLayer.exe"
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0",
-            "console": "integratedTerminal",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
+                "command": "pwsh.exe -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}/build.ps1 --target=LocalPublish --configuration=Debug"
+            }
         },
         {
             "name": ".NET Core Attach",
