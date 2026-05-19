@@ -21,7 +21,7 @@
                 "--configuration=Debug"
             ],
             "windows": {
-                "command": "powershell.exe",
+                "command": "pwsh.exe",
                 "args": [
                     "-NoProfile",
                     "-ExecutionPolicy",

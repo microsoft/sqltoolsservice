@@ -1,15 +1,5 @@
 #!/usr/bin/env pwsh
-$architecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
-if ($null -ne $architecture) {
-    $arch = $architecture.ToString().ToLower()
-} else {
-    switch ($Env:PROCESSOR_ARCHITECTURE) {
-        "AMD64" { $arch = "x64"; break }
-        "ARM64" { $arch = "arm64"; break }
-        "x86" { $arch = "x86"; break }
-        default { $arch = $Env:PROCESSOR_ARCHITECTURE.ToLower(); break }
-    }
-}
+$arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower()
 
 # Set correct environment variable in case non-Windows users are running cross-plat `pwsh`
 if ($IsMacOS) {
