@@ -549,6 +549,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 && state.Provider.IsDuplicate(name);
         }
 
+        /// <summary>
+        /// Returns a snapshot of all file URIs registered for the given project, excluding <paramref name="excludeUri"/>.
+        /// Used to re-trigger diagnostics on sibling files after a save updates <c>_duplicates</c>.
+        /// </summary>
+        internal IReadOnlyList<string> GetSiblingProjectFileUris(string projectUri, string excludeUri)
+        {
+            if (!projectIntelliSense.TryGetValue(projectUri, out var state))
+                return Array.Empty<string>();
+            lock (state.FileUris)
+            {
+                return state.FileUris
+                    .Where(u => !string.Equals(u, excludeUri, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+        }
+
         private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
         {
             // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")

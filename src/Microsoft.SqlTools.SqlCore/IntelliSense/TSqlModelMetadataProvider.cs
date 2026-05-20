@@ -70,10 +70,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly Dictionary<string, HashSet<QualifiedSqlObject>> _fileToObjects;
 
         // Key = schema-qualified object name (e.g. "dbo.Foo").
-        // Value = set of source file paths that contain a definition of this object.
-        // Count > 1 means it is genuinely duplicated across files.
+        // Value = map of source file path → definition count in that file.
+        // Total count > 1 means genuinely duplicated — either the same file defines it twice,
+        // or two or more distinct files each define it at least once.
         // Built in BuildSourceLocationIndex; patched incrementally in UpdateForFileChange.
-        private readonly Dictionary<string, HashSet<string>> _duplicates;
+        private readonly Dictionary<string, Dictionary<string, int>> _duplicates;
 
         // Serializes reads of _sourceLocations against concurrent UpdateForFileChange writes.
         private readonly object _sourceLock = new object();
@@ -91,7 +92,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _model = model;
             _server = new TSqlModelServer(model, databaseName);
             _fileToObjects = new Dictionary<string, HashSet<QualifiedSqlObject>>(StringComparer.OrdinalIgnoreCase);
-            _duplicates = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            _duplicates = new Dictionary<string, Dictionary<string, int>>(StringComparer.OrdinalIgnoreCase);
             _sourceLocations = BuildSourceLocationIndex();
         }
 
@@ -115,11 +116,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 {
                     index[qualifiedName] = sourceInfo;
 
-                    // Record this file as a definer of qualifiedName.
-                    // Count > 1 means genuinely defined in multiple files.
-                    if (!_duplicates.TryGetValue(qualifiedName, out HashSet<string>? files))
-                        _duplicates[qualifiedName] = files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    files.Add(sourceInfo.SourceName);
+                    // Count occurrences per file: same file defining same object twice → count = 2 → duplicate.
+                    if (!_duplicates.TryGetValue(qualifiedName, out Dictionary<string, int>? fileCounts))
+                        _duplicates[qualifiedName] = fileCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                    fileCounts.TryGetValue(sourceInfo.SourceName, out int existing2);
+                    fileCounts[sourceInfo.SourceName] = existing2 + 1;
 
                     // Track all incrementally-managed object types per source file.
                     if (obj.Name.Parts.Count >= 2 && TryGetSqlObjectType(obj.ObjectType, out SqlObjectType sqlType))
@@ -160,13 +161,18 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// <param name="deleted">True when the file was deleted (<c>DeleteObjects</c> was called).</param>
         public void UpdateForFileChange(string sourceName, bool deleted)
         {
-            // ── Step 1: Compute old and new object sets ────────────────────────────────
+            // ── Step 1: Compute old and new object sets; collect source info and counts in one scan ─
             HashSet<QualifiedSqlObject> oldSet =
                 _fileToObjects.TryGetValue(sourceName, out HashSet<QualifiedSqlObject>? existing)
                     ? existing
                     : new HashSet<QualifiedSqlObject>();
 
             HashSet<QualifiedSqlObject> newSet;
+            // qualName → SourceInformation for this file (last-write-wins, used for Go-to-Def)
+            var newSourceLocations = new Dictionary<string, SourceInformation>(StringComparer.OrdinalIgnoreCase);
+            // qualName → occurrence count in this file (for duplicate detection)
+            var newCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
             if (deleted)
             {
                 newSet = new HashSet<QualifiedSqlObject>();
@@ -176,14 +182,19 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 newSet = new HashSet<QualifiedSqlObject>();
                 foreach (TSqlObject obj in _model.GetObjects(DacQueryScopes.UserDefined))
                 {
-                    if (obj.Name?.Parts == null || obj.Name.Parts.Count < 2) continue;
-                    if (!TryGetSqlObjectType(obj.ObjectType, out SqlObjectType sqlType)) continue;
+                    if (obj.Name?.Parts == null) continue;
                     SourceInformation? si = obj.GetSourceInformation();
-                    if (si?.SourceName != null &&
-                        string.Equals(si.SourceName, sourceName, StringComparison.OrdinalIgnoreCase))
-                    {
+                    if (si?.SourceName == null ||
+                        !string.Equals(si.SourceName, sourceName, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    string qualName = string.Join(".", obj.Name.Parts);
+                    newSourceLocations[qualName] = si;
+                    newCounts.TryGetValue(qualName, out int c);
+                    newCounts[qualName] = c + 1;
+
+                    if (obj.Name.Parts.Count >= 2 && TryGetSqlObjectType(obj.ObjectType, out SqlObjectType sqlType))
                         newSet.Add(new QualifiedSqlObject(obj.Name.Parts[0], obj.Name.Parts[1], sqlType));
-                    }
                 }
             }
 
@@ -205,7 +216,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             // ── Step 3: Patch _sourceLocations and _duplicates under one lock ──────────
             lock (_sourceLock)
             {
-                // Remove stale entries for this file from both dictionaries.
+                // Clean up _sourceLocations by scanning for entries pointing to this file.
                 var staleKeys = _sourceLocations
                     .Where(kv => kv.Value.SourceName != null &&
                                  string.Equals(kv.Value.SourceName, sourceName,
@@ -213,32 +224,30 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     .Select(kv => kv.Key)
                     .ToList();
                 foreach (string key in staleKeys)
-                {
                     _sourceLocations.Remove(key);
-                    if (_duplicates.TryGetValue(key, out HashSet<string>? files))
+
+                // Clean up _duplicates using oldSet — reliable because it is explicitly keyed
+                // per file, unlike _sourceLocations which is last-write-wins per qual name and
+                // would miss this file's entry when two files define the same object.
+                foreach (QualifiedSqlObject q in oldSet)
+                {
+                    string qualName = q.SchemaName + "." + q.ObjectName;
+                    if (_duplicates.TryGetValue(qualName, out Dictionary<string, int>? fileCounts))
                     {
-                        files.Remove(sourceName);
-                        if (files.Count == 0) _duplicates.Remove(key);
+                        fileCounts.Remove(sourceName);
+                        if (fileCounts.Count == 0) _duplicates.Remove(qualName);
                     }
                 }
 
-                if (!deleted)
-                {
-                    foreach (TSqlObject obj in _model.GetObjects(DacQueryScopes.UserDefined))
-                    {
-                        if (obj.Name?.Parts == null) continue;
-                        SourceInformation? si = obj.GetSourceInformation();
-                        if (si?.SourceName != null &&
-                            string.Equals(si.SourceName, sourceName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            string qualName = string.Join(".", obj.Name.Parts);
-                            _sourceLocations[qualName] = si;
+                // Apply new source locations and occurrence counts gathered in Step 1 — no second model scan.
+                foreach (var kv in newSourceLocations)
+                    _sourceLocations[kv.Key] = kv.Value;
 
-                            if (!_duplicates.TryGetValue(qualName, out HashSet<string>? files))
-                                _duplicates[qualName] = files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                            files.Add(sourceName);
-                        }
-                    }
+                foreach (var kv in newCounts)
+                {
+                    if (!_duplicates.TryGetValue(kv.Key, out Dictionary<string, int>? fileCounts))
+                        _duplicates[kv.Key] = fileCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                    fileCounts[sourceName] = kv.Value;
                 }
             }
 
@@ -247,7 +256,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         }
 
         /// <summary>
-        /// Returns true if name (e.g. "dbo.Foo") is defined in two or more distinct source files in this project.
+        /// Returns true if <paramref name="name"/> has a total definition count greater than 1 —
+        /// either the same file defines it twice, or two or more files each define it at least once.
         /// Built once at project open; patched incrementally on each save. O(1) per call.
         /// </summary>
         public bool IsDuplicate(string name)
@@ -255,11 +265,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             lock (_sourceLock)
             {
                 // Direct lookup for schema-qualified names (e.g. "dbo.Foo").
-                if (_duplicates.TryGetValue(name, out HashSet<string>? files) && files.Count > 1)
+                if (_duplicates.TryGetValue(name, out Dictionary<string, int>? fileCounts) && fileCounts.Values.Sum() > 1)
                     return true;
                 // Bare name (e.g. "Foo") from binder — DacFx always stores as "dbo.Foo".
                 if (!name.Contains('.'))
-                    return _duplicates.TryGetValue("dbo." + name, out files) && files.Count > 1;
+                    return _duplicates.TryGetValue("dbo." + name, out fileCounts) && fileCounts.Values.Sum() > 1;
                 return false;
             }
         }
