@@ -69,6 +69,12 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Used by UpdateForFileChange to compute per-object reset/add/remove operations.
         private readonly Dictionary<string, HashSet<QualifiedSqlObject>> _fileToObjects;
 
+        // Key = schema-qualified object name (e.g. "dbo.Foo").
+        // Value = set of source file paths that contain a definition of this object.
+        // Count > 1 means it is genuinely duplicated across files.
+        // Built in BuildSourceLocationIndex; patched incrementally in UpdateForFileChange.
+        private readonly Dictionary<string, HashSet<string>> _duplicates;
+
         // Serializes reads of _sourceLocations against concurrent UpdateForFileChange writes.
         private readonly object _sourceLock = new object();
 
@@ -85,6 +91,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _model = model;
             _server = new TSqlModelServer(model, databaseName);
             _fileToObjects = new Dictionary<string, HashSet<QualifiedSqlObject>>(StringComparer.OrdinalIgnoreCase);
+            _duplicates = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
             _sourceLocations = BuildSourceLocationIndex();
         }
 
@@ -107,6 +114,12 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 if (sourceInfo?.SourceName != null)
                 {
                     index[qualifiedName] = sourceInfo;
+
+                    // Record this file as a definer of qualifiedName.
+                    // Count > 1 means genuinely defined in multiple files.
+                    if (!_duplicates.TryGetValue(qualifiedName, out HashSet<string>? files))
+                        _duplicates[qualifiedName] = files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    files.Add(sourceInfo.SourceName);
 
                     // Track all incrementally-managed object types per source file.
                     if (obj.Name.Parts.Count >= 2 && TryGetSqlObjectType(obj.ObjectType, out SqlObjectType sqlType))
@@ -189,9 +202,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 if (oldSet.Contains(q))
                     db.GetSchema(q.SchemaName)?.ResetObject(q.ObjectName, q.ObjectType);
 
-            // ── Step 3: Patch source location index (F12) ─────────────────────────
+            // ── Step 3: Patch _sourceLocations and _duplicates under one lock ──────────
             lock (_sourceLock)
             {
+                // Remove stale entries for this file from both dictionaries.
                 var staleKeys = _sourceLocations
                     .Where(kv => kv.Value.SourceName != null &&
                                  string.Equals(kv.Value.SourceName, sourceName,
@@ -199,7 +213,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     .Select(kv => kv.Key)
                     .ToList();
                 foreach (string key in staleKeys)
+                {
                     _sourceLocations.Remove(key);
+                    if (_duplicates.TryGetValue(key, out HashSet<string>? files))
+                    {
+                        files.Remove(sourceName);
+                        if (files.Count == 0) _duplicates.Remove(key);
+                    }
+                }
 
                 if (!deleted)
                 {
@@ -210,7 +231,12 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                         if (si?.SourceName != null &&
                             string.Equals(si.SourceName, sourceName, StringComparison.OrdinalIgnoreCase))
                         {
-                            _sourceLocations[string.Join(".", obj.Name.Parts)] = si;
+                            string qualName = string.Join(".", obj.Name.Parts);
+                            _sourceLocations[qualName] = si;
+
+                            if (!_duplicates.TryGetValue(qualName, out HashSet<string>? files))
+                                _duplicates[qualName] = files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                            files.Add(sourceName);
                         }
                     }
                 }
@@ -218,6 +244,24 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
             // ── Step 4: Update file-to-objects mapping ───────────────────────────────
             _fileToObjects[sourceName] = newSet;
+        }
+
+        /// <summary>
+        /// Returns true if name (e.g. "dbo.Foo") is defined in two or more distinct source files in this project.
+        /// Built once at project open; patched incrementally on each save. O(1) per call.
+        /// </summary>
+        public bool IsDuplicate(string name)
+        {
+            lock (_sourceLock)
+            {
+                // Direct lookup for schema-qualified names (e.g. "dbo.Foo").
+                if (_duplicates.TryGetValue(name, out HashSet<string>? files) && files.Count > 1)
+                    return true;
+                // Bare name (e.g. "Foo") from binder — DacFx always stores as "dbo.Foo".
+                if (!name.Contains('.'))
+                    return _duplicates.TryGetValue("dbo." + name, out files) && files.Count > 1;
+                return false;
+            }
         }
 
         private static bool TryGetSqlObjectType(ModelTypeClass modelType, out SqlObjectType sqlType)

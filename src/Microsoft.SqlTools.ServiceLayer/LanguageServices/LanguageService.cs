@@ -2184,6 +2184,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Extracts the object name from a SqlParser "already exists" bind-error message:
+        ///   "There is already an object named 'Foo' in the database."
+        /// Returns null if the message does not match that pattern.
+        /// </summary>
+        private static string ExtractAlreadyExistsName(string message)
+        {
+            if (message == null) return null;
+            const string prefix = "already an object named '";
+            int start = message.IndexOf(prefix, StringComparison.OrdinalIgnoreCase);
+            if (start < 0) return null;
+            start += prefix.Length;
+            int end = message.IndexOf('\'', start);
+            if (end <= start) return null;
+            return message.Substring(start, end - start);
+        }
+
+        /// <summary>
         /// Gets a list of semantic diagnostic marks for the provided script file
         /// </summary>
         /// <param name="scriptFile"></param>
@@ -2197,13 +2214,51 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
-            // For project files, suppress binding diagnostics: the binder sees DDL objects as
-            // duplicates because they are already loaded into the metadata model, producing false
-            // "already exists" errors. Project-level validation belongs to a build step.
+            // For project files the binder fires spurious "already exists" bind errors because
+            // every DDL object in the edited file is also pre-loaded into the TSqlModel (own-
+            // reflection false positive).  Strategy:
+            //   • Non-bind errors (syntax / parse) → always surface.
+            //   • Bind errors → only surface when the referenced name is genuinely duplicated
+            //     across 2 or more distinct (SourceFile, StartLine) entries in the TSqlModel,
+            //     i.e. the same object really is defined more than once in the project.
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (parseInfo?.IsProject == true)
             {
-                return Array.Empty<ScriptFileMarker>();
+                if (parseResult?.Errors == null || !parseResult.Errors.Any())
+                    return Array.Empty<ScriptFileMarker>();
+
+                string contextKey = parseInfo.ConnectionKey;
+                string? projectUri = (contextKey != null && contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                    ? contextKey.Substring(ProjectContextKeyPrefix.Length)
+                    : null;
+
+                var projectMarkers = new List<ScriptFileMarker>();
+                foreach (var error in parseResult.Errors)
+                {
+                    // "already exists" bind errors: only surface for genuine cross-definition duplicates.
+                    // All other errors (syntax, parse) pass through unconditionally.
+                    string alreadyExistsName = ExtractAlreadyExistsName(error.Message);
+                    if (alreadyExistsName != null)
+                    {
+                        if (projectUri == null || !SqlProjectsService.Instance.IsDuplicate(projectUri, alreadyExistsName)) continue;
+                    }
+                    projectMarkers.Add(new ScriptFileMarker()
+                    {
+                        Message = error.Message,
+                        Level = ScriptFileMarkerLevel.Error,
+                        ScriptRegion = new ScriptRegion()
+                        {
+                            File = scriptFile.FilePath,
+                            StartLineNumber = error.Start.LineNumber,
+                            StartColumnNumber = error.Start.ColumnNumber,
+                            StartOffset = 0,
+                            EndLineNumber = error.End.LineNumber,
+                            EndColumnNumber = error.End.ColumnNumber,
+                            EndOffset = 0
+                        }
+                    });
+                }
+                return projectMarkers.ToArray();
             }
 
             // build a list of SQL script file markers from the errors

@@ -540,6 +540,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
         }
 
+        /// <summary>
+        /// Returns true if name (e.g. "dbo.Foo") is defined in two or more source files in this project. O(1) per call.
+        /// </summary>
+        internal bool IsDuplicate(string projectUri, string name)
+        {
+            return projectIntelliSense.TryGetValue(projectUri, out var state)
+                && state.Provider.IsDuplicate(name);
+        }
+
         private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
         {
             // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
