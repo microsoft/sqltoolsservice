@@ -2289,9 +2289,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // character offsets: "[dbo].[Table1]" → "dbo.Table1"
                         string scriptSql = parseResult.Script?.Sql;
                         string lookupName = ExtractQualifiedNameFromError(error, scriptSql);
-                        // Suppress only when NOT a real duplicate (TSqlModel pre-load false positive).
-                        // Keep the error when: projectUri is null (can't verify), or IsDuplicate is true (object in 2+ files).
-                        if (projectUri != null && !SqlProjectsService.Instance.IsDuplicate(projectUri, lookupName)) continue;
+                        // Suppress only when we can verify this is not a real duplicate.
+                        // If lookupName is null/empty or project state is unavailable, keep the
+                        // diagnostic rather than risking suppression of a real error.
+                        if (projectUri != null
+                            && SqlProjectsService.Instance.TryIsDuplicate(projectUri, lookupName, out bool isDuplicate)
+                            && !isDuplicate)
+                        {
+                            continue;
+                        }
                     }
                     projectMarkers.Add(CreateMarkerFromError(error, scriptFile.FilePath));
                 }

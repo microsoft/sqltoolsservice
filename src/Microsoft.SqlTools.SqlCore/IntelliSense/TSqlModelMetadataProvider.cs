@@ -226,17 +226,22 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 foreach (string key in staleKeys)
                     _sourceLocations.Remove(key);
 
-                // Clean up _duplicates using oldSet — reliable because it is explicitly keyed
-                // per file, unlike _sourceLocations which is last-write-wins per qual name and
-                // would miss this file's entry when two files define the same object.
-                foreach (QualifiedSqlObject q in oldSet)
+                // Remove this file's previous counts from every duplicate bucket before applying
+                // newCounts. This is keyed by exact qualified-name entries currently tracked in
+                // _duplicates, so it cannot miss objects that weren't represented in oldSet.
+                var duplicateKeysToRemove = new List<string>();
+                foreach (var kv in _duplicates)
                 {
-                    string qualName = q.SchemaName + "." + q.ObjectName;
-                    if (_duplicates.TryGetValue(qualName, out Dictionary<string, int>? fileCounts))
+                    Dictionary<string, int> fileCounts = kv.Value;
+                    fileCounts.Remove(sourceName);
+                    if (fileCounts.Count == 0)
                     {
-                        fileCounts.Remove(sourceName);
-                        if (fileCounts.Count == 0) _duplicates.Remove(qualName);
+                        duplicateKeysToRemove.Add(kv.Key);
                     }
+                }
+                foreach (string key in duplicateKeysToRemove)
+                {
+                    _duplicates.Remove(key);
                 }
 
                 // Apply new source locations and occurrence counts gathered in Step 1 — no second model scan.
@@ -258,20 +263,41 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// <summary>
         /// Returns true if <paramref name="name"/> has a total definition count greater than 1 —
         /// either the same file defines it twice, or two or more files each define it at least once.
-        /// Built once at project open; patched incrementally on each save. O(1) per call.
+        /// Built once at project open; patched incrementally on each save.
+        /// Per call cost is O(f) where f is the number of source files that define the requested object.
         /// </summary>
         public bool IsDuplicate(string name)
         {
             lock (_sourceLock)
             {
                 // Direct lookup for schema-qualified names (e.g. "dbo.Foo").
-                if (_duplicates.TryGetValue(name, out Dictionary<string, int>? fileCounts) && fileCounts.Values.Sum() > 1)
+                if (_duplicates.TryGetValue(name, out Dictionary<string, int>? fileCounts) && HasMultipleDefinitions(fileCounts))
                     return true;
                 // Bare name (e.g. "Foo") from binder — DacFx always stores as "dbo.Foo".
                 if (!name.Contains('.'))
-                    return _duplicates.TryGetValue("dbo." + name, out fileCounts) && fileCounts.Values.Sum() > 1;
+                    return _duplicates.TryGetValue("dbo." + name, out fileCounts) && HasMultipleDefinitions(fileCounts);
                 return false;
             }
+        }
+
+        private static bool HasMultipleDefinitions(Dictionary<string, int>? fileCounts)
+        {
+            if (fileCounts == null)
+            {
+                return false;
+            }
+
+            int total = 0;
+            foreach (int count in fileCounts.Values)
+            {
+                total += count;
+                if (total > 1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool TryGetSqlObjectType(ModelTypeClass modelType, out SqlObjectType sqlType)

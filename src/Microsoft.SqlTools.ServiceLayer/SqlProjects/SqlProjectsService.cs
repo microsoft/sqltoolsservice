@@ -541,12 +541,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
-        /// Returns true if name (e.g. "dbo.Foo") is defined in two or more source files in this project. O(1) per call.
+        /// Attempts to determine whether <paramref name="name"/> (e.g. "dbo.Foo") is defined
+        /// in two or more source files in this project.
         /// </summary>
-        internal bool IsDuplicate(string projectUri, string name)
+        /// <returns>
+        /// <c>true</c> when duplicate status could be determined from current IntelliSense state;
+        /// otherwise <c>false</c> (unknown / no state).
+        /// </returns>
+        internal bool TryIsDuplicate(string projectUri, string name, out bool isDuplicate)
         {
-            return projectIntelliSense.TryGetValue(projectUri, out var state)
-                && state.Provider.IsDuplicate(name);
+            isDuplicate = false;
+            if (!projectIntelliSense.TryGetValue(projectUri, out var state)
+                || string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+
+            isDuplicate = state.Provider.IsDuplicate(name);
+            return true;
         }
 
         /// <summary>

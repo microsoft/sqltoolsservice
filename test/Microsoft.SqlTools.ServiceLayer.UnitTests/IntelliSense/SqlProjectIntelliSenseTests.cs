@@ -161,5 +161,43 @@ END
                 ProjectUtils.DeleteTestProject(projectPath);
             }
         }
+
+        /// <summary>
+        /// When a single .sql file defines the same object twice,
+        /// IsDuplicate should still report the object as duplicated.
+        /// </summary>
+        [Test]
+        public void IsDuplicate_ReturnsTrueForObjectDefinedTwiceInSameFile()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            const string fileA = "Tables\\Foo.sql";
+            const string duplicateInSingleFileScript = @"
+CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);
+GO
+CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);
+";
+
+            project.SqlObjectScripts.Add(new SqlObjectScript(fileA), duplicateInSingleFileScript);
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+
+                Assert.IsTrue(provider.IsDuplicate("dbo.Foo"),
+                    "dbo.Foo is defined twice in one file and should be reported as duplicate");
+
+                Assert.IsTrue(provider.IsDuplicate("Foo"),
+                    "Bare name 'Foo' should resolve to dbo.Foo and be reported as duplicate");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
     }
 }
