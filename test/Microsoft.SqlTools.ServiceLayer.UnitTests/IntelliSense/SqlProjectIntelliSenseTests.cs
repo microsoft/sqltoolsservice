@@ -118,8 +118,8 @@ END
             string projectPath = ProjectUtils.CreateTestProject();
             var project = SqlProject.OpenProject(projectPath);
 
-            const string fileA = "Tables\\FooA.sql";
-            const string fileB = "Tables\\FooB.sql";
+            string fileA = Path.Combine("Tables", "FooA.sql");
+            string fileB = Path.Combine("Tables", "FooB.sql");
             const string tableScript = "CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);";
             const string unrelatedScript = "CREATE TABLE dbo.Bar (Id INT PRIMARY KEY);";
 
@@ -145,7 +145,7 @@ END
                     "dbo.Bar is defined in only one file and should not be a duplicate");
 
                 // Simulate saving fileB so it no longer defines dbo.Foo (replaced with unrelated content).
-                string sourceNameB = Path.Combine(project.DirectoryPath, fileB.Replace('\\', Path.DirectorySeparatorChar));
+                string sourceNameB = Path.Combine(project.DirectoryPath, fileB);
                 model.AddOrUpdateObjects(unrelatedScript, sourceNameB, new TSqlObjectOptions());
                 provider.UpdateForFileChange(sourceNameB, deleted: false);
 
@@ -172,7 +172,7 @@ END
             string projectPath = ProjectUtils.CreateTestProject();
             var project = SqlProject.OpenProject(projectPath);
 
-            const string fileA = "Tables\\Foo.sql";
+            string fileA = Path.Combine("Tables", "Foo.sql");
             const string duplicateInSingleFileScript = @"
 CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);
 GO
@@ -192,6 +192,85 @@ CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);
 
                 Assert.IsTrue(provider.IsDuplicate("Foo"),
                     "Bare name 'Foo' should resolve to dbo.Foo and be reported as duplicate");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// When a base table gains a new column, all dependent views (SELECT *) must reflect
+        /// that column after <see cref="TSqlModelMetadataProvider.UpdateForFileChange"/> is called.
+        /// Covers both direct dependents (View1 → FileTable1) and chained dependents
+        /// (View2 → View1 → FileTable1) to verify the BFS traversal in Step 2b.
+        /// </summary>
+        [Test]
+        public void UpdateForFileChange_ResetsTransitiveDependents_AfterTableColumnAdded()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            string tablesFile = Path.Combine("Tables", "FileTable1.sql");
+            string viewsFile  = Path.Combine("Views",  "View1.sql");
+            string views2File = Path.Combine("Views",  "View2.sql");
+
+            // Initial table: 2 columns (Id, Name).
+            const string tableScriptV1 = @"
+CREATE TABLE [sss].[FileTable1] (
+    [Id]   INT           NOT NULL PRIMARY KEY,
+    [Name] NVARCHAR(100) NOT NULL
+);";
+
+            // Both views use SELECT * so column count tracks the underlying table.
+            const string viewScript1 = @"
+CREATE VIEW [sss].[View1] AS
+SELECT * FROM [sss].[FileTable1];";
+
+            const string viewScript2 = @"
+CREATE VIEW [sss].[View2] AS
+SELECT * FROM [sss].[View1];";
+
+            project.SqlObjectScripts.Add(new SqlObjectScript(tablesFile), tableScriptV1);
+            project.SqlObjectScripts.Add(new SqlObjectScript(viewsFile),  viewScript1);
+            project.SqlObjectScripts.Add(new SqlObjectScript(views2File), viewScript2);
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+
+                var sssSchema = provider.Server.Databases.First()
+                                        .Schemas.FirstOrDefault(s => s.Name == "sss");
+                Assert.IsNotNull(sssSchema, "Schema 'sss' should exist");
+
+                // Before update: each view should expose exactly 2 columns (Id, Name).
+                Assert.AreEqual(2, sssSchema!.Views.FirstOrDefault(v => v.Name == "View1")?.Columns.Count(),
+                    "View1 should have 2 columns before table update");
+                Assert.AreEqual(2, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count(),
+                    "View2 should have 2 columns before table update");
+
+                // Add the Email column to FileTable1 and push the update into the model.
+                const string tableScriptV2 = @"
+CREATE TABLE [sss].[FileTable1] (
+    [Id]    INT           NOT NULL PRIMARY KEY,
+    [Name]  NVARCHAR(100) NOT NULL,
+    [Email] NVARCHAR(255) NOT NULL
+);";
+                string tablesSourceName = Path.Combine(project.DirectoryPath, tablesFile);
+
+                model.AddOrUpdateObjects(tableScriptV2, tablesSourceName, new TSqlObjectOptions());
+                provider.UpdateForFileChange(tablesSourceName, deleted: false);
+
+                // After update: both views should now expose 3 columns including Email.
+                // The lazy wrappers were reset by the BFS in UpdateForFileChange, so the
+                // next access triggers FetchFromModel and re-reads from the updated model.
+                Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View1")?.Columns.Count(),
+                    "View1 (direct dependent) should expose 3 columns after table update");
+                Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count(),
+                    "View2 (chained dependent via View1) should expose 3 columns after table update");
             }
             finally
             {
