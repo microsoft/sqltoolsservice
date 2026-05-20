@@ -742,6 +742,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return;
                 }
                 await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
+
+                // After the model update, re-run diagnostics on ALL open project files
+                // (including the saved file itself). This is necessary because:
+                // - The saved file's diagnostics may have been computed before the model update
+                //   (triggered by didChange), so its squiggles reflect stale _duplicates state.
+                // - Sibling files need refreshing too so their squiggles clear/appear immediately.
+                if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                {
+                    var savedFile = CurrentWorkspace.GetFile(uri);
+                    var siblingUris = SqlProjectsService.Instance.GetSiblingProjectFileUris(projectUri, uri);
+                    var filesToRefresh = siblingUris
+                        .Select(u => CurrentWorkspace.GetFile(u))
+                        .Where(f => f != null)
+                        .ToList();
+                    if (savedFile != null)
+                        filesToRefresh.Insert(0, savedFile);
+                    if (filesToRefresh.Count > 0)
+                        await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
+                }
             }
             catch (Exception ex)
             {
@@ -2184,6 +2203,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Returns true if the error message matches the SqlParser "already exists" bind error:
+        ///   "There is already an object named 'Foo' in the database."
+        /// </summary>
+        private static bool IsAlreadyExistsError(string message)
+            => message != null && message.IndexOf("already an object named '", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        /// <summary>
+        /// Extracts the schema-qualified object name directly from the SQL source using the
+        /// error's character offsets (e.g. "[dbo].[Table1]" → "dbo.Table1").
+        /// Falls back to null if the offsets are out of range.
+        /// </summary>
+        private static string ExtractQualifiedNameFromError(ErrorBase error, string scriptSql)
+        {
+            if (scriptSql == null || error.Start.Offset < 0) return null;
+            int start = error.Start.Offset;
+            int end = error.End.Offset + 1; // End offset is inclusive
+            if (end > scriptSql.Length || end <= start) return null;
+            // Strip SQL brackets and whitespace: "[dbo].[Table1]" → "dbo.Table1", "Foo" stays "Foo"
+            return scriptSql.Substring(start, end - start)
+                            .Replace("[", "")
+                            .Replace("]", "")
+                            .Trim();
+        }
+
+        private static ScriptFileMarker CreateMarkerFromError(ErrorBase error, string filePath)
+            => new ScriptFileMarker()
+            {
+                Message = error.Message,
+                Level = ScriptFileMarkerLevel.Error,
+                ScriptRegion = new ScriptRegion()
+                {
+                    File = filePath,
+                    StartLineNumber = error.Start.LineNumber,
+                    StartColumnNumber = error.Start.ColumnNumber,
+                    StartOffset = 0,
+                    EndLineNumber = error.End.LineNumber,
+                    EndColumnNumber = error.End.ColumnNumber,
+                    EndOffset = 0
+                }
+            };
+
+        /// <summary>
         /// Gets a list of semantic diagnostic marks for the provided script file
         /// </summary>
         /// <param name="scriptFile"></param>
@@ -2197,13 +2258,50 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
 
-            // For project files, suppress binding diagnostics: the binder sees DDL objects as
-            // duplicates because they are already loaded into the metadata model, producing false
-            // "already exists" errors. Project-level validation belongs to a build step.
+            // For project files the binder fires spurious "already exists" bind errors because
+            // every DDL object in the edited file is also pre-loaded into the TSqlModel (own-
+            // reflection false positive).  Strategy:
+            //   • Non-bind errors (syntax / parse) → always surface.
+            //   • Bind errors → only surface when the referenced name is genuinely duplicated
+            //     across 2 or more distinct (SourceFile, StartLine) entries in the TSqlModel,
+            //     i.e. the same object really is defined more than once in the project.
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (parseInfo?.IsProject == true)
             {
-                return Array.Empty<ScriptFileMarker>();
+                if (parseResult?.Errors == null || !parseResult.Errors.Any())
+                    return Array.Empty<ScriptFileMarker>();
+
+                string contextKey = parseInfo.ConnectionKey;
+                string? projectUri = (contextKey != null && contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                    ? contextKey.Substring(ProjectContextKeyPrefix.Length)
+                    : null;
+
+                var projectMarkers = new List<ScriptFileMarker>();
+                foreach (var error in parseResult.Errors)
+                {
+                    // "already exists" bind errors are false positives for project files:
+                    // the binder sees DDL objects as duplicates because they are pre-loaded
+                    // into the TSqlModel. Only surface them when the object is genuinely
+                    // defined in multiple files.
+                    if (IsAlreadyExistsError(error.Message))
+                    {
+                        // Extract schema-qualified name from the SQL source using the error's
+                        // character offsets: "[dbo].[Table1]" → "dbo.Table1"
+                        string scriptSql = parseResult.Script?.Sql;
+                        string lookupName = ExtractQualifiedNameFromError(error, scriptSql);
+                        // Suppress only when we can verify this is not a real duplicate.
+                        // If lookupName is null/empty or project state is unavailable, keep the
+                        // diagnostic rather than risking suppression of a real error.
+                        if (projectUri != null
+                            && SqlProjectsService.Instance.TryIsDuplicate(projectUri, lookupName, out bool isDuplicate)
+                            && !isDuplicate)
+                        {
+                            continue;
+                        }
+                    }
+                    projectMarkers.Add(CreateMarkerFromError(error, scriptFile.FilePath));
+                }
+                return projectMarkers.ToArray();
             }
 
             // build a list of SQL script file markers from the errors
@@ -2212,21 +2310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 foreach (var error in parseResult.Errors)
                 {
-                    markers.Add(new ScriptFileMarker()
-                    {
-                        Message = error.Message,
-                        Level = ScriptFileMarkerLevel.Error,
-                        ScriptRegion = new ScriptRegion()
-                        {
-                            File = scriptFile.FilePath,
-                            StartLineNumber = error.Start.LineNumber,
-                            StartColumnNumber = error.Start.ColumnNumber,
-                            StartOffset = 0,
-                            EndLineNumber = error.End.LineNumber,
-                            EndColumnNumber = error.End.ColumnNumber,
-                            EndOffset = 0
-                        }
-                    });
+                    markers.Add(CreateMarkerFromError(error, scriptFile.FilePath));
                 }
             }
 

@@ -106,5 +106,98 @@ END
                 ProjectUtils.DeleteTestProject(projectPath);
             }
         }
+
+        /// <summary>
+        /// When two .sql files in a project both define the same object (e.g. dbo.Foo),
+        /// IsDuplicate should return true at construction time.
+        /// When one of the files is updated to remove the definition, IsDuplicate should return false.
+        /// </summary>
+        [Test]
+        public void IsDuplicate_ReturnsTrueForObjectDefinedInTwoFiles_AndFalseAfterOneRemoved()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            const string fileA = "Tables\\FooA.sql";
+            const string fileB = "Tables\\FooB.sql";
+            const string tableScript = "CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);";
+            const string unrelatedScript = "CREATE TABLE dbo.Bar (Id INT PRIMARY KEY);";
+
+            project.SqlObjectScripts.Add(new SqlObjectScript(fileA), tableScript);
+            project.SqlObjectScripts.Add(new SqlObjectScript(fileB), tableScript);   // same object, second file
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+
+                // Both files define dbo.Foo → should be a duplicate.
+                Assert.IsTrue(provider.IsDuplicate("dbo.Foo"),
+                    "dbo.Foo is defined in two files and should be reported as duplicate");
+
+                // Bare name fallback: binder may emit just 'Foo' when DDL has no schema qualifier.
+                Assert.IsTrue(provider.IsDuplicate("Foo"),
+                    "Bare name 'Foo' should resolve to dbo.Foo and still be reported as duplicate");
+
+                // dbo.Bar is only in one file → not a duplicate.
+                Assert.IsFalse(provider.IsDuplicate("dbo.Bar"),
+                    "dbo.Bar is defined in only one file and should not be a duplicate");
+
+                // Simulate saving fileB so it no longer defines dbo.Foo (replaced with unrelated content).
+                string sourceNameB = Path.Combine(project.DirectoryPath, fileB.Replace('\\', Path.DirectorySeparatorChar));
+                model.AddOrUpdateObjects(unrelatedScript, sourceNameB, new TSqlObjectOptions());
+                provider.UpdateForFileChange(sourceNameB, deleted: false);
+
+                // After the update, dbo.Foo is only in fileA → no longer a duplicate.
+                Assert.IsFalse(provider.IsDuplicate("dbo.Foo"),
+                    "After removing dbo.Foo from fileB, it is in only one file and must not be a duplicate");
+                Assert.IsFalse(provider.IsDuplicate("Foo"),
+                    "Bare name 'Foo' must also be non-duplicate after the update");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// When a single .sql file defines the same object twice,
+        /// IsDuplicate should still report the object as duplicated.
+        /// </summary>
+        [Test]
+        public void IsDuplicate_ReturnsTrueForObjectDefinedTwiceInSameFile()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            const string fileA = "Tables\\Foo.sql";
+            const string duplicateInSingleFileScript = @"
+CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);
+GO
+CREATE TABLE dbo.Foo (Id INT PRIMARY KEY);
+";
+
+            project.SqlObjectScripts.Add(new SqlObjectScript(fileA), duplicateInSingleFileScript);
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+
+                Assert.IsTrue(provider.IsDuplicate("dbo.Foo"),
+                    "dbo.Foo is defined twice in one file and should be reported as duplicate");
+
+                Assert.IsTrue(provider.IsDuplicate("Foo"),
+                    "Bare name 'Foo' should resolve to dbo.Foo and be reported as duplicate");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
     }
 }

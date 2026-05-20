@@ -540,6 +540,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
         }
 
+        /// <summary>
+        /// Attempts to determine whether <paramref name="name"/> (e.g. "dbo.Foo") is defined
+        /// in two or more source files in this project.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> when duplicate status could be determined from current IntelliSense state;
+        /// otherwise <c>false</c> (unknown / no state).
+        /// </returns>
+        internal bool TryIsDuplicate(string projectUri, string name, out bool isDuplicate)
+        {
+            isDuplicate = false;
+            if (!projectIntelliSense.TryGetValue(projectUri, out var state)
+                || string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+
+            isDuplicate = state.Provider.IsDuplicate(name);
+            return true;
+        }
+
+        /// <summary>
+        /// Returns a snapshot of all file URIs registered for the given project, excluding <paramref name="excludeUri"/>.
+        /// Used to re-trigger diagnostics on sibling files after a save updates <c>_duplicates</c>.
+        /// </summary>
+        internal IReadOnlyList<string> GetSiblingProjectFileUris(string projectUri, string excludeUri)
+        {
+            if (!projectIntelliSense.TryGetValue(projectUri, out var state))
+                return Array.Empty<string>();
+            lock (state.FileUris)
+            {
+                return state.FileUris
+                    .Where(u => !string.Equals(u, excludeUri, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+        }
+
         private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
         {
             // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
