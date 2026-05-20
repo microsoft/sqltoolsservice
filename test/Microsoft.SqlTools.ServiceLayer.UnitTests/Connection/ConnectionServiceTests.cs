@@ -606,6 +606,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
             new object[] {"AuthenticationType", "ActiveDirectoryDefault", "Authentication=ActiveDirectoryDefault" },
+            new object[] {"AuthenticationType", "ActiveDirectoryServicePrincipal", "Authentication=ActiveDirectoryServicePrincipal" },
             new object[] {"Encrypt", "Mandatory", "Encrypt"},
             new object[] {"Encrypt", "Optional", "Encrypt"},
             new object[] {"Encrypt", "Strict", "Encrypt"},
@@ -680,6 +681,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryDefault));
             Assert.That(builder.UserID, Is.Empty);
             Assert.That(builder.Password, Is.Empty);
+        }
+
+        [Test]
+        public void ActiveDirectoryServicePrincipalPassesClientIdAndSecret()
+        {
+            string connectionString = ConnectionService.BuildConnectionString(new ConnectionDetails()
+            {
+                ServerName = "my-server",
+                DatabaseName = "test",
+                AuthenticationType = ActiveDirectoryServicePrincipal,
+                UserName = "11111111-2222-3333-4444-555555555555",
+                Password = "super-secret"
+            });
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            Assert.That(builder.Authentication, Is.EqualTo(SqlAuthenticationMethod.ActiveDirectoryServicePrincipal));
+            Assert.That(builder.UserID, Is.EqualTo("11111111-2222-3333-4444-555555555555"));
+            Assert.That(builder.Password, Is.EqualTo("super-secret"));
         }
 
         private static readonly object[] optionalEnclaveParameters =
@@ -1895,6 +1915,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryDefault;";
             details = service.ParseConnectionString(connectionString);
             Assert.That(details.AuthenticationType, Is.EqualTo("ActiveDirectoryDefault"));
+
+            connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryServicePrincipal;User Id=11111111-2222-3333-4444-555555555555;Password=super-secret;";
+            details = service.ParseConnectionString(connectionString);
+            Assert.That(details.AuthenticationType, Is.EqualTo("ActiveDirectoryServicePrincipal"));
 
             // Invalid throws
             connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=InvalidAuthType;";
