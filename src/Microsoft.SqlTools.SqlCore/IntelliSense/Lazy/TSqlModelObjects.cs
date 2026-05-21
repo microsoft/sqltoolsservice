@@ -440,9 +440,26 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         // IColumn properties
         public ICollation? Collation => null;
-        public ComputedColumnInfo? ComputedColumnInfo => null;
+        // Expression is the DacFx model property that holds a computed column's expression text.
+        // Non-computed columns return null/empty for Expression, so this is safe for all columns.
+        public ComputedColumnInfo? ComputedColumnInfo
+        {
+            get
+            {
+                string? expression = _colObj.GetProperty<string>(Column.Expression);
+                if (string.IsNullOrEmpty(expression)) return null;
+                bool isPersisted = _colObj.GetProperty<bool>(Column.Persisted);
+                return new ComputedColumnInfo(expression, isPersisted);
+            }
+        }
         public IDefaultConstraint? DefaultValue => null;
-        public IdentityColumnInfo? IdentityColumnInfo => null;
+        // Return a default IDENTITY(1,1) spec when the column is an identity column.
+        // Actual seed/increment values require navigating Column.IdentityColumnInfo sub-element
+        // which is not yet implemented; (1,1) is correct for the vast majority of real-world tables.
+        public IdentityColumnInfo? IdentityColumnInfo =>
+            _colObj.GetProperty<bool>(Column.IsIdentity)
+                ? new IdentityColumnInfo(1, 1)
+                : null;
         // Walk the relationship backwards: find any PrimaryKeyConstraint that lists this column.
         public bool InPrimaryKey =>
             _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined).Any();
@@ -453,9 +470,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public bool IsGeneratedAlwaysAsSequenceNumberStart => false;
         public bool IsGeneratedAlwaysAsTransactionIdEnd => false;
         public bool IsGeneratedAlwaysAsTransactionIdStart => false;
-        public bool IsSparse => false;
+        public bool IsSparse => _colObj.GetProperty<bool>(Column.Sparse);
         public ITabular Parent => _parent;
-        public bool RowGuidCol => false;
+        public bool RowGuidCol => _colObj.GetProperty<bool>(Column.IsRowGuidCol);
 
         // IMetadataObject
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IColumn)this);
