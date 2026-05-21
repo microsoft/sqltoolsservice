@@ -224,7 +224,6 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             // functions, and procedures (potentially chained across multiple levels) and
             // reset their lazy wrappers so cached metadata is re-fetched on next access.
             // All state is method-local; nothing is stored globally.
-            var dependentQualNames = new List<string>();
             if (bfsSeeds.Count > 0)
             {
                 // Pre-seed visited with the changed file's own objects so we never re-reset
@@ -247,7 +246,6 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                         if (TryGetSqlObjectType(dep.ObjectType, out SqlObjectType depType))
                             db.GetSchema(dep.Name.Parts[0])?.ResetObject(dep.Name.Parts[1], depType);
 
-                        dependentQualNames.Add(depQn);
                         bfsQueue.Enqueue(dep);
                     }
                 }
@@ -287,11 +285,6 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 // Apply new source locations and occurrence counts gathered in Step 1 — no second model scan.
                 foreach (var kv in newSourceLocations)
                     _sourceLocations[kv.Key] = kv.Value;
-
-                // Evict transitive dependents from _sourceLocations so Go-to-Def re-evaluates
-                // them when their own files are next saved (lazy re-population).
-                foreach (string depQn in dependentQualNames)
-                    _sourceLocations.Remove(depQn);
 
                 foreach (var kv in newCounts)
                 {

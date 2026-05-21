@@ -247,9 +247,9 @@ SELECT * FROM [sss].[View1];";
                 Assert.IsNotNull(sssSchema, "Schema 'sss' should exist");
 
                 // Before update: each view should expose exactly 2 columns (Id, Name).
-                Assert.AreEqual(2, sssSchema!.Views.FirstOrDefault(v => v.Name == "View1")?.Columns.Count(),
+                Assert.AreEqual(2, sssSchema!.Views.FirstOrDefault(v => v.Name == "View1")?.Columns.Count,
                     "View1 should have 2 columns before table update");
-                Assert.AreEqual(2, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count(),
+                Assert.AreEqual(2, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count,
                     "View2 should have 2 columns before table update");
 
                 // Add the Email column to FileTable1 and push the update into the model.
@@ -267,9 +267,9 @@ CREATE TABLE [sss].[FileTable1] (
                 // After update: both views should now expose 3 columns including Email.
                 // The lazy wrappers were reset by the BFS in UpdateForFileChange, so the
                 // next access triggers FetchFromModel and re-reads from the updated model.
-                Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View1")?.Columns.Count(),
+                Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View1")?.Columns.Count,
                     "View1 (direct dependent) should expose 3 columns after table update");
-                Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count(),
+                Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count,
                     "View2 (chained dependent via View1) should expose 3 columns after table update");
             }
             finally
