@@ -412,8 +412,26 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             {
                 TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType).FirstOrDefault();
                 if (typeObj == null) return null;
-                string typeName = typeObj.Name.Parts[typeObj.Name.Parts.Count - 1];
-                return new TSqlModelNamedDataType(typeName);
+
+                // Primary: use the last Name part (e.g. "nvarchar", "int")
+                string typeName = string.Empty;
+                if (typeObj.Name?.Parts?.Count > 0)
+                    typeName = typeObj.Name.Parts[typeObj.Name.Parts.Count - 1];
+
+                // Fallback: read the SqlDataType enum which is always populated for built-in types.
+                // This handles cases where Name.Parts is empty or holds a non-useful value (e.g. for
+                // view-derived columns whose DataType object doesn't carry a resolvable identifier).
+                // Use fully-qualified names to avoid ambiguity with IScalarDataType.DataType (this
+                // property's name) and with Microsoft.SqlServer.Management.SqlParser.Metadata.SqlDataType.
+                if (string.IsNullOrEmpty(typeName))
+                {
+                    var sqlDt = typeObj.GetProperty<Microsoft.SqlServer.Dac.Model.SqlDataType>(
+                        Microsoft.SqlServer.Dac.Model.DataType.SqlDataType);
+                    if (sqlDt != Microsoft.SqlServer.Dac.Model.SqlDataType.Unknown)
+                        typeName = sqlDt.ToString().ToLowerInvariant();
+                }
+
+                return string.IsNullOrEmpty(typeName) ? null : new TSqlModelNamedDataType(typeName);
             }
         }
 
@@ -422,10 +440,29 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         // IColumn properties
         public ICollation? Collation => null;
-        public ComputedColumnInfo? ComputedColumnInfo => null;
+        // Expression is the DacFx model property that holds a computed column's expression text.
+        // Non-computed columns return null/empty for Expression, so this is safe for all columns.
+        public ComputedColumnInfo? ComputedColumnInfo
+        {
+            get
+            {
+                string? expression = _colObj.GetProperty<string>(Column.Expression);
+                if (string.IsNullOrEmpty(expression)) return null;
+                bool isPersisted = _colObj.GetProperty<bool>(Column.Persisted);
+                return new ComputedColumnInfo(expression, isPersisted);
+            }
+        }
         public IDefaultConstraint? DefaultValue => null;
-        public IdentityColumnInfo? IdentityColumnInfo => null;
-        public bool InPrimaryKey => false;
+        // Return a default IDENTITY(1,1) spec when the column is an identity column.
+        // Actual seed/increment values require navigating Column.IdentityColumnInfo sub-element
+        // which is not yet implemented; (1,1) is correct for the vast majority of real-world tables.
+        public IdentityColumnInfo? IdentityColumnInfo =>
+            _colObj.GetProperty<bool>(Column.IsIdentity)
+                ? new IdentityColumnInfo(1, 1)
+                : null;
+        // Walk the relationship backwards: find any PrimaryKeyConstraint that lists this column.
+        public bool InPrimaryKey =>
+            _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined).Any();
         public bool IsColumnSet => false;
         public bool IsGeneratedAlwaysAsRowEnd => false;
         public bool IsGeneratedAlwaysAsRowStart => false;
@@ -433,9 +470,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public bool IsGeneratedAlwaysAsSequenceNumberStart => false;
         public bool IsGeneratedAlwaysAsTransactionIdEnd => false;
         public bool IsGeneratedAlwaysAsTransactionIdStart => false;
-        public bool IsSparse => false;
+        public bool IsSparse => _colObj.GetProperty<bool>(Column.Sparse);
         public ITabular Parent => _parent;
-        public bool RowGuidCol => false;
+        public bool RowGuidCol => _colObj.GetProperty<bool>(Column.IsRowGuidCol);
 
         // IMetadataObject
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IColumn)this);

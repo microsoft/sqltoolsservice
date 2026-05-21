@@ -173,6 +173,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             // qualName → occurrence count in this file (for duplicate detection)
             var newCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
+            // Seeds for the dependency-invalidation BFS in Step 2b (populated only for non-deleted updates).
+            var bfsSeeds = new List<TSqlObject>();
+
             if (deleted)
             {
                 newSet = new HashSet<QualifiedSqlObject>();
@@ -194,7 +197,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     newCounts[qualName] = c + 1;
 
                     if (obj.Name.Parts.Count >= 2 && TryGetSqlObjectType(obj.ObjectType, out SqlObjectType sqlType))
+                    {
                         newSet.Add(new QualifiedSqlObject(obj.Name.Parts[0], obj.Name.Parts[1], sqlType));
+                        bfsSeeds.Add(obj);
+                    }
                 }
             }
 
@@ -212,6 +218,38 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             foreach (QualifiedSqlObject q in newSet)
                 if (oldSet.Contains(q))
                     db.GetSchema(q.SchemaName)?.ResetObject(q.ObjectName, q.ObjectType);
+
+            // ── Step 2b: BFS-invalidate transitive dependents of updated objects ───────
+            // Walk GetReferencing() from every updated object to find all dependent views,
+            // functions, and procedures (potentially chained across multiple levels) and
+            // reset their lazy wrappers so cached metadata is re-fetched on next access.
+            // All state is method-local; nothing is stored globally.
+            if (bfsSeeds.Count > 0)
+            {
+                // Pre-seed visited with the changed file's own objects so we never re-reset
+                // them here (they were already handled in Step 2 above).
+                var visitedQualNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (QualifiedSqlObject q in newSet)
+                    visitedQualNames.Add(q.SchemaName + "." + q.ObjectName);
+
+                var bfsQueue = new Queue<TSqlObject>(bfsSeeds);
+                while (bfsQueue.Count > 0)
+                {
+                    TSqlObject current = bfsQueue.Dequeue();
+                    foreach (TSqlObject dep in current.GetReferencing(DacQueryScopes.UserDefined))
+                    {
+                        if (dep.Name?.Parts == null || dep.Name.Parts.Count < 2) continue;
+                        string depQn = dep.Name.Parts[0] + "." + dep.Name.Parts[1];
+                        if (!visitedQualNames.Add(depQn)) continue;  // already processed → skip
+
+                        // Clear cached columns/params so the next IntelliSense request re-fetches.
+                        if (TryGetSqlObjectType(dep.ObjectType, out SqlObjectType depType))
+                            db.GetSchema(dep.Name.Parts[0])?.ResetObject(dep.Name.Parts[1], depType);
+
+                        bfsQueue.Enqueue(dep);
+                    }
+                }
+            }
 
             // ── Step 3: Patch _sourceLocations and _duplicates under one lock ──────────
             lock (_sourceLock)
