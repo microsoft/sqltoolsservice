@@ -412,8 +412,26 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             {
                 TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType).FirstOrDefault();
                 if (typeObj == null) return null;
-                string typeName = typeObj.Name.Parts[typeObj.Name.Parts.Count - 1];
-                return new TSqlModelNamedDataType(typeName);
+
+                // Primary: use the last Name part (e.g. "nvarchar", "int")
+                string typeName = string.Empty;
+                if (typeObj.Name?.Parts?.Count > 0)
+                    typeName = typeObj.Name.Parts[typeObj.Name.Parts.Count - 1];
+
+                // Fallback: read the SqlDataType enum which is always populated for built-in types.
+                // This handles cases where Name.Parts is empty or holds a non-useful value (e.g. for
+                // view-derived columns whose DataType object doesn't carry a resolvable identifier).
+                // Use fully-qualified names to avoid ambiguity with IScalarDataType.DataType (this
+                // property's name) and with Microsoft.SqlServer.Management.SqlParser.Metadata.SqlDataType.
+                if (string.IsNullOrEmpty(typeName))
+                {
+                    var sqlDt = typeObj.GetProperty<Microsoft.SqlServer.Dac.Model.SqlDataType>(
+                        Microsoft.SqlServer.Dac.Model.DataType.SqlDataType);
+                    if (sqlDt != Microsoft.SqlServer.Dac.Model.SqlDataType.Unknown)
+                        typeName = sqlDt.ToString().ToLowerInvariant();
+                }
+
+                return string.IsNullOrEmpty(typeName) ? null : new TSqlModelNamedDataType(typeName);
             }
         }
 
@@ -425,7 +443,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public ComputedColumnInfo? ComputedColumnInfo => null;
         public IDefaultConstraint? DefaultValue => null;
         public IdentityColumnInfo? IdentityColumnInfo => null;
-        public bool InPrimaryKey => false;
+        // Walk the relationship backwards: find any PrimaryKeyConstraint that lists this column.
+        public bool InPrimaryKey =>
+            _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined).Any();
         public bool IsColumnSet => false;
         public bool IsGeneratedAlwaysAsRowEnd => false;
         public bool IsGeneratedAlwaysAsRowStart => false;
