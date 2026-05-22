@@ -5,6 +5,8 @@
 
 #nullable enable
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
@@ -53,6 +55,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     {
         private readonly TSqlObject _tableObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
+        private IMetadataCollection<IConstraint>? _constraints;
+        private IMetadataCollection<IIndex>? _indexes;
 
         public TSqlModelTable(TSqlModelSchema schema, TSqlObject tableObj, bool isUserDefined)
             : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1], isUserDefined)
@@ -72,8 +76,39 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         // IDatabaseTable
         public CollationInfo CollationInfo => CollationInfo.Default;
-        public IMetadataCollection<IConstraint> Constraints => LazyCollection<IConstraint>.Empty;
-        public IMetadataCollection<IIndex> Indexes => LazyCollection<IIndex>.Empty;
+
+        // Lazy constraints — PK and UK constraints loaded on first access
+        public IMetadataCollection<IConstraint> Constraints =>
+            _constraints ??= new LazyCollection<IConstraint>(
+                () => _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                               .Select(c => (IConstraint)new TSqlModelPrimaryKeyConstraint(this, c))
+                               .Concat(
+                                   _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                                            .Select(c => (IConstraint)new TSqlModelUniqueConstraint(this, c))));
+
+        // Lazy indexes — binder uses Indexes (not Constraints) for FK key validation
+        public IMetadataCollection<IIndex> Indexes =>
+            _indexes ??= new LazyCollection<IIndex>(
+                () => _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                               .Select(c => (IIndex)new TSqlModelRelationalIndex(
+                                   this,
+                                   () => c.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                                          .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(this, col), i)),
+                                   () => c.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                                          .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(this, col))),
+                                   ConstraintType.PrimaryKey,
+                                   c.GetProperty<bool>(PrimaryKeyConstraint.Clustered)))
+                               .Concat(
+                                   _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                                            .Select(c => (IIndex)new TSqlModelRelationalIndex(
+                                                this,
+                                                () => c.GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                                                       .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(this, col), i)),
+                                                () => c.GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                                                       .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(this, col))),
+                                                ConstraintType.Unique,
+                                                c.GetProperty<bool>(UniqueConstraint.Clustered)))));
+
         public IMetadataCollection<IStatistics> Statistics => LazyCollection<IStatistics>.Empty;
 
         // ITableViewBase
@@ -510,5 +545,198 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IScalarDataType? AsScalarDataType => this;
         public ITableDataType?  AsTableDataType  => null;
         public IUserDefinedType? AsUserDefinedType => null;
+    }
+
+    // =========================================================================
+    // TSqlModelOrderedColumn : IOrderedColumn
+    // Wraps a column reference with its ordinal position in a constraint.
+    // =========================================================================
+    internal sealed class TSqlModelOrderedColumn : IOrderedColumn
+    {
+        private readonly IColumn _column;
+        private readonly int _ordinal;
+
+        public TSqlModelOrderedColumn(IColumn column, int ordinal)
+        {
+            _column  = column;
+            _ordinal = ordinal;
+        }
+
+        public string Name                 => _column.Name;
+        public IColumn ReferencedColumn    => _column;
+        public int OrderOrdinal            => _ordinal;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
+    }
+
+    // =========================================================================
+    // TSqlModelRelationalIndex : IRelationalIndex
+    // Index wrapper for PK/UK constraints. Populates IndexedColumns and IndexKey
+    // so the binder can resolve FK references against the correct key.
+    // =========================================================================
+    internal sealed class TSqlModelRelationalIndex : IRelationalIndex
+    {
+        private readonly ITabular _parent;
+        private readonly Func<IEnumerable<IOrderedColumn>> _columnFactory;
+        private readonly Func<IEnumerable<IIndexedColumn>>? _indexedColumnFactory;
+        private readonly IUniqueConstraintBase _indexKeyRef;
+        private readonly bool _isClustered;
+        private IMetadataOrderedCollection<IOrderedColumn>? _orderedColumns;
+        private IMetadataOrderedCollection<IIndexedColumn>? _indexedColumns;
+
+        public TSqlModelRelationalIndex(
+            ITabular parent,
+            Func<IEnumerable<IOrderedColumn>> columnFactory,
+            Func<IEnumerable<IIndexedColumn>>? indexedColumnFactory,
+            ConstraintType constraintType,
+            bool isClustered)
+        {
+            _parent               = parent;
+            _columnFactory        = columnFactory;
+            _indexedColumnFactory = indexedColumnFactory;
+            _indexKeyRef          = new MinimalConstraintKey(parent, this, constraintType);
+            _isClustered          = isClustered;
+        }
+
+        // IMetadataObject
+        public string Name => string.Empty;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
+
+        // IIndex
+        public ITabular Parent        => _parent;
+        public IndexType Type         => IndexType.Relational;
+        public bool DisallowPageLocks => false;
+        public bool DisallowRowLocks  => false;
+        public byte FillFactor        => 0;
+        public bool IgnoreDuplicateKeys => false;
+        public bool IsDisabled        => false;
+        public bool PadIndex          => false;
+
+        // IRelationalIndex
+        public bool CompactLargeObjects       => false;
+        public IFileGroup FileGroup           => null!;
+        public IFileGroup FileStreamFileGroup => null!;
+        public IPartitionScheme FileStreamPartitionScheme => null!;
+        public string FilterDefinition        => string.Empty;
+
+        public IMetadataOrderedCollection<IIndexedColumn> IndexedColumns =>
+            _indexedColumns ??= _indexedColumnFactory != null
+                ? new LazyOrderedCollection<IIndexedColumn>(_indexedColumnFactory)
+                : LazyOrderedCollection<IIndexedColumn>.Empty;
+
+        public IUniqueConstraintBase IndexKey => _indexKeyRef;
+        public bool IsClustered    => _isClustered;
+        public bool IsSystemNamed  => false;
+        public bool IsUnique       => true;
+        public bool NoAutomaticRecomputation => false;
+        public IPartitionScheme PartitionScheme => null!;
+
+        public IMetadataOrderedCollection<IOrderedColumn> OrderedColumns =>
+            _orderedColumns ??= new LazyOrderedCollection<IOrderedColumn>(_columnFactory);
+
+        private sealed class MinimalConstraintKey : IUniqueConstraintBase
+        {
+            private readonly ITabular _parent;
+            private readonly IRelationalIndex _index;
+            private readonly ConstraintType _type;
+
+            internal MinimalConstraintKey(ITabular parent, IRelationalIndex index, ConstraintType type)
+            {
+                _parent = parent;
+                _index  = index;
+                _type   = type;
+            }
+
+            public string Name              => string.Empty;
+            public ITabular Parent          => _parent;
+            public bool IsSystemNamed       => false;
+            public ConstraintType Type      => _type;
+            public IRelationalIndex AssociatedIndex => _index;
+            // IMetadataObjectVisitor has no Visit(IUniqueConstraintBase) overload — return default
+            // rather than throwing so consumers that call Accept on this object don't crash.
+            public T Accept<T>(IMetadataObjectVisitor<T> visitor) => default!;
+        }
+    }
+
+    // =========================================================================
+    // TSqlModelIndexedColumn : IIndexedColumn
+    // Key column in an index; IsIncluded=false marks it as a key (not included) column.
+    // =========================================================================
+    internal sealed class TSqlModelIndexedColumn : IIndexedColumn
+    {
+        private readonly IColumn _column;
+        internal TSqlModelIndexedColumn(IColumn column) { _column = column; }
+        public string Name             => _column.Name;
+        public IColumn ReferencedColumn => _column;
+        public SortOrder SortOrder     => SortOrder.Ascending;
+        public bool IsIncluded         => false;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
+    }
+
+    // =========================================================================
+    // TSqlModelPrimaryKeyConstraint : IPrimaryKeyConstraint
+    // =========================================================================
+    internal sealed class TSqlModelPrimaryKeyConstraint : IPrimaryKeyConstraint
+    {
+        private readonly ITabular _parent;
+        private readonly string _name;
+        private readonly IRelationalIndex _associatedIndex;
+
+        public TSqlModelPrimaryKeyConstraint(ITabular parent, TSqlObject constraintObj)
+        {
+            _parent = parent;
+            _name   = constraintObj.Name.Parts[constraintObj.Name.Parts.Count - 1];
+            bool isClustered = constraintObj.GetProperty<bool>(PrimaryKeyConstraint.Clustered);
+            _associatedIndex = new TSqlModelRelationalIndex(
+                parent,
+                () => constraintObj
+                    .GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, c), i)),
+                () => constraintObj
+                    .GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                    .Select(c => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, c))),
+                ConstraintType.PrimaryKey,
+                isClustered);
+        }
+
+        public string Name => _name;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IPrimaryKeyConstraint)this);
+        public ITabular Parent         => _parent;
+        public bool IsSystemNamed      => false;
+        public ConstraintType Type     => ConstraintType.PrimaryKey;
+        public IRelationalIndex AssociatedIndex => _associatedIndex;
+    }
+
+    // =========================================================================
+    // TSqlModelUniqueConstraint : IUniqueConstraint
+    // =========================================================================
+    internal sealed class TSqlModelUniqueConstraint : IUniqueConstraint
+    {
+        private readonly ITabular _parent;
+        private readonly string _name;
+        private readonly IRelationalIndex _associatedIndex;
+
+        public TSqlModelUniqueConstraint(ITabular parent, TSqlObject constraintObj)
+        {
+            _parent = parent;
+            _name   = constraintObj.Name.Parts[constraintObj.Name.Parts.Count - 1];
+            bool isClustered = constraintObj.GetProperty<bool>(UniqueConstraint.Clustered);
+            _associatedIndex = new TSqlModelRelationalIndex(
+                parent,
+                () => constraintObj
+                    .GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, c), i)),
+                () => constraintObj
+                    .GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                    .Select(c => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, c))),
+                ConstraintType.Unique,
+                isClustered);
+        }
+
+        public string Name => _name;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IUniqueConstraint)this);
+        public ITabular Parent         => _parent;
+        public bool IsSystemNamed      => false;
+        public ConstraintType Type     => ConstraintType.Unique;
+        public IRelationalIndex AssociatedIndex => _associatedIndex;
     }
 }
