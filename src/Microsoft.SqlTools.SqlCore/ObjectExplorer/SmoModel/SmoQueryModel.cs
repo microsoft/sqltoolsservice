@@ -1855,15 +1855,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Logger.Verbose("Begin query BrokerService");
-            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
-            if (parentServiceBroker != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                Logger.Verbose("Parent of type `ServiceBroker` found");
-                var retValue = parentServiceBroker.Services;
+                Logger.Verbose("Parent of type `Database` found");
+                var retValue = parentDatabase.ServiceBroker.Services;
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<BrokerService, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<BrokerService, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query BrokerService");
                     return ret;
                 }
@@ -1882,15 +1882,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Logger.Verbose("Begin query ServiceContract");
-            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
-            if (parentServiceBroker != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                Logger.Verbose("Parent of type `ServiceBroker` found");
-                var retValue = parentServiceBroker.ServiceContracts;
+                Logger.Verbose("Parent of type `Database` found");
+                var retValue = parentDatabase.ServiceBroker.ServiceContracts;
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServiceContract, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<ServiceContract, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ServiceContract");
                     return ret;
                 }
@@ -1909,15 +1909,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Logger.Verbose("Begin query ServiceQueue");
-            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
-            if (parentServiceBroker != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                Logger.Verbose("Parent of type `ServiceBroker` found");
-                var retValue = parentServiceBroker.Queues;
+                Logger.Verbose("Parent of type `Database` found");
+                var retValue = parentDatabase.ServiceBroker.Queues;
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<ServiceQueue, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<ServiceQueue, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query ServiceQueue");
                     return ret;
                 }
@@ -1936,15 +1936,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Logger.Verbose("Begin query RemoteServiceBinding");
-            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
-            if (parentServiceBroker != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                Logger.Verbose("Parent of type `ServiceBroker` found");
-                var retValue = parentServiceBroker.RemoteServiceBindings;
+                Logger.Verbose("Parent of type `Database` found");
+                var retValue = parentDatabase.ServiceBroker.RemoteServiceBindings;
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<RemoteServiceBinding, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<RemoteServiceBinding, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query RemoteServiceBinding");
                     return ret;
                 }
@@ -1963,15 +1963,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Logger.Verbose("Begin query BrokerPriority");
-            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
-            if (parentServiceBroker != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                Logger.Verbose("Parent of type `ServiceBroker` found");
-                var retValue = parentServiceBroker.Priorities;
+                Logger.Verbose("Parent of type `Database` found");
+                var retValue = parentDatabase.ServiceBroker.Priorities;
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<BrokerPriority, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<BrokerPriority, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query BrokerPriority");
                     return ret;
                 }
@@ -1990,15 +1990,15 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Logger.Verbose("Begin query MessageType");
-            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
-            if (parentServiceBroker != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                Logger.Verbose("Parent of type `ServiceBroker` found");
-                var retValue = parentServiceBroker.MessageTypes;
+                Logger.Verbose("Parent of type `Database` found");
+                var retValue = parentDatabase.ServiceBroker.MessageTypes;
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    var ret = new SmoCollectionWrapper<MessageType, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<MessageType, ServiceBroker>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     Logger.Verbose("End query MessageType");
                     return ret;
                 }

@@ -4277,12 +4277,27 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.MessageTypes) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
+                });
+                return filters;
+            }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemMessageTypes,
                 NodeTypeId = NodeTypes.SystemMessageTypes,
-                IsSystemObject = true,
+                IsSystemObject = false,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4312,6 +4327,21 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.SystemMessageTypes) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
         internal override Type[] ChildQuerierTypes
         {
             get
@@ -4336,12 +4366,27 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Contracts) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
+                });
+                return filters;
+            }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemContracts,
                 NodeTypeId = NodeTypes.SystemContracts,
-                IsSystemObject = true,
+                IsSystemObject = false,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4371,6 +4416,21 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.SystemContracts) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
         internal override Type[] ChildQuerierTypes
         {
             get
@@ -4395,12 +4455,27 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Queues) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
+                });
+                return filters;
+            }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemQueues,
                 NodeTypeId = NodeTypes.SystemQueues,
-                IsSystemObject = true,
+                IsSystemObject = false,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4430,6 +4505,21 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.SystemQueues) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
         internal override Type[] ChildQuerierTypes
         {
             get
@@ -4454,12 +4544,27 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Services) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
+                });
+                return filters;
+            }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemServices,
                 NodeTypeId = NodeTypes.SystemServices,
-                IsSystemObject = true,
+                IsSystemObject = false,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4488,6 +4593,21 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
     internal partial class SystemServicesChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.SystemServices) }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
 
         internal override Type[] ChildQuerierTypes
         {

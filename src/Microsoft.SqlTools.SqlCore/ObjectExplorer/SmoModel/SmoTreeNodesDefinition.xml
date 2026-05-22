@@ -524,24 +524,52 @@
   <Node Name="ColumnEncryptionKeys" LocLabel="SR.SchemaHierarchy_ColumnEncryptionKeys" BaseClass="ModelBased" NodeType="ColumnEncryptionKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnEncryptionKey" ValidFor="Sql2016OrHigher|AzureV12"/>
 
   <Node Name="MessageTypes" LocLabel="SR.SchemaHierarchy_MessageTypes" BaseClass="ModelBased" NodeType="MessageType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlMessageType">
-    <Child Name="SystemMessageTypes" IsSystemObject="1"/>
+    <Filters>
+      <Filter Property="IsSystemObject" Value="0" Type="bool" />
+    </Filters>
+    <Child Name="SystemMessageTypes"/>
   </Node>
-  <Node Name="SystemMessageTypes" LocLabel="SR.SchemaHierarchy_SystemMessageTypes" BaseClass="ModelBased" NodeType="SystemMessageType" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlMessageType"/>
+  <Node Name="SystemMessageTypes" LocLabel="SR.SchemaHierarchy_SystemMessageTypes" BaseClass="ModelBased" NodeType="SystemMessageType" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlMessageType">
+    <Filters>
+      <Filter Property="IsSystemObject" Value="1" Type="bool" />
+    </Filters>
+  </Node>
 
   <Node Name="Contracts" LocLabel="SR.SchemaHierarchy_Contracts" BaseClass="ModelBased" NodeType="Contract" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlContract">
-    <Child Name="SystemContracts" IsSystemObject="1"/>
+    <Filters>
+      <Filter Property="IsSystemObject" Value="0" Type="bool" />
+    </Filters>
+    <Child Name="SystemContracts"/>
   </Node>
-  <Node Name="SystemContracts" LocLabel="SR.SchemaHierarchy_SystemContracts" BaseClass="ModelBased" NodeType="SystemContract" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlContract"/>
+  <Node Name="SystemContracts" LocLabel="SR.SchemaHierarchy_SystemContracts" BaseClass="ModelBased" NodeType="SystemContract" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlContract">
+    <Filters>
+      <Filter Property="IsSystemObject" Value="1" Type="bool" />
+    </Filters>
+  </Node>
 
   <Node Name="Queues" LocLabel="SR.SchemaHierarchy_Queues" BaseClass="ModelBased" NodeType="Queue" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlQueue">
-    <Child Name="SystemQueues" IsSystemObject="1"/>
+    <Filters>
+      <Filter Property="IsSystemObject" Value="0" Type="bool" />
+    </Filters>
+    <Child Name="SystemQueues"/>
   </Node>
-  <Node Name="SystemQueues" LocLabel="SR.SchemaHierarchy_SystemQueues" BaseClass="ModelBased" NodeType="SystemQueue" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlQueue"/>
+  <Node Name="SystemQueues" LocLabel="SR.SchemaHierarchy_SystemQueues" BaseClass="ModelBased" NodeType="SystemQueue" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlQueue">
+    <Filters>
+      <Filter Property="IsSystemObject" Value="1" Type="bool" />
+    </Filters>
+  </Node>
 
   <Node Name="Services" LocLabel="SR.SchemaHierarchy_Services" BaseClass="ModelBased" NodeType="Service" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlService">
-    <Child Name="SystemServices" IsSystemObject="1"/>
+    <Filters>
+      <Filter Property="IsSystemObject" Value="0" Type="bool" />
+    </Filters>
+    <Child Name="SystemServices"/>
   </Node>
-  <Node Name="SystemServices" LocLabel="SR.SchemaHierarchy_SystemServices" BaseClass="ModelBased" NodeType="SystemService" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlService"/>
+  <Node Name="SystemServices" LocLabel="SR.SchemaHierarchy_SystemServices" BaseClass="ModelBased" NodeType="SystemService" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlService">
+    <Filters>
+      <Filter Property="IsSystemObject" Value="1" Type="bool" />
+    </Filters>
+  </Node>
 
   <CodeGenOptions>
     <UniqueTreeNode Name="DatabaseTreeNode"/>
