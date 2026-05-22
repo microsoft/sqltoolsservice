@@ -1745,29 +1745,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (string.IsNullOrWhiteSpace(tokenText))
                             return CreateErrorResult(SR.PeekDefinitionNoResultsError);
 
-                        // Step 2: Semantic resolution using SqlParser's Resolver
-                        var declarations = Microsoft.SqlServer.Management.SqlParser.Intellisense.Resolver.FindCompletions(
-                            scriptParseInfo.ParseResult, parserLine, parserColumn, cbc.MetadataDisplayInfoProvider);
+                        Microsoft.SqlServer.Dac.SourceInformation? sourceInfo = null;
 
-                        // Step 3: Match the resolved declaration against the token text at the cursor.
-                        // FindCompletions returns all visible objects at this position; we pick the one
-                        // whose unqualified Title equals the token (e.g. "Orders" matches "dbo.Orders").
-                        var match = declarations?.FirstOrDefault(d =>
-                            string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
-
-                        if (match?.DatabaseQualifiedName == null)
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
-
-                        // Step 4: Get source information from metadata provider.
-                        // Try the full DatabaseQualifiedName first — this handles schemas whose names contain
-                        // dots (e.g. [SwaggerPetstore.Models].[Get0ItemsItem]) where the index key is
-                        // "SwaggerPetstore.Models.Get0ItemsItem". Fall back to stripping the database prefix
-                        // for the normal case (e.g. "ProjectDB.dbo.Orders" → "dbo.Orders").
-                        if (!lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out var sourceInfo) || sourceInfo?.SourceName == null)
+                        // Step 2: Walk backward from tokenIndex to reconstruct schema.object
+                        // and look it up in the source-location index. Works in DDL REFERENCES
+                        // clauses where FindCompletions returns nothing.
+                        string schemaName = GetPrecedingSchemaName(scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
+                        if (schemaName != null)
                         {
-                            string stripped = StripDatabasePrefix(match.DatabaseQualifiedName);
-                            lazyProvider.TryGetSourceInformation(stripped, out sourceInfo);
+                            string qualifiedName = $"{schemaName}.{tokenText}";
+                            if (!lazyProvider.TryGetSourceInformation(qualifiedName, out sourceInfo) || sourceInfo?.SourceName == null)
+                                lazyProvider.TryGetSourceInformation(StripDatabasePrefix(qualifiedName), out sourceInfo);
                         }
+
+                        // Step 3: Fallback — use FindCompletions for unqualified names where
+                        // the token walk can't reconstruct a schema-qualified key.
+                        if (sourceInfo?.SourceName == null)
+                        {
+                            var declarations = Microsoft.SqlServer.Management.SqlParser.Intellisense.Resolver.FindCompletions(
+                                scriptParseInfo.ParseResult, parserLine, parserColumn, cbc.MetadataDisplayInfoProvider);
+                            var match = declarations?.FirstOrDefault(d =>
+                                string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
+                            if (match?.DatabaseQualifiedName != null)
+                            {
+                                if (!lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out sourceInfo) || sourceInfo?.SourceName == null)
+                                    lazyProvider.TryGetSourceInformation(StripDatabasePrefix(match.DatabaseQualifiedName), out sourceInfo);
+                            }
+                        }
+
+                        if (sourceInfo?.SourceName == null)
+                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
                         if (sourceInfo?.SourceName != null)
                         {
                             string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
@@ -1820,6 +1827,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return dot >= 0
                 ? databaseQualifiedName.Substring(dot + 1)
                 : databaseQualifiedName;
+        }
+
+        /// <summary>
+        /// Walks backward from <paramref name="tokenIndex"/> through the token stream and returns
+        /// the schema name if the token is preceded by a dot and an identifier (e.g. [Schema].[Object]).
+        /// Returns null if no schema prefix is present.
+        /// </summary>
+        private static string GetPrecedingSchemaName(TokenManager tokenManager, int tokenIndex)
+        {
+            int prevIdx = tokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
+            if (prevIdx < 0 || tokenManager.GetText(prevIdx) != ".")
+                return null;
+
+            prevIdx = tokenManager.GetPreviousSignificantTokenIndex(prevIdx);
+            if (prevIdx < 0)
+                return null;
+
+            string schemaToken = tokenManager.GetText(prevIdx);
+            return string.IsNullOrEmpty(schemaToken) ? null : schemaToken.Trim('[', ']');
         }
 
         /// <summary>Creates an error DefinitionResult with the specified message.</summary>
