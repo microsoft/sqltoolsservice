@@ -589,6 +589,55 @@ END
                 }
             }
         }
+
+        /// <summary>
+        /// F12 on the referenced table name inside a DDL FOREIGN KEY ... REFERENCES clause must
+        /// resolve to the table's source file, for both plain and bracket-quoted identifiers.
+        ///
+        /// FindCompletions returns nothing in REFERENCES clauses, so the schema-walk path
+        /// (Step 2 in QueueProjectTask / GetPrecedingSchemaPrefix) is the only resolver.
+        ///
+        /// Cursor positions on line 3 (0-based), inside "Customers" / "[Customers]":
+        ///   plain:     "... REFERENCES dbo.Customers(..."   — "Customers" starts at col 75
+        ///   bracketed: "... REFERENCES [dbo].[Customers](..." — "[Customers]" starts at col 77
+        /// </summary>
+        [TestCase(
+            "    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) REFERENCES dbo.Customers(CustomerId)",
+            78,
+            TestName = "GoToDefinition_ForeignKeyReferences_SimpleSchema")]
+        [TestCase(
+            "    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) REFERENCES [dbo].[Customers]([CustomerId])",
+            80,
+            TestName = "GoToDefinition_ForeignKeyReferences_BracketedIdentifiers")]
+        public void GoToDefinition_ForeignKeyReferences_UsesTokenWalk(string constraintLine, int cursorColumn)
+        {
+            string queryContent =
+                "CREATE TABLE dbo.Orders (\n" +
+                "    OrderId INT PRIMARY KEY,\n" +
+                "    CustomerId INT NOT NULL,\n" +
+                constraintLine + "\n" +
+                ");";
+
+            string queryUri = "file:///test_fk_references.sql";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, queryContent);
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+
+            var position = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 3, Character = cursorColumn }
+            };
+
+            DefinitionResult result = _langService.GetDefinition(position, scriptFile, connInfo: null);
+
+            Assert.IsNotNull(result, "Definition result should not be null");
+            Assert.IsFalse(result.IsErrorResult,
+                $"Go-to-definition in REFERENCES clause should succeed. Message: {result.Message}");
+            Assert.IsNotNull(result.Locations, "Locations should not be null");
+            Assert.Greater(result.Locations.Length, 0, "Should find at least one location");
+            Assert.IsTrue(result.Locations[0].Uri.Contains("Customers.sql"),
+                $"Definition should point to Customers.sql. Got: {result.Locations[0].Uri}");
+        }
     }
 
     // ────────────────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using NUnit.Framework;
@@ -271,6 +272,73 @@ CREATE TABLE [sss].[FileTable1] (
                     "View1 (direct dependent) should expose 3 columns after table update");
                 Assert.AreEqual(3, sssSchema.Views.FirstOrDefault(v => v.Name == "View2")?.Columns.Count,
                     "View2 (chained dependent via View1) should expose 3 columns after table update");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that TSqlModelTable.Indexes is populated with IRelationalIndex entries for
+        /// PRIMARY KEY and UNIQUE constraints so the SqlParser binder can validate FOREIGN KEY
+        /// references without firing a false "no primary or candidate keys" error.
+        ///
+        /// Covers SqlForeignKeyConstraint.FindPrimaryKey (checks IndexKey.Type == PrimaryKey)
+        /// and FindReferencedKey (checks IsUnique + IndexedColumns by name).
+        /// </summary>
+        [Test]
+        public void TableIndexes_ExposePrimaryKeyAndUniqueConstraints_ForFkBinderValidation()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            // Orders table: PK on OrderId, UNIQUE on OrderNumber
+            project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), @"
+CREATE TABLE dbo.Orders (
+    OrderId     INT          NOT NULL,
+    OrderNumber NVARCHAR(20) NOT NULL,
+    CONSTRAINT PK_Orders PRIMARY KEY (OrderId),
+    CONSTRAINT UQ_Orders_Number UNIQUE (OrderNumber)
+);");
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+
+                var dbo = provider.Server.Databases.First().Schemas.First(s => s.Name == "dbo");
+                var ordersTable = dbo.Tables.First(t => t.Name == "Orders") as ITable;
+                Assert.IsNotNull(ordersTable, "Orders table should exist");
+
+                var indexes = ordersTable!.Indexes.ToList();
+                Assert.AreEqual(2, indexes.Count, "Should expose 2 indexes (PK + UNIQUE)");
+
+                // FindPrimaryKey: needs IndexKey.Type == PrimaryKey
+                var pkIndex = indexes.OfType<IRelationalIndex>()
+                                     .FirstOrDefault(i => i.IndexKey?.Type == ConstraintType.PrimaryKey);
+                Assert.IsNotNull(pkIndex, "Should have a PrimaryKey index entry for the binder's FindPrimaryKey");
+                Assert.IsTrue(pkIndex!.IsUnique, "PK index must be unique");
+                var pkCols = pkIndex.IndexedColumns.ToList();
+                Assert.AreEqual(1, pkCols.Count, "PK index should have 1 key column");
+                Assert.AreEqual("OrderId", pkCols[0].Name, "PK indexed column name should be OrderId");
+                Assert.IsFalse(pkCols[0].IsIncluded, "PK column must not be an INCLUDE column");
+
+                // FindReferencedKey: needs IsUnique + IndexedColumns matching by name
+                var uqIndex = indexes.OfType<IRelationalIndex>()
+                                     .FirstOrDefault(i => i.IndexKey?.Type == ConstraintType.Unique);
+                Assert.IsNotNull(uqIndex, "Should have a Unique index entry for the binder's FindReferencedKey");
+                Assert.IsTrue(uqIndex!.IsUnique, "UNIQUE index must be unique");
+                var uqCols = uqIndex.IndexedColumns.ToList();
+                Assert.AreEqual(1, uqCols.Count, "UNIQUE index should have 1 key column");
+                Assert.AreEqual("OrderNumber", uqCols[0].Name, "UNIQUE indexed column name should be OrderNumber");
+                Assert.IsFalse(uqCols[0].IsIncluded, "UNIQUE column must not be an INCLUDE column");
+
+                // Name-based lookup — used by FindReferencedKey to match FK columns
+                Assert.IsNotNull(pkIndex.IndexedColumns["OrderId"], "PK IndexedColumns must support name lookup");
+                Assert.IsNotNull(uqIndex.IndexedColumns["OrderNumber"], "UNIQUE IndexedColumns must support name lookup");
             }
             finally
             {

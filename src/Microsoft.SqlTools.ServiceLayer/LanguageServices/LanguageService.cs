@@ -1747,16 +1747,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                         Microsoft.SqlServer.Dac.SourceInformation? sourceInfo = null;
 
-                        // Step 2: Walk backward from tokenIndex to reconstruct schema.object
-                        // and look it up in the source-location index. Works in DDL REFERENCES
-                        // clauses where FindCompletions returns nothing.
-                        string schemaName = GetPrecedingSchemaName(scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
-                        if (schemaName != null)
-                        {
-                            string qualifiedName = $"{schemaName}.{tokenText}";
-                            if (!lazyProvider.TryGetSourceInformation(qualifiedName, out sourceInfo) || sourceInfo?.SourceName == null)
-                                lazyProvider.TryGetSourceInformation(StripDatabasePrefix(qualifiedName), out sourceInfo);
-                        }
+                        // Step 2: Walk backward from tokenIndex to reconstruct the full
+                        // schema-qualified name, including dotted schema names such as
+                        // SwaggerPetstore.Models.TableName where "SwaggerPetstore.Models" is
+                        // the schema. The greedy walk collects all consecutive identifier.
+                        // segments, so both simple (dbo.Table) and dotted-schema names resolve
+                        // correctly. If the first lookup misses we progressively strip leading
+                        // segments to handle database-qualified names (MyDB.dbo.Table →
+                        // dbo.Table). Works in DDL REFERENCES clauses where FindCompletions
+                        // returns nothing.
+                        string schemaPrefix = GetPrecedingSchemaPrefix(scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
+                        if (schemaPrefix != null)
+                            TryGetSourceInfoWithFallback(lazyProvider, $"{schemaPrefix}.{tokenText}", out sourceInfo);
 
                         // Step 3: Fallback — use FindCompletions for unqualified names where
                         // the token walk can't reconstruct a schema-qualified key.
@@ -1767,41 +1769,31 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             var match = declarations?.FirstOrDefault(d =>
                                 string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
                             if (match?.DatabaseQualifiedName != null)
-                            {
-                                if (!lazyProvider.TryGetSourceInformation(match.DatabaseQualifiedName, out sourceInfo) || sourceInfo?.SourceName == null)
-                                    lazyProvider.TryGetSourceInformation(StripDatabasePrefix(match.DatabaseQualifiedName), out sourceInfo);
-                            }
+                                TryGetSourceInfoWithFallback(lazyProvider, match.DatabaseQualifiedName, out sourceInfo);
                         }
 
                         if (sourceInfo?.SourceName == null)
                             return CreateErrorResult(SR.PeekDefinitionNoResultsError);
-                        if (sourceInfo?.SourceName != null)
+
+                        string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
+                        return new DefinitionResult
                         {
-                            string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
-                            return new DefinitionResult
+                            Locations = new[]
                             {
-                                Locations = new[]
+                                new Location
                                 {
-                                    new Location
+                                    Uri = fileUri,
+                                    Range = new Workspace.Contracts.Range
                                     {
-                                        Uri = fileUri,
-                                        Range = new Workspace.Contracts.Range
-                                        {
-                                            // LSP is 0-based; DacFx SourceInformation is 1-based
-                                            Start = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 },
-                                            End   = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 }
-                                        }
+                                        // LSP is 0-based; DacFx SourceInformation is 1-based
+                                        Start = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 },
+                                        End   = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 }
                                     }
                                 }
-                            };
-                        }
+                            }
+                        };
                     }
-                    return new DefinitionResult
-                    {
-                        IsErrorResult = true,
-                        Message = SR.PeekDefinitionNoResultsError,
-                        Locations = null
-                    };
+                    return CreateErrorResult(SR.PeekDefinitionNoResultsError);
                 },
                 timeoutOperation: (_) => new DefinitionResult
                 {
@@ -1820,32 +1812,59 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return queueItem.GetResultAsT<DefinitionResult>();
         }
 
-        /// <summary>Strips the leading database name from a three-part qualified name.</summary>
-        private static string StripDatabasePrefix(string databaseQualifiedName)
+        /// <summary>
+        /// Looks up <paramref name="candidate"/> in <paramref name="provider"/>. On a miss,
+        /// progressively strips the leading dot-delimited segment and retries. This handles
+        /// both database-qualified names (MyDB.dbo.Table → dbo.Table) and dotted-schema names
+        /// (SwaggerPetstore.Models.Table) that are stored verbatim in the index.
+        /// The first successful hit is returned; stripping stops as soon as one is found.
+        /// </summary>
+        private static bool TryGetSourceInfoWithFallback(
+            TSqlModelMetadataProvider provider,
+            string candidate,
+            out Microsoft.SqlServer.Dac.SourceInformation? sourceInfo)
         {
-            int dot = databaseQualifiedName.IndexOf('.');
-            return dot >= 0
-                ? databaseQualifiedName.Substring(dot + 1)
-                : databaseQualifiedName;
+            string current = candidate;
+            while (!string.IsNullOrEmpty(current))
+            {
+                if (provider.TryGetSourceInformation(current, out sourceInfo) && sourceInfo?.SourceName != null)
+                    return true;
+                int dot = current.IndexOf('.');
+                if (dot < 0) break;
+                current = current.Substring(dot + 1);
+            }
+            sourceInfo = null;
+            return false;
         }
 
         /// <summary>
-        /// Walks backward from <paramref name="tokenIndex"/> through the token stream and returns
-        /// the schema name if the token is preceded by a dot and an identifier (e.g. [Schema].[Object]).
-        /// Returns null if no schema prefix is present.
+        /// Walks backward from <paramref name="tokenIndex"/> through the token stream, collecting
+        /// all consecutive <c>identifier.</c> prefixes (handles both simple schema names such as
+        /// <c>dbo</c> and dotted schema names such as <c>SwaggerPetstore.Models</c>). Returns
+        /// null if no schema prefix exists immediately before the token.
         /// </summary>
-        private static string GetPrecedingSchemaName(TokenManager tokenManager, int tokenIndex)
+        private static string? GetPrecedingSchemaPrefix(TokenManager tokenManager, int tokenIndex)
         {
-            int prevIdx = tokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
-            if (prevIdx < 0 || tokenManager.GetText(prevIdx) != ".")
-                return null;
+            var segments = new System.Collections.Generic.List<string>();
+            int idx = tokenIndex;
+            while (true)
+            {
+                int dotIdx = tokenManager.GetPreviousSignificantTokenIndex(idx);
+                if (dotIdx < 0 || tokenManager.GetText(dotIdx) != ".")
+                    break;
 
-            prevIdx = tokenManager.GetPreviousSignificantTokenIndex(prevIdx);
-            if (prevIdx < 0)
-                return null;
+                int identIdx = tokenManager.GetPreviousSignificantTokenIndex(dotIdx);
+                if (identIdx < 0)
+                    break;
 
-            string schemaToken = tokenManager.GetText(prevIdx);
-            return string.IsNullOrEmpty(schemaToken) ? null : schemaToken.Trim('[', ']');
+                string segment = tokenManager.GetText(identIdx)?.Trim('[', ']');
+                if (string.IsNullOrEmpty(segment))
+                    break;
+
+                segments.Insert(0, segment);
+                idx = identIdx;
+            }
+            return segments.Count > 0 ? string.Join(".", segments) : null;
         }
 
         /// <summary>Creates an error DefinitionResult with the specified message.</summary>

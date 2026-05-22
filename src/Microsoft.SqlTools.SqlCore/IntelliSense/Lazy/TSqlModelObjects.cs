@@ -593,7 +593,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _parent               = parent;
             _columnFactory        = columnFactory;
             _indexedColumnFactory = indexedColumnFactory;
-            _indexKeyRef          = new MinimalConstraintKey(constraintType);
+            _indexKeyRef          = new MinimalConstraintKey(parent, this, constraintType);
             _isClustered          = isClustered;
         }
 
@@ -635,14 +635,25 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         private sealed class MinimalConstraintKey : IUniqueConstraintBase
         {
+            private readonly ITabular _parent;
+            private readonly IRelationalIndex _index;
             private readonly ConstraintType _type;
-            internal MinimalConstraintKey(ConstraintType type) { _type = type; }
-            public string Name         => string.Empty;
-            public ITabular Parent     => null!;
-            public bool IsSystemNamed  => false;
-            public ConstraintType Type => _type;
-            public IRelationalIndex AssociatedIndex => null!;
-            public T Accept<T>(IMetadataObjectVisitor<T> visitor) => throw new NotSupportedException();
+
+            internal MinimalConstraintKey(ITabular parent, IRelationalIndex index, ConstraintType type)
+            {
+                _parent = parent;
+                _index  = index;
+                _type   = type;
+            }
+
+            public string Name              => string.Empty;
+            public ITabular Parent          => _parent;
+            public bool IsSystemNamed       => false;
+            public ConstraintType Type      => _type;
+            public IRelationalIndex AssociatedIndex => _index;
+            // IMetadataObjectVisitor has no Visit(IUniqueConstraintBase) overload — return default
+            // rather than throwing so consumers that call Accept on this object don't crash.
+            public T Accept<T>(IMetadataObjectVisitor<T> visitor) => default!;
         }
     }
 
