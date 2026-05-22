@@ -56,6 +56,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlObject _tableObj;
         private IMetadataOrderedCollection<IColumn>? _columns;
         private IMetadataCollection<IConstraint>? _constraints;
+        private IMetadataCollection<IIndex>? _indexes;
 
         public TSqlModelTable(TSqlModelSchema schema, TSqlObject tableObj, bool isUserDefined)
             : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1], isUserDefined)
@@ -85,7 +86,29 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                                    _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
                                             .Select(c => (IConstraint)new TSqlModelUniqueConstraint(this, c))));
 
-        public IMetadataCollection<IIndex> Indexes => LazyCollection<IIndex>.Empty;
+        // Lazy indexes — binder uses Indexes (not Constraints) for FK key validation
+        public IMetadataCollection<IIndex> Indexes =>
+            _indexes ??= new LazyCollection<IIndex>(
+                () => _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                               .Select(c => (IIndex)new TSqlModelRelationalIndex(
+                                   this,
+                                   () => c.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                                          .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(this, col), i)),
+                                   () => c.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                                          .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(this, col))),
+                                   ConstraintType.PrimaryKey,
+                                   c.GetProperty<bool>(PrimaryKeyConstraint.Clustered)))
+                               .Concat(
+                                   _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                                            .Select(c => (IIndex)new TSqlModelRelationalIndex(
+                                                this,
+                                                () => c.GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                                                       .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(this, col), i)),
+                                                () => c.GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                                                       .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(this, col))),
+                                                ConstraintType.Unique,
+                                                c.GetProperty<bool>(UniqueConstraint.Clustered)))));
+
         public IMetadataCollection<IStatistics> Statistics => LazyCollection<IStatistics>.Empty;
 
         // ITableViewBase
@@ -547,22 +570,31 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
     // =========================================================================
     // TSqlModelRelationalIndex : IRelationalIndex
-    // Minimal index wrapper used as AssociatedIndex for PK/UK constraint wrappers.
-    // Only OrderedColumns (used for FK column-matching) is populated; everything
-    // else returns safe defaults.
+    // Index wrapper for PK/UK constraints. Populates IndexedColumns and IndexKey
+    // so the binder can resolve FK references against the correct key.
     // =========================================================================
     internal sealed class TSqlModelRelationalIndex : IRelationalIndex
     {
         private readonly ITabular _parent;
         private readonly Func<IEnumerable<IOrderedColumn>> _columnFactory;
+        private readonly Func<IEnumerable<IIndexedColumn>>? _indexedColumnFactory;
+        private readonly IUniqueConstraintBase _indexKeyRef;
         private readonly bool _isClustered;
         private IMetadataOrderedCollection<IOrderedColumn>? _orderedColumns;
+        private IMetadataOrderedCollection<IIndexedColumn>? _indexedColumns;
 
-        public TSqlModelRelationalIndex(ITabular parent, Func<IEnumerable<IOrderedColumn>> columnFactory, bool isClustered)
+        public TSqlModelRelationalIndex(
+            ITabular parent,
+            Func<IEnumerable<IOrderedColumn>> columnFactory,
+            Func<IEnumerable<IIndexedColumn>>? indexedColumnFactory,
+            ConstraintType constraintType,
+            bool isClustered)
         {
-            _parent        = parent;
-            _columnFactory = columnFactory;
-            _isClustered   = isClustered;
+            _parent               = parent;
+            _columnFactory        = columnFactory;
+            _indexedColumnFactory = indexedColumnFactory;
+            _indexKeyRef          = new MinimalConstraintKey(constraintType);
+            _isClustered          = isClustered;
         }
 
         // IMetadataObject
@@ -585,8 +617,13 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IFileGroup FileStreamFileGroup => null!;
         public IPartitionScheme FileStreamPartitionScheme => null!;
         public string FilterDefinition        => string.Empty;
-        public IMetadataOrderedCollection<IIndexedColumn> IndexedColumns => LazyOrderedCollection<IIndexedColumn>.Empty;
-        public IUniqueConstraintBase IndexKey => null!;
+
+        public IMetadataOrderedCollection<IIndexedColumn> IndexedColumns =>
+            _indexedColumns ??= _indexedColumnFactory != null
+                ? new LazyOrderedCollection<IIndexedColumn>(_indexedColumnFactory)
+                : LazyOrderedCollection<IIndexedColumn>.Empty;
+
+        public IUniqueConstraintBase IndexKey => _indexKeyRef;
         public bool IsClustered    => _isClustered;
         public bool IsSystemNamed  => false;
         public bool IsUnique       => true;
@@ -595,6 +632,33 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         public IMetadataOrderedCollection<IOrderedColumn> OrderedColumns =>
             _orderedColumns ??= new LazyOrderedCollection<IOrderedColumn>(_columnFactory);
+
+        private sealed class MinimalConstraintKey : IUniqueConstraintBase
+        {
+            private readonly ConstraintType _type;
+            internal MinimalConstraintKey(ConstraintType type) { _type = type; }
+            public string Name         => string.Empty;
+            public ITabular Parent     => null!;
+            public bool IsSystemNamed  => false;
+            public ConstraintType Type => _type;
+            public IRelationalIndex AssociatedIndex => null!;
+            public T Accept<T>(IMetadataObjectVisitor<T> visitor) => throw new NotSupportedException();
+        }
+    }
+
+    // =========================================================================
+    // TSqlModelIndexedColumn : IIndexedColumn
+    // Key column in an index; IsIncluded=false marks it as a key (not included) column.
+    // =========================================================================
+    internal sealed class TSqlModelIndexedColumn : IIndexedColumn
+    {
+        private readonly IColumn _column;
+        internal TSqlModelIndexedColumn(IColumn column) { _column = column; }
+        public string Name             => _column.Name;
+        public IColumn ReferencedColumn => _column;
+        public SortOrder SortOrder     => SortOrder.Ascending;
+        public bool IsIncluded         => false;
+        public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
     }
 
     // =========================================================================
@@ -615,8 +679,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 parent,
                 () => constraintObj
                     .GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
-                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(
-                        new TSqlModelColumn(parent, c), i)),
+                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, c), i)),
+                () => constraintObj
+                    .GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
+                    .Select(c => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, c))),
+                ConstraintType.PrimaryKey,
                 isClustered);
         }
 
@@ -646,8 +713,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 parent,
                 () => constraintObj
                     .GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
-                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(
-                        new TSqlModelColumn(parent, c), i)),
+                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, c), i)),
+                () => constraintObj
+                    .GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
+                    .Select(c => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, c))),
+                ConstraintType.Unique,
                 isClustered);
         }
 
