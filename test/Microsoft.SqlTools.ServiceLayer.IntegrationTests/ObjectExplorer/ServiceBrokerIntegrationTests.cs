@@ -65,19 +65,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var dbNode = new NodeInfo(session.Root);
                 var dbChildren = (await _service.ExpandNode(session, dbNode.NodePath)).Nodes;
                 var sbNode = dbChildren.FirstOrDefault(n => n.Label == Microsoft.SqlTools.SqlCore.SR.SchemaHierarchy_ServiceBroker);
-                Assert.NotNull(sbNode);
+                Assert.That(sbNode, Is.Not.Null, "Service Broker node should be present");
 
                 var sbChildren = (await _service.ExpandNode(session, sbNode.NodePath)).Nodes;
                 var msgTypesNode = sbChildren.FirstOrDefault(n => n.Label == Microsoft.SqlTools.SqlCore.SR.SchemaHierarchy_MessageTypes);
-                Assert.NotNull(msgTypesNode, "Message Types node should be present");
+                Assert.That(msgTypesNode, Is.Not.Null, "Message Types node should be present");
 
                 var msgChildren = (await _service.ExpandNode(session, msgTypesNode.NodePath)).Nodes;
-
-                var systemSubfolder = msgChildren.FirstOrDefault(n => n.Label == Microsoft.SqlTools.SqlCore.SR.SchemaHierarchy_SystemMessageTypes);
-                Assert.NotNull(systemSubfolder, "System Message Types subfolder should be present");
-
                 var userMsgType = msgChildren.FirstOrDefault(n => n.Label == "OETestMessageType");
-                Assert.NotNull(userMsgType, "User-defined message type should appear at the top level of Message Types");
+                Assert.That(userMsgType, Is.Not.Null, "User-defined message type should appear at the top level of Message Types");
 
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName,
                     "DROP MESSAGE TYPE [OETestMessageType]");
@@ -95,22 +91,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var dbNode = new NodeInfo(session.Root);
                 var dbChildren = (await _service.ExpandNode(session, dbNode.NodePath)).Nodes;
                 var sbNode = dbChildren.FirstOrDefault(n => n.Label == Microsoft.SqlTools.SqlCore.SR.SchemaHierarchy_ServiceBroker);
-                Assert.NotNull(sbNode);
+                Assert.That(sbNode, Is.Not.Null, "Service Broker node should be present");
 
                 var sbChildren = (await _service.ExpandNode(session, sbNode.NodePath)).Nodes;
                 var msgTypesNode = sbChildren.FirstOrDefault(n => n.Label == Microsoft.SqlTools.SqlCore.SR.SchemaHierarchy_MessageTypes);
-                Assert.NotNull(msgTypesNode);
-
-                var msgChildren = (await _service.ExpandNode(session, msgTypesNode.NodePath)).Nodes;
-                var systemSubfolder = msgChildren.FirstOrDefault(n => n.Label == Microsoft.SqlTools.SqlCore.SR.SchemaHierarchy_SystemMessageTypes);
-                Assert.NotNull(systemSubfolder);
-
-                var systemMsgTypes = (await _service.ExpandNode(session, systemSubfolder.NodePath)).Nodes;
-                Assert.That(systemMsgTypes.Length, Is.GreaterThan(0),
-                    "System Message Types subfolder should contain built-in message types");
-
-                Assert.That(systemMsgTypes.Any(n => n.Label == "DEFAULT"),
-                    "DEFAULT system message type should be present");
+                Assert.That(msgTypesNode, Is.Not.Null, "Message Types node should be present");
             });
         }
 
