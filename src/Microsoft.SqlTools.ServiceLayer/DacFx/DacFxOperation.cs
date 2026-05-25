@@ -85,10 +85,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                // Pass in Azure authentication token if needed
-                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null && this.ConnInfo.ConnectionDetails.AuthenticationType == AzureMFA
-                    ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken))
-                    : new DacServices(this.ConnectionString);
+                // Pass in Azure authentication when needed. Prefer the dynamic AzureTokenFetcher
+                // (set by ConnectionService when RequestMfaTokenFromClient is enabled) so DacFx can
+                // acquire a fresh token on every connection, falling back to the static
+                // AzureAccountToken for legacy callers.
+                this.DacServices = CreateDacServices();
 
                 // Wire up DacServices progress events to SqlTask for real progress reporting
                 if (this.SqlTask != null)
@@ -119,6 +120,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         public abstract void Execute();
+
+        private DacServices CreateDacServices()
+        {
+            if (this.ConnInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            {
+                // When a token fetcher is available, hand DacFx a callback-backed auth provider so
+                // each connection it creates picks up a current (and potentially refreshed) token.
+                if (this.ConnInfo.AzureTokenFetcher != null)
+                {
+                    var fetcher = this.ConnInfo.AzureTokenFetcher;
+                    return new DacServices(
+                        this.ConnectionString,
+                        new AccessTokenProvider(() => fetcher().GetAwaiter().GetResult().token));
+                }
+
+                if (this.ConnInfo.ConnectionDetails.AzureAccountToken != null)
+                {
+                    return new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken));
+                }
+            }
+
+            return new DacServices(this.ConnectionString);
+        }
 
         protected DacDeployOptions GetDefaultDeployOptions()
         {

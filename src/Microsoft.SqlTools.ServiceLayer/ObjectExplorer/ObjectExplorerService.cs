@@ -410,8 +410,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         builder.InitialCatalog = node.NodeValue;
                         builder.ApplicationName = TableDesignerManager.TableDesignerApplicationNameSuffix;
                         // Set Access Token only when authentication mode is not specified.
-                        var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
-                            ? session.ConnectionInfo.ConnectionDetails.AzureAccountToken : null;
+                        string azureToken = null;
+                        if (builder.Authentication == SqlAuthenticationMethod.NotSpecified)
+                        {
+                            // Prefer the dynamic AzureTokenFetcher so we obtain a current token even
+                            // when the static AzureAccountToken on ConnectionDetails has become stale.
+                            if (session.ConnectionInfo.AzureTokenFetcher != null)
+                            {
+                                azureToken = session.ConnectionInfo.AzureTokenFetcher().GetAwaiter().GetResult().token;
+                            }
+                            else
+                            {
+                                azureToken = session.ConnectionInfo.ConnectionDetails.AzureAccountToken;
+                            }
+                        }
                         TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
                     }
                     catch (Exception ex)
