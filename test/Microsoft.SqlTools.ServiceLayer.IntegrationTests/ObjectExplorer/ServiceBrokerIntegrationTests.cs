@@ -132,6 +132,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             finally
             {
+                if (!string.IsNullOrEmpty(uri))
+                {
+                    _service.CloseSession(uri);
+                }
                 if (testDb != null)
                 {
                     await testDb.CleanupAsync();

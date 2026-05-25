@@ -527,7 +527,7 @@
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
-    <Child Name="SystemMessageTypes"/>
+    <Child Name="SystemMessageTypes" IsSystemObject="1"/>
   </Node>
   <Node Name="SystemMessageTypes" LocLabel="SR.SchemaHierarchy_SystemMessageTypes" BaseClass="ModelBased" NodeType="SystemMessageType" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlMessageType">
     <Filters>
@@ -539,7 +539,7 @@
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
-    <Child Name="SystemContracts"/>
+    <Child Name="SystemContracts" IsSystemObject="1"/>
   </Node>
   <Node Name="SystemContracts" LocLabel="SR.SchemaHierarchy_SystemContracts" BaseClass="ModelBased" NodeType="SystemContract" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlContract">
     <Filters>
@@ -551,7 +551,7 @@
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
-    <Child Name="SystemQueues"/>
+    <Child Name="SystemQueues" IsSystemObject="1"/>
   </Node>
   <Node Name="SystemQueues" LocLabel="SR.SchemaHierarchy_SystemQueues" BaseClass="ModelBased" NodeType="SystemQueue" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlQueue">
     <Filters>
@@ -563,7 +563,7 @@
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
-    <Child Name="SystemServices"/>
+    <Child Name="SystemServices" IsSystemObject="1"/>
   </Node>
   <Node Name="SystemServices" LocLabel="SR.SchemaHierarchy_SystemServices" BaseClass="ModelBased" NodeType="SystemService" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlService">
     <Filters>

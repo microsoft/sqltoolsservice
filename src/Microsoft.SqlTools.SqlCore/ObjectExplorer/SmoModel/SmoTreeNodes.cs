@@ -4297,7 +4297,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemMessageTypes,
                 NodeTypeId = NodeTypes.SystemMessageTypes,
-                IsSystemObject = false,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4386,7 +4386,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemContracts,
                 NodeTypeId = NodeTypes.SystemContracts,
-                IsSystemObject = false,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4475,7 +4475,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemQueues,
                 NodeTypeId = NodeTypes.SystemQueues,
-                IsSystemObject = false,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -4564,7 +4564,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemServices,
                 NodeTypeId = NodeTypes.SystemServices,
-                IsSystemObject = false,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });

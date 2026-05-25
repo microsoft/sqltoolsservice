@@ -722,8 +722,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     {
                         Directory.CreateDirectory(outputRegeneratedFolder);
                         File.WriteAllText(outputRegeneratedFilePath, actual);
+                        var baselineFile = GetBaseLineFile(baselineFileName);
                         msg = $"Generated output written to :\t{outputRegeneratedFilePath}\n\t" +
-                              $"Baseline output located at  :\t{GetBaseLineFile(baselineFileName)}";
+                              $"Baseline output located at  :\t{baselineFile}\n\t" +
+                              $"Diff command                :\tCompare-Object (Get-Content \"{baselineFile}\") (Get-Content \"{outputRegeneratedFilePath}\")\n\t" +
+                              $"Replace baseline            :\tCopy-Item -Path \"{outputRegeneratedFilePath}\" -Destination \"{baselineFile}\" -Force";
                     }
                     catch (Exception e)
                     {
