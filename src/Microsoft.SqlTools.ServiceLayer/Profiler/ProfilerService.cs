@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
@@ -18,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -357,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
 
             // Build connection string for XELite
-            var connectionString = sqlConnection.ConnectionString;
+            var connectionString = BuildXEliteConnectionString(sqlConnection, connInfo);
 
             // Create the live streaming session using XELite
             var liveSession = new LiveStreamXEventSession(
@@ -398,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
 
             // Build connection string for XELite
-            var connectionString = sqlConnection.ConnectionString;
+            var connectionString = BuildXEliteConnectionString(sqlConnection, connInfo);
 
             // Create the live streaming session using XELite
             var liveSession = new LiveStreamXEventSession(
@@ -411,6 +413,81 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             liveSession.SqlConnection = sqlConnection;
 
             return liveSession;
+        }
+
+        /// <summary>
+        /// Builds the connection string handed to XELite's <c>XELiveEventStreamer</c>.
+        /// </summary>
+        /// <remarks>
+        /// For Entra MFA connections, the access token is set programmatically on
+        /// <see cref="SqlConnection.AccessToken"/> (or <c>AccessTokenCallback</c>) and the
+        /// connection string itself contains <c>Authentication=NotSpecified</c> with no
+        /// <c>User ID</c>. XELite creates its own internal <see cref="SqlConnection"/>
+        /// from the connection string and cannot reuse that programmatic token, so a
+        /// plain pass-through of <see cref="SqlConnection.ConnectionString"/> fails to
+        /// authenticate. To bridge this, we cache the token (or fetcher) in
+        /// <see cref="ProfilerXEventAuthProvider"/>, register the provider for
+        /// <see cref="SqlAuthenticationMethod.ActiveDirectoryInteractive"/>, and rewrite
+        /// the connection string to use that authentication method with a matching
+        /// <c>User ID</c>. SqlClient then invokes our provider, which returns the
+        /// cached token without any user interaction.
+        /// </remarks>
+        private static string BuildXEliteConnectionString(SqlConnection sqlConnection, ConnectionInfo connInfo)
+        {
+            string baseConnectionString = sqlConnection.ConnectionString;
+
+            bool isMfa = string.Equals(
+                connInfo?.ConnectionDetails?.AuthenticationType,
+                SqlConstants.AzureMFA,
+                StringComparison.Ordinal);
+
+            if (!isMfa)
+            {
+                return baseConnectionString;
+            }
+
+            bool hasTokenFetcher = connInfo.AzureTokenFetcher != null;
+            bool hasStaticToken = !string.IsNullOrEmpty(connInfo.ConnectionDetails.AzureAccountToken);
+
+            if (!hasTokenFetcher && !hasStaticToken)
+            {
+                return baseConnectionString;
+            }
+
+            string userId = connInfo.ConnectionDetails.UserName;
+            if (string.IsNullOrEmpty(userId))
+            {
+                // No identity to key the token cache on; fall back to the raw connection
+                // string so XELite surfaces a clear authentication failure rather than us
+                // silently caching a token under an empty key.
+                return baseConnectionString;
+            }
+
+            ProfilerXEventAuthProvider.EnsureRegistered();
+
+            if (hasTokenFetcher)
+            {
+                ProfilerXEventAuthProvider.Instance.CacheTokenFetcher(userId, connInfo.AzureTokenFetcher);
+            }
+            else
+            {
+                DateTimeOffset expiresOn = connInfo.ConnectionDetails.ExpiresOn.HasValue
+                    ? DateTimeOffset.FromUnixTimeSeconds(connInfo.ConnectionDetails.ExpiresOn.Value)
+                    : DateTimeOffset.UtcNow.AddMinutes(60);
+
+                ProfilerXEventAuthProvider.Instance.CacheStaticToken(
+                    userId,
+                    connInfo.ConnectionDetails.AzureAccountToken,
+                    expiresOn);
+            }
+
+            var builder = new SqlConnectionStringBuilder(baseConnectionString)
+            {
+                Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive,
+                UserID = userId,
+            };
+
+            return builder.ConnectionString;
         }
 
         /// <summary>
