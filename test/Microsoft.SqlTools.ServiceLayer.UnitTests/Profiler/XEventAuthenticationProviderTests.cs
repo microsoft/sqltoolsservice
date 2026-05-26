@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         }
 
         [TestCase("https://login.microsoftonline.com/tenant-123", "tenant-123")]
-        [TestCase("https://login.microsoftonline.com/tenant-abc/", "tenant-abc")]
+        [TestCase("https://login.microsoftonline.com/consumers", "consumers")]
         [TestCase("https://login.windows.net/contoso.onmicrosoft.com", "contoso.onmicrosoft.com")]
         [TestCase("", "")]
         [TestCase(null, "")]

@@ -111,6 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 fetcher = fallback.Value;
             }
 
+            if (fetcher == null)
+            {
+                throw new Exception($"Unable to acquire token fetcher for account '{accountId}' (tenant '{tenantId}')");
+            }
+
             var (token, expiresOn) = await fetcher().ConfigureAwait(false);
             return new SqlAuthenticationToken(token, expiresOn);
         }
