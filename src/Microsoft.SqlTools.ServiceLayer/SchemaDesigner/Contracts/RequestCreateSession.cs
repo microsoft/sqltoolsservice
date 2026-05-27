@@ -23,6 +23,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         /// </summary>
         public string? AccessToken { get; set; }
         /// <summary>
+        /// Optional owner URI of the underlying connection. When provided, the service will use the
+        /// associated <c>ConnectionInfo</c>'s <c>AzureTokenFetcher</c> (when available) so DacFx can
+        /// obtain a fresh access token for every connection it opens, instead of being limited to
+        /// the static <see cref="AccessToken"/>.
+        /// </summary>
+        public string? OwnerUri { get; set; }
+        /// <summary>
         /// Gets or sets the name of the database. Database name is required to get the schema model for the database.
         /// </summary>
         public string DatabaseName { get; set; } = null!;

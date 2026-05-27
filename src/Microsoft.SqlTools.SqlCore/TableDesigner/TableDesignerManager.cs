@@ -12,6 +12,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
+using Microsoft.SqlTools.SqlCore.Utility;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
 namespace Microsoft.SqlTools.SqlCore.TableDesigner
@@ -20,6 +21,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
     {
         public const string TableDesignerApplicationNameSuffix = "TableDesigner";
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
+        // Optional per-table access token callbacks. Populated when the caller supplies a token
+        // fetcher (e.g. derived from ConnectionInfo.AzureTokenFetcher) so the underlying DacFx
+        // table designer can obtain a fresh token whenever it opens a new connection. Keyed by
+        // tableInfo.Id so that recreating the designer after a publish (which only has the
+        // TableInfo) still picks up the same callback.
+        private Dictionary<string, Func<string>> accessTokenCallbacks = new Dictionary<string, Func<string>>();
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
         private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
         public event EventHandler<TableDesignerProgressEventArgs> ProgressChanged;
@@ -27,6 +34,20 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
         public bool AllowDisableAndReenableDdlTriggers { get; set; } = true;
         public TableDesignerInfo InitializeTableDesigner(TableInfo tableInfo)
         {
+            return this.InitializeTableDesigner(tableInfo, accessTokenCallback: null);
+        }
+
+        /// <summary>
+        /// Initializes a table designer session. When <paramref name="accessTokenCallback"/> is non-null,
+        /// it will be invoked by DacFx to obtain a fresh Azure access token for every connection it
+        /// opens, superseding the static <see cref="TableInfo.AccessToken"/>.
+        /// </summary>
+        public TableDesignerInfo InitializeTableDesigner(TableInfo tableInfo, Func<string> accessTokenCallback)
+        {
+            if (accessTokenCallback != null && !string.IsNullOrEmpty(tableInfo?.Id))
+            {
+                this.accessTokenCallbacks[tableInfo.Id] = accessTokenCallback;
+            }
             var tableDesigner = this.CreateTableDesigner(tableInfo);
             var viewModel = this.GetTableViewModel(tableInfo);
             var view = this.GetDesignerViewInfo(tableInfo);
@@ -100,6 +121,16 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 }
             }
             this.idTableMap.Remove(oldId);
+            // Carry the access token callback over to the new id so the recreated designer below
+            // continues to receive fresh tokens from the same source.
+            if (this.accessTokenCallbacks.TryGetValue(oldId, out var callback))
+            {
+                this.accessTokenCallbacks.Remove(oldId);
+                if (!string.IsNullOrEmpty(tableInfo.Id))
+                {
+                    this.accessTokenCallbacks[tableInfo.Id] = callback;
+                }
+            }
             // Recreate the table designer after the changes are published to make sure the table information is up to date.
             // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
             this.CreateTableDesigner(tableInfo);
@@ -149,6 +180,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             var td = this.GetTableDesigner(tableInfo);
             td.Dispose();
             this.idTableMap.Remove(tableInfo.Id);
+            this.accessTokenCallbacks.Remove(tableInfo.Id);
         }
 
         private void AddItem(ProcessTableDesignerEditRequestParams requestParams)
@@ -1716,13 +1748,34 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 var connectionString = connectionStringBuilder.ToString();
                 var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: this.AllowDisableAndReenableDdlTriggers);
 
-                // Set Access Token only when authentication mode is not specified.
-                var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
-                    ? tableInfo.AccessToken : null;
+                // Access tokens are only meaningful when the connection string has no explicit
+                // authentication method (i.e. the caller is supplying the token themselves).
+                bool useAccessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified;
+
+                Func<string> accessTokenCallback = null;
+                if (useAccessToken && !string.IsNullOrEmpty(tableInfo.Id))
+                {
+                    this.accessTokenCallbacks.TryGetValue(tableInfo.Id, out accessTokenCallback);
+                }
 
                 try
                 {
-                    tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
+                    if (accessTokenCallback != null)
+                    {
+                        // Prefer the callback-backed auth provider so DacFx can refresh tokens on demand.
+                        tableDesigner = new Dac.TableDesigner(
+                            connectionString,
+                            new AccessTokenProvider(accessTokenCallback),
+                            tableInfo.Schema,
+                            tableInfo.Name,
+                            tableInfo.IsNewTable,
+                            tableDesignerOptions);
+                    }
+                    else
+                    {
+                        var accessToken = useAccessToken ? tableInfo.AccessToken : null;
+                        tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
+                    }
                 }
                 catch (Exception ex)
                 {

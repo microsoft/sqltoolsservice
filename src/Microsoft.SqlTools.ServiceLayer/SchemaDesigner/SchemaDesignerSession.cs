@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -22,6 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         DacSchemaDesigner schemaDesigner;
         private string connectionString;
         private string? accessToken;
+        // When set, takes precedence over the static accessToken so DacFx can refresh tokens on demand
+        // (e.g. when ConnectionInfo.AzureTokenFetcher is available for RequestMfaTokenFromClient mode).
+        private Func<string>? accessTokenCallback;
         private SqlTask? publishSqlTask;
 
         public event EventHandler<SchemaDesignerProgressNotificationParams>? ProgressChanged;
@@ -35,12 +39,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             string? accessToken,
             EventHandler<SchemaDesignerProgressNotificationParams>? progressHandler = null,
             EventHandler<SchemaDesignerMessageNotificationParams>? messageHandler = null)
+            : this(sessionId, connectionString, accessToken, accessTokenCallback: null, progressHandler, messageHandler)
+        {
+        }
+
+        public SchemaDesignerSession(
+            string sessionId,
+            string connectionString,
+            string? accessToken,
+            Func<string>? accessTokenCallback,
+            EventHandler<SchemaDesignerProgressNotificationParams>? progressHandler = null,
+            EventHandler<SchemaDesignerMessageNotificationParams>? messageHandler = null)
         {
             var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
             connectionStringBuilder.ApplicationName = "SchemaDesigner";
-            // Set Access Token only when authentication mode is not specified.
-            accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
-                ? accessToken : null;
+            // Access tokens / token callbacks are only meaningful when no explicit authentication
+            // method is set on the connection string.
+            bool useAccessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified;
+            accessToken = useAccessToken ? accessToken : null;
+            this.accessTokenCallback = useAccessToken ? accessTokenCallback : null;
 
             this.connectionString = connectionStringBuilder.ConnectionString;
             this.accessToken = accessToken;
@@ -62,7 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
         private void CreateOrResetSchemaDesigner()
         {
-            schemaDesigner = new DacSchemaDesigner(connectionString, accessToken);
+            // Prefer the callback-backed auth provider so DacFx can refresh tokens on demand.
+            schemaDesigner = accessTokenCallback != null
+                ? new DacSchemaDesigner(connectionString, new AccessTokenProvider(accessTokenCallback))
+                : new DacSchemaDesigner(connectionString, accessToken);
             schemaDesigner.ProgressChanged += OnDesignerProgressChanged;
             schemaDesigner.Message += OnDesignerMessage;
         }
@@ -71,7 +91,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             TableDesignerCacheManager.InvalidateItem(connectionString);
             CreateOrResetSchemaDesigner();
-            schemaDesigner.Initialize();
+            try
+            {
+                schemaDesigner.Initialize();
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
             var simpleSchema = schemaDesigner.SimpleSchema;
             SchemaDesignerModel schema = new SchemaDesignerModel();
             schema.Tables = new List<SchemaDesignerTable>();

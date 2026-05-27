@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.TableDesigner.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -109,8 +110,37 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ? !string.IsNullOrWhiteSpace(tableInfo.Id) ? tableInfo.Id : Guid.NewGuid().ToString()
                     : requestParams.SessionId;
                 tableInfo.Id = sessionId;
-                await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo));
+
+                // When an owner URI is provided and the connection has an AzureTokenFetcher,
+                // forward a callback to the manager so DacFx can request a fresh token on every
+                // new connection it opens (RequestMfaTokenFromClient path). Without an owner URI
+                // we fall back to the static AccessToken on TableInfo.
+                Func<string> accessTokenCallback = ResolveAccessTokenCallback(tableInfo.OwnerUri);
+
+                await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo, accessTokenCallback));
             });
+        }
+
+        private static Func<string> ResolveAccessTokenCallback(string ownerUri)
+        {
+            if (string.IsNullOrEmpty(ownerUri))
+            {
+                return null;
+            }
+
+            ConnectionInfo connInfo;
+            if (!ConnectionService.Instance.TryFindConnection(ownerUri, out connInfo) || connInfo == null)
+            {
+                return null;
+            }
+
+            if (connInfo.AzureTokenFetcher != null)
+            {
+                var fetcher = connInfo.AzureTokenFetcher;
+                return () => fetcher().GetAwaiter().GetResult().token;
+            }
+
+            return null;
         }
 
         private Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)

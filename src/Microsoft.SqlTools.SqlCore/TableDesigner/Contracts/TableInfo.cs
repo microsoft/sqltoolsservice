@@ -34,6 +34,14 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
         public string Id { get; set; }
         [DataMember(Name = "accessToken")]
         public string AccessToken { get; set; }
+        /// <summary>
+        /// Optional owner URI of the underlying connection. When provided, the service will use the
+        /// associated <see cref="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo"/>'s
+        /// <c>AzureTokenFetcher</c> (when available) so DacFx can obtain a fresh access token for
+        /// every connection it opens, instead of being limited to the static <see cref="AccessToken"/>.
+        /// </summary>
+        [DataMember(Name = "ownerUri")]
+        public string OwnerUri { get; set; }
         [DataMember(Name = "tableScriptPath")]
         public string TableScriptPath { get; set; }
         [DataMember(Name = "projectFilePath")]

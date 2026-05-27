@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -48,10 +49,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             return Utils.HandleRequest<CreateSessionResponse>(requestContext, async () =>
             {
                 string sessionId = string.IsNullOrWhiteSpace(requestParams.SessionId) ? Guid.NewGuid().ToString() : requestParams.SessionId;
+
+                // When an owner URI is provided and the underlying connection has an AzureTokenFetcher,
+                // hand the session a callback so DacFx can request a fresh token from the client on
+                // every new connection it opens (RequestMfaTokenFromClient path). Otherwise fall back
+                // to the static AccessToken supplied with the request.
+                Func<string>? accessTokenCallback = ResolveAccessTokenCallback(requestParams.OwnerUri);
+
                 var session = new SchemaDesignerSession(
                     sessionId,
                     requestParams.ConnectionString,
                     requestParams.AccessToken,
+                    accessTokenCallback,
                     CreateProgressNotificationHandler(),
                     CreateMessageNotificationHandler());
                 sessions.Add(sessionId, session);
@@ -64,6 +73,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     SessionId = sessionId,
                 });
             });
+        }
+
+        private static Func<string>? ResolveAccessTokenCallback(string? ownerUri)
+        {
+            if (string.IsNullOrEmpty(ownerUri))
+            {
+                return null;
+            }
+
+            ConnectionInfo? connInfo;
+            if (!ConnectionService.Instance.TryFindConnection(ownerUri, out connInfo) || connInfo == null)
+            {
+                return null;
+            }
+
+            if (connInfo.AzureTokenFetcher != null)
+            {
+                var fetcher = connInfo.AzureTokenFetcher;
+                return () => fetcher().GetAwaiter().GetResult().token;
+            }
+
+            return null;
         }
 
         internal Task HandleGetDefinitionRequest(GetDefinitionRequest requestParams, RequestContext<GetDefinitionResponse> requestContext)
