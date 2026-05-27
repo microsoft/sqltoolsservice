@@ -6,9 +6,11 @@
 #nullable disable
 
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using Microsoft.SqlTools.SqlCore.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
@@ -41,12 +43,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
         }
 
-        public string GetAccessToken(SchemaCompareEndpointInfo endpointInfo)
+        public IUniversalAuthProvider GetAuthProvider(SchemaCompareEndpointInfo endpointInfo)
         {
             ConnectionInfo connInfo = FindConnectionInfo(endpointInfo);
-            if (connInfo?.ConnectionDetails?.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+            if (connInfo?.ConnectionDetails?.AuthenticationType != AzureMFA)
             {
-                return connInfo.ConnectionDetails.AzureAccountToken;
+                return null;
+            }
+
+            if (connInfo.AzureTokenFetcher != null)
+            {
+                var fetcher = connInfo.AzureTokenFetcher;
+                return new AccessTokenProvider(() => fetcher().GetAwaiter().GetResult().token);
+            }
+
+            if (connInfo.ConnectionDetails.AzureAccountToken != null)
+            {
+                return new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken);
             }
 
             return null;

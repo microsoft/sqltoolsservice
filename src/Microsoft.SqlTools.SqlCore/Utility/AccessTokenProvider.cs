@@ -10,8 +10,11 @@ namespace Microsoft.SqlTools.SqlCore.Utility
 {
     public class AccessTokenProvider : IUniversalAuthProvider
     {
-        private string _accessToken;
+        private readonly Func<string> _accessTokenCallback;
 
+        /// <summary>
+        /// Creates an auth provider that always returns the given static access token.
+        /// </summary>
         public AccessTokenProvider(string accessToken)
         {
             if (string.IsNullOrEmpty(accessToken))
@@ -19,11 +22,21 @@ namespace Microsoft.SqlTools.SqlCore.Utility
                 throw new ArgumentNullException("accessToken");
             }
 
-            _accessToken = accessToken;
+            _accessTokenCallback = () => accessToken;
+        }
+
+        /// <summary>
+        /// Creates an auth provider that invokes the supplied callback whenever a token is needed.
+        /// Use this overload when the underlying token source can refresh tokens on demand
+        /// (e.g. <c>ConnectionInfo.AzureTokenFetcher</c>).
+        /// </summary>
+        public AccessTokenProvider(Func<string> accessTokenCallback)
+        {
+            _accessTokenCallback = accessTokenCallback ?? throw new ArgumentNullException(nameof(accessTokenCallback));
         }
 
         public bool IsTokenExpired() { return false; }
 
-        public string GetValidAccessToken() { return _accessToken; }
+        public string GetValidAccessToken() { return _accessTokenCallback(); }
     }
 }
