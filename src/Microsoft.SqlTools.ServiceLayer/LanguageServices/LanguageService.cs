@@ -854,9 +854,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
                 bool oldAlwaysEncryptedParameterizationEnabled = oldSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled;
                 bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
+                bool? oldEnableCatalogMetadataProvider = oldSettings.SqlTools.IntelliSense.EnableCatalogMetadataProvider;
 
                 // update the current settings to reflect any changes
                 CurrentWorkspaceSettings.Update(newSettings);
+                bool catalogMetadataProviderChanged =
+                    oldEnableCatalogMetadataProvider != newSettings.SqlTools.IntelliSense.EnableCatalogMetadataProvider;
 
                 // if script analysis settings have changed we need to clear the current diagnostic markers
                 if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
@@ -875,6 +878,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     else
                     {
                         await RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
+                    }
+                }
+
+                if (catalogMetadataProviderChanged)
+                {
+                    foreach (ScriptFile scriptFile in CurrentWorkspace.GetOpenedFiles())
+                    {
+                        ConnectionInfo connInfo;
+                        ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                        if (connInfo != null)
+                        {
+                            await DoHandleRebuildIntellisenseNotification(
+                                new RebuildIntelliSenseParams { OwnerUri = scriptFile.ClientUri },
+                                eventContext);
+                        }
                     }
                 }
             }
@@ -1356,6 +1374,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 waitForLockTimeout: PrepopulateBindTimeout,
                                 bindOperation: (bindingContext, cancelToken) =>
                                 {
+                                    if (bindingContext.MetadataProvider is CatalogMetadataProvider catalogMetadataProvider)
+                                    {
+                                        catalogMetadataProvider.PreloadCurrentDatabaseMetadata();
+                                        return null;
+                                    }
+
                                     // parse a simple statement that returns common metadata
                                     ParseResult parseResult = Parser.Parse(
                                         "select ",

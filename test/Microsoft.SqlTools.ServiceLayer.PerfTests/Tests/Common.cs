@@ -13,5 +13,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         /// The name of the test db to be used for performance tests. Prefix "keep" is used so the db doesn't get deleted by cleanup jobs
         /// </summary>
         public const string PerfTestDatabaseName = "keep_SQLToolsCrossPlatPerfTestDb";
+
+        /// <summary>
+        /// The synthetic large database used for IntelliSense metadata-provider A/B benchmarks.
+        /// </summary>
+        public const string LargeIntelliSensePerfTestDatabaseName = "keep_SQLToolsLargeIntelliSensePerfTestDb";
     }
 }

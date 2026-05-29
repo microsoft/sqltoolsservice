@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.Utility;
 using System.Threading;
 using System.Linq;
@@ -301,13 +302,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     if (this.needsMetadata)
                     {
-                        bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
                         bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
                         bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
                             this.CurrentSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase
                                 ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                        if (!TryCreateCatalogMetadataProvider(
+                            bindingContext,
+                            connectionKey,
+                            featureName,
+                            this.CurrentSettings.SqlTools.IntelliSense.EnableCatalogMetadataProvider))
+                        {
+                            bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
+                            bindingContext.MetadataProvider = bindingContext.SmoMetadataProvider;
                             bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
                         }
+                    }
             
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
@@ -324,6 +333,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return connectionKey;
+        }
+
+        private static bool TryCreateCatalogMetadataProvider(
+            IBindingContext bindingContext,
+            string connectionKey,
+            string featureName,
+            bool? enableCatalogMetadataProvider)
+        {
+            if (!CatalogMetadataProvider.IsEnabledForSetting(enableCatalogMetadataProvider))
+            {
+                return false;
+            }
+
+            try
+            {
+                var metadataProvider = CatalogMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
+                bindingContext.SmoMetadataProvider = null;
+                bindingContext.MetadataProvider = metadataProvider;
+                bindingContext.Binder = BinderProvider.CreateBinder(metadataProvider);
+                Logger.Information($"Using catalog metadata provider for intellisense. Feature: '{featureName ?? "unknown"}' ConnKey: '{connectionKey}'.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Failed creating catalog metadata provider; falling back to SMO metadata provider. Feature: '{featureName ?? "unknown"}' ConnKey: '{connectionKey}'. Exception: {ex}");
+                return false;
+            }
         }
     }
 }

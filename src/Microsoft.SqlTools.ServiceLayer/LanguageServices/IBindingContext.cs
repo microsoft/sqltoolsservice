@@ -41,6 +41,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         SmoMetadataProvider SmoMetadataProvider { get; set; }
 
         /// <summary>
+        /// Gets or sets the active metadata provider
+        /// </summary>
+        IMetadataProvider MetadataProvider { get; set; }
+
+        /// <summary>
         /// Gets or sets the binder
         /// </summary>
         IBinder Binder { get; set; }

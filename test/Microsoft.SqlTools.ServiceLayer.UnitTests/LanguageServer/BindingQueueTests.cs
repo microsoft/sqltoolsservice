@@ -39,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         public SmoMetadataProvider SmoMetadataProvider { get; set; }
 
+        public IMetadataProvider MetadataProvider { get; set; }
+
         public IBinder Binder { get; set; }
 
         public ManualResetEvent BindingLock { get; set; } 

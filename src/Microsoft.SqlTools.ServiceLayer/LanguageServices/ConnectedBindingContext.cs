@@ -13,6 +13,7 @@ using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
@@ -164,6 +165,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
+                if (this.IsConnected && !this.IsProjectContext && this.MetadataProvider != null && this.SmoMetadataProvider == null)
+                {
+                    return GetTransactSqlVersion(this.ServerConnection, this.DatabaseCompatibilityLevel);
+                }
+
                 return (this.IsConnected && !this.IsProjectContext)
                     ? GetTransactSqlVersion(this.Server)
                     : TransactSqlVersion.Current;
@@ -177,6 +183,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
+                if (this.IsConnected && !this.IsProjectContext && this.MetadataProvider != null && this.SmoMetadataProvider == null)
+                {
+                    return GetDatabaseCompatibilityLevel(this.MetadataProvider, this.ServerConnection);
+                }
+
                 return (this.IsConnected && !this.IsProjectContext)
                     ? GetDatabaseCompatibilityLevel(this.Server)
                     : DatabaseCompatibilityLevel.Current;
@@ -204,6 +215,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+
+        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(IMetadataProvider metadataProvider, ServerConnection serverConnection)
+        {
+            try
+            {
+                string databaseName = serverConnection?.DatabaseName;
+                if (string.IsNullOrEmpty(databaseName))
+                {
+                    databaseName = serverConnection?.CurrentDatabase;
+                }
+                if (string.IsNullOrEmpty(databaseName))
+                {
+                    databaseName = serverConnection?.SqlConnectionObject?.Database;
+                }
+
+                if (!string.IsNullOrEmpty(databaseName))
+                {
+                    IDatabase database = metadataProvider.Server.Databases[databaseName];
+                    if (database != null)
+                    {
+                        return database.CompatibilityLevel;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Information($"Failed to get compat level for binding context from catalog metadata provider - using default. Exception: {ex}");
+            }
+
+            return DatabaseCompatibilityLevel.Current;
+        }
 
         /// <summary>
         /// Gets the database compatibility level for a given server connection
@@ -235,6 +277,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return DatabaseCompatibilityLevel.Version140;
                 case SMO.CompatibilityLevel.Version150:
                     return DatabaseCompatibilityLevel.Version150;
+                case SMO.CompatibilityLevel.Version160:
+                    return DatabaseCompatibilityLevel.Version160;
+                case SMO.CompatibilityLevel.Version170:
+                    return DatabaseCompatibilityLevel.Version170;
                 default:
                     return DatabaseCompatibilityLevel.Current;
             }
@@ -271,6 +317,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return TransactSqlVersion.Version140;
                 case 150:
                     return TransactSqlVersion.Version150;
+                case 160:
+                    return TransactSqlVersion.Version160;
+                case 170:
+                    return TransactSqlVersion.Version170;
                 default:
                     return TransactSqlVersion.Current;
             }
@@ -311,6 +361,70 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             }
             return compatLevel;
+        }
+
+        private static TransactSqlVersion GetTransactSqlVersion(ServerConnection serverConnection, DatabaseCompatibilityLevel compatibilityLevel)
+        {
+            if (serverConnection?.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return TransactSqlVersion.Azure;
+            }
+
+            int serverLevel = (serverConnection?.ServerVersion?.Major ?? 0) * 10;
+            int compatLevel = CompatibilityLevelToInt(compatibilityLevel);
+            int languageLevel = Math.Max(serverLevel, compatLevel);
+
+            switch (languageLevel)
+            {
+                case 90:
+                case 100:
+                    return TransactSqlVersion.Version105;
+                case 110:
+                    return TransactSqlVersion.Version110;
+                case 120:
+                    return TransactSqlVersion.Version120;
+                case 130:
+                    return TransactSqlVersion.Version130;
+                case 140:
+                    return TransactSqlVersion.Version140;
+                case 150:
+                    return TransactSqlVersion.Version150;
+                case 160:
+                    return TransactSqlVersion.Version160;
+                case 170:
+                    return TransactSqlVersion.Version170;
+                default:
+                    return TransactSqlVersion.Current;
+            }
+        }
+
+        private static int CompatibilityLevelToInt(DatabaseCompatibilityLevel compatibilityLevel)
+        {
+            switch (compatibilityLevel)
+            {
+                case DatabaseCompatibilityLevel.Version80:
+                    return 80;
+                case DatabaseCompatibilityLevel.Version90:
+                    return 90;
+                case DatabaseCompatibilityLevel.Version100:
+                    return 100;
+                case DatabaseCompatibilityLevel.Version110:
+                    return 110;
+                case DatabaseCompatibilityLevel.Version120:
+                    return 120;
+                case DatabaseCompatibilityLevel.Version130:
+                    return 130;
+                case DatabaseCompatibilityLevel.Version140:
+                    return 140;
+                case DatabaseCompatibilityLevel.Version150:
+                    return 150;
+                case DatabaseCompatibilityLevel.Version160:
+                    return 160;
+                case DatabaseCompatibilityLevel.Version170:
+                    return 170;
+                default:
+                    return int.MaxValue;
+            }
         }
     }
 }

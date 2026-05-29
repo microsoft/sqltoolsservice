@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
@@ -28,6 +29,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableSuggestions);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo);
+            Assert.Null(sqlToolsSettings.SqlTools.IntelliSense.EnableCatalogMetadataProvider);
+        }
+
+        /// <summary>
+        /// Validate catalog metadata provider setting parse and update behavior.
+        /// </summary>
+        [Test]
+        public void ValidateCatalogMetadataProviderSetting()
+        {
+            JObject message = JObject.Parse(@"
+{
+    ""params"": {
+        ""mssql"": {
+            ""intelliSense"": {
+                ""enableCatalogMetadataProvider"": true
+            }
+        }
+    }
+}");
+            JToken messageParams = null;
+            message.TryGetValue("params", out messageParams);
+
+            SqlToolsSettings parsedSettings = messageParams.ToObject<SqlToolsSettings>();
+            Assert.AreEqual(true, parsedSettings.SqlTools.IntelliSense.EnableCatalogMetadataProvider);
+
+            var currentSettings = new SqlToolsSettings();
+            currentSettings.Update(parsedSettings);
+            Assert.AreEqual(true, currentSettings.SqlTools.IntelliSense.EnableCatalogMetadataProvider);
         }
 
         /// <summary>

@@ -46,6 +46,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         public bool? EnableQuickInfo { get; set; }
 
         /// <summary>
+        /// Gets or sets whether connected IntelliSense should use the sys-catalog metadata provider.
+        /// Null preserves the default behavior and allows environment-variable override.
+        /// </summary>
+        public bool? EnableCatalogMetadataProvider { get; set; }
+
+        /// <summary>
         /// Update the Intellisense settings
         /// </summary>
         /// <param name="settings"></param>
@@ -57,6 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 this.EnableSuggestions = settings.EnableSuggestions;
                 this.EnableErrorChecking = settings.EnableErrorChecking;
                 this.EnableQuickInfo = settings.EnableQuickInfo;
+                this.EnableCatalogMetadataProvider = settings.EnableCatalogMetadataProvider;
             }
         }
     }
