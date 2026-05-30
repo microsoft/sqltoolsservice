@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -17,8 +18,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
-using System.Threading;
 using System.Linq;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -57,12 +58,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int DefaultMinimumConnectionTimeout = 30;
 
+        private readonly ConcurrentDictionary<string, MetadataCircuitState> metadataCircuitStates = new();
+
         /// <summary>
         /// flag determing if the connection queue requires online metadata objects
         /// it's much cheaper to not construct these objects if not needed
         /// </summary>
         private bool needsMetadata;
         private SqlConnectionOpener connectionOpener;
+
+        private sealed class MetadataCircuitState
+        {
+            public MetadataCircuitState(int failureCount, DateTime openUntilUtc)
+            {
+                FailureCount = failureCount;
+                OpenUntilUtc = openUntilUtc;
+            }
+
+            public int FailureCount { get; }
+
+            public DateTime OpenUntilUtc { get; }
+        }
 
         /// <summary>
         /// Gets the current settings
@@ -231,6 +247,64 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        public override QueueItem QueueBindingOperation(
+            string key,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null)
+        {
+            if (IsMetadataCircuitOpen(key))
+            {
+                Logger.Warning("Language service metadata circuit is open; returning degraded queue result");
+                QueueItem queueItem = new QueueItem
+                {
+                    Key = key,
+                    BindOperation = bindOperation,
+                    TimeoutOperation = timeoutOperation,
+                    ErrorHandler = errorHandler,
+                    BindingTimeout = bindingTimeout,
+                    WaitForLockTimeout = waitForLockTimeout,
+                    TimedOut = true
+                };
+
+                IBindingContext bindingContext = GetOrCreateBindingContext(key);
+                queueItem.Result = timeoutOperation != null
+                    ? timeoutOperation(bindingContext)
+                    : null;
+                queueItem.ItemProcessed.Set();
+                return queueItem;
+            }
+
+            return base.QueueBindingOperation(
+                key,
+                (bindingContext, cancellationToken) =>
+                {
+                    object result = bindOperation(bindingContext, cancellationToken);
+                    ResetMetadataFailures(key);
+                    return result;
+                },
+                bindingContext =>
+                {
+                    RecordMetadataFailure(key, "timeout");
+                    RemoveBindingContext(key);
+                    return timeoutOperation != null
+                        ? timeoutOperation(bindingContext)
+                        : null;
+                },
+                ex =>
+                {
+                    RecordMetadataFailure(key, "exception");
+                    RemoveBindingContext(key);
+                    return errorHandler != null
+                        ? errorHandler(ex)
+                        : null;
+                },
+                bindingTimeout,
+                waitForLockTimeout);
+        }
+
         /// <summary>
         /// Creates an offline binding context for a SQL project (no server connection required).
         /// </summary>
@@ -242,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             ConnectedBindingContext bindingContext = (ConnectedBindingContext)this.GetOrCreateBindingContext(projectKey);
-            if (bindingContext.BindingLock.WaitOne())
+            if (bindingContext.BindingLock.WaitOne(GetMetadataWarmupTimeout()))
             {
                 try
                 {
@@ -290,14 +364,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
+            if (IsMetadataCircuitOpen(connectionKey))
+            {
+                Logger.Warning("Language service metadata circuit is open; skipping metadata context creation");
+                bindingContext.IsConnected = false;
+                return connectionKey;
+            }
+
             if (bindingContext.BindingLock.WaitOne())
             {
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                   
+
+                    ConnectionInfo languageServiceConnectionInfo = CreateLanguageServiceConnectionInfo(connInfo);
+
                     // populate the binding context to work with the SMO metadata provider
-                    bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
+                    bindingContext.ServerConnection = connectionOpener.OpenServerConnection(languageServiceConnectionInfo, featureName);
 
                     if (this.needsMetadata)
                     {
@@ -306,15 +389,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
                             this.CurrentSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase
                                 ? CasingStyle.Lowercase : CasingStyle.Uppercase;
-                            bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
-                        }
-            
+                        bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
+                    }
+
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
+                    ResetMetadataFailures(connectionKey);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"Failed creating binding context for intellisense. Feature: '{featureName ?? "unknown"}' ConnKey: '{connectionKey}'. Exception: {ex}");
+                    Logger.Error($"Failed creating binding context for intellisense. Feature: '{featureName ?? "unknown"}'. Exception: {ex}");
+                    RecordMetadataFailure(connectionKey, "context-create");
                     bindingContext.IsConnected = false;
                 }       
                 finally
@@ -322,8 +407,120 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     bindingContext.BindingLock.Set();
                 }         
             }
+            else
+            {
+                Logger.Warning("Timed out waiting to create language service metadata context");
+                RecordMetadataFailure(connectionKey, "context-lock");
+            }
 
             return connectionKey;
+        }
+
+        private static ConnectionInfo CreateLanguageServiceConnectionInfo(ConnectionInfo connInfo)
+        {
+            ConnectionInfo languageServiceConnectionInfo = new ConnectionInfo(
+                connInfo.Factory,
+                connInfo.OwnerUri,
+                connInfo.ConnectionDetails.Clone())
+            {
+                AzureTokenFetcher = connInfo.AzureTokenFetcher,
+                IsCloud = connInfo.IsCloud,
+                IsSqlDb = connInfo.IsSqlDb,
+                IsSqlDW = connInfo.IsSqlDW,
+                IsAzureAuth = connInfo.IsAzureAuth,
+                EngineEdition = connInfo.EngineEdition,
+                MajorVersion = connInfo.MajorVersion
+            };
+
+            return languageServiceConnectionInfo;
+        }
+
+        private bool IsMetadataCircuitOpen(string key)
+        {
+            if (!ShouldCircuitBreakKey(key))
+            {
+                return false;
+            }
+
+            if (!metadataCircuitStates.TryGetValue(key, out MetadataCircuitState state))
+            {
+                return false;
+            }
+
+            if (state.OpenUntilUtc > DateTime.UtcNow)
+            {
+                return true;
+            }
+
+            metadataCircuitStates.TryRemove(key, out _);
+            return false;
+        }
+
+        private void RecordMetadataFailure(string key, string reason)
+        {
+            if (!ShouldCircuitBreakKey(key))
+            {
+                return;
+            }
+
+            IntelliSenseSettings settings = GetIntelliSenseSettings();
+            int threshold = Math.Max(1, settings.MetadataFailureThreshold);
+            int retryDelay = Math.Max(0, settings.MetadataFailureRetryDelay);
+            DateTime failureTimeUtc = DateTime.UtcNow;
+            MetadataCircuitState state = metadataCircuitStates.AddOrUpdate(
+                key,
+                _ => CreateMetadataCircuitState(1, threshold, retryDelay, failureTimeUtc, DateTime.MinValue),
+                (_, existing) =>
+                {
+                    int failureCount = existing.FailureCount + 1;
+                    return CreateMetadataCircuitState(failureCount, threshold, retryDelay, failureTimeUtc, existing.OpenUntilUtc);
+                });
+
+            if (state.FailureCount >= threshold)
+            {
+                Logger.Warning($"Language service metadata circuit opened after repeated {reason} failures");
+            }
+        }
+
+        private static MetadataCircuitState CreateMetadataCircuitState(
+            int failureCount,
+            int threshold,
+            int retryDelay,
+            DateTime failureTimeUtc,
+            DateTime previousOpenUntilUtc)
+        {
+            DateTime openUntilUtc = failureCount >= threshold
+                ? failureTimeUtc.AddMilliseconds(retryDelay)
+                : previousOpenUntilUtc;
+
+            return new MetadataCircuitState(failureCount, openUntilUtc);
+        }
+
+        private void ResetMetadataFailures(string key)
+        {
+            if (ShouldCircuitBreakKey(key))
+            {
+                metadataCircuitStates.TryRemove(key, out _);
+            }
+        }
+
+        private static bool ShouldCircuitBreakKey(string key)
+        {
+            return !string.IsNullOrWhiteSpace(key)
+                && !key.StartsWith(LanguageService.ProjectContextKeyPrefix, StringComparison.Ordinal);
+        }
+
+        private int GetMetadataWarmupTimeout()
+        {
+            IntelliSenseSettings settings = GetIntelliSenseSettings();
+            return settings.MetadataWarmupTimeout > 0
+                ? settings.MetadataWarmupTimeout
+                : IntelliSenseSettings.DefaultMetadataWarmupTimeout;
+        }
+
+        private IntelliSenseSettings GetIntelliSenseSettings()
+        {
+            return this.CurrentSettings?.SqlTools?.IntelliSense ?? new IntelliSenseSettings();
         }
     }
 }

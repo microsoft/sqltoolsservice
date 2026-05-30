@@ -13,7 +13,9 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -332,6 +334,61 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 bindingQueue.StopQueueProcessor(1000);
                 bindingQueue.Dispose();
+            }
+        }
+
+        [Test]
+        public async Task ParseAndBindReturnsWhenParserExceedsTimeout()
+        {
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.IntelliSense.ParserTimeout = 50;
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.IntelliSense.BindingTimeout = 500;
+
+            TestLanguageService service = new TestLanguageService();
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("SELECT 1");
+
+            ManualResetEvent releaseParser = new ManualResetEvent(false);
+            service.IncrementalParseOverride = (sqlText, previousParseResult, options) =>
+            {
+                releaseParser.WaitOne();
+                return Parser.IncrementalParse(sqlText, previousParseResult, options);
+            };
+
+            try
+            {
+                ParseResult parseResult = await service.ParseAndBind(scriptFile, null);
+
+                Assert.That(parseResult, Is.Null);
+                Assert.That(service.GetScriptParseInfo(scriptFile.ClientUri).ParseResult, Is.Null);
+            }
+            finally
+            {
+                releaseParser.Set();
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+            }
+        }
+
+        [Test]
+        public async Task ParseAndBindSkipsSemanticWorkForLargeScripts()
+        {
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.IntelliSense.MaxScriptSize = 5;
+
+            TestLanguageService service = new TestLanguageService();
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("SELECT 1");
+
+            try
+            {
+                ParseResult parseResult = await service.ParseAndBind(scriptFile, null);
+
+                Assert.That(parseResult, Is.Null);
+                Assert.That(service.GetScriptParseInfo(scriptFile.ClientUri).ParseResult, Is.Null);
+            }
+            finally
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
             }
         }
     }

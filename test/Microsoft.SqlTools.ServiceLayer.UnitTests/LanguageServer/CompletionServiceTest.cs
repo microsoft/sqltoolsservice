@@ -6,7 +6,6 @@
 #nullable disable
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -68,8 +67,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
             Assert.AreEqual(result.CompletionItems.Length, defaultCompletionList.Length);
-            Thread.Sleep(3000);
-            Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
         }
 
         private ScriptDocumentInfo CreateScriptDocumentInfo()

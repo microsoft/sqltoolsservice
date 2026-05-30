@@ -9,13 +9,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -25,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     public class BindingQueue<T> : IDisposable where T : IBindingContext, new()
     {
         internal const int QueueThreadStackSize = 5 * 1024 * 1024;
+
+        private const string DisconnectedBindingContextKey = "disconnected_binding_context";
 
         private CancellationTokenSource processQueueCancelToken = null;
 
@@ -143,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // use a default binding context for disconnected requests
             if (string.IsNullOrWhiteSpace(key))
             {
-                key = "disconnected_binding_context";
+                key = DisconnectedBindingContextKey;
             }
 
             lock (this.bindingContextLock)
@@ -164,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // use a default binding context for disconnected requests
             if (string.IsNullOrWhiteSpace(keyPrefix))
             {
-                keyPrefix = "disconnected_binding_context";
+                keyPrefix = DisconnectedBindingContextKey;
             }
 
             lock (this.bindingContextLock)
@@ -181,6 +183,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             lock (this.bindingContextLock)
             {
                 return this.BindingContextMap.ContainsKey(key);
+            }
+        }
+
+        protected bool IsCurrentBindingContext(string key, IBindingContext bindingContext)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                key = DisconnectedBindingContextKey;
+            }
+
+            lock (this.bindingContextLock)
+            {
+                return this.BindingContextMap.TryGetValue(key, out IBindingContext currentBindingContext)
+                    && ReferenceEquals(currentBindingContext, bindingContext);
             }
         }
 
@@ -330,29 +346,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private void DispatchQueueItem(IBindingContext bindingContext, QueueItem queueItem)
         {
             bool lockTaken = false;
+            CancellationTokenSource cancelToken = null;
+            Stopwatch operationStopwatch = Stopwatch.StartNew();
             try
             {
+                if (!IsCurrentBindingContext(queueItem.Key, bindingContext))
+                {
+                    Logger.Warning("Skipping binding queue operation for retired metadata context");
+                    queueItem.TimedOut = true;
+                    CompleteQueueItemWithTimeout(queueItem, bindingContext);
+                    return;
+                }
+
                 // prefer the queue item binding item, otherwise use the context default timeout - timeout is in milliseconds
-                int bindTimeoutInMs = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
+                int bindTimeoutInMs = Math.Max(0, queueItem.BindingTimeout ?? bindingContext.BindingTimeout);
+                int waitForLockTimeoutInMs = Math.Max(0, queueItem.WaitForLockTimeout ?? 0);
 
                 // handle the case a previous binding operation is still running
-                if (!bindingContext.BindingLock.WaitOne(queueItem.WaitForLockTimeout ?? 0))
+                if (!bindingContext.BindingLock.WaitOne(waitForLockTimeoutInMs))
                 {
-                    try
-                    {
-                        Logger.Warning("Binding queue operation timed out waiting for previous operation to finish");
-                        queueItem.Result = queueItem.TimeoutOperation != null
-                            ? queueItem.TimeoutOperation(bindingContext)
-                            : null;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Exception running binding queue lock timeout handler: " + ex.ToString());
-                    }
-                    finally
-                    {
-                        queueItem.ItemProcessed.Set();
-                    }
+                    Logger.Warning($"Binding queue operation timed out waiting for previous operation after {waitForLockTimeoutInMs} ms");
+                    queueItem.LockTimedOut = true;
+                    CompleteQueueItemWithTimeout(queueItem, bindingContext);
+                    RemoveBindingContext(queueItem.Key);
+                    return;
                 }
 
                 bindingContext.BindingLock.Reset();
@@ -361,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // execute the binding operation
                 object result = null;
-                CancellationTokenSource cancelToken = new CancellationTokenSource();
+                cancelToken = new CancellationTokenSource();
 
                 // run the operation in a separate thread
                 var bindTask = Task.Run(() =>
@@ -374,6 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     catch (Exception ex)
                     {
+                        queueItem.Exception = ex;
                         Logger.Error("Unexpected exception on the binding queue: " + ex.ToString());
                         if (queueItem.ErrorHandler != null)
                         {
@@ -397,54 +415,62 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 });
 
-                Task.Run(() =>
+                // check if the binding tasks completed within the binding timeout
+                if (bindTask.Wait(bindTimeoutInMs))
                 {
-                    try
+                    queueItem.Result = result;
+                    Logger.Verbose($"Binding queue operation completed in {operationStopwatch.ElapsedMilliseconds} ms");
+                }
+                else
+                {
+                    queueItem.TimedOut = true;
+                    cancelToken.Cancel();
+                    Logger.Warning($"Binding queue operation timed out after {bindTimeoutInMs} ms");
+                    CompleteQueueItemWithTimeout(queueItem, bindingContext);
+                    CancellationTokenSource abandonedCancelToken = cancelToken;
+                    cancelToken = null;
+                    bindTask.ContinueWith(t =>
                     {
-                        // check if the binding tasks completed within the binding timeout                           
-                        if (bindTask.Wait(bindTimeoutInMs))
+                        if (t.IsFaulted)
                         {
-                            queueItem.Result = result;
+                            Logger.Error("Binding queue threw exception " + t.Exception.ToString());
                         }
-                        else
-                        {
-                            cancelToken.Cancel();
-                            // if the task didn't complete then call the timeout callback
-                            if (queueItem.TimeoutOperation != null)
-                            {
-                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
-                            }
-                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
-                            // Give the task a chance to complete before moving on to the next operation
-                            bindTask.Wait();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Binding queue task completion threw exception " + ex.ToString());
-                    }
-                    finally
-                    {
-                        // set item processed to avoid deadlocks 
-                        if (lockTaken)
-                        {
-                            bindingContext.BindingLock.Set();
-                        }
-                        queueItem.ItemProcessed.Set();
-                    }
-                });
+                        abandonedCancelToken.Dispose();
+                    });
+                    RemoveBindingContext(queueItem.Key);
+                }
             }
             catch (Exception ex)
             {
                 // catch and log any exceptions raised in the binding calls
                 // set item processed to avoid deadlocks 
+                queueItem.Exception = ex;
                 Logger.Error("Binding queue threw exception " + ex.ToString());
+            }
+            finally
+            {
                 // set item processed to avoid deadlocks 
                 if (lockTaken)
                 {
                     bindingContext.BindingLock.Set();
                 }
                 queueItem.ItemProcessed.Set();
+                cancelToken?.Dispose();
+            }
+        }
+
+        private static void CompleteQueueItemWithTimeout(QueueItem queueItem, IBindingContext bindingContext)
+        {
+            try
+            {
+                queueItem.Result = queueItem.TimeoutOperation != null
+                    ? queueItem.TimeoutOperation(bindingContext)
+                    : null;
+            }
+            catch (Exception ex)
+            {
+                queueItem.Exception = ex;
+                Logger.Error("Exception running binding queue timeout handler: " + ex.ToString());
             }
         }
 

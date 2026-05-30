@@ -55,21 +55,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         public AutoCompletionResult CreateCompletions(
             ConnectionInfo connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            bool useLowerCaseSuggestions)
+            bool useLowerCaseSuggestions,
+            int bindingTimeout = LanguageService.BindingTimeout,
+            CancellationToken cancellationToken = default)
         {
             AutoCompletionResult result = new AutoCompletionResult();
             // check if the file has a binding context ready and the file lock is available
-            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
+            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock, bindingTimeout))
             {
                 try
                 {
-                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions, bindingTimeout, cancellationToken);
 
                     // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!LanguageService.WaitForQueueItem(queueItem, bindingTimeout, "completion"))
+                    {
+                        return CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    }
                     Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
                     var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
-                    if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
+                    if (completionResult != null && completionResult.CompletionItems != null)
                     {
                         result = completionResult;
                     }
@@ -77,11 +82,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     {
                         result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
                     }
+                    else
+                    {
+                        result = CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    }
                 }
                 finally
                 {
                     Monitor.Exit(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock);
                 }
+            }
+            else if (!cancellationToken.IsCancellationRequested)
+            {
+                result = CreateDefaultCompletionItems(scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
             }
             Logger.Verbose($"Sending completion result for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
             return result;
@@ -91,15 +104,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             ConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            bool useLowerCaseSuggestions)
+            bool useLowerCaseSuggestions,
+            int bindingTimeout,
+            CancellationToken cancellationToken)
         {
             // queue the completion task with the binding queue    
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
-                bindingTimeout: LanguageService.BindingTimeout,
+                bindingTimeout: bindingTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
-                    return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);
+                    if (cancelToken.IsCancellationRequested || cancellationToken.IsCancellationRequested)
+                    {
+                        return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                    }
+
+                    return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider, cancelToken, cancellationToken);
                 },
                 timeoutOperation: (bindingContext) =>
                 {
@@ -142,7 +162,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             ConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            MetadataDisplayInfoProvider metadataDisplayInfoProvider)
+            MetadataDisplayInfoProvider metadataDisplayInfoProvider,
+            CancellationToken queueCancellationToken,
+            CancellationToken requestCancellationToken)
         {
             AutoCompletionResult result = new AutoCompletionResult();
             IEnumerable<Declaration> suggestions = SqlParserWrapper.FindCompletions(
@@ -150,6 +172,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 scriptDocumentInfo.ParserLine,
                 scriptDocumentInfo.ParserColumn,
                 metadataDisplayInfoProvider);
+
+            if (queueCancellationToken.IsCancellationRequested || requestCancellationToken.IsCancellationRequested)
+            {
+                return result;
+            }
 
             // get the completion list from SQL Parser
             scriptParseInfo.CurrentSuggestions = suggestions;

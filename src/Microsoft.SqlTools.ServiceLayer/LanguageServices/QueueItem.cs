@@ -69,6 +69,29 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public int? WaitForLockTimeout { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the queued operation exceeded its execution budget.
+        /// </summary>
+        public bool TimedOut { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the queued operation exceeded its binding lock wait budget.
+        /// </summary>
+        public bool LockTimedOut { get; set; }
+
+        /// <summary>
+        /// Gets or sets the exception raised while processing this queue item.
+        /// </summary>
+        public Exception? Exception { get; set; }
+
+        /// <summary>
+        /// Waits for the queue item to finish processing.
+        /// </summary>
+        public bool WaitForCompletion(int millisecondsTimeout)
+        {
+            return this.ItemProcessed.WaitOne(millisecondsTimeout);
+        }
+
+        /// <summary>
         /// Converts the result of the execution to type T
         /// </summary>
         public T? GetResultAsT<T>() where T : class

@@ -2109,31 +2109,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             try
             {
-                // capture original values
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
+                ConnectionDetails connectionDetails = connInfo.ConnectionDetails.Clone();
 
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
                 bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                connectionDetails.PersistSecurityInfo = true;
 
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
                 if (shouldForceDisablePooling)
                 {
-                    connInfo.ConnectionDetails.Pooling = false;
+                    connectionDetails.Pooling = false;
                 }
 
                 // increase the connection and command timeout to at least 30 seconds and set application name.
-                connInfo.ConnectionDetails = FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
+                connectionDetails = FillInDefaultDetailsForConnections(connectionDetails, featureName);
 
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
-
-                // restore original values
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-                connInfo.ConnectionDetails.Pooling = originalPooling;
+                string connectionString = ConnectionService.BuildConnectionString(connectionDetails, shouldForceDisablePooling);
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);

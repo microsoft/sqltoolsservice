@@ -219,53 +219,79 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// and make sure subsequent tasks don't execute while task is completing
         /// </summary>
         [Test]
-        public void QueueWithTimeoutDoesNotRunNextTask()
+        public void QueueWithTimeoutCompletesNextTaskWithoutRunningOnRetiredContext()
         {
             string operationKey = "testkey";
-            ManualResetEvent firstEventExecuted = new ManualResetEvent(false);
-            ManualResetEvent secondEventExecuted = new ManualResetEvent(false);
-            bool firstOperationCanceled = false;
+            ManualResetEvent releaseFirstOperation = new ManualResetEvent(false);
             bool secondOperationExecuted = false;
             InitializeTestSettings();
 
             this.bindCallbackDelay = 1000;
             var totalTimeout = (this.bindCallbackDelay + this.bindingContext.BindingTimeout) * 2;
 
-            this.bindingQueue.QueueBindingOperation(
+            QueueItem firstQueueItem = this.bindingQueue.QueueBindingOperation(
                 key: operationKey,
                 bindingTimeout: bindCallbackDelay / 2,
                 bindOperation: (bindingContext, cancellationToken) =>
                 {
-                    secondEventExecuted.WaitOne();
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        firstOperationCanceled = true;
-                    }
-                    firstEventExecuted.Set();
+                    releaseFirstOperation.WaitOne();
                     return null;
                 },
                 timeoutOperation: TestTimeoutOperation);
 
-            this.bindingQueue.QueueBindingOperation(
+            QueueItem secondQueueItem = this.bindingQueue.QueueBindingOperation(
                 key: operationKey,
                 bindingTimeout: bindCallbackDelay,
                 bindOperation: (bindingContext, cancellationToken) =>
                 {
                     secondOperationExecuted = true;
-                    secondEventExecuted.Set();
                     return null;
                 },
                 waitForLockTimeout: totalTimeout
             );
 
-            var result = firstEventExecuted.WaitOne(totalTimeout);
-            Assert.False(result);
+            Assert.That(firstQueueItem.WaitForCompletion(totalTimeout), Is.True);
+            Assert.That(secondQueueItem.WaitForCompletion(totalTimeout), Is.True);
+            releaseFirstOperation.Set();
 
             this.bindingQueue.StopQueueProcessor(15000);
 
-            Assert.AreEqual(1, this.timeoutCallCount);
-            Assert.False(firstOperationCanceled);
-            Assert.False(secondOperationExecuted);
+            Assert.That(this.timeoutCallCount, Is.EqualTo(1));
+            Assert.That(firstQueueItem.TimedOut, Is.True);
+            Assert.That(secondQueueItem.TimedOut, Is.True);
+            Assert.That(secondOperationExecuted, Is.False);
+        }
+
+        [Test]
+        public void QueueWithTimeoutSignalsCallerBeforeBindOperationReturns()
+        {
+            InitializeTestSettings();
+
+            ManualResetEvent releaseBindOperation = new ManualResetEvent(false);
+            object timeoutResult = new object();
+
+            QueueItem queueItem = this.bindingQueue.QueueBindingOperation(
+                key: "testkey",
+                bindingTimeout: 50,
+                bindOperation: (bindingContext, cancellationToken) =>
+                {
+                    releaseBindOperation.WaitOne();
+                    this.isCancelationRequested = cancellationToken.IsCancellationRequested;
+                    return new object();
+                },
+                timeoutOperation: bindingContext =>
+                {
+                    ++this.timeoutCallCount;
+                    return timeoutResult;
+                });
+
+            Assert.That(queueItem.WaitForCompletion(1000), Is.True);
+            Assert.That(queueItem.TimedOut, Is.True);
+            Assert.That(queueItem.Result, Is.EqualTo(timeoutResult));
+            Assert.That(this.timeoutCallCount, Is.EqualTo(1));
+
+            releaseBindOperation.Set();
+            this.bindingQueue.StopQueueProcessor(15000);
         }
     }
 }
