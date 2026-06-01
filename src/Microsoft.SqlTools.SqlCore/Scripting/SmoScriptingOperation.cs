@@ -178,7 +178,8 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                     }
                     else
                     {
-                        smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, (string)optionValue, ignoreCase: true);
+                        string enumValue = MapEnumValue(optionPropInfo.Name, (string)optionValue);
+                        smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, enumValue, ignoreCase: true);
                     }
 
                     Logger.Verbose(string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
@@ -191,6 +192,49 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Maps enum value names used by SQL Tools Service (which mirror the SqlScriptPublish
+        /// naming convention) to the names expected by SMO's core DatabaseEngineType and
+        /// DatabaseEngineEdition enums. Without this mapping, Enum.Parse fails for values such as
+        /// "SqlAzure" or "SqlAzureDatabaseEdition", causing SMO to fall back to non-cloud defaults
+        /// and produce invalid scripts (for example, temporal tables with PRIMARY KEY constraints
+        /// emitted as separate ALTER TABLE statements). Unmapped values are returned unchanged.
+        /// </summary>
+        internal static string MapEnumValue(string propertyName, string value)
+        {
+            if (propertyName == "TargetDatabaseEngineType")
+            {
+                return value switch
+                {
+                    "SqlAzure" => "SqlAzureDatabase",
+                    "SingleInstance" => "Standalone",
+                    _ => value
+                };
+            }
+
+            if (propertyName == "TargetDatabaseEngineEdition")
+            {
+                return value switch
+                {
+                    "SqlAzureDatabaseEdition" => "SqlDatabase",
+                    "SqlDatawarehouseEdition" => "SqlDataWarehouse",
+                    "SqlServerStretchEdition" => "SqlStretchDatabase",
+                    "SqlServerManagedInstanceEdition" => "SqlManagedInstance",
+                    "SqlServerOnDemandEdition" => "SqlOnDemand",
+                    "SqlServerPersonalEdition" => "Personal",
+                    "SqlServerStandardEdition" => "Standard",
+                    "SqlServerEnterpriseEdition" => "Enterprise",
+                    "SqlServerExpressEdition" => "Express",
+                    "SqlDatabaseEdgeEdition" => "SqlDatabaseEdge",
+                    "SqlAzureArcManagedInstanceEdition" => "SqlAzureArcManagedInstance",
+                    "SqlFabricSqlDatabaseEdition" => "FabricSqlDatabase",
+                    _ => value
+                };
+            }
+
+            return value;
         }
 
         /// <summary>
