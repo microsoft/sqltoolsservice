@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Nullable>disable</Nullable>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyTitle>SqlTools Language Service Library</AssemblyTitle>
+    <Description>Language service implementation extracted from SQL Tools ServiceLayer.</Description>
+    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0436;CS8632</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Microsoft.SqlTools.Common/Microsoft.SqlTools.Common.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
+  </ItemGroup>
+</Project>
