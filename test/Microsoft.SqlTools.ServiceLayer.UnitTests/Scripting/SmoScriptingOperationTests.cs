@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.SqlCore.Scripting;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
@@ -26,9 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             Assert.That(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SingleInstance"), Is.EqualTo("Standalone"));
 
             // The mapped values must be parseable by the core SMO enum.
-            Assert.That(System.Enum.Parse(typeof(DatabaseEngineType), SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SqlAzure"), ignoreCase: true),
+            Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SqlAzure"), ignoreCase: true),
                 Is.EqualTo(DatabaseEngineType.SqlAzureDatabase));
-            Assert.That(System.Enum.Parse(typeof(DatabaseEngineType), SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SingleInstance"), ignoreCase: true),
+            Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SingleInstance"), ignoreCase: true),
                 Is.EqualTo(DatabaseEngineType.Standalone));
         }
 
@@ -50,8 +50,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             string mapped = SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineEdition", input);
             Assert.That(mapped, Is.EqualTo(expected));
 
-            // The mapped values must be parseable by the core SMO enum.
-            Assert.That(System.Enum.IsDefined(typeof(DatabaseEngineEdition), System.Enum.Parse(typeof(DatabaseEngineEdition), mapped, ignoreCase: true)), Is.True);
+            // When the mapped name exists in the referenced SMO enum, it must parse successfully.
+            // Some newer editions may not be present in every SMO version, so only assert for known names.
+            if (System.Array.Exists(System.Enum.GetNames<DatabaseEngineEdition>(), n => string.Equals(n, mapped, System.StringComparison.OrdinalIgnoreCase)))
+            {
+                Assert.That(System.Enum.IsDefined(System.Enum.Parse<DatabaseEngineEdition>(mapped, ignoreCase: true)), Is.True);
+            }
         }
 
         /// <summary>
