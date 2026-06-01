@@ -69,5 +69,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             Assert.That(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineEdition", "SqlDatabase"), Is.EqualTo("SqlDatabase"));
             Assert.That(SmoScriptingOperation.MapEnumValue("ScriptCompatibilityOption", "Script140Compat"), Is.EqualTo("Script140Compat"));
         }
+
+        /// <summary>
+        /// IsDefinedEnumName recognizes names that exist on the target enum (case-insensitive) so that
+        /// values matching SMO's SqlScriptPublish enums are parsed as-is rather than remapped, while
+        /// values that do not exist (the SqlScriptPublish names for the core enums) fall back to mapping.
+        /// </summary>
+        [Test]
+        public void IsDefinedEnumNameDetectsExistingNames()
+        {
+            // "SqlAzureDatabase" is a member of the core Common.DatabaseEngineType enum.
+            Assert.That(SmoScriptingOperation.IsDefinedEnumName(typeof(DatabaseEngineType), "SqlAzureDatabase"), Is.True);
+            Assert.That(SmoScriptingOperation.IsDefinedEnumName(typeof(DatabaseEngineType), "sqlazuredatabase"), Is.True);
+
+            // "SqlAzure" is the SqlScriptPublish name and is not part of the core enum.
+            Assert.That(SmoScriptingOperation.IsDefinedEnumName(typeof(DatabaseEngineType), "SqlAzure"), Is.False);
+
+            // Non-enum types return false.
+            Assert.That(SmoScriptingOperation.IsDefinedEnumName(typeof(string), "SqlAzure"), Is.False);
+        }
     }
 }

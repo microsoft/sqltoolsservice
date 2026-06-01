@@ -178,7 +178,16 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                     }
                     else
                     {
-                        string enumValue = MapEnumValue(optionPropInfo.Name, (string)optionValue);
+                        string stringValue = (string)optionValue;
+
+                        // The same option string may target either of SMO's two parallel enum systems:
+                        // the SqlScriptPublish enums (e.g. SqlScriptOptions.ScriptDatabaseEngineType, whose
+                        // names match the values STS sends) or the core enums (Common.DatabaseEngineType /
+                        // DatabaseEngineEdition, which use different names). When the value already exists in
+                        // the target enum it is parsed as-is; otherwise it is mapped to the core enum name.
+                        string enumValue = IsDefinedEnumName(advancedOptionPropInfo.PropertyType, stringValue)
+                            ? stringValue
+                            : MapEnumValue(optionPropInfo.Name, stringValue);
                         smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, enumValue, ignoreCase: true);
                     }
 
@@ -192,6 +201,29 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Returns true when the supplied value matches one of the names defined on the given enum
+        /// type (case-insensitive). Used to decide whether an option value can be parsed directly or
+        /// needs to be mapped between SMO's two enum naming conventions.
+        /// </summary>
+        internal static bool IsDefinedEnumName(Type enumType, string value)
+        {
+            if (!enumType.IsEnum)
+            {
+                return false;
+            }
+
+            foreach (string name in Enum.GetNames(enumType))
+            {
+                if (string.Equals(name, value, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
