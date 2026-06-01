@@ -1,0 +1,4313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>Sloupec akce</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>Sloupec akce.</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>Aktivace</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>Skutečný uplynulý čas procesoru (ms)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>Skutečný uplynulý čas procesoru v milisekundách</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Skutečné náklady na procesor</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Skutečná velikost dat</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>Skutečný uplynulý čas (ms)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>Skutečný uplynulý čas v milisekundách</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>Skutečný režim provádění</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>Skutečný režim provádění</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Skutečná spuštění</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>Skutečná statistika vstupu a výstupu</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>Skutečná statistika V/V operací</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>Skutečný typ propojený</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>Skutečné spojení bylo vybráno (vnořené smyčky nebo hash spojení) jako součást provádění adaptivního spojení.</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>Skutečná logická čtení objektu lob</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>Skutečná logická čtení LOB</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>Skutečná předčítaní serveru ze stránky objektu LOB</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Skutečná předčítaní serveru ze stránky objektu Lob</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>Skutečná čtení ze serveru stránky objektu lob</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>Skutečná čtení ze serveru stránky objektu lob</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>Skutečná fyzická čtení objektu LOB</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>Skutečná fyzická čtení objektu LOB</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>Skutečná předčítání LOB</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>Skutečná předčítání Lob</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>Skutečný počet místně agregovaných řádků</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>Skutečný počet místně agregovaných řádků</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>Skutečná logická čtení</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>Skutečná logická čtení</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>Využití paměti</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} z(e) ]D;]A;{1} ({2}%)</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>Skutečný počet čtení stránkového serveru napřed</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Skutečný počet čtení stránkového serveru napřed</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>Skutečná čtení stránkového serveru</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>Skutečná čtení stránkového serveru</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>Skutečná fyzická čtení</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>Skutečná fyzická čtení</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>Skutečná předčítaní</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>Skutečná předčítaní</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>Skutečná obnovení vazby</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>Skutečná obnovení vazby.</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>Skutečná přetáčení</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>Skutečné přetáčení.</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Skutečné řádky</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>Počet přečtených řádků</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>Počet řádků přečtených z tabulky nebo indexu před použitím filtru predikátu. Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>Skutečné kontroly</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>Skutečné kontroly</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>Statistika skutečného času</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>Statistika skutečného času</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>Adaptivní spojení</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>Volí dynamicky mezi spojením hash a vnořenými smyčkami.</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>Řádky adaptivní prahové hodnoty</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>Pokud se jedná o adaptivní operátor, kardinalita, při které se adaptuje.</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>Agregovat</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>Vypočítá výraz obsahující hodnoty SUM, COUNT, MIN, MAX nebo AVG.</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>Název výstrahy nemůže být prázdný.</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Použít</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>Použijte operaci.</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Aritmetický výraz</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>Vypočítá novou hodnotu z existujících hodnot v řádku.</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>Vzestupně</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>Vyhodnotit</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>Slouží k ověření, jestli zadaná podmínka existuje.</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Přiřadit</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>Ověřte omezení referenční integrity.</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Průměrná velikost řádku</value>
+  </data>
+  <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
+    <value>Azure SQL Analytics na vyžádání</value>
+  </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Databáze Azure SQL</value>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Datový sklad SQL Azure</value>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+  </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Nelze profilovat systémové databáze Azure.</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Zadejte prosím cestu k souboru místo cesty k adresáři.</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Zálohovat databázi</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Základní</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Sestavení dávkové hashovací tabulky</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>Sestavení dávkové hashovací tabulky.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Spuštění obálky analyzátoru dávky: {0} nalezeno... na řádku {1}: {2}    Popis: {3}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>{0} nejde převést na objekt Microsoft.Data.SqlClient.SqlParameter. Zadaný literál nelze převést na {1}(Microsoft.Data.SqlDbType), protože pro binární literály se očekává předpona 0x.  Hodnota literálu: {2}</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Rastrový obrázek</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>Rastrový obrázek</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Vyhledávání záložky</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>Pomocí záložky (RID nebo klíče clusteringu) vyhledejte odpovídající řádek v tabulce nebo clusterovaném indexu.</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>Všechny klony</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>Směrování cihly</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>Vysílat</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>Přesun dat všesměrového vysílání</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>Rezidua sestavení</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>Rezidua sestavení.</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Pro důležité obchodní informace</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>Velikost plánu v mezipaměti</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>Velikost plánu v mezipaměti.</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Upozornění nelze změnit.</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Nelze vytvořit nové upozornění.</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Poradce pro optimalizaci databázového stroje</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Údržba databáze</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Kolekce dat</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>Úlohy z MSX</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Fulltext</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Nezařazeno do kategorií (místní)]5D;</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Přesouvání protokolu</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Nezařazeno do kategorií (více serverů)]5D;</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>Odpověď REPL-Alert</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL-Checkup</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>Čištění odběru REPL</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-Distribution</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL-Vyčištění distribuce</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>Vyčištění historie REPL</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL-Sloučení</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-QueueReader</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL-Snímek</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Replikace</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Nekategorizováno]5D;</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Webový asistent</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>Klonovat obor přístupu</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>Klonuje, ke kterým může operátor přistupovat.</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>Odstranění clusterovaného indexu</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>Odstraní řádky z clusterovaného indexu.</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>Vložení clusterovaného indexu</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>Umožňuje vložit řádky do clusterovaného indexu.</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>Sloučení clusterovaných indexů</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>Umožňuje sloučit řádky v clusterovém indexu.</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>Kontrola clusterovaných indexů</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>Kontroluje se clusterovaný index, celý nebo jen v určitém rozsahu.</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>Hledání clusterovaných indexů</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>Prohledávání konkrétního rozsahu řádků z clusterovaného indexu.</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>Aktualizace clusterovaného indexu</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>Umožňuje aktualizovat řádky v clusterovém indexu.</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>Clusterovaná aktualizace</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>Clusterovaná aktualizace.</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Sbalit</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>Seskupí vložení a odstranění se stejnou hodnotou do aktualizace v rámci rozsáhlých plánů aktualizací.</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>Odkaz na sloupec</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>Sloupce bez statistiky</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>Sloupce bez upozornění na statistiku.</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>Aktualizace indexu columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>Odstranění řádků z indexu columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Vložit index columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>Vloží řádky do indexu columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Sloučení indexu Columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>Sloučení řádků v indexu columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Kontrola indexů columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>Prohledá index columnstore, zcela nebo pouze rozsah.</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Aktualizace indexu columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>Sloučení řádků v indexu columnstore.</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>Skalární výpočetní prostředky</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>Vypočítá nové hodnoty z existujících hodnot v řádku.</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>Výpočty do řídicího uzlu</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>Tok dat z výpočetních uzlů do řídicího uzlu.</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>Zřetězení</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>Připojte více vstupních tabulek k vytvoření výstupní tabulky.</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Zadání této možnosti při obnovení zálohy pomocí možnosti NORECOVERY není povoleno.</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadOnly" xml:space="preserve">
+    <value>Jen pro čtení</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadWrite" xml:space="preserve">
+    <value>Čtení/zápis</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_description" xml:space="preserve">
+    <value>Deklaruje typ úlohy aplikace při připojování k serveru.</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_displayName" xml:space="preserve">
+    <value>Záměr aplikace</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_description" xml:space="preserve">
+    <value>Název aplikace</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_displayName" xml:space="preserve">
+    <value>Název aplikace</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachDbFilename_displayName" xml:space="preserve">
+    <value>Název souboru připojené databáze</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_description" xml:space="preserve">
+    <value>Název primárního souboru, včetně úplné cesty, připojitelné databáze</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_displayName" xml:space="preserve">
+    <value>Název souboru připojené databáze</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_AAS" xml:space="preserve">
+    <value>Azure Attestation</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_HGS" xml:space="preserve">
+    <value>Služba Strážce hostitele</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_None" xml:space="preserve">
+    <value>Žádné</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_description" xml:space="preserve">
+    <value>Určuje protokol pro ověření identity enklávy na straně serveru používané s funkcí Always Encrypted se zabezpečenými enklávami.</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_displayName" xml:space="preserve">
+    <value>Protokol ověření identity</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_AzureMFA" xml:space="preserve">
+    <value>Microsoft Entra ID – univerzální s podporou vícefaktorového ověřování</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_Integrated" xml:space="preserve">
+    <value>Integrované ověřování Windows</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_SqlLogin" xml:space="preserve">
+    <value>Přihlášení k SQL</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_description" xml:space="preserve">
+    <value>Určuje metodu ověřování pomocí systému SQL Server.</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_displayName" xml:space="preserve">
+    <value>Typ ověřování</value>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_description" xml:space="preserve">
+    <value>Povolí nebo zakáže funkci Always Encrypted pro připojení.</value>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_displayName" xml:space="preserve">
+    <value>Always Encrypted</value>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_description" xml:space="preserve">
+    <value>Doba (v sekundách), po kterou se čeká na dokončení příkazu na serveru, než se pokus ukončí a vygeneruje se chyba</value>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_displayName" xml:space="preserve">
+    <value>Časový limit příkazu</value>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Disabled" xml:space="preserve">
+    <value>Zakázáno</value>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Enabled" xml:space="preserve">
+    <value>Povoleno</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_description" xml:space="preserve">
+    <value>Počet pokusů o obnovení připojení</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_displayName" xml:space="preserve">
+    <value>Počet opakování pokusů o připojení</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_description" xml:space="preserve">
+    <value>Prodleva mezi pokusy o obnovení připojení</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_displayName" xml:space="preserve">
+    <value>Interval opakování pokusů o připojení</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_description" xml:space="preserve">
+    <value>Doba (v sekundách) čekání na server před ukončením pokusu a vygenerování chyby</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_displayName" xml:space="preserve">
+    <value>Časový limit připojení (sekundy)</value>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_description" xml:space="preserve">
+    <value>Při hodnotě true označuje, že připojení by mělo pocházet z kontextu SQL serveru. K dispozici pouze při spuštění v procesu systému SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_displayName" xml:space="preserve">
+    <value>Připojení kontextu</value>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_description" xml:space="preserve">
+    <value>Název záznamu jazyka systému SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_displayName" xml:space="preserve">
+    <value>Aktuální jazyk</value>
+  </data>
+  <data name="ConnectionConfigOptions_database_description" xml:space="preserve">
+    <value>Název úvodního katalogu nebo databáze ve zdroji dat</value>
+  </data>
+  <data name="ConnectionConfigOptions_database_displayName" xml:space="preserve">
+    <value>Název databáze</value>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_description" xml:space="preserve">
+    <value>Určuje koncový bod pro ověření identity enklávy na straně serveru používané s funkcí Always Encrypted se zabezpečenými enklávami.</value>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_displayName" xml:space="preserve">
+    <value>Adresa URL ověření identity enklávy</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Mandatory" xml:space="preserve">
+    <value>Povinné</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Optional" xml:space="preserve">
+    <value>Volitelné</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Strict" xml:space="preserve">
+    <value>Striktní</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_description" xml:space="preserve">
+    <value>Když je tato možnost nastavená, SQL Server používá zadané nastavení šifrování SSL pro všechna data přenášená mezi klientem a serverem.</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_displayName" xml:space="preserve">
+    <value>Šifrovat</value>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_description" xml:space="preserve">
+    <value>Název nebo síťová adresa instance systému SQL Server, který funguje jako partner pro předání služeb při selhání.</value>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_displayName" xml:space="preserve">
+    <value>Partnerský server pro převzetí služeb při selhání</value>
+  </data>
+  <data name="ConnectionConfigOptions_failover_and_replication" xml:space="preserve">
+    <value>Převzetí služeb při selhání a replikace</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_context" xml:space="preserve">
+    <value>Zdroj dat a kontext</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_general" xml:space="preserve">
+    <value>Obecné</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_pooling" xml:space="preserve">
+    <value>Nastavení sdružování do fondu</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
+    <value>Odolnost připojení</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_security" xml:space="preserve">
+    <value>Zabezpečení a šifrování</value>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_description" xml:space="preserve">
+    <value>Určuje název hostitele v certifikátu, který se má použít pro ověření certifikátu, když je povolené šifrování.</value>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_displayName" xml:space="preserve">
+    <value>Název hostitele v certifikátu</value>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_description" xml:space="preserve">
+    <value>Minimální doba (v sekundách), po jakou má být toto připojení uchováváno ve fondu, než bude zrušeno</value>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_displayName" xml:space="preserve">
+    <value>Časový limit vyrovnávání zatížení</value>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_description" xml:space="preserve">
+    <value>Maximální počet připojení povolených ve fondu</value>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_displayName" xml:space="preserve">
+    <value>Maximální velikost fondu</value>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_description" xml:space="preserve">
+    <value>Minimální počet připojení povolených ve fondu</value>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_displayName" xml:space="preserve">
+    <value>Minimální velikost fondu</value>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_description" xml:space="preserve">
+    <value>Pokud se vaše aplikace připojuje ke skupině dostupnosti AlwaysOn v různých podsítích, nastavení této možnosti na hodnotu true zajistí rychlejší zjištění aktuálně aktivního serveru a připojení k němu.</value>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_displayName" xml:space="preserve">
+    <value>Převzetí služeb při selhání s více podsítěmi</value>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_description" xml:space="preserve">
+    <value>V případě hodnoty true lze z jednoho připojení vracet a číst více sad výsledků.</value>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_displayName" xml:space="preserve">
+    <value>Několik aktivních sad výsledků</value>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_description" xml:space="preserve">
+    <value>Velikost (v bajtech) síťových paketů používaných ke komunikaci s instancí systému SQL Server.</value>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_displayName" xml:space="preserve">
+    <value>Velikost paketu</value>
+  </data>
+  <data name="ConnectionConfigOptions_password_description" xml:space="preserve">
+    <value>Označuje heslo, které se má používat při připojování ke zdroji dat</value>
+  </data>
+  <data name="ConnectionConfigOptions_password_displayName" xml:space="preserve">
+    <value>Heslo</value>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_description" xml:space="preserve">
+    <value>Pokud je tato možnost nastavená na false, informace citlivé z hlediska zabezpečení, například hesla, se nevracejí jako součást připojení.</value>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_displayName" xml:space="preserve">
+    <value>Zachovat bezpečnostní údaje</value>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_description" xml:space="preserve">
+    <value>V případě hodnoty true je objekt připojení získán z příslušného fondu nebo je v případě potřeby vytvořen a přidán do příslušného fondu.</value>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_displayName" xml:space="preserve">
+    <value>Sdružování</value>
+  </data>
+  <data name="ConnectionConfigOptions_port_displayName" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="ConnectionConfigOptions_replication_description" xml:space="preserve">
+    <value>Používáno systémem SQL Server při replikaci</value>
+  </data>
+  <data name="ConnectionConfigOptions_replication_displayName" xml:space="preserve">
+    <value>Replikace</value>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_description" xml:space="preserve">
+    <value>Povolí nebo zakáže zabezpečené enklávy pro připojení.</value>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_displayName" xml:space="preserve">
+    <value>Zabezpečené enklávy</value>
+  </data>
+  <data name="ConnectionConfigOptions_server_description" xml:space="preserve">
+    <value>Název instance systému SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_server_displayName" xml:space="preserve">
+    <value>Název serveru</value>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_description" xml:space="preserve">
+    <value>V případě hodnoty true (a encrypt=true) používá SQL Server šifrování SSL pro všechna data odesílaná mezi klientem a serverem bez ověřování certifikátu serveru.</value>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_displayName" xml:space="preserve">
+    <value>Důvěřovat certifikátu serveru</value>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_description" xml:space="preserve">
+    <value>Označuje, který systém typu serveru bude zprostředkovatel zpřístupňovat prostřednictvím objektu DataReader.</value>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_displayName" xml:space="preserve">
+    <value>Typ verze systému</value>
+  </data>
+  <data name="ConnectionConfigOptions_user_description" xml:space="preserve">
+    <value>Označuje ID uživatele, které se má používat při připojování ke zdroji dat</value>
+  </data>
+  <data name="ConnectionConfigOptions_user_displayName" xml:space="preserve">
+    <value>Uživatelské jméno</value>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_description" xml:space="preserve">
+    <value>Název pracovní stanice připojující se k systému SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_displayName" xml:space="preserve">
+    <value>ID pracovní stanice</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>Objekt podrobností připojení nemůže být null.</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>Hodnota OwnerUri nemůže být null ani prázdná.</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>Název serveru nemůže být null ani prázdný.</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>{0} nesmí být při použití ověřování SqlLogin prázdné ani null.</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>Zobrazit vlastnosti připojení</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>Protokol ověření identity a adresa URL ověření identity vyžadují, aby byla možnost Always Encrypted se zabezpečenými enklávami nastavená na Povoleno.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>Adresa URL ověření identity nesmí být zadána s protokolem ověření identity None (Žádné). Buď nastavte příslušný protokol ověření identity, nebo odeberte adresu URL ověření identity z vlastností připojení.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>Neplatná hodnota {0} pro AuthenticationType  Platné hodnoty jsou Integrated a SqlLogin.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>Neplatná hodnota {0} pro ComlumEncryption Platné hodnoty jsou Enabled a Disabled.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Neplatná hodnota {0} pro protokol ověření identity Platné hodnoty jsou AAS, HGS a None.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Neplatná hodnota {0} pro šifrování (Encrypt). Platné hodnoty jsou Optional (Volitelné), Mandatory (Povinné), Strict (Striktní), True (Pravda), False (Nepravda), Yes (Ano) a No (Ne).</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>Neplatná hodnota {0} pro ApplicationIntent Platné hodnoty jsou ReadWrite a ReadOnly.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Neplatná hodnota {0} pro zabezpečené enklávy. Platné hodnoty jsou Enabled a Disabled.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Protokol ověření identity s povolenými zabezpečenými enklávami nemůže být prázdný.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>Adresa URL ověření identity nemůže být prázdná s vybranou hodnotou protokolu ověření identity.</value>
+  </data>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Parametry připojení nemůžou být null.</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Připojení se zrušilo.</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>Zadaný identifikátor URI {0} nemá výchozí připojení.</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>Identifikátor SpecifiedUri {0} nemá existující připojení.</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>Hodnota OwnerUri nemůže být null ani prázdná.</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>Získat konstantní tabulku</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>Získá řazené kolekce členů z pomocné tabulky.</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>Konstantní kontrola</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>Zkontroluje interní tabulku konstant.</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>Obsahuje vložené skalární Tsql Udfs</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>Řízení výpočetních uzlů</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>Tok dat z řídicího uzlu do výpočetních uzlů.</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>Převést</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>Implicitní nebo explicitní převod jednoho skalárního datového typu na jiný.</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>Náklady: {0} %</value>
+  </data>
+  <data name="CouldntFindAzureFunction" xml:space="preserve">
+    <value>Nepodařilo se najít funkci Azure s FunctionName {0} v souboru {1}.</value>
+  </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Pro kontejner objektů blob nelze vygenerovat identifikátor SAS URI.</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>Nepovedlo se vytvořit relaci: {0}</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>Objekt již na serveru neexistuje.</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>Skutečný typ kurzoru</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>Souběžnost kurzoru</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>Název kurzoru</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>Operace kurzoru</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>Plán kurzoru</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>Požadovaný typ kurzoru</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>{0} nejde převést na objekt Microsoft.Data.SqlClient.SqlParameter. Zadaný literál nelze převést na {1}(Microsoft.Data.SqlDbType), protože používal nepodporovaný formát data a času. Použijte jeden z podporovaných formátů data a času. Hodnota literálu: {2}</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>Deklarovat</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>Přidělí místní proměnnou.</value>
+  </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>Definované hodnoty</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>Obsahuje čárkami oddělený seznam hodnot zavedený tímto operátorem, což mohou být vypočítané výrazy přítomné v aktuálním dotazu, nebo interní hodnoty zavedené procesorem dotazů za účelem zpracování tohoto dotazu.  Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>Stupeň paralelismu</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>Stupeň paralelismu.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Odstranit</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>Odebere zadané řádky ze zadané tabulky.</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>Odstraněná kontrola</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>Kontroluje se pseudo tabulka deleted v aktivační události.</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>Nasadit dacpac</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Sestupně</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>Odlišné</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>Odlišné.</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>Distribuce datových proudů</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>Distribuujte datové proudy.</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>Dynamický</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>Kurzor, který může zobrazit všechny změny provedené jinými uživateli.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Při provádění dávky došlo k chybě, ale tato chyba byla ignorována.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Provedení dávky bylo dokončeno {0}krát...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Zahájení smyčky provádění</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>Včasné zařazování</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>Včasné zařazování.</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>Dotazy EditData se sloupci s aliasem nejsou podporovány.</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>Sloupec nelze upravit.</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>ID sloupce musí být v rozsahu sloupců pro dotaz.</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>Nenašly se žádné sloupce klíče.</value>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>Probíhá úloha potvrzení. Počkejte prosím na dokončení.</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;auto-generated&gt;</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>Sloupec {0} je definován jako NOT NULL, ale nebyla pro něj zadána hodnota.</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>U tohoto řádku se čeká na odstranění, proto nelze použít aktualizaci buňky.</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>Dotazy EditData s duplicitními sloupci se nepodporují.</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>Dotazy EditData se sloupci agregace nebo výrazu nejsou podporované.</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>Nepovedlo se přidat nový řádek pro aktualizaci mezipaměti.</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>Limit výsledků nemůže být záporný.</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>Dotazy EditData se musí dotazovat na tabulku {0}, na kterou původně cílily.</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>Neplatný formát sloupce {0}', sloupec je definován jako {1}.</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>Neplatný formát pro sloupec s binární hodnotou</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Povolené hodnoty pro sloupce s logickými hodnotami jsou 0, 1, true nebo false.</value>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>Metadata tabulky nemají rozšířené vlastnosti.</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>Musí se zadat název objektu.</value>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>Explicitní zadání serveru nebo databáze není podporováno.</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>Dotazy EditData cílené na více tabulek nejsou podporovány.</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>Hodnota NULL není pro tento sloupec povolená.</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>Metadata tabulky nebo zobrazení nebyla nalezena.</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>Požadovanou tabulku nebo zobrazení pro úpravy nelze najít.</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>Dotaz se nepovedlo provést. Podrobnosti najdete ve zprávách.</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>Dotaz nevygeneroval přesně jednu sadu výsledků dotazu.</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>Provádění dotazu se nedokončilo.</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>Zadané ID řádku je mimo rozsah řádků v mezipaměti úprav.</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>Je nutné zadat název výstupního souboru.</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>Relace úprav již existuje.</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>Relace úprav již byla inicializována.</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>Relace úprav už byla inicializována nebo se právě inicializuje.</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>Relace úprav neexistuje.</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>Relace úprav nebyla inicializována.</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>Hodnoty sloupce TIME (ČAS) musí být mezi 00:00:00.0000000 a 23:59:59.9999999</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>Databázový objekt {0} nelze použít k úpravám.</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>Dané ID řádku nemá čekající aktualizaci.</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>Aktualizace pro tento řádek již čeká na vyřízení a je nutné ji nejprve vrátit zpět.</value>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Hodnota {0} je příliš velká a nevejde se do sloupce typu {1}.</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>Upravit text dotazu z XML prováděcího plánu (pravděpodobně zkráceno)</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>Efektivní stupeň paralelismu</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>Maximální stupeň paralelismu během sestavení indexu columnstore.</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>Primární nebo sekundární klony</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>Konec</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>Konec rozsahu.</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>Čas ukončení plánu úlohy musí následovat po počátečním čase.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>Připojení nebylo nalezeno.</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Nahrazení prázdného řetězce prázdným řetězcem</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Hodnota edice není platná.</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>{0} nejde převést na objekt Microsoft.Data.SqlClient.SqlParameter. Zadaný literál nelze převést na {1}(Microsoft.Data.SqlDbType). Hodnota literálu: {2}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>Řádek {0}</value>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>Pro adresář {0} už soubor s názvem {1} existuje.</value>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Cesta {0} není platný adresář.</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Odhadované náklady v %</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Odhadované náklady na procesor</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>Odhadované náklady na procesor</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>Odhadované náklady na procesor pro tohoto operátora. Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>Odhadovaná velikost dat</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>Odhadovaná velikost dat předaných prostřednictvím tohoto operátoru.</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>Odhadovaný režim provádění</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>Odhadovaný režim provádění</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Odhadovaná spuštění</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Odhadované náklady na vstupně-výstupní operace</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>Odhadované vstupně-výstupní náklady</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>Odhadované náklady V/V pro tohoto operátora. Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>Odhadovaný typ spojení</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>Typ spojení (vnořené smyčky nebo spojení hodnot hash) odhadovaný optimalizátorem dotazů před přizpůsobením.</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>Odhadovaný počet provedení</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>Odhadovaný počet spuštění tohoto operátoru při spuštění aktuálního dotazu.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>Odhadovaný počet řádků pro všechna spuštění</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>Odhadovaný počet řádků pro všechny výstupy spuštění tímto operátorem. Platí pouze pro PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>Odhadovaný počet řádků na spuštění</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>Odhadovaný počet řádků na výstup spuštění tímto operátorem To je jenom pro PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>Odhadované náklady na operátora</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>Odhadované náklady tohoto operátora.</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>Odhadovaná obnovení vazby</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>Odhadovaná obnovení vazby.</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>Odhadované převinutí zpět</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>Odhadované převinutí zpět.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>Odhadovaná velikost řádku</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>Odhadovaná průměrná velikost řádku předávaného tímto operátorem.</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Odhadované řádky</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>Odhadovaný počet řádků, které se mají přečíst</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>Počet řádků, které má tento operátor přečíst. Tato hodnota se může lišit od odhadovaného počtu řádků pro všechna spuštění, pokud má operátor predikát.</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Odhadované náklady na podstrom</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>Odhadované náklady na podstrom</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>Odhadované kumulativní náklady na tuto operaci a všechny podřízené operace.</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>Shoda s jedním klonem</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>Exportovat bacpac</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>Externí vysílání</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>Vysílání přesunu dat pro externí tabulku.</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>Externí export</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>Export přesunu dat pro externí tabulku.</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>Externí místní streamování</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>Přesun streamovaných dat mezi externí tabulkou a místní tabulkou.</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>Externí RoundRobin</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>Přesun dat typu RoundRobin pro externí tabulku.</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>Externí náhodné prohazování</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>Náhodné prohazování přesunu dat pro externí tabulku.</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>Extrahovat dacpac</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>Byla předána neplatná verze {0}. Verze musí být ve formátu x.x.x.x, kde x je číslo.</value>
+  </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>Nepovedlo se najít informace o připojení k serveru.</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Nepodařilo se vygenerovat skripty pro kontextualizaci serveru.</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>Rychle převinout vpřed</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>Rychle převinout vpřed.</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>Načíst dotaz</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>Dotaz, který se používá k načtení řádků, když se pro kurzor vystaví načtení změn.</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtr</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>Omezení sady řádků na základě predikátu.</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>Vynucený index</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>Vynucený index.</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Kontrola odkazů na cizí klíč</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>Zkontroluje referenční integritu operace odstranění.</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>Počet odkazů na cizí klíč</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>Pouze přeposlat</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>Sloupec ID fragmentu</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>Fragment TSQL by měl obsahovat přesně jednu dávku.</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>Částečná aktualizace byla převedena na úplnou aktualizaci z důvodu online sestavení indexu.</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>Upozornění na úplnou aktualizaci online sestavení indexu.</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>Shromažďování datových proudů</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>Shromažďujte streamy.</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>Seskupit podle agregací</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>Seskupit podle agregací.</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>Vhodně seskupit a použít</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>Vhodně seskupit a použít.</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Pro obecné účely</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>Vygenerovat skript</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>Načíst</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>Získat řazené kolekce členů z tabulky.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Z modelu se nepodařilo získat objekty definované uživatelem.</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>Našel se dostačující plán</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>Seskupit podle</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>Seskupit podle.</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>Sady seskupování</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>Seznam sad skupin. Každá hodnota je obrácená bitová mapa pro sloupce seskupení ve vlastnosti Seskupit podle.</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>Klíče hodnoty hash</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>Sestava klíčů hash</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>Sestavení klíčů hodnoty hash.</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>Klíče hodnoty hash.</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>Test klíčů hash</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>Test klíčů hodnoty hash.</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>Shoda hodnoty hash</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>Pro vytvoření zatřiďovací tabulky použijte každý řádek od horního vstupu a každý řádek od dolního vstupu se do zatřiďovací tabulky otestuje a vypíše všechny odpovídající řádky.</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>Kořen shody hodnot hash</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>Kořenový člen týmu připojených operátorů hash sdílející společnou funkci hash a strategii dělení.</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>Tým shody hodnot hash</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>Přispěvatel mezi několika zachytávajícími operacemi hashování.</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>Algoritmus hash zapsal {0} stránky do databáze tempdb a přečetl {1} stránky s přidělenou pamětí {2}kB a využitou pamětí {3}kB.</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>Podrobnosti o přelití hodnoty hash</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>Nejvyšší úroveň</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>Nejvyšší úroveň atributů seskupení vypočítaných v této kumulativní aktualizaci.</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>Bajty ze zařízení Hpc do hostitele</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>Data přenesená ze zařízení Hpc do hostitele v bajtech.</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>Bajty z hostitele Hpc do zařízení</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>Data přenesená z hostitele do zařízení Hpc v bajtech.</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>Uplynulý čas jádra Hpc v USA</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>Uplynulý čas (v mikrosekundách) spuštění jádra zařízení Hpc.</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>Počet řádků prostředí HPC</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>Počet řádků zpracovaných zařízeními Hpc.</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hyperscale</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>Pokud</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>Podmíněné zpracování založené na výrazu.</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>Importovat bacpac</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>Odstranění indexu</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>Umožňuje odstranit řádky z indexu.</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>Vložení indexu</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>Vložit řádky do indexu.</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>Druh indexu</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>Typ indexu pro odkazovaný objekt.</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>Prohledávání indexu</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>Prohledá neclusterovaný index, zcela nebo jen rozsah.</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>Hledání indexu</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>Prohledá konkrétní rozsah řádků z neclusterovaného indexu.</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>Zařazování indexu</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>Přeformátuje data ze vstupu na dočasný index, který se pak použije k vyhledání pomocí zadaného predikátu hledání.</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>Aktualizace indexu</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>Umožňuje aktualizovat řádky v indexu.</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>Sloupce vnitřního bočního spojení</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>Vnitřní boční sloupce spojení.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>vstup</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>Vstupní paměť</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Vložit</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>Přidá řádek do tabulky.</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>Vložená kontrola</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>Naskenujte pseudo tabulku inserted v triggeru.</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>Interní ladicí informace</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>Vnitřní</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>Vyvolá interní funkci Transact-SQL.</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value> Zadaná cesta je neplatná.</value>
+  </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Neplatná hodnota poskytovatele schématu databáze: {0}. Očekávala se hodnota ve formátu Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider.</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>K zadané cestě na serveru není možné získat přístup: {0}</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Neplatná cesta pro soubor databáze: {0}</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Neplatný plán</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>Počáteční datum musí být 1. ledna 1990 nebo později.</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Vyberte alespoň jeden den, který bude součástí tohoto týdenního plánu.</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>Je adaptivní</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>Určuje, zda je operátor adaptivní.</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>Je přenositelné uzavření GraphDB</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>Určuje, jestli sekvence představuje přechodné uzavření GraphDB.</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>Určuje, jestli je operátor při spouštění prokládaný.</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>Je procento</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>Je procento.</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>Úloha s názvem „,{0}“ už existuje.  Zadejte pro úlohu jedinečný název.</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>Server úloh není dostupný.</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>Pro tuto úlohu už existuje krok s názvem „{0}“. Je nutné zadat jiný název.</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>Název kroku úlohy nemůže být prázdný.</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Spojit</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>Připojit tabulky.</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>Vyhledání klíče</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>Použije zadaný klíč clusteringu k vyhledávání v tabulce, která má clusterovaný index.</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Sada klíčů</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>Kurzor, který může zobrazit aktualizace provedené jinými uživateli, ale ne vložené položky.</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>Opožděné zařazování</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>Opožděné zařazování.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Úroveň</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>Úroveň atributů seskupení vypočítaná v tomto souhrnu.</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Souhrnná agregace</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>Toto představuje operátor ROLLUP nebo operátor CUBE.</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>Vyhledat</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>Načítá se celý řádek z haldy nebo clusterovaného indexu.</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Protokol</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>Prohledávání řádků protokolu</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>Prohledá řádky v protokolu.</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>Vyhledání klíče</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>Agregovat</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>Anti Diff</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>Vyhodnotit</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Sestavení dávkové hashovací tabulky</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>Vytvoření rastrového obrázku</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>Prohledávání clusterovaného indexu</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>Hledání clusterovaných indexů</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>Clusterovaná aktualizace</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>Sbalit</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>Skalární výpočetní prostředky</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>Řetězení</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>Konstantní kontrola</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>Křížové spojení</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>Odstranit</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>Odstraněná kontrola</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>Odlišné</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>Jedinečné řazení</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>Distribuce datových proudů</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>Včasné zařazování</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>Filtr</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>Jedinečné toky</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Kontrola odkazů na cizí klíč</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>Úplné vnější spojení</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>Shromažďování datových proudů</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>Prohledávání indexu</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>Hledání indexu</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>Vnitřní použití</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>Vnitřní spojení</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>Vložit</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>Vložená kontrola</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>Vytvořit průnik</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>Vytvořit průnik všeho</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>Opožděné zařazování</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Levé anti - částečné použití</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Levé anti - částečné spojení</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>Rozdíl vlevo</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>Rozdíl vlevo – vše</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>Levé vnější použití</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>Levé vnější spojení</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>Levá poloviční použití</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>Levé částečné spojení</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>Místní statistiky</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>Prohledávání řádků protokolu</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>Sloučit</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>Interval sloučení</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>Sloučit statistiky</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>Prohledávání řádků parametru</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>Částečná agregace</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>Tisknout</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>Put</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>Vyhledávání RID</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>Pořadí</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>Vzdálené odstranění</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>Vzdálené prohledávání indexu</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>Vzdálené hledání indexu</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>Vzdálené vložení</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>Vzdálený dotaz</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>Vzdálená kontrola</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>Vzdálená aktualizace</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>Znovu rozdělit datové proudy na oddíly</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Poloviční spojení pravé anti</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>Pravý rozdíl</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>Rozdíl vpravo – vše</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>Pravé vnější spojení</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>Pravé částečné spojení</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>Sekvence</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>Seřadit</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>Rozdělit</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>Přepínač</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>Skenování tabulky</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>Funkce vracející tabulku</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Řazení prvních N</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>Sjednocení</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>Aktualizovat</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Zařazování oken</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>Logická operace</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>Relační algebraický operátor, který tento uzel představuje. Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>M:N</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>M:N.</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>Zlomky paměti</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>Zlomky paměti.</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>Vstup zlomků paměti</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>Vstup zlomků paměti.</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>Výstup zlomků paměti</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>Výstup zlomků paměti.</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>Udělení paměti</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>Přidělení paměti.</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>Přidělení paměti dotazu zjistilo „{0}“, což může mít vliv na spolehlivost. Velikost udělení: počáteční {1} kB, konečná {2} kB, využito {3} kB.</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>Podrobnosti o upozornění na udělení paměti</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>Byl překročen limit paměti</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Interval sloučení</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>Interval sloučení.</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Sloučit spojení</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>Porovnat řádky ze dvou vhodně seřazených vstupních tabulek, které zneužívá jejich pořadí řazení.</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*]D;]A;Chybí podrobnosti indexu z: {0}]D;]A;Procesor dotazů odhaduje, že implementace následujícího indexu by mohla zlepšit náklady na dotazy o následující počet procent: {1} %.]D;]A;*/</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Chybějící index (dopad {0}): {1}</value>
+  </data>
+  <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
+    <value>V souboru {1} bylo nalezeno více funkcí Azure s FunctionName {0}.</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>Vnořené smyčky</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>Pro každý řádek horního (vnějšího) vstupu naskenujte dolní (vnitřní) vstup a výstupní odpovídající řádky.</value>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>Nikdy</value>
+  </data>
+  <data name="NoBackupsetsToRestore" xml:space="preserve">
+    <value>Není vybrána žádná sada záloh k obnovení</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>Nebyl nalezen žádný příkaz TSQL pro vytvoření úlohy externího streamování (EXEC sp_create_streaming_job).</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>Predikát bez spojení</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>Upozornění na predikát bez spojení.</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>Počet neodpovídajících indexů</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>Data plánu nejsou ve formátu XML k dispozici. Uložit se dají jen plány z SQL Serveru Yukon.</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>ID uzlu</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Vytvoření sdíleného přístupového podpisu není pro cloudové instance podporováno.</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>Skutečný počet dávek</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>Skutečný počet výstupů dávek tímto operátorem.</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>Počet spuštění</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>Počet spuštění tohoto operátoru při spuštění aktuálního dotazu.</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>Skutečný počet řádků pro všechna spuštění</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>Skutečný počet řádků pro výstup všech spuštění tímto operátorem. Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Objekt</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>Alias použitý pro odkazovaný objekt.</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>Sloupec</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>Název sloupce pro odkazovaný objekt.</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>Vypočítaný sloupec</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>Určuje, jestli se jedná o počítaný sloupec.</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>Databáze</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>Název databáze pro odkazovaný objekt.</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>Objekt.</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>Index</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>Název indexu pro odkazovaný objekt.</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Objekt nelze přejmenovat. Název URN: {0}</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>Schéma</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>Název schématu pro odkazovaný objekt.</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>Název serveru pro odkazovaný objekt.</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>Objekt</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>Tabulka</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>Název tabulky pro odkazovaný objekt.</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>Při pokusu o parsování informací o připojení pro koncový bod {0} došlo k chybě s chybovou zprávou {1}.</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operace</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>Poskytuje doplňkové informace o prováděné operaci. Obsah tohoto sloupce závisí na fyzickém operátoru.</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>Popis operace.</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>Popis</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>Typ operace</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>Úroveň optimalizace</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>Úroveň optimalizace.</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>Optimalizováno</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Řadit podle</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>Objednat podle.</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>Objednáno</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>Objednáno.</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>Původní sloupec akce</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>Sloupec Původní akce.</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>Vnější odkazy</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>Vnější odkazy.</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>Sloupce vnějšího bočního spojení</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>Sloupce vnějšího bočního spojení.</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>výstup</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>Seznam výstupů</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>Obsahuje čárkami oddělený seznam sloupců projektovaných aktuální operací.</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>Výstupní paměť</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>Paralelní</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>Určuje, zda operátor běží paralelně.</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>Paralelismus</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>Operace zahrnující paralelismus.</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Paralelní zpracování</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>Zkompilovaná hodnota parametru</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>Datový typ parametru</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>Seznam parametrů</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>Seznam parametrů.</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>Hodnota modulu runtime parametru</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Prohledávání tabulky parametrů</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>Prohledá interní tabulku hodnot parametrů.</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0} se převede na objekt Microsoft.Data.SqlClient.SqlParameter s následujícími vlastnostmi: SqlDbType = {1}, Velikost = {2}, Přesnost = {3}, Měřítko = {4}, SqlValue = {5}</value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>Řádek {0}, sloupec {1}</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>Počet indexů s částečnou shodou</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>Sloupce oddílů</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>Sloupce oddílu.</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>Skutečný počet oddílů</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>ID oddílu</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>ID oddílu.</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>Dělená</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>Určuje, jestli je operace na dělené tabulce nebo indexu.</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>Typ dělení</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>Typ dělení na oddíly.</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>Skutečné oddíly, ke kterým se přistupuje</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>Projít</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>Průchozí.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Stiskněte OK a zadejte nové heslo, které splňuje požadavky zásady operačního systému.</value>
+  </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>Nové heslo nemůže být prázdné.</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Stiskněte OK a zadejte nové heslo, které není prázdné.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Stiskněte OK a zadejte jiné heslo.</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>Nepovedlo se pozastavit relaci: {0}</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>Tato funkce není v současné době podporována v Azure SQL DB a Data Warehouse: {0}</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>Nebyl načten žádný databázový objekt.</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>Při provádění náhledu definice došlo k neočekávané chybě: {0}.</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>Nebyly nalezeny žádné výsledky.</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Připojte se prosím k serveru.</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Vypršel časový limit operace.</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>Tento typ objektu tato funkce aktuálně nepodporuje.</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>Informace o čítači podle vláken.</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>Spravovat hromadné operace</value>
+  </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>Upravit</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>Změnit libovolnou aplikační roli</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>Změnit libovolné sestavení</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>Změnit libovolný asymetrický klíč</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>Změnit libovolnou skupinu dostupnosti</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>Změnit libovolný certifikát</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>Změnit jakékoli připojení</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>Změna libovolného kontraktu</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>Změnit jakékoli přihlašovací údaje</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>Změnit libovolnou databázi</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>Změna jakéhokoli auditování databáze</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>Změnit libovolnou databázovou proceduru aktivovanou příkazy jazyka DDL</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>Změnit jakékoli oznámení události databáze</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>Změna libovolného datového prostoru</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>Změnit libovolný koncový bod</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>Změnit libovolné oznámení o události</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>Změnit libovolnou relaci události</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>Změnit jakýkoli externí zdroj dat</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>Změnit libovolný formát externího souboru</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>Změnit libovolný fulltextový katalog</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>Změnit jakýkoli odkazovaný server</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>Změnit libovolné přihlášení</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>Změnit jakoukoli masku</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>Změna libovolného typu zprávy</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>Změna jakékoli vazby vzdálené služby</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>Změnit libovolnou roli</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>Změnit jakoukoli trasu</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>Změnit libovolné schéma</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>Změna všech zásad zabezpečení</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>Změna jakékoli klasifikace citlivosti</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>Změna libovolného auditování serveru</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>Změnit libovolnou roli serveru</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>Změnit jakoukoli službu</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>Změna libovolného symetrického klíče</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>Změnit libovolného uživatele</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>Změnit prostředky</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>Změnit stav serveru</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>Změnit nastavení</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>Změnit trasování</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>Ověřit</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>Ověřit server</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>Záložní databáze</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>Protokol zálohování</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>Kontrolní bod</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>Připojit</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>Připojit libovolnou databázi</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>Připojit replikaci</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>Připojit SQL</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>Ovládací prvek</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>Řídicí server</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>Vytvořit agregaci</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>Vytvořit libovolnou databázi</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>Vytvořit sestavení</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>Vytvoření asymetrického klíče</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>Vytvořit skupinu dostupnosti</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>Vytvořit certifikát</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>Vytvořit smlouvu</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>Vytvořit databázi</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>Vytvoření oznámení události DDL databáze</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>Vytvořit oznámení události DDL</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>Vytvořit výchozí</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>Vytvořit koncový bod</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>Vytvořit fulltextové katalogy</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>Vytvořit funkci</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>Vytvořit typ zprávy</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>Vytvořit proceduru</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>Vytvořit frontu</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>Vytvoření vazby vzdálené služby</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>Vytvořit roli</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>Vytvořit trasu</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>Vytvořit pravidlo</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>Vytvořit schéma</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>Vytvořit sekvenci</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>Vytvořit roli serveru</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>Vytvořit službu</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>Vytvořit symetrický klíč</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>Vytvořit synonymum</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>Vytvořit tabulku</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>Vytvořit oznámení události trasování</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>Vytvořit typ</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>Vytvořit zobrazení</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>Vytvořit kolekci schémat XML</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>Odstranit</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>Provést</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>Sestavení externího přístupu</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>Zosobnit</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>Zosobnit jakékoli přihlášení</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>Vložit</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>Přijmout</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>Odkazy</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>Vybrat</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>Vybrat všechny zabezpečitelné uživatele</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>Odeslat</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>Zobrazit plán</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>Vypnout</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>Odebírat oznámení dotazů</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>Převzít vlastnictví</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>Odmaskovat</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>Nebezpečné sestavení</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>Aktualizovat</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>Zobrazit libovolnou definici šifrovacího klíče sloupce</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>Zobrazit jakoukoli definici hlavního klíče sloupce</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>Zobrazit libovolnou databázi</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>Zobrazit libovolnou definici</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>Zobrazit libovolnou klasifikaci citlivosti</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>Zobrazit sledování změn</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>Zobrazit stav databáze</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>Zobrazit definici</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>Zobrazit stav serveru</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>Fyzická operace</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>Algoritmus fyzické implementace pro uzel Pouze pro řádky typu PLAN_ROWS.</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>Převod typu ve výrazu ({0}) může mít vliv na {1} ve volbě plánu dotazu.</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>Upozornění převodu typů ovlivňujících plán.</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>Dotaz na naplnění</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>Dotaz použitý k naplnění pracovní tabulky kurzoru při otevření kurzoru.</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>Predikát</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>Predikát.</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Předpona</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>Primární klony</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>Primární ID uzlů</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Tisk</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>Tisk.</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>Sloupec testu</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>Sloupec sondy.</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>Rezidua testu</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>Rezidua sondy.</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>Název procedury</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Připojení nebylo nalezeno</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Projekt</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>Sloupce projektu.</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Extrahovat soubory projektu</value>
+  </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Vlastnost {0} byla nastavena před inicializací.</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>Účet proxy serveru {0} na serveru neexistuje.</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>Použít změny porovnání schémat</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>Put</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>Umožňuje vyexportovat řádky z místní nebo externí tabulky do externí tabulky.</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>Dotaz</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>Plán dotazu</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 ovlivněný řádek)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>(ovlivněné řádky: {0})</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>Dotaz už byl dokončen, nelze ho zrušit.</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>Dotaz byl úspěšně zrušen, ale nepodařilo se ho uvolnit. Identifikátor URI vlastníka nebyl nalezen.</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(Žádný název sloupce)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>Příkazy byly úspěšně dokončeny.</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>Maximální počet bajtů, které se mají vrátit, musí být větší než nula.</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>Maximální počet znaků, které se mají vrátit, musí být větší než nula.</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>Maximální počet bajtů XML, které se mají vrátit, musí být větší než nula.</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Zpráva: {0}, úroveň: {1}, stav: {2}, řádek: {3}{4}{5}</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>Nelze načíst plán provádění ze sady výsledků dotazu.</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>Před provedením operací je nutné inicializovat FileStreamWrapper.</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>Tento FileStreamWrapper nelze použít pro zápis.</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>Přístupový mechanismus nemůže být jen pro zápis.</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>Odesílatelem události OnInfoMessage musí být SqlConnection.</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Dotaz byl zrušen uživatelem.</value>
+  </data>
+  <data name="QueryServiceQueryExecutionCompletedWithErrors" xml:space="preserve">
+    <value>Provádění dotazu se dokončilo s chybami.</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Dotaz selhal: {0}</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>Dotaz pro tuto relaci editoru už probíhá. Zrušte prosím tento dotaz nebo počkejte na jeho dokončení.</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Nelze se připojit k databázi z důvodu neplatného identifikátoru OwnerUri.</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>Požadovaný dotaz neexistuje.</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>Do vyrovnávací paměti výsledků nelze přidat řádek, protože čtečka dat neobsahuje žádné řádky.</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>Dotaz nemá žádné výsledky, které by se daly vrátit.</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>Nepovedlo se načíst schéma sloupce pro sadu výsledků dotazu.</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>Podmnožinu nelze přečíst, dokud nebyly výsledky přečteny ze serveru.</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>Počet řádků musí být kladné celé číslo.</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>Číslo počátečního řádku nemůže být menší než 0 ani větší než počet řádků v sadě výsledků dotazu.</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>Sada výsledků dotazu má příliš mnoho řádků, takže se nedá bezpečně načíst.</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Uložení {0} se nezdařilo: {1}</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>Probíhá zpracování žádosti o uložení do stejné cesty.</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Při spouštění úlohy ukládání došlo k vnitřní chybě.</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Výsledek nelze uložit, dokud se nedokončí provádění dotazu.</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>Dávka se ještě nedokončila.</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>Index dávky nemůže být menší než 0 ani větší než počet dávek.</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>Index sady výsledků dotazu nemůže být menší než 0 ani větší než počet sad výsledků dotazu.</value>
+  </data>
+  <data name="QueryServiceSubsetRowsTimeout" xml:space="preserve">
+    <value>Vypršel časový limit načítání řádků dotazu.</value>
+  </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>Nepodařilo se přeložit podkladový typ {0} pro sloupec varianty SQL {1}.</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>Vyhledávání RID</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>Vyhledávání RID</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>Sloupce rozsahu</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>Výrazy rozsahu</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Pořadí</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>Sloupce pořadí</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>Sloupce pořadí.</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>Vytvoří vypočítaný sloupec s pořadím hodnot v existujícím sloupci v tabulce.</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>Aktualizovat dotaz</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>Načte aktuální data pro řádky ve vyrovnávací paměti načtení.</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>Vzdálený přístup k datům</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>Určuje, zda operátor pro přístup ke vzdáleným datům používá vzdálené volání procedur (RPC).</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>Vzdálené odstranění</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>Umožňuje odstranit řádky v tabulce uložené v jiné databázi nebo souboru, než je aktuální databázový server.</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>Vzdálený cíl</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>Vzdálený objekt.</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>Vzdálené hledání indexu</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>Prohledat index uložený v jiné databázi nebo souboru, než je aktuální databázový server.</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>Vzdálené hledání indexu</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>Prohledá konkrétní rozsah řádků z clusterovaného indexu, který je uložen v databázi nebo souboru jiném než je aktuální databázový server.</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>Vzdálené vložení</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>Umožňuje vložit řádky do tabulky uložené v jiné databázi nebo souboru než aktuální databázový server.</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>Vzdálený objekt</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>Vzdálený objekt.</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>Vzdálený dotaz</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>Odešle dotaz SQL do jiného než aktuálního SQL Server.</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>Vzdálená kontrola</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>Umožňuje prohledat řádky v tabulce uložené v jiné databázi nebo souboru, než je aktuální databázový server.</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>Vzdálený prostředek</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>Vzdálený prostředek.</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>Vzdálená aktualizace</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>Umožňuje vložit řádky do tabulky uložené v jiné databázi nebo souboru než aktuální databázový server.</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>Vzdálená komunikace</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>Určuje, zda lze operátor spustit vzdáleně.</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>Znovu rozdělit datové proudy na oddíly</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>Znovu rozdělit datové proudy.</value>
+  </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>Při odemykání resetujte heslo pro přihlášení.</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Zbytkové</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>Zbytkové.</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>LSN kontrolního bodu</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Komponenta</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Databáze</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Vypršení platnosti</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Datum ukončení</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>První hodnota LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Úplné pořadové číslo položky</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Poslední hodnota LSN</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Název</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Pozice</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Velikost</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Počáteční datum</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Uživatelské jméno</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Pouze kopie)</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Obnovení databáze není podporováno.</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Nepovedlo se vytvořit plán obnovení.</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Obnovit databázi</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Výsledek</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>Výsledek.</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>Souhrnné informace</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>Souhrnné informace.</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>Úrovně souhrnu</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>Všechny úrovně atributů seskupení vypočítané v tomto zprůměrovaném souhrnu.</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>Je počet řádků</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>Zařazování počtu řádků</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>Uloží data ze vstupu do dočasné tabulky, aby bylo možné optimalizovat převinutí zpět.</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>Horní řádky</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>Horní řádky.</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>Vlákno {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>Všechna vlákna</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>Vlákno {0} v instanci {1}</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL.</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>Soubory plánu SQL (*.SqlPlan)|*.SqlPlan|All files (*.*)|*.*</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>Skalární operátor</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>Směr prohledávání</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>Směr operace skenování jako dopředu nebo dozadu.</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>Typ skenování</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>Pro tuto úlohu již existuje plán s názvem „{0}“.  Je nutné zadat jiný název.</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>V modelu se nepodařilo najít zadanou změnu.</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>Nepovedlo se najít relaci porovnání schématu, která se má zrušit.</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>skriptování</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>Aktuální skript je pro parametrizaci pro Always Encrypted příliš velký. Zakažte parametrizaci pro Always Encrypted v možnostech dotazu (dotaz &gt; možnosti dotazu &gt; provádění &gt; rozšířené). Maximální povolené množství znaků: {0}, aktuální počet znaků ve skriptu: {1}.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Při parsování vlastnosti ScriptingListObjectsCompleteParams.ConnectionString došlo k chybě.</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>Sekundární klony</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>Hledat klávesy</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>Klíče používané operací vyhledávání.</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Hledat predikát</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Hledat predikát.</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Hledat predikáty</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Hledat predikáty.</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>Sloupec segmentu</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>Sloupec segmentu.</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>Segmentu.</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Sekvence</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>Zpracujte každý vstup v pořadí shora dolů.</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Sekvenční projekt</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>Přidá sloupce pro provádění výpočtů v seřazené sadě.</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>Žádost o soubor {0} se už zpracovává.</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>Nelze serializovat další data, protože nebyl nalezen žádný požadavek na soubor {0}.</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>Nepodporovaný formát pro uložení: {0}</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>V poskytovateli služeb nebyla nalezena služba {0}.</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>Nebyla volána metoda SetServiceProvider() pro vytvoření požadovaného poskytovatele služeb.</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>Relace XEvent s názvem {0} již existuje.</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Požadovaná relace XEvent nebyla nalezena.</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Nastavit funkci</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>Množinová funkce.</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>Nastavit možnosti</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>Nastavit možnosti.</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>Aktuální přihlášení nemá oprávnění k nastavení vlastníka databáze na {0} Databáze byla však úspěšně vytvořena.</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>Predikát</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>Predikát</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>Náhodně</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>Náhodné prohazování při přesunu dat.</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>Jeden zdroj typu RoundRobin</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>Přesun dat typu RoundRobin s jedním zdrojem.</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>Náhodné prohazovat jeden zdroj</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>Přesun dat náhodného prohazovat jeden zdroj.</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>Snímek</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>Kurzor, který nevidí změny provedené jinými uživateli.</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Seřadit</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>Seřadí vstup.</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>Algoritmus sort zapsal {0} stránky do databáze tempdb a přečetl {1} stránky s přidělenou pamětí {2}kB a využitou pamětí {3}kB.</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>Podrobnosti o řazení přesahujících dat</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>Operátor použil databázi tempdb k přelití dat během provádění.</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>Operátor použil databázi tempdb k přesahu dat během provádění s {0} úrovněmi přesahu a {1} přesahujícími vlákny</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>Upozornění týkající se přesahu do databáze tempdb.</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>Operátor použil databázi tempdb k přesahu dat během provádění s {0} úrovněmi přesahu.</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>Rozdělit</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>Rozdělit.</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>Zařazování</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>Dočasně se ukládá zprostředkující výsledek dotazu.</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Nelze se připojit k serveru.</value>
+  </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Generovat skript SQL Assessment</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Nepřipojeno k serveru</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Nepodporovaná edice modulu {0}</value>
+  </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>Přidávání vazeb SQL se v .NET 5 nepodporuje.</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>Při provádění dávky došlo k chybě. Probíhá ukončování.</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>Byl zjištěn nepodporovaný token {0}.</value>
+  </data>
+  <data name="SqlPackageInvalidRequestParameters" xml:space="preserve">
+    <value>Neplatné parametry žádosti</value>
+  </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Nelze najít model SQL z projektu: {0}.</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Sloupec přesného číselného typu nemá číselnou přesnost nebo číselné měřítko.</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>Ve sloupci s délkou chybí velikost.</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>Ve sloupci skalární hodnoty chybí měřítko.</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>Se zásobníkem</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="StarExpansionDescription" xml:space="preserve">
+    <value>{0} nahradit {1} sloupci: {2}</value>
+  </data>
+  <data name="StarExpansionLabel" xml:space="preserve">
+    <value>Rozbalit: {0}</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>Počáteční datum plánu úlohy nemůže být pozdější než koncové datum.</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>Spustit</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>Začátek rozsahu.</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Nepovedlo se spustit relaci: {0}</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>Počáteční čas plánu úlohy nemůže nastat po koncovém čase.</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>Výraz po spuštění</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>Určuje, zda je použit spouštěcí výraz filtru.</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>Predikát výrazu po spuštění</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>Výpisy</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>Ve většině případů obsahuje text příkazu Transact-SQL.  Pro řádky typu PLAN_ROW obsahuje popis operace.</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>Důvod předčasného ukončení optimalizace příkazu</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Nepodařilo se zastavit relaci: {0}</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Úložiště</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>Úložiště</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>Uložená procedura</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Agregace streamu</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>Vypočítá souhrnné hodnoty pro skupiny řádků ve vhodně seřazených datových proudech.</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>Příkaz dotazu streamování obsahuje odkaz na chybějící stream {0} {1}.  Musíte ho přidat do modelu databáze.</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>Ověření úlohy externího streamování {0} se nezdařilo:</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Přepínač</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>Přepínač.</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>Účet služby agenta SQL Serveru</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>Predikovat</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>Použije pro zadávání dat natrénovaný model strojového učení</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>Odstranění tabulky</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>Odstraní vstupní řádky z tabulky zadané v poli Argument.</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>Vložit tabulku</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>Vloží vstupní řádky do tabulky zadané v poli Argument.</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>Sloučení tabulek</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>Sloučit vstupní řádky v tabulce specifikované v poli Argument.</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>Skenování tabulky</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>Prohledat řádky tabulky.</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>Zařazování tabulek</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>Uloží data ze vstupu do dočasné tabulky, aby bylo možné optimalizovat převinutí zpět.</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>Aktualizace tabulky</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>Umožňuje aktualizovat vstupní řádky v tabulce určené v poli Argument.</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>Funkce vracející tabulku</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>Funkce vracená tabulkou.</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>Je nutné zadat cílové servery, na kterých bude tato úloha s více servery spuštěna.</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Dokončeno</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>Probíhající</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>test</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>Poslední pořízená záloha ({0})</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>Sloupce vazeb</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>Sloupce vazeb.</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>Časový limit</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>Vyberte několik prvních řádků na základě pořadí řazení.</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>Výraz top</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>Výraz top.</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>Oříznout</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>Oříznutí dat.</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX.</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>Systém souborů UDF</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>Název</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>Název.</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Neočekávaný typ spuštění.</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>Sjednocení</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>Sjednotit vše</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>Sjednocení všech tabulek.</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>Tabulky sjednocení.</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Neznámý</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>Neznámý typ přiřazení.</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>Neznámá operace plánu kurzoru {0}.</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>Neznámý operátor.</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>Neznámý druh uzlu.</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Neznámý typ serveru „{0}“.</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>Typ zdroje plánu provádění nelze rozpoznat.</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Jednotka {0} neznámé velikosti</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>Typ příkazu se nerozpoznal.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Nepodporovaný typ {0} zařízení pro edici modulu {1}</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Nepodporovaný typ modelu: {0}</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Aktualizovat</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>Umožňuje upravit hodnoty v zadané tabulce.</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>Použít plán</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>Využitá paměť</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>Použité sloupce UDX</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>Použité sloupce UDX.</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>Ověřit úlohu streamování</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Hodnoty</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>Hodnoty.</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>Dotaz musel během provádění počkat {0} sekund pro {1}.</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>Upozornění na čekání dotazu.</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Upozornění</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>Upozornění</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>Obsahuje čárkami oddělený seznam zpráv upozornění souvisejících s aktuální operací. Zprávy upozornění mohou obsahovat řetězec NO STATS:() se seznamem sloupců.</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Kde (spojit sloupce)</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Zařazování oken</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>Agregace okna</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>Vypočítá hodnoty funkcí napříč okny definovanými klauzulí OVER. Vstupní sada řádků je vhodně seřazený datový proud.</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>Rozbalí každý řádek do sady řádků, které představují okno, které je k němu přidružené.</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>S předběžným načtením</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>S vazbami</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>S vazbami.</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Počáteční pozice ({0}, {1}) musí předcházet koncové pozici ({2}, {3}) nebo se s ní shodovat.</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Pozice je mimo rozsah sloupců pro řádek {0}.</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Pozice je mimo rozsah řádků souboru.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Nepodařilo se uložit token sdíleného přístupového podpisu v systémech SQL Server.</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Při zápisu skriptů pro kontextualizaci serveru do mezipaměti došlo k chybě. Chyba: {0}</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>Úroveň přiblížení musí být celočíselná hodnota mezi {0} a {1}.</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>Změnit maxsize</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>Změnit automatické zvětšení</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>Změnit maxsize pro {0}</value>
+  </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>Změnit automatické zvětšení pro {0}</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv170" xml:space="preserve">
+    <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>Nová databáze</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Žádné</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>Vlastnosti databáze nelze nastavit ani zobrazit pro databáze v režimu kompatibility 6.0 nebo 6.5.</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>Cestu k existujícím souborům databáze nelze upravit.</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>Na serveru už existuje databáze s názvem {0}.</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>Vlastnosti databáze</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>Pro hodnotu HASH zásad distribuce je počet počátečních sloupců hash volitelný, ale měl by být v 1 až 16 sloupcích.</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>Název souboru byl prázdný. Zadejte název souboru.</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>Nelze vytvořit soubor s názvem {0}, protože obsahuje neplatný znak {1}.</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>Nelze vytvořit soubor s názvem {0}, protože začíná znakem mezery.</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>Název databáze nemůže obsahovat všechny prázdné znaky.</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Aktuální výchozí skupina souborů: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>Nová skupina souborů pro {0}</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>Automaticky zvětšovat všechny soubory</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>Výchozí</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Soubory</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>Soubory FILESTREAM</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Název</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Jen pro čtení</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Automatické zvětšení / maximální velikost</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>Žádné</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Částečné</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>Velikost (MB)</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Skupina souborů</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Logický název</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>Typ souboru</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>Počáteční velikost (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;nová skupina souborů&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Cesta</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>Název souboru</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;nezpracované zařízení&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>Hromadně protokolováno</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Úplné</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Vybrat vlastníka databáze</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>Nakonfigurovat SLO</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>Rozšířené vlastnosti</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>Skupiny souborů</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>Obecné</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>Možnosti</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>Nová databáze</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>Skupiny dostupnosti</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>Skupina dostupnosti</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>Úlohy agentů</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>Úloha agenta</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>Agregační funkce</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>Agregační funkce</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>Aplikační role</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>Aplikační role</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>Sestavení</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>Sestavení</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>Asymetrické klíče</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>Asymetrický klíč</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>Certifikáty</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>Certifikát</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>Přihlašovací údaje</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>Přihlašovací údaje</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>Databázové role</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>Databázová role</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>Databáze</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>Databáze</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>Výchozí</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>Výchozí</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>Koncové body</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>Koncový bod</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>Rozšířené uložené procedury</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>Rozšířená uložená procedura</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>Externí zdroje dat</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>Externí zdroj dat</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>Externí formáty souborů</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>Externí formát souboru</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>Fulltextové katalogy</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>Fulltextový katalog</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>Vložené funkce</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>Vložená funkce</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>Skalární funkce</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>Skalární funkce</value>
+  </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>Funkce vracené tabulkou</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>Funkce vracející tabulku</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>Přihlašovací údaje</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>Přihlášení</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>Pravidla</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>Pravidlo</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>Schémata</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>Schéma</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>Zásady zabezpečení</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>Zásada zabezpečení</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>Sekvence</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>Sekvence</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>Role serveru</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>Role serveru</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>Servery</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>Fronty</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>Fronta</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>Uložené procedury</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>Uložená procedura</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>Symetrické klíče</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>Symetrický klíč</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>Synonyma</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>Synonymum</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>Tabulky</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>Tabulka</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>Uživatelem definované datové typy</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>Uživatelem definovaný datový typ</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>Uživatelem definované typy tabulek</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>Uživatelem definovaný typ tabulky</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>Uživatelé</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>Uživatel</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>Zobrazení</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>Zobrazit</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>Kolekce schémat XML</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>Kolekce schématu XML</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>Žádné</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>Omezeno na {0} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>Po {0} MB, omezeno na {1} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>O {0} procent, omezeno na {1} MB </value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Neomezená</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>O {0} MB, neomezené</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>O {0} %, neomezeno</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Automatická</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Kolace</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>Kurzor</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Různé</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Obnovení</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>Země/oblast</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>Výchozí nastavení ANSI NULL </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULLS povoleno </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI Padding povoleno </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>Varování organizace ANSI povoleno </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Arithmetic Abort – povoleno </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Automaticky zavřít </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Automaticky vytvořit statistiku </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Automaticky zmenšit </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Automaticky aktualizovat statistiku </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>Automaticky aktualizovat statistiku asynchronně</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Zprostředkovatel povolen</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>Rozlišovat velikost písmen </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>Povoleno zavření kurzoru při potvrzení </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Kolace</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Zřetězení hodnot null vrátí null </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Úroveň kompatibility databáze </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Stav databáze </value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>NOUZOVÉ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>NEDOSTUPNÉ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMÁLNÍ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>OFFLINE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>ZOTAVOVÁNÍ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>ČEKÁ SE NA OBNOVENÍ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>OBNOVOVÁNÍ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>VYPNUTÍ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>V POHOTOVOSTI</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>PODEZŘELÉ</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>VYPNUTO</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>ZAPNUTO</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Optimalizace korelace data povolena</value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Mezidatabázové řetězení vlastnictví povoleno</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Výchozí kurzor </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBÁLNÍ</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>MÍSTNÍ</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Šifrování povolené</value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Fulltextové indexování povoleno </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Respektovat prioritu zprostředkovatele</value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Přerušení zaokrouhlování čísel </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Ověření stránky </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>KONTROLNÍ SOUČET</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>ŽÁDNÉ</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parametrizace</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Vynucené</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Identifikátory v uvozovkách povoleny </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>Databáze jen pro čtení </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Rekurzivní triggery povoleny </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Omezit přístup </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Vybrat do / hromadné kopírování </value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Identifikátor Service Broker</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Zkrátit protokol na kontrolním bodu </value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>Důvěryhodný</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>Formát úložiště vardecimal povolen</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>Data ŘÁDKŮ</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;výchozí cesta&gt;</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>Data typu filestream</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>PROTOKOL</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>Žádná použitelná skupina souborů</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>Není k dispozici</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>Automaticky</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>Vypnuto</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 hodin</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 hodiny</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 den</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 hodina</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 dnů</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 dny</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 hodin</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>Vše</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>Automaticky</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>Vlastní</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>Žádné</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 minut</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 minut</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 den</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 hodina</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 minuta</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 minut</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 minut</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Otevřená spojení</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Chcete-li změnit vlastnosti databáze, SQL Server musí zavřít všechna ostatní připojení k databázi. Opravdu chcete změnit vlastnosti a zavřít všechna ostatní připojení?</value>
+  </data>
+</root>

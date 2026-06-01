@@ -1,0 +1,4313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>Eylem Sütunu</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>Eylem sütunu.</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>Etkinleştirme</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>Gerçek Geçen CPU Süresi (ms)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>Geçen gerçek CPU süresi (milisaniye)</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Gerçek CPU Maliyeti</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Gerçek Veri Boyutu</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>Toplam Geçen Süre (ms.)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>Milisaniye cinsinden geçen gerçek süre</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>Gerçek Yürütme Modu</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>Gerçek Yürütme Modu</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Gerçek Yürütmeler</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>Gerçek G/Ç İstatistikleri</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>Gerçek G/Ç İstatistikleri</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>Gerçek Birleştirme Türü</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>Uyarlamalı birleştirme yürütmenin bir parçası olarak seçilen gerçek birleştirme (iç içe döngüler veya karma birleştirme).</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>Gerçek Lob Mantıksal Okumaları</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>Gerçek Lob Mantıksal Okumaları</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>Gerçek Lob Sayfa Sunucusu Önceden Okumaları</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Gerçek Lob Sayfa Sunucusu Önceden Okumaları</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>Gerçek Lob Sayfası Sunucusu Okumaları</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>Gerçek Lob Sayfası Sunucusu Okumaları</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>Gerçek Lob Fiziksel Okuma sayısı</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>Gerçek Lob Fiziksel Okuma sayısı</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>Gerçek Lob Önceden Okuma</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>Gerçek Lob Önceden Okuma</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>Yerel Olarak Toplanan Satırların Gerçek Sayısı</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>Yerel olarak toplanan satırların gerçek sayısı</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>Gerçek Mantıksal Okuma Sayısı</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>Gerçek Mantıksal Okuma Sayısı</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>Bellek Kullanımı</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0}/]D;]A;{1} (%{2})</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>Gerçek Sayfa Sunucusu Önceden Okumaları</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Gerçek Sayfa Sunucusu Önceden Okumaları</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>Gerçek Sayfa Sunucusu Okumaları</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>Gerçek Sayfa Sunucusu Okumaları</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>Gerçek Fiziksel Okumalar</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>Gerçek Fiziksel Okumalar</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>Gerçek Önceden Okumalar</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>Gerçek Önceden Okumalar</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>Gerçek Yeniden Bağlamalar</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>Gerçek Yeniden Bağlamalar.</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>Gerçek Geri Sarmalar</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>Gerçek Geri Sarmalar.</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Fiili Satır Sayısı</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>Okunan Satır Sayısı</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>Bir yüklem filtresi uygulamadan önce bir tablodan veya dizinden okunan satır sayısı. Yalnızca PLAN_ROWS türündeki satırlar için.</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>Gerçek Taramalar</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>Gerçek Taramalar</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>Gerçek Zaman İstatistikleri</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>Gerçek Zaman İstatistikleri</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>Uyarlamalı Katılım</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>Karma birleştirme ve iç içe döngüler arasında dinamik olarak seçim yapar.</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>Uyarlamalı Eşik Satırları</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>Bu uyarlamalı bir işleçse, uyum sağlayacağı kardinalite.</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>Kümelenmiş</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>SUM, COUNT, MIN, MAX veya AVG içeren bir ifadeyi hesaplar.</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>Uyarının adı boş bırakılamaz.</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Uygula</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>İşlemi uygulayın.</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Aritmetik İfade</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>Bir satırdaki mevcut değerlerden yeni bir değer hesaplar.</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>Artan</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>Onaylama</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>Belirli bir koşulun var olduğunu doğrulamak için kullanılır.</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Ata</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>Bilgi tutarlılığı kısıtlamalarını doğrulayın.</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Ortalama Satır Boyutu</value>
+  </data>
+  <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
+    <value>Azure SQL Analytics isteğe bağlı olarak</value>
+  </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Azure SQL DB</value>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Azure SQL Veri Ambarı</value>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+  </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Azure sistem veritabanlarının profili silinemedi</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Lütfen dizin yolu yerine bir dosya yolu belirtin</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Veritabanını Yedekleme</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Temel</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Toplu Karma Tablo Derlemesi</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>Toplu Karma Tablo Derlemesi.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Toplu ayrıştırıcı sarmalayıcı yürütmesi: {0} bulundu... satır {1}: {2} Açıklama: {3}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>{0}, Microsoft.Data.SqlClient.SqlParameter nesnesine dönüştürülemiyor. Belirtilen sabit değer, 0x ön eki ikili sabit değerler için beklendiğinden {1}(Microsoft.Data.SqlDbType) türüne dönüştürülemiyor.  Sabit değer: {2}</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Bit eşlem</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>Bitmap.</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Yer İşareti Arama</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>Tablo veya kümelenmiş dizinde karşılık gelen satırı aramak için Yer İşareti (RID veya kümeleme anahtarı) kullanın.</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>Tüm Kopyalar</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>Blok Yönlendirme</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>Yayınla</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>Yayın veri hareketi.</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>Derleme Artıkları</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>Derleme artıkları.</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>İş Açısından Kritik</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>Önbelleğe alınan plan boyutu</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>Önbelleğe alınan plan boyutu.</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Uyarı değiştirilemez.</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Yeni uyarı oluşturulamıyor.</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Veritabanı Motoru Ayarlama Danışmanı</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Veritabanı Bakımı</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Veri Toplayıcı</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>MSX'ten işler</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Tam metin</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Kategorilere Ayrılmamış (Yerel)]5D;</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Günlük Aktarma</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Kategorilere Ayrılmamış (Çok Sunuculu)]5D;</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL-Uyarı Yanıtı</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL-Checkup</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL-Abonelik Temizleme</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-Dağılımı</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL-Dağıtım Temizleme</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL-Geçmiş Temizleme</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL-Birleştirme</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-Kuyruk Okuyucu</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL-Anlık Görüntü</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Çoğaltma</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Kategorilere ayrılmamış]5D;</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Laboratuvar Yardımcısı</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>Erişim Kapsamını Kopyala</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>İşlecin erişebileceği kopyalar.</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>Kümelenmiş Dizin Silme</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>Kümelenmiş bir dizinden satırları silin.</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>Kümelenmiş Dizin Arama</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>Kümelenmiş dizine satırlar ekleyin.</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>Kümelenmiş Dizin Birleştirme</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>Kümelenmiş bir dizindeki satırları birleştirin.</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>Kümelenmiş Dizin Tarama</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>Kümelenmiş bir dizini tamamen veya yalnızca bir aralığı taramak.</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>Kümelenmiş Dizin Arama</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>Kümelenmiş dizinden belirli bir satır aralığı taranıyor.</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>Kümelenmiş Dizin Güncelleştirmesi</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>Kümelenmiş bir dizindeki satırları güncelleyin.</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>Kümelenmiş Güncelleştirme</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>Kümelenmiş Güncelleştirme.</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Daralt</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>Aynı değerdeki bir ekleme ve silme işlemini geniş güncelleştirme planları içindeki bir güncelleştirmede gruplar.</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>Sütun Başvurusu</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>İstatistiksiz Sütunlar</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>İstatistik uyarısı olmayan sütunlar.</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>Columnstore Dizini Silme</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>Sütun deposu dizininden satırları silin.</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Columnstore Dizini Ekleme</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>Columnstore dizinine satır ekleyin.</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Columnstore Dizini Birleştirme</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>Sütun deposu dizinindeki satırları birleştirin.</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Sütun Deposu Dizin Taraması</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>Columnstore dizininin tamamını veya yalnızca bir aralığını tarayın.</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Columnstore Dizini Güncelleme</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>Columnstore dizinindeki satırları güncelleştirin.</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>Skaler Hesapla</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>Satırdaki mevcut değerlerden yeni değerleri hesaplayın.</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>Kontrol Düğümü için Hesaplama</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>Hesaplama düğümlerinden kontrol düğümüne veri akışı.</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>Birleştirme</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>Çıktı tablosunu oluşturmak için birden çok girdi tablosu ekleyin.</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Bir yedeği NORECOVERY seçeneğiyle geri yüklerken bu seçeneğin belirtilmesine izin verilmiyor.</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadOnly" xml:space="preserve">
+    <value>Salt Okunur</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadWrite" xml:space="preserve">
+    <value>Okuma/Yazma</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_description" xml:space="preserve">
+    <value>Bir sunucuya bağlanırken uygulama iş yükü türünün bildirimini yapar</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_displayName" xml:space="preserve">
+    <value>Uygulama amacı</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_description" xml:space="preserve">
+    <value>Uygulamanın adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_displayName" xml:space="preserve">
+    <value>Uygulama adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachDbFilename_displayName" xml:space="preserve">
+    <value>Attach DB dosya adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_description" xml:space="preserve">
+    <value>Bağlanabilen veritabanının, tam yol adını içerecek şekilde belirtilen birincil dosya adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_displayName" xml:space="preserve">
+    <value>Ekli DB dosya adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_AAS" xml:space="preserve">
+    <value>Azure Doğrulama</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_HGS" xml:space="preserve">
+    <value>Konak Koruyucu Hizmeti</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_None" xml:space="preserve">
+    <value>Yok</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_description" xml:space="preserve">
+    <value>Always Encrypted ile güvenli kapanımlar için kullanılan sunucu tarafı kapanımı doğrulamak üzere bir protokol belirtir</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_displayName" xml:space="preserve">
+    <value>Kanıtlama Protokolü</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_AzureMFA" xml:space="preserve">
+    <value>Microsoft Entra ID - MFA Desteği ile Evrensel</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_Integrated" xml:space="preserve">
+    <value>Tümleşik Windows Kimlik Doğrulaması</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_SqlLogin" xml:space="preserve">
+    <value>SQL Oturum Açma</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_description" xml:space="preserve">
+    <value>SQL Server ile kimlik doğrulama metodunu belirtir</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_displayName" xml:space="preserve">
+    <value>Kimlik doğrulaması türü</value>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_description" xml:space="preserve">
+    <value>Bağlantı için Always Encrypted özelliğini etkinleştirir veya devre dışı bırakır</value>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_displayName" xml:space="preserve">
+    <value>Always Encrypted</value>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_description" xml:space="preserve">
+    <value>Sunucuda bir komutun tamamlanmasını bekleme süresi (saniye olarak). Süre dolarsa girişim sonlandırılır ve hata oluşturulur</value>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_displayName" xml:space="preserve">
+    <value>Komut zaman aşımı</value>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Disabled" xml:space="preserve">
+    <value>Devre dışı</value>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Enabled" xml:space="preserve">
+    <value>Etkin</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_description" xml:space="preserve">
+    <value>Bağlantıyı geri yüklemek için yapılan deneme sayısı</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_displayName" xml:space="preserve">
+    <value>Bağlantı yeniden deneme sayısı</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_description" xml:space="preserve">
+    <value>Bağlantıyı geri yükleme denemeleri arasındaki gecikme</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_displayName" xml:space="preserve">
+    <value>Bağlantı yeniden deneme aralığı</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_description" xml:space="preserve">
+    <value>Girişimi sonlandırıp hata oluşturmadan önce sunucuya bağlantı için bekleme süresi (saniye olarak)</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_displayName" xml:space="preserve">
+    <value>Bağlantı zaman aşımı (saniye)</value>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_description" xml:space="preserve">
+    <value>Doğru olduğunda, bağlantının SQL server bağlamından olması gerektiğini gösterir. Yalnızca SQL Server işlemi çalıştırılırken kullanılabilir</value>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_displayName" xml:space="preserve">
+    <value>Bağlam bağlantısı</value>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_description" xml:space="preserve">
+    <value>SQL Server dili kayıt adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_displayName" xml:space="preserve">
+    <value>Geçerli dil</value>
+  </data>
+  <data name="ConnectionConfigOptions_database_description" xml:space="preserve">
+    <value>Veri kaynağındaki ilk kataloğun veya veritabanının adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_database_displayName" xml:space="preserve">
+    <value>Veritabanı adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_description" xml:space="preserve">
+    <value>Always Encrypted ile güvenli kapanımlar için kullanılan sunucu tarafı kapanımı doğrulamak üzere bir uç nokta belirtir</value>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_displayName" xml:space="preserve">
+    <value>Kapanım Doğrulama URL'si</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Mandatory" xml:space="preserve">
+    <value>Zorunlu</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Optional" xml:space="preserve">
+    <value>İsteğe bağlı</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Strict" xml:space="preserve">
+    <value>Katı</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_description" xml:space="preserve">
+    <value>Ayarlandığında, SQL Server istemci ile sunucu arasında gönderilen tüm veriler için SSL şifrelemesinde sağlanan ayarı kullanır.</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_displayName" xml:space="preserve">
+    <value>Şifrele</value>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_description" xml:space="preserve">
+    <value>yük devretme ortağı olarak davranan SQL Server örneğinin adı veya ağ adresi</value>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_displayName" xml:space="preserve">
+    <value>Yük devretme ortağı</value>
+  </data>
+  <data name="ConnectionConfigOptions_failover_and_replication" xml:space="preserve">
+    <value>Yük Devretme ve Çoğaltma</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_context" xml:space="preserve">
+    <value>Veri Kaynağı &amp; Bağlam</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_general" xml:space="preserve">
+    <value>Genel</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_pooling" xml:space="preserve">
+    <value>Havuz Oluşturma Ayarları</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
+    <value>Bağlantı Dayanıklılığı</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_security" xml:space="preserve">
+    <value>Güvenlik ve Şifreleme</value>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_description" xml:space="preserve">
+    <value>Şifreleme etkinleştirildiğinde, sertifika doğrulaması için kullanılacak sertifikadaki ana bilgisayar adını belirtir.</value>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_displayName" xml:space="preserve">
+    <value>Sertifikadaki ana bilgisayar adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_description" xml:space="preserve">
+    <value>Bu bağlantının, yok edilmeden önce havuzda en az ne süreyle (saniye olarak) etkin kalacağı</value>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_displayName" xml:space="preserve">
+    <value>Yük dengeleme zaman aşımı</value>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_description" xml:space="preserve">
+    <value>Havuzda izin verilen en çok bağlantı sayısı</value>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_displayName" xml:space="preserve">
+    <value>En yüksek havuz boyutu</value>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_description" xml:space="preserve">
+    <value>Havuzda izin verilen en az bağlantı sayısı</value>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_displayName" xml:space="preserve">
+    <value>En küçük havuz boyutu</value>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_description" xml:space="preserve">
+    <value>Uygulamanız farklı alt ağlardaki bir AlwaysOn kullanılabilirlik grubuna (AG) bağlanıyorsa bunu true olarak ayarlamak, o anda etkin olan sunucuyu daha hızlı algılamayı ve ona bağlanmayı sağlar.</value>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_displayName" xml:space="preserve">
+    <value>Birden fazla alt ağlı yük devretme</value>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_description" xml:space="preserve">
+    <value>Doğru olduğunda, bir bağlantıdan birden çok sonuç kümesi döndürülebilir ve okunabilir</value>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_displayName" xml:space="preserve">
+    <value>Birden çok etkin sonuç kümesi</value>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_description" xml:space="preserve">
+    <value>SQL Server örneğiyle iletişim kurmak için kullanılacak ağ paketlerinin bayt olarak boyutu</value>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_displayName" xml:space="preserve">
+    <value>Paket boyutu</value>
+  </data>
+  <data name="ConnectionConfigOptions_password_description" xml:space="preserve">
+    <value>Veri kaynağına bağlanırken kullanılacak parolayı gösterir</value>
+  </data>
+  <data name="ConnectionConfigOptions_password_displayName" xml:space="preserve">
+    <value>Parola</value>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_description" xml:space="preserve">
+    <value>Yanlış olduğunda, parola gibi güvenlik açısından hassas bilgiler bağlantının bir parçası olarak döndürülmez</value>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_displayName" xml:space="preserve">
+    <value>Kalıcı güvenlik bilgileri</value>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_description" xml:space="preserve">
+    <value>Doğru olduğunda, bağlantı nesnesi ilgili havuzdan çekilir veya gerekiyorsa oluşturulur ve ilgili havuza eklenir</value>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_displayName" xml:space="preserve">
+    <value>Biriktirme</value>
+  </data>
+  <data name="ConnectionConfigOptions_port_displayName" xml:space="preserve">
+    <value>Bağlantı Noktası</value>
+  </data>
+  <data name="ConnectionConfigOptions_replication_description" xml:space="preserve">
+    <value>SQL Server tarafından Çoğaltma işleminde kullanılır</value>
+  </data>
+  <data name="ConnectionConfigOptions_replication_displayName" xml:space="preserve">
+    <value>Çoğaltma</value>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_description" xml:space="preserve">
+    <value>Bağlantı için Güvenli Kapanımları etkinleştirir veya devre dışı bırakır</value>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_displayName" xml:space="preserve">
+    <value>Güvenli Kapanımlar</value>
+  </data>
+  <data name="ConnectionConfigOptions_server_description" xml:space="preserve">
+    <value>SQL Server örneğinin adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_server_displayName" xml:space="preserve">
+    <value>Sunucu adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_description" xml:space="preserve">
+    <value>Doğru olduğunda (ve encrypt=true olduğunda), SQL Server, sunucu sertifikasını doğrulamadan, istemci ve sunucu arasında gönderilen tüm veriler için SSL şifrelemesi kullanır</value>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_displayName" xml:space="preserve">
+    <value>Sunucu sertifikasına güven</value>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_description" xml:space="preserve">
+    <value>Sağlayıcının DataReader aracılığıyla kullanıma sunacağı sunucu türü sistemini belirtir</value>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_displayName" xml:space="preserve">
+    <value>Tür sistemi sürümü</value>
+  </data>
+  <data name="ConnectionConfigOptions_user_description" xml:space="preserve">
+    <value>Veri kaynağına bağlanırken kullanılacak kullanıcı kimliğini gösterir</value>
+  </data>
+  <data name="ConnectionConfigOptions_user_displayName" xml:space="preserve">
+    <value>Kullanıcı adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_description" xml:space="preserve">
+    <value>SQL Server'a bağlanan iş istasyonunun adı</value>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_displayName" xml:space="preserve">
+    <value>İş istasyonu kimliği</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>Bağlantı ayrıntıları nesnesi null olamaz</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri null veya boş olamaz</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName null veya boş olamaz</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>SqlLogin kimlik doğrulaması kullanılırken {0} null veya boş olamaz</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>Bağlantı özelliklerini görüntüle</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>Kanıtlama protokolü ve Kanıtlama URL'si, Güvenli Always Encrypted ile doğrulamanın Etkin olarak ayarlanmış olması gerekir.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>Kanıtlama URL'si' Kanıtlama protokolü 'None' ile belirtilmeli. Uygun Kanıtlama protokolünü ayarlayın veya doğrulama URL'sini bağlantı özelliklerinden kaldırın.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>AuthenticationType için geçersiz değer '{0}'.  Geçerli değerler:'Integrated' ve 'SqlLogin'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>ComlumEncryption için geçersiz değer '{0}'. Geçerli değerler 'Enabled' ve 'Disabled' değerleridir.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Kanıtlama protokolü için geçersiz değer '{0}'. Geçerli değerler: 'AAS', 'HGS' ve 'None'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Şifreleme için geçersiz ‘{0}’ değeri. Geçerli değerler: 'optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' ve 'No'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>ApplicationIntent için geçersiz değer '{0}'. Geçerli değerler: 'ReadWrite' ve 'ReadOnly'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Secure enclaves için geçersiz değer '{0}'. Geçerli değerler 'Enabled' ve 'Disabled' değerleridir.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Onay protokolü, Güvenli yerleşimler etkinken boş olamaz.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>Doğrulama URL'si, seçili Kanıtlama protokolü değeriyle boş olamaz.</value>
+  </data>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Bağlantı parametreleri null olamaz</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Bağlantı iptal edildi</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>Belirtilen URI '{0}' için varsayılan bir bağlantı yok</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>Belirtilen URI '{0}' için mevcut bağlantı yok</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri null veya boş olamaz</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>Sabit Tablo Alma</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>Contant tablosundan tuples alın.</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>Sabit Tarama</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>Dahili bir sabitler tablosunu tarayın.</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>Satır İçi Skaler Tsql Udfs İçerir</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>İşlem Düğümlerine Denetim</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>Kontrol düğümünden hesaplama düğümlerine veri akışı.</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>Dönüştür</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>Bir skaler veri türünün başka bir veri türüne örtük veya açık dönüşümü.</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>Maliyet: %{0}</value>
+  </data>
+  <data name="CouldntFindAzureFunction" xml:space="preserve">
+    <value>'{0}' içinde FunctionName '{1}' olan Azure işlevi bulunamadı</value>
+  </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Blob kapsayıcısı için SAS URI'si oluşturulamıyor.</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>Oturum oluşturulamadı: {0}</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>Nesne artık sunucuda yok.</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>İmleç Gerçek Türü</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>İmleç Eşzamanlılığı</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>İmleç Adı</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>İmleç İşlemi</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>İmleç Planı</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>İmleç İstenen Tür</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>{0}, Microsoft.Data.SqlClient.SqlParameter nesnesine dönüştürülemiyor. Belirtilen sabit değer, desteklenmeyen bir tarih/saat biçimi kullandığı için {1}(Microsoft.Data.SqlDbType) türüne dönüştürülemiyor. Desteklenen tarih/saat biçimlerden birini kullanın. Sabit değer: {2}</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>Bildir</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>Yerel bir değişkeni ayırır.</value>
+  </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>Tanımlanan Değerler</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>Geçerli sorguda mevcut olan hesaplanan ifadeler veya bu sorguyu işlemek için sorgu işlemcisi tarafından tanıtılacak iç değerler olabilecek, bu işleç tarafından tanıtılan değerlerin virgülle ayrılmış bir listesini içerir. Yalnızca PLAN_ROWS türündeki satırlar içindir.</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>Paralellik Derecesi</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>Paralellik derecesi.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>Belirtilen satırları belirtilen tablodan kaldırır.</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>Silinen Tarama</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>Bir tetikleyici içindeki 'deleted' sözde tablosu taranıyor.</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>Dacpac dağıtma</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Azalan</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>Ayrı</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>Ayrı.</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>Akışları Dağıt</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>Akışları dağıt</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>Dinamik</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>Başkaları tarafından yapılan tüm değişiklikleri görebilen imleç.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Toplu iş yürütülürken bir hata oluştu, ancak hata yoksayıldı.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Toplu iş yürütme {0} kez tamamlandı...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Yürütme döngüsü başlıyor</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>İstekli Biriktirici</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>İstekli Biriktirici.</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>Diğer ada sahip sütunlara sahip EditData sorguları desteklenmiyor</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>Sütun düzenlenemiyor</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>Sütun kimliği sorgu için sütun aralığında olmalıdır</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>Anahtar sütunu bulunamadı</value>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>Bir işleme görevi devam ediyor. Lütfen işlemin tamamlanmasını bekleyin.</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;auto-generated&gt;</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>'{0}' sütunu NOT NULL olarak tanımlandı ancak bir değer verilmedi</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>Bu satır için silme işlemi bekleniyor, hücre güncelleştirmesi uygulanamıyor.</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>Yinelenen sütunlara sahip EditData sorguları desteklenmiyor</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>Toplama veya ifade sütunlarına sahip EditData sorguları desteklenmez</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>Önbelleği güncelleştirmek için yeni satır eklenemedi</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>Sonuç sınırı negatif olamaz</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>EditData sorguları başlangıçta hedeflenen tabloyu '{0}' sorgulamalıdır</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>'{0}' sütunu için geçersiz biçim, sütun {1} olarak tanımlanmış</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>İkili sütun için geçersiz biçim</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Boole sütunları için izin verilen değerler 0, 1, "true" veya "false" değerleridir</value>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>Tablo meta verisi genişletilmiş özelliklere sahip değil</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>Bir nesne adı sağlanmalıdır</value>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>Sunucu veya veritabanını açıkça belirtme desteklenmiyor</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>Birden çok tabloyu hedef alan EditData sorguları desteklenmiyor</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>Bu sütun için NULL değerine izin verilmiyor</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>Tablo veya görünüm meta verileri bulunamadı</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>Düzenleme için istenen tablo veya görünüm bulunamadı</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>Sorgu yürütme başarısız oldu, ayrıntılar için iletilere bakın</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>Sorgu tam olarak bir sonuç kümesi oluşturmadi</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>Sorgu yürütmeyi tamamlanmadı</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>Verilen satır kimliği, düzenleme önbelleğinde satır aralığının dışında</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>Çıkış dosya adı sağlanmalıdır</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>Düzenleme oturumu zaten var.</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>Düzenleme oturumu zaten başlatıldı</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>Düzenleme oturumu zaten başlatıldı veya başlatma işlemi devam etti</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>Düzenleme oturumu yok.</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>Oturum düzenleme başlatılmadı</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>TIME sütun değerleri 00:00:00.0000000 ile 23:59:59.99999999 arasında olmalıdır</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>Veritabanı nesnesi {0} düzenleme için kullanılamaz.</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>Verilen satır kimliğinde bekleyen güncelleştirme yok</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>Bu satır için bir güncelleştirme zaten bekliyor ve önce geri döndürülleri gerekiyor</value>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Değer {0} {1} türündeki sütuna sığmayacak kadar büyük</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>Showplan XML'den Sorgu Metnini Düzenle (muhtemelen kesilmiş)</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>Etkili Paralellik Derecesi</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>Columnstore dizini oluşturma sırasında en yüksek paralellik derecesi.</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>Birincil veya İkincil Klonlar</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>Sonlandır</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>Aralığın sonu.</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>İş programı bitiş zamanı, başlangıç zamanından sonra olmalıdır.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>Bağlantı bulunamadı</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Boş bir dizenin boş bir dizeyle değiştirilmesi.</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Sürüm değeri geçerli değil</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>{0}, Microsoft.Data.SqlClient.SqlParameter nesnesine dönüştürülemiyor. Belirtilen sabit değer {1}(Microsoft.Data.SqlDbType) türüne dönüştürülemiyor. Sabit değer: {2}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>Satır {0}</value>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>Dizin {0} için adı {1} olan bir dosya zaten mevcut</value>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Yol {0} geçerli bir dizin değil</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Tahmini Maliyet Yüzdesi</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Tahmini CPU Maliyeti</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>Tahmini CPU Maliyeti</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>Bu işleç için tahmini CPU maliyeti. Yalnızca PLAN_ROWS türündeki satırlar içindir.</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>Tahmini Veri Boyutu</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>Bu işleç üzerinden geçirilen verilerin tahmini veri boyutu.</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>Tahmini Yürütme Modu</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>Tahmini Yürütme Modu</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Tahmini Yürütmeler</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Tahmini GÇ Maliyeti</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>Tahmini G/Ç Maliyeti</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>Bu işleç için tahmini G/Ç maliyeti. Yalnızca PLAN_ROWS türündeki satırlar içindir.</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>Tahmini Birleştirme Türü</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>Uyarlamadan önce sorgu iyileştiricisi tarafından tahmin edilen birleştirme türü (iç içe döngüler veya karma birleştirme).</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>Tahmini Yürütme Sayısı</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>Geçerli sorgu çalıştırılırken bu işlecin tahmini olarak yürütüleceği sayı.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>Tüm Yürütmeler için Tahmini Satır Sayısı</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>Bu işleç tarafından tüm yürütmelere ilişkin tahmini satır sayısı. Bu yalnızca PLAN_ROWS içindir.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>Yürütme Başına Tahmini Satır Sayısı</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>Bu işleç tarafından yürütme çıkışı başına tahmini satır sayısı. Bu yalnızca PLAN_ROWS içindir.</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>Tahmini İşleç Maliyeti</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>Bu işlecin tahmini maliyeti.</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>Tahmini Yeniden Bağlamalar</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>Tahmini yeniden bağlamalar.</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>Tahmini Geri Sarmalar</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>Tahmini geri sarmalar.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>Tahmini Satır Boyutu</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>Bu işleç üzerinden geçirilen satırın tahmini ortalama satır boyutu.</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Tahmini Satırlar</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>Okunacak Tahmini Satır Sayısı</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>Bu işleç tarafından okunan tahmini satır sayısı. İşleç bir koşula sahipse, bu değer "Tüm Yürütmeler için Tahmini Satır Sayısı" değerinden farklı olabilir.</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Tahmini Alt Ağaç Maliyeti</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>Tahmini Alt Ağaç Maliyeti</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>Bu işlemin ve tüm alt işlemlerin tahmini birikmeli maliyeti.</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>Tek Kopya Eşleşmesi</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>bacpac'i dışarı aktar</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>Dış Yayın</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>Dış tablo için veri taşımayı yayımlayın.</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>Dış Dışarı Aktarma</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>Dış tablo için veri taşımayı dışarı aktar.</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>Dış Yerel Akış</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>Dış tablo ve yerel tablo arasında veri taşıma.</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>Dış RoundRobin</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>Dış tablo için RoundRobin veri taşıma.</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>Dış Karıştırma</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>Dış tablo için veri taşımayı karıştır.</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>Dacpac ayıklama</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>Geçersiz sürüm '{0}' geçirildi. Sürüm x.x.x.x biçiminde olmalıdır; burada x bir sayıdır.</value>
+  </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>Sunucuyla ilgili bağlantı bilgileri bulunamadı</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Sunucu bağlamsallaştırma betikleri oluşturulamadı</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>İleri Sar</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>İleri Sar.</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>Sorguyu Getir</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>Bir imleç üzerinde getirme işlemi yapılırken satırları almak için kullanılan sorgu.</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtrele</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>Koşula göre satır kümesi kısıtlanıyor.</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>Zorunlu Dizin.</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>Zorunlu dizin.</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Yabancı Anahtar Başvuruları Denetimi</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>Silme işleminin bilgi tutarlılığını denetler.</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>Yabancı Anahtar Referans Sayısı</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>Yalnızca İlet</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>Parça Kimliği Sütunu</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>TSQL parçası tam olarak bir toplu iş içermeli.</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>Bir çevrimiçi dizin derlemesi nedeniyle kısmi bir güncelleştirme tam güncelleştirmeye dönüştürüldü</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>Çevrimiçi dizin oluşturma uyarısı için tam güncelleştirme</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>Akışları Topla</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>Akışları topla.</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>Toplamalara Göre Gruplandır</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>Toplamalara göre gruplandırın.</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>Gruplandırma ölçütü ve Uygula</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>Gruplandırma ölçütü ve Uygulama.</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Genel Amaçlı</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>Betik oluştur</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>Al</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>Tablodan tanımlama gruplarını alın.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Modelden kullanıcı tanımlı nesneler alınamadı.</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>Yeterince İyi Plan Bulundu</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>Gruplandırma Ölçütü</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>Gruplandırma ölçütü.</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>Gruplandırma Kümeleri</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>Grup kümeleri listesi. Her Değer, Gruplandırma Ölçütü özelliğindeki gruplandırma sütunları için ters bit eşlemedir.</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>Karma Anahtarları</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>Karma Anahtarları Derlemesi</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>Karma anahtarları derlemesi.</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>Karma anahtarları.</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>Karma Anahtarları Yoklaması</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>Karma anahtarları yoklaması.</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>Karma Eşleşmesi</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>Karma tablosu oluşturmak için üst girişteki her satırı ve karma tablosunu araştırmak için alt girişteki her satırı kullanarak eşleşen tüm satırların çıkışını alın.</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>Karma Eşleşme Kökü</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>Ortak bir karma işlevini ve bölümleme stratejisini paylaşan bağlı karma işleçlerden oluşan bir ekibin kök üyesi.</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>Karma Eşleştirme Ekibi</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>Birden çok ortak çalışma karma işlemi arasında katkıda bulunan.</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>Karma, {2} KB verilen bellek ve{3} KB kullanılan bellekle tempdb'ye {0} sayfa yazdı ve tempdb’den {1} sayfa okudu</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>Karma taşması ayrıntıları</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>En Yüksek Düzey</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>Bu toplamada hesaplanan en yüksek gruplandırma özniteliği düzeyi.</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>Hpc Cihazdan Konağa Bayt</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>Hpc cihazından konağa bayt olarak aktarılan veriler.</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>Hpc Konaktan Cihaza Bayt</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>Konaktan Hpc cihazına bayt olarak aktarılan veriler.</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>Hpc Çekirdeği Geçen Süre (Mikrosaniye)</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>Hpc cihazı çekirdek yürütmesi için geçen süre (mikro saniye cinsinden).</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>Hpc Satır Sayısı</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>Hpc cihazları tarafından işlenen satır sayısı.</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hiper Ölçek</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>Eğer</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>Bir ifadeyi temel alan koşullu işleme.</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>bacpac'i içeri aktar</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>Dizini Sil</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>Dizinden satırları silin.</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>Dizin Ekleme</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>Dizine satır ekleyin.</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>Dizin Türü</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>Başvurulan nesne için dizin türü.</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>Dizin Taraması</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>Kümelenmemiş bir dizinin tamamını veya yalnızca bir aralığını tarayın.</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>Dizin Arama</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>Kümelenmemiş dizinden belirli bir satır aralığını tarayın.</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>Dizin Biriktiricisi</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>Girdideki verileri geçici bir dizine yeniden biçimlendirir ve ardından bu veriler sağlanan arama koşuluyla arama için kullanılır.</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>Dizin Güncelleştirmesi</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>Bir dizindeki satırları güncelleştirin.</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>İç Yan Birleştirme sütunları</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>İç yan birleştirme sütunları.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>girdi</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>Giriş Belleği</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>Tabloya bir satır ekler.</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>Eklenen Tarama</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>Bir tetikleyici içindeki 'inserted' sözde tablosunu tarayın.</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>İç Hata Ayıklama Bilgileri.</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>İç</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>İç Transact-SQL işlevini çağırır.</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value> Sağlanan yol geçersiz</value>
+  </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Veritabanı Şeması Sağlayıcısı için geçersiz değer: '{0}'; 'Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider' biçiminde olması bekleniyordu.</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Sunucuda belirtilen yola erişilemiyor: {0}</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Veritabanı dosyası için geçersiz yol: '{0}'</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Geçersiz Program</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>Başlangıç tarihi 1 Ocak 1990 veya sonrasında olmalıdır.</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Bu haftalık zamanlamanın parçası olacak en az bir gün seçin.</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>Uyarlamalı</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>İşlecin uyarlamalı olup olmadığı.</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>GraphDB Geçişli Kapanış</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>Dizinin bir GraphDB geçişli kapanışını temsil edip etmediği.</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>İşlecin araya ekli olarak yürütülüp yürütülmedi.</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>Yüzde</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>Yüzde.</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>'{0}' adlı bir iş zaten var.  İş için benzersiz bir ad girin.</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>İş sunucusu yok</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>Bu iş için '{0}' adında bir adım zaten var. Farklı bir ad belirtmelisiniz.</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>İş adımının adı boş bırakılamaz.</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Birleştir</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>Birleşim tabloları.</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>Anahtar Arama</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>Kümelenmiş dizini olan bir tabloda arama için sağlanan kümeleme anahtarını kullanıyor.</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Anahtar Kümesi</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>Başkaları tarafından yapılan güncelleştirmeleri gören ancak eklemeleri göremeyen imleç.</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>Gecikmeli Biriktirici</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>Gecikmeli Biriktirici.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Düzey</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>Bu toplamada hesaplanan gruplandırma özniteliklerinin bir düzeyi.</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Birleşik Toplama</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>Bu bir ROLLUP işlecini veya CUBE işlecini temsil eder.</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>Bul</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>Yığından veya kümelenmiş dizinden tam satır getiriliyor.</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Günlük</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>Günlük Satırı Taraması</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>Günlükte satırları tarayın.</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>Anahtar Arama</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>Kümelenmiş</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>Fark Önleme</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>Onaylama</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Toplu Karma Tablo Derlemesi</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>Bit Eşlem Oluşturma</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>Kümelenmiş Dizin Tarama</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>Kümelenmiş Dizin Arama</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>Kümelenmiş Güncelleştirme</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>Daralt</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>Skaler İşlem</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>Birleştirme</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>Sabit Tarama</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>Çapraz Birleştirme</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>Silinen Tarama</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>Ayrı</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>Ayrı Sıralama</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>Akışları Dağıt</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>İstekli Biriktirici</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>Filtrele</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>Akış Ayrı</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Yabancı Anahtar Başvuruları Denetimi</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>Tam Dış Birleştirme</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>Akışları Topla</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>Dizin Taraması</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>Dizin Arama</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>İç Uygulama</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>İç Birleştirme</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>Eklenen Tarama</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>Kesiştir</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>Tümünü Kesiştir</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>Gecikmeli Biriktirici</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Sol Ters Yarı Uygulama</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Sol Ters Yarı Birleştirme</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>Sol Fark</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>Sol Fark Tümü</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>Sol Dış Uygulama</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>Sol Dış Birleştirme</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>Sol Yarı Uygulama</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>Sol Yarı Birleştirme</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>Yerel İstatistikler</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>Günlük Satırı Taraması</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>Birleştir</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>Birleştirme Aralığı</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>Birleştirme İstatistikleri</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>Parametre Tablo Taraması</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>Kısmi Toplama</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>Yazdır</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>Koyma</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>RID Araması</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>Derece</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>Uzaktan Silme</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>Uzak Dizin Tarama</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>Uzak Dizin Arama</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>Uzaktan Ekle</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>Uzak Sorgu</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>Uzaktan Tarama</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>Uzaktan Güncelleştirme</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>Akışları Yeniden Bölümle</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Sağ Ters Yarı Birleştirme</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>Sağ Fark</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>Sağ Fark Tümü</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>Sağ Dış Birleştirme</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>Sağ Yarı Birleştirme</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>Sıra</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>Sırala</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>Böl</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>Anahtar</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>Tablo Taraması</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>Tablo Değerli İşlev</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>Üst</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Üst N Sıralama</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>Birleşim</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>Güncelleştir</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Pencere Biriktiricisi</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>Mantıksal İşlem</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>Bu düğümün temsil ettiği ilişkisel cebirsel işleç. Yalnızca PLAN_ROWS türündeki satırlar içindir.</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>Çoka Çok</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>Çoka çok.</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>Bellek Kesirleri</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>Bellek kesirleri.</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>Bellek Kesirleri Girişi</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>Bellek kesirleri girişi.</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>Bellek Kesirleri Çıkışı</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>Bellek kesirleri çıkışı.</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>Bellek Verme</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>Bellek ataması.</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>Sorgu belleği izin verme işlemi "{0}" algılandı, bu durum güvenilirliği etkileyebilir. İzin verme boyutu: İlk {1} KB, Son {2} KB, Kullanılan {3} KB.</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>Bellek verme uyarısıyla ilgili ayrıntılar</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>Bellek Sınırı Aşıldı</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Birleştirme Aralığı</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>Birleştirme aralığı.</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Birleştirmeyi Birleştirme</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>Sıralama düzenlerinden yararlanan uygun şekilde sıralanmış iki giriş tablosundaki satırları eşleştirin.</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*]D;]A;{0}]D; öğesinden Eksik Dizin Ayrıntıları]A;Sorgu İşlemcisi, aşağıdaki dizini uygulamanın sorgu maliyetini %{1} düşüreceğini tahmin ediyor.]D;]A;*/</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Eksik Dizin ({0} Etkisi): {1}</value>
+  </data>
+  <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
+    <value>'{0}' işlev adıyla birden fazla Azure işlevi {1} içinde bulundu</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>İç İçe Döngüler</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>Üst (dış) girişteki her satır için, alt (iç) girişi tarayın ve eşleşen satırların çıkışını alın.</value>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>Hiçbir zaman</value>
+  </data>
+  <data name="NoBackupsetsToRestore" xml:space="preserve">
+    <value>Geri yüklenecek yedekleme kümesi seçilmedi</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>Dış Akış İşi oluşturma TSQL bulunamadı (EXEC sp_create_streaming_job deyimi).</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>Katılma Koşulu Yok</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>Join koşulu uyarısı yok.</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>Eşleşmeyen Dizin Sayısı</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>Plan verileri XML biçiminde kullanılamıyor. Yalnızca SQL Server Yukon planları kaydedilebilir.</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>Düğüm Kimliği</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Bulut örnekleri için paylaşılan erişim imzası oluşturma desteklenmiyor.</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>Gerçek Toplu İşlem Sayısı</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>Bu işleç tarafından gerçekleşen Toplu İş çıkışının gerçek sayısı.</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>Yürütme Sayısı</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>Geçerli sorgu çalıştırılırken bu işlecin yürütüleceği sayı.</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>Tüm Yürütmeler için Gerçek Satır Sayısı</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>Bu işleç tarafından Tüm Yürütmeler çıkışı için gerçek satır sayısı. Yalnızca PLAN_ROWS türündeki satırlar içindir.</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Nesne</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>Diğer ad</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>Başvurulan nesne için kullanılan diğer ad.</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>Sütun</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>Başvurulan nesnenin sütun adı.</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>Hesaplanan Sütun</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>Bunun hesaplanan bir sütun olup olmadığını belirtir.</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>Veritabanı</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>Başvurulan nesnenin veritabanı adı.</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>Nesne.</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>Dizin</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>Başvurulan nesnenin dizin adı.</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Nesne yeniden adlandırılamadı. URN: '{0}'.</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>Şema</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>Başvurulan nesnenin şema adı.</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>Sunucu</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>Başvurulan nesnenin sunucu adı.</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>Nesne</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>Tablo</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>Başvurulan nesnenin tablo adı.</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>'{0}' uç noktası için bağlantı bilgileri ayrıştırılırken '{1}' hata iletisi oluştu</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>İşlem</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>Gerçekleştirilmekte olan işlem hakkında ek bilgiler sağlar. Bu sütunun içeriği fiziksel işlece bağlıdır.</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>Bağımsız Değişken</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>İşlem açıklaması.</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>Açıklama</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>İşlem Türü</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} (%{1})</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>İyileştirme Düzeyi</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>İyileştirme düzeyi.</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>İyileştirilmiş</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Sıralama Ölçütü</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>Sıralama ölçütü.</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>Sipariş edildi</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>Sıralandı.</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>Özgün Eylem Sütunu</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>Özgün Eylem sütunu.</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>Dış Başvurular</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>Dış başvurular.</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>Dış Yan Birleştirme sütunları</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>Dış yan birleştirme sütunları.</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>çıkış</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>Çıkış Listesi</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>Geçerli işlem tarafından yansıtılan sütunların virgülle ayrılmış listesini içerir.</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>Çıkış Belleği</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>Paralel</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>İşlecin paralel olarak çalışıp çalışmadığı.</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>Paralellik</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>Paralellik içeren bir işlem.</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Paralel yürütme</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>Parametre Derlenmiş Değeri</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>Parametre Verisi Türü</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>Parametre Listesi</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>Parametre listesi.</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>Parametre Çalışma Zamanı Değeri</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Parametre Tablosu Taraması</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>Parametre değerlerinin iç tablosunu tarayın.</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0}, şu özelliklere sahip bir Microsoft.Data.SqlClient.SqlParameter nesnesine dönüştürülecek: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>Satır {0}, sütun {1}</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>Kısmi Eşleşen Dizin Sayısı</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>Bölüm Sütunları</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>Bölüm sütunları.</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>Gerçek Bölüm Sayısı</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>Bölüm Kimliği</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>Bölüm Kimliği.</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>Bölümlenmiş</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>İşlemin bölümlenmiş bir tabloda veya dizinde olup olmadığı.</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>Bölümleme Türü</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>Bölümleme modu.</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>Erişilen Gerçek Bölümler</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>Geçiş</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>Doğrudan geçiş.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>İşletim sistemi ilkesi gereksinimlerini karşılayan yeni bir parola girişi için Tamam'a basın.</value>
+  </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>Yeni parola boş olamaz</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Boş olmayan yeni bir parola girişi için Tamam'a basın.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Farklı bir parola girişi için Tamam'a basın.</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>Oturum duraklatılamadı: {0}</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>Bu özellik şu anda Azure SQL DB ve Data Warehouse için desteklenmiyor: {0}</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>Veritabanı nesnesi alınmadı.</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>Gözatma Tanımı yürütülürken beklenmeyen bir hata oluştu: {0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>Hiç sonuç bulunamadı.</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Lütfen bir sunucuya bağlanın.</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>İşlem zaman aşımına uğradı.</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>Bu nesne türü şu anda bu özellik tarafından desteklenmiyor.</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>İş parçacığı başına sayaç bilgileri.</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>Toplu işlemleri yönetme</value>
+  </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>Değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>Tüm uygulama rollerini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>Herhangi bir bütünleştirilmiş kodu değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>Herhangi bir asimetrik anahtarı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>Herhangi bir kullanılabilirlik grubunu değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>Herhangi bir sertifikayı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>Herhangi bir bağlantıyı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>Herhangi bir sözleşmeyi değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>Herhangi bir kimlik bilgisini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>Herhangi bir veritabanını değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>Herhangi bir veritabanı denetimini değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>Herhangi bir veritabanı DDL tetikleyicisini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>Herhangi bir veritabanı olay bildirimini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>Herhangi bir veri alanını değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>Herhangi bir uç noktayı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>Herhangi bir olay bildirimini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>Herhangi bir olay oturumunu değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>Herhangi bir dış veri kaynağını değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>Herhangi bir dış dosya biçimini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>Tüm tam metin kataloglarını değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>Herhangi bir bağlı sunucuyu değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>Herhangi bir oturum açmayı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>Herhangi bir maskeyi değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>Herhangi bir ileti türünü değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>Uzak hizmet bağlamalarını değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>Herhangi bir rolü değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>Herhangi bir rotayı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>Herhangi bir şemayı değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>Herhangi bir güvenlik ilkesini değiştir</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>Duyarlılık sınıflandırmalarını değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>Herhangi bir sunucu denetimini değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>Herhangi bir sunucu rolünü değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>Herhangi bir hizmeti değiştirme</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>Herhangi bir simetrik anahtarı değiştir</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>Herhangi bir kullanıcıyı değiştirme</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>Kaynakları değiştirme</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>Sunucu durumunu değiştirme</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>Ayarları değiştirme</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>İzlemeyi değiştirme</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>Kimlik doğrulama</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>Sunucunun kimliğini doğrulama</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>Veritabanını yedekle</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>Yedekleme günlüğü</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>Kontrol noktası</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>Bağlan</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>Herhangi Bir Veritabanına Bağlan</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>Çoğaltmaya bağlan</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>SQL'e bağlanma</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>Denetim</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>Denetim sunucusu</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>Toplama oluşturma</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>Herhangi bir veritabanı oluşturma</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>Bütünleştirilmiş kod oluştur</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>Asimetrik anahtar oluştur</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>Kullanılabilirlik grubu oluştur</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>Sertifika oluştur</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>Sözleşme oluşturma</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>Veritabanı oluştur</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>Veritabanı DDL olayı bildirimi oluştur</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>DDL olay bildirimi oluşturma</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>Varsayılan oluşturma</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>Uç nokta oluşturma</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>Tam metin kataloğu oluşturma</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>İşlev oluşturma</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>İleti türü oluşturma</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>Yordam oluştur</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>Kuyruk oluştur</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>Uzak hizmet bağlaması oluştur</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>Rol oluşturma</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>Rota oluşturma</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>Kural oluştur</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>Şema oluşturma</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>Sıra oluşturma</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>Sunucu rolü oluşturma</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>Hizmet oluşturma</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>Simetrik anahtar oluşturma</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>Eş anlamlı oluşturma</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>Tablo oluştur</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>İzleme olayı bildirimi oluşturma</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>Tür oluşturma</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>Görünüm oluştur</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>XML şema koleksiyonu oluşturma</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>Silme</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>Yürütme</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>Dış erişim derlemesi</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>Kimliğe bürünme</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>Herhangi Bir Oturumun Kimliğine Bürünme</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>Ekleme</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>Alma</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>Başvurular</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>Seç</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>Tüm Kullanıcı Güvenlik Sağlanabilirliklerini Seç</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>Gönderme</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>Planı gösterme</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>Kapat</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>Sorgu bildirimlerine abone olma</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>Sahipliği üstlenme</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>Maskelemeyi Kaldır</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>Güvenli olmayan bütünleştirilmiş kod</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>Güncelleştirme</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>Herhangi bir sütun şifreleme anahtarı tanımını görüntüle</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>Herhangi bir sütun ana anahtar tanımını görüntüleme</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>Herhangi bir veritabanını görüntüleme</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>Herhangi bir tanımı görüntüleme</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>Herhangi bir duyarlılık sınıflandırmasını görüntüle</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>Değişiklik izlemeyi görüntüle</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>SQL veritabanı durumu</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>Tanımı görüntüleme</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>Sunucu durumunu görüntüle</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>Fiziksel İşlem</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>Düğüm için fiziksel uygulama algoritması. Yalnızca PLAN_ROWS türündeki satırlar için.</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>İfadedeki tür dönüştürme ({0}) sorgu planı seçimindeki "{1}" öğesini etkileyebilir</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>Planı etkileyen tür dönüştürme uyarısı.</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>Popülasyon Sorgusu</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>İmleç açıldığında imlecin çalışma tablosunu doldurmak için kullanılan sorgu.</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>Koşul</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>Koşul.</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Ön Ek</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>Birincil Kopyalar</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>Birincil Düğüm Kimliği</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Yazdır</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>Yazdır.</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>Sütunu Araştır</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>Sütunu yokla.</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>Artıkları Araştır</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>Artıkları yokla.</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>Yordam Adı</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Bağlantı bulunamadı</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Proje</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>Proje sütunları.</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Proje dosyalarını ayıklama</value>
+  </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>'{0}' özelliği başlatılmadan önce ayarlandı.</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>'{0}' proxy hesabı sunucuda yok.</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>Şema karşılaştırma değişikliklerini uygula</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>Koyma</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>Satırları yerel veya dış tablodan dış tabloya aktar.</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>Sorgu</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>Sorgu Planı</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 satır etkilendi)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>({0} satır etkilendi)</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>Sorgu zaten tamamlandı, iptal edilemez</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>Sorgu başarıyla iptal edildi, sorgu atılamadı. Sahip URI'si bulunamadı.</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(Sütun adı yok)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>Komutlar başarıyla tamamlandı.</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>Döndürülecek en fazla bayt sayısı sıfırdan büyük olmalıdır</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>Döndürülecek karakter sayısı üst sınırı sıfırdan büyük olmalıdır</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>Döndürülecek en fazla XML baytı sayısı sıfırdan büyük olmalıdır</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Msg {0}, Düzey {1}, Durum {2}, Satır {3}{4}{5}</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>Sonuç kümesinden yürütme planı alınamadı</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>İşlemleri gerçekleştirmeden önce FileStreamWrapper başlatılmış olması gerekir</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>Bu FileStreamWrapper yazmak için kullanılamaz</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>Access yöntemi salt yazma olamaz</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>OnInfoMessage olayı için gönderen bir SqlConnection olmalıdır</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Sorgu kullanıcı tarafından iptal edildi</value>
+  </data>
+  <data name="QueryServiceQueryExecutionCompletedWithErrors" xml:space="preserve">
+    <value>Sorgu yürütme hatalarla tamamlandı</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Sorgu başarısız oldu: {0}</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>Bu düzenleyici oturumu için bir sorgu zaten devam ediyor. Lütfen bu sorguyu iptal edin veya tamamlanmasını bekleyin.</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Geçersiz OwnerUri nedeniyle veritabanına bağlanamıyor</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>İstenen sorgu yok</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>Sonuç arabelleğine satır eklenemiyor, veri okuyucu satır içermiyor</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>Sorgunun döndürülecek sonucu yok</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>Sonuç kümesi için sütun şeması alınamadı</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>Sonuçlar sunucudan okunmadıkça alt küme okunamıyor</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>Satır sayısı pozitif bir tamsayı olmalıdır</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>Başlangıç satırı 0'dan küçük veya sonuç kümesinde satır sayısından büyük olamaz</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>Sonuç kümesi güvenli bir şekilde yüklenemeyecek kadar çok satır içeriyor</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>{0} kaydedilemedi: {1}</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>Aynı yola bir kaydetme isteği devam ediyor</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Kaydetme görevi başlatılırken iç hata oluştu</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Sorgu yürütmesi tamamlanana kadar sonuç kaydedilemez</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>Toplu işlem henüz tamamlanmadı</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>Batch dizini 0'dan küçük veya toplu iş sayısından büyük olamaz</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>Sonuç kümesi dizini 0'dan küçük veya sonuç kümesi sayısından büyük olamaz</value>
+  </data>
+  <data name="QueryServiceSubsetRowsTimeout" xml:space="preserve">
+    <value>Sorgu satırlarının getirilmesi zaman aşımına uğradı.</value>
+  </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>sql variant sütunu '{0}' için temel tür '{1}' çözümlenemedi.</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>RID Araması</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>RID Araması</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>Aralık Sütunları</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>Aralık İfadeleri</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Derecelendir</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>Sütunları Derecelendir</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>Sütunları derecelendirin.</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>Tablodaki mevcut bir sütundaki değerlerin derecesini içeren hesaplanan bir sütun oluşturur.</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>Sorguyu Yenile</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>Getirme arabelleğindeki satırlar için geçerli verileri getirir.</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>Uzaktan Veri Erişimi</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>İşlecin uzak veriye erişmek için uzaktan yordam çağrısı (RPC) kullanıp kullanmadığını belirtir.</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>Uzaktan Silme</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>Geçerli veritabanı sunucusu dışındaki bir veritabanında veya dosyada depolanan tablodaki satırları silin.</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>Uzak Hedef</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>Uzak nesne.</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>Uzak Dizin Tarama</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>Geçerli veritabanı sunucusu dışındaki bir veritabanında veya dosyada depolanan bir dizini tarayın.</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>Uzak Dizin Arama</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>Geçerli veritabanı sunucusu dışındaki bir veritabanında veya dosyada depolanan kümelenmiş dizinden belirli bir satır aralığını tarayın.</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>Uzaktan Ekle</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>Geçerli veritabanı sunucusu dışındaki bir veritabanında veya dosyada depolanan tabloya satırlar ekleyin.</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>Uzak Nesne</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>Uzak nesne.</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>Uzak Sorgu</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>Geçerli SQL Server’dan başka bir sunucuya SQL sorgusu gönderin.</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>Uzaktan Tarama</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>Geçerli veritabanı sunucusu dışındaki bir veritabanında veya dosyada depolanan tablodaki satırları tarayın.</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>Uzak Kaynak</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>Uzak kaynak.</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>Uzaktan Güncelleştirme</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>Geçerli veritabanı sunucusu dışındaki bir veritabanında veya dosyada depolanan tablodaki satırları güncelleştirin.</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>Uzaktan İletişim</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>İşlecin uzaktan çalıştırılıp çalıştırılamayacağı.</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>Akışları Yeniden Bölümle</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>Akışları yeniden bölümleyin.</value>
+  </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>Kilidi açarken oturum açma parolasını sıfırlayın.</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Artık</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>Artık.</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Kontrol noktası SSN</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Bileşen</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Veritabanı</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Süre sonu</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Bitiş Tarihi</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>İlk LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Tam LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Son LSN</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Ad</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Konum</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Sunucu</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Boyut</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Başlangıç Tarihi</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Tür</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Kullanıcı Adı</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Yalnızca Kopyala)</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Veritabanını geri yükleme desteklenmiyor</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Geri yükleme planı oluşturulamadı</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Veritabanını Geri Yükle</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Sonuç</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>Sonuç.</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>Toplama Bilgileri</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>Toplama bilgileri.</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>Toplama Düzeyleri</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>Bu toplamada hesaplanan gruplandırma özniteliklerinin tüm düzeyleri.</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>Satır Sayısı</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>Satır Sayısı Biriktiricisi</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>Geri sarmaları en iyi duruma getirmek için girişten verileri geçici bir tabloya depolar.</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>Üst Satırlar</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>Üst Satırlar.</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>İş parçacığı {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>Tüm iş parçacıkları</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>Örnek {1} üzerinde İş Parçacığı {0}</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL.</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>Sql Planı dosyaları (*.SqlPlan)|*.SqlPlan|Tüm dosyalar (*.*)|*.*</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>Skaler İşleç</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>Tarama Yönü</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>Tarama işleminin ileri veya geri olarak yönü.</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>Tarama Türü</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>Bu iş için zaten '{0}' adında bir zamanlama var.  Farklı bir ad belirtmelisiniz.</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>Modelde belirtilen değişiklik bulunamadı</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>İptal edilecek şema karşılaştırma oturumu bulunamadı</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>betik yazma</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>Geçerli betik Always Encrypted Parametreleştirmesi için çok büyük. Lütfen Sorgu Seçenekleri (Sorgu &gt; Sorgu Seçenekleri &gt; Yürütme &gt; Gelişmiş) altında Always Encrypted Parametreleştirmesini devre dışı bırakın. İzin verilen maksimum uzunluk {0} karakterdir. Geçerli betik uzunluğu {1} karakterdir.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingListObjectsCompleteParams.ConnectionString özelliği ayrıştırılırken hata oluştu.</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>İkincil Kopyalar</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>Anahtarları Ara</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>Arama işlemi tarafından kullanılan anahtarlar.</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Koşul Ara</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Koşul arayın.</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Koşul Ara</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Koşul arayın.</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>Segment Sütunu</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>Segment sütunu.</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>Segment.</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Dizi</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>Her girişi üstten alta sıralı olarak işle.</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Dizi Projesi</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>Sıralı bir küme üzerinde hesaplamalar gerçekleştirmek için sütunlar ekler.</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>{0} dosyası için bir istek zaten devam ediyor</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>Dosya {0} için istek bulunamadığından daha fazla veri serileştirilemiyor</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>Desteklenmeyen kaydetme biçimi: {0}</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Hizmet {0} hizmet sağlayıcısında bulunamadı</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>Gerekli hizmet sağlayıcısını oluşturmak için SetServiceProvider() çağrılmadı</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>{0} adlı bir XEvent oturumu zaten var</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>İstenen XEvent oturumu bulunamıyor</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>İşlev Ayarla</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>İşlev Ayarla.</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>Seçenekleri Ayarla</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>Seçenekleri ayarlayın.</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>Geçerli oturum açma, veritabanı sahibini '{0}' olarak ayarlama izinlerine sahip değil. Ancak veritabanı başarıyla oluşturuldu.</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>Koşul</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>Koşul</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>Karıştır</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>Veri taşımayı karıştır.</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>Tek Kaynak RoundRobin</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>Tek Kaynak RoundRobin veri taşıma.</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>Tek Kaynak Karışık</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>Tek Kaynak Karışık veri taşıma.</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} Bayt</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>Anlık görüntü</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>Başkaları tarafından yapılan değişiklikleri görmeyen bir imleç.</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Sırala</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>Girişi sıralayın.</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>Sıralama, {2} KB verilen bellek ve{3} KB kullanılan bellekle tempdb'ye {0} sayfa yazdı ve tempdb’den {1} sayfa okudu</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>Sıralama taşma ayrıntıları</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>İşleç, yürütme sırasında veri taşma işlemi için tempdb kullandı</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>İşleç, {0} taşma düzeyi ve {1} taşan iş parçacığıyla yürütme sırasında veri taşma işlemi için tempdb kullandı</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>Tempdb için taşma uyarısı.</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>İşleç, {0} taşma düzeyiyle yürütme sırasında veri taşma işlemi için tempdb kullandı</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>Böl</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>Bölme.</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>Biriktirme</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>Bir ara sorgu sonucu geçici olarak kaydediliyor.</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Sunucuya bağlanılamıyor</value>
+  </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Bir SQL Değerlendirmesi oluştur</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Sunucuya bağlı değil</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Desteklenmeyen altyapı sürümü {0}</value>
+  </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>.NET 5 için SQL bağlamaları ekleme desteklenmiyor</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>Toplu iş yürütülürken bir hatayla karşılaşıldı. Çıkılıyor.</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>Desteklenmeyen belirteç {0} ile karşılaşıldı</value>
+  </data>
+  <data name="SqlPackageInvalidRequestParameters" xml:space="preserve">
+    <value>Geçersiz istek parametreleri</value>
+  </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Projeden SQL modeli bulunamadı: {0}.</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Tam sayısal sütunda sayısal duyarlık veya sayısal ölçek eksik</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>Uzunlu sütunda boyut eksik</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>Skaler sütunda ölçek eksik</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>Yığın ile</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standart</value>
+  </data>
+  <data name="StarExpansionDescription" xml:space="preserve">
+    <value>{0} ifadesini {1} sütunla değiştirin: {2}</value>
+  </data>
+  <data name="StarExpansionLabel" xml:space="preserve">
+    <value>Genişlet: {0}</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>İş zamanlaması başlangıç tarihi bitiş tarihinden sonra olamaz.</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>Başlat</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>Aralığın başlangıcı.</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Oturum başlatılamadı: {0}</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>İş zamanlaması başlangıç saati bitiş saatinden sonra olamaz.</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>Başlangıç İfadesi</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>Filtre başlangıç ifadesinin kullanılıp kullanılmaması.</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>Başlangıç İfadesi Koşulu</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>Deyim</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>Çoğu durumda, Transact-SQL deyiminin metnini içerir. PLAN_ROW türündeki satırlar için işlemin açıklamasını içerir.</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>Deyim İyileştirmenin Erken Sonlandırılmasının Nedeni</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Oturum durdurulamadı: {0}</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Depolama</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>Depolama</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>Saklı Yordam</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Akış Toplamı</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>Uygun şekilde sıralanmış bir akışta satır grupları için özet değerleri hesaplayın.</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>Akış sorgusu deyimi eksik {0} akışı '{1}' başvurusu içeriyor.  Bunu veritabanı modeline eklemeniz gerekir.</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>'{0}' dış akış işi için doğrulama başarısız oldu:</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Değiştir</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>Anahtar.</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>SQL Server Agent Hizmet Hesabı</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>Tahmin et</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>Eğitilen makine öğrenmesi modelini giriş verilerine uygular</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>Tabloyu Sil</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>Bağımsız Değişken alanında belirtilen tablodan giriş satırlarını silin.</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>Tablo Ekle</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>Bağımsız Değişken alanında belirtilen tabloya giriş satırlarını ekleyin.</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>Tablo Birleştirme</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>Bağımsız Değişken alanında belirtilen tablodan giriş satırlarını birleştirin.</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>Tablo Taraması</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>Tablodaki satırları tarayın.</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>Tablo Biriktiricisi</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>Geri sarmaları en iyi duruma getirmek için girişten verileri geçici bir tabloya depolar.</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>Tablo Güncelleştirmesi</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>Bağımsız Değişken alanında belirtilen tabloda giriş satırlarını güncelleyin.</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>Tablo Değerli İşlev</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>Tablo değerli işlev.</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>Bu çoklu sunucu işinin yürütüleceği Hedef Sunucular’ı belirtmeniz gerekir.</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Tamamlandı</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>Devam ediyor</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>test</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>Alınan son yedekleme ({0})</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>Sütunları Bağla</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>Sütunları bağla.</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>Zaman Aşımı</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Üst</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>Sıralama düzenine göre ilk birkaç satırı seçin.</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>Üst İfade</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>Üst ifade.</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>Kırp</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>Verileri kırpın.</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX.</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>UDF</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>Ad</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>Ad.</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Beklenmeyen çalıştırma türü.</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>Birleşim</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>Birleşim Tümü</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>Tüm tabloları birleştir.</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>Birleşim tabloları.</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Bilinmiyor</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>Bilinmeyen atama türü.</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>Bilinmeyen imleç planı işlemi '{0}'.</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>Bilinmeyen işleç.</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>Bilinmeyen düğüm türü.</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Bilinmeyen sunucu türü '{0}'.</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>Yürütme planı kaynak türü tanınamıyor.</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Bilinmeyen boyut birimi {0}</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>Deyim türü tanınmıyor.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>{0} altyapı sürümü için {1} cihaz türü desteklenmiyor.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Desteklenmeyen model türü: {0}.</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Güncelleştir</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>Belirtilen tablodaki değerleri değiştirin.</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>Planı kullan</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>Kullanılan Bellek</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>Kullanılan UDX Sütunları</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>Kullanılan UDX sütunları.</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>Akış işini doğrula</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Değerler</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>Değerler.</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>Sorgunun yürütme sırasında {1} için {0} saniye beklemesi gerekti</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>Sorgu bekleme uyarısı.</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Uyarılar</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>Uyarılar</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>Geçerli işlemle ilgili uyarı iletilerinin virgülle ayrılmış listesini içerir. Uyarı iletileri, sütun listesini içeren 'NO STATS:()' dizesini içerebilir.</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Where (birleşim sütunları)</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Pencere Biriktiricisi</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>Pencere Toplamı</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>OVER yan tümcesi tarafından tanımlanan pencerelerde işlevlerin değerlerini hesaplar. Giriş satır kümesi uygun şekilde sıralanmış akıştır.</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>Her satırı ilişkili pencereyi temsil eden satır kümesine genişletir.</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>Önceden Getirme ile</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>Bağlarla</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>Bağlarla.</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Başlangıç konumu ({0}, {1}) bitiş konumundan ({2}, {3}) önce gelmeli veya ona eşit olmalıdır</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Konum, satır {0} için sütun aralığının dışında</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Konum, dosya satırı aralığının dışında</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Paylaşılan erişim imzası belirteci SQL Server'lara kaydedilemedi.</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Sunucu bağlamsallaştırma betikleri önbelleğe yazılırken bir hata oluştu. Hata: {0}</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>Yakınlaştırma düzeyi, {0} ile {1} arasında bir tam sayı değeri olmalıdır.</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>Maksimum boyutu değiştir</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>Otomatik Büyümeyi Değiştir</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>{0} için Maksimum Boyutu değiştir</value>
+  </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>X için Otomatik Büyümeyi Değiştir {0}</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv170" xml:space="preserve">
+    <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>Yeni Veritabanı</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Yok</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>6.0 veya 6.5 uyumluluk modundaki veritabanları için veritabanı özellikleri ayarlanamaz veya görüntülenemez.</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>Var olan veritabanı dosyalarının yolunu değiştiremezsiniz.</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>Sunucuda zaten "{0}" adında bir veritabanı var.</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>Veritabanı Özellikleri</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>HASH dağıtım politikası için, baştaki karma sütunların sayısı isteğe bağlıdır ancak 1 ila 16 sütun arasında olmalıdır</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>Dosya adı boştu. Dosya için bir dosya adı sağlayın.</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>Geçersiz '{1}' karakterini içerdiğinden '{0}' adında bir dosya oluşturulamıyor.</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>Boşluk karakteriyle başladığı için '{0}' adında bir dosya oluşturulamıyor.</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>Veritabanı adının tamamı boşluk karakterlerinden oluşamaz.</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Geçerli varsayılan dosya grubu: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>{0} için Yeni Dosya Grubu</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>Tüm Dosyaları Otomatik Büyüt</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>Varsayılan</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Dosyalar</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>DOSYA AKIŞI Dosyaları</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Ad</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Salt Okunur</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Otomatik Büyüme / Maksimum Boyut</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>Yok</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Kısmi</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>Boyut (MB)</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;varsayılan&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Dosya Grubu</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Mantıksal Ad</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>Dosya Türü</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>İlk Boyut (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;new filegroup&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Yol</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>Dosya Adı</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;raw device&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>Toplu olarak günlüğe kaydedilmiş</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Dolu</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Veritabanı Sahibini Seçin</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>SLO'yu yapılandır</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>Genişletilmiş Özellikler</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>Dosya Grupları</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>Genel</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>Seçenekler</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>Yeni Veritabanı</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>Kullanılabilirlik Grupları</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>Kullanılabilirlik Grubu</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>Aracı işleri</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>Aracı işi</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>Kümesel işlevler</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>Toplama işlevi</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>Uygulama rolleri</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>Uygulama rolü</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>Derlemeler</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>Bütünleştirilmiş Kod</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>Asimetrik anahtarlar</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>Asimetrik anahtar</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>Sertifikalar</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>Sertifika</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>Kimlik Bilgileri</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>Kimlik Bilgileri</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>Veritabanı rolleri</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>Veritabanı rolü</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>Veritabanları</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>Veritabanı</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>Varsayılanlar</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>Varsayılan</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>Uç noktalar</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>Uç nokta</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>Genişletilmiş saklı yordamlar</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>Genişletilmiş saklı yordam</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>Dış Veri Kaynakları</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>Dış Veri Kaynağı</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>Dış Dosya Biçimleri</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>Dış Dosya Biçimi</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>Tam metin katalogları</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>Tam metin kataloğu</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>Satır içi işlevler</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>Satır içi işlev</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>Skaler işlevler</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>Skaler işlev</value>
+  </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>Tablo değerli işlevler</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>Tablo değerli işlev</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>Oturum Açmalar</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>Oturum aç</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>Kurallar</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>Kural</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>Şemalar</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>Şema</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>Güvenlik İlkeleri</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>Güvenlik İlkesi</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>Diziler</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>Sıra</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>Sunucu rolleri</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>Sunucu rolü</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>Sunucular</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>Sunucu</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>Kuyruklar</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>Kuyruk</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>Saklı yordamlar</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>Saklı yordam</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>Simetrik anahtarlar</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>Simetrik anahtar</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>Eş anlamlılar</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>Eş anlamlı</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>Tablolar</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>Tablo</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>Kullanıcı tanımlı veri türleri</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>Kullanıcı tanımlı veri türü</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>Kullanıcı tanımlı tablo türleri</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>Kullanıcı tanımlı tablo türü</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>Kullanıcılar</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>Kullanıcı</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>Görünümler</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>Görüntüle</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>XML şeması koleksiyonları</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>XML şeması koleksiyonu</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>Yok</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>{0} MB ile sınırlıdır</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>{0} MB, {1} MB ile sınırlı</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>Yüzde {0} kadar, {1} MB ile sınırlıdır </value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Sınırsız</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>{0} MB kadar, Sınırsız</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>Yüzde {0} oranında, Sınırsız</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Otomatik</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Harmanlama</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>İmleç</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Çeşitli</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Kurtarma</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Hizmet Aracısı</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>Durum</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL Varsayılanı </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULLS Etkinleştirildi </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI Doldurma Etkin </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>ANSI Uyarıları Etkin </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Aritmetik Durdurma Etkin </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Otomatik Kapat </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Otomatik Oluşturma İstatistikleri </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Otomatik Küçültme </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Otomatik Güncelleştirme İstatistikleri </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>İstatistikleri Asenkron Şekilde Otomatik Olarak Güncelleştir</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Aracı Etkin</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>Büyük/Küçük Harfe Duyarlı </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>İşleme Etkinken İmleci Kapat </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Harmanlama</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Null Birleştirme Null Verir </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Veritabanı Uyumluluk Düzeyi </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Veri Tabanı Durumu </value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>ACİL DURUM</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>ERİŞİLEMEZ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>ÇEVRİMDIŞI</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>KURTARILIYOR</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>KURTARMA BEKLEMEDE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>GERİ YÜKLENİYOR</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>KAPAT</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>BEKLEMEDE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>ŞÜPHELİ</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>KAPALI</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>AÇIK</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Tarih Bağıntı İyileştirmesi Etkin</value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Veritabanları Arası Sahiplik Zinciri Etkin</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Varsayılan İmleç </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GENEL</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>YEREL</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Şifreleme Etkin</value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Tam Metin Dizini Oluşturma Etkin </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Aracı Önceliğini Kabul Et</value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Sayısal Yuvarlamayı Durdurma </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Sayfa Doğrulama </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>SAĞLAMA TOPLAMI</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>HİÇBİRİ</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parametreleştirme</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Zorlamalı</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Sınırlandırılmış Tanımlayıcılar Etkin </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>Veritabanı Salt Okunur </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Özyinelemeli Tetikleyiciler Etkin </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Erişimi Kısıtla </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>İçeri/Toplu Kopyalama Seç </value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Hizmet Aracısı Tanımlayıcısı</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Denetim Noktasında Günlüğü Kes</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>Güvenilir</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>Vardecimal Depolama Biçimi Etkin</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>ROWS Verileri</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;default path&gt;</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM Verileri</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>LOG</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>Uygulanabilir Dosya Grubu Yok</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>Geçerli Değil</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>Otomatik</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>Kapalı</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 Saat</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 Saat</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 Gün</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 Saat</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 Gün</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 Gün</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 Saat</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>Tümü</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>Otomatik</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>Özel</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>Yok</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 Dakika</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 Dakika</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 Gün</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 Saat</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 Dakika</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 Dakika</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 Dakika</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Açık Bağlantılar</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Veritabanı özelliklerini değiştirmek için SQL Server’ın diğer tüm veritabanı bağlantılarını kapatması gerekir. Özellikleri değiştirmek ve diğer tüm bağlantıları kapatmak istediğinizden emin misiniz?</value>
+  </data>
+</root>

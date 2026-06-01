@@ -761,11 +761,48 @@ Task("SRGen")
 
             // Update ResX files from new xliff files
             var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
+            var processedCultures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach(var docName in xlfDocNames)
             {
                 var generatedFileName = CanonicalizeLocalizationFileName(System.IO.Path.GetFileName(docName).Replace("xlf", "resx"));
                 var targetResxPath = System.IO.Path.Combine(localizationDir, generatedFileName);
                 SaveXlfTargetsAsResx(docName, targetResxPath);
+
+                // Track which culture suffix this resx represents so we don't
+                // overwrite it from an LCL fallback below. File name is sr.<culture>.resx.
+                var nameNoExt = System.IO.Path.GetFileNameWithoutExtension(generatedFileName); // sr.<culture>
+                var dotIndex = nameNoExt.IndexOf('.');
+                if (dotIndex >= 0 && dotIndex < nameNoExt.Length - 1)
+                {
+                    processedCultures.Add(nameNoExt.Substring(dotIndex + 1));
+                }
+            }
+
+            // Fall back to LocStudio .lcl files for any cultures that don't yet
+            // have an .xlf file in transXliff. This ensures newly added languages
+            // (added via LocProject.json) produce satellite assemblies even before
+            // the OneLocBuild round-trip PR updates transXliff.
+            var lclRoot = System.IO.Path.Combine(localizationDir, "LCL");
+            if (System.IO.Directory.Exists(lclRoot))
+            {
+                foreach (var lclLangDir in System.IO.Directory.GetDirectories(lclRoot))
+                {
+                    var lclFile = System.IO.Path.Combine(lclLangDir, "sr.xlf.lcl");
+                    if (!System.IO.File.Exists(lclFile))
+                    {
+                        continue;
+                    }
+
+                    var lang = (new System.IO.DirectoryInfo(lclLangDir)).Name;
+                    var canonicalCulture = CanonicalizeLocalizationFileName(lang);
+                    if (processedCultures.Contains(canonicalCulture))
+                    {
+                        continue;
+                    }
+
+                    var targetResxPath = System.IO.Path.Combine(localizationDir, $"sr.{canonicalCulture}.resx");
+                    SaveLclTargetsAsResx(lclFile, targetResxPath);
+                }
             }
         }
     }

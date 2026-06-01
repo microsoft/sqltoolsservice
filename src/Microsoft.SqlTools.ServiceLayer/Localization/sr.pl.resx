@@ -1,0 +1,4313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>Kolumna akcji</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>Kolumna akcji.</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>Aktywacja</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>Rzeczywisty upływ czasu procesora (ms)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>Rzeczywisty czas procesora CPU, który upłynął w milisekundach</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Rzeczywisty koszt procesora CPU</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Rzeczywisty rozmiar danych</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>Rzeczywisty upływ czasu (ms)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>Rzeczywisty czas, który upłynął w milisekundach</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>Rzeczywisty tryb wykonywania</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>Rzeczywisty tryb wykonywania</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Rzeczywiste wykonania</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>Statystyka rzeczywistych operacji We/Wy</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>Statystyka rzeczywistych operacji We/Wy</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>Rzeczywisty typ sprzężenia</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>Rzeczywiste sprzężenie (z zagnieżdżonymi pętlami lub sprzężenie skrótu) wybrane w ramach wykonywania sprzężenia adaptacyjnego.</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>Rzeczywiste odczyty logiczne LOB</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty logiczne obiektów LOB</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>Rzeczywisty serwer stron lob — odczyt z wyprzedzeniem</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty z wyprzedzeniem serwera stron obiektów LOB</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>Rzeczywiste odczyty serwera stron LOB</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty serwera stron LOB</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>Rzeczywiste odczyty fizyczne LOB</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty fizyczne LOB</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>Rzeczywiste odczyty z wyprzedzeniem obiektów LOB</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>Odczyty z wyprzedzeniem rzeczywistych obiektów wielkich</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>Rzeczywista liczba lokalnie zagregowanych wierszy</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>Rzeczywista liczba lokalnie zagregowanych wierszy</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>Rzeczywiste odczyty logiczne</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty logiczne</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>Użycie pamięci</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} z ]D;]A;{1} ({2}%)</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>Rzeczywisty serwer stronicowania — odczyt z wyprzedzeniem</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Rzeczywisty serwer stronicowania — odczyt z wyprzedzeniem</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>Rzeczywiste odczyty serwera stron</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty serwera stron</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>Rzeczywiste odczyty fizyczne</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty fizyczne</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>Rzeczywiste odczyty z wyprzedzeniem</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>Rzeczywiste odczyty z wyprzedzeniem</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>Rzeczywiste powiązania</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>Rzeczywiste powiązania.</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>Rzeczywiste przewijanie do tyłu</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>Rzeczywiste przewijanie do tyłu.</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Rzeczywiste wiersze</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>Liczba odczytanych wierszy</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>Liczba wierszy odczytanych z tabeli lub indeksu przed zastosowaniem filtru predykatu. Tylko w przypadku wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>Rzeczywiste skanowania</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>Rzeczywiste skanowania</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>Statystyki rzeczywistego czasu</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>Rzeczywiste statystyki czasu</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>Sprzężenie adaptacyjne</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>Wybiera dynamicznie między sprzężeniem skrótu i zagnieżdżonymi pętlami.</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>Wiersze progu adaptacyjnego</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>Jeśli jest to operator adaptacyjny, kardynalność z jaką się dostosowuje.</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>Agregacja</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>Oblicza wyrażenie zawierające wartości SUM, COUNT, MIN, MAX lub AVG.</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>Nazwa alertu nie może być pusta.</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Zastosuj</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>Zastosuj operację.</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Wyrażenie arytmetyczne</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>Oblicza nową wartość na podstawie istniejących wartości w wierszu.</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>Rosnąco</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>Potwierdź</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>Służy do sprawdzania, czy określony warunek istnieje.</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Przypisz</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>Zweryfikuj ograniczenia integralności referencyjnej.</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Średni rozmiar wiersza</value>
+  </data>
+  <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
+    <value>Rozwiązanie Azure SQL Analytics na żądanie</value>
+  </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Azure SQL Database</value>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Azure SQL Data Warehouse</value>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+  </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Nie można profilowania systemowych baz danych platformy Azure</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Podaj ścieżkę pliku zamiast ścieżki katalogu</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Utwórz kopię zapasową bazy danych</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Podstawowa</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Kompilacja tablicy skrótów usługi Batch</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>Kompilacja tabeli skrótów usługi Batch.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Wykonywanie otoki analizatora wsadowego: {0} znalazł... w wierszu {1}: {2}    Opis: {3}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>Nie można przekonwertować elementu {0} na obiekt Microsoft.Data.SqlClient.SqlParameter. Nie można przekonwertować określonego literału na obiekt {0}(Microsoft.Data.SqlDbType), ponieważ oczekuje się prefiksu 0x dla literałów binarnych.  Wartość literału: {2}</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Mapa bitowa</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>Mapa bitowa.</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Wyszukiwanie zakładek</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>Użyj zakładki (identyfikatora względnego lub klucza klastrowania), aby wyszukać odpowiedni wiersz w tabeli lub indeksie klastrowanym.</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>Wszystkie klony</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>Routing kostki</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>Emisja</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>Przenoszenie danych emisji.</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>Reszta kompilacji</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>Pozostałości kompilacji.</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Krytyczne dla działania firmy</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>Rozmiar buforowanego planu</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>Buforowany rozmiar planu.</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Nie można zmienić alertu.</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Nie można utworzyć nowego alertu.</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Doradca dostrajania aparatu bazy danych</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Konserwacja bazy danych</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Moduł zbierający dane</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>Zadania z serwera MSX</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Pełny tekst</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Nieskategoryzowane (lokalne)]5D;</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Wysyłanie dziennika</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Bez kategorii (wiele serwerów)]5D;</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL-Alert Response</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL — kontrola</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>Czyszczenie subskrypcji REPL</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-Distribution</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>Oczyszczanie dystrybucji REPL</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>Oczyszczanie historii REPL</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>Scalanie REPL</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-QueueReader</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>Migawka REPL</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Replikacja</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Nieskategoryzowane]5D;</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Asystent sieci Web</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>Sklonuj zakres dostępu</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>Klony, do których operator może uzyskać dostęp.</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>Usuwanie indeksu klastrowanego</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>Usuń wiersze z indeksu klastrowanego.</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>Wstaw indeks klastrowany</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>Wstaw wiersze w indeksie klastrowanym.</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>Scalanie indeksu klastrowanego</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>Scal wiersze w indeksie klastrowanym.</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu klastrowanego</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>Skanowanie indeksu klastrowanego, w całości lub tylko w ograniczonym zakresie.</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>Przewijanie indeksu klastrowanego</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>Skanuj określony zakres wierszy z indeksu klastrowanego.</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>Aktualizacja indeksu klastrowanego</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>Aktualizowanie wierszy w indeksie klastrowanym.</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>Aktualizacja klastrowana</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>Aktualizacja klastrowana.</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Zwiń</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>Grupuje wstawianie i usuwanie tej samej wartości w aktualizacji w ramach planów aktualizacji.</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>Odwołanie do kolumny</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>Kolumny bez statystyk</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>Kolumny bez ostrzeżeń dotyczących statystyk.</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>Usuwanie indeksu magazynu kolumn</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>Usuń wiersze z indeksu magazynu kolumn.</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Wstaw indeks magazynu kolumn</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>Wstaw wiersze w indeksie magazynu kolumn.</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Scalanie indeksu magazynu kolumn</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>Scal wiersze w indeksie magazynu kolumn.</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu magazynu kolumn</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>Skanuj indeks magazynu kolumn, w całości lub tylko zakres.</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Aktualizacja indeksu magazynu kolumn</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>Aktualizowanie wierszy w indeksie magazynu kolumn.</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>Skalarne obliczenia</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>Oblicz nowe wartości na podstawie istniejących wartości w wierszu.</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>Obliczenia dla węzła sterowania</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>Przepływ danych z węzłów obliczeniowych do węzła sterowania.</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>Łączenie</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>Dołącz wiele tabel wejściowych w celu utworzenia tabeli wyjściowej.</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Określenie tej opcji podczas przywracania kopii zapasowej z opcją NORECOVERY jest niedozwolone.</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadOnly" xml:space="preserve">
+    <value>Tylko do odczytu</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_category_ReadWrite" xml:space="preserve">
+    <value>Odczyt/zapis</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_description" xml:space="preserve">
+    <value>Deklaruje typ obciążenia aplikacji podczas nawiązywania połączenia z serwerem</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationIntent_displayName" xml:space="preserve">
+    <value>Intencja aplikacji</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_description" xml:space="preserve">
+    <value>Nazwa aplikacji</value>
+  </data>
+  <data name="ConnectionConfigOptions_applicationName_displayName" xml:space="preserve">
+    <value>Nazwa aplikacji</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachDbFilename_displayName" xml:space="preserve">
+    <value>Dołącz nazwę pliku bazy danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_description" xml:space="preserve">
+    <value>Nazwa pliku głównego, wraz z pełną ścieżką, możliwej do dołączenia bazy danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_attachedDBFileName_displayName" xml:space="preserve">
+    <value>Nazwa dołączonego pliku bazy danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_AAS" xml:space="preserve">
+    <value>Azure Attestation</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_HGS" xml:space="preserve">
+    <value>Usługa Ochrona hosta</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_category_None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_description" xml:space="preserve">
+    <value>Określa protokół do zaświadczania enklawy po stronie serwera używanej z funkcją Always Encrypted z bezpiecznymi enklawami</value>
+  </data>
+  <data name="ConnectionConfigOptions_attestationProtocol_displayName" xml:space="preserve">
+    <value>Protokół zaświadczania</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_AzureMFA" xml:space="preserve">
+    <value>Microsoft Entra ID — uniwersalna z obsługą uwierzytelniania wieloskładnikowego</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_Integrated" xml:space="preserve">
+    <value>Uwierzytelnianie systemu Windows</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_category_SqlLogin" xml:space="preserve">
+    <value>Logowanie SQL</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_description" xml:space="preserve">
+    <value>Określa metodę uwierzytelniania w programie SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_authenticationType_displayName" xml:space="preserve">
+    <value>Typ uwierzytelniania</value>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_description" xml:space="preserve">
+    <value>Włącza lub wyłącza funkcję Always Encrypted dla połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_columnEncryptionSetting_displayName" xml:space="preserve">
+    <value>Always Encrypted</value>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_description" xml:space="preserve">
+    <value>Czas (w sekundach) oczekiwania na ukończenie polecenia na serwerze przed zakończeniem próby i wygenerowaniem błędu</value>
+  </data>
+  <data name="ConnectionConfigOptions_commandTimeout_displayName" xml:space="preserve">
+    <value>Limit czasu polecenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Disabled" xml:space="preserve">
+    <value>Wyłączone</value>
+  </data>
+  <data name="ConnectionConfigOptions_common_category_Enabled" xml:space="preserve">
+    <value>Włączone</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_description" xml:space="preserve">
+    <value>Liczba prób przywrócenia połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryCount_displayName" xml:space="preserve">
+    <value>Liczba ponownych prób nawiązania połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_description" xml:space="preserve">
+    <value>Odstęp czasu między próbami odzyskania połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectRetryInterval_displayName" xml:space="preserve">
+    <value>Interwał ponawiania prób nawiązania połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_description" xml:space="preserve">
+    <value>Czas (w sekundach) oczekiwania na połączenie z serwerem przed zakończeniem próby i wygenerowaniem błędu</value>
+  </data>
+  <data name="ConnectionConfigOptions_connectTimeout_displayName" xml:space="preserve">
+    <value>Limit czasu połączenia (w sekundach)</value>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_description" xml:space="preserve">
+    <value>Gdy ma wartość true, wskazuje, że połączenie powinno pochodzić z kontekstu programu SQL Server. Dostępne tylko w przypadku uruchamiania w procesie programu SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_contextConnection_displayName" xml:space="preserve">
+    <value>Połączenie kontekstowe</value>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_description" xml:space="preserve">
+    <value>Nazwa rekordu języka programu SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_currentLanguage_displayName" xml:space="preserve">
+    <value>Bieżący język</value>
+  </data>
+  <data name="ConnectionConfigOptions_database_description" xml:space="preserve">
+    <value>Nazwa początkowego wykazu lub bazy danych w źródle danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_database_displayName" xml:space="preserve">
+    <value>Nazwa bazy danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_description" xml:space="preserve">
+    <value>Określa punkt końcowy na potrzeby zaświadczania enklawy po stronie serwera używanej z funkcją Always Encrypted z bezpiecznymi enklawami</value>
+  </data>
+  <data name="ConnectionConfigOptions_enclaveAttestationUrl_displayName" xml:space="preserve">
+    <value>Adres URL zaświadczania enklawy</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Mandatory" xml:space="preserve">
+    <value>Obowiązkowy</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Optional" xml:space="preserve">
+    <value>Opcjonalny</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_category_Strict" xml:space="preserve">
+    <value>Stanowczy</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_description" xml:space="preserve">
+    <value>Jeśli ta opcja jest ustawiona, program SQL Server używa podanego ustawienia szyfrowania SSL dla wszystkich danych przesyłanych między klientem a serwerem.</value>
+  </data>
+  <data name="ConnectionConfigOptions_encrypt_displayName" xml:space="preserve">
+    <value>Szyfruj</value>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_description" xml:space="preserve">
+    <value>Nazwa lub adres sieciowy wystąpienia programu SQL Server, który działa jako partner pracy awaryjnej</value>
+  </data>
+  <data name="ConnectionConfigOptions_failoverPartner_displayName" xml:space="preserve">
+    <value>Partner trybu failover</value>
+  </data>
+  <data name="ConnectionConfigOptions_failover_and_replication" xml:space="preserve">
+    <value>Przełączanie awaryjne i replikacja</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_context" xml:space="preserve">
+    <value>Źródło danych i kontekst</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_general" xml:space="preserve">
+    <value>Ogólny</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_pooling" xml:space="preserve">
+    <value>Ustawienia buforowania</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_resiliency" xml:space="preserve">
+    <value>Elastyczność połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_groups_security" xml:space="preserve">
+    <value>Zabezpieczenia i szyfrowanie</value>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_description" xml:space="preserve">
+    <value>Określa nazwę hosta w certyfikacie, która ma być używana do weryfikacji certyfikatu po włączeniu szyfrowania.</value>
+  </data>
+  <data name="ConnectionConfigOptions_hostNameInCertificate_displayName" xml:space="preserve">
+    <value>Nazwa hosta w certyfikacie</value>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_description" xml:space="preserve">
+    <value>Minimalny czas (w sekundach) przechowywania tego połączenia w puli przed jego usunięciem</value>
+  </data>
+  <data name="ConnectionConfigOptions_loadBalanceTimeout_displayName" xml:space="preserve">
+    <value>Limit czasu równoważenia obciążenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_description" xml:space="preserve">
+    <value>Maksymalna liczba połączeń dozwolonych w puli</value>
+  </data>
+  <data name="ConnectionConfigOptions_maxPoolSize_displayName" xml:space="preserve">
+    <value>Maksymalny rozmiar puli</value>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_description" xml:space="preserve">
+    <value>Minimalna liczba połączeń dozwolona w puli</value>
+  </data>
+  <data name="ConnectionConfigOptions_minPoolSize_displayName" xml:space="preserve">
+    <value>Minimalny rozmiar puli</value>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_description" xml:space="preserve">
+    <value>Jeśli aplikacja nawiązuje połączenie z grupą dostępności AlwaysOn (AG) w różnych podsieciach, ustawienie tej wartości na true zapewnia szybsze wykrywanie i nawiązywanie połączenia z aktualnie aktywnym serwerem.</value>
+  </data>
+  <data name="ConnectionConfigOptions_multiSubnetFailover_displayName" xml:space="preserve">
+    <value>Tryb failover wielu podsieci</value>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_description" xml:space="preserve">
+    <value>W przypadku wartości true można zwrócić i odczytać wiele zestawów wyników z jednego połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_multipleActiveResultSets_displayName" xml:space="preserve">
+    <value>Wiele aktywnych zestawów wyników</value>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_description" xml:space="preserve">
+    <value>Rozmiar (w bajtach) pakietów sieciowych używanych do komunikowania się z wystąpieniem programu SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_packetSize_displayName" xml:space="preserve">
+    <value>Rozmiar pakietu</value>
+  </data>
+  <data name="ConnectionConfigOptions_password_description" xml:space="preserve">
+    <value>Wskazuje hasło, które ma być używane podczas nawiązywania połączenia ze źródłem danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_password_displayName" xml:space="preserve">
+    <value>Hasło</value>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_description" xml:space="preserve">
+    <value>Gdy ma wartość false, informacje wrażliwe na zabezpieczenia, takie jak hasło, nie są zwracane w ramach połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_persistSecurityInfo_displayName" xml:space="preserve">
+    <value>Utrwalanie informacji zabezpieczających</value>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_description" xml:space="preserve">
+    <value>Gdy ma wartość true, obiekt połączenia jest przenoszony z odpowiedniej puli lub, w razie potrzeby, jest tworzony i dodawany do odpowiedniej puli</value>
+  </data>
+  <data name="ConnectionConfigOptions_pooling_displayName" xml:space="preserve">
+    <value>Buforowanie</value>
+  </data>
+  <data name="ConnectionConfigOptions_port_displayName" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="ConnectionConfigOptions_replication_description" xml:space="preserve">
+    <value>Używany przez program SQL Server podczas replikacji</value>
+  </data>
+  <data name="ConnectionConfigOptions_replication_displayName" xml:space="preserve">
+    <value>Replikacja</value>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_description" xml:space="preserve">
+    <value>Włącza lub wyłącza bezpieczne enklawy dla połączenia</value>
+  </data>
+  <data name="ConnectionConfigOptions_secureEnclaves_displayName" xml:space="preserve">
+    <value>Bezpieczne enklawy</value>
+  </data>
+  <data name="ConnectionConfigOptions_server_description" xml:space="preserve">
+    <value>Nazwa wystąpienia programu SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_server_displayName" xml:space="preserve">
+    <value>Nazwa serwera</value>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_description" xml:space="preserve">
+    <value>Gdy ma wartość true (i atrybut encrypt=true), program SQL Server używa szyfrowania SSL dla wszystkich danych przesyłanych między klientem a serwerem bez walidacji certyfikatu serwera</value>
+  </data>
+  <data name="ConnectionConfigOptions_trustServerCertificate_displayName" xml:space="preserve">
+    <value>Certyfikat serwera zaufania</value>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_description" xml:space="preserve">
+    <value>Wskazuje, który system typu serwera zostanie uwidoczniony przez dostawcę za pośrednictwem elementu DataReader</value>
+  </data>
+  <data name="ConnectionConfigOptions_typeSystemVersion_displayName" xml:space="preserve">
+    <value>Wpisz wersję systemu</value>
+  </data>
+  <data name="ConnectionConfigOptions_user_description" xml:space="preserve">
+    <value>Wskazuje identyfikator użytkownika, który ma być używany podczas nawiązywania połączenia ze źródłem danych</value>
+  </data>
+  <data name="ConnectionConfigOptions_user_displayName" xml:space="preserve">
+    <value>Nazwa użytkownika</value>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_description" xml:space="preserve">
+    <value>Nazwa stacji roboczej łączącej się z programem SQL Server</value>
+  </data>
+  <data name="ConnectionConfigOptions_workstationId_displayName" xml:space="preserve">
+    <value>Identyfikator stacji roboczej</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>Obiekt szczegółów połączenia nie może mieć wartości null</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>Identyfikator OwnerUri nie może mieć wartości null ani być pusty</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>Wartość ServerName nie może być pusta ani mieć wartości zerowej</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>{0} nie może mieć wartości null ani być pusta podczas korzystania z uwierzytelniania sqllogin</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>Pokaż właściwości połączenia</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>Protokół zaświadczania i adres URL zaświadczania wymagają, aby ustawienie Always Encrypted z bezpiecznymi enklawami było włączone.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>Nie można określić adresu URL zaświadczania z protokołem zaświadczania "Brak". Ustaw odpowiedni protokół zaświadczania lub usuń adres URL zaświadczania z właściwości połączenia.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>Nieprawidłowa wartość „{0}” dla elementu AuthenticationType.  Prawidłowe wartości to "Integrated" i "SqlLogin".</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>Nieprawidłowa wartość „{0}” dla elementu ComlumEncryption. Prawidłowe wartości to „Włączone” i „Wyłączone”.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Nieprawidłowa wartość „{0}” dla protokołu zaświadczania. Prawidłowe wartości to „AAS”, „HGS” i „None”.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Nieprawidłowa wartość „{0}” dla szyfrowania. Prawidłowe wartości to „Optional”, „Mandatory”, „Strict”, „True”, „False”, „Yes” i „No”.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>Nieprawidłowa wartość „{0}” dla elementu ApplicationIntent. Prawidłowe wartości to "ReadWrite" i "ReadOnly".</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Nieprawidłowa wartość „{0}” dla bezpiecznych enklaw. Prawidłowe wartości to „Włączone” i „Wyłączone”.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Protokół zaświadczania nie może być pusty z włączonymi bezpiecznymi enklawami.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>Adres URL zaświadczania nie może być pusty z wybraną wartością protokołu Zaświadczanie.</value>
+  </data>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Parametr połączenia nie może mieć wartości null</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Anulowano połączenie</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>Określony identyfikator URI „{0}” nie ma połączenia domyślnego</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>Element SpecifiedUri „{0}” nie ma istniejącego połączenia</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>Identyfikator OwnerUri nie może mieć wartości null ani być pusty</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>Pobieranie tabeli stałej</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>Pobierz krotki z tabeli współistnienia.</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>Skanowanie stałe</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>Skanuj wewnętrzną tabelę stałych.</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>Zawiera wbudowane skalarne funkcje zdefiniowane przez użytkownika języka Tsql</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>Sterowanie węzłami obliczeniowymi</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>Przepływ danych z węzła sterowania do węzłów obliczeniowych.</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>Konwertuj</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>Niejawna lub jawna konwersja jednego typu danych wartości skalarnej na inny.</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>Koszt: {0} %</value>
+  </data>
+  <data name="CouldntFindAzureFunction" xml:space="preserve">
+    <value>Nie można odnaleźć funkcji platformy Azure z funkcją FunctionName „{0}” w {1}</value>
+  </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Nie można wygenerować identyfikatora URI sygnatury dostępu współdzielonego dla kontenera obiektów blob.</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>Nie można utworzyć sesji: {0}</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>Obiekt nie istnieje już na serwerze.</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>Rzeczywisty typ kursora</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>Współbieżność kursora</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>Nazwa kursora</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>Operacja kursora</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>Plan kursora</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>Żądany typ kursora</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>Nie można przekonwertować elementu {0} na obiekt Microsoft.Data.SqlClient.SqlParameter. Nie można przekonwertować określonego literału na obiekt {0}(Microsoft.Data.SqlDbType), ponieważ wykorzystywał nieobsługiwany format daty/godziny. Użyj jednego z obsługiwanych formatów daty/godziny. Wartość literału: {2}</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>Deklaruj</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>Przydziela zmienną lokalną.</value>
+  </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>Zdefiniowane wartości</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>Zawiera rozdzielaną przecinkami listę wartości wprowadzonych przez ten operator, które mogą być wyrażeniami obliczanymi w bieżącym zapytaniu, lub wartości wewnętrznych wprowadzonych przez procesor zapytań w celu przetworzenia tego zapytania.  Tylko w przypadku wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>Stopień równoległości</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>Stopień równoległości.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Usuń</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>Usuwa określone wiersze z określonej tabeli.</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>Usunięto skanowanie</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>Skanowanie pseudo-tabeli „usuniętej” w ramach wyzwalacza.</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>Wdróż plik dacpac</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Malejąco</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>Różne</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>Odrębne.</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>Rozpraszaj strumienie</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>Rozpraszaj strumienie.</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>Dynamiczne</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>Kursor, który może wyświetlać wszystkie zmiany wprowadzone przez inne osoby.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Podczas wykonywania zadania wsadowego wystąpił błąd, ale został on zignorowany.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Ukończono wykonywanie partii {0} razy...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Rozpoczynanie pętli wykonywania</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>Wyczekujący bufor</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>Wyczekujący bufor.</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>Zapytania EditData z kolumnami z aliasami nie są obsługiwane</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>Kolumna nie może być edytowana</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>Identyfikator kolumny musi znajdować się w zakresie kolumn zapytania</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>Nie znaleziono kolumn kluczy</value>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>Zadanie zatwierdzania jest w toku. Czekaj na ukończenie.</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;auto-generated&gt;</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>Kolumna „{0}” jest zdefiniowana jako NOT NULL, ale nie podano wartości</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>Oczekiwanie na usunięcie tego wiersza. Nie można zastosować aktualizacji komórki.</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>Zapytania EditData ze zduplikowanymi kolumnami nie są obsługiwane</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>Zapytania EditData z kolumnami agregu lub wyrażeniami nie są obsługiwane</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>Nie można dodać nowego wiersza w celu zaktualizowania pamięci podręcznej</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>Limit nie może być ujemny</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>Zapytania EditData muszą wysyłać zapytania do pierwotnie docelowej tabeli „{0}”</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>Nieprawidłowy format kolumny „{0}”. Kolumna jest zdefiniowana jako {1}</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>Nieprawidłowy format kolumny binarnej</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Dozwolone wartości dla kolumn logicznych to 0, 1, „true” lub „false”</value>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>Metadane tabeli nie mają właściwości rozszerzonych</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>Należy podać nazwę obiektu</value>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>Jawne określanie serwera lub bazy danych nie jest obsługiwane</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>Zapytania EditData przeznaczone dla wielu tabel nie są obsługiwane</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>Wartość NULL nie jest dozwolona dla tej kolumny</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć metadanych tabeli lub widoku</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć tabeli lub widoku żądanego do edycji</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>Wykonywanie zapytania nie powiodło się. Zobacz komunikaty, aby uzyskać szczegółowe informacje</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>Zapytanie nie wygenerowało dokładnie jednego zestawu wyników</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>Wykonywanie zapytania nie zostało ukończone</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>Podany identyfikator wiersza znajduje się poza zakresem wierszy w pamięci podręcznej edycji</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>Należy podać wyjściową nazwę pliku</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>Sesja edycji już istnieje.</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>Sesja edycji została już zainicjowana</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>Sesja edycji została już zainicjowana lub jest w trakcie inicjowania</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>Sesja edytowania nie istnieje.</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>Sesja edycji nie została zainicjowana</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>Wartości kolumny TIME muszą należeć do zakresu od 00:00:00.0000000 do 23:59:59.9999999</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>Nie można użyć obiektu bazy danych {0} do edycji.</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>Podany identyfikator wiersza nie ma oczekującej aktualizacji</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>Aktualizacja jest już w stanie oczekiwania dla tego wiersza i należy najpierw przywrócić</value>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Wartość {0} jest zbyt duża, aby zmieścić się w kolumnie typu {1}</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>Edytuj tekst zapytania z pliku XML planu wykonania (prawdopodobnie obcięty)</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>Efektywny stopień równoległości</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>Maksymalny stopień równoległości podczas kompilacji indeksu magazynu kolumn.</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>Klony podstawowe lub pomocnicze</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>Koniec</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>Koniec zakresu.</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>Godzina zakończenia harmonogramu zadań musi przypadać po godzinie rozpoczęcia.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć połączenia</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Zastąpienie pustego ciągu pustym ciągiem.</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Wartość wersji jest nieprawidłowa</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Nie można przekonwertować elementu {0} na obiekt Microsoft.Data.SqlClient.SqlParameter. Nie można przekonwertować określonego literału na {1}(Microsoft.Data.SqlDbType). Wartość literału: {2}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>Linia {0}</value>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>W katalogu {0} istnieje już plik o nazwie {1}</value>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Ścieżka {0} nie jest prawidłowym katalogiem</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Oszacowane koszty %</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Szacowany koszt procesora CPU</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>Szacowany koszt procesora CPU</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>Szacowany koszt procesora CPU dla tego operatora. Tylko w przypadku wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>Szacowany rozmiar danych</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>Szacowany rozmiar danych przekazywanych przez ten operator.</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>Szacowany tryb wykonywania</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>Przewidywany tryb wykonywania</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Szacowane wykonania</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Szacowany koszt operacji we/wy</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>Szacowany koszt operacji we/wy</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>Szacowany koszt operacji We/Wy dla tego operatora. Tylko dla wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>Szacowany typ sprzężenia</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>Typ sprzężenia (zagnieżdżone pętle lub sprzężenie skrótu) szacowany przez optymalizator zapytań przed dostosowaniem.</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>Szacowana liczba wykonań</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>Szacowana liczba wykonań tego operatora podczas uruchamiania bieżącego zapytania.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>Szacowana liczba wierszy dla wszystkich wykonań</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>Szacowana liczba wierszy dla wszystkich wykonań danych wyjściowych tego operatora. Dotyczy tylko PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>Szacowana liczba wierszy na wykonanie</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>Dane wyjściowe dotyczące szacowanej liczby wierszy na wykonanie przez tego operatora. Dotyczy tylko PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>Szacowany koszt operatora</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>Szacowany koszt tego operatora.</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>Szacowane ponowne powiązania</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>Szacowane ponowne powiązania.</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>Szacowane przewinięcia do tyłu</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>Szacowane przewinięcia do tyłu.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>Szacowany rozmiar wiersza</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>Szacowany średni rozmiar wiersza przekazywanego przez ten operator.</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Szacowane wiersze</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>Szacowana liczba wierszy do odczytania</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>Szacowana liczba wierszy do odczytania przez tego operatora. Ta wartość może różnić się od wartości „Szacowana liczba wierszy dla wszystkich wykonań”, jeśli operator ma predykat.</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Szacowany koszt poddrzewa</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>Szacowany koszt poddrzewa</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>Szacowany skumulowany koszt tej operacji i wszystkich operacji podrzędnych.</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>Dopasowanie pojedynczego klona</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>Eksportuj plik bacpac</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>Emisja zewnętrzna</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>Emituj przenoszenie danych dla tabeli zewnętrznej.</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>Eksport zewnętrzny</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>Eksportuj przenoszenie danych dla tabeli zewnętrznej.</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>Zewnętrzne lokalne przesyłanie strumieniowe</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>Przesyłanie strumieniowe danych między tabelą zewnętrzną i tabelą lokalną.</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>Zewnętrzne roundrobin</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>Przenoszenie danych RoundRobin dla tabeli zewnętrznej.</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>Mieszanie zewnętrzne</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>Mieszanie przenoszenia danych dla tabeli zewnętrznej.</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>Wyodrębnij plik dacpac</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>Przekazano nieprawidłową wersję „{0}”. Wersja musi mieć format x.x.x.x, gdzie x jest liczbą.</value>
+  </data>
+  <data name="FailedToFindConnectionInfoAboutTheServer" xml:space="preserve">
+    <value>Nie można odnaleźć informacji o połączeniu z serwerem</value>
+  </data>
+  <data name="FailedToGenerateServerContextualizationScripts" xml:space="preserve">
+    <value>Nie udało się wygenerować skryptów kontekstualizacji serwera</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>Szybko przewiń do przodu</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>Szybko przewiń do przodu.</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>Pobierz zapytanie</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>Zapytanie używane do pobierania wierszy, gdy pobieranie odbywa się z kursorem.</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtruj</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>Ograniczanie zestawu wierszy na podstawie predykatu.</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>Indeks wymuszony</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>Indeks wymuszony.</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Sprawdzanie odwołań do klucza obcego</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>Sprawdza więzy integralności operacji usuwania.</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>Liczba odwołań do klucza obcego</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>Tylko do przodu</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>Kolumna identyfikatora fragmentu</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>Fragment TSQL powinien zawierać dokładnie jedną partię.</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>Częściowa aktualizacja została przekonwertowana na pełną aktualizację z powodu kompilacji indeksu online</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>Ostrzeżenie dotyczące pełnej aktualizacji tworzenia indeksu online</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>Zbierz strumienie</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>Zbierz strumienie.</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>Grupuj według wartości zagregowanych</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>Grupuj według wartości zagregowanych.</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>Grupuj według i zastosuj</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>Grupuj według i zastosuj.</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Ogólnego przeznaczenia</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>Wygeneruj skrypt</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>Pobierz</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>Pobierz spójne kolekcje z tabeli.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Nie można pobrać obiektów zdefiniowanych przez użytkownika z modelu.</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>Znaleziono wystarczająco dobry plan</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>Grupuj według</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>Grupuj według.</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>Zestawy grupowania</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>Lista zestawów grup. Każda wartość jest odwrotną mapą bitową kolumn grupowania we właściwości „Grupuj według”.</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>Klucze skrótu</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>Kompilacja kluczy skrótu</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>Kompilacja kluczy skrótu.</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>Klucze skrótu.</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>Sonda kluczy skrótu</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>Sonda kluczy skrótu.</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>Dopasowanie skrótu</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>Użyj każdego wiersza z górnych danych wejściowych, aby utworzyć tablicę skrótów, i każdego wiersza z dolnych danych wejściowych do sondowania tablicy skrótów, wyświetlając wszystkie pasujące wiersze.</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>Element główny dopasowania skrótu</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>Główny członek zespołu połączonych operatorów skrótów udostępniający wspólny algorytm wyznaczania wartości skrótu i strategię partycjonowania.</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>Zespół dopasowania skrótu</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>Współautor wielu operacji wyznaczania wartości skrótu.</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>Skrót zapisał na {0} stronach i odczytał {1} stron(y) z bazy danych tempdb za pomocą udzielonej pamięcią {2}KB i używanej pamięci {3}KB</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>Szczegóły rozlania skrótu</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>Najwyższy poziom</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>Najwyższy poziom atrybutów grupowania obliczony w tym zestawieniu.</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>Bajty urządzenia HPC do hosta</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>Dane przesyłane z urządzenia HPC do hostowania w bajtach.</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>Bajty hosta HPC do urządzenia</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>Transfer danych z hosta do urządzenia obliczeń HPC w bajtach.</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>Czas, który upłynął, dla jądra obliczeń HPC (μs)</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>Czas, który upłynął (w mikrosekundach), podczas wykonywania jądra urządzenia obliczeń HPC.</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>Liczba wierszy obliczeń HPC</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>Liczba wierszy przetworzonych przez urządzenia HPC.</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hiperskala</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>Jeśli</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>Przetwarzanie warunkowe na podstawie wyrażenia.</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>Importuj plik bacpac</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>Usuwanie indeksu</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>Usuń wiersze z indeksu.</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>Wstaw indeks</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>Wstaw wiersze do indeksu.</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>Rodzaj indeksu</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>Typ indeksu dla przywoływanego obiektu.</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>Skanuj indeks nieklastrowany w całości lub tylko zakres.</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>Wyszukiwanie indeksu</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>Skanuj określony zakres wierszy z indeksu nieklastrowanego.</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>Szpula indeksu</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>Formatuje dane z danych wejściowych do indeksu tymczasowego, który jest następnie używany do wyszukiwania z podanym predykatem wyszukiwania.</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>Aktualizacja indeksu</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>Aktualizuj wiersze w indeksie.</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>Kolumny sprzężenia po stronie wewnętrznej</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>Kolumny sprzężenia po stronie wewnętrznej.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>dane wejściowe</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>Pamięć danych wejściowych</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Wstaw</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>Dodaje wiersz do tabeli.</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>Wstawione skanowanie</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>Zeskanuj pseudo tabelę „wstawioną” w wyzwalaczu.</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>Informacje dotyczące debugowania wewnętrznego</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>Wewnętrzne</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>Wywołuje wewnętrzną funkcję Języka Transact-SQL.</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value> Podana ścieżka jest nieprawidłowa</value>
+  </data>
+  <data name="InvalidDspFormatError" xml:space="preserve">
+    <value>Nieprawidłowa wartość dostawcy schematu bazy danych: „{0}”; powinna mieć postać „Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider”.</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Nie można uzyskać dostępu do określonej ścieżki na serwerze: {0}</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Nieprawidłowa ścieżka do pliku bazy danych: „{0}”</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Nieprawidłowy harmonogram</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>Data rozpoczęcia musi przypadać 1 stycznia 1990 r. lub później.</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Wybierz co najmniej jeden dzień, który ma należeć do tego harmonogramu tygodniowego.</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>Jest adaptacyjny</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>Określa, czy operator jest adaptacyjny.</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>Jest zamknięciem pośrednim GraphDB</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>Określa, czy sekwencja reprezentuje przechodnie zamknięcie usługi GraphDB.</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>Określa, czy operator jest z wykonany z przeplotem.</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>Jest procentem</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>Jest procentem.</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>Zadanie o nazwie „{0}” już istnieje.  Wprowadź unikatową nazwę zadania.</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>Serwer zadań jest niedostępny</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>Istnieje już krok o nazwie „{0}” dla tego zadania. Musisz określić inną nazwę.</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>Nazwa kroku zadania nie może być pusta.</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Dołącz</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>Sprzęż tabele.</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>Wyszukiwanie kluczy</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>Używa podanego klucza klastrowania do wyszukiwania w tabeli, która ma indeks klastrowany.</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Zestaw kluczy</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>Kursor, który może wyświetlać aktualizacje wykonane przez inne osoby, ale nie wstawienia.</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>Bufor z opóźnieniem</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>Bufor z opóźnieniem.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Poziom</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>Poziom atrybutów grupowania obliczony w tym zestawieniu.</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Agregacja zbiorcza</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>Reprezentuje to operator ROLLUP lub CUBE.</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>Lokalizuj</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>Pobieranie pełnego wiersza ze sterty lub indeksu klastrowanego.</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Dziennik</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>Rejestrowanie skanowania wierszy</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>Zeskanuj wiersze w dzienniku.</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>Wyszukiwanie kluczy</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>Agregacja</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>Ochrona przed różnicami</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>Potwierdź</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Kompilacja tablicy skrótów usługi Batch</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>Tworzenie mapy bitowej</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu klastrowanego</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>Wyszukiwanie indeksu klastrowanego</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>Aktualizacja klastrowana</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>Zwijanie</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>Oblicz wartość skalarną</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>Łączenie</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>Skanowanie stałe</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>Sprzężenie krzyżowe</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>Usuwanie</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>Usunięto skanowanie</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>Różne</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>Sortowanie unikatowe</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>Dystrybuuj strumienie</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>Wyczekujący bufor</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>Filtruj</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>Przepływ odrębny</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Sprawdzanie odwołań do klucza obcego</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>Pełne sprzężenie zewnętrzne</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>Zbierz strumienie</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>Wyszukiwanie indeksu</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>Stosowanie wewnętrznie</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>Sprzężenie wewnętrzne</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>Wstaw</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>Wstawione skanowanie</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>Utwórz część wspólną</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>Tworzenie części wspólnej wszystkiego</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>Bufor z opóźnieniem</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Stosowanie lewego antypółsprzężenia</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Lewe antypółsprzężenie</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>Różnica z lewej</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>Różnica w lewo — wszystko</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>Stosowanie lewego sprzężenia zewnętrznego</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>Lewe sprzężenie zewnętrzne</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>Lewe półzastosowanie</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>Lewe półsprzężenie</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>Statystyki lokalne</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>Rejestrowanie skanowania wierszy</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>Scal</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>Interwał scalania</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>Scal statystyki</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>Skan tabeli parametrów</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>Agregacja częściowa</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>Drukuj</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>Odłożenie</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>Wyszukiwanie RID</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>Ranga</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>Usuwanie zdalne</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu zdalnego</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>Wyszukiwanie indeksu zdalnego</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>Wstawianie zdalne</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>Zapytanie zdalne</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>Skanowanie zdalne</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>Aktualizacja zdalna</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>Ponowne partycjonowanie strumieni</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Prawe antypółsprzężenie</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>Różnica z prawej</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>Prawa różnica wszystkiego</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>Prawe sprzężenie zewnętrzne</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>Prawe półsprzężenie</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>Sekwencja</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>Sortowanie</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>Podziel</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>Przełącz</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>Skan tabeli</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>Funkcja zwracająca tabelę</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>Górne</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Sortowanie N pierwszych</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>Związek</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>Aktualizuj</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Bufor okien</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>Operacja logiczna</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>Operator algebraiczny relacyjny reprezentowany przez ten węzeł. Tylko w przypadku wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>Wiele do wielu</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>Wiele do wielu.</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>Ułamki pamięci</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>Ułamki pamięci.</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>Dane wejściowe ułamków pamięci</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>Dane wejściowe ułamków pamięci.</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>Dane wyjściowe ułamków pamięci</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>Dane wyjściowe ułamków pamięci.</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>Udzielenie pamięci</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>Przydział pamięci.</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>Przydział pamięci zapytania wykrył „{0}”, co może mieć wpływ na niezawodność. Rozmiar przydziału: początkowa {1} KB, końcowa {2} KB, używana {3} KB.</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>Szczegóły dotyczące ostrzeżenia o udzieleniu pamięci</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>Przekroczono limit pamięci</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Interwał scalania</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>Interwał scalania.</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Merge Join</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>Dopasuj wiersze z dwóch odpowiednio posortowanych tabel danych wejściowych, wykorzystując ich kolejność sortowania.</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*]D;]A;Brakujące szczegóły indeksu z {0}]D;]A;Procesor zapytań szacuje, że wdrożenie następującego indeksu może poprawić koszt zapytania o {1}%.]D;]A;*/</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Brakujący indeks (wpływ {0}): {1}</value>
+  </data>
+  <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
+    <value>Znaleziono więcej niż jedną funkcję platformy Azure z nazwą funkcji „{0}” w {1}</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>Zagnieżdżone pętle</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>Dla każdego wiersza w górnych (zewnętrznych) danych wejściowych przeskanuj dane wejściowe (wewnętrzne) i wyświetl pasujące wiersze.</value>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>Nigdy</value>
+  </data>
+  <data name="NoBackupsetsToRestore" xml:space="preserve">
+    <value>Nie wybrano zestawu kopii zapasowych do przywrócenia</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>Nie znaleziono instrukcji TSQL tworzenia zewnętrznego zadania przesyłania strumieniowego (exec sp_create_streaming_job).</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>Brak predykatu sprzężenia</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>Ostrzeżenie Brak predykatu sprzężenia.</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>Brak zgodnych indeksów</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>Dane planu są niedostępne w formacie XML. Można zapisywać tylko plany z programu SQL Server Yukon.</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>Identyfikator węzła</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Tworzenie sygnatury dostępu współdzielonego nie jest obsługiwane w przypadku wystąpień w chmurze.</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>Rzeczywista liczba partii</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>Rzeczywista liczba partii danych wyjściowych tego operatora.</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>Liczba wykonań</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>Liczba wykonań tego operatora podczas uruchamiania bieżącego zapytania.</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>Rzeczywista liczba wierszy dla wszystkich wykonań</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>Rzeczywista liczba wierszy dla wszystkich wykonań danych wyjściowych tego operatora. Tylko w przypadku wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Obiekt</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>Alias używany dla przywoływanego obiektu.</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>Kolumna</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>Nazwa kolumny dla przywoływanego obiektu.</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>Kolumna obliczana</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>Określa, czy jest to kolumna obliczana.</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>Baza danych</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>Nazwa bazy danych dla przywoływanego obiektu.</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>Obiekt.</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>Indeks</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>Nazwa indeksu dla obiektu, do którego istnieje odwołanie.</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Nie można było zmienić nazwy obiektu. URN: „{0}”.</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>Schemat</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>Nazwa schematu dla obiektu, którego dotyczy odwołanie.</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>Serwer</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>Nazwa serwera dla przywoływanego obiektu.</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>Obiekt</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>Tabela</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>Nazwa tabeli dla przywoływanego obiektu.</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>Napotkano błąd podczas próby przeanalizowania informacji o połączeniu dla punktu końcowego „{0}” z komunikatem o błędzie „{1}”</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operacja</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>Udostępnia dodatkowe informacje o wykonywanej operacji. Zawartość tej kolumny zależy od operatora fizycznego.</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>Opis operacji.</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>Opis</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>Typ operacji</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>Poziom optymalizacji</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>Poziom optymalizacji.</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>Zoptymalizowane</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Kolejność według</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>Kolejność według.</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>Zamówione</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>Zamówione.</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>Oryginalna kolumna akcji</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>Kolumna Oryginalna akcja.</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>Odwołania zewnętrzne</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>Odwołania zewnętrzne.</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>Kolumny sprzężenia po stronie zewnętrznej</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>Kolumny sprzężenia po stronie zewnętrznej.</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>wyjście</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>Lista danych wyjściowych</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>Zawiera rozdzielaną przecinkami listę kolumn wyświetlanych przez bieżącą operację.</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>Pamięć wyjściowa</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>Równolegle</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>Określa, czy operator działa równolegle.</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>Równoległość</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>Operacja obejmująca równoległość.</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Wykonywanie równoległe</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>Wartość skompilowana parametru</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>Typ danych parametru</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>Lista parametrów</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>Lista parametrów.</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>Wartość środowiska uruchomieniowego parametru</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Skan tabeli parametrów</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>Skanuj wewnętrzną tabelę wartości parametrów.</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>Element {0} zostanie przekonwertowany na obiekt Microsoft.Data.SqlClient.SqlParameter z następującymi właściwościami: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>Wiersz: {0}, kolumna: {1}</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>Liczba indeksów dopasowania częściowego</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>Kolumny partycji</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>Kolumny partycji.</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>Rzeczywista liczba partycji</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>Identyfikator partycji</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>Identyfikator partycji.</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>Partycjonowana</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>Określa, czy operacja dotyczy partycjonowanej tabeli, czy indeksu.</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>Typ partycjonowania.</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>Typ partycjonowania.</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>Rzeczywiste partycje, do których uzyskano dostęp</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>Przechodzenie</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>Przekazywanie.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Naciśnij przycisk OK, aby wprowadzić nowe hasło spełniające wymagania zasad systemu operacyjnego.</value>
+  </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>Nowe hasło nie może być puste</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Naciśnij przycisk OK, aby wprowadzić nowe hasło, które nie jest puste.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Naciśnij przycisk OK, aby wprowadzić inne hasło.</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>Nie można wstrzymać sesji: {0}</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>Ta funkcja nie jest obecnie obsługiwana w usługach Azure SQL DB i Data Warehouse: {0}</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>Nie pobrano obiektu bazy danych.</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>Wystąpił nieoczekiwany błąd podczas wykonywania funkcji Wgląd w definicję: {0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>Nie znaleziono żadnych wyników.</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Połącz się z serwerem.</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Upłynął limit czasu operacji.</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>Ta funkcja nie obsługuje obecnie tego typu obiektu.</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>Informacje o liczniku danego wątku.</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>Administrowanie operacjami zbiorczymi</value>
+  </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>Zmień</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>Zmień dowolną rolę aplikacji</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>Zmień dowolny zestaw</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>Zmiana dowolnego klucza asymetrycznego</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>Zmiana dowolnej grupy dostępności</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>Zmiana dowolnego certyfikatu</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>Zmień dowolne połączenie</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>Zmień dowolny kontrakt</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>Zmień dowolne poświadczenie</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>Zmiana dowolnej bazy danych</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>Zmień dowolną inspekcję bazy danych</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>Zmiana dowolnego wyzwalacza DDL bazy danych</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>Zmiana dowolnego powiadomienia o zdarzeniu bazy danych</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>Zmień dowolną przestrzeń danych</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>Zmień dowolny punkt końcowy</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>Zmiana dowolnego powiadomienia o zdarzeniu</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>Zmiana dowolnej sesji zdarzenia</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>Zmień dowolne zewnętrzne źródło danych</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>Zmiana dowolnego formatu pliku zewnętrznego</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>Zmień dowolny wykaz pełnotekstowy</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>Zmień dowolny serwer połączony</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>Zmiana dowolnych danych logowania</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>Zmień dowolną maskę</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>Zmień dowolny typ komunikatu</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>Zmień dowolne powiązanie usługi zdalnej</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>Zmień dowolną rolę</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>Zmień dowolną trasę</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>Zmień dowolny schemat</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>Zmień wszelkie zasady zabezpieczeń</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>Zmień dowolną klasyfikację poufności</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>Zmień inspekcję dowolnego serwera</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>Zmiana dowolnej roli serwera</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>Zmień dowolną usługę</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>Zmień dowolny klucz symetryczny</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>Zmień dowolnego użytkownika</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>Zmień zasoby</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>Zmień stan serwera</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>Zmień ustawienia</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>Zmiana śladu stosu</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>Uwierzytelnij</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>Uwierzytelnij serwer</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>Kopia zapasowa bazy danych</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>Dziennik kopii zapasowej</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>Punkt kontrolny</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>Połącz</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>Połącz dowolną bazę danych</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>Połącz replikację</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>Nawiązywanie połączenia z usługą SQL</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>Kontrola</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>Serwer sterowania</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>Utwórz agregat</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>Tworzenie dowolnej bazy danych</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>Utwórz zestaw</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>Utwórz klucz asymetryczny</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>Utwórz grupę dostępności</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>Utwórz certyfikat</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>Utwórz kontrakt</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>Utwórz bazę danych</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>Powiadomienie o zdarzeniu tworzenia bazy danych DDL</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>Tworzenie powiadomień o zdarzeniu języka DDL</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>Tworzenie wartości domyślnych</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>Tworzenie punktu końcowego</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>Tworzenie wykazu pełnotekstowego</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>Tworzenie funkcji</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>Utwórz typ komunikatu</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>Utwórz procedurę</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>Utwórz kolejkę</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>Utwórz powiązanie usługi zdalnej.</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>Utwórz rolę</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>Utwórz trasę</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>Tworzenie reguły</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>Utwórz schemat</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>Utwórz sekwencję</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>Utwórz rolę serwera</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>Tworzenie usługi</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>Tworzenie klucza symetrycznego</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>Utwórz synonim</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>Tworzenie tabeli</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>Tworzenie powiadomień o zdarzeniu śladu stosu</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>Tworzenie typu</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>Utwórz widok</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>Utwórz kolekcję schematów XML</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>Usuwanie</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>Wykonaj</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>Wirtualny plik dziennika dostępu zewnętrznego</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>Personifikuj</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>Personifikuj dowolne logowanie</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>Wstawianie</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>Odbierz</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>Odwołania</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>Wybierz</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>Wybieranie wszystkich zabezpieczanych użytkowników</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>Wyślij</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>Pokaż plan</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>Zamknięcie</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>Subskrybuj powiadomienia o zapytaniach</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>Przejmij na własność</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>Zdemaskować</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>Niebezpieczny zestaw</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>Aktualizuj</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>Wyświetl dowolną definicję klucza szyfrowania kolumn</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>Wyświetl dowolną definicję klucza głównego kolumny</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>Wyświetl dowolną bazę danych</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>Wyświetl dowolną definicję</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>Wyświetl dowolną klasyfikację poufności</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>Wyświetl śledzenie zmian</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>Wyświetl stan bazy danych</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>Wyświetl definicję</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>Wyświetl stan serwera</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>Operacja fizyczna</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>Algorytm implementacji fizycznej dla węzła. Tylko dla wierszy typu PLAN_ROWS.</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>Konwersja typu w wyrażeniu ({0}) może mieć wpływ na „{1}” w wyborze planu zapytania</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>Ostrzeżenie dotyczące konwersji typu wpływającej na plan.</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>Zapytanie populacji</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>Zapytanie używane do wypełniania tabeli roboczej kursora po otwarciu kursora.</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>Predykat</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>Predykat.</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Prefiks</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>Klony podstawowe</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>Identyfikator węzła podstawowego</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Drukuj</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>Drukuj.</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>Kolumna Sonda</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>Kolumna sondy.</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>Sonduj pozostałe</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>Sonduj pozostałe.</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>Nazwa procedury</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Nie znaleziono połączenia</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Projekt</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>Kolumny projektu.</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Wyodrębnianie plików projektu</value>
+  </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Właściwość „{0}” została ustawiona przed zainicjowaniem.</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>Konto proxy „{0}” nie istnieje na serwerze.</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>Zastosuj zmiany porównania schematu</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>Odłóż</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>Eksportuj wiersze z tabeli lokalnej lub tabeli zewnętrznej do tabeli zewnętrznej.</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>Zapytanie</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>Plan zapytania</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(dotknięty 1 wiersz)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>(dotyczy{0} wierszy)</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>Zapytanie zostało już ukończone, nie można go anulować</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>Zapytanie zostało pomyślnie anulowane, nie można usunąć zapytania. Nie znaleziono identyfikatora URI właściciela.</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(Brak nazwy kolumny)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>Polecenia zostały ukończone pomyślnie.</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>Maksymalna liczba bajtów do zwrócenia musi być większa od zera</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>Maksymalna liczba znaków do zwrócenia musi być większa od zera</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>Maksymalna liczba zwracanych bajtów XML musi być większa od zera</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Wiadomość {0}, Poziom {1}, Stan {2}, Linia {3}{4}{5}</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>Nie można pobrać planu wykonania z zestawu wyników</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>Obiekt FileStreamWrapper musi zostać zainicjowany przed wykonaniem operacji</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>Tego elementu FileStreamWrapper nie można użyć do zapisywania</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>Metoda dostępu nie może być tylko do zapisu</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>Nadawca zdarzenia OnInfoMessage musi być elementem SqlConnection</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Zapytanie zostało anulowane przez użytkownika</value>
+  </data>
+  <data name="QueryServiceQueryExecutionCompletedWithErrors" xml:space="preserve">
+    <value>Wykonywanie zapytania zostało ukończone z błędami</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Zapytanie nie powiodło się: {0}</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>Zapytanie jest już w toku dla tej sesji edytora. Anuluj to zapytanie lub poczekaj na jego ukończenie.</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Nie można nawiązać połączenia z bazą danych z powodu nieprawidłowego identyfikatora OwnerUri</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>Żądane zapytanie nie istnieje</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>Nie można dodać wiersza do buforu wyników, czytnik danych nie zawiera wierszy</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>Zapytanie nie ma wyników do zwrócenia</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>Nie można pobrać schematu kolumny dla zestawu wyników</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>Nie można odczytać podzbioru, chyba że wyniki zostały odczytane z serwera</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>Liczba wierszy musi być dodatnią liczbą całkowitą</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>Wiersz początkowy nie może być mniejszy niż 0 ani większy niż liczba wierszy w zestawie wyników</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>Zestaw wyników zawiera zbyt wiele wierszy do bezpiecznego załadowania</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Nie można zapisać {0}: {1}</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>Żądanie zapisania dla tej samej ścieżki jest w toku</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Wystąpił błąd wewnętrzny podczas uruchamiania zadania zapisywania</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Nie można zapisać wyniku, dopóki wykonywanie zapytania nie zostanie ukończone</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>Partia nie została jeszcze ukończona</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>Indeks usługi Batch nie może być mniejszy niż 0 lub większy niż liczba partii</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>Indeks zestawu wyników nie może być mniejszy niż 0 ani większy niż liczba zestawów wyników</value>
+  </data>
+  <data name="QueryServiceSubsetRowsTimeout" xml:space="preserve">
+    <value>Upłynął limit czasu pobierania wierszy zapytania.</value>
+  </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>Nie można rozpoznać bazowego typu „{0}” dla kolumny wariantu SQL „{1}”.</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>Wyszukiwanie wzorca RID</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>Wyszukiwanie RID</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>Kolumny zakresu</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>Wyrażenia zakresu</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Pozycja</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>Kolumny pozycji</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>Kolumny pozycji.</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>Tworzy kolumnę obliczaną z pozycją wartości w istniejącej kolumnie w tabeli.</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>Odśwież zapytanie</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>Pobiera bieżące dane dla wierszy w buforze pobierania.</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>Zdalny dostęp do danych</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>Określa, czy operator używa zdalnego wywołania procedury (RPC) w celu uzyskania dostępu do danych zdalnych.</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>Usuwanie zdalne</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>Usuń wiersze z tabeli przechowywanej w bazie danych lub pliku innym niż bieżący serwer bazy danych.</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>Zdalne miejsce docelowe</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>Obiekt zdalny.</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>Skanowanie indeksu zdalnego</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>Skanuj indeks przechowywany w bazie danych lub w pliku innym niż bieżący serwer bazy danych.</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>Wyszukiwanie indeksu zdalnego</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>Przeskanuj określony zakres wierszy z indeksu klastrowanego, który jest przechowywany w bazie danych lub pliku innym niż bieżący serwer bazy danych.</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>Wstawianie zdalne</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>Wstaw wiersze do tabeli przechowywanej w bazie danych lub w pliku innym niż bieżący serwer bazy danych.</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>Obiekt zdalny</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>Obiekt zdalny.</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>Zapytanie zdalne</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>Wyślij zapytanie SQL do innego niż bieżący program SQL Server.</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>Skanowanie zdalne</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>Skanuj wiersze w tabeli przechowywanej w bazie danych lub w pliku innym niż bieżący serwer bazy danych.</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>Źródło zdalne</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>Źródło zdalne.</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>Aktualizacja zdalna</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>Aktualizuj wiersze w tabeli przechowywanej w bazie danych lub w pliku innym niż bieżący serwer bazy danych.</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>Komunikacja zdalna</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>Określa, czy operator może działać zdalnie.</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>Ponowne partycjonowanie strumieni</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>Ponowne partycjonowanie strumieni.</value>
+  </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>Resetuj hasło logowania podczas odblokowywania.</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Pozostałości</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>Pozostałości.</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Numer LSN punktu kontrolnego</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Składnik</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Baza danych</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Data wygaśnięcia</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Data zakończenia</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Pierwszy numer LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Full LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Ostatni numer LSN</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Nazwa</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Pozycja</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Serwer</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Rozmiar</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Data rozpoczęcia</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Nazwa użytkownika</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Tylko kopiowanie)</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Przywracanie bazy danych nie jest obsługiwane</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Nie można utworzyć planu przywracania</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Przywracanie bazy danych</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Wynik</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>Wynik.</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>Informacje o zestawieniach</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>Informacje o zestawieniach.</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>Poziomy zestawień</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>Wszystkie poziomy atrybutów grupowania obliczone w tym zestawieniu.</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>Jest liczbą wierszy</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>Bufor liczby wierszy</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>Przechowuje dane z danych wejściowych w tabeli tymczasowej w celu zoptymalizowania przewijania do tyłu.</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>Górne wiersze</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>Górne wiersze.</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>Wątek {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>Wszystkie wątki</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>Wątek {0} w wystąpieniu {1}</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL.</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>Pliki planu SQL (*.SqlPlan)|*.SqlPlan|Wszystkie pliki (*.*)|*.*</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>Operatory wartości skalarnej</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>Kierunek skanowania</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>Kierunek operacji skanowania w przód lub w tył.</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>Typ skanu</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>Istnieje już harmonogram o nazwie „{0}” dla tego zadania. Musisz określić inną nazwę.</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć określonej zmiany w modelu</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć sesji porównywania schematów w celu anulowania</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>obsługa skryptów</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>Bieżący skrypt jest zbyt duży dla parametryzacji dla funkcji Always Encrypted. Wyłącz parametryzację funkcji Always Encrypted w opcjach zapytania (opcje zapytania &gt; zapytania &gt; wykonywanie &gt; zaawansowane). Maksymalna dozwolona długość, liczba znaków: {0}, bieżąca długość skryptu, liczba znaków: {1}</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Błąd podczas analizowania właściwości ScriptingListObjectsCompleteParams.ConnectionString.</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>Klony pomocnicze</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>Szukaj kluczy</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>Klucze używane przez operację wyszukiwania.</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Predykat wyszukiwania</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Wyszukaj predykat.</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Wyszukaj predykaty</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Wyszukaj predykaty.</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>Kolumna segmentu.</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>Kolumna segmentu.</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>Segment.</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Sekwencja</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>Przetwarzaj wszystkie dane wejściowe w kolejności od góry do dołu.</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Projekt sekwencji</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>Dodaje kolumny w celu wykonywania obliczeń względem uporządkowanego zestawu.</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>Żądanie pliku {0} jest już w toku</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>Nie można serializować większej ilości danych, ponieważ nie można odnaleźć żadnego żądania dla pliku {0}</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>Nieobsługiwana flaga zapisu: {0}</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Nie znaleziono usługi {0} u dostawcy usług</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>Metoda SetServiceProvider() nie została wywołana w celu ustanowienia wymaganego dostawcy usług</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>Sesja XEvent o nazwie {0} już istnieje</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć żądanej sesji XEvent</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Funkcja zbioru</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>Funkcja zbioru.</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>Ustaw opcje</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>Ustaw opcje.</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>Bieżące konto logowania nie ma uprawnień, aby ustawić właściciela bazy danych na wartość „{0}”  Baza danych została jednak pomyślnie utworzona.</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>Predykat</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>Predykat</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>Losowo</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>Losuj przenoszenie danych.</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>Pojedyncze źródło RoundRobin</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>Przenoszenie danych RoundRobin pojedynczego źródła.</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>Losowanie pojedynczego źródła</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>Przenoszenie danych jednoźródłowych losowych.</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>Migawka</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>Kursor, który nie widzi zmian wprowadzonych przez inne osoby.</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Sortuj</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>Sortuj dane wejściowe.</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>Sortowanie zapisało i odczytało następującą liczbę stron — odpowiednio {0} i {1} — w bazie danych tempdb z przydzieloną pamięcią {2} KB i używaną pamięcią {3} KB</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>Szczegóły rozlania sortowania</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>Operator użył bazy danych tempdb do rozlania danych podczas wykonywania</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>Operator użył bazy danych tempdb do rozlania danych podczas wykonywania z poziomu rozlania {0}i {1} rozlanych wątków</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>Ostrzeżenie Rozlanie do bazy danych tempdb.</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>Operator użył bazy danych tempdb do rozlania danych podczas wykonywania z poziomem rozlania {0}</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>Podziel</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>Podziel.</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>Bufor</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>Zapisywanie tymczasowo wyniku zapytania pośredniego.</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Nie można połączyć się z serwerem</value>
+  </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Generowanie skryptu oceny SQL</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Brak połączenia z serwerem</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Nieobsługiwana wersja aparatu {0}</value>
+  </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>Dodawanie powiązań SQL nie jest obsługiwane dla platformy .NET 5</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>Znaleziono błąd podczas wykonywania partii. Zamykanie.</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>Znaleziono nieobsługiwany token {0}</value>
+  </data>
+  <data name="SqlPackageInvalidRequestParameters" xml:space="preserve">
+    <value>Nieprawidłowe parametry żądania</value>
+  </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Nie można odnaleźć modelu SQL z projektu: {0}.</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>W dokładnej kolumnie liczbowej brakuje precyzji liczbowej lub skali liczbowej</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>Brak rozmiaru kolumny o długości</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>W kolumnie skalarnej brakuje skali</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>Ze stosem</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standardowa</value>
+  </data>
+  <data name="StarExpansionDescription" xml:space="preserve">
+    <value>Zastąp {0} kolumnami {1}: {2}</value>
+  </data>
+  <data name="StarExpansionLabel" xml:space="preserve">
+    <value>Rozwiń {0}</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>Data rozpoczęcia harmonogramu zadań nie może być późniejsza niż data końcowa.</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>Początek</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>Początek zakresu.</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Nie można uruchomić sesji: {0}</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>Godzina rozpoczęcia harmonogramu zadań nie może przypadać po godzinie zakończenia.</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>Wyrażenie uruchamiania</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>Określa, czy jest używane wyrażenie uruchamiania filtru.</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>Predykat wyrażenia uruchamiania</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>Instrukcja</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>W większości przypadków zawiera tekst instrukcji Transact-SQL.  W przypadku wierszy typu PLAN_ROW zawiera opis operacji.</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>Przyczyna wcześniejszego zakończenia optymalizacji instrukcji</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Nie można zatrzymać sesji: {0}</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Magazyn</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>Magazyn</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>Procedura składowana</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Agregacja strumienia</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>Oblicz wartości podsumowania dla grup wierszy w odpowiednio posortowanym strumieniu.</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>Instrukcja zapytania przesyłania strumieniowego zawiera odwołanie do brakującego {0} strumienia „{1}”.  Należy dodać go do modelu bazy danych.</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>Weryfikacja zewnętrznego zadania przesyłania strumieniowego „{0}” nie powiodła się:</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Przełącznik</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>Przełącz.</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>Konto usługi agenta programu SQL Server</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>Przewidywanie</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>Stosuje wytrenowany model uczenia maszynowego do danych wejściowych</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>Usuwanie tabeli</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>Usuń wiersze wejściowe z tabeli określonej w polu Argument.</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>Wstaw tabelę</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>Wstaw wiersze wejściowe do tabeli określonej w polu Argument.</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>Scalanie tabel</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>Scal wiersze danych wejściowych w tabeli określonej w polu Argument.</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>Skan tabeli</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>Skanuj wiersze z tabeli.</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>Bufor tabeli</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>Przechowuje dane z danych wejściowych w tabeli tymczasowej w celu zoptymalizowania przewijania do tyłu.</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>Aktualizacja tabeli</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>Zaktualizuj wiersze wejściowe w tabeli określonej w polu Argument.</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>Funkcja zwracająca tabelę</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>Funkcja z wartościami w tabeli.</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>Należy określić serwery docelowe, na których zostanie wykonane to zadanie wieloserwerowe.</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Ukończone</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>W toku</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>testuj</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>Ostatnia wykonana kopia zapasowa ({0})</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>Połącz kolumny</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>Połącz kolumny.</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>Limit czasu</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Do góry</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>Wybierz kilka pierwszych wierszy na podstawie kolejności sortowania.</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>Wyrażenie górne</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>Wyrażenie górne.</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>Przycięcie</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>Przytnij dane.</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX.</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>UDF</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>Nazwa</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>Nazwa.</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Nieoczekiwany typ uruchomienia.</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>Związek</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>Suma zbiorów wszystkiego</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>Sumuj wszystkie tabele.</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>Tabele sumy zbiorów.</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>Nieznany typ przypisania.</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>Nieznana operacja planu kursora '{0}'.</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>Nieznany operator.</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>Nieznany typ węzła.</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Nieznany typ serwera „{0}”.</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>Nie można rozpoznać typu źródła planu wykonywania.</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Nieznany jednostka rozmiaru {0}</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>Nie rozpoznano typu instrukcji.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Nieobsługiwany typ urządzenia {0} dla wersji aparatu {1}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Nieobsługiwany typ modelu: {0}.</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Aktualizuj</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>Zmodyfikuj wartości w określonej tabeli.</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>Użyj planu</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>Używana pamięć</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>Używane kolumny UDX</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>Używane kolumny UDX.</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>Sprawdzanie poprawności zadania przesyłania strumieniowego</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Wartości</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>Wartości.</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>Zapytanie oczekiwało {0} s na {1} podczas wykonywania</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>Ostrzeżenie dotyczące oczekiwania na zapytanie.</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Ostrzeżenia</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>Ostrzeżenia</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>Zawiera rozdzielaną przecinkami listę komunikatów ostrzegawczych dotyczących bieżącej operacji. Komunikaty ostrzegawcze mogą zawierać ciąg „NO STATS:()” z listą kolumn.</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>WHERE (kolumny sprzężenia)</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Bufor okien</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>Agregacja okna</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>Oblicza wartości funkcji w oknach zdefiniowanych przez klauzulę OVER. Wejściowy zestaw wierszy jest odpowiednio posortowanym strumieniem.</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>Rozwija każdy wiersz do zestawu wierszy reprezentujących skojarzone z nim okno.</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>Z pobieraniem z wyprzedzeniem</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>Z powiązaniami</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>Z powiązaniami.</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Pozycja początkowa ({0}, {1}) musi znajdować się przed pozycją końcową lub być równa pozycji końcowej ({2}, {3})</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Pozycja jest poza zakresem kolumn dla wiersza {0}</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Pozycja znajduje się poza zakresem wiersza pliku</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Nie można przechowywać tokenu sygnatury dostępu współdzielonego na serwerach SQL.</value>
+  </data>
+  <data name="WritingServerContextualizationToCacheError" xml:space="preserve">
+    <value>Wystąpił błąd podczas zapisywania skryptów kontekstualizacji serwera w pamięci podręcznej. Błąd: {0}</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>Poziom powiększenia musi być wartością całkowitą z zakresu od {0} do {1}.</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>Zmień maksymalny rozmiar</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>Zmień automatyczne zwiększanie</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>Zmień maksymalny rozmiar {0}</value>
+  </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>Zmień automatyczne zwiększanie dla {0}</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv170" xml:space="preserve">
+    <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>Nowa baza danych</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>Nie można ustawić ani wyświetlić właściwości bazy danych w trybie zgodności 6.0 lub 6.5.</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>Nie można zmodyfikować ścieżki dla istniejących plików bazy danych.</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>Na serwerze istnieje już baza danych o nazwie „{0}”.</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>Właściwości bazy danych</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>W przypadku SKRÓTU zasad dystrybucji liczba wiodących kolumn skrótów jest opcjonalna, ale powinna mieścić się w zakresie od 1 do 16 kolumn</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>Nazwa pliku była pusta. Podaj nazwę pliku.</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>Nie można utworzyć pliku o nazwie „{0}”, ponieważ zawiera ona nieprawidłowy znak „{1}”.</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>Nie można utworzyć pliku o nazwie „{0}”, ponieważ rozpoczyna się ona od znaku spacji.</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>Nazwa bazy danych nie może składać się z samych białych znaków.</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Bieżąca domyślna grupa plików: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>Nowa grupa plików {0}</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>Automatycznie zwiększaj wszystkie pliki</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>Wartość domyślna</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Pliki</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>Pliki FILESTREAM</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Nazwa</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Tylko do odczytu</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Automatyczne zwiększanie/Maksymalny rozmiar</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Częściowe</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>Rozmiar (MB)</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;domyślny&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Grupa plików</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Nazwa logiczna</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>Typ pliku</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>Rozmiar początkowy (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;nowa grupa plików&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Ścieżka</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>Nazwa pliku</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;urządzenie pierwotne&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>Zarejestrowane zbiorczo</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Pełne</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Prosty</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Wybierz właściciela bazy danych</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>Konfigurowanie SLO</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>Rozszerzone właściwości</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>Grupy plików</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>Ogólny</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>Opcje</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>Nowa baza danych</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>Grupy dostępności</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>Grupa dostępności</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>Zadania agenta</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>Zadanie agenta</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>Funkcje agregujące</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>Funkcja agregująca</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>Role aplikacji</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>Rola aplikacji</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>Zestawy</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>Zestaw</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>Klucze asymetryczne</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>Klucz asymetryczny</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>Certyfikaty</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>Certyfikat</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>Poświadczenia</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>Poświadczenie</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>Role bazy danych</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>Rola bazy danych</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>Bazy danych</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>Baza danych</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>Wartości domyślne</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>Wartość domyślna</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>Punkty końcowe</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>Punkt końcowy</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>Rozszerzone procedury składowane</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>Rozszerzona procedura składowana</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>Zewnętrzne źródła danych</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>Źródło danych zewnętrznych</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>Formaty plików zewnętrznych</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>Format pliku zewnętrznego</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>Wykazy pełnotekstowe</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>Wykaz pełnotekstowy</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>Funkcje wbudowane</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>Funkcja wbudowana</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>Funkcje skalarne</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>Funkcja skalarna</value>
+  </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>Funkcje zwracające tabelę</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>Funkcja zwracająca tabelę</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>Logowania</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>Identyfikator logowania</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>Reguły</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>Reguła</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>Schematy</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>Schemat</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>Zasady zabezpieczeń</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>Zasady zabezpieczeń</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>Sekwencje</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>Sekwencja</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>Role serwera</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>Rola serwera</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>Serwery</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>Serwer</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>Kolejki</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>Kolejka</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>Procedury składowane</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>Procedura składowana</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>Klucze zawartości</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>Klucz symetryczny</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>Synonimy</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>Synonim</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>Tabele</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>Tabela</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>Typy danych zdefiniowane przez użytkownika</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>Typ danych zdefiniowany przez użytkownika</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>Typy tabeli zdefiniowane przez użytkownika</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>Typ tabeli zdefiniowany przez użytkownika</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>Użytkownicy</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>Użytkownik</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>Widoki</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>Wyświetl</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>Kolekcje schematów XML</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>Kolekcja schematów XML</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>Ograniczone do {0} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>Według {0} MB, ograniczone do {1} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>Według {0} procent, ograniczone do {1} MB </value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Bez ograniczeń</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>O {0} MB, bez ograniczeń</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>O {0}%, bez ograniczeń</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Automatyczne</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Sortowanie</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>Kursor</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Różne</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Odzyskiwanie</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Broker usługi</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>Stan</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>Wartość domyślna ANSI NULL </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>Włączono wartość ANSI NULLS </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>Uzupełnianie ANSI włączone </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>Ostrzeżenia ANSI włączone </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Włączono arytmetyczne przerwanie </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Automatyczne zamykanie </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Automatyczne tworzenie statystyki </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Automatyczne zmniejszanie </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Automatyczna aktualizacja statystyki </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>Asynchroniczne automatyczne aktualizowanie statystyk</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker włączony</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>Uwzględnij wielkość liter </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>Włączono zamykanie kursora przy zatwierdzaniu </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Sortowanie</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Łączenie wartości Null daje wartość Null </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Poziom zgodności bazy danych </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Stan bazy danych </value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>AWARYJNY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>NIEDOSTĘPNE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMALNA</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>OFFLINE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>ODZYSKIWANIE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>OCZEKIWANIE NA ODZYSKIWANIE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>PRZYWRACANIE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>ZAMKNIĘCIE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>WSTRZYMANIE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>PODEJRZANIE</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>WYŁĄCZONE</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>WŁĄCZONE</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Włączono optymalizację korelacji dat</value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Włączono międzybazowy łańcuch własności</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Kursor domyślny </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBALNY</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOKALNY</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Szyfrowanie włączone</value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Indeksowanie pełnotekstowe włączone </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Honoruj priorytet brokera</value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Przerywanie zaokrąglania liczb </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Weryfikacja strony </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>SUMA KONTROLNA</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>BRAK</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parametryzacja</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Wymuszone</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Prosty</value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Włączono cytowane identyfikatory </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>Baza danych tylko do odczytu </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Włączono wyzwalacze cykliczne </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Ogranicz dostęp </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Wybierz Kopiuj do/Kopiuj zbiorczo </value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Identyfikator Service Broker</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Przytnij punkt kontrolny logowania </value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>Godny zaufania</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>Włączono format przechowywania vardecimal.</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>Dane WIERSZY</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;ścieżka domyślna&gt;</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>Dane FILESTREAM</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>DZIENNIK</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>Brak odpowiedniej grupy plików</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>Nie dotyczy</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Auto" xml:space="preserve">
+    <value>Automatyczne</value>
+  </data>
+  <data name="queryStoreSizeBasedCleanupMode_Off" xml:space="preserve">
+    <value>Wyłączone</value>
+  </data>
+  <data name="queryStore_stale_threshold_EightHours" xml:space="preserve">
+    <value>8 godzin</value>
+  </data>
+  <data name="queryStore_stale_threshold_FourHours" xml:space="preserve">
+    <value>4 godziny</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneDay" xml:space="preserve">
+    <value>1 dzień</value>
+  </data>
+  <data name="queryStore_stale_threshold_OneHour" xml:space="preserve">
+    <value>1 godzina</value>
+  </data>
+  <data name="queryStore_stale_threshold_SevenDays" xml:space="preserve">
+    <value>7 dni</value>
+  </data>
+  <data name="queryStore_stale_threshold_ThreeDays" xml:space="preserve">
+    <value>3 dni</value>
+  </data>
+  <data name="queryStore_stale_threshold_TwelveHours" xml:space="preserve">
+    <value>12 godzin</value>
+  </data>
+  <data name="querystorecapturemode_all" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
+  <data name="querystorecapturemode_auto" xml:space="preserve">
+    <value>Automatyczne</value>
+  </data>
+  <data name="querystorecapturemode_custom" xml:space="preserve">
+    <value>Niestandardowe</value>
+  </data>
+  <data name="querystorecapturemode_none" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="statisticsCollectionInterval_FifteenMinutes" xml:space="preserve">
+    <value>15 minut</value>
+  </data>
+  <data name="statisticsCollectionInterval_FiveMinutes" xml:space="preserve">
+    <value>5 minut</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneDay" xml:space="preserve">
+    <value>1 dzień</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneHour" xml:space="preserve">
+    <value>1 godzina</value>
+  </data>
+  <data name="statisticsCollectionInterval_OneMinute" xml:space="preserve">
+    <value>1 minuta</value>
+  </data>
+  <data name="statisticsCollectionInterval_TenMinutes" xml:space="preserve">
+    <value>10 minut</value>
+  </data>
+  <data name="statisticsCollectionInterval_ThirtyMinutes" xml:space="preserve">
+    <value>30 minut</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Otwarte połączenia</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Aby zmienić właściwości bazy danych, program SQL Server musi zamknąć wszystkie inne połączenia z bazą danych. Czy na pewno chcesz zmienić właściwości i zamknąć wszystkie inne połączenia?</value>
+  </data>
+</root>
