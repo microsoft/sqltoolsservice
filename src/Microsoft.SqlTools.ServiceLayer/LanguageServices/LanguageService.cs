@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
             // Returns all locations where the symbol under the cursor is referenced (currently supported for SQL project files only; returns empty for connected files).
-            // Parallel safe because each request does a read-only token scan and does not mutate shared language service state.
+            // Parallel safe: the cursor file is re-parsed under a per-ScriptParseInfo lock when needed; token scanning across candidate files is read-only.
             serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest, isParallelProcessingSupported: true);
 
             // Returns signature help for the current cursor position.
@@ -1658,7 +1658,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (token == null || !token.IsSignificant)
                         return null;
 
-                    string tokenText = token.Text?.Trim('[', ']');
+                    string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
                     if (string.IsNullOrWhiteSpace(tokenText))
                         return null;
 
@@ -1737,7 +1737,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Returns a <see cref="Location"/> for every significant token in <paramref name="filePath"/>
         /// whose bare text (brackets stripped) matches <paramref name="objectName"/> case-insensitively.
-        /// Uses the cached <see cref="ScriptParseInfo"/> — no re-parsing.
+        /// Uses the cached <see cref="ScriptParseInfo"/>; performs an on-demand lightweight parse (no binding)
+        /// if the file has never been opened and its <see cref="ScriptParseInfo.ParseResult"/> is null.
         /// </summary>
         private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
         {
@@ -1763,7 +1764,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!token.IsSignificant)
                     continue;
 
-                string bare = token.Text?.Trim('[', ']');
+                string bare = TextUtilities.RemoveSquareBracketSyntax(token.Text);
                 if (!string.Equals(bare, objectName, StringComparison.OrdinalIgnoreCase))
                     continue;
 

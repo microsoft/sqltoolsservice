@@ -1255,9 +1255,10 @@ END
         }
 
         /// <summary>
-        /// Loads all three SQL files into the workspace and stamps them with the project context.
-        /// InitializeProjectFileContexts sets ParseResult = null; ParseAndBind is intentionally
-        /// NOT called here so individual tests can verify on-demand parsing behaviour.
+        /// Loads all four SQL files (Customers.sql, Orders.sql, GetCustomer.sql, ListCustomers.sql)
+        /// into the workspace and stamps them with the project context via
+        /// <see cref="LanguageService.InitializeProjectFileContexts"/>. ParseResult is left null
+        /// so individual tests can verify on-demand parsing behaviour.
         /// </summary>
         private void LoadAllFilesIntoWorkspace()
         {
