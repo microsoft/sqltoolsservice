@@ -188,6 +188,19 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                         string enumValue = IsDefinedEnumName(advancedOptionPropInfo.PropertyType, stringValue)
                             ? stringValue
                             : MapEnumValue(optionPropInfo.Name, stringValue);
+
+                        // If the value still does not match a name on the target enum, log a clear
+                        // warning so consumers can identify values (for example newly added SMO
+                        // editions) that lack a mapping. Enum.Parse below would otherwise throw and
+                        // be swallowed with only a generic message.
+                        if (advancedOptionPropInfo.PropertyType.IsEnum
+                            && !IsDefinedEnumName(advancedOptionPropInfo.PropertyType, enumValue))
+                        {
+                            Logger.Warning(string.Format(
+                                "Option {0} value '{1}' (mapped to '{2}') is not a defined name on enum {3}. A mapping may be missing for a newly added SMO {3} value.",
+                                optionPropInfo.Name, stringValue, enumValue, advancedOptionPropInfo.PropertyType.Name));
+                        }
+
                         smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, enumValue, ignoreCase: true);
                     }
 
@@ -236,7 +249,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         /// </summary>
         internal static string MapEnumValue(string propertyName, string value)
         {
-            if (propertyName == "TargetDatabaseEngineType")
+            if (propertyName == nameof(ScriptOptions.TargetDatabaseEngineType))
             {
                 return value switch
                 {
@@ -246,7 +259,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 };
             }
 
-            if (propertyName == "TargetDatabaseEngineEdition")
+            if (propertyName == nameof(ScriptOptions.TargetDatabaseEngineEdition))
             {
                 return value switch
                 {
