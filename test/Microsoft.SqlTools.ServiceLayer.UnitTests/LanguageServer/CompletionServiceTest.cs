@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             var sqlParserWrapper = new Mock<ISqlParserWrapper>();
             sqlParserWrapper.Setup(x => x.FindCompletions(docInfo.ScriptParseInfo.ParseResult, docInfo.ParserLine, docInfo.ParserColumn,
-                It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(LanguageService.BindingTimeout + 100)).Returns(declarations);
+                It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(LanguageService.SemanticIntelliSenseTimeout + 100)).Returns(declarations);
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);

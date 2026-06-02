@@ -340,10 +340,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Test]
         public async Task ParseAndBindReturnsWhenParserExceedsTimeout()
         {
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.IntelliSense.ParserTimeout = 50;
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.IntelliSense.BindingTimeout = 500;
-
             TestLanguageService service = new TestLanguageService();
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents("SELECT 1");
@@ -365,31 +361,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             finally
             {
                 releaseParser.Set();
-                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
             }
         }
 
         [Test]
         public async Task ParseAndBindSkipsSemanticWorkForLargeScripts()
         {
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.IntelliSense.MaxScriptSize = 5;
-
             TestLanguageService service = new TestLanguageService();
             var scriptFile = new ScriptFile();
-            scriptFile.SetFileContents("SELECT 1");
+            scriptFile.SetFileContents(new string(' ', LanguageService.MaxScriptSize + 1));
 
-            try
-            {
-                ParseResult parseResult = await service.ParseAndBind(scriptFile, null);
+            ParseResult parseResult = await service.ParseAndBind(scriptFile, null);
 
-                Assert.That(parseResult, Is.Null);
-                Assert.That(service.GetScriptParseInfo(scriptFile.ClientUri).ParseResult, Is.Null);
-            }
-            finally
-            {
-                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
-            }
+            Assert.That(parseResult, Is.Null);
+            Assert.That(service.GetScriptParseInfo(scriptFile.ClientUri).ParseResult, Is.Null);
         }
     }
 }

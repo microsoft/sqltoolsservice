@@ -80,11 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int HoverTimeout = 500;
 
-        internal const int BindingTimeout = 500;
-
-        internal const int ParserTimeout = 500;
-
-        internal const int MetadataWarmupTimeout = 2000;
+        internal const int SemanticIntelliSenseTimeout = 2 * OneSecond;
 
         internal const int MaxScriptSize = 1024 * 1024;
 
@@ -1035,8 +1031,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
-            int bindingTimeout = GetBindingTimeout();
-            int parserTimeout = GetParserTimeout();
+            int semanticIntelliSenseTimeout = GetSemanticIntelliSenseTimeout();
 
             if (IsScriptTooLargeForSemanticIntelliSense(scriptFile))
             {
@@ -1053,7 +1048,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return parseInfo.ParseResult;
                 }
 
-                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, bindingTimeout))
+                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, semanticIntelliSenseTimeout))
                 {
                     try
                     {
@@ -1064,7 +1059,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                         if (!hasBindingContext)
                         {
-                            if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, parserTimeout, cancellationToken, out ParseResult parseResult))
+                            if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, semanticIntelliSenseTimeout, cancellationToken, out ParseResult parseResult))
                             {
                                 if (!cancellationToken.IsCancellationRequested)
                                 {
@@ -1080,7 +1075,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                                 key: parseInfo.ConnectionKey,
-                                bindingTimeout: bindingTimeout,
+                                bindingTimeout: semanticIntelliSenseTimeout,
                                 bindOperation: (bindingContext, cancelToken) =>
                                 {
                                     try
@@ -1094,7 +1089,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                             scriptFile.Contents,
                                             parseInfo.ParseResult,
                                             bindingContext.ParseOptions,
-                                            parserTimeout,
+                                            semanticIntelliSenseTimeout,
                                             cancellationToken,
                                             out ParseResult parseResult))
                                         {
@@ -1141,7 +1136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     return null;
                                 });
 
-                            if (!WaitForQueueItem(queueItem, bindingTimeout, "ParseAndBind"))
+                            if (!WaitForQueueItem(queueItem, semanticIntelliSenseTimeout, "ParseAndBind"))
                             {
                                 parseInfo.ParseResult = null;
                             }
@@ -1471,31 +1466,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 || ShouldSkipNonMssqlFile(uri);
         }
 
-        private int GetConfiguredIntelliSenseValue(Func<IntelliSenseSettings, int> getValue, int defaultValue)
+        private int GetSemanticIntelliSenseTimeout()
         {
-            IntelliSenseSettings settings = CurrentWorkspaceSettings?.SqlTools?.IntelliSense;
-            int value = settings != null ? getValue(settings) : defaultValue;
-            return value > 0 ? value : defaultValue;
-        }
-
-        private int GetBindingTimeout()
-        {
-            return GetConfiguredIntelliSenseValue(settings => settings.BindingTimeout, LanguageService.BindingTimeout);
-        }
-
-        private int GetParserTimeout()
-        {
-            return GetConfiguredIntelliSenseValue(settings => settings.ParserTimeout, LanguageService.ParserTimeout);
+            return LanguageService.SemanticIntelliSenseTimeout;
         }
 
         private int GetMetadataWarmupTimeout()
         {
-            return GetConfiguredIntelliSenseValue(settings => settings.MetadataWarmupTimeout, LanguageService.MetadataWarmupTimeout);
+            return GetSemanticIntelliSenseTimeout();
         }
 
         private int GetMaxScriptSize()
         {
-            return GetConfiguredIntelliSenseValue(settings => settings.MaxScriptSize, LanguageService.MaxScriptSize);
+            return LanguageService.MaxScriptSize;
         }
 
         private bool IsScriptTooLargeForSemanticIntelliSense(ScriptFile scriptFile)
@@ -1553,7 +1536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        int bindingTimeout = GetBindingTimeout();
+                        int bindingTimeout = GetSemanticIntelliSenseTimeout();
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: bindingTimeout,
@@ -2116,7 +2099,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        int bindingTimeout = GetBindingTimeout();
+                        int bindingTimeout = GetSemanticIntelliSenseTimeout();
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: bindingTimeout,
@@ -2193,7 +2176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
             bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase;
-            int bindingTimeout = GetBindingTimeout();
+            int bindingTimeout = GetSemanticIntelliSenseTimeout();
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);

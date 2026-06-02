@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             ConnectionInfo connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions,
-            int bindingTimeout = LanguageService.BindingTimeout,
+            int bindingTimeout = LanguageService.SemanticIntelliSenseTimeout,
             CancellationToken cancellationToken = default)
         {
             AutoCompletionResult result = new AutoCompletionResult();

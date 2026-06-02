@@ -58,6 +58,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int DefaultMinimumConnectionTimeout = 30;
 
+        private const int MetadataFailureThreshold = 3;
+
+        private const int MetadataFailureRetryDelay = 30000;
+
         private readonly ConcurrentDictionary<string, MetadataCircuitState> metadataCircuitStates = new();
 
         /// <summary>
@@ -463,9 +467,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
 
-            IntelliSenseSettings settings = GetIntelliSenseSettings();
-            int threshold = Math.Max(1, settings.MetadataFailureThreshold);
-            int retryDelay = Math.Max(0, settings.MetadataFailureRetryDelay);
+            int threshold = MetadataFailureThreshold;
+            int retryDelay = MetadataFailureRetryDelay;
             DateTime failureTimeUtc = DateTime.UtcNow;
             MetadataCircuitState state = metadataCircuitStates.AddOrUpdate(
                 key,
@@ -512,15 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private int GetMetadataWarmupTimeout()
         {
-            IntelliSenseSettings settings = GetIntelliSenseSettings();
-            return settings.MetadataWarmupTimeout > 0
-                ? settings.MetadataWarmupTimeout
-                : IntelliSenseSettings.DefaultMetadataWarmupTimeout;
-        }
-
-        private IntelliSenseSettings GetIntelliSenseSettings()
-        {
-            return this.CurrentSettings?.SqlTools?.IntelliSense ?? new IntelliSenseSettings();
+            return LanguageService.SemanticIntelliSenseTimeout;
         }
     }
 }

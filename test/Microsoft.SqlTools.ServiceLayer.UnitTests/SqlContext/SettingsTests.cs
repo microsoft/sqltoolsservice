@@ -28,12 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableSuggestions);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo);
-            Assert.That(sqlToolsSettings.SqlTools.IntelliSense.BindingTimeout, Is.EqualTo(IntelliSenseSettings.DefaultBindingTimeout));
-            Assert.That(sqlToolsSettings.SqlTools.IntelliSense.ParserTimeout, Is.EqualTo(IntelliSenseSettings.DefaultParserTimeout));
-            Assert.That(sqlToolsSettings.SqlTools.IntelliSense.MetadataWarmupTimeout, Is.EqualTo(IntelliSenseSettings.DefaultMetadataWarmupTimeout));
-            Assert.That(sqlToolsSettings.SqlTools.IntelliSense.MaxScriptSize, Is.EqualTo(IntelliSenseSettings.DefaultMaxScriptSize));
-            Assert.That(sqlToolsSettings.SqlTools.IntelliSense.MetadataFailureThreshold, Is.EqualTo(IntelliSenseSettings.DefaultMetadataFailureThreshold));
-            Assert.That(sqlToolsSettings.SqlTools.IntelliSense.MetadataFailureRetryDelay, Is.EqualTo(IntelliSenseSettings.DefaultMetadataFailureRetryDelay));
         }
 
         /// <summary>
