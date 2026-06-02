@@ -23,6 +23,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.Common.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
@@ -448,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
             Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
-            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageServiceConstants.OnConnectionWaitTimeoutMs))
             {
                 Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
                 try

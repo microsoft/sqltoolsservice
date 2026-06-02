@@ -31,6 +31,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Common.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using TextCopy;
@@ -1713,8 +1714,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return new QueryExecutionInfo { QueryText = string.Empty };
             }
 
-            LanguageServices.LanguageService.StatementParseInfo statementInfo =
-                LanguageServices.LanguageService.Instance.ParseStatementAtPositionInfo(
+            StatementParseInfo statementInfo =
+                LanguageServices.LanguageService.Instance.ParseStatementSummaryAtPosition(
                     queryFile.Contents, line, column);
 
             if (statementInfo == null)
@@ -1726,10 +1727,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 QueryText = statementInfo.StatementText,
                 ExecutionSelection = new SelectionData(
-                    statementInfo.StatementRange.Start.Line - 1,
-                    statementInfo.StatementRange.Start.Column - 1,
-                    statementInfo.StatementRange.End.Line - 1,
-                    statementInfo.StatementRange.End.Column - 1)
+                    statementInfo.StartLine - 1,
+                    statementInfo.StartColumn - 1,
+                    statementInfo.EndLine - 1,
+                    statementInfo.EndColumn - 1)
             };
         }
 

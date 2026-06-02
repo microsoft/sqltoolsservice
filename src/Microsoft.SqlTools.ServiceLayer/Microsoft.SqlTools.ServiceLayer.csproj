@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
+    <Compile Include="..\Microsoft.SqlTools.LanguageService\LanguageServices\**\*.cs" Link="LanguageServices\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -87,6 +88,7 @@
     <PackageReference Include="Microsoft.SemanticKernel" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../Microsoft.SqlTools.Common/Microsoft.SqlTools.Common.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
@@ -108,6 +110,7 @@
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.LanguageService" />
     <InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>

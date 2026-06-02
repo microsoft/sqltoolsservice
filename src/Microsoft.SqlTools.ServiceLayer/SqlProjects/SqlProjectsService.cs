@@ -18,6 +18,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.Common.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -189,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"{LanguageService.ProjectContextKeyPrefix}{projectUri}";
+                string contextKey = $"{LanguageServiceConstants.ProjectContextKeyPrefix}{projectUri}";
                 string projectDir = Path.GetDirectoryName(UriToLocalPath(new Uri(projectUri)))
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
 
@@ -226,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
                 var parseOptions = new ParseOptions(
-                    batchSeparator: LanguageService.DefaultBatchSeperator,
+                    batchSeparator: LanguageServiceConstants.DefaultBatchSeparator,
                     isQuotedIdentifierSet: true,
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);

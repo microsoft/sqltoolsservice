@@ -2628,6 +2628,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             };
         }
 
+        internal Microsoft.SqlTools.Common.LanguageServices.StatementParseInfo ParseStatementSummaryAtPosition(string sql, int line, int column)
+        {
+            StatementParseInfo info = ParseStatementAtPositionInfo(sql, line, column);
+            if (info == null)
+            {
+                return null;
+            }
+
+            return new Microsoft.SqlTools.Common.LanguageServices.StatementParseInfo
+            {
+                StatementText = info.StatementText,
+                StartLine = info.StatementRange.Start.Line,
+                StartColumn = info.StatementRange.Start.Column,
+                EndLine = info.StatementRange.End.Line,
+                EndColumn = info.StatementRange.End.Column
+            };
+        }
+
         private static SqlStatement GetStatementAtPosition(ParseResult parseResult, int parserLine, int parserColumn)
         {
             if (parseResult?.Script?.Batches == null)
