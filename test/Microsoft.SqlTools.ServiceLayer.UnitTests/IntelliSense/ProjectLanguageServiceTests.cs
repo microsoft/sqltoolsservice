@@ -1445,7 +1445,7 @@ END
             Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
                 $"ListCustomers.sql should appear even if ParseResult was initially null. Found: {string.Join(", ", files)}");
 
-            // ParseResult should now be populated as a side-effect of FindTokenLocationsInFile.
+            // ParseResult should now be populated as a side-effect of FindTokenLocationsInFile (lightweight parse).
             Assert.That(listParseInfo.ParseResult, Is.Not.Null,
                 "ParseResult should be set after HandleReferencesRequest triggers on-demand parse");
         }

@@ -1746,12 +1746,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var parseInfo = GetScriptParseInfo(fileUri);
 
             // If the file has never been opened by the user its ParseResult will be null.
-            // Trigger a parse now — safe because this method runs outside the binding queue.
+            // Use a lightweight parse (no binding) — only token text and positions are needed.
             if (parseInfo != null && parseInfo.ParseResult == null)
             {
                 var sf = CurrentWorkspace.GetFile(fileUri);
                 if (sf != null)
-                    ParseAndBind(sf, null).GetAwaiter().GetResult();
+                    parseInfo.ParseResult = Parser.Parse(sf.Contents, this.DefaultParseOptions);
             }
 
             if (parseInfo?.ParseResult?.Script?.Tokens == null)
