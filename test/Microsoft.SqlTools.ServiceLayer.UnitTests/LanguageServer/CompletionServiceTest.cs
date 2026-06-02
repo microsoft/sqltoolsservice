@@ -61,12 +61,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             var sqlParserWrapper = new Mock<ISqlParserWrapper>();
             sqlParserWrapper.Setup(x => x.FindCompletions(docInfo.ScriptParseInfo.ParseResult, docInfo.ParserLine, docInfo.ParserColumn,
-                It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(LanguageService.SemanticIntelliSenseTimeout + 100)).Returns(declarations);
+                It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(LanguageService.BindingTimeout + 100)).Returns(declarations);
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
             Assert.AreEqual(result.CompletionItems.Length, defaultCompletionList.Length);
+        }
+
+        [Test]
+        public void CompletionItemsShouldCreatedUsingDefaultListIfSqlParserReturnsEmptyList()
+        {
+            ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+            ScriptDocumentInfo docInfo = CreateScriptDocumentInfo();
+            CompletionService completionService = new CompletionService(bindingQueue);
+            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, null);
+            bool useLowerCaseSuggestions = true;
+            List<Declaration> declarations = new List<Declaration>();
+            CompletionItem[] defaultCompletionList = AutoCompleteHelper.GetDefaultCompletionItems(docInfo, useLowerCaseSuggestions);
+
+            var sqlParserWrapper = new Mock<ISqlParserWrapper>();
+            sqlParserWrapper.Setup(x => x.FindCompletions(docInfo.ScriptParseInfo.ParseResult, docInfo.ParserLine, docInfo.ParserColumn,
+                It.IsAny<IMetadataDisplayInfoProvider>())).Returns(declarations);
+            completionService.SqlParserWrapper = sqlParserWrapper.Object;
+
+            AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+
+            Assert.NotNull(result);
+            Assert.AreEqual(defaultCompletionList.Length, result.CompletionItems.Length);
         }
 
         private ScriptDocumentInfo CreateScriptDocumentInfo()

@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     && fileUri.IsFile)
                 {
                     // Client sent a file URI identifier, resolve to a local filesystem path.
-                    filePath = fileUri.LocalPath;
+                    filePath = NormalizeFileUriLocalPath(fileUri);
                 }
 
                 // Get the absolute file path
@@ -145,6 +145,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             Logger.Verbose("Resolved path: " + clientUri);
 
             return new ResolvedFile(filePath, clientUri, canReadFromDisk);
+        }
+
+        private static string NormalizeFileUriLocalPath(Uri fileUri)
+        {
+            string localPath = fileUri.LocalPath;
+            if (Path.DirectorySeparatorChar == '\\'
+                && localPath.Length >= 3
+                && localPath[0] == '/'
+                && char.IsLetter(localPath[1])
+                && localPath[2] == ':')
+            {
+                return localPath.Substring(1);
+            }
+
+            return localPath;
         }
 
          /// <summary>

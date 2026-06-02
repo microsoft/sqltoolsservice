@@ -74,11 +74,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private const int OneSecond = 1000;
 
+        private const int PrepopulateBindTimeout = 60000;
+
         internal const string DefaultBatchSeperator = "GO";
 
         internal const int DiagnosticParseDelay = 750;
 
         internal const int HoverTimeout = 500;
+
+        internal const int BindingTimeout = 500;
 
         internal const int SemanticIntelliSenseTimeout = 2 * OneSecond;
 
@@ -475,13 +479,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ConnectionInfo connInfo = null;
             // Check if we need to refresh the auth token, and if we do then don't pass in the 
             // connection so that we only show the default options until the refreshed token is returned
-            if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+            bool authTokenRefreshRequested = await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri);
+            if (!authTokenRefreshRequested)
             {
                 ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
             }
+
+            Logger.Verbose(
+                $"Completion request for {scriptFile.ClientUri} at line={textDocumentPosition.Position.Line}, " +
+                $"character={textDocumentPosition.Position.Character}; connectionFound={connInfo != null}; " +
+                $"authTokenRefreshRequested={authTokenRefreshRequested}");
             var completionItems = await GetCompletionItems(
                 textDocumentPosition, scriptFile, connInfo, cts.Token);
 
+            Logger.Verbose($"Sending {GetCompletionCount(completionItems)} completion items for {scriptFile.ClientUri}");
             await requestContext.SendResult(completionItems);
         }
 
@@ -1026,12 +1037,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="filePath"></param>
         /// <param name="sqlText"></param>
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
-        public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo, CancellationToken cancellationToken = default)
+        public Task<ParseResult> ParseAndBind(
+            ScriptFile scriptFile,
+            ConnectionInfo connInfo,
+            CancellationToken cancellationToken = default,
+            int? operationTimeout = null)
         {
-            Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
-            int semanticIntelliSenseTimeout = GetSemanticIntelliSenseTimeout();
+            int semanticIntelliSenseTimeout = operationTimeout ?? GetSemanticIntelliSenseTimeout();
+            Logger.Verbose(
+                $"ParseAndBind - {scriptFile}; timeout={semanticIntelliSenseTimeout} ms; ownerUri={connInfo?.OwnerUri ?? "<null>"}; " +
+                $"bindingContextKind={parseInfo.BindingContextKind}; hasConnectionKey={parseInfo.ConnectionKey != null}; " +
+                $"hasParseResult={parseInfo.ParseResult != null}");
 
             if (IsScriptTooLargeForSemanticIntelliSense(scriptFile))
             {
@@ -1056,6 +1074,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // BindingContextKind.None means there is no binding context available.
                         // A ConnectionKey is still required because binding operations are queued through it. 
                         bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProject) && parseInfo.ConnectionKey != null;
+                        Logger.Verbose(
+                            $"ParseAndBind lock acquired for {scriptFile.ClientUri}; hasBindingContext={hasBindingContext}; " +
+                            $"bindingContextKind={parseInfo.BindingContextKind}; hasConnectionKey={parseInfo.ConnectionKey != null}");
 
                         if (!hasBindingContext)
                         {
@@ -1138,6 +1159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                             if (!WaitForQueueItem(queueItem, semanticIntelliSenseTimeout, "ParseAndBind"))
                             {
+                                Logger.Warning($"ParseAndBind queue wait timed out after {semanticIntelliSenseTimeout} ms for {scriptFile.ClientUri}; clearing ParseResult");
                                 parseInfo.ParseResult = null;
                             }
                         }
@@ -1155,9 +1177,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    Logger.Warning("Binding metadata lock timeout in ParseAndBind");
+                    Logger.Warning(
+                        $"Binding metadata lock timeout in ParseAndBind after {semanticIntelliSenseTimeout} ms for {scriptFile.ClientUri}; " +
+                        $"bindingContextKind={parseInfo.BindingContextKind}; hasConnectionKey={parseInfo.ConnectionKey != null}");
                 }
 
+                Logger.Verbose($"ParseAndBind completed for {scriptFile.ClientUri}; hasParseResult={parseInfo.ParseResult != null}");
                 return parseInfo.ParseResult;
             });
         }
@@ -1425,13 +1450,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             int warmupTimeout = GetMetadataWarmupTimeout();
+            Logger.Verbose($"Starting language service metadata warmup for {fileUri} with timeout={warmupTimeout} ms");
             using CancellationTokenSource warmupCancellation = new CancellationTokenSource(warmupTimeout);
-            Task<ParseResult> warmupTask = ParseAndBind(scriptFile, info, warmupCancellation.Token);
+            Task<ParseResult> warmupTask = ParseAndBind(scriptFile, info, warmupCancellation.Token, warmupTimeout);
             Task completedTask = await Task.WhenAny(warmupTask, Task.Delay(warmupTimeout));
             if (completedTask != warmupTask)
             {
                 Logger.Warning($"Language service metadata warmup timed out after {warmupTimeout} ms");
                 warmupCancellation.Cancel();
+            }
+            else
+            {
+                Logger.Verbose($"Language service metadata warmup completed for {fileUri}; hasParseResult={warmupTask.Result != null}");
             }
         }
 
@@ -1473,7 +1503,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private int GetMetadataWarmupTimeout()
         {
-            return GetSemanticIntelliSenseTimeout();
+            return PrepopulateBindTimeout;
         }
 
         private int GetMaxScriptSize()
@@ -1536,7 +1566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        int bindingTimeout = GetSemanticIntelliSenseTimeout();
+                        int bindingTimeout = LanguageService.BindingTimeout;
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: bindingTimeout,
@@ -2099,7 +2129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        int bindingTimeout = GetSemanticIntelliSenseTimeout();
+                        int bindingTimeout = LanguageService.BindingTimeout;
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: bindingTimeout,
@@ -2176,7 +2206,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
             bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase;
-            int bindingTimeout = GetSemanticIntelliSenseTimeout();
+            int bindingTimeout = LanguageService.BindingTimeout;
+            Logger.Verbose(
+                $"GetCompletionItems start for {scriptFile.ClientUri}; position={textDocumentPosition.Position.Line}:{textDocumentPosition.Position.Character}; " +
+                $"bindingTimeout={bindingTimeout} ms; connectionFound={connInfo != null}");
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -2186,7 +2219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ScriptDocumentInfo scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocInfo, useLowerCaseSuggestions);
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocInfo);
-                Logger.Warning("Sending default items because the script exceeds the configured size limit");
+                Logger.Warning($"Sending {GetCompletionCount(resultCompletionItems)} default items because the script exceeds the configured size limit");
                 return resultCompletionItems;
             }
 
@@ -2196,12 +2229,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocInfo);
-                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no ScriptParseInfo was found");
+                Logger.Verbose($"Sending {GetCompletionCount(resultCompletionItems)} default items for {scriptFile.ClientUri} as no ScriptParseInfo was found");
                 return resultCompletionItems;
             }
 
+            bool requiresReparse = RequiresReparse(scriptParseInfo, scriptFile);
+            Logger.Verbose(
+                $"GetCompletionItems parse info for {scriptFile.ClientUri}; bindingContextKind={scriptParseInfo.BindingContextKind}; " +
+                $"hasConnectionKey={scriptParseInfo.ConnectionKey != null}; hasParseResult={scriptParseInfo.ParseResult != null}; " +
+                $"requiresReparse={requiresReparse}");
+
             // reparse and bind the SQL statement if needed
-            if (RequiresReparse(scriptParseInfo, scriptFile))
+            if (requiresReparse)
             {
                 await ParseAndBind(scriptFile, connInfo, cancellationToken);
                 Logger.Verbose($"Reparsed script for {scriptFile.ClientUri} in GetCompletionItems");
@@ -2221,11 +2260,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
-                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as parse result was null");
+                Logger.Verbose($"Sending {GetCompletionCount(resultCompletionItems)} default items for {scriptFile.ClientUri} as parse result was null");
                 return resultCompletionItems;
             }
 
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions, bindingTimeout, cancellationToken);
+            Logger.Verbose($"CreateCompletions returned {GetCompletionCount(result.CompletionItems)} items for {scriptFile.ClientUri}");
 
             // A newer request may have cancelled us while we were in CreateCompletions.
             // Bail out so we don't overwrite currentCompletionParseInfo with stale data.
@@ -2246,9 +2286,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
                 //call completion extensions only for default completion list
                 resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
-                Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no completions were found");
+                Logger.Verbose($"Sending {GetCompletionCount(resultCompletionItems)} default items for {scriptFile.ClientUri} as no completions were found");
             }
 
+            Logger.Verbose($"GetCompletionItems returning {GetCompletionCount(resultCompletionItems)} items for {scriptFile.ClientUri}");
             return resultCompletionItems;
         }
 
@@ -2269,7 +2310,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var cancellationToken = cancellationTokenSource.Token;
                 try
                 {
+                    Logger.Verbose($"Applying completion extension {completionExt.Name} to {GetCompletionCount(resultCompletionItems)} items");
                     resultCompletionItems = await completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, resultCompletionItems, cancellationToken).WithTimeout(CompletionExtTimeout);
+                    Logger.Verbose($"Completion extension {completionExt.Name} returned {GetCompletionCount(resultCompletionItems)} items");
                 }
                 catch (Exception e)
                 {
@@ -2280,6 +2323,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return resultCompletionItems;
+        }
+
+        private static int GetCompletionCount(CompletionItem[] completionItems)
+        {
+            return completionItems?.Length ?? 0;
         }
 
         #endregion

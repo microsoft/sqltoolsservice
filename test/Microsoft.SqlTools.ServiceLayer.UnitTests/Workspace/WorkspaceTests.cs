@@ -219,6 +219,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         }
 
         [Test]
+        public void EncodedWindowsDriveFileUriResolvesToWindowsPath()
+        {
+            RunIfWrapper.RunIfWindows(() =>
+            {
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                ScriptFile file = workspace.GetFileBuffer("file:///c%3A/temp/test.sql", string.Empty);
+
+                Assert.AreEqual(@"c:\temp\test.sql", file.FilePath);
+            });
+        }
+
+        [Test]
         public void DontBindToObjectExplorerConnectEvents()
         {
             // when I ask for a non-file object in the workspace, it should return null
