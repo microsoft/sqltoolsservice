@@ -373,6 +373,23 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             return found;
         }
 
+        /// <summary>
+        /// Resolves an unqualified name to its full schema-qualified name by finding the first
+        /// user-defined object whose last name part matches <paramref name="lastPart"/>
+        /// (case-insensitive). Returns the joined full name (e.g. "dbo.Customers") or
+        /// <c>null</c> if no match is found.
+        /// </summary>
+        public string? FindQualifiedNameByLastPart(string lastPart)
+        {
+            if (string.IsNullOrEmpty(lastPart))
+                return null;
+            var obj = _model.GetObjects(DacQueryScopes.UserDefined)
+                .FirstOrDefault(o =>
+                    o.Name?.Parts != null && o.Name.Parts.Count > 0 &&
+                    string.Equals(o.Name.Parts[o.Name.Parts.Count - 1], lastPart, StringComparison.OrdinalIgnoreCase));
+            return obj?.Name?.Parts != null ? string.Join(".", obj.Name.Parts) : null;
+        }
+
         private static bool TryGetSqlObjectType(ModelTypeClass modelType, out SqlObjectType sqlType)
         {
             if (modelType == ModelSchema.Table)               { sqlType = SqlObjectType.Table;                return true; }

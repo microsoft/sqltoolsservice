@@ -1175,8 +1175,8 @@ END
             "END";
 
         // ListCustomersScript uses an unqualified reference so the tests exercise the
-        // FindCompletions fallback path (no preceding ".") and the DatabaseQualifiedName
-        // db-prefix normalisation loop (e.g. "TestProject.dbo.Customers" → "dbo.Customers").
+        // DacFx model lookup fallback path (no preceding ".") that resolves by last name part
+        // (e.g. bare "Customers" → "dbo.Customers" via FindQualifiedNameByLastPart).
         //
         // ListCustomersScript line layout (0-based):
         //   0: "CREATE PROCEDURE dbo.ListCustomers"
@@ -1387,11 +1387,10 @@ END
             Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
                 $"Customers.sql (table definition) should appear in results. Found: {string.Join(", ", files)}");
 
-            // ── Unqualified name (FindCompletions fallback + DatabaseQualifiedName db-prefix strip) ──
+            // ── Unqualified name (DacFx model lookup fallback) ──
             // Cursor on bare "Customers" in ListCustomers.sql line 4: "    FROM Customers;"
-            // GetPrecedingSchemaPrefix returns null → goes through FindCompletions.
-            // DatabaseQualifiedName (e.g. "TestProject.dbo.Customers") is normalised to "dbo.Customers"
-            // by stripping the leading db-prefix segment before the DacFx lookup.
+            // GetPrecedingSchemaPrefix returns null → FindQualifiedNameByLastPart("Customers")
+            // resolves to "dbo.Customers" directly from the DacFx model.
             WsLocation[] result2 = null;
             var ctx2 = new Mock<RequestContext<WsLocation[]>>();
             ctx2.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
@@ -1406,7 +1405,7 @@ END
                 ctx2.Object);
 
             Assert.That(result2, Is.Not.Null, "Unqualified-name result should not be null");
-            Assert.That(result2, Is.Not.Empty, "Unqualified name should find references via FindCompletions fallback");
+            Assert.That(result2, Is.Not.Empty, "Unqualified name should find references via DacFx model lookup fallback");
             var files2 = result2.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             Assert.That(files2.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
                 $"Customers.sql (table definition) should appear for unqualified name. Found: {string.Join(", ", files2)}");

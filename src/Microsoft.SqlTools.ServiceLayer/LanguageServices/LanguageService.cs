@@ -1662,35 +1662,31 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (string.IsNullOrWhiteSpace(tokenText))
                         return null;
 
-                    // Step 2: reconstruct schema-qualified name
+                    // Step 2: reconstruct schema-qualified name from any preceding dot-separated segments.
                     string schemaPrefix = GetPrecedingSchemaPrefix(
                         scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
                     string qualifiedName = schemaPrefix != null
                         ? $"{schemaPrefix}.{tokenText}"
                         : null;
 
-                    // Fallback: resolve via FindCompletions for unqualified names
-                    if (qualifiedName == null)
+                    // Normalize schema-qualified names: strip leading db-prefix segments until
+                    // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
+                    if (qualifiedName != null)
                     {
-                        var decls = Resolver.FindCompletions(
-                            scriptParseInfo.ParseResult, parserLine, parserCol,
-                            cbc.MetadataDisplayInfoProvider);
-                        var match = decls?.FirstOrDefault(d =>
-                            string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
-
-                        // DatabaseQualifiedName can be db-prefixed (e.g. "master.dbo.Customers").
-                        // DacFx stores names without a database prefix and without brackets: "dbo.Customers".
-                        // Strip leading segments until TryGetSourceInformation recognises the name —
-                        // the same prefix-strip strategy used by TryGetSourceInfoWithFallback in Go-to-Definition.
-                        string? candidate = match?.DatabaseQualifiedName;
-                        while (!string.IsNullOrEmpty(candidate) && !provider.TryGetSourceInformation(candidate, out _))
+                        string? normalized = qualifiedName;
+                        while (!string.IsNullOrEmpty(normalized) && !provider.TryGetSourceInformation(normalized, out _))
                         {
-                            int dot = candidate.IndexOf('.');
-                            if (dot < 0) { candidate = null; break; }
-                            candidate = candidate.Substring(dot + 1);
+                            int dot = normalized.IndexOf('.');
+                            if (dot < 0) { normalized = null; break; }
+                            normalized = normalized.Substring(dot + 1);
                         }
-                        qualifiedName = candidate ?? tokenText;
+                        qualifiedName = string.IsNullOrEmpty(normalized) ? null : normalized;
                     }
+
+                    // Fallback: for unqualified or unresolved names, look up directly in the DacFx
+                    // model by the last name part. This works for project contexts where
+                    // MetadataDisplayInfoProvider is not available (FindCompletions would return nothing).
+                    qualifiedName ??= provider.FindQualifiedNameByLastPart(tokenText) ?? tokenText;
 
                     // Step 3: collect candidate files via DacFx dependency graph
                     var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1748,11 +1744,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // If the file has never been opened by the user its ParseResult will be null.
             // Use a lightweight parse (no binding) — only token text and positions are needed.
+            // Guard with BuildingMetadataLock to avoid racing with concurrent ParseAndBind calls.
             if (parseInfo != null && parseInfo.ParseResult == null)
             {
                 var sf = CurrentWorkspace.GetFile(fileUri);
-                if (sf != null)
-                    parseInfo.ParseResult = Parser.Parse(sf.Contents, this.DefaultParseOptions);
+                if (sf != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+                {
+                    try
+                    {
+                        // Double-checked locking: recheck inside the lock.
+                        parseInfo.ParseResult ??= Parser.Parse(sf.Contents, this.DefaultParseOptions);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(parseInfo.BuildingMetadataLock);
+                    }
+                }
             }
 
             if (parseInfo?.ParseResult?.Script?.Tokens == null)
