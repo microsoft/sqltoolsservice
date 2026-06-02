@@ -11,21 +11,30 @@ using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 {
     /// <summary>
-    /// Provides a server implementation for the standard I/O channel.
-    /// When started in a process, attaches to the console I/O streams
-    /// to communicate with the client that launched the process.
+    /// Provides a stream-based server channel for communicating with a client
+    /// using the JSON-RPC message protocol.
     /// </summary>
-    public class StdioServerChannel : ChannelBase
+    public class ServerChannel : ChannelBase
     {
         private Stream inputStream;
         private Stream outputStream;
 
+        /// <summary>
+        /// Initializes the channel with the given streams. If either stream is not provided,
+        /// falls back to the console standard I/O streams and sets the console encoding to UTF-8.
+        /// </summary>
         protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
         {
 #if !NanoServer
             // Ensure that the console is using UTF-8 encoding
-            System.Console.InputEncoding = Encoding.UTF8;
-            System.Console.OutputEncoding = Encoding.UTF8;
+            if (inputStream == null)
+            {
+                System.Console.InputEncoding = Encoding.UTF8;
+            }
+            if (outputStream == null)
+            {
+                System.Console.OutputEncoding = Encoding.UTF8;
+            }
 #endif
 
             // Open the standard input/output streams
