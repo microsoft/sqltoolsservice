@@ -258,8 +258,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
+
+            // Returns all locations where the symbol under the cursor is referenced (currently supported for SQL project files only; returns empty for connected files).
+            // Parallel safe because each request does a read-only token scan and does not mutate shared language service state.
+            serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest, isParallelProcessingSupported: true);
 
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
@@ -1597,6 +1600,184 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             queueItem.ItemProcessed.WaitOne();
             var result = queueItem.GetResultAsT<DefinitionResult>();
             return result;
+        }
+
+        /// <summary>
+        /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
+        /// under the cursor is referenced across the project.  Only supported for project files
+        /// (offline model); returns an empty result for connected-only scripts.
+        /// </summary>
+        internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
+        {
+            if (ShouldSkipIntellisense(referencesParams.TextDocument.Uri))
+            {
+                await requestContext.SendResult(Array.Empty<Location>());
+                return;
+            }
+
+            var scriptFile = CurrentWorkspace.GetFile(referencesParams.TextDocument.Uri);
+            if (scriptFile == null)
+            {
+                await requestContext.SendResult(Array.Empty<Location>());
+                return;
+            }
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (scriptParseInfo == null || !scriptParseInfo.IsProject)
+            {
+                await requestContext.SendResult(Array.Empty<Location>());
+                return;
+            }
+
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+            }
+
+            // LSP positions are 0-based; SqlParser expects 1-based
+            int parserLine = referencesParams.Position.Line + 1;
+            int parserCol  = referencesParams.Position.Character + 1;
+
+            // Binding queue is used only for name resolution + DacFx graph lookup.
+            // Token scanning runs outside the queue — it only reads cached ParseResult data.
+            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                key: scriptParseInfo.ConnectionKey,
+                bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                bindOperation: (bindingContext, cancelToken) =>
+                {
+                    if (!(bindingContext is ConnectedBindingContext cbc &&
+                          cbc.MetadataProvider is TSqlModelMetadataProvider provider))
+                        return null;
+
+                    // Step 1: get token at cursor
+                    int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserCol) ?? -1;
+                    if (tokenIndex < 0)
+                        return null;
+
+                    var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
+                    if (token == null || !token.IsSignificant)
+                        return null;
+
+                    string tokenText = token.Text?.Trim('[', ']');
+                    if (string.IsNullOrWhiteSpace(tokenText))
+                        return null;
+
+                    // Step 2: reconstruct schema-qualified name
+                    string schemaPrefix = GetPrecedingSchemaPrefix(
+                        scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
+                    string qualifiedName = schemaPrefix != null
+                        ? $"{schemaPrefix}.{tokenText}"
+                        : null;
+
+                    // Fallback: resolve via FindCompletions for unqualified names
+                    if (qualifiedName == null)
+                    {
+                        var decls = Resolver.FindCompletions(
+                            scriptParseInfo.ParseResult, parserLine, parserCol,
+                            cbc.MetadataDisplayInfoProvider);
+                        var match = decls?.FirstOrDefault(d =>
+                            string.Equals(d.Title, tokenText, StringComparison.OrdinalIgnoreCase));
+
+                        // DatabaseQualifiedName can be db-prefixed (e.g. "master.dbo.Customers").
+                        // DacFx stores names without a database prefix and without brackets: "dbo.Customers".
+                        // Strip leading segments until TryGetSourceInformation recognises the name —
+                        // the same prefix-strip strategy used by TryGetSourceInfoWithFallback in Go-to-Definition.
+                        string? candidate = match?.DatabaseQualifiedName;
+                        while (!string.IsNullOrEmpty(candidate) && !provider.TryGetSourceInformation(candidate, out _))
+                        {
+                            int dot = candidate.IndexOf('.');
+                            if (dot < 0) { candidate = null; break; }
+                            candidate = candidate.Substring(dot + 1);
+                        }
+                        qualifiedName = candidate ?? tokenText;
+                    }
+
+                    // Step 3: collect candidate files via DacFx dependency graph
+                    var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    if (provider.TryGetSourceInformation(qualifiedName, out var defInfo) &&
+                        defInfo?.SourceName != null)
+                        candidateFiles.Add(defInfo.SourceName);
+                    foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                        candidateFiles.Add(path);
+
+                    // tokenText is already bracket-stripped (e.g. "Customers", not "[Customers]").
+                    // Use it directly so FindTokenLocationsInFile matches correctly regardless of
+                    // whether qualifiedName came from schema-prefix concatenation or FindCompletions.
+                    return Tuple.Create(tokenText, candidateFiles.ToList());
+                },
+                timeoutOperation: _ => null,
+                errorHandler: ex =>
+                {
+                    Logger.Error($"HandleReferencesRequest error: {ex}");
+                    return null;
+                });
+
+            queueItem.ItemProcessed.WaitOne();
+
+            // Token scanning outside the binding queue — only reads cached ParseResult data.
+            // Tuple.Item1 = bare (bracket-stripped) object name to match against tokens.
+            // Tuple.Item2 = candidate file paths (definition file + all files that reference it).
+            var resolvedData = queueItem.GetResultAsT<Tuple<string, List<string>>>();
+            if (resolvedData == null)
+            {
+                await requestContext.SendResult(Array.Empty<Location>());
+                return;
+            }
+
+            var results = new List<Location>();
+            foreach (string filePath in resolvedData.Item2)
+            {
+                try { results.AddRange(FindTokenLocationsInFile(filePath, resolvedData.Item1)); }
+                catch (Exception ex) { Logger.Verbose($"FindReferences: error scanning '{filePath}': {ex.Message}"); }
+            }
+
+            await requestContext.SendResult(results.ToArray());
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Location"/> for every significant token in <paramref name="filePath"/>
+        /// whose bare text (brackets stripped) matches <paramref name="objectName"/> case-insensitively.
+        /// Uses the cached <see cref="ScriptParseInfo"/> — no re-parsing.
+        /// </summary>
+        private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
+        {
+            // Convert the file path to the URI key used by ScriptParseInfoMap.
+            string fileUri = new Uri(filePath).AbsoluteUri;
+            var parseInfo = GetScriptParseInfo(fileUri);
+
+            // If the file has never been opened by the user its ParseResult will be null.
+            // Trigger a parse now — safe because this method runs outside the binding queue.
+            if (parseInfo != null && parseInfo.ParseResult == null)
+            {
+                var sf = CurrentWorkspace.GetFile(fileUri);
+                if (sf != null)
+                    ParseAndBind(sf, null).GetAwaiter().GetResult();
+            }
+
+            if (parseInfo?.ParseResult?.Script?.Tokens == null)
+                yield break;
+
+            foreach (Token token in parseInfo.ParseResult.Script.Tokens)
+            {
+                // token.IsSignificant is false for whitespace and comments — skip them.
+                if (!token.IsSignificant)
+                    continue;
+
+                string bare = token.Text?.Trim('[', ']');
+                if (!string.Equals(bare, objectName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // StartLocation is 1-based; LSP Position is 0-based.
+                yield return new Location
+                {
+                    Uri = fileUri,
+                    Range = new Workspace.Contracts.Range
+                    {
+                        Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 },
+                        End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 + (token.Text?.Length ?? 0) }
+                    }
+                };
+            }
         }
 
         private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,

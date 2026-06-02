@@ -338,6 +338,41 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             return false;
         }
 
+        /// <summary>
+        /// Returns the <see cref="TSqlObject"/> whose schema-qualified name matches
+        /// <paramref name="qualifiedName"/> (case-insensitive), or <c>null</c> if not found.
+        /// </summary>
+        public TSqlObject? FindObject(string qualifiedName)
+        {
+            if (string.IsNullOrEmpty(qualifiedName))
+                return null;
+            return _model.GetObjects(DacQueryScopes.UserDefined)
+                .FirstOrDefault(o =>
+                    o.Name?.Parts != null &&
+                    string.Join(".", o.Name.Parts).Equals(qualifiedName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Returns the distinct source file paths of all user-defined objects that directly
+        /// reference <paramref name="qualifiedName"/> according to the DacFx dependency graph.
+        /// Returns an empty sequence when the object cannot be resolved in the model.
+        /// </summary>
+        public IEnumerable<string> GetReferencingFilePaths(string qualifiedName)
+        {
+            TSqlObject? target = FindObject(qualifiedName);
+            if (target == null)
+                return Enumerable.Empty<string>();
+
+            var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (TSqlObject dep in target.GetReferencing(DacQueryScopes.UserDefined))
+            {
+                string? path = dep.GetSourceInformation()?.SourceName;
+                if (path != null)
+                    found.Add(path);
+            }
+            return found;
+        }
+
         private static bool TryGetSqlObjectType(ModelTypeClass modelType, out SqlObjectType sqlType)
         {
             if (modelType == ModelSchema.Table)               { sqlType = SqlObjectType.Table;                return true; }
