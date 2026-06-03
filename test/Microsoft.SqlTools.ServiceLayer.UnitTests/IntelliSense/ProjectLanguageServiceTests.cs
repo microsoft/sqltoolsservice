@@ -1497,4 +1497,225 @@ END
         }
 
     }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Rename (textDocument/rename) tests
+    // Verifies HandleRenameRequest builds a WorkspaceEdit from the same
+    // FindProjectSymbolLocations helper that powers Find All References.
+    // ────────────────────────────────────────────────────────────────────────
+    [TestFixture]
+    public class RenameTests
+    {
+        private string _projectPath;
+        private SqlProject _project;
+        private TSqlModel _model;
+        private LanguageService _langService;
+        private WorkspaceService<SqlToolsSettings> _workspaceService;
+        private string _projectUri;
+        private string _contextKey;
+        private string _databaseName;
+        private string _projectDir;
+
+        // Same SQL scripts as FindReferencesTests — identical line/column layout.
+        private const string TableScript =
+            "CREATE TABLE dbo.Customers (\n" +
+            "    CustomerId INT PRIMARY KEY,\n" +
+            "    CustomerName NVARCHAR(100) NOT NULL\n" +
+            ");";
+
+        private const string GetCustomerScript =
+            "CREATE PROCEDURE dbo.GetCustomer\n" +
+            "    @CustomerId INT\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM dbo.Customers\n" +       // line 5, "Customers" starts at char 13
+            "    WHERE CustomerId = @CustomerId;\n" +
+            "END";
+
+        private const string ListCustomersScript =
+            "CREATE PROCEDURE dbo.ListCustomers\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM Customers;\n" +          // line 4, bare "Customers" starts at char 9
+            "END";
+
+        private const string OrdersScript =
+            "CREATE TABLE dbo.Orders (\n" +
+            "    OrderId INT PRIMARY KEY\n" +
+            ");";
+
+        [SetUp]
+        public void SetUp()
+        {
+            _projectPath = ProjectUtils.CreateTestProject("RenameTestProject");
+            _project = SqlProject.OpenProject(_projectPath);
+            _projectDir = Path.GetDirectoryName(_projectPath);
+
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Customers.sql")), TableScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")), GetCustomerScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "ListCustomers.sql")), ListCustomersScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), OrdersScript);
+
+            _model = TSqlModelBuilder.LoadModel(_project);
+            _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
+
+            var metadataProvider = new TSqlModelMetadataProvider(_model, _databaseName);
+            var parseOptions = new ParseOptions(
+                batchSeparator: "GO",
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+
+            _langService = new LanguageService();
+            _workspaceService = new WorkspaceService<SqlToolsSettings>();
+            _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+            _langService.WorkspaceServiceInstance = _workspaceService;
+
+            _projectUri = new Uri(_projectPath).AbsoluteUri;
+            _contextKey = $"project_{_projectUri}";
+
+            _langService.UpdateLanguageServiceOnProjectOpen(
+                _projectUri, metadataProvider, parseOptions, _databaseName)
+                .GetAwaiter().GetResult();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _model?.Dispose();
+            ProjectUtils.DeleteTestProject(_projectPath);
+        }
+
+        private string GetFileUri(string relativeSlashPath)
+        {
+            string abs = Path.Combine(_projectDir, Path.Combine(relativeSlashPath.Split('/')));
+            return new Uri(abs).AbsoluteUri;
+        }
+
+        private void LoadAllFilesIntoWorkspace()
+        {
+            var entries = new[]
+            {
+                (Path: "Tables/Customers.sql",              Content: TableScript),
+                (Path: "Tables/Orders.sql",                  Content: OrdersScript),
+                (Path: "StoredProcedures/GetCustomer.sql",  Content: GetCustomerScript),
+                (Path: "StoredProcedures/ListCustomers.sql", Content: ListCustomersScript),
+            };
+
+            var fileUris = System.Array.ConvertAll(entries, e =>
+            {
+                string uri = GetFileUri(e.Path);
+                _workspaceService.Workspace.GetFileBuffer(uri, e.Content);
+                return uri;
+            });
+
+            _langService.InitializeProjectFileContexts(fileUris, _contextKey, _databaseName);
+        }
+
+        // ── Guard: non-project file returns null WorkspaceEdit ───────────────
+        // The three null-return paths (IntelliSense disabled, file not found, non-project file)
+        // all flow through FindProjectSymbolLocations, which is already exhaustively covered by
+        // the FindReferencesTests guards above. One representative case is sufficient here.
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNull_ForNonProjectFile()
+        {
+            const string queryUri = "file:///test_non_project_rename.sql";
+            _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
+
+            WorkspaceEdit result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<WorkspaceEdit>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WorkspaceEdit>()))
+               .Returns<WorkspaceEdit>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            await _langService.HandleRenameRequest(
+                new RenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    NewName = "dbo.NewName"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Non-project file should return null WorkspaceEdit");
+        }
+
+        // ── Happy path: WorkspaceEdit covers all referencing files, every edit uses the new name ─
+
+        [Test]
+        public async Task HandleRenameRequest_ProducesWorkspaceEditAcrossAllProjectFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string newName = "dbo.Clients";
+
+            WorkspaceEdit result = null;
+            var ctx = new Mock<RequestContext<WorkspaceEdit>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WorkspaceEdit>()))
+               .Returns<WorkspaceEdit>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "Customers" in line 5 of GetCustomer.sql:
+            //   "    FROM dbo.Customers"  — char 15 is inside "Customers" (starts at char 13).
+            await _langService.HandleRenameRequest(
+                new RenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = newName
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "WorkspaceEdit should not be null");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should contain at least one file");
+
+            var files = result.Changes.Keys.ToList();
+            Assert.That(files.Any(f => f.Contains("GetCustomer.sql")), Is.True,
+                $"GetCustomer.sql should be in the edit set. Keys: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
+                $"ListCustomers.sql should be in the edit set. Keys: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should be in the edit set. Keys: {string.Join(", ", files)}");
+
+            var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
+            Assert.That(allEdits.All(e => e.NewText == newName), Is.True,
+                $"Every TextEdit.NewText should equal '{newName}'. Found: {string.Join(", ", allEdits.Select(e => e.NewText).Distinct())}");
+        }
+
+        // ── Regression: unrelated files must not appear in the edit set ───────
+
+        [Test]
+        public async Task HandleRenameRequest_DoesNotIncludeUnrelatedFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            WorkspaceEdit result = null;
+            var ctx = new Mock<RequestContext<WorkspaceEdit>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WorkspaceEdit>()))
+               .Returns<WorkspaceEdit>(r => { result = r; return Task.FromResult(0); });
+
+            // Rename "Customers" — Orders.sql references a completely different table.
+            await _langService.HandleRenameRequest(
+                new RenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = "dbo.Clients"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Changes, Is.Not.Null);
+            Assert.That(result.Changes.Keys.Any(f => f.Contains("Orders.sql")), Is.False,
+                $"Orders.sql should NOT appear when renaming Customers. Keys: {string.Join(", ", result.Changes.Keys)}");
+        }
+
+    }
 }
