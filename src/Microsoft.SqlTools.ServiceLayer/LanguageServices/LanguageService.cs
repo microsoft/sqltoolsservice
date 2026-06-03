@@ -264,6 +264,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Parallel safe: the cursor file is re-parsed under a per-ScriptParseInfo lock when needed; token scanning across candidate files is read-only.
             serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest, isParallelProcessingSupported: true);
 
+            // Renames all occurrences of the symbol under the cursor across the project (SQL project files only).
+            // Parallel safe: shares FindProjectSymbolLocations which is read-only after parse.
+            serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, isParallelProcessingSupported: true);
+
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
             serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest, isParallelProcessingSupported: true);
@@ -1722,6 +1726,38 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 referencesParams.Position.Character);
 
             await requestContext.SendResult(locations ?? Array.Empty<Location>());
+        }
+
+        /// <summary>
+        /// Handles <c>textDocument/rename</c> (F2 rename) for SQL project files.
+        /// Reuses <see cref="FindProjectSymbolLocations"/> to find all occurrences of the symbol,
+        /// then wraps them into a <see cref="WorkspaceEdit"/> so VS Code can apply the rename
+        /// atomically across all files.  Only supported for project files (offline model);
+        /// returns <c>null</c> for connected-only scripts.
+        /// </summary>
+        internal async Task HandleRenameRequest(RenameParams renameParams, RequestContext<WorkspaceEdit> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                renameParams.TextDocument.Uri,
+                renameParams.Position.Line,
+                renameParams.Position.Character);
+
+            if (locations == null)
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Convert Location[] → WorkspaceEdit grouped by file URI.
+            var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var loc in locations)
+            {
+                if (!changes.TryGetValue(loc.Uri, out var edits))
+                    changes[loc.Uri] = edits = new List<TextEdit>();
+                edits.Add(new TextEdit { Range = loc.Range, NewText = renameParams.NewName });
+            }
+
+            await requestContext.SendResult(new WorkspaceEdit { Changes = changes });
         }
 
         /// <summary>

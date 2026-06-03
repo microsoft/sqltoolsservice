@@ -28,6 +28,8 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public bool? DocumentSymbolProvider { get; set; }
 
         public bool? WorkspaceSymbolProvider { get; set; }
+
+        public bool? RenameProvider { get; set; }
     }
 
     /// <summary>
