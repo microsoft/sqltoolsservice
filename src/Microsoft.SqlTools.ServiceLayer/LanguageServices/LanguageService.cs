@@ -1603,31 +1603,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
-        /// under the cursor is referenced across the project.  Only supported for project files
-        /// (offline model); returns an empty result for connected-only scripts.
+        /// Core resolution logic shared by <see cref="HandleReferencesRequest"/> and
+        /// <see cref="HandleRenameRequest"/>.  Resolves every <see cref="Location"/> in the project
+        /// that matches the symbol at the given cursor position.
+        /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
+        /// project file.  Returns an empty array when the symbol could not be resolved.
         /// </summary>
-        internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
+        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
         {
-            if (ShouldSkipIntellisense(referencesParams.TextDocument.Uri))
-            {
-                await requestContext.SendResult(Array.Empty<Location>());
-                return;
-            }
+            if (ShouldSkipIntellisense(fileUri))
+                return null;
 
-            var scriptFile = CurrentWorkspace.GetFile(referencesParams.TextDocument.Uri);
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
             if (scriptFile == null)
-            {
-                await requestContext.SendResult(Array.Empty<Location>());
-                return;
-            }
+                return null;
 
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo == null || !scriptParseInfo.IsProject)
-            {
-                await requestContext.SendResult(Array.Empty<Location>());
-                return;
-            }
+                return null;
 
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
@@ -1635,8 +1628,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // LSP positions are 0-based; SqlParser expects 1-based
-            int parserLine = referencesParams.Position.Line + 1;
-            int parserCol  = referencesParams.Position.Character + 1;
+            int parserLine = line0 + 1;
+            int parserCol  = col0 + 1;
 
             // Binding queue is used only for name resolution + DacFx graph lookup.
             // Token scanning runs outside the queue — it only reads cached ParseResult data.
@@ -1704,30 +1697,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 timeoutOperation: _ => null,
                 errorHandler: ex =>
                 {
-                    Logger.Error($"HandleReferencesRequest error: {ex}");
+                    Logger.Error($"FindProjectSymbolLocations error: {ex}");
                     return null;
                 });
 
             queueItem.ItemProcessed.WaitOne();
 
-            // Token scanning outside the binding queue — only reads cached ParseResult data.
             // Tuple.Item1 = bare (bracket-stripped) object name to match against tokens.
             // Tuple.Item2 = candidate file paths (definition file + all files that reference it).
             var resolvedData = queueItem.GetResultAsT<Tuple<string, List<string>>>();
             if (resolvedData == null)
-            {
-                await requestContext.SendResult(Array.Empty<Location>());
-                return;
-            }
+                return Array.Empty<Location>();
 
             var results = new List<Location>();
             foreach (string filePath in resolvedData.Item2)
             {
                 try { results.AddRange(FindTokenLocationsInFile(filePath, resolvedData.Item1)); }
-                catch (Exception ex) { Logger.Verbose($"FindReferences: error scanning '{filePath}': {ex.Message}"); }
+                catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
             }
 
-            await requestContext.SendResult(results.ToArray());
+            return results.ToArray();
+        }
+
+        /// <summary>
+        /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
+        /// under the cursor is referenced across the project.  Only supported for project files
+        /// (offline model); returns an empty result for connected-only scripts.
+        /// </summary>
+        internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                referencesParams.TextDocument.Uri,
+                referencesParams.Position.Line,
+                referencesParams.Position.Character);
+
+            await requestContext.SendResult(locations ?? Array.Empty<Location>());
         }
 
         /// <summary>
