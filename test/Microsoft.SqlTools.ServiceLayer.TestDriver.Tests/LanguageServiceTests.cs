@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
+using Position = Microsoft.VisualStudio.LanguageServer.Protocol.Position;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {

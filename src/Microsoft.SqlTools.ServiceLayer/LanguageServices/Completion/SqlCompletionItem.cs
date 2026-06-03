@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             var item = CreateCompletionItem(Label, Detail, InsertText, Kind, row, startColumn, endColumn);
             if (_isSnippet)
             {
-                item.InsertTextFormat = Contracts.InsertTextFormat.Snippet;
+                item.InsertTextFormat = InsertTextFormat.Snippet;
             }
             return item;
         }

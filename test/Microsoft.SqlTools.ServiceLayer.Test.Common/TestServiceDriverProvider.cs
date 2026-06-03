@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
+using Position = Microsoft.VisualStudio.LanguageServer.Protocol.Position;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;

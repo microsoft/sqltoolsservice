@@ -10,13 +10,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
 {
-    public class MarkedString
-    {
-        public string Language { get; set; }
-
-        public string Value { get; set; }
-    }
-
     public class Hover
     {
         public MarkedString[] Contents { get; set; }

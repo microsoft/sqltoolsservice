@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Position = Microsoft.VisualStudio.LanguageServer.Protocol.Position;
 using Xunit;
 using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 

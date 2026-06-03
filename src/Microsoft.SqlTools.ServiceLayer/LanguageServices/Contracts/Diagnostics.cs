@@ -27,29 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public Diagnostic[] Diagnostics { get; set; }
     }
 
-    public enum DiagnosticSeverity 
-    {
-        /// <summary>
-        /// Indicates that the diagnostic represents an error.
-        /// </summary>
-        Error = 1,
-
-        /// <summary>
-        /// Indicates that the diagnostic represents a warning.
-        /// </summary>
-        Warning = 2,
-
-        /// <summary>
-        /// Indicates that the diagnostic represents an informational message.
-        /// </summary>
-        Information = 3,
-
-        /// <summary>
-        /// Indicates that the diagnostic represents a hint.
-        /// </summary>
-        Hint = 4
-    }
-
     public class Diagnostic
     {
         public Range Range { get; set; }

@@ -82,6 +82,7 @@
       <Aliases>ASAScriptDom</Aliases>
     </PackageReference>
     <PackageReference Include="TextCopy" />
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" />
   </ItemGroup>
   <ItemGroup Label="Package references">
     <PackageReference Include="Microsoft.SemanticKernel" />

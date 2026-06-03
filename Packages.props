@@ -72,6 +72,7 @@
     <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.5" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.15.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Update="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
   </ItemGroup>
 
   <!-- The following packages always need to be updated to the current .NET SDK version. -->
