@@ -91,10 +91,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool IsAzureAuth { get; set; }
 
         /// <summary>
-        /// Delegate to fetches a fresh Azure access token from the client via <c>account/securityTokenRequest</c>.
+        /// Delegate to fetch a fresh Azure access token from the client via <c>account/securityTokenRequest</c>
+        /// for a given target <c>resource</c> URI (e.g. <c>https://database.windows.net/</c> for SQL or
+        /// <c>https://&lt;org&gt;.crm.dynamics.com/</c> for a Dataverse TDS endpoint).
         /// Only used when RequestMfaTokenFromClient is enabled.
         /// </summary>
-        public Func<Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
+        public Func<string, Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
 
         /// <summary>
         /// Returns the connection Engine Edition

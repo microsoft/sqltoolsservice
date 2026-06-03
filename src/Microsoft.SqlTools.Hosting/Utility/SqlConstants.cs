@@ -22,5 +22,12 @@ namespace Microsoft.SqlTools.Utility
         public const string AzureTokenFolder = "Azure Accounts";
         public const string AzureAccountProviderCredentials = "azureAccountProviderCredentials";
         public const string MsalCacheName = "accessTokenCache";
+
+        /// <summary>
+        /// Default Entra resource URI for Azure SQL Database / Azure SQL Managed Instance.
+        /// Used as a fallback when a more specific resource isn't available from the calling context
+        /// (e.g. SMO's <c>IRenewableToken.GetAccessToken()</c>, which has no per-call resource parameter).
+        /// </summary>
+        public const string AzureSqlResource = "https://database.windows.net/";
     }
 }

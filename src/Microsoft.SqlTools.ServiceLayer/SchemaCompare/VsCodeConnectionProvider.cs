@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             if (connInfo.AzureTokenFetcher != null)
             {
                 var fetcher = connInfo.AzureTokenFetcher;
-                return new AccessTokenProvider(() => fetcher().GetAwaiter().GetResult().token);
+                return new AccessTokenProvider(() => fetcher(AzureSqlResource).GetAwaiter().GetResult().token);
             }
 
             if (connInfo.ConnectionDetails.AzureAccountToken != null)

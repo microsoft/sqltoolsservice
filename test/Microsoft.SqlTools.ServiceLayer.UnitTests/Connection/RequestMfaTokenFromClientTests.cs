@@ -32,8 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 #region Test helpers    
         private static readonly DateTimeOffset FarFuture = DateTimeOffset.UtcNow.AddHours(1);
 
-        private static Func<Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher(string token = "fake-token")
-            => () => Task.FromResult((token, FarFuture));
+        private static Func<string, Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher(string token = "fake-token")
+            => _ => Task.FromResult((token, FarFuture));
 
         /// <summary>
         /// Factory that creates real ReliableSqlConnections and exposes the last one created,
