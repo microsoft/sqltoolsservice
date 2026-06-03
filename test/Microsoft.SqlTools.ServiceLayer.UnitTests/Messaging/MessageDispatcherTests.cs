@@ -7,18 +7,35 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.Utility;
 using Moq;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     public class MessageDispatcherTests
     {
+        private sealed class TestMessageDispatcher : MessageDispatcher
+        {
+            public TestMessageDispatcher(ChannelBase protocolChannel) : base(protocolChannel)
+            {
+            }
+
+            public Task DispatchForTest(Message message, MessageWriter messageWriter)
+            {
+                return DispatchMessage(message, messageWriter);
+            }
+        }
+
         [Test]
         public void SetRequestHandlerWithOverrideTest()
         {           
@@ -100,6 +117,118 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             // In order to make this test stable on machines with poor hardware / few logical cores, 
             // we loose the assertion by only checking parallel process being faster than sequential processing.
             Assert.IsTrue(GetTimeToHandleRequests(false, numOfRequests, msForEachRequest) > GetTimeToHandleRequests(true, numOfRequests, msForEachRequest));
+        }
+
+        [Test]
+        public async Task DispatchMessageAddsOperationContextToRequestHandler()
+        {
+            TestLogger testLogger = new TestLogger()
+            {
+                TraceSource = nameof(DispatchMessageAddsOperationContextToRequestHandler),
+                TracingLevel = SourceLevels.Verbose,
+            };
+            testLogger.Initialize();
+            RequestType<JObject, JObject> requestType = RequestType<JObject, JObject>.Create("query/executeString");
+            var dispatcher = new TestMessageDispatcher(new Mock<ChannelBase>().Object);
+            LogOperationContext observedContext = null;
+
+            dispatcher.SetRequestHandler<JObject, JObject>(
+                requestType,
+                (parameters, context) =>
+                {
+                    observedContext = Logger.CurrentOperationContext;
+                    Logger.Verbose("Handler saw operation context");
+                    return Task.CompletedTask;
+                });
+
+            await dispatcher.DispatchForTest(
+                Message.Request(
+                    "123",
+                    requestType.MethodName,
+                    JObject.FromObject(new { ownerUri = "file:///c:/query.sql" })),
+                new MessageWriter(new MemoryStream(), new V8MessageSerializer()));
+
+            Logger.Flush();
+            string contents = testLogger.LogContents;
+            Assert.NotNull(observedContext);
+            Assert.AreEqual("queryExecution", observedContext.Service);
+            Assert.AreEqual("query/executeString", observedContext.RpcMethod);
+            Assert.AreEqual("123", observedContext.RpcId);
+            Assert.AreEqual("Request", observedContext.RpcType);
+            Assert.NotNull(observedContext.FlowId);
+            Assert.True(contents.Contains("service:queryExecution rpcMethod:query/executeString"));
+            Assert.True(contents.Contains("Operation start"));
+            Assert.True(contents.Contains("status:success"));
+            Assert.True(contents.Contains("Handler saw operation context"));
+            Assert.Null(Logger.CurrentOperationContext);
+            testLogger.Cleanup();
+        }
+
+        [Test]
+        public async Task DispatchMessagePreservesOperationContextForParallelHandler()
+        {
+            TestLogger testLogger = new TestLogger()
+            {
+                TraceSource = nameof(DispatchMessagePreservesOperationContextForParallelHandler),
+                TracingLevel = SourceLevels.Verbose,
+            };
+            testLogger.Initialize();
+            RequestType<JObject, JObject> requestType = RequestType<JObject, JObject>.Create("connection/connect");
+            var dispatcher = new TestMessageDispatcher(new Mock<ChannelBase>().Object)
+            {
+                ParallelMessageProcessing = true,
+            };
+            var observedContext = new TaskCompletionSource<LogOperationContext>();
+
+            dispatcher.SetRequestHandler<JObject, JObject>(
+                requestType,
+                (parameters, context) =>
+                {
+                    observedContext.SetResult(Logger.CurrentOperationContext);
+                    return Task.CompletedTask;
+                },
+                false,
+                true);
+
+            await dispatcher.DispatchForTest(
+                Message.Request(
+                    "456",
+                    requestType.MethodName,
+                    JObject.FromObject(new { ownerUri = "file:///c:/connect.sql" })),
+                new MessageWriter(new MemoryStream(), new V8MessageSerializer()));
+
+            var completedTask = await Task.WhenAny(observedContext.Task, Task.Delay(5_000));
+            Assert.AreSame(observedContext.Task, completedTask);
+            Assert.AreEqual("connection", observedContext.Task.Result.Service);
+            Assert.AreEqual("connection/connect", observedContext.Task.Result.RpcMethod);
+            await WaitForLogFileContent(Logger.LogFileFullPath, "status:success");
+            Assert.Null(Logger.CurrentOperationContext);
+            testLogger.Cleanup();
+        }
+
+        private static async Task WaitForLogFileContent(string logFilePath, string expectedContent)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                Logger.Flush();
+                if (File.Exists(logFilePath) && ReadAllTextShared(logFilePath).Contains(expectedContent))
+                {
+                    return;
+                }
+
+                await Task.Delay(100);
+            }
+
+            Assert.Fail($"Timed out waiting for log content: {expectedContent}");
+        }
+
+        private static string ReadAllTextShared(string logFilePath)
+        {
+            using (var stream = new FileStream(logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
         }
 
 

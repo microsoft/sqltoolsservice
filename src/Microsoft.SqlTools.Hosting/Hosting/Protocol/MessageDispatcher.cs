@@ -5,13 +5,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {
@@ -41,6 +46,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             new CancellationTokenSource();
 
         private SemaphoreSlim semaphore;
+
+        private static long operationSequence;
         #endregion
 
         #region Properties
@@ -140,6 +147,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
                 {
+                    var operationStopwatch = Stopwatch.StartNew();
+                    Logger.Verbose("Operation start");
                     Logger.Verbose($"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     var requestContext =
                         new RequestContext<TResult>(
@@ -162,9 +171,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
                         await requestHandler(typedParams, requestContext);
                         Logger.Verbose($"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
+                        operationStopwatch.Stop();
+                        Logger.Verbose($"Operation finish durationMs:{operationStopwatch.ElapsedMilliseconds} status:success");
                     }
                     catch (Exception ex)
                     {
+                        operationStopwatch.Stop();
+                        Logger.Error($"Operation finish durationMs:{operationStopwatch.ElapsedMilliseconds} status:error");
                         Logger.Error($"{requestType.MethodName} : {ex.GetFullErrorMessage(true)}");
                         await requestContext.SendError(ex.GetFullErrorMessage());
                     }
@@ -198,6 +211,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventType.MethodName,
                 async (eventMessage, messageWriter) =>
                 {
+                    var operationStopwatch = Stopwatch.StartNew();
+                    Logger.Verbose("Operation start");
                     Logger.Verbose($"Processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     var eventContext = new EventContext(messageWriter);
                     TParams typedParams = default(TParams);
@@ -216,9 +231,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         }
                         await eventHandler(typedParams, eventContext);
                         Logger.Verbose($"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
+                        operationStopwatch.Stop();
+                        Logger.Verbose($"Operation finish durationMs:{operationStopwatch.ElapsedMilliseconds} status:success");
                     }
                     catch (Exception ex)
                     {
+                        operationStopwatch.Stop();
+                        Logger.Error($"Operation finish durationMs:{operationStopwatch.ElapsedMilliseconds} status:error");
                         // There's nothing on the client side to send an error back to so just log the error and move on
                         Logger.Error($"{eventType.MethodName} : {ex}");
                     }
@@ -291,13 +310,29 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 // previous message.  In this case, do not try to dispatch it.
                 if (newMessage != null)
                 {
-                    // Verbose logging
-                    string logMessage =
-                        $"Received message with id[{newMessage.Id}], of type[{newMessage.MessageType}] and method[{newMessage.Method}]";
-                    Logger.Verbose(logMessage);
+                    if (ShouldCreateOperationContext(newMessage))
+                    {
+                        using (Logger.BeginOperationScope(CreateOperationContext(newMessage)))
+                        {
+                            // Verbose logging
+                            string logMessage =
+                                $"Received message with id[{newMessage.Id}], of type[{newMessage.MessageType}] and method[{newMessage.Method}]";
+                            Logger.Verbose(logMessage);
 
-                    // Process the message
-                    await this.DispatchMessage(newMessage, this.MessageWriter);
+                            // Process the message
+                            await this.DispatchMessage(newMessage, this.MessageWriter);
+                        }
+                    }
+                    else
+                    {
+                        // Verbose logging
+                        string logMessage =
+                            $"Received message with id[{newMessage.Id}], of type[{newMessage.MessageType}] and method[{newMessage.Method}]";
+                        Logger.Verbose(logMessage);
+
+                        // Process the message
+                        await this.DispatchMessage(newMessage, this.MessageWriter);
+                    }
                 }
             }
         }
@@ -333,13 +368,32 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
+                var operationContext = Logger.CurrentOperationContext;
+                IDisposable operationScope = null;
+                if (operationContext == null && ShouldCreateOperationContext(messageToDispatch))
+                {
+                    operationContext = CreateOperationContext(messageToDispatch);
+                    operationScope = Logger.BeginOperationScope(operationContext);
+                }
+
                 try
                 {
                     if (this.ParallelMessageProcessing && isParallelProcessingSupported)
                     {
+                        var capturedOperationContext = operationContext;
                         _ = Task.Run(async () =>
                         {
-                            await handlerToAwait(messageToDispatch, messageWriter);
+                            if (capturedOperationContext != null)
+                            {
+                                using (Logger.BeginOperationScope(capturedOperationContext))
+                                {
+                                    await handlerToAwait(messageToDispatch, messageWriter);
+                                }
+                            }
+                            else
+                            {
+                                await handlerToAwait(messageToDispatch, messageWriter);
+                            }
                         });
                     }
                     else
@@ -361,7 +415,296 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
                     }
                 }
+                finally
+                {
+                    operationScope?.Dispose();
+                }
             }
+        }
+
+        private static bool ShouldCreateOperationContext(Message message)
+        {
+            return message?.MessageType == MessageType.Request || message?.MessageType == MessageType.Event;
+        }
+
+        private static LogOperationContext CreateOperationContext(Message message)
+        {
+            return new LogOperationContext(
+                operationId: CreateOperationId(),
+                service: DeriveService(message.Method),
+                rpcMethod: message.Method,
+                rpcId: message.Id,
+                rpcType: message.MessageType.ToString(),
+                flowId: CreateFlowId(message.Contents));
+        }
+
+        private static string CreateOperationId()
+        {
+            var sequence = Interlocked.Increment(ref operationSequence);
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "op-{0}-{1}",
+                DateTime.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture),
+                sequence);
+        }
+
+        private static string DeriveService(string method)
+        {
+            if (string.IsNullOrWhiteSpace(method))
+            {
+                return "serviceHost";
+            }
+
+            var normalized = method.ToLowerInvariant();
+            if (normalized.StartsWith("connection/", StringComparison.Ordinal))
+            {
+                return "connection";
+            }
+            if (string.Equals(normalized, "query/syntaxparse", StringComparison.Ordinal))
+            {
+                return "languageService";
+            }
+            if (normalized.StartsWith("query/", StringComparison.Ordinal))
+            {
+                return "queryExecution";
+            }
+            if (normalized.StartsWith("queryexecutionplan/", StringComparison.Ordinal))
+            {
+                return "queryExecutionPlan";
+            }
+            if (IsWorkspaceDocumentMethod(normalized)
+                || string.Equals(normalized, "workspace/didchangeconfiguration", StringComparison.Ordinal))
+            {
+                return "workspace";
+            }
+            if (normalized.StartsWith("textdocument/", StringComparison.Ordinal)
+                || string.Equals(normalized, "workspace/symbol", StringComparison.Ordinal)
+                || normalized.StartsWith("completion", StringComparison.Ordinal)
+                || normalized.StartsWith("completionitem", StringComparison.Ordinal)
+                || normalized.StartsWith("languageextension/", StringComparison.Ordinal)
+                || normalized.StartsWith("sqltools/", StringComparison.Ordinal))
+            {
+                return "languageService";
+            }
+            if (normalized.StartsWith("objectexplorer/", StringComparison.Ordinal))
+            {
+                return "objectExplorer";
+            }
+            if (normalized.StartsWith("objectmanagement/", StringComparison.Ordinal))
+            {
+                return "objectManagement";
+            }
+            if (normalized.StartsWith("profiler/", StringComparison.Ordinal))
+            {
+                return "profiler";
+            }
+            if (normalized.StartsWith("schemacompare/", StringComparison.Ordinal))
+            {
+                return "schemaCompare";
+            }
+            if (normalized.StartsWith("schemadesigner/", StringComparison.Ordinal))
+            {
+                return "schemaDesigner";
+            }
+            if (normalized.StartsWith("tabledesigner/", StringComparison.Ordinal))
+            {
+                return "tableDesigner";
+            }
+            if (normalized.StartsWith("flatfile/", StringComparison.Ordinal))
+            {
+                return "flatFileImport";
+            }
+            if (normalized.StartsWith("filebrowser/", StringComparison.Ordinal))
+            {
+                return "fileBrowser";
+            }
+            if (normalized.StartsWith("cms/", StringComparison.Ordinal))
+            {
+                return "centralManagementServer";
+            }
+            if (normalized.StartsWith("account/", StringComparison.Ordinal))
+            {
+                return "authentication";
+            }
+            if (normalized.StartsWith("azurefunctions/", StringComparison.Ordinal))
+            {
+                return "azureFunctions";
+            }
+            if (normalized.StartsWith("notebookconvert/", StringComparison.Ordinal))
+            {
+                return "notebookConversion";
+            }
+            if (normalized.StartsWith("sqlpackage/", StringComparison.Ordinal))
+            {
+                return "sqlPackage";
+            }
+            if (normalized.StartsWith("dacfx/", StringComparison.Ordinal))
+            {
+                return "dacFx";
+            }
+            if (normalized.StartsWith("blob/", StringComparison.Ordinal))
+            {
+                return "azureBlob";
+            }
+            if (normalized.StartsWith("sqlprojects/", StringComparison.Ordinal))
+            {
+                return "sqlProjects";
+            }
+            if (normalized.StartsWith("admin/", StringComparison.Ordinal))
+            {
+                return "admin";
+            }
+            if (normalized.StartsWith("agent/", StringComparison.Ordinal))
+            {
+                return "agent";
+            }
+            if (normalized.StartsWith("assessment/", StringComparison.Ordinal))
+            {
+                return "assessment";
+            }
+            if (normalized.StartsWith("backup/", StringComparison.Ordinal))
+            {
+                return "backup";
+            }
+            if (normalized.StartsWith("restore/", StringComparison.Ordinal))
+            {
+                return "restore";
+            }
+            if (normalized.StartsWith("querystore/", StringComparison.Ordinal))
+            {
+                return "queryStore";
+            }
+            if (normalized.StartsWith("edit/", StringComparison.Ordinal))
+            {
+                return "editData";
+            }
+            if (normalized.StartsWith("metadata/", StringComparison.Ordinal))
+            {
+                return "metadata";
+            }
+            if (normalized.StartsWith("models/", StringComparison.Ordinal))
+            {
+                return "modelManagement";
+            }
+            if (normalized.StartsWith("scripting/", StringComparison.Ordinal))
+            {
+                return "scripting";
+            }
+            if (normalized.StartsWith("serialize/", StringComparison.Ordinal))
+            {
+                return "serialization";
+            }
+            if (normalized.StartsWith("tasks/", StringComparison.Ordinal))
+            {
+                return "tasks";
+            }
+            if (normalized.StartsWith("telemetry/", StringComparison.Ordinal))
+            {
+                return "telemetry";
+            }
+            if (string.Equals(normalized, "initialize", StringComparison.Ordinal)
+                || string.Equals(normalized, "version", StringComparison.Ordinal)
+                || string.Equals(normalized, "shutdown", StringComparison.Ordinal)
+                || string.Equals(normalized, "exit", StringComparison.Ordinal)
+                || normalized.StartsWith("hosting/", StringComparison.Ordinal)
+                || normalized.StartsWith("capabilities/", StringComparison.Ordinal))
+            {
+                return "serviceHost";
+            }
+
+            return "serviceHost";
+        }
+
+        private static bool IsWorkspaceDocumentMethod(string normalizedMethod)
+        {
+            return string.Equals(normalizedMethod, "textdocument/didopen", StringComparison.Ordinal)
+                || string.Equals(normalizedMethod, "textdocument/didchange", StringComparison.Ordinal)
+                || string.Equals(normalizedMethod, "textdocument/didsave", StringComparison.Ordinal)
+                || string.Equals(normalizedMethod, "textdocument/didclose", StringComparison.Ordinal);
+        }
+
+        private static string CreateFlowId(JToken contents)
+        {
+            var flowSource = FindFirstStringProperty(
+                contents,
+                "ownerUri",
+                "OwnerUri",
+                "uri",
+                "Uri",
+                "sessionId",
+                "SessionId",
+                "connectionId",
+                "ConnectionId",
+                "contextId",
+                "ContextId");
+
+            return string.IsNullOrWhiteSpace(flowSource) ? null : $"resource:{HashValue(flowSource)}";
+        }
+
+        private static string FindFirstStringProperty(JToken token, params string[] propertyNames)
+        {
+            if (token == null)
+            {
+                return null;
+            }
+
+            if (token is JObject obj)
+            {
+                foreach (var propertyName in propertyNames)
+                {
+                    if (obj.TryGetValue(propertyName, StringComparison.OrdinalIgnoreCase, out JToken value)
+                        && value.Type != JTokenType.Null)
+                    {
+                        return value.Type == JTokenType.String ? value.Value<string>() : value.ToString();
+                    }
+                }
+
+                foreach (var property in obj.Properties())
+                {
+                    var nested = FindFirstStringProperty(property.Value, propertyNames);
+                    if (!string.IsNullOrWhiteSpace(nested))
+                    {
+                        return nested;
+                    }
+                }
+            }
+            else if (token is JArray array)
+            {
+                foreach (var item in array)
+                {
+                    var nested = FindFirstStringProperty(item, propertyNames);
+                    if (!string.IsNullOrWhiteSpace(nested))
+                    {
+                        return nested;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static string HashValue(string value)
+        {
+#if NET6_0_OR_GREATER
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+#else
+            byte[] hash;
+            using (var sha256 = SHA256.Create())
+            {
+                hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(value));
+            }
+#endif
+            return HashBytesToString(hash);
+        }
+
+        private static string HashBytesToString(byte[] hash)
+        {
+            var builder = new StringBuilder(16);
+            for (int i = 0; i < 8 && i < hash.Length; i++)
+            {
+                builder.Append(hash[i].ToString("x2", CultureInfo.InvariantCulture));
+            }
+            return builder.ToString();
         }
 
         internal void OnListenTaskCompleted(Task listenTask)

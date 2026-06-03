@@ -37,8 +37,16 @@ namespace Microsoft.SqlTools.Utility
         public const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
         private static string? logFileFullPath;
+        private static readonly AsyncLocal<LogOperationContext?> currentOperationContext = new AsyncLocal<LogOperationContext?>();
 
         public static TraceSource? TraceSource { get; set; }
+
+        public static LogOperationContext? CurrentOperationContext => currentOperationContext.Value;
+
+        public static IDisposable BeginOperationScope(LogOperationContext operationContext)
+        {
+            return new LogOperationScope(operationContext);
+        }
 
         public static string LogFileFullPath
         {
@@ -357,6 +365,8 @@ namespace Microsoft.SqlTools.Utility
             LogEvent logEvent,
             string logMessage)
         {
+            logMessage = ApplyOperationContext(logMessage);
+
             // If logger is initialized then use TraceSource else use Trace
             if (TraceSource != null)
             {
@@ -397,6 +407,34 @@ namespace Microsoft.SqlTools.Utility
             if (AutoFlush)
             {
                 Flush();
+            }
+        }
+
+        private static string ApplyOperationContext(string logMessage)
+        {
+            var operationContext = CurrentOperationContext;
+            if (operationContext == null)
+            {
+                return logMessage;
+            }
+
+            var prefix = operationContext.ToLogPrefix();
+            return string.IsNullOrWhiteSpace(prefix) ? logMessage : $"{prefix} {logMessage}";
+        }
+
+        private sealed class LogOperationScope : IDisposable
+        {
+            private readonly LogOperationContext? previousContext;
+
+            public LogOperationScope(LogOperationContext operationContext)
+            {
+                previousContext = currentOperationContext.Value;
+                currentOperationContext.Value = operationContext;
+            }
+
+            public void Dispose()
+            {
+                currentOperationContext.Value = previousContext;
             }
         }
     }

@@ -247,6 +247,40 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         }
 
         /// <summary>
+        /// Test to verify operation metadata is added only while the scope is active.
+        /// </summary>
+        [Test]
+        public void LoggerOperationScopePrefixesAndRestores()
+        {
+            TestLogger test = new TestLogger()
+            {
+                TraceSource = MethodInfo.GetCurrentMethod().Name,
+                TracingLevel = SourceLevels.Information,
+            };
+
+            test.Initialize();
+            using (Logger.BeginOperationScope(new LogOperationContext("op-test", "queryExecution", "query/executeString", "7", "Request", "resource:abc")))
+            {
+                Logger.Information("Scoped message");
+                using (Logger.BeginOperationScope(new LogOperationContext("op-inner", "connection", "connection/connect", "8", "Request", "resource:def")))
+                {
+                    Logger.Information("Nested message");
+                }
+                Logger.Information("Scoped message after nested scope");
+            }
+            Logger.Information("Unscoped message");
+
+            Logger.Flush();
+            string contents = test.LogContents;
+            Assert.True(contents.Contains("operationId:op-test service:queryExecution rpcMethod:query/executeString rpcId:7 rpcType:Request flowId:resource:abc Scoped message"));
+            Assert.True(contents.Contains("operationId:op-inner service:connection rpcMethod:connection/connect rpcId:8 rpcType:Request flowId:resource:def Nested message"));
+            Assert.True(contents.Contains("operationId:op-test service:queryExecution rpcMethod:query/executeString rpcId:7 rpcType:Request flowId:resource:abc Scoped message after nested scope"));
+            Assert.True(contents.Contains("Unscoped message"));
+            Assert.False(contents.Contains("operationId:op-test service:queryExecution rpcMethod:query/executeString rpcId:7 rpcType:Request flowId:resource:abc Unscoped message"));
+            test.Cleanup();
+        }
+
+        /// <summary>
         /// No TraceSource test to verify that WriteWithCallstack() method turns on the callstack logging
         /// </summary>
         [Test]
