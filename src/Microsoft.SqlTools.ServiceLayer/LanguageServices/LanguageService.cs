@@ -1603,8 +1603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Core resolution logic shared by <see cref="HandleReferencesRequest"/> and
-        /// <see cref="HandleRenameRequest"/>.  Resolves every <see cref="Location"/> in the project
+        /// Core resolution logic for <see cref="HandleReferencesRequest"/>.  Resolves every <see cref="Location"/> in the project
         /// that matches the symbol at the given cursor position.
         /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
         /// project file.  Returns an empty array when the symbol could not be resolved.
@@ -1631,81 +1630,76 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int parserLine = line0 + 1;
             int parserCol  = col0 + 1;
 
-            // Binding queue is used only for name resolution + DacFx graph lookup.
-            // Token scanning runs outside the queue — it only reads cached ParseResult data.
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                key: scriptParseInfo.ConnectionKey,
-                bindingTimeout: LanguageService.PeekDefinitionTimeout,
-                bindOperation: (bindingContext, cancelToken) =>
+            // Resolve the project URI from the context key so we can access the provider directly.
+            // Going through the binding queue would cause empty results when a concurrent save
+            // (which calls AddProjectContext and rebuilds the context) holds the binding lock.
+            string contextKey = scriptParseInfo.ConnectionKey;
+            string projectUri = (contextKey != null && contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                ? contextKey.Substring(ProjectContextKeyPrefix.Length)
+                : null;
+
+            if (projectUri == null ||
+                !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
+                bindCtx is not ConnectedBindingContext connBindCtx ||
+                connBindCtx.MetadataProvider is not TSqlModelMetadataProvider provider)
+                return Array.Empty<Location>();
+
+            // Step 1: get token at cursor
+            int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserCol) ?? -1;
+            if (tokenIndex < 0)
+                return Array.Empty<Location>();
+
+            var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
+            if (token == null || !token.IsSignificant)
+                return Array.Empty<Location>();
+
+            string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
+            if (string.IsNullOrWhiteSpace(tokenText))
+                return Array.Empty<Location>();
+
+            // Step 2: reconstruct schema-qualified name from any preceding dot-separated segments.
+            string schemaPrefix = GetPrecedingSchemaPrefix(
+                scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
+            string qualifiedName = schemaPrefix != null
+                ? $"{schemaPrefix}.{tokenText}"
+                : null;
+
+            // Normalize schema-qualified names: strip leading db-prefix segments until
+            // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
+            if (qualifiedName != null)
+            {
+                string? normalized = qualifiedName;
+                while (!string.IsNullOrEmpty(normalized) && !provider.TryGetSourceInformation(normalized, out _))
                 {
-                    if (!(bindingContext is ConnectedBindingContext cbc &&
-                          cbc.MetadataProvider is TSqlModelMetadataProvider provider))
-                        return null;
+                    int dot = normalized.IndexOf('.');
+                    if (dot < 0) { normalized = null; break; }
+                    normalized = normalized.Substring(dot + 1);
+                }
+                qualifiedName = string.IsNullOrEmpty(normalized) ? null : normalized;
+            }
 
-                    // Step 1: get token at cursor
-                    int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserCol) ?? -1;
-                    if (tokenIndex < 0)
-                        return null;
+            // Fallback: for unqualified or unresolved names, look up directly in the DacFx
+            // model by the last name part. This works for project contexts where
+            // MetadataDisplayInfoProvider is not available (FindCompletions would return nothing).
+            qualifiedName ??= provider.FindQualifiedNameByLastPart(tokenText) ?? tokenText;
 
-                    var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
-                    if (token == null || !token.IsSignificant)
-                        return null;
+            // Step 3: collect candidate files via DacFx dependency graph
+            var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                if (provider.TryGetSourceInformation(qualifiedName, out var defInfo) &&
+                    defInfo?.SourceName != null)
+                    candidateFiles.Add(defInfo.SourceName);
+                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                    candidateFiles.Add(path);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"FindProjectSymbolLocations error: {ex}");
+                return Array.Empty<Location>();
+            }
 
-                    string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
-                    if (string.IsNullOrWhiteSpace(tokenText))
-                        return null;
-
-                    // Step 2: reconstruct schema-qualified name from any preceding dot-separated segments.
-                    string schemaPrefix = GetPrecedingSchemaPrefix(
-                        scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
-                    string qualifiedName = schemaPrefix != null
-                        ? $"{schemaPrefix}.{tokenText}"
-                        : null;
-
-                    // Normalize schema-qualified names: strip leading db-prefix segments until
-                    // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
-                    if (qualifiedName != null)
-                    {
-                        string? normalized = qualifiedName;
-                        while (!string.IsNullOrEmpty(normalized) && !provider.TryGetSourceInformation(normalized, out _))
-                        {
-                            int dot = normalized.IndexOf('.');
-                            if (dot < 0) { normalized = null; break; }
-                            normalized = normalized.Substring(dot + 1);
-                        }
-                        qualifiedName = string.IsNullOrEmpty(normalized) ? null : normalized;
-                    }
-
-                    // Fallback: for unqualified or unresolved names, look up directly in the DacFx
-                    // model by the last name part. This works for project contexts where
-                    // MetadataDisplayInfoProvider is not available (FindCompletions would return nothing).
-                    qualifiedName ??= provider.FindQualifiedNameByLastPart(tokenText) ?? tokenText;
-
-                    // Step 3: collect candidate files via DacFx dependency graph
-                    var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    if (provider.TryGetSourceInformation(qualifiedName, out var defInfo) &&
-                        defInfo?.SourceName != null)
-                        candidateFiles.Add(defInfo.SourceName);
-                    foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
-                        candidateFiles.Add(path);
-
-                    // tokenText is already bracket-stripped (e.g. "Customers", not "[Customers]").
-                    // Use it directly so FindTokenLocationsInFile matches correctly regardless of
-                    // whether qualifiedName came from schema-prefix concatenation or FindCompletions.
-                    return Tuple.Create(tokenText, candidateFiles.ToList());
-                },
-                timeoutOperation: _ => null,
-                errorHandler: ex =>
-                {
-                    Logger.Error($"FindProjectSymbolLocations error: {ex}");
-                    return null;
-                });
-
-            queueItem.ItemProcessed.WaitOne();
-
-            // Tuple.Item1 = bare (bracket-stripped) object name to match against tokens.
-            // Tuple.Item2 = candidate file paths (definition file + all files that reference it).
-            var resolvedData = queueItem.GetResultAsT<Tuple<string, List<string>>>();
+            var resolvedData = Tuple.Create(tokenText, candidateFiles.ToList());
             if (resolvedData == null)
                 return Array.Empty<Location>();
 
