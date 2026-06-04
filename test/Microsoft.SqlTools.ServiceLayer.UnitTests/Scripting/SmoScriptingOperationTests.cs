@@ -22,18 +22,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public void MapEnumValueMapsTargetDatabaseEngineType()
         {
-            Assert.That(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SqlAzure"), Is.EqualTo("SqlAzureDatabase"));
-            Assert.That(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SingleInstance"), Is.EqualTo("Standalone"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SqlAzure"), Is.EqualTo("SqlAzureDatabase"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SingleInstance"), Is.EqualTo("Standalone"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "sqlazure"), Is.EqualTo("SqlAzureDatabase"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "singleinstance"), Is.EqualTo("Standalone"));
 
             // The mapped values must be parseable by the core SMO enum.
-            Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SqlAzure"), ignoreCase: true),
+            Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SqlAzure"), ignoreCase: true),
                 Is.EqualTo(DatabaseEngineType.SqlAzureDatabase));
-            Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SingleInstance"), ignoreCase: true),
+            Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SingleInstance"), ignoreCase: true),
                 Is.EqualTo(DatabaseEngineType.Standalone));
         }
 
         [Test]
         [TestCase("SqlAzureDatabaseEdition", "SqlDatabase")]
+        [TestCase("sqlazuredatabaseedition", "SqlDatabase")]
         [TestCase("SqlDatawarehouseEdition", "SqlDataWarehouse")]
         [TestCase("SqlServerStretchEdition", "SqlStretchDatabase")]
         [TestCase("SqlServerManagedInstanceEdition", "SqlManagedInstance")]
@@ -47,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [TestCase("SqlFabricSqlDatabaseEdition", "FabricSqlDatabase")]
         public void MapEnumValueMapsTargetDatabaseEngineEdition(string input, string expected)
         {
-            string mapped = SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineEdition", input);
+            string mapped = SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineEdition), input);
             Assert.That(mapped, Is.EqualTo(expected));
 
             // When the mapped name exists in the referenced SMO enum, it must parse successfully.
@@ -65,8 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public void MapEnumValuePassesThroughUnmappedValues()
         {
-            Assert.That(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineType", "SqlAzureDatabase"), Is.EqualTo("SqlAzureDatabase"));
-            Assert.That(SmoScriptingOperation.MapEnumValue("TargetDatabaseEngineEdition", "SqlDatabase"), Is.EqualTo("SqlDatabase"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SqlAzureDatabase"), Is.EqualTo("SqlAzureDatabase"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineEdition), "SqlDatabase"), Is.EqualTo("SqlDatabase"));
             Assert.That(SmoScriptingOperation.MapEnumValue("ScriptCompatibilityOption", "Script140Compat"), Is.EqualTo("Script140Compat"));
         }
 

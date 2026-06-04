@@ -180,28 +180,41 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                     {
                         string stringValue = (string)optionValue;
 
-                        // The same option string may target either of SMO's two parallel enum systems:
-                        // the SqlScriptPublish enums (e.g. SqlScriptOptions.ScriptDatabaseEngineType, whose
-                        // names match the values STS sends) or the core enums (Common.DatabaseEngineType /
-                        // DatabaseEngineEdition, which use different names). When the value already exists in
-                        // the target enum it is parsed as-is; otherwise it is mapped to the core enum name.
-                        string enumValue = IsDefinedEnumName(advancedOptionPropInfo.PropertyType, stringValue)
-                            ? stringValue
-                            : MapEnumValue(optionPropInfo.Name, stringValue);
+                        if (advancedOptionPropInfo.PropertyType.IsEnum)
+                        {
+                            // The same option string may target either of SMO's two parallel enum systems:
+                            // the SqlScriptPublish enums (e.g. SqlScriptOptions.ScriptDatabaseEngineType, whose
+                            // names match the values STS sends) or the core enums (Common.DatabaseEngineType /
+                            // DatabaseEngineEdition, which use different names). When the value already exists in
+                            // the target enum it is parsed as-is; otherwise it is mapped to the core enum name.
+                            string enumValue = IsDefinedEnumName(advancedOptionPropInfo.PropertyType, stringValue)
+                                ? stringValue
+                                : MapEnumValue(optionPropInfo.Name, stringValue);
 
-                        // If the value still does not match a name on the target enum, log a clear
-                        // warning so consumers can identify values (for example newly added SMO
-                        // editions) that lack a mapping. Enum.Parse below would otherwise throw and
-                        // be swallowed with only a generic message.
-                        if (advancedOptionPropInfo.PropertyType.IsEnum
-                            && !IsDefinedEnumName(advancedOptionPropInfo.PropertyType, enumValue))
+                            // If the value still does not match a name on the target enum, log a clear
+                            // warning so consumers can identify values (for example newly added SMO
+                            // editions) that lack a mapping. Enum.Parse below would otherwise throw and
+                            // be swallowed with only a generic message.
+                            if (!IsDefinedEnumName(advancedOptionPropInfo.PropertyType, enumValue))
+                            {
+                                Logger.Warning(string.Format(
+                                    "Option {0} value '{1}' (mapped to '{2}') is not a defined name on enum {3}. A mapping may be missing for a newly added SMO {3} value.",
+                                    optionPropInfo.Name, stringValue, enumValue, advancedOptionPropInfo.PropertyType.Name));
+                            }
+
+                            smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, enumValue, ignoreCase: true);
+                        }
+                        else if (advancedOptionPropInfo.PropertyType.IsAssignableFrom(optionPropInfo.PropertyType))
+                        {
+                            smoValue = optionValue;
+                        }
+                        else
                         {
                             Logger.Warning(string.Format(
-                                "Option {0} value '{1}' (mapped to '{2}') is not a defined name on enum {3}. A mapping may be missing for a newly added SMO {3} value.",
-                                optionPropInfo.Name, stringValue, enumValue, advancedOptionPropInfo.PropertyType.Name));
+                                "Skipping ScriptOptions.{0}: target property type {1} is not an enum and cannot be assigned from source type {2}.",
+                                optionPropInfo.Name, advancedOptionPropInfo.PropertyType.Name, optionPropInfo.PropertyType.Name));
+                            continue;
                         }
-
-                        smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, enumValue, ignoreCase: true);
                     }
 
                     Logger.Verbose(string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
@@ -253,8 +266,8 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             {
                 return value switch
                 {
-                    "SqlAzure" => "SqlAzureDatabase",
-                    "SingleInstance" => "Standalone",
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineType.SqlAzure), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineType.SqlAzureDatabase),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineType.SingleInstance), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineType.Standalone),
                     _ => value
                 };
             }
@@ -263,18 +276,18 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             {
                 return value switch
                 {
-                    "SqlAzureDatabaseEdition" => "SqlDatabase",
-                    "SqlDatawarehouseEdition" => "SqlDataWarehouse",
-                    "SqlServerStretchEdition" => "SqlStretchDatabase",
-                    "SqlServerManagedInstanceEdition" => "SqlManagedInstance",
-                    "SqlServerOnDemandEdition" => "SqlOnDemand",
-                    "SqlServerPersonalEdition" => "Personal",
-                    "SqlServerStandardEdition" => "Standard",
-                    "SqlServerEnterpriseEdition" => "Enterprise",
-                    "SqlServerExpressEdition" => "Express",
-                    "SqlDatabaseEdgeEdition" => "SqlDatabaseEdge",
-                    "SqlAzureArcManagedInstanceEdition" => "SqlAzureArcManagedInstance",
-                    "SqlFabricSqlDatabaseEdition" => "FabricSqlDatabase",
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlAzureDatabaseEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlDatabase),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlDatawarehouseEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlDataWarehouse),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerStretchEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlStretchDatabase),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerManagedInstanceEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlManagedInstance),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerOnDemandEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlOnDemand),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerPersonalEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.Personal),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerStandardEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.Standard),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerEnterpriseEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.Enterprise),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlServerExpressEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.Express),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlDatabaseEdgeEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlDatabaseEdge),
+                    var v when string.Equals(v, nameof(ScriptDatabaseEngineEdition.SqlAzureArcManagedInstanceEdition), StringComparison.OrdinalIgnoreCase) => nameof(DatabaseEngineEdition.SqlAzureArcManagedInstance),
+                    var v when string.Equals(v, "SqlFabricSqlDatabaseEdition", StringComparison.OrdinalIgnoreCase) => "FabricSqlDatabase",
                     _ => value
                 };
             }
