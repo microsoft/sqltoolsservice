@@ -5357,6 +5357,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>SQL Server 2025 (170)</value>
     <comment></comment>
   </data>
+  <data name="compatibilityLevel_sqlv180" xml:space="preserve">
+    <value>SQL Server vNext (180)</value>
+    <comment></comment>
+  </data>
   <data name="general_containmentType_None" xml:space="preserve">
     <value>None</value>
     <comment></comment>
