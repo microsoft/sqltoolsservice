@@ -5,6 +5,10 @@
 
 #nullable disable
 
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -103,6 +107,58 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 messageObj,
                 checkId: true,
                 checkError: true);
+        }
+
+        [Test]
+        public async Task RequestContextSendResultPreservesNumericRequestId()
+        {
+            JObject requestObj = JObject.FromObject(new
+            {
+                jsonrpc = "2.0",
+                id = 42,
+                method = MethodName,
+                @params = new TestMessageContents()
+            });
+
+            HostingMessage requestMessage = this.messageSerializer.DeserializeMessage(requestObj);
+            JObject responseObj = await SendResponse(requestMessage);
+
+            Assert.True(responseObj.TryGetValue("id", out JToken token));
+            Assert.AreEqual(JTokenType.Integer, token.Type);
+            Assert.AreEqual(42, token.ToObject<int>());
+        }
+
+        [Test]
+        public async Task RequestContextSendResultPreservesStringRequestId()
+        {
+            JObject requestObj = JObject.FromObject(new
+            {
+                jsonrpc = "2.0",
+                id = MessageId,
+                method = MethodName,
+                @params = new TestMessageContents()
+            });
+
+            HostingMessage requestMessage = this.messageSerializer.DeserializeMessage(requestObj);
+            JObject responseObj = await SendResponse(requestMessage);
+
+            Assert.True(responseObj.TryGetValue("id", out JToken token));
+            Assert.AreEqual(JTokenType.String, token.Type);
+            Assert.AreEqual(MessageId, token.ToString());
+        }
+
+        private static async Task<JObject> SendResponse(HostingMessage requestMessage)
+        {
+            using MemoryStream outputStream = new MemoryStream();
+            MessageWriter messageWriter = new MessageWriter(outputStream, new JsonRpcMessageSerializer());
+            RequestContext<TestMessageContents> requestContext =
+                new RequestContext<TestMessageContents>(requestMessage, messageWriter);
+
+            await requestContext.SendResult(new TestMessageContents());
+
+            string output = Encoding.UTF8.GetString(outputStream.ToArray());
+            int bodyStart = output.IndexOf("\r\n\r\n") + "\r\n\r\n".Length;
+            return JObject.Parse(output.Substring(bodyStart));
         }
 
         private static void AssertMessageFields(

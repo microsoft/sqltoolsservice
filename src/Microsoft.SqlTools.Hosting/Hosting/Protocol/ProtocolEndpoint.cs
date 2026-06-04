@@ -28,8 +28,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private TaskCompletionSource<bool> endpointExitedTask;
         private SynchronizationContext originalSynchronizationContext;
 
-        private Dictionary<string, TaskCompletionSource<Message>> pendingRequests =
-            new Dictionary<string, TaskCompletionSource<Message>>();
+        private Dictionary<MessageId, TaskCompletionSource<Message>> pendingRequests =
+            new Dictionary<MessageId, TaskCompletionSource<Message>>();
 
         /// <summary>
         /// When true, SendEvent will ignore exceptions and write them
@@ -178,6 +178,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
 
             this.currentMessageId++;
+            MessageId requestId = new MessageId(this.currentMessageId);
 
             TaskCompletionSource<Message> responseTask = null;
 
@@ -185,14 +186,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 responseTask = new TaskCompletionSource<Message>();
                 this.pendingRequests.Add(
-                    this.currentMessageId.ToString(),
+                    requestId,
                     responseTask);
             }
 
             await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
                 requestType,
                 requestParams,
-                this.currentMessageId);
+                requestId);
 
             if (responseTask != null)
             {

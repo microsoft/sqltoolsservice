@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
             if (message.MessageType == MessageType.Request)
             {
                 messageObject.Add("type", JToken.FromObject("request"));
-                messageObject.Add("seq", JToken.FromObject(message.Id));
+                messageObject.Add("seq", message.Id.ToJToken());
                 messageObject.Add("command", message.Method);
                 messageObject.Add("arguments", message.Contents);
             }
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
             else if (message.MessageType == MessageType.Response)
             {
                 messageObject.Add("type", JToken.FromObject("response"));
-                messageObject.Add("request_seq", JToken.FromObject(message.Id));
+                messageObject.Add("request_seq", message.Id.ToJToken());
                 messageObject.Add("command", message.Method);
 
                 if (message.Error != null)
