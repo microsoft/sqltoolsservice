@@ -26,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SingleInstance"), Is.EqualTo("Standalone"));
             Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "sqlazure"), Is.EqualTo("SqlAzureDatabase"));
             Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "singleinstance"), Is.EqualTo("Standalone"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SiNgLeInStAnCe"), Is.EqualTo("Standalone"));
 
             // The mapped values must be parseable by the core SMO enum.
             Assert.That(System.Enum.Parse<DatabaseEngineType>(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SqlAzure"), ignoreCase: true),
@@ -44,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [TestCase("SqlServerPersonalEdition", "Personal")]
         [TestCase("SqlServerStandardEdition", "Standard")]
         [TestCase("SqlServerEnterpriseEdition", "Enterprise")]
+        [TestCase("sQlSeRvErEnTeRpRiSeEdItIoN", "Enterprise")]
         [TestCase("SqlServerExpressEdition", "Express")]
         [TestCase("SqlDatabaseEdgeEdition", "SqlDatabaseEdge")]
         [TestCase("SqlAzureArcManagedInstanceEdition", "SqlAzureArcManagedInstance")]
