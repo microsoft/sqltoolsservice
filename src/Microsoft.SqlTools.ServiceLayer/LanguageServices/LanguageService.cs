@@ -37,9 +37,11 @@ using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -1783,7 +1785,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 new Location
                                 {
                                     Uri = fileUri,
-                                    Range = new Workspace.Contracts.Range
+                                    Range = new Range
                                     {
                                         // LSP is 0-based; DacFx SourceInformation is 1-based
                                         Start = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 },

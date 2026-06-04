@@ -7,7 +7,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
 {
     /// <summary>
     /// Provides details about a position in a file buffer.  All

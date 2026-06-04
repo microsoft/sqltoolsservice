@@ -8,7 +8,7 @@
 using System.Diagnostics;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
 {

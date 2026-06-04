@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -30,7 +30,6 @@ using Microsoft.SqlTools.ServiceLayer.FlatFile;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
@@ -101,8 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            serviceProvider.RegisterSingleService(LanguageService.Instance);
+            LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+            serviceProvider.RegisterSingleService(LanguageServices.LanguageService.Instance);
 
             ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);

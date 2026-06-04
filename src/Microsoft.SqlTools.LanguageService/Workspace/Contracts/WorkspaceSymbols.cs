@@ -7,7 +7,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
 {
     public enum SymbolKind 
     {

@@ -16,8 +16,8 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {

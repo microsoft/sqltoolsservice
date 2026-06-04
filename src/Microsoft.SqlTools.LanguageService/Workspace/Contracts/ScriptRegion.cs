@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -7,7 +7,7 @@
 
 //using System.Management.Automation.Language;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
 {
     /// <summary>
     /// Contains details about a specific region of text in script file.

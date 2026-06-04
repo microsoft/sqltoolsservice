@@ -1,11 +1,11 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 #nullable disable
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
 {
     /// <summary>
     /// Contains details relating to a content change in an open file.

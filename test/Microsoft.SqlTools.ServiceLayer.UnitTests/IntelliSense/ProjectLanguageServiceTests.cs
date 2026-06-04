@@ -21,7 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using NUnit.Framework;
 
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
     [TestFixture]
     public class ProjectLanguageServiceTests
     {
-        private LanguageService _langService;
+        private LanguageServices.LanguageService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectPath;
         private SqlProject _project;
@@ -95,7 +95,7 @@ END
                 transactSqlVersion: TransactSqlVersion.Current);
 
             // Initialize language service
-            _langService = new LanguageService();
+            _langService = new LanguageServices.LanguageService();
 
             // Set up workspace service
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
@@ -326,7 +326,7 @@ END
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                var langService = new LanguageService();
+                var langService = new LanguageServices.LanguageService();
                 var workspaceService = new WorkspaceService<SqlToolsSettings>();
                 workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
                 langService.WorkspaceServiceInstance = workspaceService;

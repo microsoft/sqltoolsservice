@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -15,7 +15,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 {

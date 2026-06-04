@@ -14,10 +14,11 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -72,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
             {
                 Uri = textDocument.TextDocument.Uri,
-                Language = LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
+                Language = LanguageServices.LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                 Flavor = "NotMSSQL"
             }, null);
             await langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object);
