@@ -15436,12 +15436,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
 
 
-            public static string GetString(string key, object arg0, object arg1, object arg2, object arg3)
-            {
-                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2, arg3);
-            }
-
-
             public static string GetString(string key, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2, arg3, arg4, arg5);
