@@ -1699,14 +1699,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return Array.Empty<Location>();
             }
 
-            var resolvedData = Tuple.Create(tokenText, candidateFiles.ToList());
-            if (resolvedData == null)
-                return Array.Empty<Location>();
-
             var results = new List<Location>();
-            foreach (string filePath in resolvedData.Item2)
+            foreach (string filePath in candidateFiles)
             {
-                try { results.AddRange(FindTokenLocationsInFile(filePath, resolvedData.Item1)); }
+                try { results.AddRange(FindTokenLocationsInFile(filePath, tokenText)); }
                 catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
             }
 
@@ -1740,18 +1736,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string fileUri = new Uri(filePath).AbsoluteUri;
             var parseInfo = GetScriptParseInfo(fileUri);
 
-            // If the file has never been opened by the user its ParseResult will be null.
-            // Use a lightweight parse (no binding) — only token text and positions are needed.
+            // If the file has never been parsed, parse it on demand (no binding needed — only
+            // token text and positions are required).  Prefer workspace content so that unsaved
+            // in-editor edits are reflected; fall back to reading the real disk file for project
+            // files that have never been opened in an editor.
             // Guard with BuildingMetadataLock to avoid racing with concurrent ParseAndBind calls.
             if (parseInfo != null && parseInfo.ParseResult == null)
             {
                 var sf = CurrentWorkspace.GetFile(fileUri);
-                if (sf != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+                string? sqlText = sf?.Contents ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
+                if (sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
                     try
                     {
-                        // Double-checked locking: recheck inside the lock.
-                        parseInfo.ParseResult ??= Parser.Parse(sf.Contents, this.DefaultParseOptions);
+                        parseInfo.ParseResult ??= Parser.Parse(sqlText, this.DefaultParseOptions);
                     }
                     finally
                     {
