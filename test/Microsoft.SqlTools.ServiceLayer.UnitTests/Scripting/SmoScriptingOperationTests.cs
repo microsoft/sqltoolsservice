@@ -49,7 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [TestCase("SqlServerExpressEdition", "Express")]
         [TestCase("SqlDatabaseEdgeEdition", "SqlDatabaseEdge")]
         [TestCase("SqlAzureArcManagedInstanceEdition", "SqlAzureArcManagedInstance")]
-        [TestCase("SqlFabricSqlDatabaseEdition", "FabricSqlDatabase")]
         public void MapEnumValueMapsTargetDatabaseEngineEdition(string input, string expected)
         {
             string mapped = SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineEdition), input);
@@ -72,6 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         {
             Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineType), "SqlAzureDatabase"), Is.EqualTo("SqlAzureDatabase"));
             Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineEdition), "SqlDatabase"), Is.EqualTo("SqlDatabase"));
+            Assert.That(SmoScriptingOperation.MapEnumValue(nameof(ScriptOptions.TargetDatabaseEngineEdition), "SqlFabricSqlDatabaseEdition"), Is.EqualTo("SqlFabricSqlDatabaseEdition"));
             Assert.That(SmoScriptingOperation.MapEnumValue("ScriptCompatibilityOption", "Script140Compat"), Is.EqualTo("Script140Compat"));
         }
 

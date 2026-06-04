@@ -42,8 +42,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 [nameof(ScriptDatabaseEngineEdition.SqlServerEnterpriseEdition)] = nameof(DatabaseEngineEdition.Enterprise),
                 [nameof(ScriptDatabaseEngineEdition.SqlServerExpressEdition)] = nameof(DatabaseEngineEdition.Express),
                 [nameof(ScriptDatabaseEngineEdition.SqlDatabaseEdgeEdition)] = nameof(DatabaseEngineEdition.SqlDatabaseEdge),
-                [nameof(ScriptDatabaseEngineEdition.SqlAzureArcManagedInstanceEdition)] = nameof(DatabaseEngineEdition.SqlAzureArcManagedInstance),
-                ["SqlFabricSqlDatabaseEdition"] = "FabricSqlDatabase"
+                [nameof(ScriptDatabaseEngineEdition.SqlAzureArcManagedInstanceEdition)] = nameof(DatabaseEngineEdition.SqlAzureArcManagedInstance)
             };
 
         private bool disposed = false;
