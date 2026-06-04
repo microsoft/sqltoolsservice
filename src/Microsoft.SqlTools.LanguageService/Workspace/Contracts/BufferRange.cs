@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
             if (start > end)
             {
                 throw new ArgumentException(
-                    $"Start position ({start.Line}, {start.Column}) must come before or be equal to the end position ({end.Line}, {end.Column})");
+                    SR.WorkspaceServiceBufferPositionOutOfOrder(start.Line, start.Column, end.Line, end.Column));
             }
 
             this.Start = start;

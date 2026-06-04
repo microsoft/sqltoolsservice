@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup Label="Configuration">
+		<OutputType>Exe</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+		<IsPackable>false</IsPackable>
+		<TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="nunit" />
+		<PackageReference Include="nunit3testadapter" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="../../src/Microsoft.SqlTools.LanguageService/Microsoft.SqlTools.LanguageService.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+	</ItemGroup>
+</Project>
