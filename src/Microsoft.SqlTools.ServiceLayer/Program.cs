@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
 
                 // Register PII Logging configuration change callback
-                Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
+                Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings) =>
                 {
                     Logger.IsPiiEnabled = newSettings?.MssqlTools?.PiiLogging ?? false;
                     Logger.Information(Logger.IsPiiEnabled ? "PII Logging enabled" : "PII Logging disabled");
@@ -62,8 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions);
-                serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
-                serviceHost.MessageDispatcher.ParallelMessageProcessingLimit = commandOptions.ParallelMessageProcessingLimit;
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)

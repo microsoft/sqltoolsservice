@@ -8,7 +8,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
@@ -16,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
@@ -27,13 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         private const string TableQuery = @"CREATE TABLE testTable1_RenamingTable (c1 int)";
         private const string OwnerUri = "testDB";
         private SqlTestDb testDb;
-        private Mock<RequestContext<RenameRequestResponse>> requestContextMock;
 
         [SetUp]
         public async Task TestInitialize()
         {
             this.testDb = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, query: TableQuery, dbNamePrefix: "RenameTest");
-            requestContextMock = new Mock<RequestContext<RenameRequestResponse>>();
             await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OwnerUri, ConnectionType.Default);
         }
 
@@ -47,10 +43,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         public async Task TestRenameTable()
         {
             //arrange & act
-            await ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
+            RenameRequestResponse response = await ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']", testDb.DatabaseName)));
 
             //assert
-            requestContextMock.Verify(x => x.SendResult(It.IsAny<RenameRequestResponse>()));
+            Assert.NotNull(response);
 
             Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.tables WHERE name='RenamingTable'");
             Assert.That(queryRenameObject.HasExecuted, Is.True, "The query to check for the renamed table was not executed");
@@ -67,10 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         public async Task TestRenameColumn()
         {
             //arrange & act
-            await ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1']", testDb.DatabaseName)), requestContextMock.Object);
+            RenameRequestResponse response = await ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1']", testDb.DatabaseName)));
 
             //assert
-            requestContextMock.Verify(x => x.SendResult(It.IsAny<RenameRequestResponse>()));
+            Assert.NotNull(response);
 
             Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.columns WHERE name='RenameColumn'");
             Assert.That(queryRenameObject.HasExecuted, Is.True, "The query to check for the renamed column was not executed");
@@ -87,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         public void TestRenameColumnNotExisting()
         {
             Assert.ThrowsAsync<FailedOperationException>(
-                () => ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName)), requestContextMock.Object),
+                () => ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName))),
                 "Did find the column, which should not have existed");
         }
 
@@ -95,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         public void TestRenameTableNotExisting()
         {
             Assert.ThrowsAsync<FailedOperationException>(
-                () => ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object),
+                () => ObjectManagementTestUtils.Service.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName))),
                 "Did find the table, which should not have existed");
         }
 
@@ -109,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 ObjectUrn = String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName),
             };
             Exception ex = Assert.ThrowsAsync<Exception>(
-                () => ObjectManagementTestUtils.Service.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object),
+                () => ObjectManagementTestUtils.Service.HandleRenameRequest(testRenameRequestParams),
                 "Did find the connection, which should not have existed");
             Assert.That(ex.Message, Does.Contain("connection could not be found").IgnoreCase);
         }

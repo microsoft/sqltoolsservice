@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
 using Microsoft.SqlTools.SqlCore.DacFx;
@@ -86,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// <param name="serviceHost">The service host to register handlers with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(GenerateSqlPackageCommandRequest.Type, this.HandleGenerateSqlPackageCommandRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GenerateSqlPackageCommandRequest.Type, this.HandleGenerateSqlPackageCommandRequest);
         }
 
         /// <summary>
@@ -97,20 +96,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
         /// <param name="parameters">Parameters containing command-line arguments and action-specific options</param>
         /// <param name="requestContext">Context for sending the result back to the client</param>
         /// <returns>Task representing the async operation</returns>
-        public async Task HandleGenerateSqlPackageCommandRequest(
-            SqlPackageCommandParams parameters,
-            RequestContext<SqlPackageCommandResult> requestContext)
+        public async Task<SqlPackageCommandResult> HandleGenerateSqlPackageCommandRequest(
+            SqlPackageCommandParams parameters)
         {
             try
             {
                 if (parameters == null || parameters.CommandLineArguments == null)
                 {
-                    await requestContext.SendResult(new SqlPackageCommandResult
+                    return new SqlPackageCommandResult
                     {
                         Success = false,
                         ErrorMessage = SR.SqlPackageInvalidRequestParameters
-                    });
-                    return;
+                    };
                 }
 
                 // Ensure nested object exists; avoids NREs downstream
@@ -134,32 +131,32 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlPackage
                 // Build command — validation exceptions are collected by builder
                 var command = builder.Build().ToString();
 
-                await requestContext.SendResult(new SqlPackageCommandResult
+                return new SqlPackageCommandResult
                 {
                     Command = command,
                     Success = true,
                     ErrorMessage = string.Empty
-                });
+                };
             }
             catch (SqlPackageCommandException ex)
             {
                 Logger.Error($"SqlPackage command validation failed: {ex.Message}");
-                await requestContext.SendResult(new SqlPackageCommandResult
+                return new SqlPackageCommandResult
                 {
                     Command = null,
                     Success = false,
                     ErrorMessage = ex.Message
-                });
+                };
             }
             catch (Exception e)
             {
                 Logger.Error($"SqlPackage GenerateCommand failed: {e.Message}");
-                await requestContext.SendResult(new SqlPackageCommandResult
+                return new SqlPackageCommandResult
                 {
                     Command = null,
                     Success = false,
                     ErrorMessage = e.Message
-                });
+                };
             }
         }
 

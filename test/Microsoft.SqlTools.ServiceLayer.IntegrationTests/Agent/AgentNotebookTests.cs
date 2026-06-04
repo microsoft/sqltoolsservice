@@ -7,14 +7,12 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -31,16 +29,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             {
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                var fetchNotebooksContext = new Mock<RequestContext<AgentNotebooksResult>>();
 
-                fetchNotebooksContext.Setup(x => x.SendResult(It.IsAny<AgentNotebooksResult>())).Returns(Task.FromResult(new object()));
-                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams()
+                AgentNotebooksResult result = await service.HandleAgentNotebooksRequest(new AgentNotebooksParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-                }, fetchNotebooksContext.Object);
+                });
 
-                fetchNotebooksContext.Verify(x => x.SendResult(It.Is<AgentNotebooksResult>(p => p.Success == true)));
-
+                Assert.True(result.Success);
             }
         }
 
@@ -72,16 +67,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 AgentNotebookInfo notebook = AgentTestUtils.GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
-                var createNotebookContext = new Mock<RequestContext<CreateAgentNotebookResult>>();
-                createNotebookContext.Setup(x => x.SendResult(It.IsAny<CreateAgentNotebookResult>())).Returns(Task.FromResult(new object()));
-                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
+                CreateAgentNotebookResult result = await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = "garbargepath"
-                }, createNotebookContext.Object);
+                });
 
-                createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == false)));
+                Assert.False(result.Success);
                 Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
             }
         }
@@ -97,23 +90,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 AgentNotebookInfo notebook = AgentTestUtils.GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
-                var createNotebookContext = new Mock<RequestContext<CreateAgentNotebookResult>>();
-                createNotebookContext.Setup(x => x.SendResult(It.IsAny<CreateAgentNotebookResult>())).Returns(Task.FromResult(new object()));
-                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
+                CreateAgentNotebookResult createResult = await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = AgentTestUtils.CreateTemplateNotebookFile()
-                }, createNotebookContext.Object);
+                });
 
-                createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == true)));
-                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
+                Assert.True(createResult.Success);
+                CreateAgentNotebookResult duplicateResult = await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = AgentTestUtils.CreateTemplateNotebookFile()
-                }, createNotebookContext.Object);
-                createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == false)));
+                });
+                Assert.False(duplicateResult.Success);
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
             }
         }
@@ -129,15 +120,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 AgentNotebookInfo notebook = AgentTestUtils.GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
-                var createNotebookContext = new Mock<RequestContext<CreateAgentNotebookResult>>();
-                createNotebookContext.Setup(x => x.SendResult(It.IsAny<CreateAgentNotebookResult>())).Returns(Task.FromResult(new object()));
-                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
+                CreateAgentNotebookResult result = await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = AgentTestUtils.CreateTemplateNotebookFile()
-                }, createNotebookContext.Object);
-                createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == true)));
+                });
+                Assert.True(result.Success);
                 Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 var createdNotebook = AgentTestUtils.GetNotebook(connectionResult, notebook.Name);
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, createdNotebook);
@@ -159,14 +148,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //verifying it's getting created
                 Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 //deleting the notebook job
-                var deleteNotebookContext = new Mock<RequestContext<ResultStatus>>();
-                deleteNotebookContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>())).Returns(Task.FromResult(new object()));
-                await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams()
+                ResultStatus result = await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook
-                }, deleteNotebookContext.Object);
-                deleteNotebookContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success == true)));
+                });
+                Assert.True(result.Success);
                 //verifying if the job is deleted
                 Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
             }
@@ -185,15 +172,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //getting a test notebook object
                 var notebook = AgentTestUtils.GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
 
-                var deleteNotebookContext = new Mock<RequestContext<ResultStatus>>();
-                deleteNotebookContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>())).Returns(Task.FromResult(new object()));
-                await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams()
+                ResultStatus result = await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook
-                }, deleteNotebookContext.Object);
+                });
                 //endpoint should error out
-                deleteNotebookContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success == false)));
+                Assert.False(result.Success);
             }
         }
 
@@ -210,16 +195,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //getting a test notebook object
                 AgentNotebookInfo notebook = AgentTestUtils.GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
 
-                var updateNotebookContext = new Mock<RequestContext<UpdateAgentNotebookResult>>();
-                updateNotebookContext.Setup(x => x.SendResult(It.IsAny<UpdateAgentNotebookResult>())).Returns(Task.FromResult(new object()));
-                await service.HandleUpdateAgentNotebookRequest(new UpdateAgentNotebookParams()
+                UpdateAgentNotebookResult result = await service.HandleUpdateAgentNotebookRequest(new UpdateAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = AgentTestUtils.CreateTemplateNotebookFile()
-                }, updateNotebookContext.Object);
+                });
                 // enpoint should error out
-                updateNotebookContext.Verify(x => x.SendResult(It.Is<UpdateAgentNotebookResult>(p => p.Success == false)));
+                Assert.False(result.Success);
             }
         }
 
@@ -239,17 +222,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //verifying that the notebook is created
                 Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
-                var updateNotebookContext = new Mock<RequestContext<UpdateAgentNotebookResult>>();
-                updateNotebookContext.Setup(x => x.SendResult(It.IsAny<UpdateAgentNotebookResult>())).Returns(Task.FromResult(new object()));
                 //calling the endpoint with a garbage path
-                await service.HandleUpdateAgentNotebookRequest(new UpdateAgentNotebookParams()
+                UpdateAgentNotebookResult result = await service.HandleUpdateAgentNotebookRequest(new UpdateAgentNotebookParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = "garbargepath"
-                }, updateNotebookContext.Object);
+                });
                 //the enpoint should return false
-                updateNotebookContext.Verify(x => x.SendResult(It.Is<UpdateAgentNotebookResult>(p => p.Success == false)));
+                Assert.False(result.Success);
 
                 //cleaning up the job
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);

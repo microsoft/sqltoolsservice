@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -56,26 +56,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost, ServiceLayerCommandOptions commandOptions)
         {
-            serviceHost.SetRequestHandler(ExportRequest.Type, this.HandleExportRequest, true);
-            serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest, true);
-            serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest, true);
-            serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest, true);
-            serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest, true);
-            serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest, true);
-            serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest, true);
-            serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest, true);
-            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest, true);
-            serviceHost.SetRequestHandler(GetDeploymentOptionsRequest.Type, this.HandleGetDeploymentOptionsRequest, true);
-            serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest, true);
-            serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
-            serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
-            serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
-            serviceHost.SetRequestHandler(GetCodeAnalysisRulesRequest.Type, this.HandleGetCodeAnalysisRulesRequest, true);
+            serviceHost.RegisterRequestHandler(ExportRequest.Type, this.HandleExportRequest);
+            serviceHost.RegisterRequestHandler(ImportRequest.Type, this.HandleImportRequest);
+            serviceHost.RegisterRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
+            serviceHost.RegisterRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
+            serviceHost.RegisterRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
+            serviceHost.RegisterRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
+            serviceHost.RegisterRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
+            serviceHost.RegisterRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
+            serviceHost.RegisterRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
+            serviceHost.RegisterRequestHandler(GetDeploymentOptionsRequest.Type, this.HandleGetDeploymentOptionsRequest);
+            serviceHost.RegisterRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest);
+            serviceHost.RegisterRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest);
+            serviceHost.RegisterRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest);
+            serviceHost.RegisterRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest);
+            serviceHost.RegisterRequestHandler(GetCodeAnalysisRulesRequest.Type, this.HandleGetCodeAnalysisRulesRequest);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
             telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
 
-        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings)
         {
             // Update telemetry status in DacFx service
             UpdateTelemetryStatus(newSettings.TelemetrySettings.Telemetry != TelemetryLevel.Off);
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to export a bacpac
         /// </summary>
         /// <returns></returns>
-        public Task HandleExportRequest(ExportParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task<DacFxResult> HandleExportRequest(ExportParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -100,16 +100,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             if (connInfo != null)
             {
                 ExportOperation operation = new ExportOperation(parameters, connInfo);
-                ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
+                return ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName);
             }
-            return Task.CompletedTask;
+            return Task.FromResult(new DacFxResult { Success = false, ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri });
         }
 
         /// <summary>
         /// Handles request to import a bacpac
         /// </summary>
         /// <returns></returns>
-        public Task HandleImportRequest(ImportParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task<DacFxResult> HandleImportRequest(ImportParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -118,16 +118,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             if (connInfo != null)
             {
                 ImportOperation operation = new ImportOperation(parameters, connInfo);
-                ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
+                return ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName);
             }
-            return Task.CompletedTask;
+            return Task.FromResult(new DacFxResult { Success = false, ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri });
         }
 
         /// <summary>
         /// Handles request to extract a dacpac
         /// </summary>
         /// <returns></returns>
-        public Task HandleExtractRequest(ExtractParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task<DacFxResult> HandleExtractRequest(ExtractParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -139,16 +139,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                 ExtractOperation operation = new ExtractOperation(parameters, connInfo);
                 string taskName = parameters.ExtractTarget == DacExtractTarget.DacPac ? SR.ExtractDacpacTaskName : SR.ProjectExtractTaskName;
-                ExecuteOperation(operation, parameters, taskName, requestContext);
+                return ExecuteOperation(operation, parameters, taskName);
             }
-            return Task.CompletedTask;
+            return Task.FromResult(new DacFxResult { Success = false, ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri });
         }
 
         /// <summary>
         /// Handles request to deploy a dacpac
         /// </summary>
         /// <returns></returns>
-        public Task HandleDeployRequest(DeployParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task<DacFxResult> HandleDeployRequest(DeployParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -157,16 +157,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             if (connInfo != null)
             {
                 DeployOperation operation = new DeployOperation(parameters, connInfo);
-                ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
+                return ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName);
             }
-            return Task.CompletedTask;
+            return Task.FromResult(new DacFxResult { Success = false, ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri });
         }
 
         /// <summary>
         /// Handles request to generate deploy script
         /// </summary>
         /// <returns></returns>
-        public async Task HandleGenerateDeployScriptRequest(GenerateDeployScriptParams parameters, RequestContext<DacFxResult> requestContext)
+        public async Task<DacFxResult> HandleGenerateDeployScriptRequest(GenerateDeployScriptParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -184,20 +184,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                 operation.SqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
-                await requestContext.SendResult(new DacFxResult()
+                return new DacFxResult()
                 {
                     OperationId = operation.OperationId,
                     Success = true,
                     ErrorMessage = string.Empty
-                });
+                };
             }
+
+            return new DacFxResult { Success = false, ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri };
         }
 
         /// <summary>
         /// Handles request to generate deploy plan
         /// </summary>
         /// <returns></returns>
-        public async Task HandleGenerateDeployPlanRequest(GenerateDeployPlanParams parameters, RequestContext<GenerateDeployPlanRequestResult> requestContext)
+        public async Task<GenerateDeployPlanRequestResult> HandleGenerateDeployPlanRequest(GenerateDeployPlanParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -205,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                await BaseService.RunWithErrorHandling(() =>
+                return await BaseService.RunWithErrorHandling(() =>
                 {
                     GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
                     operation.Execute(parameters.TaskExecutionMode);
@@ -217,15 +219,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         ErrorMessage = string.Empty,
                         Report = operation.DeployReport
                     };
-                }, requestContext);
+                });
             }
+
+            return new GenerateDeployPlanRequestResult { Success = false, ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri };
         }
 
         /// <summary>
         /// Handles request to get the options from a publish profile
         /// </summary>
         /// <returns></returns>
-        public async Task HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        public async Task<DacFxOptionsResult> HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters)
         {
             DeploymentOptions? options = null;
             if (parameters.ProfilePath != null)
@@ -238,92 +242,92 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 }
             }
 
-            await requestContext.SendResult(new DacFxOptionsResult()
+            return new DacFxOptionsResult()
             {
                 DeploymentOptions = options,
                 Success = true,
                 ErrorMessage = string.Empty,
-            });
+            };
         }
 
         /// <summary>
         /// Handles request to validate an ASA streaming job
         /// </summary>
         /// <returns></returns>
-        public async Task HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters, RequestContext<ValidateStreamingJobResult> requestContext)
+        public async Task<ValidateStreamingJobResult> HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters)
         {
             ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
             ValidateStreamingJobResult result = operation.ValidateQuery();
 
-            await requestContext.SendResult(result);
+            return result;
         }
 
         /// <summary>
         /// Handles request to create default publish options for DacFx
         /// </summary>
         /// <returns></returns>
-        public async Task HandleGetDefaultPublishOptionsRequest(GetDefaultPublishOptionsParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        public async Task<DacFxOptionsResult> HandleGetDefaultPublishOptionsRequest(GetDefaultPublishOptionsParams parameters)
         {
             try
             {
                 // this does not need to be an async operation since this only creates and returns the default object
                 DeploymentOptions options = DeploymentOptions.GetDefaultPublishOptions();
 
-                await requestContext.SendResult(new DacFxOptionsResult()
+                return new DacFxOptionsResult()
                 {
                     DeploymentOptions = options,
                     Success = true,
                     ErrorMessage = null
-                });
+                };
             }
             catch (Exception e)
             {
-                await requestContext.SendResult(new DacFxOptionsResult()
+                return new DacFxOptionsResult()
                 {
                     DeploymentOptions = null,
                     Success = false,
                     ErrorMessage = e.Message
-                });
+                };
             }
         }
 
         /// <summary>
         /// Gets deployment options based on the specified scenario
         /// </summary>
-        public async Task HandleGetDeploymentOptionsRequest(GetDeploymentOptionsParams parameters, RequestContext<GetDeploymentOptionsResult> requestContext)
+        public async Task<GetDeploymentOptionsResult> HandleGetDeploymentOptionsRequest(GetDeploymentOptionsParams parameters)
         {
             try
             {
                 DeploymentOptions options = new DeploymentOptions(parameters.Scenario);
 
-                await requestContext.SendResult(new GetDeploymentOptionsResult()
+                return new GetDeploymentOptionsResult()
                 {
                     DefaultDeploymentOptions = options,
                     Success = true,
                     ErrorMessage = null
-                });
+                };
             }
             catch (Exception e)
             {
-                await requestContext.SendResult(new GetDeploymentOptionsResult()
+                return new GetDeploymentOptionsResult()
                 {
                     DefaultDeploymentOptions = null,
                     Success = false,
                     ErrorMessage = e.Message
-                });
+                };
             }
         }
 
-        public async Task HandleParseTSqlScriptRequest(ParseTSqlScriptRequestParams requestParams, RequestContext<ParseTSqlScriptResult> requestContext)
+        public async Task<ParseTSqlScriptResult> HandleParseTSqlScriptRequest(ParseTSqlScriptRequestParams requestParams)
         {
             var script = System.IO.File.ReadAllText(requestParams.FilePath);
-            await requestContext.SendResult(new ParseTSqlScriptResult()
+            return new ParseTSqlScriptResult()
             {
                 ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(script, requestParams.DatabaseSchemaProvider)
-            });
+            };
         }
 
-        public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<bool> requestContext)
+        public async Task<bool> HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams)
         {
             try
             {
@@ -331,11 +335,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 TSqlModel model = operation.GenerateTSqlModel();
 
                 projectModels.Value[operation.Parameters.ProjectUri] = model;
-                await requestContext.SendResult(true);
+                return true;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e);
+                throw RpcErrorException.Create(e);
             }
         }
 
@@ -343,31 +347,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to get objects from sql model
         /// </summary>
         /// <returns></returns>
-        public async Task HandleGetObjectsFromTSqlModelRequest(GetObjectsFromTSqlModelParams requestParams, RequestContext<TSqlObjectInfo[]> requestContext)
+        public async Task<TSqlObjectInfo[]> HandleGetObjectsFromTSqlModelRequest(GetObjectsFromTSqlModelParams requestParams)
         {
             TSqlObjectInfo[] objectInfos = { };
             var model = projectModels.Value[requestParams.ProjectUri];
 
             if (model == null)
             {
-                await requestContext.SendError(new Exception(SR.SqlProjectModelNotFound(requestParams.ProjectUri)));
+                throw RpcErrorException.Create(new Exception(SR.SqlProjectModelNotFound(requestParams.ProjectUri)));
             }
             else
             {
                 GetObjectsFromTSqlModelOperation operation = new GetObjectsFromTSqlModelOperation(requestParams, model);
                 objectInfos = operation.GetObjectsFromTSqlModel();
-                await requestContext.SendResult(objectInfos);
+                return objectInfos;
             }
-            return;
         }
 
         /// <summary>
         /// Handles request to save a publish profile
         /// </summary>
         /// <returns></returns>
-        public async Task HandleSavePublishProfileRequest(SavePublishProfileParams parameters, RequestContext<ResultStatus> requestContext)
+        public async Task<ResultStatus> HandleSavePublishProfileRequest(SavePublishProfileParams parameters)
         {
-            await BaseService.RunWithErrorHandling(() =>
+            return await BaseService.RunWithErrorHandling(() =>
             {
                 if (parameters.ProfilePath != null)
                 {
@@ -385,9 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     }
                     profile.Save(parameters.ProfilePath);
                 }
-            }, requestContext);
-
-            return;
+            });
         }
 
         /// <summary>
@@ -395,9 +396,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Creates a minimal TSqlModel to enumerate rules from DacFx CodeAnalysisService.
         /// The rules are static and do not depend on model content or SQL Server version.
         /// </summary>
-        public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams parameters, RequestContext<GetCodeAnalysisRulesResult> requestContext)
+        public async Task<GetCodeAnalysisRulesResult> HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams parameters)
         {
-            await BaseService.RunWithErrorHandling(() =>
+            return await BaseService.RunWithErrorHandling(() =>
             {
                 // Version doesn't affect the rules returned; a model is only needed to obtain a CodeAnalysisService instance.
                 using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
@@ -422,42 +423,39 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     ErrorMessage = null,
                     Rules = ruleInfos
                 };
-            }, requestContext);
+            });
         }
 
-        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        private async Task<DacFxResult> ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName)
         {
-            Task.Run(async () =>
+            try
             {
-                try
-                {
-                    // show file location for export and extract operations 
-                    string? targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
+                // show file location for export and extract operations 
+                string? targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
+                TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
 
-                    // put appropriate database name since connection passed was to master
-                    metadata.DatabaseName = parameters.DatabaseName;
-                    metadata.OperationName = operation.GetType().Name;
-                    operation.SqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
+                // put appropriate database name since connection passed was to master
+                metadata.DatabaseName = parameters.DatabaseName;
+                metadata.OperationName = operation.GetType().Name;
+                operation.SqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
 
-                    await operation.SqlTask.RunAsync();
-                    await requestContext.SendResult(new DacFxResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = operation.SqlTask.TaskStatus == SqlTaskStatus.Succeeded,
-                        ErrorMessage = string.Empty,
-                    });
-                }
-                catch (Exception e)
+                await operation.SqlTask.RunAsync();
+                return new DacFxResult()
                 {
-                    await requestContext.SendResult(new DacFxResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = false,
-                        ErrorMessage = e.Message,
-                    });
-                }
-            });
+                    OperationId = operation.OperationId,
+                    Success = operation.SqlTask.TaskStatus == SqlTaskStatus.Succeeded,
+                    ErrorMessage = string.Empty,
+                };
+            }
+            catch (Exception e)
+            {
+                return new DacFxResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = false,
+                    ErrorMessage = e.Message,
+                };
+            }
         }
 
         private SqlTaskManager SqlTaskManagerInstance

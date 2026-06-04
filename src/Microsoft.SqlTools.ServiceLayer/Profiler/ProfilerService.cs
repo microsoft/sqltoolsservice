@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IRpcServiceHost ServiceHost
         {
             get;
             set;
@@ -100,12 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest, true);
-            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest, true);
-            this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest, true);
-            this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest, true);
-            this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest, true);
-            this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest, true);
+            this.ServiceHost.RegisterRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
+            this.ServiceHost.RegisterRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
+            this.ServiceHost.RegisterRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
+            this.ServiceHost.RegisterRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
+            this.ServiceHost.RegisterRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
+            this.ServiceHost.RegisterRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
-        internal async Task HandleCreateXEventSessionRequest(CreateXEventSessionParams parameters, RequestContext<CreateXEventSessionResult> requestContext)
+        internal async Task<CreateXEventSessionResult> HandleCreateXEventSessionRequest(CreateXEventSessionParams parameters)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -150,22 +150,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // start monitoring the event session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
-                var result = new CreateXEventSessionResult();
-                await requestContext.SendResult(result);
-
                 SessionCreatedNotification(parameters.OwnerUri, parameters.SessionName, parameters.Template.Name);
+                var result = new CreateXEventSessionResult();
+                return result;
             }
         }
 
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
-        internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        internal async Task<StartProfilingResult> HandleStartProfilingRequest(StartProfilingParams parameters)
         {
             if (parameters.SessionType == ProfilingSessionType.LocalFile)
             {
-                await StartLocalFileSession(parameters, requestContext);
-                return;
+                return await StartLocalFileSession(parameters);
             }
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -180,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                 var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
-                await requestContext.SendResult(result);
+                return result;
             }
             else
             {
@@ -188,13 +186,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        private async Task StartLocalFileSession(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        private async Task<StartProfilingResult> StartLocalFileSession(StartProfilingParams parameters)
         {
             var xeSession = XEventSessionFactory.OpenLocalFileSession(parameters.SessionName);
             monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
             xeSession.Start();
             var result = new StartProfilingResult() { UniqueSessionId = xeSession.Id.ToString(), CanPause = false };
-            await requestContext.SendResult(result);
+            return result;
         }
 
         public IXEventSession OpenLocalFileSession(string filePath)
@@ -210,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to stop a profiling session
         /// </summary>
-        internal async Task HandleStopProfilingRequest(StopProfilingParams parameters, RequestContext<StopProfilingResult> requestContext)
+        internal async Task<StopProfilingResult> HandleStopProfilingRequest(StopProfilingParams parameters)
         {
             monitor.StopMonitoringSession(parameters.OwnerUri, out ProfilerSession session);
 
@@ -225,8 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         session.XEventSession.Stop();
                         session.Dispose();
-                        await requestContext.SendResult(new StopProfilingResult { });
-                        break;
+                        return new StopProfilingResult { };
                     }
                     catch (InvalidOperationException)
                     {
@@ -250,27 +247,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// calling on a running session will pause the profiling session
         /// and calling on a paused session will resume the profiling session
         /// </summary>
-        internal async Task HandlePauseProfilingRequest(PauseProfilingParams parameters, RequestContext<PauseProfilingResult> requestContext)
+        internal async Task<PauseProfilingResult> HandlePauseProfilingRequest(PauseProfilingParams parameters)
         {
             if (parameters == null || string.IsNullOrEmpty(parameters.OwnerUri))
             {
-                await requestContext.SendError(new ProfilerException(SR.SessionNotFound));
-                return;
+                throw RpcErrorException.Create(new ProfilerException(SR.SessionNotFound));
             }
 
             if (!monitor.PauseViewer(parameters.OwnerUri, out bool isPaused))
             {
-                await requestContext.SendError(new ProfilerException(SR.SessionNotFound));
-                return;
+                throw RpcErrorException.Create(new ProfilerException(SR.SessionNotFound));
             }
 
-            await requestContext.SendResult(new PauseProfilingResult { IsPaused = isPaused });
+            return new PauseProfilingResult { IsPaused = isPaused };
         }
 
         /// <summary>
         /// Handle request to pause a profiling session
         /// </summary>
-        internal async Task HandleGetXEventSessionsRequest(GetXEventSessionsParams parameters, RequestContext<GetXEventSessionsResult> requestContext)
+        internal async Task<GetXEventSessionsResult> HandleGetXEventSessionsRequest(GetXEventSessionsParams parameters)
         {
             var result = new GetXEventSessionsResult();
             ConnectionInfo connInfo;
@@ -279,23 +274,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 out connInfo);
             if (connInfo == null)
             {
-                await requestContext.SendError(new ProfilerException(SR.ProfilerConnectionNotFound));
+                throw RpcErrorException.Create(new ProfilerException(SR.ProfilerConnectionNotFound));
             }
             else
             {
                 List<string> sessions = GetXEventSessionList(connInfo);
                 result.Sessions = sessions;
-                await requestContext.SendResult(result);
+                return result;
             }
         }
 
         /// <summary>
         /// Handle request to disconnect a session
         /// </summary>
-        internal Task HandleDisconnectSessionRequest(DisconnectSessionParams parameters, RequestContext<DisconnectSessionResult> requestContext)
+        internal Task<DisconnectSessionResult> HandleDisconnectSessionRequest(DisconnectSessionParams parameters)
         {
             monitor.StopMonitoringSession(parameters.OwnerUri, out _);
-            return Task.CompletedTask;
+            return Task.FromResult(new DisconnectSessionResult());
         }
 
         /// <summary>

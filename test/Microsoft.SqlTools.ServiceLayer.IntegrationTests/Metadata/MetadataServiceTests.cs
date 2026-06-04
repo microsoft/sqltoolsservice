@@ -10,10 +10,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
@@ -21,7 +19,6 @@ using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.SqlCore.Metadata;
-using Moq;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
@@ -116,9 +113,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
-            var requestContext = new Mock<RequestContext<TableMetadataResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
-
             var metadataParmas = new TableMetadataParams
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
@@ -126,11 +120,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 ObjectName = this.testTableName
             };
 
-            await MetadataService.HandleGetTableRequest(metadataParmas, requestContext.Object);
+            TableMetadataResult response = await MetadataService.HandleGetTableRequest(metadataParmas);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
-            requestContext.VerifyAll();
+            Assert.NotNull(response);
         }
 
         [Test]
@@ -148,12 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}]([id] [int] NULL)";
             var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}]([id] [int] NULL)";
 
-            var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
-            var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
-            mockGetServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerContextualizationResult>()))
-                .Callback<GetServerContextualizationResult>(actual => actualGetServerContextualizationResponse = actual)
-                .Returns(Task.CompletedTask);
-
             var getServerContextualizationParams = new GetServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
@@ -161,13 +149,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             };
 
             // First call generates context, stores it in temp file and returns the generated context
-            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+            GetServerContextualizationResult actualGetServerContextualizationResponse = await MetadataService.GetServerContextualization(getServerContextualizationParams);
 
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
 
             // Second call gets the context from the temp file and returns that read file context.
-            await MetadataService.GetServerContextualization(getServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
+            actualGetServerContextualizationResponse = await MetadataService.GetServerContextualization(getServerContextualizationParams);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -176,8 +164,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
 
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
-
-            mockGetServerContextualizationRequestContext.VerifyAll();
         }
 
         private void DeleteServerContextualizationTempFile(string serverName)
@@ -197,8 +183,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         public async Task GetViewInfoReturnsValidResults()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<TableMetadataResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
 
             var metadataParmas = new TableMetadataParams
             {
@@ -207,9 +191,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 ObjectName = "all_objects"
             };
 
-            await MetadataService.HandleGetViewRequest(metadataParmas, requestContext.Object);
-
-            requestContext.VerifyAll();
+            TableMetadataResult response = await MetadataService.HandleGetViewRequest(metadataParmas);
+            Assert.NotNull(response);
         }
 
         [Test]
@@ -277,8 +260,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "MetadataTests");
             try
             {
-                var requestContext = new Mock<RequestContext<MetadataQueryResult>>();
-                requestContext.Setup(x => x.SendResult(It.IsAny<MetadataQueryResult>())).Returns(Task.FromResult(new object()));
                 ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
                 using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
                 {
@@ -286,14 +267,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                     TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.Default);
 
                     MetadataService service = new MetadataService();
-                    await service.HandleMetadataListRequest(new MetadataQueryParams
+                    MetadataQueryResult result = await service.HandleMetadataListRequest(new MetadataQueryParams
                     {
                         OwnerUri = queryTempFile.FilePath
-                    }, requestContext.Object);
-                    Thread.Sleep(2000);
-                    await service.MetadataListTask;
+                    });
 
-                    requestContext.Verify(x => x.SendResult(It.Is<MetadataQueryResult>(r => VerifyResult(r, expectedMetadataList))));
+                    Assert.True(VerifyResult(result, expectedMetadataList));
                     connectionService.Disconnect(new ServiceLayer.Connection.Contracts.DisconnectParams
                     {
                         OwnerUri = queryTempFile.FilePath

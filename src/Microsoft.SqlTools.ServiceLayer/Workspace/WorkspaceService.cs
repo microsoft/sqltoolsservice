@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -72,39 +71,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// </summary>
         /// <param name="newSettings">The settings that were just set</param>
         /// <param name="oldSettings">The settings before they were changed</param>
-        /// <param name="eventContext">Context of the event that triggered the callback</param>
         /// <returns></returns>
-        public delegate Task ConfigChangeCallback(TConfig newSettings, TConfig oldSettings, EventContext eventContext);
+        public delegate Task ConfigChangeCallback(TConfig newSettings, TConfig oldSettings);
 
         /// <summary>
         /// Delegate for callbacks that occur when the current text document changes
         /// </summary>
         /// <param name="changedFiles">Array of files that changed</param>
-        /// <param name="eventContext">Context of the event raised for the changed files</param>
-        public delegate Task TextDocChangeCallback(ScriptFile[] changedFiles, EventContext eventContext);
+        public delegate Task TextDocChangeCallback(ScriptFile[] changedFiles);
 
         /// <summary>
         /// Delegate for callbacks that occur when a text document is opened
         /// </summary>
         /// <param name="uri">Request uri</param>
         /// <param name="openFile">File that was opened</param>
-        /// <param name="eventContext">Context of the event raised for the changed files</param>
-        public delegate Task TextDocOpenCallback(string uri, ScriptFile openFile, EventContext eventContext);
+        public delegate Task TextDocOpenCallback(string uri, ScriptFile openFile);
 
         /// <summary>
         /// Delegate for callbacks that occur when a text document is closed
         /// </summary>
         /// <param name="uri">Request uri</param>
         /// <param name="closedFile">File that was closed</param>
-        /// <param name="eventContext">Context of the event raised for changed files</param>
-        public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile, EventContext eventContext);
+        public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile);
 
         /// <summary>
         /// Delegate for callbacks that occur when a text document is saved
         /// </summary>
         /// <param name="uri">URI of the saved document</param>
-        /// <param name="eventContext">Context of the event</param>
-        public delegate Task TextDocSaveCallback(string uri, EventContext eventContext);
+        public delegate Task TextDocSaveCallback(string uri);
 
         /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
@@ -143,14 +137,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             // Not enabling parallel processing for WorkspaceService as it might cause doc out of sync.
             // Register the handlers for when changes to the workspae occur
-            serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
-            serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
-            serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
-            serviceHost.SetEventHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
-            serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
+            serviceHost.RegisterNotificationHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
+            serviceHost.RegisterNotificationHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
+            serviceHost.RegisterNotificationHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
+            serviceHost.RegisterNotificationHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
+            serviceHost.RegisterNotificationHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
 
             // Register an initialization handler that sets the workspace path
-            serviceHost.RegisterInitializeTask((parameters, context) =>
+            serviceHost.RegisterInitializeTask(parameters =>
             {
                 Logger.Verbose("Initializing workspace service");
 
@@ -163,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             });
 
             // Register a shutdown request that disposes the workspace
-            serviceHost.RegisterShutdownTask((parameters, context) =>
+            serviceHost.RegisterShutdownTask(parameters =>
             {
                 Logger.Verbose("Shutting down workspace service");
 
@@ -231,8 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// Handles text document change events
         /// </summary>
         internal Task HandleDidChangeTextDocumentNotification(
-            DidChangeTextDocumentParams textChangeParams,
-            EventContext eventContext)
+            DidChangeTextDocumentParams textChangeParams)
         {
             try
             {
@@ -260,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
                 Logger.Verbose(msg.ToString());
 
-                var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
+                var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray()));
                 return Task.WhenAll(handlers);
             }
             catch (Exception ex)
@@ -273,8 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         internal async Task HandleDidOpenTextDocumentNotification(
-            DidOpenTextDocumentNotification openParams,
-            EventContext eventContext)
+            DidOpenTextDocumentNotification openParams)
         {
             try
             {
@@ -293,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 }
                 // Propagate the changes to the event handlers
                 var textDocOpenTasks = TextDocOpenCallbacks.Select(
-                    t => t(openParams.TextDocument.Uri, openedFile, eventContext));
+                    t => t(openParams.TextDocument.Uri, openedFile));
 
                 await Task.WhenAll(textDocOpenTasks);
             }
@@ -307,8 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         internal async Task HandleDidCloseTextDocumentNotification(
-           DidCloseTextDocumentParams closeParams,
-           EventContext eventContext)
+           DidCloseTextDocumentParams closeParams)
         {
             try
             {
@@ -330,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 Workspace.CloseFile(closedFile);
 
                 // Send out a notification to other services that have subscribed to this event
-                var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closeParams.TextDocument.Uri, closedFile, eventContext));
+                var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closeParams.TextDocument.Uri, closedFile));
                 await Task.WhenAll(textDocClosedTasks);
             }
             catch (Exception ex)
@@ -343,8 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         internal async Task HandleDidSaveTextDocumentNotification(
-            DidSaveTextDocumentParams saveParams,
-            EventContext eventContext)
+            DidSaveTextDocumentParams saveParams)
         {
             try
             {
@@ -355,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     return;
                 }
 
-                var handlers = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri, eventContext));
+                var handlers = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri));
                 await Task.WhenAll(handlers);
             }
             catch (Exception ex)
@@ -369,17 +359,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// Handles the configuration change event
         /// </summary>
         internal async Task HandleDidChangeConfigurationNotification(
-            DidChangeConfigurationParams<TConfig> configChangeParams,
-            EventContext eventContext)
+            DidChangeConfigurationParams<TConfig> configChangeParams)
         {
             try
             {
                 Logger.Verbose("HandleDidChangeConfigurationNotification");
 
+                TConfig oldSettings = this.CurrentSettings;
                 this.CurrentSettings = configChangeParams.Settings;
                 // Propagate the changes to the event handlers
                 var configUpdateTasks = ConfigChangeCallbacks.Select(
-                    t => t(configChangeParams.Settings, CurrentSettings, eventContext));
+                    t => t(configChangeParams.Settings, oldSettings));
                 await Task.WhenAll(configUpdateTasks);
             }
             catch (Exception ex)

@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost { get; set; }
+        internal IRpcServiceHost ServiceHost { get; set; }
 
         /// <summary>
         /// Initializes the Execution Plan Service instance
@@ -51,25 +51,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         public void InitializeService(ServiceHost serviceHost)
         {
             ServiceHost = serviceHost;
-            ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan, true);
-            ServiceHost.SetRequestHandler(ExecutionPlanComparisonRequest.Type, HandleExecutionPlanComparisonRequest, true);
+            ServiceHost.RegisterRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan);
+            ServiceHost.RegisterRequestHandler(ExecutionPlanComparisonRequest.Type, HandleExecutionPlanComparisonRequest);
         }
 
-        private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)
+        private async Task<GetExecutionPlanResult> HandleGetExecutionPlan(GetExecutionPlanParams requestParams)
         {
             var plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
-            await requestContext.SendResult(new GetExecutionPlanResult
+            return new GetExecutionPlanResult
             {
                 Graphs = plans
-            });
+            };
         }
 
         /// <summary>
         /// Handles requests for color matching similar nodes.
         /// </summary>
-        internal async Task HandleExecutionPlanComparisonRequest(
-            ExecutionPlanComparisonParams requestParams,
-            RequestContext<ExecutionPlanComparisonResult> requestContext)
+        internal async Task<ExecutionPlanComparisonResult> HandleExecutionPlanComparisonRequest(
+            ExecutionPlanComparisonParams requestParams)
         {
             var nodeBuilder = new XmlPlanNodeBuilder(ShowPlanType.Unknown);
             var firstPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.FirstExecutionPlanGraphInfo.GraphFileContent, requestParams.FirstExecutionPlanGraphInfo.PlanIndexInFile);
@@ -96,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 SecondComparisonResult = secondGraphComparisonResultDTO
             };
 
-            await requestContext.SendResult(result);
+            return result;
         }
 
         /// <summary>

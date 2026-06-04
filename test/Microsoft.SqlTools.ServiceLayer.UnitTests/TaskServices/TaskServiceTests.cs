@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,17 +12,17 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 {
     public class TaskServiceTests : ServiceTestBase
     {
         private TaskService service;
-        private Mock<IProtocolEndpoint> serviceHostMock;
+        private Mock<IRpcServiceHost> serviceHostMock;
         private TaskMetadata taskMetaData = new TaskMetadata
         {
             ServerName = "server name",
@@ -31,21 +31,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
         public TaskServiceTests()
         {
-            serviceHostMock = new Mock<IProtocolEndpoint>();
+            serviceHostMock = new Mock<IRpcServiceHost>();
             service = CreateService();
             service.InitializeService(serviceHostMock.Object);
         }
 
         [Test]
-        public async Task TaskListRequestErrorsIfParameterIsNull()
+        public void TaskListRequestErrorsIfParameterIsNull()
         {
-            object errorResponse = null;
-            var contextMock = RequestContextMocks.Create<ListTasksResponse>(null)
-                                                 .AddErrorHandling((errorMessage, errorCode, data) => errorResponse = errorMessage);
-
-            await service.HandleListTasksRequest(null, contextMock.Object);
-            VerifyErrorSent(contextMock);
-            Assert.True(((string)errorResponse).Contains("ArgumentNullException"));
+            LocalRpcException ex = Assert.ThrowsAsync<LocalRpcException>(async () => await service.HandleListTasksRequest(null));
+            Assert.True(ex.ToString().Contains("ArgumentNullException"));
         }
 
         [Test]
@@ -84,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             };
 
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleCancelTaskRequest(cancelParams, requestContext),
+                test: () => service.HandleCancelTaskRequest(cancelParams),
                 verify: ((result) =>
                 {
                 }));
@@ -108,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             };
 
             await RunAndVerify<ListTasksResponse>(
-                test: (requestContext) => service.HandleListTasksRequest(listParams, requestContext),
+                test: () => service.HandleListTasksRequest(listParams),
                 verify: ((result) =>
                 {
                     Assert.True(result.Tasks.Any(x => x.TaskId == sqlTask.TaskId.ToString()));

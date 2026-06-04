@@ -13,8 +13,9 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
@@ -142,9 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     IncludeEstimatedExecutionPlanXml = true
                 }
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid execution plan 
@@ -155,24 +154,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     // Then: Messages should be null and execution plan should not be null
                     Assert.NotNull(r.ExecutionPlan);
                 }).Complete();
-            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
+            await executionPlanRequest.SetResult(await queryService.HandleExecutionPlanRequest(executionPlanParams));
             executionPlanRequest.Validate();
         }
 
         
         [Test]
-        public async Task ExecutionPlanServiceMissingQueryTest()
+        public void ExecutionPlanServiceMissingQueryTest()
         {
             // If:
             // ... I ask for an execution plan for a file that hasn't executed a query
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
-            executionPlanRequest.Validate();
+            Assert.ThrowsAsync<LocalRpcException>(async () => await queryService.HandleExecutionPlanRequest(executionPlanParams));
         }
 
         [Test]
@@ -192,16 +187,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     IncludeEstimatedExecutionPlanXml = true
                 }
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasStartedRead = false;
 
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var contextMock = RequestContextMocks.Create<QueryExecutionPlanResult>(null);
-            Assert.That(() => queryService.HandleExecutionPlanRequest(executionPlanParams, contextMock.Object), Throws.InvalidOperationException);
+            Assert.That(() => queryService.HandleExecutionPlanRequest(executionPlanParams), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -221,15 +213,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     IncludeEstimatedExecutionPlanXml = true
                 }
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for an execution plan from a result set 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var contextMock = RequestContextMocks.Create<QueryExecutionPlanResult>(null);
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleExecutionPlanRequest(executionPlanParams, contextMock.Object));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleExecutionPlanRequest(executionPlanParams));
         }
         
         #endregion

@@ -6,7 +6,6 @@
 #nullable disable
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using CoreOps = Microsoft.SqlTools.SqlCore.SchemaCompare;
@@ -15,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Moq;
 using System;
 using Microsoft.Data.SqlClient;
 using System.IO;
@@ -410,8 +408,6 @@ WITH VALUES
         public async Task SchemaCompareGenerateScriptDatabaseToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
-            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
@@ -1350,11 +1346,6 @@ WITH VALUES
                 targetInfo.OwnerUri = connectionObject.ConnectionInfo.OwnerUri;
                 TaskService.Instance.TaskManager.Reset();
 
-                // Schema compare service call
-                var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
-                schemaCompareRequestContext.Setup((RequestContext<SchemaCompareResult> x) => x.SendResult(It.Is<SchemaCompareResult>((diffResult) =>
-                ValidateScResult(diffResult, out diffEntry, operationId, ref cancelled)))).Returns(Task.FromResult(new object()));
-
                 var schemaCompareParams = new SchemaCompareParams
                 {
                     OperationId = operationId,
@@ -1363,12 +1354,9 @@ WITH VALUES
                     DeploymentOptions = new DeploymentOptions()
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareRequest(schemaCompareParams, schemaCompareRequestContext.Object);
+                SchemaCompareResult schemaCompareResult = await SchemaCompareService.Instance.HandleSchemaCompareRequest(schemaCompareParams);
+                Assert.True(ValidateScResult(schemaCompareResult, out diffEntry, operationId, ref cancelled));
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
-
-                // Generate script Service call
-                var generateScriptRequestContext = new Mock<RequestContext<ResultStatus>>();
-                generateScriptRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
 
                 var generateScriptParams = new SchemaCompareGenerateScriptParams
                 {
@@ -1377,13 +1365,9 @@ WITH VALUES
                     TargetServerName = "My server"
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareGenerateScriptRequest(generateScriptParams, generateScriptRequestContext.Object);
+                ResultStatus generateScriptResult = await SchemaCompareService.Instance.HandleSchemaCompareGenerateScriptRequest(generateScriptParams);
+                Assert.True(generateScriptResult.Success);
                 ValidateTask(SR.GenerateScriptTaskName);
-
-                // Publish service call
-                var publishRequestContext = new Mock<RequestContext<ResultStatus>>();
-                publishRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
-
 
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(targetDb.ConnectionString);
                 var publishParams = new SchemaComparePublishDatabaseChangesParams
@@ -1393,12 +1377,9 @@ WITH VALUES
                     TargetServerName = builder.DataSource,
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaComparePublishDatabaseChangesRequest(publishParams, publishRequestContext.Object);
+                ResultStatus publishResult = await SchemaCompareService.Instance.HandleSchemaComparePublishDatabaseChangesRequest(publishParams);
+                Assert.True(publishResult.Success);
                 ValidateTask(SR.PublishChangesTaskName);
-
-                // Include/Exclude service call
-                var excludeRequestContext = new Mock<RequestContext<ResultStatus>>();
-                excludeRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
 
                 var excludeParams = new SchemaCompareNodeParams
                 {
@@ -1406,7 +1387,8 @@ WITH VALUES
                     DiffEntry = diffEntry
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareIncludeExcludeNodeRequest(excludeParams, publishRequestContext.Object);
+                ResultStatus excludeResult = await SchemaCompareService.Instance.HandleSchemaCompareIncludeExcludeNodeRequest(excludeParams);
+                Assert.True(excludeResult.Success);
 
                 // Include/Exclude all service call
                 var excludeAllParams = new SchemaCompareIncludeExcludeAllNodesParams
@@ -1415,12 +1397,10 @@ WITH VALUES
                     IncludeRequest = false
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareIncludeExcludeAllNodesRequest(excludeAllParams, publishRequestContext.Object);
-
+                ResultStatus excludeAllResult = await SchemaCompareService.Instance.HandleSchemaCompareIncludeExcludeAllNodesRequest(excludeAllParams);
+                Assert.True(excludeAllResult.Success);
 
                 // Save Scmp service call
-                var saveScmpRequestContext = new Mock<RequestContext<ResultStatus>>();
-                saveScmpRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
                 var scmpFilePath = SchemaCompareTestUtils.CreateScmpPath();
 
                 var saveScmpParams = new SchemaCompareSaveScmpParams
@@ -1431,19 +1411,17 @@ WITH VALUES
                     ScmpFilePath = scmpFilePath
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams, saveScmpRequestContext.Object);
+                ResultStatus saveScmpResult = await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams);
+                Assert.True(saveScmpResult.Success);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
-
-                // Open Scmp service call
-                var openScmpRequestContext = new Mock<RequestContext<SchemaCompareOpenScmpResult>>();
-                openScmpRequestContext.Setup((RequestContext<SchemaCompareOpenScmpResult> x) => x.SendResult(It.Is<SchemaCompareOpenScmpResult>((result) => ValidateScmpRoundtrip(result, sourceDb.DatabaseName, targetDb.DatabaseName)))).Returns(Task.FromResult(new object()));
 
                 var openScmpParams = new SchemaCompareOpenScmpParams
                 {
                     FilePath = scmpFilePath
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareOpenScmpRequest(openScmpParams, openScmpRequestContext.Object);
+                SchemaCompareOpenScmpResult openScmpResult = await SchemaCompareService.Instance.HandleSchemaCompareOpenScmpRequest(openScmpParams);
+                Assert.True(ValidateScmpRoundtrip(openScmpResult, sourceDb.DatabaseName, targetDb.DatabaseName));
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
                 SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
             }

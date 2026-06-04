@@ -59,20 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
                         SessionName = sessionName
                     };
 
-                    string sessionId = null;
-                    var startContext = new Mock<RequestContext<StartProfilingResult>>();
-                    startContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                        .Returns<StartProfilingResult>((result) =>
-                        {
-                            // capture the session id for sending the stop message
-                            sessionId = result.UniqueSessionId;
-                            return Task.FromResult(0);
-                        });
-
-                    
-                    await profilerService.HandleStartProfilingRequest(startParams, startContext.Object);
-                    Assert.That(int.TryParse(sessionId, out _), Is.True, "UniqueSessionId should be a numeric value");
-                    startContext.VerifyAll();
+                    StartProfilingResult startResult = await profilerService.HandleStartProfilingRequest(startParams);
+                    Assert.That(int.TryParse(startResult.UniqueSessionId, out _), Is.True, "UniqueSessionId should be a numeric value");
 
                     // wait a bit for the session monitoring to initialize
                     Thread.Sleep(TimeSpan.FromSeconds(30));
@@ -86,15 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
                         OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                     };
 
-                    var stopContext = new Mock<RequestContext<StopProfilingResult>>();
-                    stopContext.Setup(rc => rc.SendResult(It.IsAny<StopProfilingResult>()))
-                        .Returns(Task.FromResult(0));
-
-                    await profilerService.HandleStopProfilingRequest(stopParams, stopContext.Object);
+                    await profilerService.HandleStopProfilingRequest(stopParams);
 
                     xeSession.Refresh();
                     Assert.That(xeSession.IsRunning, Is.False, "Session should be stopped due to HandleStopProfilingRequest");
-                    stopContext.VerifyAll();
                 }
                 finally
                 {
@@ -124,12 +107,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
             var template = Newtonsoft.Json.JsonConvert.DeserializeObject<ProfilerSessionTemplate>(standardSessionJson.Substring(1, standardSessionJson.Length - 2));
 
             var createParams = new CreateXEventSessionParams() { OwnerUri = ownerUri, SessionName = sessionName, Template = template };
-            var requestContext = new Mock<RequestContext<CreateXEventSessionResult>>();
-            requestContext.Setup(c => c.SendResult(It.IsAny<CreateXEventSessionResult>()))
-              .Returns<CreateXEventSessionResult>((result) => { return Task.FromResult(0); });
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
             profilerService.ServiceHost = serviceHostMock.Object;
-            await profilerService.HandleCreateXEventSessionRequest(createParams, requestContext.Object);
+            await profilerService.HandleCreateXEventSessionRequest(createParams);
             return sessionName;
         }
 

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -63,13 +63,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ImportModelRequest.Type, this.HandleModelImportRequest, true);
-            serviceHost.SetRequestHandler(ConfigureModelTableRequest.Type, this.HandleConfigureModelTableRequest, true);
-            serviceHost.SetRequestHandler(DeleteModelRequest.Type, this.HandleDeleteModelRequest, true);
-            serviceHost.SetRequestHandler(DownloadModelRequest.Type, this.HandleDownloadModelRequest, true);
-            serviceHost.SetRequestHandler(GetModelsRequest.Type, this.HandleGetModelsRequest, true);
-            serviceHost.SetRequestHandler(UpdateModelRequest.Type, this.HandleUpdateModelRequest, true);
-            serviceHost.SetRequestHandler(VerifyModelTableRequest.Type, this.HandleVerifyModelTableRequest, true);
+            serviceHost.RegisterRequestHandler(ImportModelRequest.Type, this.HandleModelImportRequest);
+            serviceHost.RegisterRequestHandler(ConfigureModelTableRequest.Type, this.HandleConfigureModelTableRequest);
+            serviceHost.RegisterRequestHandler(DeleteModelRequest.Type, this.HandleDeleteModelRequest);
+            serviceHost.RegisterRequestHandler(DownloadModelRequest.Type, this.HandleDownloadModelRequest);
+            serviceHost.RegisterRequestHandler(GetModelsRequest.Type, this.HandleGetModelsRequest);
+            serviceHost.RegisterRequestHandler(UpdateModelRequest.Type, this.HandleUpdateModelRequest);
+            serviceHost.RegisterRequestHandler(VerifyModelTableRequest.Type, this.HandleVerifyModelTableRequest);
         }
 
         /// <summary>
@@ -77,14 +77,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleModelImportRequest(ImportModelRequestParams parameters, RequestContext<ImportModelResponseParams> requestContext)
+        public async Task<ImportModelResponseParams> HandleModelImportRequest(ImportModelRequestParams parameters)
         {
             Logger.Verbose("HandleModelImportRequest");
             ImportModelResponseParams response = new ImportModelResponseParams
             {
             };
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 ModelOperations.ImportModel(dbConnection, parameters);
                 return response;
@@ -96,14 +96,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleGetModelsRequest(GetModelsRequestParams parameters, RequestContext<GetModelsResponseParams> requestContext)
+        public async Task<GetModelsResponseParams> HandleGetModelsRequest(GetModelsRequestParams parameters)
         {
             Logger.Verbose("HandleGetModelsRequest");
             GetModelsResponseParams response = new GetModelsResponseParams
             {
             };
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 List<ModelMetadata> models = ModelOperations.GetModels(dbConnection, parameters);
                 response.Models = models;
@@ -116,14 +116,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleUpdateModelRequest(UpdateModelRequestParams parameters, RequestContext<UpdateModelResponseParams> requestContext)
+        public async Task<UpdateModelResponseParams> HandleUpdateModelRequest(UpdateModelRequestParams parameters)
         {
             Logger.Verbose("HandleUpdateModelRequest");
             UpdateModelResponseParams response = new UpdateModelResponseParams
             {
             };
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 ModelOperations.UpdateModel(dbConnection, parameters);
                 return response;
@@ -135,14 +135,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleDeleteModelRequest(DeleteModelRequestParams parameters, RequestContext<DeleteModelResponseParams> requestContext)
+        public async Task<DeleteModelResponseParams> HandleDeleteModelRequest(DeleteModelRequestParams parameters)
         {
             Logger.Verbose("HandleDeleteModelRequest");
             DeleteModelResponseParams response = new DeleteModelResponseParams
             {
             };
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 ModelOperations.DeleteModel(dbConnection, parameters);
                 return response;
@@ -154,14 +154,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleDownloadModelRequest(DownloadModelRequestParams parameters, RequestContext<DownloadModelResponseParams> requestContext)
+        public async Task<DownloadModelResponseParams> HandleDownloadModelRequest(DownloadModelRequestParams parameters)
         {
             Logger.Verbose("HandleDownloadModelRequest");
             DownloadModelResponseParams response = new DownloadModelResponseParams
             {
             };
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 response.FilePath = ModelOperations.DownloadModel(dbConnection, parameters);
                 return response;
@@ -173,14 +173,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleVerifyModelTableRequest(VerifyModelTableRequestParams parameters, RequestContext<VerifyModelTableResponseParams> requestContext)
+        public async Task<VerifyModelTableResponseParams> HandleVerifyModelTableRequest(VerifyModelTableRequestParams parameters)
         {
             Logger.Verbose("HandleVerifyModelTableRequest");
             VerifyModelTableResponseParams response = new VerifyModelTableResponseParams
             {
             };
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 response.Verified = ModelOperations.VerifyImportTable(dbConnection, parameters);
                 return response;
@@ -192,22 +192,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleConfigureModelTableRequest(ConfigureModelTableRequestParams parameters, RequestContext<ConfigureModelTableResponseParams> requestContext)
+        public async Task<ConfigureModelTableResponseParams> HandleConfigureModelTableRequest(ConfigureModelTableRequestParams parameters)
         {
             Logger.Verbose("HandleConfigureModelTableRequest");
             ConfigureModelTableResponseParams response = new ConfigureModelTableResponseParams();
 
-            await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
+            return await HandleRequest(parameters, response, (dbConnection, parameters, response) =>
             {
                 ModelOperations.ConfigureImportTable(dbConnection, parameters);
                 return response;
             });
         }
 
-        private async Task HandleRequest<T, TResponse>(
+        private async Task<TResponse> HandleRequest<T, TResponse>(
             T parameters,
             TResponse response,
-            RequestContext<TResponse> requestContext,
             Func<IDbConnection, T, TResponse, TResponse> operation) where T : ModelRequestBase where TResponse : ModelResponseBase
         {
             try
@@ -218,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
                     out connInfo);
                 if (connInfo == null)
                 {
-                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
+                    throw RpcErrorException.Create(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
                 }
                 else
                 {
@@ -226,14 +225,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
                     {
                         response = operation(dbConnection, parameters, response);
                     }
-                    await requestContext.SendResult(response);
+                    return response;
                 }
             }
             catch (Exception e)
             {
                 // Exception related to run task will be captured here
                 Logger.Error(e);
-                await requestContext.SendError(e);
+                throw RpcErrorException.Create(e);
             }
         }
     }

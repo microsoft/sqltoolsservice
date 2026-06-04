@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // If we couldn't load logins on current connection and this is a SQL DB connection 
 			// not to master then try to connect to master.  The "sys.sql_logins" DMV is not visible to user databases.  
             if (logins.Length == 0 && isSqlAzure 
-                && string.Compare(parameters.Database, "master", true) != 0)
+                && string.Compare(parameters.Database, "master") != 0)
             {
                 ServerConnection masterServerConnection = null;
                 try
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             string[] dbRolesInDb;
-            if (isSqlAzure && string.Compare(parameters.Database, "master", true) == 0)
+            if (isSqlAzure && string.Compare(parameters.Database, "master") == 0)
             {
                 dbRolesInDb = currentUserPrototype.DatabaseRoleNames.Where(SecurableUtils.SpecialDbRolesInSqlDbMaster.Contains).ToArray();
             }

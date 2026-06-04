@@ -16,7 +16,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -53,13 +53,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
         public SerializationServiceTests()
         {
-            HostMock = new Mock<IProtocolEndpoint>();
+            HostMock = new Mock<IRpcServiceHost>();
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
             SerializationService = ServiceProvider.GetService<SerializationService>();
         }
         protected ExtensionServiceProvider ServiceProvider { get; private set; }
-        protected Mock<IProtocolEndpoint> HostMock { get; private set; }
+        protected Mock<IRpcServiceHost> HostMock { get; private set; }
         protected SerializationService SerializationService { get; private set; }
 
         [TestCase(true)]
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     .AddStandardResultValidator()
                     .Complete();
 
-                await SerializationService.RunSerializeStartRequest(saveParams, efv.Object);
+                await efv.SetResult(await SerializationService.RunSerializeStartRequest(saveParams));
 
                 // Then:
                 // ... There should not have been an error
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     .AddStandardResultValidator()
                     .Complete();
 
-                await SerializationService.RunSerializeStartRequest(saveParams, efv.Object);
+                await efv.SetResult(await SerializationService.RunSerializeStartRequest(saveParams));
 
                 // Then:
                 // ... There should not have been any errors
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.RunSerializeStartRequest(request1, efv.Object);
+            await efv.SetResult(await SerializationService.RunSerializeStartRequest(request1));
         
             // Then:
             // ... There should not have been an error
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.RunSerializeContinueRequest(request1, efv.Object);
+            await efv.SetResult(await SerializationService.RunSerializeContinueRequest(request1));
 
             // Then:
             // ... There should not have been an error

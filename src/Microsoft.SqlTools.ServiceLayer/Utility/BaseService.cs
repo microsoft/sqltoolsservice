@@ -5,7 +5,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
@@ -22,9 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public static async Task RunWithErrorHandling(Action action, RequestContext<ResultStatus> requestContext)
+        public static async Task<ResultStatus> RunWithErrorHandling(Action action)
         {
-            await RunWithErrorHandling(async () => await Task.Run(action), requestContext);
+            return await RunWithErrorHandling(async () => await Task.Run(action));
         }
 
         /// <summary>
@@ -33,9 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public static async Task RunWithErrorHandling(Func<Task> action, RequestContext<ResultStatus> requestContext)
+        public static async Task<ResultStatus> RunWithErrorHandling(Func<Task> action)
         {
-            await RunWithErrorHandling<ResultStatus>(async () =>
+            return await RunWithErrorHandling<ResultStatus>(async () =>
             {
                 await action();
 
@@ -44,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     Success = true,
                     ErrorMessage = null
                 };
-            }, requestContext);
+            });
         }
 
         /// <summary>
@@ -54,9 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public static async Task RunWithErrorHandling<T>(Func<T> action, RequestContext<T> requestContext) where T : ResultStatus, new()
+        public static async Task<T> RunWithErrorHandling<T>(Func<T> action) where T : ResultStatus, new()
         {
-            await RunWithErrorHandling<T>(async () => await Task.Run(action), requestContext);
+            return await RunWithErrorHandling<T>(async () => await Task.Run(action));
         }
 
         /// <summary>
@@ -66,20 +65,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public static async Task RunWithErrorHandling<T>(Func<Task<T>> action, RequestContext<T> requestContext) where T : ResultStatus, new()
+        public static async Task<T> RunWithErrorHandling<T>(Func<Task<T>> action) where T : ResultStatus, new()
         {
             try
             {
                 T result = await action();
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
-                await requestContext.SendResult(new T()
+                return new T()
                 {
                     Success = false,
                     ErrorMessage = ex.Message
-                });
+                };
             }
         }
 

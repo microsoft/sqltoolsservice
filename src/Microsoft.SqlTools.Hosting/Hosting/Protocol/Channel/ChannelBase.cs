@@ -5,7 +5,6 @@
 
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 
 namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 {
@@ -20,35 +19,18 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// </summary>
         public bool IsConnected { get; protected set; }
 
-        /// <summary>
-        /// Gets the MessageReader for reading messages from the channel.
-        /// </summary>
-        public virtual MessageReader MessageReader { get; protected set; } // mark as virtual for mocking ChannelBase in UT
+        public Stream InputStream { get; protected set; }
+
+        public Stream OutputStream { get; protected set; }
 
         /// <summary>
-        /// Gets the MessageWriter for writing messages to the channel.
+        /// Starts the channel and initializes its input and output streams.
         /// </summary>
-        public MessageWriter MessageWriter { get; protected set; }
-
-        /// <summary>
-        /// Starts the channel and initializes the MessageDispatcher.
-        /// </summary>
-        /// <param name="messageProtocolType">The type of message protocol used by the channel.</param>
         /// <param name="inputStream">Optional stream to use for the input stream</param>
         /// <param name="outputStream">Optional stream to use for the output stream</param>
-        public void Start(MessageProtocolType messageProtocolType, Stream? inputStream = null, Stream? outputStream = null)
+        public void Start(Stream? inputStream = null, Stream? outputStream = null)
         {
-            IMessageSerializer messageSerializer = null;
-            if (messageProtocolType == MessageProtocolType.LanguageServer)
-            {
-                messageSerializer = new JsonRpcMessageSerializer();
-            }
-            else
-            {
-                messageSerializer = new V8MessageSerializer();
-            }
-
-            this.Initialize(messageSerializer, inputStream, outputStream);
+            this.Initialize(inputStream, outputStream);
         }
 
         /// <summary>
@@ -69,13 +51,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 
         /// <summary>
         /// A method to be implemented by subclasses to handle the
-        /// actual initialization of the channel and the creation and
-        /// assignment of the MessageReader and MessageWriter properties.
+        /// actual initialization of the channel and assignment of the
+        /// input and output streams.
         /// </summary>
-        /// <param name="messageSerializer">The IMessageSerializer to use for message serialization.</param>
         /// <param name="inputStream">Optional stream to use for the input stream</param>
         /// <param name="outputStream">Optional stream to use for the output stream</param>
-        protected abstract void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null);
+        protected abstract void Initialize(Stream? inputStream = null, Stream? outputStream = null);
 
         /// <summary>
         /// A method to be implemented by subclasses to handle shutdown

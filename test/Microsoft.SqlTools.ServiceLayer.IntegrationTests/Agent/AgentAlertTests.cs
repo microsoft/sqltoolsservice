@@ -6,13 +6,10 @@
 #nullable disable
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -34,10 +31,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 };
 
-                var requestContext = new Mock<RequestContext<AgentAlertsResult>>();
                 AgentService service = new AgentService();
-                await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
-                requestContext.VerifyAll();
+                AgentAlertsResult result = await service.HandleAgentAlertsRequest(requestParams);
+                Assert.True(result.Success);
             }
         }
 
@@ -50,9 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 // setup
-                var createContext = new Mock<RequestContext<CreateAgentAlertResult>>();
-                var deleteContext = new Mock<RequestContext<ResultStatus>>();
-
                 var service = new AgentService();
                 var alert = new AgentAlertInfo()
                 {
@@ -66,22 +59,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, deleteContext.Object);
+                });
 
                 // test
-                await service.HandleCreateAgentAlertRequest(new CreateAgentAlertParams
+                CreateAgentAlertResult result = await service.HandleCreateAgentAlertRequest(new CreateAgentAlertParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, createContext.Object);
-                createContext.VerifyAll();
+                });
+                Assert.True(result.Success);
 
                 // cleanup
                 await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, deleteContext.Object);                
+                });
             }
         }
 
@@ -94,10 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 // setup
-                var createContext = new Mock<RequestContext<CreateAgentAlertResult>>();
-                var updateContext = new Mock<RequestContext<UpdateAgentAlertResult>>();
-                var deleteContext = new Mock<RequestContext<ResultStatus>>();
-
                 var service = new AgentService();
                 var alert = new AgentAlertInfo()
                 {
@@ -111,29 +100,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, deleteContext.Object);
+                });
 
                 await service.HandleCreateAgentAlertRequest(new CreateAgentAlertParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, createContext.Object);
+                });
 
                 // test
                 alert.Severity = 2;
-                await service.HandleUpdateAgentAlertRequest(new UpdateAgentAlertParams()
+                UpdateAgentAlertResult result = await service.HandleUpdateAgentAlertRequest(new UpdateAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, updateContext.Object);
-                updateContext.VerifyAll();
+                });
+                Assert.True(result.Success);
 
                 // cleanup
                 await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
-                }, deleteContext.Object);
+                });
             }
         }
     }

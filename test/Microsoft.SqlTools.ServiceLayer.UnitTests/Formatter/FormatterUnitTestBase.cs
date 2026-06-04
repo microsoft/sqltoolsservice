@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
     {
         protected void InitFormatterUnitTestsBase()
         {
-            HostMock = new Mock<IProtocolEndpoint>();
+            HostMock = new Mock<IRpcServiceHost>();
             WorkspaceServiceMock = new Mock<WorkspaceService<SqlToolsSettings>>();
             LanguageServiceMock = new Mock<LanguageService>();
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         protected ExtensionServiceProvider ServiceProvider { get; private set; }
-        protected Mock<IProtocolEndpoint> HostMock { get; private set; }
+        protected Mock<IRpcServiceHost> HostMock { get; private set; }
         protected Mock<WorkspaceService<SqlToolsSettings>> WorkspaceServiceMock { get; private set; }
         protected Mock<LanguageService> LanguageServiceMock { get; private set; }
 

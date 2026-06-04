@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -11,7 +11,6 @@ using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -22,8 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Moq;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
@@ -52,21 +50,16 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
 
                 var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
 
-                var requestContext = new Mock<RequestContext<BackupConfigInfoResponse>>();
-                requestContext.Setup(x => x.SendResult(It.IsAny<BackupConfigInfoResponse>()))
-                    .Returns(Task.FromResult(new object()));
-
                 var dbParams = new DefaultDatabaseInfoParams
                 {
                     OwnerUri = liveConnection.ConnectionInfo.OwnerUri
                 };
 
                 DisasterRecoveryService service = new DisasterRecoveryService();
-                await service.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
+                BackupConfigInfoResponse response = await service.HandleBackupConfigInfoRequest(dbParams);
 
-                requestContext.Verify(x => x.SendResult(It.Is<BackupConfigInfoResponse>
-                    (p => p.BackupConfigInfo.RecoveryModel != string.Empty
-                    && p.BackupConfigInfo.DefaultBackupFolder != string.Empty)));
+                Assert.That(response.BackupConfigInfo.RecoveryModel, Is.Not.Empty);
+                Assert.That(response.BackupConfigInfo.DefaultBackupFolder, Is.Not.Empty);
             }
         }
 
@@ -318,7 +311,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 })
                 .Complete();
 
-            await service.RunFileBrowserOpenTask(openParams, openBrowserEventFlowValidator.Object);
+            service.EventSender = openBrowserEventFlowValidator.Object;
+            await service.RunFileBrowserOpenTask(openParams);
 
             // Verify complete notification event was fired and the result
             openBrowserEventFlowValidator.Validate();
@@ -340,7 +334,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 .Complete();
 
             // Expand the node in file browser
-            await service.RunFileBrowserExpandTask(expandParams, expandEventFlowValidator.Object);
+            service.EventSender = expandEventFlowValidator.Object;
+            await service.RunFileBrowserExpandTask(expandParams);
 
             // Verify result
             expandEventFlowValidator.Validate();
@@ -357,7 +352,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 .Complete();
 
             // Validate selected files in the browser
-            await service.RunFileBrowserValidateTask(validateParams, validateEventFlowValidator.Object);
+            service.EventSender = validateEventFlowValidator.Object;
+            await service.RunFileBrowserValidateTask(validateParams);
 
             // Verify complete notification event was fired and the result
             validateEventFlowValidator.Validate();

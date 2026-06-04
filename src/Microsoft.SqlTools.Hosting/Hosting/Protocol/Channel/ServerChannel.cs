@@ -6,7 +6,6 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 
 namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 {
@@ -16,14 +15,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
     /// </summary>
     public class ServerChannel : ChannelBase
     {
-        private Stream inputStream;
-        private Stream outputStream;
-
         /// <summary>
         /// Initializes the channel with the given streams. If either stream is not provided,
         /// falls back to the console standard I/O streams and sets the console encoding to UTF-8.
         /// </summary>
-        protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
+        protected override void Initialize(Stream? inputStream = null, Stream? outputStream = null)
         {
 #if !NanoServer
             // Ensure that the console is using UTF-8 encoding
@@ -38,19 +34,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 #endif
 
             // Open the standard input/output streams
-            this.inputStream = inputStream ?? System.Console.OpenStandardInput();
-            this.outputStream = outputStream ?? System.Console.OpenStandardOutput();
-
-            // Set up the reader and writer
-            this.MessageReader = 
-                new MessageReader(
-                    this.inputStream,
-                    messageSerializer);
-
-            this.MessageWriter = 
-                new MessageWriter(
-                    this.outputStream,
-                    messageSerializer);
+            this.InputStream = inputStream ?? System.Console.OpenStandardInput();
+            this.OutputStream = outputStream ?? System.Console.OpenStandardOutput();
 
             this.IsConnected = true;
         }

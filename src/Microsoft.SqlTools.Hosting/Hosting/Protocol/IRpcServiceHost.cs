@@ -3,6 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using NUnit.Framework;
-
-[assembly: NonParallelizable]
+namespace Microsoft.SqlTools.Hosting.Protocol
+{
+    public interface IRpcServiceHost : IRpcMethodRegistry, IEventSender, IRequestSender
+    {
+    }
+}

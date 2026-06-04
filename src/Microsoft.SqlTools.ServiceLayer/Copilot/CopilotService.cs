@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         /// <summary>
         /// Service host object for sending/receiving requests/events.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IRpcServiceHost ServiceHost
         {
             get;
             set;
@@ -58,31 +58,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(StartConversationRequest.Type, HandleStartConversationRequest, true);
-            this.ServiceHost.SetRequestHandler(GetNextMessageRequest.Type, HandleGetNextMessageRequest, true);
+            this.ServiceHost.RegisterRequestHandler(StartConversationRequest.Type, HandleStartConversationRequest);
+            this.ServiceHost.RegisterRequestHandler(GetNextMessageRequest.Type, HandleGetNextMessageRequest);
         }
 
-        private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
+        private async Task<T> HandleRequest<T>(Func<Task<T>> action)
         {
             // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
             // For any specific table designer instance, ADS UI can make sure there are at most one request being processed at any given time, so we don't have to worry about race conditions.
-            Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await action();
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(e);
-                }
-            });
-            return Task.CompletedTask;
+                return await action();
+            }
+            catch (Exception e)
+            {
+                throw RpcErrorException.Create(e);
+            }
         }
 
-        private Task HandleStartConversationRequest(StartConversationParams conversationParams, RequestContext<StartConversationResponse> requestContext)
+        private Task<StartConversationResponse> HandleStartConversationRequest(StartConversationParams conversationParams)
         {
-            return this.HandleRequest<StartConversationResponse>(requestContext, async () =>
+            return this.HandleRequest<StartConversationResponse>(async () =>
             {
                 bool success = await this.copilotConversationManager.StartConversation(
                     conversationParams.ConversationUri,
@@ -90,20 +86,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Copilot
                     conversationParams.UserText
                 );
 
-                await requestContext.SendResult(new StartConversationResponse() { Success = success });
+                return new StartConversationResponse() { Success = success };
             });
         }
 
-        private Task HandleGetNextMessageRequest(GetNextMessageParams requestParams, RequestContext<GetNextMessageResponse> requestContext)
+        private Task<GetNextMessageResponse> HandleGetNextMessageRequest(GetNextMessageParams requestParams)
         {          
-            return this.HandleRequest<GetNextMessageResponse>(requestContext, async () =>
+            return this.HandleRequest<GetNextMessageResponse>(async () =>
             {
                 GetNextMessageResponse response = await this.copilotConversationManager.GetNextMessage(
                     requestParams.ConversationUri, 
                     requestParams.UserText,
                     requestParams.Tool,
                     requestParams.ToolParameters);
-                await requestContext.SendResult(response);
+                return response;
             });
         }
 

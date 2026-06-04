@@ -59,6 +59,7 @@
     <PackageReference Update="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
     <PackageReference Update="TextCopy" Version="6.2.1" />
     <PackageReference Update="Microsoft.SemanticKernel" Version="1.71.0" />
+    <PackageReference Update="StreamJsonRpc" Version="2.24.92" />
 
     <PackageReference Update="OpenAI" Version="2.7.0" />
     <PackageReference Update="Microsoft.Bcl.Memory" Version="10.0.5" />

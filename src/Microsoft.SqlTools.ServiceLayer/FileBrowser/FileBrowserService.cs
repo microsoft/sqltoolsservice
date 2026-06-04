@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -30,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private readonly ConcurrentDictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new ConcurrentDictionary<string, FileBrowserOperation>();
         private readonly ConcurrentDictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new ConcurrentDictionary<string, ValidatePathsCallback>();
         private ConnectionService connectionService;
+        private IEventSender eventSender;
         private ConnectedBindingQueue fileBrowserQueue = new ConnectedBindingQueue(needsMetadata: false);
         private static int DefaultTimeout = 120000;
         private string serviceName = "FileBrowser";
@@ -57,6 +58,18 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
+        internal IEventSender EventSender
+        {
+            get
+            {
+                return eventSender;
+            }
+            set
+            {
+                eventSender = value;
+            }
+        }
+
         /// <summary>
         /// Register validate path callback
         /// </summary>
@@ -73,80 +86,81 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="serviceHost">Service host to register handlers with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
+            this.eventSender = serviceHost;
+
             // Open a file browser
-            serviceHost.SetRequestHandler(FileBrowserOpenRequest.Type, HandleFileBrowserOpenRequest, true);
+            serviceHost.RegisterRequestHandler(FileBrowserOpenRequest.Type, HandleFileBrowserOpenRequest);
 
             // Expand a folder node
-            serviceHost.SetRequestHandler(FileBrowserExpandRequest.Type, HandleFileBrowserExpandRequest, true);
+            serviceHost.RegisterRequestHandler(FileBrowserExpandRequest.Type, HandleFileBrowserExpandRequest);
 
             // Validate the selected files
-            serviceHost.SetRequestHandler(FileBrowserValidateRequest.Type, HandleFileBrowserValidateRequest, true);
+            serviceHost.RegisterRequestHandler(FileBrowserValidateRequest.Type, HandleFileBrowserValidateRequest);
 
             // Close the file browser
-            serviceHost.SetRequestHandler(FileBrowserCloseRequest.Type, HandleFileBrowserCloseRequest, true);
+            serviceHost.RegisterRequestHandler(FileBrowserCloseRequest.Type, HandleFileBrowserCloseRequest);
         }
 
         #region request handlers
 
-        internal async Task HandleFileBrowserOpenRequest(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
+        internal async Task<bool> HandleFileBrowserOpenRequest(FileBrowserOpenParams fileBrowserParams)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams, requestContext))
+                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams))
                     .ContinueWithOnFaulted(null);
-                await requestContext.SendResult(true);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("Unexpected exception while handling file browser open request: " + ex.Message);
-                await requestContext.SendResult(false);
+                return false;
             }
         }
 
-        internal async Task HandleFileBrowserExpandRequest(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
+        internal async Task<bool> HandleFileBrowserExpandRequest(FileBrowserExpandParams fileBrowserParams)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams, requestContext))
+                var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams))
                     .ContinueWithOnFaulted(null);
-                await requestContext.SendResult(true);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("Unexpected exception while handling file browser expand request: " + ex.Message);
-                await requestContext.SendResult(false);
+                return false;
             }
         }
 
-        internal async Task HandleFileBrowserValidateRequest(FileBrowserValidateParams fileBrowserParams, RequestContext<bool> requestContext)
+        internal async Task<bool> HandleFileBrowserValidateRequest(FileBrowserValidateParams fileBrowserParams)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams, requestContext))
+                var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams))
                     .ContinueWithOnFaulted(null);
-                await requestContext.SendResult(true);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Error("Unexpected exception while handling file browser validate request: " + ex.Message);
-                await requestContext.SendResult(false);
+                return false;
             }
         }
 
-        internal async Task HandleFileBrowserCloseRequest(
-            FileBrowserCloseParams fileBrowserParams,
-            RequestContext<FileBrowserCloseResponse> requestContext)
+        internal async Task<FileBrowserCloseResponse> HandleFileBrowserCloseRequest(
+            FileBrowserCloseParams fileBrowserParams)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserCloseTask(fileBrowserParams, requestContext))
+                var task = Task.Run(() => RunFileBrowserCloseTask(fileBrowserParams))
                     .ContinueWithOnFaulted(null);
-                await requestContext.SendResult(new FileBrowserCloseResponse() { Succeeded = true });
+                return new FileBrowserCloseResponse() { Succeeded = true };
             }
             catch (Exception ex)
             {
                 Logger.Error("Unexpected exception while handling file browser close request: " + ex.Message);
-                await requestContext.SendResult(new FileBrowserCloseResponse() { Message = ex.Message });
+                return new FileBrowserCloseResponse() { Message = ex.Message };
             }
         }
 
@@ -157,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             this.fileBrowserQueue.Dispose();
         }
 
-        internal async Task RunFileBrowserCloseTask(FileBrowserCloseParams fileBrowserParams, RequestContext<FileBrowserCloseResponse> requestContext)
+        internal async Task<FileBrowserCloseResponse> RunFileBrowserCloseTask(FileBrowserCloseParams fileBrowserParams)
         {
             FileBrowserCloseResponse result = new FileBrowserCloseResponse();
             try
@@ -209,10 +223,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await requestContext.SendEvent(FileBrowserClosedNotification.Type, result);
+            await this.eventSender.SendEvent(FileBrowserClosedNotification.Type, result);
+            return result;
         }
 
-        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
+        internal async Task<bool> RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
             FileBrowserOperation browser = null;
@@ -280,11 +295,13 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             if (!isCancelRequested)
             {
-                await requestContext.SendEvent(FileBrowserOpenedNotification.Type, result);
+                await this.eventSender.SendEvent(FileBrowserOpenedNotification.Type, result);
             }
+
+            return result.Succeeded;
         }
 
-        internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
+        internal async Task<bool> RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams)
         {
             FileBrowserExpandedParams result = new FileBrowserExpandedParams();
             try
@@ -322,10 +339,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await requestContext.SendEvent(FileBrowserExpandedNotification.Type, result);
+            await this.eventSender.SendEvent(FileBrowserExpandedNotification.Type, result);
+            return result.Succeeded;
         }
 
-        internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams, RequestContext<bool> requestContext)
+        internal async Task<bool> RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams)
         {
             FileBrowserValidatedParams result = new FileBrowserValidatedParams();
 
@@ -374,7 +392,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await requestContext.SendEvent(FileBrowserValidatedNotification.Type, result);
+            await this.eventSender.SendEvent(FileBrowserValidatedNotification.Type, result);
+            return result.Succeeded;
         }
     }
 }

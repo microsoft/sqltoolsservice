@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -18,12 +18,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
@@ -311,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                     Assert.AreEqual(2, p.BatchSummaries.Length);
                     Assert.That(p.BatchSummaries.Select(s => s.ResultSetSummaries.Length), Has.All.EqualTo(0));
                 }).Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... All events should have been called as per their flow validator
@@ -338,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
 
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... All events should have been called as per their flow validator
@@ -372,7 +373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... All events should have been called as per their flow validator
@@ -401,9 +402,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
                 .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
+                .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... All events should have been called as per their flow validator
@@ -436,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(2)
                 .Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... All events should have been called as per their flow validator
@@ -447,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task QueryExecuteUnconnectedUriTest()
+        public void QueryExecuteUnconnectedUriTest()
         {
             // Given:
             // If:
@@ -456,14 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
-
-            // Then:
-            // ... All events should have been called as per their flow validator
-            efv.Validate();
+            Assert.ThrowsAsync<LocalRpcException>(async () => await Common.AwaitExecution(queryService, queryParams));
 
             // ... There should be no active queries
             Assert.That(queryService.ActiveQueries, Is.Empty);
@@ -479,19 +474,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await Common.AwaitExecution(queryService, queryParams, firstRequestContext.Object);
+            await Common.AwaitExecution(queryService, queryParams);
 
             // ... And then I request another query without waiting for the first to complete
             queryService.ActiveQueries[Constants.OwnerUri].HasExecuted = false; // Simulate query hasn't finished
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
-
-            // Then:
-            // ... All events should have been called as per their flow validator
-            efv.Validate();
+            Assert.ThrowsAsync<LocalRpcException>(async () => await Common.AwaitExecution(queryService, queryParams));
 
             // ... There should only be one active query
             Assert.AreEqual(1, queryService.ActiveQueries.Count);
@@ -507,19 +494,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await Common.AwaitExecution(queryService, queryParams, firstRequestContext.Object);
+            await Common.AwaitExecution(queryService, queryParams);
 
             // ... And then I request another query after waiting for the first to complete
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
+                .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddStandardQueryCompleteValidator(1)
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
 
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... All events should have been called as per their flow validator
@@ -541,11 +527,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
+                .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+            await Common.AwaitExecution(queryService, queryParams, efv);
 
             // Then:
             // ... An error should have been sent
@@ -564,7 +551,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var efv = new EventFlowValidator<SimpleExecuteResult>()
                 .AddSimpleExecuteErrorValidator(SR.QueryServiceResultSetHasNoResults)
                 .Complete();
-            await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
+            await efv.SetResult(await queryService.HandleSimpleExecuteRequest(queryParams));
 
             await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
 
@@ -587,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var efv = new EventFlowValidator<SimpleExecuteResult>()
                 .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
                 .Complete();
-            await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
+            await efv.SetResult(await queryService.HandleSimpleExecuteRequest(queryParams));
 
             await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
 
@@ -614,8 +601,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var efv2 = new EventFlowValidator<SimpleExecuteResult>()
                 .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
                 .Complete();
-            Task qT1 = queryService.HandleSimpleExecuteRequest(queryParams, efv1.Object);
-            Task qT2 = queryService.HandleSimpleExecuteRequest(queryParams, efv2.Object);
+            Task qT1 = queryService.HandleSimpleExecuteRequest(queryParams).ContinueWith(async task => await efv1.SetResult(task.Result)).Unwrap();
+            Task qT2 = queryService.HandleSimpleExecuteRequest(queryParams).ContinueWith(async task => await efv2.SetResult(task.Result)).Unwrap();
 
             await Task.WhenAll(qT1, qT2);
 
@@ -725,8 +712,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             return efv.AddResultValidation(Assert.NotNull);
         }
 
-        public static EventFlowValidator<TRequestContext> AddStandardBatchStartValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
+        public static EventFlowValidator<TResult> AddStandardBatchStartValidator<TResult>(
+            this EventFlowValidator<TResult> efv)
         {
             return efv.AddEventValidation(BatchStartEvent.Type, p =>
             {
@@ -736,8 +723,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             });
         }
 
-        public static EventFlowValidator<TRequestContext> AddStandardBatchCompleteValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
+        public static EventFlowValidator<TResult> AddStandardBatchCompleteValidator<TResult>(
+            this EventFlowValidator<TResult> efv)
         {
             return efv.AddEventValidation(BatchCompleteEvent.Type, p =>
             {
@@ -747,8 +734,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             });
         }
 
-        public static EventFlowValidator<TRequestContext> AddStandardMessageValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
+        public static EventFlowValidator<TResult> AddStandardMessageValidator<TResult>(
+            this EventFlowValidator<TResult> efv)
         {
             return efv.AddEventValidation(MessageEvent.Type, p =>
             {
@@ -758,8 +745,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             });
         }
 
-        public static EventFlowValidator<TRequestContext> AddResultSetValidator<TRequestContext, T>(
-            this EventFlowValidator<TRequestContext> efv, EventType<T> expectedEvent, List<ResultSetEventParams> resultSetEventParamList = null) where T : ResultSetEventParams
+        public static EventFlowValidator<TResult> AddResultSetValidator<TResult, T>(
+            this EventFlowValidator<TResult> efv, EventType<T> expectedEvent, List<ResultSetEventParams> resultSetEventParamList = null) where T : ResultSetEventParams
         {
             return efv.SetupCallbackOnMethodSendEvent(expectedEvent, (p) =>
             {
@@ -770,8 +757,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             });
         }
 
-        public static EventFlowValidator<TRequestContext> ValidateResultSetSummaries<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv, List<ResultSetEventParams> resultSetEventParamList)
+        public static EventFlowValidator<TResult> ValidateResultSetSummaries<TResult>(
+            this EventFlowValidator<TResult> efv, List<ResultSetEventParams> resultSetEventParamList)
         {
             string GetResultSetKey(ResultSetSummary summary) => $"BatchId:{summary.BatchId}, ResultId:{summary.Id}";
 
@@ -899,8 +886,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             }
         }
 
-        public static EventFlowValidator<TRequestContext> AddStandardQueryCompleteValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv, int expectedBatches)
+        public static EventFlowValidator<TResult> AddStandardQueryCompleteValidator<TResult>(
+            this EventFlowValidator<TResult> efv, int expectedBatches)
         {
             return efv.AddEventValidation(QueryCompleteEvent.Type, p =>
             {

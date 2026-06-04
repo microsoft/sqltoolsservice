@@ -9,13 +9,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Moq;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -102,13 +99,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentJobInfo job)
         {
-            var context = new Mock<RequestContext<CreateAgentJobResult>>();
             await service.HandleCreateAgentJobRequest(new CreateAgentJobParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Job = job
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task UpdateAgentJob(
@@ -117,13 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             AgentJobInfo job)
         {
             job.Description = "Update job description";
-            var context = new Mock<RequestContext<UpdateAgentJobResult>>();
             await service.HandleUpdateAgentJobRequest(new UpdateAgentJobParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Job = job
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task DeleteAgentJob(
@@ -132,17 +125,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             AgentJobInfo job,
             bool verify = true)
         {
-            var context = new Mock<RequestContext<ResultStatus>>();
             await service.HandleDeleteAgentJobRequest(new DeleteAgentJobParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Job = job
-            }, context.Object);
-
-            if (verify)
-            {
-                context.VerifyAll();
-            }
+            });
         }
 
         internal static async Task CreateAgentJobStep(
@@ -150,13 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentJobStepInfo stepInfo)
         {
-            var context = new Mock<RequestContext<CreateAgentJobStepResult>>();
             await service.HandleCreateAgentJobStepRequest(new CreateAgentJobStepParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Step = stepInfo
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task UpdateAgentJobStep(
@@ -164,13 +149,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentJobStepInfo stepInfo)
         {
-            var context = new Mock<RequestContext<UpdateAgentJobStepResult>>();
             await service.HandleUpdateAgentJobStepRequest(new UpdateAgentJobStepParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Step = stepInfo
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task DeleteAgentJobStep(
@@ -178,13 +161,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentJobStepInfo stepInfo)
         {
-            var context = new Mock<RequestContext<ResultStatus>>();
             await service.HandleDeleteAgentJobStepRequest(new DeleteAgentJobStepParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Step = stepInfo
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task CreateAgentOperator(
@@ -192,13 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentOperatorInfo operatorInfo)
         {
-            var context = new Mock<RequestContext<AgentOperatorResult>>();
             await service.HandleCreateAgentOperatorRequest(new CreateAgentOperatorParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Operator = operatorInfo
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task UpdateAgentOperator(
@@ -206,13 +185,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentOperatorInfo operatorInfo)
         {
-            var context = new Mock<RequestContext<AgentOperatorResult>>();
             await service.HandleUpdateAgentOperatorRequest(new UpdateAgentOperatorParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Operator = operatorInfo
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task DeleteAgentOperator(
@@ -220,13 +197,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentOperatorInfo operatorInfo)
         {
-            var context = new Mock<RequestContext<ResultStatus>>();
             await service.HandleDeleteAgentOperatorRequest(new DeleteAgentOperatorParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Operator = operatorInfo
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task CreateAgentProxy(
@@ -234,13 +209,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentProxyInfo proxy)
         {
-            var context = new Mock<RequestContext<AgentProxyResult>>();
             await service.HandleCreateAgentProxyRequest(new CreateAgentProxyParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Proxy = proxy
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task UpdateAgentProxy(
@@ -249,14 +222,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             string originalProxyName,
             AgentProxyInfo proxy)
         {
-            var context = new Mock<RequestContext<AgentProxyResult>>();
             await service.HandleUpdateAgentProxyRequest(new UpdateAgentProxyParams()
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 OriginalProxyName = originalProxyName,
                 Proxy = proxy
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task DeleteAgentProxy(
@@ -264,13 +235,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentProxyInfo proxy)
         {
-            var context = new Mock<RequestContext<ResultStatus>>();
             await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Proxy = proxy
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task CreateAgentSchedule(
@@ -278,13 +247,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentScheduleInfo schedule)
         {
-            var context = new Mock<RequestContext<AgentScheduleResult>>();
             await service.HandleCreateAgentScheduleRequest(new CreateAgentScheduleParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Schedule = schedule
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task UpdateAgentSchedule(
@@ -293,14 +260,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
            string originalScheduleName,
            AgentScheduleInfo schedule)
         {
-            var context = new Mock<RequestContext<AgentScheduleResult>>();
             await service.HandleUpdateAgentScheduleRequest(new UpdateAgentScheduleParams()
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 OriginalScheduleName = originalScheduleName,
                 Schedule = schedule
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task DeleteAgentSchedule(
@@ -308,13 +273,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             TestConnectionResult connectionResult,
             AgentScheduleInfo schedule)
         {
-            var context = new Mock<RequestContext<ResultStatus>>();
             await service.HandleDeleteAgentScheduleRequest(new DeleteAgentScheduleParams()
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 Schedule = schedule
-            }, context.Object);
-            context.VerifyAll();
+            });
         }
 
         internal static async Task<AgentAlertInfo[]> GetAgentAlerts(string connectionUri)
@@ -324,15 +287,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 OwnerUri = connectionUri
             };
 
-            var requestContext = new Mock<RequestContext<AgentAlertsResult>>();
-
-            AgentAlertInfo[] agentAlerts = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<AgentAlertsResult>()))
-                 .Callback<AgentAlertsResult>(r => agentAlerts = r.Alerts);
-
             AgentService service = new AgentService();
-            await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
-            return agentAlerts;
+            AgentAlertsResult result = await service.HandleAgentAlertsRequest(requestParams);
+            return result.Alerts;
         }
 
         public static async Task<AgentJobInfo> SetupJob(TestConnectionResult connectionResult)

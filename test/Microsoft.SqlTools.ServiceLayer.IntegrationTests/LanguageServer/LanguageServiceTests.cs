@@ -25,6 +25,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 {
@@ -156,11 +157,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             result.TextDocumentPosition.TextDocument.Uri = result.ScriptFile.FilePath;
 
             var autoCompleteService = CreateLanguageService(result.ScriptFile);
-            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<bool>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
-                .Returns(Task.FromResult(true));
-            requestContext.Setup(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
 
             //Create completion extension parameters
             var extensionParams = new CompletionExtensionParams()
@@ -171,16 +167,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             };
 
             //load and initialize completion extension, expect a success
-            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
-
-            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Once);
-            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Never);
+            bool loadResult = await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams);
+            Assert.True(loadResult);
 
             //Try to load the same completion extension second time, expect an error sent
-            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
-
-            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Once);
-            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Once);
+            Assert.ThrowsAsync<LocalRpcException>(async () =>
+                await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams));
 
             //Try to load the completion extension with new modified timestamp, expect a success
             var assemblyCopyPath = CopyFileWithNewModifiedTime(extensionParams.AssemblyPath);
@@ -193,10 +185,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                     Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
                 };
                 //load and initialize completion extension
-                await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
-
-                requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
-                requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Once);
+                loadResult = await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams);
+                Assert.True(loadResult);
 
                 ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
                 await autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
@@ -374,9 +364,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 testDb.RunQuery("CREATE TABLE dbo.foo(col1 int)");
 
                 // And refresh the cache
+                langService.EventSenderInstance = new TestEventSender();
                 await langService.DoHandleRebuildIntellisenseNotification(
-                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
-                    new TestEventContext());
+                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri });
 
                 // Now we should expect to see the item show up in the completion list
                 var afterTableCreationCompletionItems = await langService.GetCompletionItems(
@@ -627,25 +617,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 // Test SQL
                 int countOfValidationCalls = 0;
-                var eventContextSql = new Mock<SqlTools.Hosting.Protocol.EventContext>();
-                eventContextSql.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 2, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
+                var eventContextSql = new Mock<Microsoft.SqlTools.Hosting.Protocol.IEventSender>();
+                eventContextSql.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 2, ref countOfValidationCalls)))).Returns(Task.CompletedTask);
+                langService.EventSenderInstance = eventContextSql.Object;
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
                     Uri = scriptFile.ClientUri,
                     Language = LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                     Flavor = "MSSQL"
-                }, eventContextSql.Object);
+                });
                 await langService.DelayedDiagnosticsTask; // to ensure completion and validation before moveing to next step
 
                 // Test SQL CMD
-                var eventContextSqlCmd = new Mock<SqlTools.Hosting.Protocol.EventContext>();
-                eventContextSqlCmd.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 0, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
+                var eventContextSqlCmd = new Mock<Microsoft.SqlTools.Hosting.Protocol.IEventSender>();
+                eventContextSqlCmd.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 0, ref countOfValidationCalls)))).Returns(Task.CompletedTask);
+                langService.EventSenderInstance = eventContextSqlCmd.Object;
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
                     Uri = scriptFile.ClientUri,
                     Language = LanguageService.SQL_CMD_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                     Flavor = "MSSQL"
-                }, eventContextSqlCmd.Object);
+                });
                 await langService.DelayedDiagnosticsTask;
 
                 Assert.True(countOfValidationCalls == 2, $"Validation should be called 2 time but is called {countOfValidationCalls} times");
@@ -712,9 +704,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 testDb.RunQuery(createTableQueries);
 
                 // And refresh the cache
+                langService.EventSenderInstance = new TestEventSender();
                 await langService.DoHandleRebuildIntellisenseNotification(
-                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
-                    new TestEventContext());
+                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri });
 
                 // Now we should expect to see the star expansion show up in the completion list
                 var starExpansionCompletionItem = await langService.GetCompletionItems(

@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
         /// <summary>
         /// Service host object for sending/receiving requests/events.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IRpcServiceHost ServiceHost
         {
             get;
             set;
@@ -69,15 +69,15 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
         {
             this.ServiceHost = serviceHost;
 
-            this.ServiceHost.SetRequestHandler(ConvertNotebookToSqlRequest.Type, HandleConvertNotebookToSqlRequest, true);
-            this.ServiceHost.SetRequestHandler(ConvertSqlToNotebookRequest.Type, HandleConvertSqlToNotebookRequest, true);
+            this.ServiceHost.RegisterRequestHandler(ConvertNotebookToSqlRequest.Type, HandleConvertNotebookToSqlRequest);
+            this.ServiceHost.RegisterRequestHandler(ConvertSqlToNotebookRequest.Type, HandleConvertSqlToNotebookRequest);
 
 
         }
 
         #region Convert Handlers
 
-        internal async Task HandleConvertNotebookToSqlRequest(ConvertNotebookToSqlParams parameters, RequestContext<ConvertNotebookToSqlResult> requestContext)
+        internal async Task<ConvertNotebookToSqlResult> HandleConvertNotebookToSqlRequest(ConvertNotebookToSqlParams parameters)
         {
             var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
 
@@ -85,10 +85,10 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
             {
                 Content = ConvertNotebookDocToSql(notebookDoc)
             };
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleConvertSqlToNotebookRequest(ConvertSqlToNotebookParams parameters, RequestContext<ConvertSqlToNotebookResult> requestContext)
+        internal async Task<ConvertSqlToNotebookResult> HandleConvertSqlToNotebookRequest(ConvertSqlToNotebookParams parameters)
         {
             var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(parameters.ClientUri);
             // Temporary notebook that we just fill in with the sql until the parsing logic is added
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
             {
                 Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
             };
-            await requestContext.SendResult(result);
+            return result;
         }
 
         #endregion // Convert Handlers

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -94,25 +94,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IRpcServiceHost serviceHost)
         {
             // Get database info
-            serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest, true);
+            serviceHost.RegisterRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest);
 
             // Create backup
-            serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest, true);
+            serviceHost.RegisterRequestHandler(BackupRequest.Type, HandleBackupRequest);
 
             // Create restore task
-            serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest, true);
+            serviceHost.RegisterRequestHandler(RestoreRequest.Type, HandleRestoreRequest);
 
             // Create restore plan
-            serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest, true);
+            serviceHost.RegisterRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
 
             // Cancel restore plan
-            serviceHost.SetRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest, true);
+            serviceHost.RegisterRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest);
 
             // Create restore config
-            serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest, true);
+            serviceHost.RegisterRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
 
             // Register file path validation callbacks
             FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
@@ -125,9 +125,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="optionsParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleBackupConfigInfoRequest(
-            DefaultDatabaseInfoParams optionsParams,
-            RequestContext<BackupConfigInfoResponse> requestContext)
+        internal async Task<BackupConfigInfoResponse> HandleBackupConfigInfoRequest(
+            DefaultDatabaseInfoParams optionsParams)
         {
             var response = new BackupConfigInfoResponse();
             ConnectionInfo connInfo;
@@ -150,35 +149,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 }
             }
 
-            await requestContext.SendResult(response);
+            return response;
         }
 
         /// <summary>
         /// Handles a restore request
         /// </summary>
-        internal async Task HandleCancelRestorePlanRequest(
-            RestoreParams restoreParams,
-            RequestContext<bool> requestContext)
+        internal async Task<bool> HandleCancelRestorePlanRequest(
+            RestoreParams restoreParams)
         {
             bool result = false;
             try
             {
                 result = this.restoreDatabaseService.CancelRestorePlan(restoreParams);
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
                 Logger.Error("Failed to cancel restore session. error: " + ex.Message);
-                await requestContext.SendResult(result);
+                return result;
             }
         }
 
         /// <summary>
         /// Handles a restore request
         /// </summary>
-        internal async Task HandleRestorePlanRequest(
-            RestoreParams restoreParams,
-            RequestContext<RestorePlanResponse> requestContext)
+        internal async Task<RestorePlanResponse> HandleRestorePlanRequest(
+            RestoreParams restoreParams)
         {
             RestorePlanResponse response = new RestorePlanResponse();
 
@@ -203,22 +200,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     response.CanRestore = false;
                     response.ErrorMessage = SR.RestoreNotSupported;
                 }
-                await requestContext.SendResult(response);
+                return response;
             }
             catch (Exception ex)
             {
                 response.CanRestore = false;
                 response.ErrorMessage = ex.Message;
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
         /// <summary>
         /// Handles a restore config info request
         /// </summary>
-        internal async Task HandleRestoreConfigInfoRequest(
-            RestoreConfigInfoRequestParams restoreConfigInfoParams,
-            RequestContext<RestoreConfigInfoResponse> requestContext)
+        internal async Task<RestoreConfigInfoResponse> HandleRestoreConfigInfoRequest(
+            RestoreConfigInfoRequestParams restoreConfigInfoParams)
         {
             RestoreConfigInfoResponse response = new RestoreConfigInfoResponse();
 
@@ -235,21 +231,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     response.ErrorMessage = SR.RestoreNotSupported;
                 }
-                await requestContext.SendResult(response);
+                return response;
             }
             catch (Exception ex)
             {
                 response.ErrorMessage = ex.Message;
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
         /// <summary>
         /// Handles a restore request
         /// </summary>
-        internal async Task HandleRestoreRequest(
-            RestoreParams restoreParams,
-            RequestContext<RestoreResponse> requestContext)
+        internal async Task<RestoreResponse> HandleRestoreRequest(
+            RestoreParams restoreParams)
         {
             RestoreResponse response = new RestoreResponse();
             try
@@ -290,22 +285,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     response.ErrorMessage = SR.RestoreNotSupported;
                 }
 
-                await requestContext.SendResult(response);
+                return response;
             }
             catch (Exception ex)
             {
                 response.Result = false;
                 response.ErrorMessage = ex.Message;
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
         /// <summary>
         /// Handles a backup request
         /// </summary>
-        internal async Task HandleBackupRequest(
-            BackupParams backupParams,
-            RequestContext<BackupResponse> requestContext)
+        internal async Task<BackupResponse> HandleBackupRequest(
+            BackupParams backupParams)
         {
             BackupResponse response = new BackupResponse();
             ConnectionInfo connInfo;
@@ -341,16 +335,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     response.Result = false;
                 }
 
-                await requestContext.SendResult(response);
+                return response;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e);
                 Logger.Error(e);
                 if (sqlConn != null)
                 {
                     sqlConn.Dispose();
                 }
+                throw RpcErrorException.Create(e);
             }
         }
 

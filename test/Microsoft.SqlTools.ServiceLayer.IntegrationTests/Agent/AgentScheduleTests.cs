@@ -6,12 +6,10 @@
 #nullable disable
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -31,12 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 var service = new AgentService();
 
                 // test
-                var context = new Mock<RequestContext<AgentSchedulesResult>>();
-                await service.HandleAgentSchedulesRequest(new AgentSchedulesParams
+                AgentSchedulesResult result = await service.HandleAgentSchedulesRequest(new AgentSchedulesParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-                }, context.Object);
-                context.VerifyAll();
+                });
+                Assert.True(result.Success);
             }
         }
 

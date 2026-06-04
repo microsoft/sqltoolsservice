@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IRpcServiceHost ServiceHost
         {
             get;
             set;
@@ -82,58 +82,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost = serviceHost;
 
             // Jobs request handlers
-            this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest, true);
-            this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest, true);
-            this.ServiceHost.SetRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
+            this.ServiceHost.RegisterRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
+            this.ServiceHost.RegisterRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest);
 
-            this.ServiceHost.SetRequestHandler(CreateAgentJobRequest.Type, HandleCreateAgentJobRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest, true);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentJobRequest.Type, HandleCreateAgentJobRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
 
-            this.ServiceHost.SetRequestHandler(AgentJobDefaultsRequest.Type, HandleAgentJobDefaultsRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentJobDefaultsRequest.Type, HandleAgentJobDefaultsRequest);
 
             // Job Steps request handlers
-            this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentJobStepRequest.Type, HandleDeleteAgentJobStepRequest, true);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentJobStepRequest.Type, HandleDeleteAgentJobStepRequest);
 
             // Alerts request handlers
-            this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest, true);
-            this.ServiceHost.SetRequestHandler(CreateAgentAlertRequest.Type, HandleCreateAgentAlertRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentAlertRequest.Type, HandleUpdateAgentAlertRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentAlertRequest.Type, HandleDeleteAgentAlertRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentAlertRequest.Type, HandleCreateAgentAlertRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentAlertRequest.Type, HandleUpdateAgentAlertRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentAlertRequest.Type, HandleDeleteAgentAlertRequest);
 
             // Operators request handlers
-            this.ServiceHost.SetRequestHandler(AgentOperatorsRequest.Type, HandleAgentOperatorsRequest, true);
-            this.ServiceHost.SetRequestHandler(CreateAgentOperatorRequest.Type, HandleCreateAgentOperatorRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentOperatorRequest.Type, HandleUpdateAgentOperatorRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentOperatorRequest.Type, HandleDeleteAgentOperatorRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentOperatorsRequest.Type, HandleAgentOperatorsRequest);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentOperatorRequest.Type, HandleCreateAgentOperatorRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentOperatorRequest.Type, HandleUpdateAgentOperatorRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentOperatorRequest.Type, HandleDeleteAgentOperatorRequest);
 
             // Proxy Accounts request handlers
-            this.ServiceHost.SetRequestHandler(AgentProxiesRequest.Type, HandleAgentProxiesRequest, true);
-            this.ServiceHost.SetRequestHandler(CreateAgentProxyRequest.Type, HandleCreateAgentProxyRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentProxyRequest.Type, HandleUpdateAgentProxyRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentProxyRequest.Type, HandleDeleteAgentProxyRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentProxiesRequest.Type, HandleAgentProxiesRequest);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentProxyRequest.Type, HandleCreateAgentProxyRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentProxyRequest.Type, HandleUpdateAgentProxyRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentProxyRequest.Type, HandleDeleteAgentProxyRequest);
 
             // Schedule request handlers
-            this.ServiceHost.SetRequestHandler(AgentSchedulesRequest.Type, HandleAgentSchedulesRequest, true);
-            this.ServiceHost.SetRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentSchedulesRequest.Type, HandleAgentSchedulesRequest);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest);
 
             // Notebook request handlers
-            this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest, true);
-            this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest, true);
-            this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest, true);
-            this.ServiceHost.SetRequestHandler(AgentNotebookTemplateRequest.Type, HandleAgentNotebookTemplateRequest, true);
-            this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteNotebookMaterializedRequest.Type, HandleDeleteNotebookMaterializedRequest, true);
+            this.ServiceHost.RegisterRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest);
+            this.ServiceHost.RegisterRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
+            this.ServiceHost.RegisterRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
+            this.ServiceHost.RegisterRequestHandler(AgentNotebookTemplateRequest.Type, HandleAgentNotebookTemplateRequest);
+            this.ServiceHost.RegisterRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest);
+            this.ServiceHost.RegisterRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest);
+            this.ServiceHost.RegisterRequestHandler(DeleteNotebookMaterializedRequest.Type, HandleDeleteNotebookMaterializedRequest);
 
-            serviceHost.RegisterShutdownTask((_, _) =>
+            serviceHost.RegisterShutdownTask(_ =>
             {
                 DeleteAgentNotebooksTempFiles();
                 return Task.FromResult(0);
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
-        internal async Task HandleAgentJobsRequest(AgentJobsParams parameters, RequestContext<AgentJobsResult> requestContext)
+        internal async Task<AgentJobsResult> HandleAgentJobsRequest(AgentJobsParams parameters)
         {
             var result = new AgentJobsResult();
             ConnectionInfo connInfo;
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     result.Jobs = agentJobs.ToArray();
                     serverConnection.SqlConnectionObject.Close();
                 }
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
@@ -186,14 +186,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
                     exception = exception.InnerException;
                 }
-                await requestContext.SendResult(result);
+                return result;
             }
         }
 
         /// <summary>
         /// Handle request to get Agent Job history
         /// </summary>
-        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext)
+        internal async Task<AgentJobHistoryResult> HandleJobHistoryRequest(AgentJobHistoryParams parameters)
         {
             var result = new AgentJobHistoryResult();
             try
@@ -262,8 +262,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         result.Success = true;
                         tlog.CloseReader();
                     }
-                    await requestContext.SendResult(result);
+                    return result;
                 }
+
+                result.Success = false;
+                result.ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri;
+                return result;
             }
             catch (Exception ex)
             {
@@ -275,14 +279,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
                     exception = exception.InnerException;
                 }
-                await requestContext.SendResult(result);
+                return result;
             }
         }
 
         /// <summary>
         /// Handle request to Run a Job
         /// </summary>
-        internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleJobActionRequest(AgentJobActionParams parameters)
         {
             var result = new ResultStatus();
             try
@@ -317,8 +321,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             break;
                     }
                     result.Success = true;
-                    await requestContext.SendResult(result);
+                    return result;
                 }
+
+                result.Success = false;
+                result.ErrorMessage = SR.QueryServiceQueryInvalidOwnerUri;
+                return result;
             }
             catch (Exception e)
             {
@@ -330,11 +338,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
                     exception = exception.InnerException;
                 }
-                await requestContext.SendResult(result);
+                return result;
             }
         }
 
-        internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
+        internal async Task<CreateAgentJobResult> HandleCreateAgentJobRequest(CreateAgentJobParams parameters)
         {
             var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
@@ -343,14 +351,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Create,
                 ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
-            await requestContext.SendResult(new CreateAgentJobResult()
+            return new CreateAgentJobResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
-        internal async Task HandleUpdateAgentJobRequest(UpdateAgentJobParams parameters, RequestContext<UpdateAgentJobResult> requestContext)
+        internal async Task<UpdateAgentJobResult> HandleUpdateAgentJobRequest(UpdateAgentJobParams parameters)
         {
             var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
@@ -359,14 +367,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Update,
                 ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
-            await requestContext.SendResult(new UpdateAgentJobResult()
+            return new UpdateAgentJobResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
-        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters)
         {
             var result = await ConfigureAgentJob(
                parameters.OwnerUri,
@@ -375,14 +383,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                ConfigAction.Drop,
                ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
-            await requestContext.SendResult(new ResultStatus()
+            return new ResultStatus()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
-        internal async Task HandleCreateAgentJobStepRequest(CreateAgentJobStepParams parameters, RequestContext<CreateAgentJobStepResult> requestContext)
+        internal async Task<CreateAgentJobStepResult> HandleCreateAgentJobStepRequest(CreateAgentJobStepParams parameters)
         {
             Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
@@ -390,14 +398,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Create,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new CreateAgentJobStepResult()
+            return new CreateAgentJobStepResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
-        internal async Task HandleUpdateAgentJobStepRequest(UpdateAgentJobStepParams parameters, RequestContext<UpdateAgentJobStepResult> requestContext)
+        internal async Task<UpdateAgentJobStepResult> HandleUpdateAgentJobStepRequest(UpdateAgentJobStepParams parameters)
         {
             Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
@@ -405,14 +413,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Update,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new UpdateAgentJobStepResult()
+            return new UpdateAgentJobStepResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
-        internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters)
         {
             Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
@@ -420,14 +428,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Drop,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new ResultStatus()
+            return new ResultStatus()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
-        internal async Task HandleAgentJobDefaultsRequest(AgentJobDefaultsParams parameters, RequestContext<AgentJobDefaultsResult> requestContext)
+        internal async Task<AgentJobDefaultsResult> HandleAgentJobDefaultsRequest(AgentJobDefaultsParams parameters)
         {
             var result = new AgentJobDefaultsResult();
             try
@@ -458,7 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.ErrorMessage = ex.ToString();
             }
 
-            await requestContext.SendResult(result);
+            return result;
         }
 
         #endregion // "Jobs Handlers"
@@ -468,7 +476,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to get the alerts list
         /// </summary>
-        internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
+        internal async Task<AgentAlertsResult> HandleAgentAlertsRequest(AgentAlertsParams parameters)
         {
             var result = new AgentAlertsResult();
             try
@@ -518,13 +526,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = ex.ToString();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
         /// <summary>
         /// Handle request to create an alert
         /// </summary>
-        internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
+        internal async Task<CreateAgentAlertResult> HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters)
         {
             var result = await ConfigureAgentAlert(
                 parameters.OwnerUri,
@@ -533,17 +541,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Create,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new CreateAgentAlertResult()
+            return new CreateAgentAlertResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
         /// <summary>
         /// Handle request to update an alert
         /// </summary>
-        internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
+        internal async Task<UpdateAgentAlertResult> HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters)
         {
             var result = await ConfigureAgentAlert(
                 parameters.OwnerUri,
@@ -552,17 +560,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Update,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new UpdateAgentAlertResult()
+            return new UpdateAgentAlertResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
         /// <summary>
         /// Handle request to delete an alert
         /// </summary>
-        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters)
         {
             var result = await ConfigureAgentAlert(
                 parameters.OwnerUri,
@@ -571,18 +579,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Drop,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new ResultStatus()
+            return new ResultStatus()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
         #endregion // "Alert Handlers"
 
         #region "Operator Handlers"
 
-        internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
+        internal async Task<AgentOperatorsResult> HandleAgentOperatorsRequest(AgentOperatorsParams parameters)
         {
             var result = new AgentOperatorsResult();
             try
@@ -626,12 +634,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = ex.ToString();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleCreateAgentOperatorRequest(
-            CreateAgentOperatorParams parameters,
-            RequestContext<AgentOperatorResult> requestContext)
+        internal async Task<AgentOperatorResult> HandleCreateAgentOperatorRequest(
+            CreateAgentOperatorParams parameters)
         {
             var result = await ConfigureAgentOperator(
                 parameters.OwnerUri,
@@ -639,17 +646,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Create,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new AgentOperatorResult()
+            return new AgentOperatorResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2,
                 Operator = parameters.Operator
-            });
+            };
         }
 
-        internal async Task HandleUpdateAgentOperatorRequest(
-            UpdateAgentOperatorParams parameters,
-            RequestContext<AgentOperatorResult> requestContext)
+        internal async Task<AgentOperatorResult> HandleUpdateAgentOperatorRequest(
+            UpdateAgentOperatorParams parameters)
         {
             var result = await ConfigureAgentOperator(
                 parameters.OwnerUri,
@@ -657,17 +663,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Update,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new AgentOperatorResult()
+            return new AgentOperatorResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2,
                 Operator = parameters.Operator
-            });
+            };
         }
 
-        internal async Task HandleDeleteAgentOperatorRequest(
-            DeleteAgentOperatorParams parameters,
-            RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentOperatorRequest(
+            DeleteAgentOperatorParams parameters)
         {
             var result = await ConfigureAgentOperator(
                 parameters.OwnerUri,
@@ -675,11 +680,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Drop,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new ResultStatus()
+            return new ResultStatus()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
         #endregion // "Operator Handlers"
@@ -687,7 +692,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #region "Proxy Handlers"
 
-        internal async Task HandleAgentProxiesRequest(AgentProxiesParams parameters, RequestContext<AgentProxiesResult> requestContext)
+        internal async Task<AgentProxiesResult> HandleAgentProxiesRequest(AgentProxiesParams parameters)
         {
             var result = new AgentProxiesResult();
             try
@@ -721,10 +726,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.ErrorMessage = ex.ToString();
             }
 
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<AgentProxyResult> requestContext)
+        internal async Task<AgentProxyResult> HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters)
         {
             var result = await ConfigureAgentProxy(
                 parameters.OwnerUri,
@@ -733,15 +738,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Create,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new AgentProxyResult()
+            return new AgentProxyResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2,
                 Proxy = parameters.Proxy
-            });
+            };
         }
 
-        internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<AgentProxyResult> requestContext)
+        internal async Task<AgentProxyResult> HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters)
         {
             var result = await ConfigureAgentProxy(
                 parameters.OwnerUri,
@@ -750,15 +755,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Update,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new AgentProxyResult()
+            return new AgentProxyResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2,
                 Proxy = parameters.Proxy
-            });
+            };
         }
 
-        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters)
         {
             var result = await ConfigureAgentProxy(
                 parameters.OwnerUri,
@@ -767,18 +772,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Drop,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new ResultStatus()
+            return new ResultStatus()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
         #endregion // "Proxy Handlers"
 
         #region "Schedule Handlers"
 
-        internal async Task HandleAgentSchedulesRequest(AgentSchedulesParams parameters, RequestContext<AgentSchedulesResult> requestContext)
+        internal async Task<AgentSchedulesResult> HandleAgentSchedulesRequest(AgentSchedulesParams parameters)
         {
             var result = new AgentSchedulesResult();
             try
@@ -821,10 +826,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.ErrorMessage = ex.ToString();
             }
 
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleCreateAgentScheduleRequest(CreateAgentScheduleParams parameters, RequestContext<AgentScheduleResult> requestContext)
+        internal async Task<AgentScheduleResult> HandleCreateAgentScheduleRequest(CreateAgentScheduleParams parameters)
         {
             var result = await ConfigureAgentSchedule(
                 parameters.OwnerUri,
@@ -832,15 +837,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Create,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new AgentScheduleResult()
+            return new AgentScheduleResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2,
                 Schedule = parameters.Schedule
-            });
+            };
         }
 
-        internal async Task HandleUpdateAgentScheduleRequest(UpdateAgentScheduleParams parameters, RequestContext<AgentScheduleResult> requestContext)
+        internal async Task<AgentScheduleResult> HandleUpdateAgentScheduleRequest(UpdateAgentScheduleParams parameters)
         {
             var result = await ConfigureAgentSchedule(
                 parameters.OwnerUri,
@@ -848,15 +853,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Update,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new AgentScheduleResult()
+            return new AgentScheduleResult()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2,
                 Schedule = parameters.Schedule
-            });
+            };
         }
 
-        internal async Task HandleDeleteAgentScheduleRequest(DeleteAgentScheduleParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentScheduleRequest(DeleteAgentScheduleParams parameters)
         {
             var result = await ConfigureAgentSchedule(
                 parameters.OwnerUri,
@@ -864,11 +869,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Drop,
                 RunType.RunNow);
 
-            await requestContext.SendResult(new ResultStatus()
+            return new ResultStatus()
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });
+            };
         }
 
         #endregion // "Schedule Handlers"
@@ -1217,7 +1222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
         }
 
-        internal async Task HandleAgentNotebooksRequest(AgentNotebooksParams parameters, RequestContext<AgentNotebooksResult> requestContext)
+        internal async Task<AgentNotebooksResult> HandleAgentNotebooksRequest(AgentNotebooksParams parameters)
         {
             var result = new AgentNotebooksResult();
             try
@@ -1234,11 +1239,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleAgentNotebookHistoryRequest(
-            AgentNotebookHistoryParams parameters, RequestContext<AgentNotebookHistoryResult> requestContext)
+        internal async Task<AgentNotebookHistoryResult> HandleAgentNotebookHistoryRequest(
+            AgentNotebookHistoryParams parameters)
         {
             var result = new AgentNotebookHistoryResult();
             try
@@ -1263,10 +1268,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleAgentNotebookMaterializedRequest(AgentNotebookMaterializedParams parameters, RequestContext<AgentNotebookMaterializedResult> requestContext)
+        internal async Task<AgentNotebookMaterializedResult> HandleAgentNotebookMaterializedRequest(AgentNotebookMaterializedParams parameters)
         {
             var result = new AgentNotebookMaterializedResult();
             try
@@ -1285,10 +1290,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.ErrorMessage = e.GetFullErrorMessage();
 
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleAgentNotebookTemplateRequest(AgentNotebookTemplateParams parameters, RequestContext<AgentNotebookTemplateResult> requestContext)
+        internal async Task<AgentNotebookTemplateResult> HandleAgentNotebookTemplateRequest(AgentNotebookTemplateParams parameters)
         {
             var result = new AgentNotebookTemplateResult();
             try
@@ -1307,10 +1312,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.ErrorMessage = e.GetFullErrorMessage();
 
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleCreateAgentNotebookRequest(CreateAgentNotebookParams parameters, RequestContext<CreateAgentNotebookResult> requestContext)
+        internal async Task<CreateAgentNotebookResult> HandleCreateAgentNotebookRequest(CreateAgentNotebookParams parameters)
         {
             var result = new CreateAgentNotebookResult();
             try
@@ -1331,10 +1336,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleDeleteAgentNotebooksRequest(DeleteAgentNotebookParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteAgentNotebooksRequest(DeleteAgentNotebookParams parameters)
         {
             var result = new ResultStatus();
             try
@@ -1353,10 +1358,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleUpdateAgentNotebookRequest(UpdateAgentNotebookParams parameters, RequestContext<UpdateAgentNotebookResult> requestContext)
+        internal async Task<UpdateAgentNotebookResult> HandleUpdateAgentNotebookRequest(UpdateAgentNotebookParams parameters)
         {
             var result = new UpdateAgentNotebookResult();
             try
@@ -1376,10 +1381,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleUpdateAgentNotebookRunNameRequest(UpdateAgentNotebookRunNameParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleUpdateAgentNotebookRunNameRequest(UpdateAgentNotebookRunNameParams parameters)
         {
             var result = new ResultStatus();
             try
@@ -1401,10 +1406,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleUpdateAgentNotebookRunPinRequest(UpdateAgentNotebookRunPinParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleUpdateAgentNotebookRunPinRequest(UpdateAgentNotebookRunPinParams parameters)
         {
             var result = new ResultStatus();
             try
@@ -1426,10 +1431,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleDeleteNotebookMaterializedRequest(DeleteMaterializedNotebookParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteNotebookMaterializedRequest(DeleteMaterializedNotebookParams parameters)
         {
             var result = new ResultStatus();
             try
@@ -1450,7 +1455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Success = false;
                 result.ErrorMessage = e.GetFullErrorMessage();
             }
-            await requestContext.SendResult(result);
+            return result;
         }
 
         public async Task<AgentNotebookHistoryResult> GetAgentNotebookHistories

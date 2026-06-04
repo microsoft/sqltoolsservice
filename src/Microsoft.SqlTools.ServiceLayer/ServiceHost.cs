@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -85,10 +84,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         public void InitializeRequestHandlers()
         {
             // Register the requests that this service host will handle
-            this.SetRequestHandler(InitializeRequest.Type, HandleInitializeRequest);
-            this.SetRequestHandler(CapabilitiesRequest.Type, HandleCapabilitiesRequest);
-            this.SetRequestHandler(ShutdownRequest.Type, HandleShutdownRequest);
-            this.SetRequestHandler(VersionRequest.Type, HandleVersionRequest);
+            this.RegisterRequestHandler(InitializeRequest.Type, HandleInitializeRequest);
+            this.RegisterRequestHandler(CapabilitiesRequest.Type, HandleCapabilitiesRequest);
+            this.RegisterRequestHandler(ShutdownRequest.Type, HandleShutdownRequest);
+            this.RegisterRequestHandler(VersionRequest.Type, HandleVersionRequest);
         }
 
         #endregion
@@ -99,15 +98,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// Delegate definition for the host shutdown event
         /// </summary>
         /// <param name="shutdownParams"></param>
-        /// <param name="shutdownRequestContext"></param>
-        public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
+        public delegate Task ShutdownCallback(object shutdownParams);
 
         /// <summary>
         /// Delegate definition for the host initialization event
         /// </summary>
         /// <param name="startupParams"></param>
-        /// <param name="requestContext"></param>
-        public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
+        public delegate Task InitializeCallback(InitializeRequest startupParams);
 
         private readonly List<ShutdownCallback> shutdownCallbacks;
 
@@ -144,15 +141,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <summary>
         /// Handles the shutdown event for the Language Server
         /// </summary>
-        private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
+        private async Task<object> HandleShutdownRequest(object shutdownParams)
         {
             Logger.Information("Service host is shutting down...");
 
             // Call all the shutdown methods provided by the service components
-            Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
+            Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams)).ToArray();
             TimeSpan shutdownTimeout = TimeSpan.FromSeconds(ShutdownTimeoutInSeconds);
             // shut down once all tasks are completed, or after the timeout expires, whichever comes first.
             await Task.WhenAny(Task.WhenAll(shutdownTasks), Task.Delay(shutdownTimeout)).ContinueWith(t => Environment.Exit(0));
+
+            return null;
         }
 
         /// <summary>
@@ -161,17 +160,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <param name="initializeParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
+        internal async Task<InitializeResult> HandleInitializeRequest(InitializeRequest initializeParams)
         {
             // Call all tasks that registered on the initialize request
-            var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
+            var initializeTasks = initializeCallbacks.Select(t => t(initializeParams));
             await Task.WhenAll(initializeTasks);
 
             // TODO: Figure out where this needs to go to be agnostic of the language
 
             // Send back what this server can do
-            await requestContext.SendResult(
-                new InitializeResult
+            return new InitializeResult
                 {
                     Capabilities = new ServerCapabilities
                     {
@@ -192,18 +190,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                             TriggerCharacters = new string[] { " ", "," }
                         }
                     }
-                });
+                };
         }
 
         /// <summary>
         /// Handles a request for the capabilities request
         /// </summary>
-        internal async Task HandleCapabilitiesRequest(
-            CapabilitiesRequest initializeParams, 
-            RequestContext<CapabilitiesResult> requestContext)            
+        internal Task<CapabilitiesResult> HandleCapabilitiesRequest(
+            CapabilitiesRequest initializeParams)            
         {
-            await requestContext.SendResult(
-                new CapabilitiesResult
+            return Task.FromResult(new CapabilitiesResult
                 {
                     Capabilities = new DmpServerCapabilities
                     {
@@ -214,18 +210,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(),
                         Features = FeaturesMetadataProviderHelper.CreateFeatureMetadataProviders()
                     }
-                }
-            );            
+                });            
         }
 
         /// <summary>
         /// Handles the version request. Sends back the server version as result.
         /// </summary>
-        private static async Task HandleVersionRequest(
-          object versionRequestParams,
-          RequestContext<string> requestContext)
+        private static Task<string> HandleVersionRequest(
+          object versionRequestParams)
         {
-            await requestContext.SendResult(serviceVersion.ToString());
+            return Task.FromResult(serviceVersion.ToString());
         }
 
         #endregion

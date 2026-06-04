@@ -850,7 +850,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         jobStep.Drop();
                         // recreate
                         this.alreadyCreated = false;
-                        return ApplyChanges(job);
+                        return ApplyChanges(job, false);
                     }
                 }
 

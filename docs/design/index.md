@@ -15,16 +15,13 @@ The SQL Tools Service is built on top of the SMO SDK for .Net Core and System.Da
 to provide rich SQL Server support that runs on Windows, Mac OS, and Linux operating systems.  The service can work with on-prem SQL Server,
 SQL DB, and Azure SQL DW instances.
 
-## Message Dispatcher
+## JSON-RPC Transport
 
-The JSON-RPC mechanism is build on a message dispatcher.  Messages are read from stdio and serialized\deserialized
-using JSON.Net.  Message handlers are registered with the dispatcher.  As the messages are processed by
-the dispatcher queue they are routed to any registered handlers.  The dispatch queue processes messages 
-serially.
+The JSON-RPC mechanism is implemented with StreamJsonRpc over stdio.  StreamJsonRpc owns message framing,
+serialization, request/response correlation, and notification dispatch.  Services register RPC method handlers
+with the hosting protocol endpoint, and handler methods return results directly or throw RPC errors.
 
-<img src='../images/msgdispatch.png' width='650px' />
-
-Messages are handled by services that register with the message processing component.  The dispatch table maps
+Messages are handled by services that register with the message processing component.  The method table maps
 JSON-RPC message names to callbacks in the various services.  Currently these services are hard-coded into
 the service layer executable.  A future refactor will move to a MEF-based dynamic discovery design such as
 the below diagram illustrates.

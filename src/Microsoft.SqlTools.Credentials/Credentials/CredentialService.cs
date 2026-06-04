@@ -85,21 +85,21 @@ namespace Microsoft.SqlTools.Credentials
             throw new InvalidOperationException("Platform not currently supported");
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IRpcServiceHost serviceHost)
         {
             // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ReadCredentialRequest.Type, HandleReadCredentialRequest);
-            serviceHost.SetRequestHandler(SaveCredentialRequest.Type, HandleSaveCredentialRequest);
-            serviceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
+            serviceHost.RegisterRequestHandler(ReadCredentialRequest.Type, HandleReadCredentialRequest);
+            serviceHost.RegisterRequestHandler(SaveCredentialRequest.Type, HandleSaveCredentialRequest);
+            serviceHost.RegisterRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
         }
 
-        public async Task HandleReadCredentialRequest(Credential credential, RequestContext<Credential> requestContext)
+        public async Task<Credential> HandleReadCredentialRequest(Credential credential)
         {
             Func<Task<Credential>> doRead = () =>
             {
                 return ReadCredentialAsync(credential);
             };
-            await HandleRequest(doRead, requestContext, "HandleReadCredentialRequest");
+            return await HandleRequest(doRead, "HandleReadCredentialRequest");
         }
 
 
@@ -121,13 +121,13 @@ namespace Microsoft.SqlTools.Credentials
             return result;
         }
 
-        public async Task HandleSaveCredentialRequest(Credential credential, RequestContext<bool> requestContext)
+        public async Task<bool> HandleSaveCredentialRequest(Credential credential)
         {
             Func<Task<bool>> doSave = () =>
             {
                 return SaveCredentialAsync(credential);
             };
-            await HandleRequest(doSave, requestContext, "HandleSaveCredentialRequest");
+            return await HandleRequest(doSave, "HandleSaveCredentialRequest");
         }
 
         public Task<bool> SaveCredentialAsync(Credential credential)
@@ -141,13 +141,13 @@ namespace Microsoft.SqlTools.Credentials
             return credStore.Save(credential);
         }
 
-        public async Task HandleDeleteCredentialRequest(Credential credential, RequestContext<bool> requestContext)
+        public async Task<bool> HandleDeleteCredentialRequest(Credential credential)
         {
             Func<Task<bool>> doDelete = () =>
             {
                 return DeletePasswordAsync(credential);
             };
-            await HandleRequest(doDelete, requestContext, "HandleDeleteCredentialRequest");
+            return await HandleRequest(doDelete, "HandleDeleteCredentialRequest");
         }
 
         private Task<bool> DeletePasswordAsync(Credential credential)
@@ -159,11 +159,11 @@ namespace Microsoft.SqlTools.Credentials
             });
         }
 
-        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        private async Task<T> HandleRequest<T>(Func<Task<T>> handler, string requestType)
         {
             Logger.Verbose(requestType);
             T result = await handler();
-            await requestContext.SendResult(result);
+            return result;
         }
 
     }

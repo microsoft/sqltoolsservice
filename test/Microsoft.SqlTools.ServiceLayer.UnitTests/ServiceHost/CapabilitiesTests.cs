@@ -7,8 +7,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Capabilities
@@ -22,16 +20,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Capabilities
         public async Task TestCapabilities()
         {
             Hosting.ServiceHost host = Hosting.ServiceHost.Instance;
-            var requestContext = new Mock<RequestContext<CapabilitiesResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<CapabilitiesResult>())).Returns(Task.FromResult(new object()));
             
-            await host.HandleCapabilitiesRequest(new CapabilitiesRequest
+            CapabilitiesResult result = await host.HandleCapabilitiesRequest(new CapabilitiesRequest
             {
                 HostName = "Test Host", HostVersion = "1.0"
-            }, requestContext.Object);
+            });
 
-            requestContext.Verify(x => x.SendResult(It.Is<CapabilitiesResult>(
-                 i => i.Capabilities.ConnectionProvider.Options != null)));         
+            Assert.That(result.Capabilities.ConnectionProvider.Options, Is.Not.Null);
         }
     }
 }

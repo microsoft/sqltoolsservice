@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -1358,7 +1358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             foreach (DbFile dbFile in this.DbFiles)
             {
                 string newPhysicalPath = Path.GetFullPath(dbFile.PhysicalNameRelocate);
-                if (string.Compare(dbFile.PhysicalName, dbFile.PhysicalNameRelocate, true) != 0)
+                if (string.Compare(dbFile.PhysicalName, dbFile.PhysicalNameRelocate) != 0)
                 {
                     bool isValidFolder = false;
                     bool isValidPath = Util.IsDestinationPathValid(Path.GetDirectoryName(newPhysicalPath), ref isValidFolder);

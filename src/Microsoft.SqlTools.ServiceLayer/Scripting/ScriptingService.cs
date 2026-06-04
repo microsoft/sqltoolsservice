@@ -40,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
 
+        private IEventSender eventSender;
+
         private bool disposed;
 
         /// <summary>
@@ -70,12 +72,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest, true);
-            serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest, true);
-            serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest, true);
+            this.eventSender = serviceHost;
+
+            serviceHost.RegisterRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
+            serviceHost.RegisterRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
+            serviceHost.RegisterRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
 
             // Register handler for shutdown event
-            serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
+            serviceHost.RegisterShutdownTask(shutdownParams =>
             {
                 this.Dispose();
                 return Task.FromResult(0);
@@ -85,20 +89,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to execute start the list objects operation.
         /// </summary>
-        private async Task HandleListObjectsRequest(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
+        private async Task<ScriptingListObjectsResult> HandleListObjectsRequest(ScriptingListObjectsParams parameters)
         {
             ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters);
-            operation.CompleteNotification += (sender, e) => requestContext.SendEvent(ScriptingListObjectsCompleteEvent.Type, e);
+            operation.CompleteNotification += async (sender, e) => await this.SendEvent(ScriptingListObjectsCompleteEvent.Type, e);
 
-            RunTask(requestContext, operation);
+            RunTask(operation);
 
-            await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
+            return new ScriptingListObjectsResult { OperationId = operation.OperationId };
         }
 
         /// <summary>
         /// Handles request to start the scripting operation
         /// </summary>
-        public Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        public Task<ScriptingResult> HandleScriptExecuteRequest(ScriptingParams parameters)
         {
             SmoScriptingOperation operation = null;
             // if a connection string wasn't provided as a parameter then
@@ -151,19 +155,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     : new ScriptAsScriptingOperation(parameters, accessToken);
             }
 
-            operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
-            operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
-            operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters);
+            TaskCompletionSource<ScriptingResult> completionSource =
+                parameters.ReturnScriptAsynchronously ? null : new TaskCompletionSource<ScriptingResult>();
 
-            RunTask(requestContext, operation);
+            operation.PlanNotification += async (sender, e) => await this.SendEvent(ScriptingPlanNotificationEvent.Type, e);
+            operation.ProgressNotification += async (sender, e) => await this.SendEvent(ScriptingProgressNotificationEvent.Type, e);
+            operation.CompleteNotification += async (sender, e) => await this.SendScriptingCompleteEvent(ScriptingCompleteEvent.Type, e, operation, parameters, completionSource);
+
+            RunTask(operation, e => completionSource?.TrySetException(RpcErrorException.Create(e)));
 
             // If ReturnScriptAsynchronously is enabled, return operation ID immediately
             if (parameters.ReturnScriptAsynchronously)
             {
-                return requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                return Task.FromResult(new ScriptingResult { OperationId = operation.OperationId });
             }
 
-            return Task.CompletedTask;
+            return completionSource.Task;
         }
 
         private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)
@@ -187,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to cancel a script operation.
         /// </summary>
-        public async Task HandleScriptCancelRequest(ScriptingCancelParams parameters, RequestContext<ScriptingCancelResult> requestContext)
+        public async Task<ScriptingCancelResult> HandleScriptCancelRequest(ScriptingCancelParams parameters)
         {
             ScriptingOperation operation = null;
             if (this.ActiveOperations.TryRemove(parameters.OperationId, out operation))
@@ -199,40 +206,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 Logger.Information(string.Format("Operation {0} was not found", operation.OperationId));
             }
 
-            await requestContext.SendResult(new ScriptingCancelResult());
+            return new ScriptingCancelResult();
         }
 
-        private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters,
-                                                               SmoScriptingOperation operation, ScriptingParams scriptingParams)
+        private async Task SendScriptingCompleteEvent(
+            EventType<ScriptingCompleteParams> eventType,
+            ScriptingCompleteParams parameters,
+            SmoScriptingOperation operation,
+            ScriptingParams scriptingParams,
+            TaskCompletionSource<ScriptingResult> completionSource)
         {
             // If ReturnScriptAsynchronously is enabled, include script in the complete event
-            if (scriptingParams.ReturnScriptAsynchronously && parameters is ScriptingCompleteParams completeParams)
+            if (scriptingParams.ReturnScriptAsynchronously)
             {
-                completeParams.Script = operation.ScriptText;
-                await requestContext.SendEvent(eventType, parameters);
+                parameters.Script = operation.ScriptText;
+                await this.SendEvent(eventType, parameters);
                 return;
             }
 
-            await requestContext.SendEvent(eventType, parameters);
+            await this.SendEvent(eventType, parameters);
+
+            if (parameters.HasError)
+            {
+                completionSource?.TrySetException(RpcErrorException.Create(parameters.ErrorMessage));
+                return;
+            }
 
             switch (scriptingParams.ScriptDestination)
             {
                 case "ToEditor":
-                    await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });
-                    break;
+                    completionSource?.TrySetResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });
+                    return;
                 case "ToSingleFile":
-                    await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
-                    break;
+                    completionSource?.TrySetResult(new ScriptingResult { OperationId = operation.OperationId });
+                    return;
                 default:
-                    await requestContext.SendError(string.Format("Operation {0} failed", operation.ToString()));
-                    break;
+                    completionSource?.TrySetException(RpcErrorException.Create(string.Format("Operation {0} failed", operation)));
+                    return;
             }
         }
 
         /// <summary>
         /// Runs the async task that performs the scripting operation.
         /// </summary>
-        private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
+        private void RunTask(ScriptingOperation operation, Action<Exception> failureHandler = null)
         {
             ScriptingTask = Task.Run(async () =>
             {
@@ -243,14 +260,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 catch (Exception e)
                 {
-                    await context.SendError(e);
+                    failureHandler?.Invoke(e);
+                    throw;
                 }
                 finally
                 {
                     ScriptingOperation temp;
                     this.ActiveOperations.TryRemove(operation.OperationId, out temp);
                 }
-            }).ContinueWithOnFaulted(async t => await context.SendError(t.Exception));
+            }).ContinueWithOnFaulted(t => Logger.Error(t.Exception.ToString()));
+        }
+
+        private Task SendEvent<TParams>(EventType<TParams> eventType, TParams parameters)
+        {
+            return this.eventSender?.SendEvent(eventType, parameters) ?? Task.CompletedTask;
         }
 
         internal Task ScriptingTask { get; set; }

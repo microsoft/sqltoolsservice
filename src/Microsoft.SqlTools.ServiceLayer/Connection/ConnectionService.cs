@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost { get; set; }
+        internal IRpcServiceHost ServiceHost { get; set; }
 
         /// <summary>
         /// Gets the connection queue
@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Scopes = new string[] { scope }
             };
 
-            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true).ConfigureAwait(false);
+            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message).ConfigureAwait(false);
 
             return response.Token;
         }
@@ -1192,7 +1192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return handler.HandleRequest(this.connectionFactory, info);
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, ServiceLayerCommandOptions commandOptions)
+        public void InitializeService(IRpcServiceHost serviceHost, ServiceLayerCommandOptions commandOptions)
         {
             this.ServiceHost = serviceHost;
 
@@ -1229,17 +1229,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
-            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, true);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, true);
-            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, true);
-            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, true);
-            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
-            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, true);
-            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
-            serviceHost.SetRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest, true);
-            serviceHost.SetRequestHandler(ParseConnectionStringRequest.Type, HandleParseConnectionStringRequest, true);
-            serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, false);
+            serviceHost.RegisterRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
+            serviceHost.RegisterRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
+            serviceHost.RegisterRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
+            serviceHost.RegisterRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
+            serviceHost.RegisterRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
+            serviceHost.RegisterRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
+            serviceHost.RegisterRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
+            serviceHost.RegisterRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
+            serviceHost.RegisterRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest);
+            serviceHost.RegisterRequestHandler(ParseConnectionStringRequest.Type, HandleParseConnectionStringRequest);
+            serviceHost.RegisterNotificationHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent);
         }
 
         /// <summary>
@@ -1265,21 +1265,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task HandleConnectRequest(
-            ConnectParams connectParams,
-            RequestContext<bool> requestContext)
+        protected async Task<bool> HandleConnectRequest(
+            ConnectParams connectParams)
         {
             Logger.Verbose("ConnectionRequest");
 
             try
             {
                 RunConnectRequestHandlerTask(connectParams);
-                await requestContext.SendResult(true);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Error($"ConnectionRequest failed with exception: {ex}");
-                await requestContext.SendResult(false);
+                return false;
             }
         }
 
@@ -1303,7 +1302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName, commandOptions.HttpProxyUrl, commandOptions.HttpProxyStrictSSL), () => this.encryptionKeys);
         }
 
-        private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
+        private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params)
         {
             Logger.Verbose("EncryptionKeysNotificationEvent");
             this.encryptionKeys = (@params.Key, @params.Iv);
@@ -1346,9 +1345,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task HandleChangePasswordRequest(
-            ChangePasswordParams changePasswordParams,
-            RequestContext<PasswordChangeResponse> requestContext)
+        protected async Task<PasswordChangeResponse> HandleChangePasswordRequest(
+            ChangePasswordParams changePasswordParams)
         {
             Logger.Verbose("ChangePasswordRequest");
             PasswordChangeResponse newResponse = new PasswordChangeResponse();
@@ -1383,7 +1381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
                 }
             }
-            await requestContext.SendResult(newResponse);
+            return newResponse;
         }
 
         public void ChangePassword(ChangePasswordParams changePasswordParams)
@@ -1410,49 +1408,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Handle cancel connect requests
         /// </summary>
-        protected async Task HandleCancelConnectRequest(
-            CancelConnectParams cancelParams,
-            RequestContext<bool> requestContext)
+        protected async Task<bool> HandleCancelConnectRequest(
+            CancelConnectParams cancelParams)
         {
             Logger.Verbose("CancelConnectRequest");
             bool result = CancelConnect(cancelParams);
-            await requestContext.SendResult(result);
+            return result;
         }
 
         /// <summary>
         /// Handle disconnect requests
         /// </summary>
-        protected async Task HandleDisconnectRequest(
-            DisconnectParams disconnectParams,
-            RequestContext<bool> requestContext)
+        protected async Task<bool> HandleDisconnectRequest(
+            DisconnectParams disconnectParams)
         {
             Logger.Verbose("DisconnectRequest");
             bool result = Instance.Disconnect(disconnectParams);
-            await requestContext.SendResult(result);
+            return result;
 
         }
 
         /// <summary>
         /// Handle requests to list databases on the current server
         /// </summary>
-        protected Task HandleListDatabasesRequest(
-            ListDatabasesParams listDatabasesParams,
-            RequestContext<ListDatabasesResponse> requestContext)
+        protected Task<ListDatabasesResponse> HandleListDatabasesRequest(
+            ListDatabasesParams listDatabasesParams)
         {
-            Task.Run(async () =>
+            return Task.Run(() =>
             {
                 Logger.Verbose("ListDatabasesRequest");
                 try
                 {
                     ListDatabasesResponse result = ListDatabases(listDatabasesParams);
-                    await requestContext.SendResult(result);
+                    return result;
                 }
                 catch (Exception ex)
                 {
-                    await requestContext.SendError(ex.ToString());
+                    throw RpcErrorException.Create(ex.ToString());
                 }
             });
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -1799,9 +1793,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Handles a request to get a connection string for the provided connection
         /// </summary>
-        public async Task HandleGetConnectionStringRequest(
-            GetConnectionStringParams connStringParams,
-            RequestContext<string> requestContext)
+        public async Task<string> HandleGetConnectionStringRequest(
+            GetConnectionStringParams connStringParams)
         {
             Logger.Verbose("GetConnectionStringRequest");
             string connectionString = string.Empty;
@@ -1828,27 +1821,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             connectionString = connStringBuilder.ConnectionString;
 
-            await requestContext.SendResult(connectionString);
+            return connectionString;
         }
 
         /// <summary>
         /// Handles a request to serialize a connection string.  If parsing fails, returns null.
         /// </summary>
-        public async Task HandleBuildConnectionInfoRequest(
-            string connectionString,
-            RequestContext<ConnectionDetails> requestContext)
+        public async Task<ConnectionDetails> HandleBuildConnectionInfoRequest(
+            string connectionString)
         {
             Logger.Verbose("BuildConnectionInfoRequest");
             try
             {
-                await requestContext.SendResult(ParseConnectionString(connectionString));
+                return ParseConnectionString(connectionString);
             }
             catch (Exception ex)
             {
                 // If theres an error in the parse, it means we just can't parse, so we return undefined
                 // rather than an error.
                 Logger.Error($"BuildConnectionInfoRequest failed with exception: {ex}");
-                await requestContext.SendResult(null);
+                return null;
             }
         }
 
@@ -1862,19 +1854,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionString"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public async Task HandleParseConnectionStringRequest(
-            string connectionString,
-            RequestContext<ConnectionDetails> requestContext)
+        public async Task<ConnectionDetails> HandleParseConnectionStringRequest(
+            string connectionString)
         {
             Logger.Verbose("ParseConnectionStringRequest");
             try
             {
-                await requestContext.SendResult(ParseConnectionString(connectionString));
+                return ParseConnectionString(connectionString);
             }
             catch (Exception ex)
             {
                 Logger.Error($"ParseConnectionStringRequest failed with exception: {ex}");
-                await requestContext.SendError(ex.Message);
+                throw RpcErrorException.Create(ex.Message);
             }
         }
 
@@ -1884,18 +1875,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="_">Request param</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleClearPooledConnectionsRequest(object _, RequestContext<bool> requestContext)
+        public async Task<bool> HandleClearPooledConnectionsRequest(object _)
         {
             Logger.Verbose("ClearPooledConnectionsRequest");
-            // Run a detached task to clear pools in backend.
-            await Task.Factory.StartNew(() => Task.Run(async () =>
+            await Task.Run(() =>
             {
-
                 SqlConnection.ClearAllPools();
 
                 Logger.Verbose("Cleared all pooled connections successfully.");
-                await requestContext.SendResult(true);
-            }));
+            });
+            return true;
         }
 
         public ConnectionDetails ParseConnectionString(string connectionString)
@@ -1964,12 +1953,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Handles a request to change the database for a connection
         /// </summary>
-        public async Task HandleChangeDatabaseRequest(
-            ChangeDatabaseParams changeDatabaseParams,
-            RequestContext<bool> requestContext)
+        public async Task<bool> HandleChangeDatabaseRequest(
+            ChangeDatabaseParams changeDatabaseParams)
         {
             Logger.Verbose("ChangeDatabaseRequest");
-            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            return ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase);
         }
 
         /// <summary>

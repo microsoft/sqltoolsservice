@@ -8,8 +8,6 @@
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Moq;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using System;
@@ -46,8 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         public async Task CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<CreateDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<CreateDatabaseResponse>())).Returns(Task.FromResult(new object()));
 
             var databaseInfo = new DatabaseInfo();
             databaseInfo.Options.Add("name", "testdb_" + new Random().Next(10000000, 99999999));
@@ -58,9 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
                 DatabaseInfo = databaseInfo
             };
         
-            await AdminService.HandleCreateDatabaseRequest(dbParams, requestContext.Object);
-
-            requestContext.VerifyAll();
+            CreateDatabaseResponse response = await AdminService.HandleCreateDatabaseRequest(dbParams);
+            Assert.NotNull(response);
         }
 
         /// <summary>
@@ -70,17 +65,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         public async Task GetDefaultDatebaseInfoTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<DefaultDatabaseInfoResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DefaultDatabaseInfoResponse>())).Returns(Task.FromResult(new object()));
 
             var dbParams = new DefaultDatabaseInfoParams
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri
             };
 
-            await AdminService.HandleDefaultDatabaseInfoRequest(dbParams, requestContext.Object);
-
-            requestContext.VerifyAll();
+            DefaultDatabaseInfoResponse response = await AdminService.HandleDefaultDatabaseInfoRequest(dbParams);
+            Assert.NotNull(response);
         }
 
         /// <summmary>
@@ -90,17 +82,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         public async Task GetDatabaseInfoTest()
         {
             var results = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<GetDatabaseInfoResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<GetDatabaseInfoResponse>())).Returns(Task.FromResult(new object()));
 
             var dbParams = new GetDatabaseInfoParams
             {
                 OwnerUri = results.ConnectionInfo.OwnerUri
             };
 
-            await AdminService.HandleGetDatabaseInfoRequest(dbParams, requestContext.Object);
-            
-            requestContext.VerifyAll();
+            GetDatabaseInfoResponse response = await AdminService.HandleGetDatabaseInfoRequest(dbParams);
+            Assert.NotNull(response);
         }
 
     }

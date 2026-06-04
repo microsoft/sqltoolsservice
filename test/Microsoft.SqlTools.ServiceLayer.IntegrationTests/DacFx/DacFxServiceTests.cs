@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -22,10 +21,8 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlServer.Dac.Model;
 using NUnit.Framework;
-using Moq;
 using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -756,9 +753,6 @@ FROM MissingEdgeHubInputStream'";
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeCompositeObjects)].Value = true;
 
-            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
-            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
-
             DacFxService service = new DacFxService();
             string file = Path.Combine(publishProfileFolder, "profileWithOptions.publish.xml");
 
@@ -767,8 +761,8 @@ FROM MissingEdgeHubInputStream'";
                 ProfilePath = file
             };
 
-            await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
-            dacfxRequestContext.VerifyAll();
+            DacFxOptionsResult result = await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams);
+            Assert.True(ValidateOptions(expectedResults, result.DeploymentOptions));
         }
 
         // <summary>
@@ -790,9 +784,6 @@ FROM MissingEdgeHubInputStream'";
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreKeywordCasing)].Value = false;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreSemicolonBetweenStatements)].Value = false;
 
-            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
-            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
-
             DacFxService service = new DacFxService();
             string file = Path.Combine(publishProfileFolder, "profileNoOptions.publish.xml");
 
@@ -801,8 +792,8 @@ FROM MissingEdgeHubInputStream'";
                 ProfilePath = file
             };
 
-            await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
-            dacfxRequestContext.VerifyAll();
+            DacFxOptionsResult result = await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams);
+            Assert.True(ValidateOptions(expectedResults, result.DeploymentOptions));
         }
 
         /// <summary>
@@ -813,13 +804,11 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
-            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
-            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
-
             GetDefaultPublishOptionsParams p = new GetDefaultPublishOptionsParams();
 
             DacFxService service = new DacFxService();
-            await service.HandleGetDefaultPublishOptionsRequest(p, dacfxRequestContext.Object);
+            DacFxOptionsResult result = await service.HandleGetDefaultPublishOptionsRequest(p);
+            Assert.True(ValidateOptions(expectedResults, result.DeploymentOptions));
         }
 
         /// <summary>
@@ -831,23 +820,21 @@ FROM MissingEdgeHubInputStream'";
             DacFxService service = new DacFxService();
 
             // Test Deployment scenario (default) - should return DacFx native defaults
-            MockRequest<GetDeploymentOptionsResult> deploymentRequestMock = new();
             GetDeploymentOptionsParams deploymentParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.Deployment };
 
-            await service.HandleGetDeploymentOptionsRequest(deploymentParams, deploymentRequestMock.Object);
+            GetDeploymentOptionsResult deploymentResult = await service.HandleGetDeploymentOptionsRequest(deploymentParams);
 
-            deploymentRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "Deployment");
-            Assert.That(deploymentRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+            Assert.True(deploymentResult.Success);
+            Assert.That(deploymentResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
                 Is.False, "AllowDropBlockingAssemblies should be false for Deployment (DacFx native default)");
 
             // Test Schema Compare scenario - should return with modified defaults
-            MockRequest<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
             GetDeploymentOptionsParams schemaCompareParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.SchemaCompare };
 
-            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestMock.Object);
+            GetDeploymentOptionsResult schemaCompareResult = await service.HandleGetDeploymentOptionsRequest(schemaCompareParams);
 
-            schemaCompareRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "SchemaCompare");
-            Assert.That(schemaCompareRequestMock.Result.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
+            Assert.True(schemaCompareResult.Success);
+            Assert.That(schemaCompareResult.DefaultDeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value, 
                 Is.True, "AllowDropBlockingAssemblies should be true for Schema Compare (modified default)");
         }
 
@@ -858,15 +845,14 @@ FROM MissingEdgeHubInputStream'";
         public async Task ValidateGetCodeAnalysisRulesCallFromService()
         {
             DacFxService service = new DacFxService();
-            MockRequest<GetCodeAnalysisRulesResult> requestMock = new();
             GetCodeAnalysisRulesParams parameters = new GetCodeAnalysisRulesParams();
 
-            await service.HandleGetCodeAnalysisRulesRequest(parameters, requestMock.Object);
+            GetCodeAnalysisRulesResult result = await service.HandleGetCodeAnalysisRulesRequest(parameters);
 
-            requestMock.AssertSuccess(nameof(service.HandleGetCodeAnalysisRulesRequest));
-            Assert.That(requestMock.Result.Rules, Is.Not.Null, "Rules should be returned");
-            Assert.That(requestMock.Result.Rules.Length, Is.GreaterThan(0), "At least one code analysis rule should be returned");
-            Assert.That(requestMock.Result.Rules.All(r =>
+            Assert.True(result.Success);
+            Assert.That(result.Rules, Is.Not.Null, "Rules should be returned");
+            Assert.That(result.Rules.Length, Is.GreaterThan(0), "At least one code analysis rule should be returned");
+            Assert.That(result.Rules.All(r =>
                 !string.IsNullOrWhiteSpace(r.RuleId) &&
                 !string.IsNullOrWhiteSpace(r.ShortRuleId) &&
                 !string.IsNullOrWhiteSpace(r.DisplayName) &&
@@ -882,7 +868,6 @@ FROM MissingEdgeHubInputStream'";
         [Test]
         public async Task ValidateStreamingJob()
         {
-            var dacfxRequestContext = new Mock<RequestContext<ValidateStreamingJobResult>>();
             DacFxService service = new DacFxService();
 
             ValidateStreamingJobResult expectedResult;
@@ -890,7 +875,6 @@ FROM MissingEdgeHubInputStream'";
             // Positive case: both input and output are present
 
             expectedResult = new ValidateStreamingJobResult() { Success = true };
-            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
 
             ValidateStreamingJobParams parameters = new ValidateStreamingJobParams()
             {
@@ -898,8 +882,8 @@ FROM MissingEdgeHubInputStream'";
                 CreateStreamingJobTsql = goodCreateStreamingJob
             };
 
-            await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
-            dacfxRequestContext.VerifyAll();
+            ValidateStreamingJobResult result = await service.HandleValidateStreamingJobRequest(parameters);
+            Assert.True(ValidateStreamingJobErrors(expectedResult, result));
 
             // Negative case: input and output streams are both missing from model
 
@@ -907,7 +891,6 @@ FROM MissingEdgeHubInputStream'";
 Streaming query statement contains a reference to missing input stream 'MissingEdgeHubInputStream'.  You must add it to the database model.
 Streaming query statement contains a reference to missing output stream 'MissingSqlOutputStream'.  You must add it to the database model.";
             expectedResult = new ValidateStreamingJobResult() { Success = false, ErrorMessage = errorMessage };
-            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result)))).Returns(Task.FromResult(new object()));
 
             parameters = new ValidateStreamingJobParams()
             {
@@ -915,8 +898,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 CreateStreamingJobTsql = missingCreateBothStreamingJob
             };
 
-            await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
-            dacfxRequestContext.VerifyAll();
+            result = await service.HandleValidateStreamingJobRequest(parameters);
+            Assert.True(ValidateStreamingJobErrors(expectedResult, result));
         }
 
         /// <summary>
@@ -979,10 +962,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 DeploymentOptions = deploymentOptions
             };
 
-            MockRequest<ResultStatus> requestMock = new();
-
-            await service.HandleSavePublishProfileRequest(savePublishProfileParams, requestMock.Object);
-            requestMock.AssertSuccess(nameof(service.HandleSavePublishProfileRequest));
+            ResultStatus result = await service.HandleSavePublishProfileRequest(savePublishProfileParams);
+            Assert.True(result.Success);
 
             await VerifyContentAndCleanupAsync(expectedFile, profileFilePath);
         }
@@ -1189,10 +1170,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 FilePaths = new string[] { }
             };
 
-            var requestContext = new Mock<RequestContext<bool>>();
-            requestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
-
-            await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
+            bool result = await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams);
+            Assert.True(result);
             Assert.That(service.projectModels.Value, Contains.Key(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
         }
 
@@ -1237,12 +1216,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 ObjectTypes = new[] { "Table" }
             };
 
-            var requestContext = new Mock<RequestContext<TSqlObjectInfo[]>>();
-            var actualResponse = new List<TSqlObjectInfo>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<TSqlObjectInfo[]>()))
-                    .Callback<TSqlObjectInfo[]>(actual => actualResponse = actual.ToList())
-                    .Returns(Task.CompletedTask);
-            await service.HandleGetObjectsFromTSqlModelRequest(getObjectsParams, requestContext.Object);
+            List<TSqlObjectInfo> actualResponse = (await service.HandleGetObjectsFromTSqlModelRequest(getObjectsParams)).ToList();
 
             Assert.IsNotNull(actualResponse);
             Assert.AreEqual(actualResponse.Count, 2);

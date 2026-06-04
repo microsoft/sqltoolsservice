@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -30,6 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
     public class TSqlFormatterService : HostedService<TSqlFormatterService>, IComposableService
     {
         private FormatterSettings settings;
+        private IRpcServiceHost serviceHost;
+
         /// <summary>
         /// The default constructor is required for MEF-based composable services
         /// </summary>
@@ -40,11 +42,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
 
 
-        public override void InitializeService(IProtocolEndpoint serviceHost)
+        public override void InitializeService(IRpcServiceHost serviceHost)
         {
+            this.serviceHost = serviceHost;
             Logger.Verbose("TSqlFormatter initialized");
-            serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest, true);
-            serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest, true);
+            serviceHost.RegisterRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
+            serviceHost.RegisterRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
@@ -69,28 +72,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         /// </summary>
         public Task HandleDidChangeConfigurationNotification(
             SqlToolsSettings newSettings,
-            SqlToolsSettings oldSettings,
-            EventContext eventContext)
+            SqlToolsSettings oldSettings)
         {
             // update the current settings to reflect any changes (assuming formatter settings exist)
             settings = newSettings?.SqlTools?.Format ?? settings;
             return Task.FromResult(true);
         }
 
-        public async Task HandleDocFormatRequest(DocumentFormattingParams docFormatParams, RequestContext<TextEdit[]> requestContext)
+        public async Task<TextEdit[]> HandleDocFormatRequest(DocumentFormattingParams docFormatParams)
         {
             Logger.Verbose("HandleDocFormatRequest");
             TextEdit[] result = await FormatAndReturnEdits(docFormatParams);
-            await requestContext.SendResult(result);
-            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true));
+            DocumentStatusHelper.SendTelemetryEvent(this.serviceHost, CreateTelemetryProps(isDocFormat: true));
+            return result;
         }
 
-        public async Task HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams, RequestContext<TextEdit[]> requestContext)
+        public async Task<TextEdit[]> HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams)
         {
             Logger.Verbose("HandleDocRangeFormatRequest");
             TextEdit[] result = await FormatRangeAndReturnEdits(docRangeFormatParams);
-            await requestContext.SendResult(result);
-            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false));
+            DocumentStatusHelper.SendTelemetryEvent(this.serviceHost, CreateTelemetryProps(isDocFormat: false));
+            return result;
         }
         private static TelemetryProperties CreateTelemetryProps(bool isDocFormat)
         {

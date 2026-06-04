@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.Hosting
 {
     /// <summary>
     /// Defines a hosted service that communicates with external processes via
-    /// messages passed over the <see cref="ServiceHost"/>. The service defines
+    /// messages passed over the service host. The service defines
     /// a standard initialization method where it can hook up to the host.
     /// </summary>
     public interface IHostedService 
@@ -21,9 +21,9 @@ namespace Microsoft.SqlTools.Hosting
         /// <summary>
         /// Callback to initialize this service
         /// </summary>
-        /// <param name="serviceHost"><see cref="IProtocolEndpoint"/> which supports registering
+        /// <param name="serviceHost"><see cref="IRpcServiceHost"/> which supports registering
         /// event handlers and other callbacks for messages passed to external callers</param>
-        void InitializeService(IProtocolEndpoint serviceHost);
+        void InitializeService(IRpcServiceHost serviceHost);
 
         /// <summary>
         /// What is the service type that you wish to register?
@@ -41,9 +41,9 @@ namespace Microsoft.SqlTools.Hosting
     /// [Export(typeof(IHostedService)]
     /// MyService : HostedService&lt;MyService&gt;
     /// {
-    ///     public override void InitializeService(IProtocolEndpoint serviceHost)
+    ///     public override void InitializeService(IRpcServiceHost serviceHost)
     ///     {
-    ///         serviceHost.SetRequestHandler(MyRequest.Type, HandleMyRequest);
+    ///         serviceHost.RegisterRequestHandler(MyRequest.Type, HandleMyRequest);
     ///     }
     /// }
     /// </code>
@@ -67,24 +67,21 @@ namespace Microsoft.SqlTools.Hosting
             }
         }
 
-        protected async Task<THandler> HandleRequestAsync<THandler>(Func<Task<THandler>> handler, RequestContext<THandler> requestContext, string requestType)
+        protected async Task<THandler> HandleRequestAsync<THandler>(Func<Task<THandler>> handler, string requestType)
         {
             Logger.Verbose($"Handling request type {requestType}");
 
             try
             {
-                THandler result = await handler();
-                await requestContext.SendResult(result);
-                return result;
+                return await handler();
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                throw RpcErrorException.Create(ex.ToString());
             }
-            return default(THandler);
         }
 
-        public abstract void InitializeService(IProtocolEndpoint serviceHost);
+        public abstract void InitializeService(IRpcServiceHost serviceHost);
 
     }
 }

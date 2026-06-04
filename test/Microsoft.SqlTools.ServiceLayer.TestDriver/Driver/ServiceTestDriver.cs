@@ -17,7 +17,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
@@ -61,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             }
 
             this.clientChannel = new StdioClientChannel(serviceHostExecutable, serviceHostArguments);
-            this.protocolClient = new ProtocolEndpoint(clientChannel, MessageProtocolType.LanguageServer);
         }
 
         /// <summary>
@@ -73,8 +71,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             startTime = DateTime.Now;
 
             // Launch the process
-            this.protocolClient.Initialize();
-            await this.protocolClient.Start();
+            this.InitializeRpcClient();
+            await this.StartRpcClient();
             await Task.Delay(1000); // Wait for the service host to start
 
             Console.WriteLine("Successfully launched service");
@@ -94,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
         /// </summary>
         public async Task Stop()
         {
-            await this.protocolClient.Stop();
+            await this.StopRpcClient();
         }
 
         private async Task GetServiceProcess(CancellationToken token)

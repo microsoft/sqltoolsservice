@@ -10,16 +10,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 using static Microsoft.SqlTools.Utility.SqlConstants;
-using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 {
@@ -93,17 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             UserName = "test@example.com",
         };
 
-        private static Mock<RequestContext<ScriptingResult>> MakeRequestContext()
-        {
-            var ctx = new Mock<RequestContext<ScriptingResult>>();
-            ctx.Setup(x => x.SendResult(It.IsAny<ScriptingResult>()))
-               .Returns(Task.FromResult(new object()));
-            // Allow any SendEvent calls (fired by background task event handlers)
-            ctx.Setup(x => x.SendError(It.IsAny<string>()))
-               .Returns(Task.FromResult(new object()));
-            return ctx;
-        }
-
         /// <summary>
         /// Creates a <see cref="CapturingConnectionService"/>, pre-registers a
         /// <see cref="ConnectionInfo"/> in it, and sets it as the
@@ -142,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         }
 
         [Test]
-        public async Task HandleScriptExecuteCallsOpenServerConnectionWhenFetcherSet()
+        public void HandleScriptExecuteCallsOpenServerConnectionWhenFetcherSet()
         {
             const string uri = "test://test-uri";
             var connInfo = SetupConnectionService(uri, AzureMfaDetails(),
@@ -150,14 +137,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             connInfo.AzureTokenFetcher = MakeFetcher();
 
             var svc = new ScriptingService();
-            await svc.HandleScriptExecuteRequest(ScriptAsParams(uri), MakeRequestContext().Object);
+            Assert.ThrowsAsync<LocalRpcException>(async () => await svc.HandleScriptExecuteRequest(ScriptAsParams(uri)));
 
             Assert.That(capturingSvc.OpenServerConnectionCalled, Is.True,
                 "OpenServerConnectionInternal should be called when AzureTokenFetcher is set");
         }
 
         [Test]
-        public async Task HandleScriptExecuteDoesNotCallOpenServerConnectionWhenStaticTokenSet()
+        public void HandleScriptExecuteDoesNotCallOpenServerConnectionWhenStaticTokenSet()
         {
             const string uri = "test://test-uri";
             var details = AzureMfaDetails();
@@ -167,14 +154,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             connInfo.AzureTokenFetcher = null; // no fetcher — uses static token
 
             var svc = new ScriptingService();
-            await svc.HandleScriptExecuteRequest(ScriptAsParams(uri), MakeRequestContext().Object);
+            Assert.ThrowsAsync<LocalRpcException>(async () => await svc.HandleScriptExecuteRequest(ScriptAsParams(uri)));
 
             Assert.That(capturingSvc.OpenServerConnectionCalled, Is.False,
                 "OpenServerConnectionInternal should not be called when using the static token path");
         }
 
         [Test]
-        public async Task HandleScriptExecuteFetchesAccessTokenUpfrontForScriptingScript()
+        public void HandleScriptExecuteFetchesAccessTokenUpfrontForScriptingScript()
         {
             const string uri = "test://test-uri";
             var connInfo = SetupConnectionService(uri, AzureMfaDetails(),
@@ -188,14 +175,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             };
 
             var svc = new ScriptingService();
-            await svc.HandleScriptExecuteRequest(ScriptingScriptParams(uri), MakeRequestContext().Object);
+            Assert.ThrowsAsync<LocalRpcException>(async () => await svc.HandleScriptExecuteRequest(ScriptingScriptParams(uri)));
 
             Assert.That(fetcherCallCount, Is.GreaterThanOrEqualTo(1),
                 "AzureTokenFetcher should be called at least once to pre-fetch the token");
         }
 
         [Test]
-        public async Task HandleScriptExecuteSetsNeitherTokenWhenNotAzureMfa()
+        public void HandleScriptExecuteSetsNeitherTokenWhenNotAzureMfa()
         {
             const string uri = "test://test-uri";
             var details = TestObjects.GetTestConnectionDetails(); // SqlLogin
@@ -204,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             connInfo.AzureTokenFetcher = null;
 
             var svc = new ScriptingService();
-            await svc.HandleScriptExecuteRequest(ScriptAsParams(uri), MakeRequestContext().Object);
+            Assert.ThrowsAsync<LocalRpcException>(async () => await svc.HandleScriptExecuteRequest(ScriptAsParams(uri)));
 
             Assert.That(capturingSvc.OpenServerConnectionCalled, Is.False,
                 "OpenServerConnectionInternal should not be called for non-AzureMFA connections");

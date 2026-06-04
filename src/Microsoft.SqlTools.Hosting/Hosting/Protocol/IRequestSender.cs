@@ -10,6 +10,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 {
     public interface IRequestSender
     {
+        Task<TResult> SendRequest<TParams, TResult>(RequestType<TParams, TResult> requestType, TParams requestParams);
+
         Task<TResult> SendRequest<TParams, TResult>(RequestType<TParams, TResult> requestType, TParams requestParams,
             bool waitForResponse);
     }

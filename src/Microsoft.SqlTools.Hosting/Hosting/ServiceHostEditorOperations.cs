@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -28,8 +28,7 @@ namespace Microsoft.SqlTools.Protocol.Server
             ClientEditorContext clientContext =
                 await this.messageSender.SendRequest(
                     GetEditorContextRequest.Type,
-                    new GetEditorContextRequest(),
-                    true);
+                    new GetEditorContextRequest());
 
             return this.ConvertClientEditorContext(clientContext);
         }
@@ -106,8 +105,7 @@ namespace Microsoft.SqlTools.Protocol.Server
             return
                 this.messageSender.SendRequest(
                     OpenFileRequest.Type,
-                    filePath,
-                    true);
+                    filePath);
         }
     }
 }

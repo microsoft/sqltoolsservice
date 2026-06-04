@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -30,11 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
     public class TaskServiceTests : ServiceTestBase
     {
         private TaskService service;
-        private Mock<IProtocolEndpoint> serviceHostMock;
+        private Mock<IRpcServiceHost> serviceHostMock;
 
         public TaskServiceTests()
         {
-            serviceHostMock = new Mock<IProtocolEndpoint>();
+            serviceHostMock = new Mock<IRpcServiceHost>();
             service = CreateService();
             service.InitializeService(serviceHostMock.Object);
         }

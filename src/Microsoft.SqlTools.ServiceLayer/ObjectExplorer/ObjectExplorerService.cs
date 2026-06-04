@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         // Instance of the connection service, used to get the connection info for a given owner URI
         private ConnectionService connectionService;
-        private IProtocolEndpoint serviceHost;
+        private IRpcServiceHost serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// Initializes the service with the service host and registers request handlers.
         /// </summary>
         /// <param name="serviceHost">The service host instance to register with</param>
-        public override void InitializeService(IProtocolEndpoint serviceHost)
+        public override void InitializeService(IRpcServiceHost serviceHost)
         {
             Logger.Verbose("ObjectExplorer service initialized");
             this.serviceHost = serviceHost;
@@ -124,12 +124,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             this.ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
             // Register handlers for requests
-            serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest, true);
-            serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest, true);
-            serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest, true);
-            serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest, true);
-            serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest, true);
-            serviceHost.SetRequestHandler(GetSessionIdRequest.Type, HandleGetSessionIdRequest, true);
+            serviceHost.RegisterRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
+            serviceHost.RegisterRequestHandler(ExpandRequest.Type, HandleExpandRequest);
+            serviceHost.RegisterRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
+            serviceHost.RegisterRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
+            serviceHost.RegisterRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest);
+            serviceHost.RegisterRequestHandler(GetSessionIdRequest.Type, HandleGetSessionIdRequest);
 
             WorkspaceService<SqlToolsSettings> workspaceService = WorkspaceService;
             if (workspaceService != null)
@@ -153,37 +153,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// </summary>
         public Task HandleDidChangeConfigurationNotification(
             SqlToolsSettings newSettings,
-            SqlToolsSettings oldSettings,
-            EventContext eventContext)
+            SqlToolsSettings oldSettings)
         {
             // update the current settings to reflect any changes (assuming formatter settings exist)
             settings = newSettings?.SqlTools?.ObjectExplorer ?? settings;
             return Task.FromResult(true);
         }
 
-        internal async Task HandleGetSessionIdRequest(ConnectionDetails connectionDetails, RequestContext<GetSessionIdResponse> context)
+        internal async Task<GetSessionIdResponse> HandleGetSessionIdRequest(ConnectionDetails connectionDetails)
         {
             Logger.Verbose(nameof(HandleGetSessionIdRequest));
             Func<Task<GetSessionIdResponse>> getConnectionKey = async () =>
             {
                 Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-                Validate.IsNotNull(nameof(context), context);
                 return await Task.Run(() =>
                 {
                     string key = ConnectedBindingQueue.GetConnectionContextKey(connectionDetails);
                     return new GetSessionIdResponse { SessionId = key };
                 });
             };
-            GetSessionIdResponse response = await HandleRequestAsync(getConnectionKey, context, nameof(HandleGetSessionIdRequest));
+            return await HandleRequestAsync(getConnectionKey, nameof(HandleGetSessionIdRequest));
         }
 
-        internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
+        internal async Task<CreateSessionResponse> HandleCreateSessionRequest(ConnectionDetails connectionDetails)
         {
             Logger.Verbose("HandleCreateSessionRequest");
             Func<Task<CreateSessionResponse>> doCreateSession = async () =>
             {
                 Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-                Validate.IsNotNull(nameof(context), context);
                 return await Task.Run(() =>
                 {
                     string uri = GenerateUri(connectionDetails);
@@ -192,22 +189,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 });
             };
 
-            CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+            CreateSessionResponse response = await HandleRequestAsync(doCreateSession, "HandleCreateSessionRequest");
             if (response != null)
             {
                 RunCreateSessionTask(connectionDetails, response.SessionId);
             }
 
+            return response;
         }
 
-        internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
+        internal async Task<bool> HandleExpandRequest(ExpandParams expandParams)
         {
             Logger.Verbose("HandleExpandRequest");
 
             Func<Task<bool>> expandNode = async () =>
             {
                 Validate.IsNotNull(nameof(expandParams), expandParams);
-                Validate.IsNotNull(nameof(context), context);
 
                 string uri = expandParams.SessionId;
                 ObjectExplorerSession session = null;
@@ -229,14 +226,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     return true;
                 }
             };
-            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
+            return await HandleRequestAsync(expandNode, "HandleExpandRequest");
         }
 
-        internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
+        internal async Task<bool> HandleRefreshRequest(RefreshParams refreshParams)
         {
             Logger.Verbose("HandleRefreshRequest");
             Validate.IsNotNull(nameof(refreshParams), refreshParams);
-            Validate.IsNotNull(nameof(context), context);
 
             string uri = refreshParams.SessionId;
             ObjectExplorerSession session = null;
@@ -255,17 +251,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 session.ConnectionInfo.TryUpdateAccessToken(refreshParams.SecurityToken);
                 RunExpandTask(session, refreshParams, true);
             }
-            await context.SendResult(true);
+            return true;
         }
 
-        internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
+        internal async Task<CloseSessionResponse> HandleCloseSessionRequest(CloseSessionParams closeSessionParams)
         {
 
             Logger.Verbose("HandleCloseSessionRequest");
             Func<Task<CloseSessionResponse>> closeSession = () =>
             {
                 Validate.IsNotNull(nameof(closeSessionParams), closeSessionParams);
-                Validate.IsNotNull(nameof(context), context);
                 return Task.Factory.StartNew(() =>
                 {
                     string uri = closeSessionParams.SessionId;
@@ -288,15 +283,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 });
             };
 
-            await HandleRequestAsync(closeSession, context, "HandleCloseSessionRequest");
+            return await HandleRequestAsync(closeSession, "HandleCloseSessionRequest");
         }
 
-        internal async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
+        internal async Task<FindNodesResponse> HandleFindNodesRequest(FindNodesParams findNodesParams)
         {
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
             foundNodes ??= new List<TreeNode>();
 
-            await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => new NodeInfo(node)).ToList() });
+            return new FindNodesResponse { Nodes = foundNodes.Select(node => new NodeInfo(node)).ToList() };
         }
 
         internal void CloseSession(string uri)

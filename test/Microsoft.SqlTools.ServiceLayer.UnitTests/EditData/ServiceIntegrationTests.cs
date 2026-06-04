@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -17,9 +17,10 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region EditSession Operation Helper Tests
 
         [Test]
-        public async Task NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
+        public void NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
         {
             // Setup: 
             // ... Create a edit data service
@@ -37,15 +38,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session params that returns the provided session ID
             var mockParams = new EditCreateRowParams {OwnerUri = sessionId};
             
-            // ... Create a context mock that will capture the error
-            string errorMessage = null;
-            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null)
-                .AddErrorHandling((msg, code, data) => errorMessage = msg);
-
             // If: I ask to perform an action that requires a session
             // Then: An error should have been sent
-            await eds.HandleSessionRequest(mockParams, contextMock.Object, session => null);
-            Assert.That(errorMessage, Is.Not.Null, "An error message should have been sent");
+            LocalRpcException ex = Assert.ThrowsAsync<LocalRpcException>(async () => await eds.HandleSessionRequest<EditDisposeResult>(mockParams, session => null));
+            Assert.That(ex, Is.Not.Null, "An error message should have been sent");
         }
 
         [Test]
@@ -59,15 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session param that returns the common owner uri
             var mockParams = new EditCreateRowParams { OwnerUri = Common.OwnerUri };
             
-            // ... Create a context mock that will capture the error
-            string errorMessage = null;
-            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null)
-                .AddErrorHandling((msg, code, data) => errorMessage = msg);
-
             // If: I ask to perform an action that throws an exception
             // Then: An error should have been sent
-            await eds.HandleSessionRequest(mockParams, contextMock.Object, s => { throw new Exception(); });
-            Assert.That(errorMessage, Is.Not.Null, "An error message should have been sent");
+            LocalRpcException ex = Assert.ThrowsAsync<LocalRpcException>(async () => await eds.HandleSessionRequest<EditDisposeResult>(mockParams, s => { throw new Exception(); }));
+            Assert.That(ex, Is.Not.Null, "An error message should have been sent");
         }
 
 
@@ -84,8 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask to perform an action that requires a session
             // Then: I should get an error from it
-            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
-            Assert.That(() => eds.HandleDisposeRequest(new EditDisposeParams { OwnerUri = sessionId }, contextMock.Object).Wait(), Throws.Exception);
+            Assert.That(() => eds.HandleDisposeRequest(new EditDisposeParams { OwnerUri = sessionId }).Wait(), Throws.Exception);
         }
 
         [Test]
@@ -99,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var efv = new EventFlowValidator<EditDisposeResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleDisposeRequest(new EditDisposeParams {OwnerUri = Common.OwnerUri}, efv.Object);
+            await efv.SetResult(await eds.HandleDisposeRequest(new EditDisposeParams {OwnerUri = Common.OwnerUri}));
 
             // Then:
             // ... It should have completed successfully
@@ -121,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var efv = new EventFlowValidator<EditDeleteRowResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
+            await efv.SetResult(await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = Constants.OwnerUri, RowId = 0}));
 
             // Then:
             // ... It should be successful
@@ -143,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var efv = new EventFlowValidator<EditCreateRowResult>()
                 .AddResultValidation(ecrr => { Assert.That(ecrr.NewRowId, Is.GreaterThan(0)); })
                 .Complete();
-            await eds.HandleCreateRowRequest(new EditCreateRowParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+            await efv.SetResult(await eds.HandleCreateRowRequest(new EditCreateRowParams { OwnerUri = Constants.OwnerUri }));
 
             // Then:
             // ... It should have been successful
@@ -179,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 OwnerUri = Constants.OwnerUri,
                 RowId = 0
             };
-            await eds.HandleRevertCellRequest(param, efv.Object);
+            await efv.SetResult(await eds.HandleRevertCellRequest(param));
             
             // Then:
             // ... It should have succeeded
@@ -208,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     Assert.That(result.Row.Id, Is.EqualTo(0), "The reverted row should have the correct ID");
                 })
                 .Complete();
-            await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
+            await efv.SetResult(await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Constants.OwnerUri, RowId = 0}));
 
             // Then:
             // ... It should have succeeded
@@ -243,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     Assert.That(eucr.IsRowDirty, Is.True);
                 })
                 .Complete();
-            await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
+            await efv.SetResult(await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Constants.OwnerUri, RowId = 0}));
 
             // Then:
             // ... It should be successful
@@ -271,12 +261,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     Assert.That(esr.RowCount, Is.Not.EqualTo(0));
                 })
                 .Complete();
-            await eds.HandleSubsetRequest(new EditSubsetParams
+            await efv.SetResult(await eds.HandleSubsetRequest(new EditSubsetParams
             {
                 OwnerUri = Constants.OwnerUri,
                 RowCount = 10,
                 RowStartIndex = 0
-            }, efv.Object);
+            }));
 
             // Then:
             // ... It should be successful
@@ -286,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region Cancel Tests
 
         [Test]
-        public async Task CancelNullOrMissingOwnerUri([Values(null, "", " \t\n\r")] string ownerUri)
+        public void CancelNullOrMissingOwnerUri([Values(null, "", " \t\n\r")] string ownerUri)
         {
             // Setup: Create an edit data service with a real query execution service
             var qes = QueryExecution.Common.GetPrimedExecutionService(null, false, false, false, null);
@@ -294,11 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask to cancel with a null/empty owner URI
             // Then: An error should be sent
-            string errorMessage = null;
-            var contextMock = RequestContextMocks.Create<EditCancelResult>(null)
-                .AddErrorHandling((msg, code, data) => errorMessage = msg);
-            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = ownerUri }, contextMock.Object);
-            Assert.That(errorMessage, Is.Not.Null, "An error message should have been sent");
+            LocalRpcException ex = Assert.ThrowsAsync<LocalRpcException>(async () => await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = ownerUri }));
+            Assert.That(ex, Is.Not.Null, "An error message should have been sent");
         }
 
         [Test]
@@ -313,9 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 QuerySelection = QueryExecution.Common.WholeDocument,
                 OwnerUri = Constants.OwnerUri
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await qes.WorkTask;
+            await qes.HandleExecuteRequest(executeParams);
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             qes.ActiveQueries[Constants.OwnerUri].HasExecuted = false; // Fake that it hasn't completed
 
@@ -326,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var efv = new EventFlowValidator<EditCancelResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+            await efv.SetResult(await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }));
 
             // Then:
             // ... It should have completed successfully
@@ -347,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var efv = new EventFlowValidator<EditCancelResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+            await efv.SetResult(await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }));
 
             // Then: It should still complete successfully (no-op)
             efv.Validate();
@@ -365,9 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 QuerySelection = QueryExecution.Common.WholeDocument,
                 OwnerUri = Constants.OwnerUri
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await qes.WorkTask;
+            await qes.HandleExecuteRequest(executeParams);
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             // Query has already completed execution (HasExecuted is true)
 
@@ -378,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var efv = new EventFlowValidator<EditCancelResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }, efv.Object);
+            await efv.SetResult(await eds.HandleCancelRequest(new EditCancelParams { OwnerUri = Constants.OwnerUri }));
 
             // Then: It should treat it as success (InvalidOperationException is caught)
             efv.Validate();
@@ -404,11 +387,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 OwnerUri = ownerUri,
                 ObjectType = objType
             };
-            var contextMock = RequestContextMocks.Create<EditInitializeResult>(null);
             // ... And I initialize an edit session with that
             // Then:
             // ... An error event should have been sent
-            Assert.That(() => eds.HandleInitializeRequest(initParams, contextMock.Object), Throws.ArgumentException);
+            Assert.That(() => eds.HandleInitializeRequest(initParams), Throws.ArgumentException);
 
             // ... There should not be a session
             Assert.That(eds.ActiveSessions, Is.Empty);
@@ -430,11 +412,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 ObjectType = "Table",
                 Filters = new EditInitializeFiltering()
             };
-            var contextMock = RequestContextMocks.Create<EditInitializeResult>(null);
-
             // Then:
             // ... An error event should have been sent
-            Assert.That(() => eds.HandleInitializeRequest(initParams, contextMock.Object), Throws.ArgumentNullException);
+            Assert.That(() => eds.HandleInitializeRequest(initParams), Throws.ArgumentNullException);
 
             // ... The original session should still be there
             Assert.That(eds.ActiveSessions.Count, Is.EqualTo(1));
@@ -490,7 +470,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     Assert.That(esrp.Message, Is.Null);
                 })
                 .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
+            await efv.SetResult(await eds.HandleInitializeRequest(initParams));
             await eds.ActiveSessions[Constants.OwnerUri].InitializeTask;
 
             // Then:

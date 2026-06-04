@@ -9,11 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using Moq;
 using Newtonsoft.Json.Linq;
 using DatabaseFile = Microsoft.SqlTools.ServiceLayer.ObjectManagement.DatabaseFile;
 
@@ -189,24 +187,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         internal static async Task<SaveObjectRequestResponse> SaveObject(InitializeViewRequestParams parameters, SqlObject obj)
         {
             // Initialize the view
-            var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
-            initViewRequestContext.Setup(x => x.SendResult(It.IsAny<SqlObjectViewInfo>()))
-                .Returns(Task.FromResult<SqlObjectViewInfo>(null));
-            await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
+            await Service.HandleInitializeViewRequest(parameters);
 
             // Save the object
-            SaveObjectRequestResponse saveResponse = null;
-            var saveObjectRequestContext = new Mock<RequestContext<SaveObjectRequestResponse>>();
-            saveObjectRequestContext.Setup(x => x.SendResult(It.IsAny<SaveObjectRequestResponse>()))
-                .Callback<SaveObjectRequestResponse>(r => saveResponse = r)
-                .Returns(Task.FromResult(new object()));
-            await Service.HandleSaveObjectRequest(new SaveObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) }, saveObjectRequestContext.Object);
+            SaveObjectRequestResponse saveResponse = await Service.HandleSaveObjectRequest(new SaveObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) });
 
             // Dispose the view
-            var disposeViewRequestContext = new Mock<RequestContext<DisposeViewRequestResponse>>();
-            disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
-                .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
-            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId });
 
             return saveResponse;
         }
@@ -214,19 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         internal static async Task<DatabaseViewInfo> GetDatabaseObject(InitializeViewRequestParams parameters, SqlObject obj)
         {
             // Initialize the view
-            DatabaseViewInfo databaseViewInfo = new DatabaseViewInfo();
-            var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
-            initViewRequestContext
-                .Setup(x => x.SendResult(It.IsAny<SqlObjectViewInfo>()))
-                .Returns(Task.FromResult<SqlObjectViewInfo>(null))
-                .Callback<DatabaseViewInfo>(r => databaseViewInfo = r);
-            await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
+            DatabaseViewInfo databaseViewInfo = (DatabaseViewInfo)await Service.HandleInitializeViewRequest(parameters);
 
             // Dispose the view
-            var disposeViewRequestContext = new Mock<RequestContext<DisposeViewRequestResponse>>();
-            disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
-                .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
-            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId });
 
             return databaseViewInfo;
         }
@@ -234,25 +212,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         internal static async Task<string> ScriptObject(InitializeViewRequestParams parameters, SqlObject obj)
         {
             // Initialize the view
-            var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
-            initViewRequestContext.Setup(x => x.SendResult(It.IsAny<SqlObjectViewInfo>()))
-                .Returns(Task.FromResult<SqlObjectViewInfo>(null));
-            await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
+            await Service.HandleInitializeViewRequest(parameters);
 
             // Script the object
-            string script = string.Empty;
-            var scriptObjectRequestContext = new Mock<RequestContext<string>>();
-            scriptObjectRequestContext
-                .Setup(x => x.SendResult(It.IsAny<string>()))
-                .Returns(Task.FromResult<string>(""))
-                .Callback<string>(scriptResult => script = scriptResult);
-            await Service.HandleScriptObjectRequest(new ScriptObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) }, scriptObjectRequestContext.Object);
+            string script = await Service.HandleScriptObjectRequest(new ScriptObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) });
 
             // Dispose the view
-            var disposeViewRequestContext = new Mock<RequestContext<DisposeViewRequestResponse>>();
-            disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
-                .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
-            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId });
 
             return script;
         }
@@ -266,11 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 ThrowIfNotExist = throwIfNotExist
             };
 
-            var dropRequestContext = new Mock<RequestContext<DropRequestResponse>>();
-            dropRequestContext.Setup(x => x.SendResult(It.IsAny<DropRequestResponse>()))
-                .Returns(Task.FromResult(new DropRequestResponse()));
-
-            await Service.HandleDropRequest(dropParams, dropRequestContext.Object);
+            await Service.HandleDropRequest(dropParams);
         }
 
         internal static async Task<LoginInfo> CreateTestLogin(string connectionUri)

@@ -79,16 +79,6 @@ namespace Microsoft.SqlTools.Utility
                             case "-service-name":
                                 ServiceName = args[++i];
                                 break;
-                            case "-parallel-message-processing":
-                                ParallelMessageProcessing = true;
-                                break;
-                            case "-parallel-message-processing-limit":
-                                string limit = args[++i];
-                                if (Int32.TryParse(limit, out int limitValue))
-                                {
-                                    ParallelMessageProcessingLimit = limitValue;
-                                }
-                                break;
                             case "-enable-sql-authentication-provider":
                                 EnableSqlAuthenticationProvider = true;
                                 break;
@@ -196,20 +186,6 @@ namespace Microsoft.SqlTools.Utility
         public string LogFilePath { get; private set; }
 
         public bool AutoFlushLog { get; private set; } = false;
-
-        /// <summary>
-        /// Enables parallel message processing when queueing tasks from dispatcher.
-        /// This option is enabled by default during initialization.
-        /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
-        /// </summary>
-        public bool ParallelMessageProcessing { get; private set; } = false;
-
-        /// <summary>
-        /// The maximum number of parallel operations that can be queued without blocking the main thread.
-        /// Defaults to 100. This should be optimal to maintain a healthy application runtime state.
-        /// If users need more parallel operations depending on if their systems support the same, they can always increase the limit.
-        /// </summary>
-        public int ParallelMessageProcessingLimit { get; private set; } = 100;
 
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 

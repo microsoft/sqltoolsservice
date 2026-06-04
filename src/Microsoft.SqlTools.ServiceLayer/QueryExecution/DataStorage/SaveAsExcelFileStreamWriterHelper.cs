@@ -1,4 +1,4 @@
-﻿// 
+// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     ///     public static int Main() 
     ///     {
     ///         using (Stream stream = File.Create("test.xlsx"))
-    ///         using (var helper = new SaveAsExcelFileStreamWriterHelper(stream, false))
+    ///         using (var helper = new SaveAsExcelFileStreamWriterHelper(stream))
     ///         using (var sheet = helper.AddSheet())
     ///         {
     ///             sheet.AddRow();

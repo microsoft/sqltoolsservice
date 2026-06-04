@@ -10,7 +10,7 @@ using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using CoreOps = Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
 using Microsoft.SqlServer.Dac;
 using System;
@@ -401,11 +401,11 @@ END
         [Test]
         public async Task ValidateSchemaCompareGetDefaultOptionsCallFromService()
         {
-            MockRequest<GetDeploymentOptionsResult> requestMock = new();
+            ResultStatusCapture<GetDeploymentOptionsResult> requestMock = new();
             GetDeploymentOptionsParams p = new GetDeploymentOptionsParams();
             DacFxService service = new DacFxService();
 
-            await service.HandleGetDeploymentOptionsRequest(p, requestMock.Object);
+            await requestMock.SetResult(await service.HandleGetDeploymentOptionsRequest(p));
 
             requestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest));
             Assert.IsTrue(SchemaCompareTestUtils.ValidateOptionsEqualsDefault(requestMock.Result), "Options should equal to modified defaults for Schema Compare");
@@ -420,10 +420,10 @@ END
             DacFxService service = new DacFxService();
 
             // Test Schema Compare scenario - should have modified defaults
-            MockRequest<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
+            ResultStatusCapture<GetDeploymentOptionsResult> schemaCompareRequestMock = new();
             GetDeploymentOptionsParams schemaCompareParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.SchemaCompare };
 
-            await service.HandleGetDeploymentOptionsRequest(schemaCompareParams, schemaCompareRequestMock.Object);
+            await schemaCompareRequestMock.SetResult(await service.HandleGetDeploymentOptionsRequest(schemaCompareParams));
 
             schemaCompareRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "SchemaCompare");
             
@@ -436,10 +436,10 @@ END
                 Is.False, "IgnoreKeywordCasing should be false for Schema Compare (modified default)");
 
             // Test Deployment/Publish scenario - should have DacFx native defaults
-            MockRequest<GetDeploymentOptionsResult> publishRequestMock = new();
+            ResultStatusCapture<GetDeploymentOptionsResult> publishRequestMock = new();
             GetDeploymentOptionsParams publishParams = new GetDeploymentOptionsParams { Scenario = DeploymentScenario.Deployment };
 
-            await service.HandleGetDeploymentOptionsRequest(publishParams, publishRequestMock.Object);
+            await publishRequestMock.SetResult(await service.HandleGetDeploymentOptionsRequest(publishParams));
 
             publishRequestMock.AssertSuccess(nameof(service.HandleGetDeploymentOptionsRequest), "Deployment");
             

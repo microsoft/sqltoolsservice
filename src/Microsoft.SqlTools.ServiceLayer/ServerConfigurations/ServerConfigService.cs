@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -54,9 +54,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ServerConfigViewRequest.Type, this.HandleServerConfigViewRequest, true);
-            serviceHost.SetRequestHandler(ServerConfigUpdateRequest.Type, this.HandleServerConfigUpdateRequest, true);
-            serviceHost.SetRequestHandler(ServerConfigListRequest.Type, this.HandleServerConfigListRequest, true);
+            serviceHost.RegisterRequestHandler(ServerConfigViewRequest.Type, this.HandleServerConfigViewRequest);
+            serviceHost.RegisterRequestHandler(ServerConfigUpdateRequest.Type, this.HandleServerConfigUpdateRequest);
+            serviceHost.RegisterRequestHandler(ServerConfigListRequest.Type, this.HandleServerConfigListRequest);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleServerConfigViewRequest(ServerConfigViewRequestParams parameters, RequestContext<ServerConfigViewResponseParams> requestContext)
+        public async Task<ServerConfigViewResponseParams> HandleServerConfigViewRequest(ServerConfigViewRequestParams parameters)
         {
             Logger.Verbose("HandleServerConfigViewRequest");
             ConnectionInfo connInfo;
@@ -74,16 +74,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
                 out connInfo);
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                throw RpcErrorException.Create(new Exception(SR.ProfilerConnectionNotFound));
             }
             else
             {
                 var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                 ServerConfigProperty serverConfig = GetConfig(serverConnection, parameters.ConfigNumber);
-                await requestContext.SendResult(new ServerConfigViewResponseParams
+                return new ServerConfigViewResponseParams
                 {
                     ConfigProperty = serverConfig
-                });
+                };
             }
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleServerConfigUpdateRequest(ServerConfigUpdateRequestParams parameters, RequestContext<ServerConfigUpdateResponseParams> requestContext)
+        public async Task<ServerConfigUpdateResponseParams> HandleServerConfigUpdateRequest(ServerConfigUpdateRequestParams parameters)
         {
             Logger.Verbose("HandleServerConfigUpdateRequest");
             ConnectionInfo connInfo;
@@ -106,14 +106,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
 
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                throw RpcErrorException.Create(new Exception(SR.ProfilerConnectionNotFound));
             }
             else
             {
                 var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                 UpdateConfig(serverConnection, parameters.ConfigNumber, parameters.ConfigValue);
                 response.ConfigProperty = GetConfig(serverConnection, parameters.ConfigNumber);
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// </summary>
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
-        public async Task HandleServerConfigListRequest(ServerConfigListRequestParams parameters, RequestContext<ServerConfigListResponseParams> requestContext)
+        public async Task<ServerConfigListResponseParams> HandleServerConfigListRequest(ServerConfigListRequestParams parameters)
         {
             Logger.Verbose("HandleServerConfigListRequest");
             ConnectionInfo connInfo;
@@ -135,13 +135,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
 
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                throw RpcErrorException.Create(new Exception(SR.ProfilerConnectionNotFound));
             }
             else
             {
                 var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                 response.ConfigProperties = GetConfigs(serverConnection);
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 

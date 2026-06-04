@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -15,7 +15,6 @@ using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -69,73 +68,73 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         public void InitializeService(ServiceHost serviceHost)
         {
             // Project-level functions
-            serviceHost.SetRequestHandler(OpenSqlProjectRequest.Type, HandleOpenSqlProjectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(CloseSqlProjectRequest.Type, HandleCloseSqlProjectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(CreateSqlProjectRequest.Type, HandleCreateSqlProjectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetCrossPlatformCompatibilityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(GetProjectPropertiesRequest.Type, HandleGetProjectPropertiesRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(SetDatabaseSourceRequest.Type, HandleSetDatabaseSourceRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(SetDatabaseSchemaProviderRequest.Type, HandleSetDatabaseSchemaProviderRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(SetProjectPropertiesRequest.Type, HandleSetProjectPropertiesRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(UpdateCodeAnalysisRulesRequest.Type, HandleUpdateCodeAnalysisRulesRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(OpenSqlProjectRequest.Type, HandleOpenSqlProjectRequest);
+            serviceHost.RegisterRequestHandler(CloseSqlProjectRequest.Type, HandleCloseSqlProjectRequest);
+            serviceHost.RegisterRequestHandler(CreateSqlProjectRequest.Type, HandleCreateSqlProjectRequest);
+            serviceHost.RegisterRequestHandler(GetCrossPlatformCompatibilityRequest.Type, HandleGetCrossPlatformCompatibilityRequest);
+            serviceHost.RegisterRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest);
+            serviceHost.RegisterRequestHandler(GetProjectPropertiesRequest.Type, HandleGetProjectPropertiesRequest);
+            serviceHost.RegisterRequestHandler(SetDatabaseSourceRequest.Type, HandleSetDatabaseSourceRequest);
+            serviceHost.RegisterRequestHandler(SetDatabaseSchemaProviderRequest.Type, HandleSetDatabaseSchemaProviderRequest);
+            serviceHost.RegisterRequestHandler(SetProjectPropertiesRequest.Type, HandleSetProjectPropertiesRequest);
+            serviceHost.RegisterRequestHandler(UpdateCodeAnalysisRulesRequest.Type, HandleUpdateCodeAnalysisRulesRequest);
 
             // SQL object script functions
-            serviceHost.SetRequestHandler(GetSqlObjectScriptsRequest.Type, HandleGetSqlObjectScriptsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddSqlObjectScriptRequest.Type, HandleAddSqlObjectScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeleteSqlObjectScriptRequest.Type, HandleDeleteSqlObjectScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(ExcludeSqlObjectScriptRequest.Type, HandleExcludeSqlObjectScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(MoveSqlObjectScriptRequest.Type, HandleMoveSqlObjectScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetSqlObjectScriptsRequest.Type, HandleGetSqlObjectScriptsRequest);
+            serviceHost.RegisterRequestHandler(AddSqlObjectScriptRequest.Type, HandleAddSqlObjectScriptRequest);
+            serviceHost.RegisterRequestHandler(DeleteSqlObjectScriptRequest.Type, HandleDeleteSqlObjectScriptRequest);
+            serviceHost.RegisterRequestHandler(ExcludeSqlObjectScriptRequest.Type, HandleExcludeSqlObjectScriptRequest);
+            serviceHost.RegisterRequestHandler(MoveSqlObjectScriptRequest.Type, HandleMoveSqlObjectScriptRequest);
 
             // Pre/Post-deployment script functions
-            serviceHost.SetRequestHandler(GetPreDeploymentScriptsRequest.Type, HandleGetPreDeploymentScriptsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddPreDeploymentScriptRequest.Type, HandleAddPreDeploymentScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeletePreDeploymentScriptRequest.Type, HandleDeletePreDeploymentScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(ExcludePreDeploymentScriptRequest.Type, HandleExcludePreDeploymentScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(MovePreDeploymentScriptRequest.Type, HandleMovePreDeploymentScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetPreDeploymentScriptsRequest.Type, HandleGetPreDeploymentScriptsRequest);
+            serviceHost.RegisterRequestHandler(AddPreDeploymentScriptRequest.Type, HandleAddPreDeploymentScriptRequest);
+            serviceHost.RegisterRequestHandler(DeletePreDeploymentScriptRequest.Type, HandleDeletePreDeploymentScriptRequest);
+            serviceHost.RegisterRequestHandler(ExcludePreDeploymentScriptRequest.Type, HandleExcludePreDeploymentScriptRequest);
+            serviceHost.RegisterRequestHandler(MovePreDeploymentScriptRequest.Type, HandleMovePreDeploymentScriptRequest);
 
-            serviceHost.SetRequestHandler(GetPostDeploymentScriptsRequest.Type, HandleGetPostDeploymentScriptsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddPostDeploymentScriptRequest.Type, HandleAddPostDeploymentScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeletePostDeploymentScriptRequest.Type, HandleDeletePostDeploymentScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(ExcludePostDeploymentScriptRequest.Type, HandleExcludePostDeploymentScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(MovePostDeploymentScriptRequest.Type, HandleMovePostDeploymentScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetPostDeploymentScriptsRequest.Type, HandleGetPostDeploymentScriptsRequest);
+            serviceHost.RegisterRequestHandler(AddPostDeploymentScriptRequest.Type, HandleAddPostDeploymentScriptRequest);
+            serviceHost.RegisterRequestHandler(DeletePostDeploymentScriptRequest.Type, HandleDeletePostDeploymentScriptRequest);
+            serviceHost.RegisterRequestHandler(ExcludePostDeploymentScriptRequest.Type, HandleExcludePostDeploymentScriptRequest);
+            serviceHost.RegisterRequestHandler(MovePostDeploymentScriptRequest.Type, HandleMovePostDeploymentScriptRequest);
 
             // None script functions
-            serviceHost.SetRequestHandler(GetNoneItemsRequest.Type, HandleGetNoneItemsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddNoneItemRequest.Type, HandleAddNoneItemRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeleteNoneItemRequest.Type, HandleDeleteNoneItemRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(ExcludeNoneItemRequest.Type, HandleExcludeNoneItemRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(MoveNoneItemRequest.Type, HandleMoveNoneItemRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetNoneItemsRequest.Type, HandleGetNoneItemsRequest);
+            serviceHost.RegisterRequestHandler(AddNoneItemRequest.Type, HandleAddNoneItemRequest);
+            serviceHost.RegisterRequestHandler(DeleteNoneItemRequest.Type, HandleDeleteNoneItemRequest);
+            serviceHost.RegisterRequestHandler(ExcludeNoneItemRequest.Type, HandleExcludeNoneItemRequest);
+            serviceHost.RegisterRequestHandler(MoveNoneItemRequest.Type, HandleMoveNoneItemRequest);
 
             // Folder functions
-            serviceHost.SetRequestHandler(GetFoldersRequest.Type, HandleGetFoldersRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddFolderRequest.Type, HandleAddFolderRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeleteFolderRequest.Type, HandleDeleteFolderRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(ExcludeFolderRequest.Type, HandleExcludeFolderRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(MoveFolderRequest.Type, HandleMoveFolderRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetFoldersRequest.Type, HandleGetFoldersRequest);
+            serviceHost.RegisterRequestHandler(AddFolderRequest.Type, HandleAddFolderRequest);
+            serviceHost.RegisterRequestHandler(DeleteFolderRequest.Type, HandleDeleteFolderRequest);
+            serviceHost.RegisterRequestHandler(ExcludeFolderRequest.Type, HandleExcludeFolderRequest);
+            serviceHost.RegisterRequestHandler(MoveFolderRequest.Type, HandleMoveFolderRequest);
 
             // SQLCMD variable functions
-            serviceHost.SetRequestHandler(GetSqlCmdVariablesRequest.Type, HandleGetSqlCmdVariablesRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddSqlCmdVariableRequest.Type, HandleAddSqlCmdVariableRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeleteSqlCmdVariableRequest.Type, HandleDeleteSqlCmdVariableRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(UpdateSqlCmdVariableRequest.Type, HandleUpdateSqlCmdVariableRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetSqlCmdVariablesRequest.Type, HandleGetSqlCmdVariablesRequest);
+            serviceHost.RegisterRequestHandler(AddSqlCmdVariableRequest.Type, HandleAddSqlCmdVariableRequest);
+            serviceHost.RegisterRequestHandler(DeleteSqlCmdVariableRequest.Type, HandleDeleteSqlCmdVariableRequest);
+            serviceHost.RegisterRequestHandler(UpdateSqlCmdVariableRequest.Type, HandleUpdateSqlCmdVariableRequest);
 
             // Database reference functions
-            serviceHost.SetRequestHandler(GetDatabaseReferencesRequest.Type, HandleGetDatabaseReferencesRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddSystemDatabaseReferenceRequest.Type, HandleAddSystemDatabaseReferenceRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(AddDacpacReferenceRequest.Type, HandleAddDacpacReferenceRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(AddSqlProjectReferenceRequest.Type, HandleAddSqlProjectReferenceRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(AddNugetPackageReferenceRequest.Type, HandleAddNugetPackageReferenceRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeleteDatabaseReferenceRequest.Type, HandleDeleteDatabaseReferenceRequest, isParallelProcessingSupported: false);
+            serviceHost.RegisterRequestHandler(GetDatabaseReferencesRequest.Type, HandleGetDatabaseReferencesRequest);
+            serviceHost.RegisterRequestHandler(AddSystemDatabaseReferenceRequest.Type, HandleAddSystemDatabaseReferenceRequest);
+            serviceHost.RegisterRequestHandler(AddDacpacReferenceRequest.Type, HandleAddDacpacReferenceRequest);
+            serviceHost.RegisterRequestHandler(AddSqlProjectReferenceRequest.Type, HandleAddSqlProjectReferenceRequest);
+            serviceHost.RegisterRequestHandler(AddNugetPackageReferenceRequest.Type, HandleAddNugetPackageReferenceRequest);
+            serviceHost.RegisterRequestHandler(DeleteDatabaseReferenceRequest.Type, HandleDeleteDatabaseReferenceRequest);
         }
 
         #region Handlers
 
         #region Project-level functions
 
-        internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleOpenSqlProjectRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
+            ResultStatus result = await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri));
             // Bump the generation so any previously in-flight build for this URI is invalidated,
             // then capture the new generation into the background task as its ownership token.
             int generation = projectGenerations.AddOrUpdate(
@@ -143,11 +142,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             // Kick off async IntelliSense model build so .sql files in this project get completions
             // without a live server connection. Fire-and-forget: errors are logged inside.
             _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
+            return result;
         }
 
-        internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleCloseSqlProjectRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 Projects.TryRemove(requestParams.ProjectUri, out _);
 
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         intelliSense.FileUris);
                     intelliSense.Model?.Dispose();
                 }
-            }, requestContext);
+            });
         }
 
         /// <summary>
@@ -260,9 +260,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private bool IsCurrentGeneration(string projectUri, int generation)
             => projectGenerations.TryGetValue(projectUri, out int current) && current == generation;
 
-        internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(async () =>
+            return await RunWithErrorHandling(async () =>
             {
                 SqlServer.Dac.Projects.CreateSqlProjectParams createParams = new()
                 {
@@ -273,12 +273,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 await SqlProject.CreateProjectAsync(requestParams.ProjectUri, createParams);
                 this.GetProject(requestParams.ProjectUri); // load into the cache
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatibilityResult> requestContext)
+        internal async Task<GetCrossPlatformCompatibilityResult> HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetCrossPlatformCompatibilityResult()
                 {
@@ -286,17 +286,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     IsCrossPlatformCompatible = GetProject(requestParams.ProjectUri, onlyLoadProperties: true).CrossPlatformCompatible
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleUpdateProjectForCrossPlatformRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleUpdateProjectForCrossPlatformRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).UpdateForCrossPlatform(), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).UpdateForCrossPlatform());
         }
 
-        internal async Task HandleGetProjectPropertiesRequest(SqlProjectParams requestParams, RequestContext<GetProjectPropertiesResult> requestContext)
+        internal async Task<GetProjectPropertiesResult> HandleGetProjectPropertiesRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
 
@@ -315,22 +315,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     RunSqlCodeAnalysis = bool.TryParse(project.Properties.GetProperty(RunSqlCodeAnalysisPropertyName), out var runAnalysis) && runAnalysis,
                     SqlCodeAnalysisRules = project.Properties.GetProperty(SqlCodeAnalysisRulesPropertyName)
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleSetDatabaseSourceRequest(SetDatabaseSourceParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleSetDatabaseSourceRequest(SetDatabaseSourceParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.DatabaseSource = requestParams.DatabaseSource, requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.DatabaseSource = requestParams.DatabaseSource);
         }
 
-        internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider));
         }
 
-        internal async Task HandleSetProjectPropertiesRequest(SetProjectPropertiesParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleSetProjectPropertiesRequest(SetProjectPropertiesParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
 
@@ -355,12 +355,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         Projects.TryRemove(requestParams.ProjectUri, out _);
                     }
                 }
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams, RequestContext<UpdateCodeAnalysisRulesResult> requestContext)
+        internal async Task<UpdateCodeAnalysisRulesResult> HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
 
@@ -389,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     Success = true,
                     ErrorMessage = null
                 };
-            }, requestContext);
+            });
         }
 
         internal static string BuildCodeAnalysisRulesXmlValue(IEnumerable<CodeAnalysisRuleOverride> rules)
@@ -433,9 +433,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region SQL object script functions
 
-        internal async Task HandleGetSqlObjectScriptsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        internal async Task<GetScriptsResult> HandleGetSqlObjectScriptsRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetScriptsResult()
                 {
@@ -443,44 +443,44 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     Scripts = GetProject(requestParams.ProjectUri).SqlObjectScripts.Select(x => x.Path).ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(async () =>
+            return await RunWithErrorHandling(async () =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri);
                 project.SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path));
                 // Incrementally update the IntelliSense model for the new file.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: false);
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(async () =>
+            return await RunWithErrorHandling(async () =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri);
                 project.SqlObjectScripts.Delete(requestParams.Path);
                 // Incrementally remove the deleted file's objects from the IntelliSense model.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(async () =>
+            return await RunWithErrorHandling(async () =>
             {
                 GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path);
                 // Remove the excluded file's objects from the IntelliSense model.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleMoveSqlObjectScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleMoveSqlObjectScriptRequest(MoveItemParams requestParams)
         {
-            await RunWithErrorHandling(async () =>
+            return await RunWithErrorHandling(async () =>
             {
                 GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath);
                 // The IntelliSense model is path-keyed, so a rename is a delete + add:
@@ -488,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
                 // (2) Read the file at its new path and re-register its objects under the new key.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.DestinationPath, deleted: false);
-            }, requestContext);
+            });
         }
 
         internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted)
@@ -612,9 +612,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region Pre/Post-deployment script functions
 
-        internal async Task HandleGetPreDeploymentScriptsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        internal async Task<GetScriptsResult> HandleGetPreDeploymentScriptsRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetScriptsResult()
                 {
@@ -622,32 +622,32 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     Scripts = GetProject(requestParams.ProjectUri).PreDeployScripts.Select(x => x.Path).ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddPreDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddPreDeploymentScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Add(new PreDeployScript(requestParams.Path)), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Add(new PreDeployScript(requestParams.Path)));
         }
 
-        internal async Task HandleDeletePreDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeletePreDeploymentScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Delete(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Delete(requestParams.Path));
         }
 
-        internal async Task HandleExcludePreDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleExcludePreDeploymentScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Exclude(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Exclude(requestParams.Path));
         }
 
-        internal async Task HandleMovePreDeploymentScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleMovePreDeploymentScriptRequest(MoveItemParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PreDeployScripts.Move(requestParams.Path, requestParams.DestinationPath));
         }
 
-        internal async Task HandleGetPostDeploymentScriptsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        internal async Task<GetScriptsResult> HandleGetPostDeploymentScriptsRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetScriptsResult()
                 {
@@ -655,36 +655,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     Scripts = GetProject(requestParams.ProjectUri).PostDeployScripts.Select(x => x.Path).ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddPostDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddPostDeploymentScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Add(new PostDeployScript(requestParams.Path)), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Add(new PostDeployScript(requestParams.Path)));
         }
 
-        internal async Task HandleDeletePostDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeletePostDeploymentScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Delete(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Delete(requestParams.Path));
         }
 
-        internal async Task HandleExcludePostDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleExcludePostDeploymentScriptRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Exclude(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Exclude(requestParams.Path));
         }
 
-        internal async Task HandleMovePostDeploymentScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleMovePostDeploymentScriptRequest(MoveItemParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Move(requestParams.Path, requestParams.DestinationPath));
         }
 
         #endregion
 
         #region None script functions
 
-        internal async Task HandleGetNoneItemsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        internal async Task<GetScriptsResult> HandleGetNoneItemsRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetScriptsResult()
                 {
@@ -692,36 +692,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     Scripts = GetProject(requestParams.ProjectUri).NoneItems.Select(x => x.Path).ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddNoneItemRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Add(new NoneItem(requestParams.Path)), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Add(new NoneItem(requestParams.Path)));
         }
 
-        internal async Task HandleDeleteNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteNoneItemRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Delete(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Delete(requestParams.Path));
         }
 
-        internal async Task HandleExcludeNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleExcludeNoneItemRequest(SqlProjectScriptParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Exclude(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Exclude(requestParams.Path));
         }
 
-        internal async Task HandleMoveNoneItemRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleMoveNoneItemRequest(MoveItemParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Move(requestParams.Path, requestParams.DestinationPath));
         }
 
         #endregion
 
         #region Folder functions
 
-        internal async Task HandleGetFoldersRequest(SqlProjectParams requestParams, RequestContext<GetFoldersResult> requestContext)
+        internal async Task<GetFoldersResult> HandleGetFoldersRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetFoldersResult()
                 {
@@ -729,27 +729,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     Folders = GetProject(requestParams.ProjectUri).Folders.Select(x => x.Path).ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddFolderRequest(FolderParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Add(new Folder(requestParams.Path)), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Add(new Folder(requestParams.Path)));
         }
 
-        internal async Task HandleDeleteFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteFolderRequest(FolderParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Delete(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Delete(requestParams.Path));
         }
 
-        internal async Task HandleExcludeFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleExcludeFolderRequest(FolderParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Exclude(requestParams.Path), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Exclude(requestParams.Path));
         }
 
-        internal async Task HandleMoveFolderRequest(MoveFolderParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleMoveFolderRequest(MoveFolderParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Folders.Move(requestParams.Path, requestParams.DestinationPath));
         }
 
         #endregion
@@ -758,9 +758,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region Database reference functions
 
-        internal async Task HandleGetDatabaseReferencesRequest(SqlProjectParams requestParams, RequestContext<GetDatabaseReferencesResult> requestContext)
+        internal async Task<GetDatabaseReferencesResult> HandleGetDatabaseReferencesRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
 
@@ -773,23 +773,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     SqlProjectReferences = project.DatabaseReferences.OfType<SqlProjectReference>().ToArray(),
                     NugetPackageReferences = project.DatabaseReferences.OfType<NugetPackageReference>().ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddSystemDatabaseReferenceRequest(AddSystemDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddSystemDatabaseReferenceRequest(AddSystemDatabaseReferenceParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Add(
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Add(
                 new SystemDatabaseReference(
                     requestParams.SystemDatabase,
                     requestParams.SuppressMissingDependencies,
                     requestParams.DatabaseLiteral,
-                    requestParams.ReferenceType)),
-                requestContext);
+                    requestParams.ReferenceType)));
         }
 
-        internal async Task HandleAddDacpacReferenceRequest(AddDacpacReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddDacpacReferenceRequest(AddDacpacReferenceParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 requestParams.Validate();
 
@@ -817,12 +816,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
 
                 project.DatabaseReferences.Add(reference);
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddSqlProjectReferenceRequest(AddSqlProjectReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddSqlProjectReferenceRequest(AddSqlProjectReferenceParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 requestParams.Validate();
 
@@ -854,12 +853,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
 
                 project.DatabaseReferences.Add(reference);
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddNugetPackageReferenceRequest(AddNugetPackageReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddNugetPackageReferenceRequest(AddNugetPackageReferenceParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 requestParams.Validate();
 
@@ -889,22 +888,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
 
                 project.DatabaseReferences.Add(reference);
-            }, requestContext);
+            });
         }
 
 
-        internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name));
         }
 
         #endregion
 
         #region SQLCMD variable functions
 
-        internal async Task HandleGetSqlCmdVariablesRequest(SqlProjectParams requestParams, RequestContext<GetSqlCmdVariablesResult> requestContext)
+        internal async Task<GetSqlCmdVariablesResult> HandleGetSqlCmdVariablesRequest(SqlProjectParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 return new GetSqlCmdVariablesResult()
                 {
@@ -912,26 +911,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     SqlCmdVariables = GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.ToArray()
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleAddSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleAddSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)));
         }
 
-        internal async Task HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name!), requestContext);
+            return await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name!));
         }
 
-        internal async Task HandleUpdateSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleUpdateSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
                 project.SqlCmdVariables.Update(requestParams.Name, requestParams.DefaultValue); // won't throw if doesn't exist
-            }, requestContext);
+            });
         }
 
         #endregion

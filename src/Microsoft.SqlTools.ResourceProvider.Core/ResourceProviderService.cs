@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -30,11 +30,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         {
         }
 
-        public override void InitializeService(IProtocolEndpoint serviceHost)
+        public override void InitializeService(IRpcServiceHost serviceHost)
         {
             Logger.Verbose("ResourceProvider initialized");
-            serviceHost.SetRequestHandler(CreateFirewallRuleRequest.Type, HandleCreateFirewallRuleRequest);
-            serviceHost.SetRequestHandler(CanHandleFirewallRuleRequest.Type, ProcessHandleFirewallRuleRequest);
+            serviceHost.RegisterRequestHandler(CreateFirewallRuleRequest.Type, HandleCreateFirewallRuleRequest);
+            serviceHost.RegisterRequestHandler(CanHandleFirewallRuleRequest.Type, ProcessHandleFirewallRuleRequest);
 
             firewallRuleService = new FirewallRuleService()
             {
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// <param name="firewallRule"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public async Task HandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRule, RequestContext<CreateFirewallRuleResponse> requestContext)
+        public async Task<CreateFirewallRuleResponse> HandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRule)
         {
             Func<Task<CreateFirewallRuleResponse>> requestHandler = () =>
             {
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     ErrorMessage = ex.Message
                 };
             };
-            await HandleRequest(requestHandler, tokenExpiredHandler, requestContext, "HandleCreateFirewallRuleRequest");
+            return await HandleRequest(requestHandler, tokenExpiredHandler, "HandleCreateFirewallRuleRequest");
         }
 
         private async Task<CreateFirewallRuleResponse> DoHandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRuleParams)
@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             return result;
         }
 
-        public async Task ProcessHandleFirewallRuleRequest(HandleFirewallRuleParams canHandleRuleParams, RequestContext<HandleFirewallRuleResponse> requestContext)
+        public async Task<HandleFirewallRuleResponse> ProcessHandleFirewallRuleRequest(HandleFirewallRuleParams canHandleRuleParams)
         {
             Func<Task<HandleFirewallRuleResponse>> requestHandler = () =>
             {
@@ -107,17 +107,17 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 }
                 return Task.FromResult(response);
             };
-            await HandleRequest(requestHandler, null, requestContext, "HandleCreateFirewallRuleRequest");
+            return await HandleRequest(requestHandler, null, "HandleCreateFirewallRuleRequest");
         }
 
-        private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
+        private async Task<T> HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, string requestType)
         {
             Logger.Verbose(requestType);
 
             try
             {
                 T result = await handler();
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (ExpiredTokenException ex)
             {
@@ -126,12 +126,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     // This is a special exception indicating the token(s) used to request resources had expired.
                     // Any Azure resource should have handling for this such as an error path that clearly indicates that a refresh is needed
                     T result = expiredTokenHandler(ex);
-                    await requestContext.SendResult(result);
+                    return result;
                 }
                 else
                 {
                     // No handling for expired tokens defined / expected
-                    await requestContext.SendError(ex.Message);
+                    throw RpcErrorException.Create(ex.Message);
                 }
             }
         }

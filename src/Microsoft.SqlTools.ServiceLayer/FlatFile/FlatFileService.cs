@@ -35,29 +35,27 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
 
         public static FlatFileService Instance => instance.Value;
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IRpcServiceHost serviceHost)
         {
             Logger.Verbose("FlatFile service initialized");
 
-            serviceHost.SetRequestHandler(ProseDiscoveryRequest.Type, HandleProseDiscoveryRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(InsertDataRequest.Type, HandleInsertDataRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetColumnInfoRequest.Type, HandleGetColumnInfoRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(ChangeColumnSettingsRequest.Type, HandleChangeColumnSettingsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(LearnTransformationRequest.Type, HandleLearnTransformationRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(SaveTransformationRequest.Type, HandleSaveTransformationRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(DisposeSessionRequest.Type, HandleDisposeSessionRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(ProseDiscoveryRequest.Type, HandleProseDiscoveryRequest);
+            serviceHost.RegisterRequestHandler(InsertDataRequest.Type, HandleInsertDataRequest);
+            serviceHost.RegisterRequestHandler(GetColumnInfoRequest.Type, HandleGetColumnInfoRequest);
+            serviceHost.RegisterRequestHandler(ChangeColumnSettingsRequest.Type, HandleChangeColumnSettingsRequest);
+            serviceHost.RegisterRequestHandler(LearnTransformationRequest.Type, HandleLearnTransformationRequest);
+            serviceHost.RegisterRequestHandler(SaveTransformationRequest.Type, HandleSaveTransformationRequest);
+            serviceHost.RegisterRequestHandler(DisposeSessionRequest.Type, HandleDisposeSessionRequest);
         }
 
-        internal async Task HandleProseDiscoveryRequest(
-            ProseDiscoveryParams parameters,
-            RequestContext<ProseDiscoveryResponse> requestContext)
+        internal async Task<ProseDiscoveryResponse> HandleProseDiscoveryRequest(
+            ProseDiscoveryParams parameters)
         {
             Logger.Verbose(nameof(HandleProseDiscoveryRequest));
 
             try
             {
                 Validate.IsNotNull(nameof(parameters), parameters);
-                Validate.IsNotNull(nameof(requestContext), requestContext);
                 ValidateOperationId(parameters.OperationId);
 
                 ProseDiscoveryResponse response = await Task.Run(() =>
@@ -97,17 +95,16 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                     }
                 });
 
-                await requestContext.SendResult(response);
+                return response;
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                throw RpcErrorException.Create(ex.ToString());
             }
         }
 
-        internal async Task HandleInsertDataRequest(
-            InsertDataParams parameters,
-            RequestContext<InsertDataResponse> requestContext)
+        internal async Task<InsertDataResponse> HandleInsertDataRequest(
+            InsertDataParams parameters)
         {
             Logger.Verbose("Handling flatfile insert data request");
 
@@ -149,19 +146,18 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                 errorMessage = ex.ToString();
             }
 
-            await requestContext.SendResult(new InsertDataResponse
+            return new InsertDataResponse
             {
                 Result = new Result
                 {
                     Success = success,
                     ErrorMessage = errorMessage
                 }
-            });
+            };
         }
 
-        internal async Task HandleGetColumnInfoRequest(
-            GetColumnInfoParams parameters,
-            RequestContext<GetColumnInfoResponse> requestContext)
+        internal async Task<GetColumnInfoResponse> HandleGetColumnInfoRequest(
+            GetColumnInfoParams parameters)
         {
             Logger.Verbose(nameof(HandleGetColumnInfoRequest));
 
@@ -170,14 +166,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                 Prose.BcpProcess process = await ExecuteSessionOperation(
                     parameters.OperationId,
                     session => Task.FromResult(session.Process));
-                await requestContext.SendResult(new GetColumnInfoResponse
+                return new GetColumnInfoResponse
                 {
                     ColumnInfo = process.ColumnInfos.Select(CreateColumnInfo).ToArray()
-                });
+                };
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                throw RpcErrorException.Create(ex.ToString());
             }
         }
 
@@ -205,9 +201,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
             return ConnectionService.BuildConnectionString(details);
         }
 
-        internal async Task HandleChangeColumnSettingsRequest(
-            ChangeColumnSettingsParams parameters,
-            RequestContext<ChangeColumnSettingsResponse> requestContext)
+        internal async Task<ChangeColumnSettingsResponse> HandleChangeColumnSettingsRequest(
+            ChangeColumnSettingsParams parameters)
         {
             Logger.Verbose(nameof(HandleChangeColumnSettingsRequest));
 
@@ -254,15 +249,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                 result.ErrorMessage = ex.ToString();
             }
 
-            await requestContext.SendResult(new ChangeColumnSettingsResponse
+            return new ChangeColumnSettingsResponse
             {
                 Result = result
-            });
+            };
         }
 
-        internal async Task HandleLearnTransformationRequest(
-            LearnTransformationParams parameters,
-            RequestContext<LearnTransformationResponse> requestContext)
+        internal async Task<LearnTransformationResponse> HandleLearnTransformationRequest(
+            LearnTransformationParams parameters)
         {
             try
             {
@@ -273,20 +267,19 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                         parameters.TransformationExamples,
                         parameters.TransformationExampleRowIndices)));
 
-                await requestContext.SendResult(new LearnTransformationResponse
+                return new LearnTransformationResponse
                 {
                     TransformationPreview = preview
-                });
+                };
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                throw RpcErrorException.Create(ex.ToString());
             }
         }
 
-        internal async Task HandleSaveTransformationRequest(
-            SaveTransformationParams parameters,
-            RequestContext<SaveTransformationResponse> requestContext)
+        internal async Task<SaveTransformationResponse> HandleSaveTransformationRequest(
+            SaveTransformationParams parameters)
         {
             try
             {
@@ -294,44 +287,43 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                     parameters.OperationId,
                     session => Task.FromResult(session.Process.SaveTransformationAs(parameters.DerivedColumnName)));
 
-                await requestContext.SendResult(new SaveTransformationResponse
+                return new SaveTransformationResponse
                 {
                     NumTransformations = numTransformations
-                });
+                };
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                throw RpcErrorException.Create(ex.ToString());
             }
         }
 
-        internal async Task HandleDisposeSessionRequest(
-            DisposeSessionParams parameters,
-            RequestContext<DisposeSessionResponse> requestContext)
+        internal async Task<DisposeSessionResponse> HandleDisposeSessionRequest(
+            DisposeSessionParams parameters)
         {
             try
             {
                 ValidateOperationId(parameters.OperationId);
                 RemoveSession(parameters.OperationId);
-                await requestContext.SendResult(new DisposeSessionResponse
+                return new DisposeSessionResponse
                 {
                     Result = new Result
                     {
                         Success = true,
                         ErrorMessage = null
                     }
-                });
+                };
             }
             catch (Exception ex)
             {
-                await requestContext.SendResult(new DisposeSessionResponse
+                return new DisposeSessionResponse
                 {
                     Result = new Result
                     {
                         Success = false,
                         ErrorMessage = ex.ToString()
                     }
-                });
+                };
             }
         }
 

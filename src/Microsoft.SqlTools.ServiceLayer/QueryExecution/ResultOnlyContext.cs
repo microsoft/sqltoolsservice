@@ -18,10 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class ResultOnlyContext<TResult> : IEventSender
     {
-        private readonly RequestContext<TResult> OrigContext;
-
-        public ResultOnlyContext(RequestContext<TResult> context) {
-            OrigContext = context;
+        public ResultOnlyContext()
+        {
         }
 
         public virtual Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
@@ -33,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public virtual Task SendError(string errorMessage, int errorCode = 0)
         {
-            return OrigContext.SendError(errorMessage, errorCode);
+            throw RpcErrorException.Create(errorMessage, errorCode);
         }
     }
 }

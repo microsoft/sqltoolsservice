@@ -10,12 +10,10 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Moq;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServices
 {
@@ -40,12 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
                 Assert.True(configs.Count > 0);
                 ServerConfigProperty sampleConfig = configs[0];
 
-                ServerConfigViewResponseParams result = null;
-                ServerConfigUpdateResponseParams updateResult = null;
                 int newValue = sampleConfig.ConfigValue == sampleConfig.Minimum ? sampleConfig.Maximum : sampleConfig.Minimum;
-
-                var requestContext = RequestContextMocks.Create<ServerConfigViewResponseParams>(r => result = r).AddErrorHandling(null);
-                var updateRequestContext = RequestContextMocks.Create<ServerConfigUpdateResponseParams>(r => updateResult = r).AddErrorHandling(null);
 
                 ServerConfigViewRequestParams requestParams = new ServerConfigViewRequestParams
                 {
@@ -59,14 +52,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
                     ConfigValue = newValue
                 };
 
-                await ServerConfigService.Instance.HandleServerConfigViewRequest(requestParams, requestContext.Object);
+                ServerConfigViewResponseParams result = await ServerConfigService.Instance.HandleServerConfigViewRequest(requestParams);
                 Assert.NotNull(result);
                 Assert.AreEqual(result.ConfigProperty.ConfigValue, sampleConfig.ConfigValue);
-                await ServerConfigService.Instance.HandleServerConfigUpdateRequest(updateRequestParams, updateRequestContext.Object);
+                ServerConfigUpdateResponseParams updateResult = await ServerConfigService.Instance.HandleServerConfigUpdateRequest(updateRequestParams);
                 Assert.NotNull(updateResult);
                 Assert.AreEqual(updateResult.ConfigProperty.ConfigValue, newValue);
                 updateRequestParams.ConfigValue = sampleConfig.ConfigValue;
-                await ServerConfigService.Instance.HandleServerConfigUpdateRequest(updateRequestParams, updateRequestContext.Object);
+                updateResult = await ServerConfigService.Instance.HandleServerConfigUpdateRequest(updateRequestParams);
                 Assert.NotNull(updateResult);
                 Assert.AreEqual(updateResult.ConfigProperty.ConfigValue, sampleConfig.ConfigValue);
                 ServerConfigService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
@@ -83,16 +76,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                ServerConfigListResponseParams result = null;
-
-                var requestContext = RequestContextMocks.Create<ServerConfigListResponseParams>(r => result = r).AddErrorHandling(null);
-
                 ServerConfigListRequestParams requestParams = new ServerConfigListRequestParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 };
 
-                await ServerConfigService.Instance.HandleServerConfigListRequest(requestParams, requestContext.Object);
+                ServerConfigListResponseParams result = await ServerConfigService.Instance.HandleServerConfigListRequest(requestParams);
                 Assert.NotNull(result);
                 return result.ConfigProperties;
             }
@@ -100,52 +89,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
 
        
         [Test]
-        public async Task VerifyConfigViewRequestSendErrorGivenInvalidConnection()
+        public void VerifyConfigViewRequestThrowsRpcErrorGivenInvalidConnection()
         {
-            ServerConfigViewResponseParams result = null;
-            var requestContext = RequestContextMocks.Create<ServerConfigViewResponseParams>(r => result = r).AddErrorHandling(null);
-            requestContext.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(System.Threading.Tasks.Task.FromResult(true));
-
             ServerConfigViewRequestParams requestParams = new ServerConfigViewRequestParams
             {
                 OwnerUri = "invalid uri"
             };
 
-            await ServerConfigService.Instance.HandleServerConfigViewRequest(requestParams, requestContext.Object);
-            requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
+            Assert.ThrowsAsync<LocalRpcException>(async () =>
+                await ServerConfigService.Instance.HandleServerConfigViewRequest(requestParams));
         }
 
         [Test]
-        public async Task VerifyConfigUpdateRequestSendErrorGivenInvalidConnection()
+        public void VerifyConfigUpdateRequestThrowsRpcErrorGivenInvalidConnection()
         {
-            ServerConfigUpdateResponseParams result = null;
-            var requestContext = RequestContextMocks.Create<ServerConfigUpdateResponseParams>(r => result = r).AddErrorHandling(null);
-            requestContext.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(System.Threading.Tasks.Task.FromResult(true));
-
             ServerConfigUpdateRequestParams requestParams = new ServerConfigUpdateRequestParams
             {
                 OwnerUri = "invalid uri",
                 ConfigValue = 1
             };
 
-            await ServerConfigService.Instance.HandleServerConfigUpdateRequest(requestParams, requestContext.Object);
-            requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
+            Assert.ThrowsAsync<LocalRpcException>(async () =>
+                await ServerConfigService.Instance.HandleServerConfigUpdateRequest(requestParams));
         }
 
         [Test]
-        public async Task VerifyConfigListRequestSendErrorGivenInvalidConnection()
+        public void VerifyConfigListRequestThrowsRpcErrorGivenInvalidConnection()
         {
-            ServerConfigListResponseParams result = null;
-            var requestContext = RequestContextMocks.Create<ServerConfigListResponseParams>(r => result = r).AddErrorHandling(null);
-            requestContext.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(System.Threading.Tasks.Task.FromResult(true));
-
             ServerConfigListRequestParams requestParams = new ServerConfigListRequestParams
             {
                 OwnerUri = "invalid uri",
             };
 
-            await ServerConfigService.Instance.HandleServerConfigListRequest(requestParams, requestContext.Object);
-            requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
+            Assert.ThrowsAsync<LocalRpcException>(async () =>
+                await ServerConfigService.Instance.HandleServerConfigListRequest(requestParams));
         }
 
     }

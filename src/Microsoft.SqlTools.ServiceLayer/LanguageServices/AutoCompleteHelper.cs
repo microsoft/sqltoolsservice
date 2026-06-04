@@ -668,7 +668,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (currentList != null &&
                 token != null && !string.IsNullOrWhiteSpace(token.Text) &&
                 token.Text.All(char.IsLetter) &&
-                currentList.All(x => string.Compare(x.Label, token.Text, true) != 0
+                currentList.All(x => string.Compare(x.Label, token.Text) != 0
                 ))
             {
                 var list = currentList.ToList();

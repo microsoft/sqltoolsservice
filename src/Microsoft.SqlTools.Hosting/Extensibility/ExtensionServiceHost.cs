@@ -58,9 +58,9 @@ namespace Microsoft.SqlTools.Extensibility
         private void InitializeRequestHandlers()
         {
             // Register the requests that this service host will handle
-            this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
-            this.SetRequestHandler(ShutdownRequest.Type, this.HandleShutdownRequest);
-            this.SetRequestHandler(VersionRequest.Type, this.HandleVersionRequest);
+            this.RegisterRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
+            this.RegisterRequestHandler(ShutdownRequest.Type, this.HandleShutdownRequest);
+            this.RegisterRequestHandler(VersionRequest.Type, this.HandleVersionRequest);
         }
 
         private void InitializeHostedServices()
@@ -99,12 +99,12 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Delegate definition for the host shutdown event
         /// </summary>
-        public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
+        public delegate Task ShutdownCallback(object shutdownParams);
 
         /// <summary>
         /// Delegate definition for the host initialization event
         /// </summary>
-        public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
+        public delegate Task InitializeCallback(InitializeRequest startupParams);
 
         private readonly List<ShutdownCallback> shutdownCallbacks = new List<ShutdownCallback>();
 
@@ -134,47 +134,48 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Handles the shutdown event for the Language Server
         /// </summary>
-        private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
+        private async Task<object> HandleShutdownRequest(object shutdownParams)
         {
             Logger.Information("Service host is shutting down...");
 
             // Call all the shutdown methods provided by the service components
-            Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
+            Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams)).ToArray();
             TimeSpan shutdownTimeout = TimeSpan.FromSeconds(options.ShutdownTimeoutInSeconds);
             // shut down once all tasks are completed, or after the timeout expires, whichever comes first.
             await Task.WhenAny(Task.WhenAll(shutdownTasks), Task.Delay(shutdownTimeout)).ContinueWith(t => Environment.Exit(0));
+
+            return null;
         }
 
         /// <summary>
         /// Handles the initialization request
         /// </summary>
-        private async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
+        private async Task<InitializeResult> HandleInitializeRequest(InitializeRequest initializeParams)
         {
             try
             {
                 // Call all tasks that registered on the initialize request
-                var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
+                var initializeTasks = initializeCallbacks.Select(t => t(initializeParams));
                 await Task.WhenAll(initializeTasks);
 
                 // Send back what this server can do
-                await requestContext.SendResult(
-                    new InitializeResult
+                return new InitializeResult
                     {
                         Capabilities = options.ServerCapabilities
-                    });
+                    };
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                throw RpcErrorException.Create(e.Message);
             }
         }
 
         /// <summary>
         /// Handles the version request. Sends back the server version as result.
         /// </summary>
-        private async Task HandleVersionRequest(object versionRequestParams, RequestContext<string> requestContext)
+        private Task<string> HandleVersionRequest(object versionRequestParams)
         {
-            await requestContext.SendResult(serviceVersion.ToString());
+            return Task.FromResult(serviceVersion.ToString());
         }
 
 

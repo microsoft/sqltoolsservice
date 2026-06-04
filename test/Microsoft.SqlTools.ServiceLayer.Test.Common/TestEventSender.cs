@@ -12,11 +12,11 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     /// <summary>
-    /// Simple EventContext for testing that just swallows all events.
+    /// Simple event sender for testing that just swallows all events.
     /// </summary>
-    public class TestEventContext : EventContext
+    public class TestEventSender : IEventSender
     {
-        public override async Task SendEvent<TParams>(
+        public virtual async Task SendEvent<TParams>(
             EventType<TParams> eventType,
             TParams eventParams)
         {

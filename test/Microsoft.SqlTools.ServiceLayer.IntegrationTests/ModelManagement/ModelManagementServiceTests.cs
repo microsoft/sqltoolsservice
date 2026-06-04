@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -6,7 +6,6 @@
 #nullable disable
 
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
@@ -43,11 +42,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<DeleteModelResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleDeleteModelRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleDeleteModelRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -73,11 +71,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<ImportModelResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleModelImportRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleModelImportRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -103,11 +100,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<UpdateModelResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleUpdateModelRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleUpdateModelRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -133,11 +129,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<DownloadModelResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleDownloadModelRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleDownloadModelRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -163,11 +158,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<VerifyModelTableResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleVerifyModelTableRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleVerifyModelTableRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -193,11 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<ConfigureModelTableResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleConfigureModelTableRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleConfigureModelTableRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -222,11 +215,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyRequst<GetModelsResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleGetModelsRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleGetModelsRequest(requestParams);
                },
                verify: (actual =>
                {
@@ -253,11 +245,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyError<DeleteModelResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
-                   await service.HandleDeleteModelRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleDeleteModelRequest(requestParams);
                });
         }
 
@@ -279,21 +270,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             };
 
             await VerifyError<DeleteModelResponseParams>(
-               test: async (requestContext, connectionUrl) =>
+               test: async (connectionUrl) =>
                {
                    requestParams.OwnerUri = "Invalid connection uri";
-                   await service.HandleDeleteModelRequest(requestParams, requestContext);
-                   return null;
+                   return await service.HandleDeleteModelRequest(requestParams);
                });
         }
 
-        public async Task VerifyRequst<T>(Func<RequestContext<T>, string, Task<T>> test, Action<T> verify)
+        public async Task VerifyRequst<T>(Func<string, Task<T>> test, Action<T> verify)
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 await RunAndVerify<T>(
-               test: (requestContext) => test(requestContext, queryTempFile.FilePath),
+               test: () => test(queryTempFile.FilePath),
                verify: verify);
 
                 ModelManagementService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
@@ -304,13 +294,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
             }
         }
 
-        public async Task VerifyError<T>(Func<RequestContext<T>, string, Task<T>> test)
+        public async Task VerifyError<T>(Func<string, Task<T>> test)
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                await RunAndVerifyError<T>(
-               test: (requestContext) => test(requestContext, queryTempFile.FilePath));
+                RunAndVerifyError<T>(
+               test: () => test(queryTempFile.FilePath));
 
                 ModelManagementService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
                 {

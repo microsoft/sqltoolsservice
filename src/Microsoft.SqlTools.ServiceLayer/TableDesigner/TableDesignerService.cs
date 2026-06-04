@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         /// <summary>
         /// Service host object for sending/receiving requests/events.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IRpcServiceHost ServiceHost
         {
             get;
             set;
@@ -83,49 +83,50 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(InitializeTableDesignerRequest.Type, HandleInitializeTableDesignerRequest, true);
-            this.ServiceHost.SetRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest, true);
-            this.ServiceHost.SetRequestHandler(PublishTableChangesRequest.Type, HandlePublishTableChangesRequest, true);
-            this.ServiceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest, true);
-            this.ServiceHost.SetRequestHandler(GeneratePreviewReportRequest.Type, HandleGeneratePreviewReportRequest, true);
-            this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest, true);
+            this.ServiceHost.RegisterRequestHandler(InitializeTableDesignerRequest.Type, HandleInitializeTableDesignerRequest);
+            this.ServiceHost.RegisterRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest);
+            this.ServiceHost.RegisterRequestHandler(PublishTableChangesRequest.Type, HandlePublishTableChangesRequest);
+            this.ServiceHost.RegisterRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
+            this.ServiceHost.RegisterRequestHandler(GeneratePreviewReportRequest.Type, HandleGeneratePreviewReportRequest);
+            this.ServiceHost.RegisterRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
 
         }
 
-        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings)
         {
             Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel : false;
             this.tableDesignerManager.AllowDisableAndReenableDdlTriggers = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.AllowDisableAndReenableDdlTriggers : true;
             return Task.FromResult(0);
         }
 
-        private Task HandleInitializeTableDesignerRequest(InitializeTableDesignerRequestParams requestParams, RequestContext<TableDesignerInfo> requestContext)
+        private Task<TableDesignerInfo> HandleInitializeTableDesignerRequest(InitializeTableDesignerRequestParams requestParams)
         {
-            return Utils.HandleRequest<TableDesignerInfo>(requestContext, async () =>
+            return Utils.HandleRequest<TableDesignerInfo>(async () =>
             {
                 TableInfo tableInfo = requestParams.TableInfo ?? throw new ArgumentNullException(nameof(requestParams.TableInfo));
                 string sessionId = string.IsNullOrWhiteSpace(requestParams.SessionId)
                     ? !string.IsNullOrWhiteSpace(tableInfo.Id) ? tableInfo.Id : Guid.NewGuid().ToString()
                     : requestParams.SessionId;
                 tableInfo.Id = sessionId;
-                await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo));
+                return this.tableDesignerManager.InitializeTableDesigner(tableInfo);
             });
         }
 
-        private Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)
+        private Task<ProcessTableDesignerEditResponse> HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            return Utils.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
+            return Utils.HandleRequest<ProcessTableDesignerEditResponse>(async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.TableDesignerEdit(requestParams));
+                return this.tableDesignerManager.TableDesignerEdit(requestParams);
             });
         }
 
-        private Task HandlePublishTableChangesRequest(TableInfo tableInfo, RequestContext<PublishTableChangesResponse> requestContext)
+        private Task<PublishTableChangesResponse> HandlePublishTableChangesRequest(TableInfo tableInfo)
         {
-            return Utils.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
+            return Utils.HandleRequest<PublishTableChangesResponse>(async () =>
             {
                 string originalId = tableInfo.Id;
+                PublishTableChangesResponse publishResult = null;
                 var metadata = new TaskMetadata()
                 {
                     Name = SR.TableDesignerPublishTaskName,
@@ -147,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             return this.tableDesignerManager.PublishTableChanges(tableInfo);
                         });
 
-                        await requestContext.SendResult(result);
+                        publishResult = result;
 
                         return new TaskResult()
                         {
@@ -173,6 +174,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     throw new Exception(sqlTask.GetLastMessage()?.Description ?? SR.TableDesignerPublishFailed);
                 }
+
+                return publishResult ?? new PublishTableChangesResponse();
             });
         }
 
@@ -219,19 +222,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return string.Equals(status, "Completed", StringComparison.OrdinalIgnoreCase) ? 100 : -1;
         }
 
-        private Task HandleGenerateScriptRequest(TableInfo tableInfo, RequestContext<string> requestContext)
+        private Task<string> HandleGenerateScriptRequest(TableInfo tableInfo)
         {
-            return Utils.HandleRequest<string>(requestContext, async () =>
+            return Utils.HandleRequest<string>(async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.GenerateScript(tableInfo));
+                return this.tableDesignerManager.GenerateScript(tableInfo);
             });
         }
 
-        private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<GeneratePreviewReportResult> requestContext)
+        private Task<GeneratePreviewReportResult> HandleGeneratePreviewReportRequest(TableInfo tableInfo)
         {
-            return Utils.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
+            return Utils.HandleRequest<GeneratePreviewReportResult>(async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.GeneratePreviewReport(tableInfo));
+                return this.tableDesignerManager.GeneratePreviewReport(tableInfo);
             });
         }
 
@@ -281,12 +284,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
         }
 
-        private Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
+        private Task<DisposeTableDesignerResponse> HandleDisposeTableDesignerRequest(TableInfo tableInfo)
         {
-            return Utils.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
+            return Utils.HandleRequest<DisposeTableDesignerResponse>(async () =>
             {
                 this.tableDesignerManager.DisposeTableDesigner(tableInfo);
-                await requestContext.SendResult(new DisposeTableDesignerResponse());
+                return new DisposeTableDesignerResponse();
             });
         }
 

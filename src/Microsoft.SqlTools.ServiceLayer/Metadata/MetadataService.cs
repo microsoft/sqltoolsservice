@@ -8,14 +8,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.SqlCore.Metadata;
 using Microsoft.SqlTools.Utility;
 
@@ -56,20 +54,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
-            serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
-            serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetRequestHandler(GetServerContextualizationRequest.Type, HandleGetServerContextualizationRequest, true);
+            serviceHost.RegisterRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
+            serviceHost.RegisterRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest);
+            serviceHost.RegisterRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest);
+            serviceHost.RegisterRequestHandler(GetServerContextualizationRequest.Type, HandleGetServerContextualizationRequest);
         }
 
         /// <summary>
         /// Handle a metadata query request
         /// </summary>        
-        internal async Task HandleMetadataListRequest(
-            MetadataQueryParams metadataParams,
-            RequestContext<MetadataQueryResult> requestContext)
+        internal async Task<MetadataQueryResult> HandleMetadataListRequest(
+            MetadataQueryParams metadataParams)
         {
-            Func<Task> requestHandler = async () =>
+            Func<Task<MetadataQueryResult>> requestHandler = async () =>
             {
                 ConnectionInfo connInfo;
                 MetadataService.ConnectionServiceInstance.TryFindConnection(
@@ -85,17 +82,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     }
                 }
 
-                await requestContext.SendResult(new MetadataQueryResult
+                return await Task.FromResult(new MetadataQueryResult
                 {
                     Metadata = metadata.ToArray()
                 });
             };
 
-            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
-            {
-                await requestContext.SendError(t.Exception.ToString());
-            });
+            Task<MetadataQueryResult> task = Task.Run(requestHandler);
             MetadataListTask = task;
+            try
+            {
+                return await task;
+            }
+            catch (Exception ex)
+            {
+                throw RpcErrorException.Create(ex);
+            }
         }
 
         internal Task MetadataListTask { get; set; }
@@ -103,21 +105,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <summary>
         /// Handle a table metadata query request
         /// </summary>        
-        internal static async Task HandleGetTableRequest(
-            TableMetadataParams metadataParams,
-            RequestContext<TableMetadataResult> requestContext)
+        internal static async Task<TableMetadataResult> HandleGetTableRequest(
+            TableMetadataParams metadataParams)
         {
-            await HandleGetTableOrViewRequest(metadataParams, "table", requestContext);
+            return await HandleGetTableOrViewRequest(metadataParams, "table");
         }
 
         /// <summary>
         /// Handle a view metadata query request
         /// </summary>        
-        internal static async Task HandleGetViewRequest(
-            TableMetadataParams metadataParams,
-            RequestContext<TableMetadataResult> requestContext)
+        internal static async Task<TableMetadataResult> HandleGetViewRequest(
+            TableMetadataParams metadataParams)
         {
-            await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
+            return await HandleGetTableOrViewRequest(metadataParams, "view");
         }
 
         /// <summary>
@@ -125,21 +125,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// database objects like tables and views.
         /// </summary>
         /// <param name="contextualizationParams">The contextualization parameters.</param>
-        internal static Task HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams,
-            RequestContext<GetServerContextualizationResult> requestContext)
+        internal static Task<GetServerContextualizationResult> HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams)
         {
-            _ = Task.Factory.StartNew(async () =>
-            {
-                await GetServerContextualization(contextualizationParams, requestContext);
-            },
-            CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.Default);
-
-            return Task.CompletedTask;
+            return GetServerContextualization(contextualizationParams);
         }
 
-        internal static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)
+        internal static async Task<GetServerContextualizationResult> GetServerContextualization(GetServerContextualizationParams contextualizationParams)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
             if (connectionInfo == null)
@@ -158,12 +149,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         {
                             try
                             {
-                                await requestContext.SendResult(new GetServerContextualizationResult()
-                                {
-                                    Context = string.Join('\n', scripts)
-                                });
-
+                                string context = string.Join('\n', scripts);
                                 MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, contextualizationParams.DatabaseName, scripts);
+
+                                return new GetServerContextualizationResult()
+                                {
+                                    Context = context
+                                };
                             }
                             catch (Exception ex)
                             {
@@ -183,10 +175,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     try
                     {
                         var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName).ToArray();
-                        await requestContext.SendResult(new GetServerContextualizationResult
+                        return new GetServerContextualizationResult
                         {
                             Context = string.Join('\n', scripts)
-                        });
+                        };
                     }
                     catch (Exception)
                     {
@@ -200,10 +192,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <summary>
         /// Handle a table pr view metadata query request
         /// </summary>        
-        private static async Task HandleGetTableOrViewRequest(
+        private static async Task<TableMetadataResult> HandleGetTableOrViewRequest(
             TableMetadataParams metadataParams,
-            string objectType,
-            RequestContext<TableMetadataResult> requestContext)
+            string objectType)
         {
             ConnectionInfo connInfo;
             MetadataService.ConnectionServiceInstance.TryFindConnection(
@@ -222,10 +213,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 }
             }
 
-            await requestContext.SendResult(new TableMetadataResult
+            return new TableMetadataResult
             {
                 Columns = metadata
-            });
+            };
         }
 
         internal static bool IsSystemDatabase(string database)

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -56,6 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         private readonly QueryExecutionService queryExecutionService;
 
+        private IEventSender eventSender;
+
         private readonly Lazy<ConcurrentDictionary<string, EditSession>> editSessions = new Lazy<ConcurrentDictionary<string, EditSession>>(
             () => new ConcurrentDictionary<string, EditSession>());
 
@@ -76,24 +78,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="serviceHost">The service host to register commands/events with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
+            this.eventSender = serviceHost;
+
             // Register handlers for requests
-            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(EditCancelRequest.Type, HandleCancelRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest);
+            serviceHost.RegisterRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest);
+            serviceHost.RegisterRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest);
+            serviceHost.RegisterRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
+            serviceHost.RegisterRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest);
+            serviceHost.RegisterRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
+            serviceHost.RegisterRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest);
+            serviceHost.RegisterRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
+            serviceHost.RegisterRequestHandler(EditCommitRequest.Type, HandleCommitRequest);
+            serviceHost.RegisterRequestHandler(EditScriptRequest.Type, HandleEditScriptRequest);
+            serviceHost.RegisterRequestHandler(EditCancelRequest.Type, HandleCancelRequest);
         }
 
         #region Request Handlers
 
-        internal async Task HandleSessionRequest<TResult>(SessionOperationParams sessionParams,
-            RequestContext<TResult> requestContext, Func<EditSession, TResult> sessionOperation)
+        internal async Task<TResult> HandleSessionRequest<TResult>(SessionOperationParams sessionParams, Func<EditSession, TResult> sessionOperation)
         {
             try
             {
@@ -101,16 +104,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Get the result from execution of the editSession operation
                 TResult result = sessionOperation(editSession);
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                throw RpcErrorException.Create(e.Message);
             }
         }
 
-        internal async Task HandleSessionRequestAsync<TResult>(SessionOperationParams sessionParams,
-            RequestContext<TResult> requestContext, Func<EditSession, Task<TResult>> sessionOperationAsync)
+        internal async Task<TResult> HandleSessionRequestAsync<TResult>(SessionOperationParams sessionParams, Func<EditSession, Task<TResult>> sessionOperationAsync)
         {
             try
             {
@@ -118,18 +120,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Get the result from execution of the async editSession operation
                 TResult result = await sessionOperationAsync(editSession);
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                throw RpcErrorException.Create(e.Message);
             }
         }
 
-        internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
-            RequestContext<EditCreateRowResult> requestContext)
+        internal Task<EditCreateRowResult> HandleCreateRowRequest(EditCreateRowParams createParams)
         {
-            return HandleSessionRequestAsync(createParams, requestContext, async session =>
+            return HandleSessionRequestAsync(createParams, async session =>
             {
                 EditCreateRowResult result = session.CreateRow();
 
@@ -140,10 +141,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             });
         }
 
-        internal Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
-            RequestContext<EditDeleteRowResult> requestContext)
+        internal Task<EditDeleteRowResult> HandleDeleteRowRequest(EditDeleteRowParams deleteParams)
         {
-            return HandleSessionRequest(deleteParams, requestContext, session =>
+            return HandleSessionRequest(deleteParams, session =>
             {
                 // Add the delete row to the edit cache
                 session.DeleteRow(deleteParams.RowId);
@@ -151,8 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             });
         }
 
-        internal async Task HandleDisposeRequest(EditDisposeParams disposeParams,
-            RequestContext<EditDisposeResult> requestContext)
+        internal async Task<EditDisposeResult> HandleDisposeRequest(EditDisposeParams disposeParams)
         {
             // Sanity check the owner URI
             Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
@@ -165,11 +164,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Everything was successful, return success
-            await requestContext.SendResult(new EditDisposeResult());
+            return new EditDisposeResult();
         }
 
-        internal async Task HandleCancelRequest(EditCancelParams cancelParams,
-            RequestContext<EditCancelResult> requestContext)
+        internal async Task<EditCancelResult> HandleCancelRequest(EditCancelParams cancelParams)
         {
             try
             {
@@ -184,23 +182,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     query.Cancel();
                 }
 
-                await requestContext.SendResult(new EditCancelResult());
+                return new EditCancelResult();
             }
             catch (InvalidOperationException)
             {
                 // Query already completed - treat as success
-                await requestContext.SendResult(new EditCancelResult());
+                return new EditCancelResult();
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                throw RpcErrorException.Create(e.Message);
             }
         }
 
-        internal async Task HandleInitializeRequest(EditInitializeParams initParams,
-            RequestContext<EditInitializeResult> requestContext)
+        internal async Task<EditInitializeResult> HandleInitializeRequest(EditInitializeParams initParams)
         {
-            InitializeEditRequestContext context = new InitializeEditRequestContext(requestContext);
+            InitializeEditRequestContext context = new InitializeEditRequestContext(this.eventSender);
             Func<Exception, Task> executionFailureHandler = (e) => SendSessionReadyEvent(context, initParams.OwnerUri, false, e.Message);
             Func<Task> executionSuccessHandler = () => SendSessionReadyEvent(context, initParams.OwnerUri, true, null);
 
@@ -225,20 +222,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
 
             // Send the result
-            await requestContext.SendResult(new EditInitializeResult());
+            return new EditInitializeResult();
         }
 
-        internal Task HandleRevertCellRequest(EditRevertCellParams revertParams,
-            RequestContext<EditRevertCellResult> requestContext)
+        internal Task<EditRevertCellResult> HandleRevertCellRequest(EditRevertCellParams revertParams)
         {
-            return HandleSessionRequest(revertParams, requestContext,
+            return HandleSessionRequest(revertParams,
                 session => session.RevertCell(revertParams.RowId, revertParams.ColumnId));
         }
 
-        internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,
-            RequestContext<EditRevertRowResult> requestContext)
+        internal Task<EditRevertRowResult> HandleRevertRowRequest(EditRevertRowParams revertParams)
         {
-            return HandleSessionRequestAsync(revertParams, requestContext, async session =>
+            return HandleSessionRequestAsync(revertParams, async session =>
             {
                 EditRow revertedRow = await session.RevertRow(revertParams.RowId);
 
@@ -249,10 +244,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             });
         }
 
-        internal Task HandleSubsetRequest(EditSubsetParams subsetParams,
-            RequestContext<EditSubsetResult> requestContext)
+        internal Task<EditSubsetResult> HandleSubsetRequest(EditSubsetParams subsetParams)
         {
-            return HandleSessionRequestAsync(subsetParams, requestContext, async session =>
+            return HandleSessionRequestAsync(subsetParams, async session =>
             {
                 EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
                 
@@ -265,21 +259,29 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             });
         }
 
-        internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
-            RequestContext<EditUpdateCellResult> requestContext)
+        internal Task<EditUpdateCellResult> HandleUpdateCellRequest(EditUpdateCellParams updateParams)
         {
-            return HandleSessionRequest(updateParams, requestContext,
+            return HandleSessionRequest(updateParams,
                 session => session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue));
         }
 
-        internal async Task HandleCommitRequest(EditCommitParams commitParams,
-            RequestContext<EditCommitResult> requestContext)
+        internal async Task<EditCommitResult> HandleCommitRequest(EditCommitParams commitParams)
         {
+            TaskCompletionSource<EditCommitResult> taskCompletion = new TaskCompletionSource<EditCommitResult>();
+
             // Setup a callback for if the edits have been successfully written to the db
-            Func<Task> successHandler = () => requestContext.SendResult(new EditCommitResult());
+            Func<Task> successHandler = () =>
+            {
+                taskCompletion.TrySetResult(new EditCommitResult());
+                return Task.CompletedTask;
+            };
 
             // Setup a callback for if the edits failed to be written to db
-            Func<Exception, Task> failureHandler = e => requestContext.SendError(e.Message);
+            Func<Exception, Task> failureHandler = e =>
+            {
+                taskCompletion.TrySetException(RpcErrorException.Create(e));
+                return Task.CompletedTask;
+            };
 
             try
             {
@@ -295,11 +297,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 await failureHandler(e);
             }
+
+            return await taskCompletion.Task;
         }
 
-        internal Task HandleEditScriptRequest(EditScriptParams scriptParams, RequestContext<EditScriptResult> requestContext)
+        internal Task<EditScriptResult> HandleEditScriptRequest(EditScriptParams scriptParams)
         {
-            return HandleSessionRequest(scriptParams, requestContext, session =>
+            return HandleSessionRequest(scriptParams, session =>
             {
                 string[] scripts = session.ScriptEdits();
                 return new EditScriptResult { Scripts = scripts };
@@ -401,13 +405,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     /// </summary>
     internal class InitializeEditRequestContext : IEventSender
     {
-        private RequestContext<EditInitializeResult> _context;
+        private readonly IEventSender eventSender;
 
         public Action<ResultSetEventParams> ResultSetHandler { get; set; }
 
-        public InitializeEditRequestContext(RequestContext<EditInitializeResult> context)
+        public InitializeEditRequestContext(IEventSender eventSender)
         {
-            this._context = context;
+            this.eventSender = eventSender;
         }
 
         public Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
@@ -416,7 +420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 this.ResultSetHandler(eventParams as ResultSetEventParams);
             }
-            return _context.SendEvent(eventType, eventParams);
+            return this.eventSender?.SendEvent(eventType, eventParams) ?? Task.CompletedTask;
         }
 
     }

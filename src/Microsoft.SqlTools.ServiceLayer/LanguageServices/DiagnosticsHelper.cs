@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal static async Task PublishScriptDiagnostics(
             ScriptFile scriptFile,
             ScriptFileMarker[] semanticMarkers,
-            EventContext eventContext)
+            IEventSender eventSender)
         {
             var allMarkers = scriptFile.SyntaxMarkers != null
                     ? scriptFile.SyntaxMarkers.Concat(semanticMarkers)
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Always send syntax and semantic errors.  We want to 
             // make sure no out-of-date markers are being displayed.
-            await eventContext.SendEvent(
+            await eventSender.SendEvent(
                 PublishDiagnosticsNotification.Type,
                 new PublishDiagnosticsNotification
                 {
@@ -59,13 +59,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         internal static async Task ClearScriptDiagnostics(
             string uri,
-            EventContext eventContext)
+            IEventSender eventSender)
         {
             Validate.IsNotNullOrEmptyString(nameof(uri), uri);
-            Validate.IsNotNull(nameof(eventContext), eventContext);
+            Validate.IsNotNull(nameof(eventSender), eventSender);
             // Always send syntax and semantic errors.  We want to 
             // make sure no out-of-date markers are being displayed.
-            await eventContext.SendEvent(
+            await eventSender.SendEvent(
                 PublishDiagnosticsNotification.Type,
                 new PublishDiagnosticsNotification
                 {

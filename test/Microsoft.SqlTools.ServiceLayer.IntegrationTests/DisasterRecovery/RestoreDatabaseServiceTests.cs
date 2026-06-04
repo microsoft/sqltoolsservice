@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
     public class RestoreDatabaseServiceTests : ServiceTestBase
     {
         private ConnectionService _connectService = TestServiceProvider.Instance.ConnectionService;
-        private Mock<IProtocolEndpoint> serviceHostMock;
+        private Mock<IRpcServiceHost> serviceHostMock;
         private DisasterRecoveryService service;
         private string fullBackupFilePath;
         private string[] backupFilesToRecoverDatabase;
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         public RestoreDatabaseServiceTests()
         {
-            serviceHostMock = new Mock<IProtocolEndpoint>();
+            serviceHostMock = new Mock<IRpcServiceHost>();
             service = CreateService();
             service.InitializeService(serviceHostMock.Object);
         }
@@ -427,7 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 };
 
                 await RunAndVerify<RestorePlanResponse>(
-                    test: (requestContext) => service.HandleRestorePlanRequest(restoreParams, requestContext),
+                    test: () => service.HandleRestorePlanRequest(restoreParams),
                     verify: ((result) =>
                     {
                         Assert.True(result.DbFiles.Any());
@@ -453,7 +453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 };
 
                 await RunAndVerify<RestorePlanResponse>(
-                    test: (requestContext) => service.HandleRestorePlanRequest(restoreParams, requestContext),
+                    test: () => service.HandleRestorePlanRequest(restoreParams),
                     verify: ((result) =>
                     {
                         restoreParams.SessionId = result.SessionId;
@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     }));
 
                 await RunAndVerify<bool>(
-                   test: (requestContext) => service.HandleCancelRestorePlanRequest(restoreParams, requestContext),
+                   test: () => service.HandleCancelRestorePlanRequest(restoreParams),
                    verify: ((result) =>
                    {
                        Assert.True(result);
@@ -486,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 };
 
                 await RunAndVerify<RestoreConfigInfoResponse>(
-                    test: (requestContext) => service.HandleRestoreConfigInfoRequest(restoreParams, requestContext),
+                    test: () => service.HandleRestoreConfigInfoRequest(restoreParams),
                     verify: ((result) =>
                     {
                         Assert.True(result.ConfigInfo.Any());
@@ -511,7 +511,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 };
 
                 await RunAndVerify<RestoreResponse>(
-                    test: (requestContext) => service.HandleRestoreRequest(restoreParams, requestContext),
+                    test: () => service.HandleRestoreRequest(restoreParams),
                     verify: ((result) =>
                     {
                         string taskId = result.TaskId;
@@ -538,7 +538,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 };
 
                 await RunAndVerify<RestorePlanResponse>(
-                    test: (requestContext) => service.HandleRestorePlanRequest(restoreParams, requestContext),
+                    test: () => service.HandleRestorePlanRequest(restoreParams),
                     verify: ((result) =>
                     {
                         Assert.False(string.IsNullOrEmpty(result.ErrorMessage));

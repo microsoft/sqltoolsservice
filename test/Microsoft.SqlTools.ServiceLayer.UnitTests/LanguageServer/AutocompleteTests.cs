@@ -9,12 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Moq;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
@@ -32,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             InitializeTestObjects();
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
-            Assert.NotNull(langService.HandleCompletionRequest(null, null));
+            Assert.NotNull(langService.HandleCompletionRequest(textDocument));
         }
 
         [Test]
@@ -40,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             InitializeTestObjects();
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
-            Assert.NotNull(langService.HandleCompletionResolveRequest(null, null));
+            Assert.NotNull(langService.HandleCompletionResolveRequest(null));
         }
 
         [Test]
@@ -48,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             InitializeTestObjects();
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
-            Assert.NotNull(langService.HandleSignatureHelpRequest(null, null));
+            Assert.NotNull(langService.HandleSignatureHelpRequest(textDocument));
         }
 
         [Test]
@@ -56,30 +54,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             InitializeTestObjects();
 
-            // setup the mock for SendResult
-            var signatureRequestContext = new Mock<RequestContext<SignatureHelp>>();
-            SignatureHelp result = null;
-            signatureRequestContext.Setup(rc => rc.SendResult(It.IsAny<SignatureHelp>()))
-            .Returns<SignatureHelp>((signature) =>
-            {
-                result = signature;
-                return Task.FromResult(0);
-            });
-            signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
-
-
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
             {
                 Uri = textDocument.TextDocument.Uri,
                 Language = LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                 Flavor = "NotMSSQL"
-            }, null);
-            await langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object);
+            });
+            SignatureHelp result = await langService.HandleSignatureHelpRequest(textDocument);
             // verify that the response was sent with a null response value
-            signatureRequestContext.Verify(m => m.SendResult(It.IsAny<SignatureHelp>()), Times.Once());
             Assert.Null(result);
-            signatureRequestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never());
         }
 
         [Test]
@@ -96,20 +80,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             InitializeTestObjects();
             textDocument.TextDocument.Uri = "invaliduri";
 
-            // setup the mock for SendResult
-            var definitionRequestContext = new Mock<RequestContext<Location[]>>();
-            Location[] result = null;
-            definitionRequestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
-            .Returns<Location[]>((resultDetails) =>
-            {
-                result = resultDetails;
-                return Task.FromResult(0);
-            });
-
-            await langService.HandleDefinitionRequest(textDocument, definitionRequestContext.Object);
+            Location[] result = await langService.HandleDefinitionRequest(textDocument);
             // Should get an empty array when passed
             Assert.NotNull(result);
-            Assert.True(result.Length == 0, $"Unexpected values passed to SendResult : [{string.Join(",", (object[])result)}]");
+            Assert.True(result.Length == 0, $"Unexpected handler result values: [{string.Join(",", (object[])result)}]");
         }
 
         [Test]
@@ -130,18 +104,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public async Task HandleCompletionRequest_InvalidTextDocument_SendsNullResult()
         {
             InitializeTestObjects();
-            // setup the mock for SendResult to capture the items
-            CompletionItem[] completionItems = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<CompletionItem[]>()))
-                .Returns<CompletionItem[]>((resultDetails) =>
-                {
-                    completionItems = resultDetails;
-                    return Task.FromResult(0);
-                });
 
             textDocument.TextDocument.Uri = "somethinggoeshere";
-            await langService.HandleCompletionRequest(textDocument, requestContext.Object);
-            requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
+            CompletionItem[] completionItems = await langService.HandleCompletionRequest(textDocument);
             Assert.Null(completionItems);
         }
 
@@ -189,11 +154,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             InitializeTestObjects();
 
             // request the completion list            
-            Task handleCompletion = langService.HandleCompletionRequest(textDocument, requestContext.Object);
+            Task<CompletionItem[]> handleCompletion = langService.HandleCompletionRequest(textDocument);
             handleCompletion.Wait(TaskTimeout);
 
-            // verify that send result was called with a completion array
-            requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
+            Assert.NotNull(handleCompletion.Result);
         }
 
         public ScriptDocumentInfo CreateSqlStarTestFile(string sqlText, int startLine, int startColumn)

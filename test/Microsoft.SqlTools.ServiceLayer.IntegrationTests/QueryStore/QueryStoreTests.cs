@@ -10,7 +10,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.SqlCore.Performance;
 using Microsoft.SqlTools.SqlCore.Performance.Common;
 using Moq;
@@ -49,8 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetTopResourceConsumersSummaryReportRequest(new GetTopResourceConsumersReportParams()
+            QueryStoreQueryResult result = await service.HandleGetTopResourceConsumersSummaryReportRequest(new GetTopResourceConsumersReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -61,13 +59,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinNumberOfQueryPlans = 1,
                 TopQueriesReturned = 50,
                 TimeInterval = TestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetTopResourceConsumersSummaryReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetTopResourceConsumersSummaryReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetTopResourceConsumersSummaryReportRequest.ReplaceLineEndings()));
 
-            request = new();
-            await service.HandleGetTopResourceConsumersDetailedSummaryReportRequest(new GetTopResourceConsumersReportParams()
+            result = await service.HandleGetTopResourceConsumersDetailedSummaryReportRequest(new GetTopResourceConsumersReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -78,10 +75,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinNumberOfQueryPlans = 1,
                 TopQueriesReturned = 50,
                 TimeInterval = TestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetTopResourceConsumersDetailedSummaryReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetTopResourceConsumersDetailedSummaryReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetTopResourceConsumersDetailedSummaryReportRequest.ReplaceLineEndings()));
         }
 
         [Test]
@@ -89,8 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetForcedPlanQueriesReportRequest(new GetForcedPlanQueriesReportParams()
+            QueryStoreQueryResult result = await service.HandleGetForcedPlanQueriesReportRequest(new GetForcedPlanQueriesReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -101,10 +97,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinNumberOfQueryPlans = 1,
                 TopQueriesReturned = 50,
                 TimeInterval = TestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetForcedPlanQueriesReportRequest));
-            Assert.AreEqual(QueryStoreBaselines.HandleGetForcedPlanQueriesReportRequest.ReplaceLineEndings(), request.Result.Query.ReplaceLineEndings());
+            Assert.True(result.Success);
+            Assert.AreEqual(QueryStoreBaselines.HandleGetForcedPlanQueriesReportRequest.ReplaceLineEndings(), result.Query.ReplaceLineEndings());
         }
 
         [Test]
@@ -112,14 +108,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetTrackedQueriesReportRequest(new GetTrackedQueriesReportParams()
+            QueryStoreQueryResult result = await service.HandleGetTrackedQueriesReportRequest(new GetTrackedQueriesReportParams()
             {
                 QuerySearchText = "test search text"
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetTrackedQueriesReportRequest));
-            Assert.AreEqual(QueryStoreBaselines.HandleGetTrackedQueriesReportRequest.ReplaceLineEndings(), request.Result.Query.ReplaceLineEndings());
+            Assert.True(result.Success);
+            Assert.AreEqual(QueryStoreBaselines.HandleGetTrackedQueriesReportRequest.ReplaceLineEndings(), result.Query.ReplaceLineEndings());
         }
 
         [Test]
@@ -127,8 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetHighVariationQueriesSummaryReportRequest(new GetHighVariationQueriesReportParams()
+            QueryStoreQueryResult result = await service.HandleGetHighVariationQueriesSummaryReportRequest(new GetHighVariationQueriesReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -139,13 +133,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinNumberOfQueryPlans = 1,
                 TopQueriesReturned = 50,
                 TimeInterval = TestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetHighVariationQueriesSummaryReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetHighVariationQueriesSummaryReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetHighVariationQueriesSummaryReportRequest.ReplaceLineEndings()));
 
-            request = new();
-            await service.HandleGetHighVariationQueriesDetailedSummaryReportRequest(new GetHighVariationQueriesReportParams()
+            result = await service.HandleGetHighVariationQueriesDetailedSummaryReportRequest(new GetHighVariationQueriesReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -156,10 +149,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinNumberOfQueryPlans = 1,
                 TopQueriesReturned = 50,
                 TimeInterval = TestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetHighVariationQueriesDetailedSummaryReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetHighVariationQueriesDetailedSummaryReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetHighVariationQueriesDetailedSummaryReportRequest.ReplaceLineEndings()));
         }
 
         [Test]
@@ -167,8 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetOverallResourceConsumptionReportRequest(new GetOverallResourceConsumptionReportParams()
+            QueryStoreQueryResult result = await service.HandleGetOverallResourceConsumptionReportRequest(new GetOverallResourceConsumptionReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -178,10 +170,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 TopQueriesReturned = 50,
                 SpecifiedTimeInterval = TestTimeInterval,
                 SpecifiedBucketInterval = BucketInterval.Hour
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetOverallResourceConsumptionReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetOverallResourceConsumptionReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetOverallResourceConsumptionReportRequest.ReplaceLineEndings()));
         }
 
         [Test]
@@ -189,8 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetRegressedQueriesSummaryReportRequest(new GetRegressedQueriesReportParams()
+            QueryStoreQueryResult result = await service.HandleGetRegressedQueriesSummaryReportRequest(new GetRegressedQueriesReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -201,13 +192,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinExecutionCount = 1,
                 TimeIntervalHistory = TestTimeInterval,
                 TimeIntervalRecent = RecentTestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetRegressedQueriesSummaryReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetRegressedQueriesSummaryReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetRegressedQueriesSummaryReportRequest.ReplaceLineEndings()));
 
-            request = new();
-            await service.HandleGetRegressedQueriesDetailedSummaryReportRequest(new GetRegressedQueriesReportParams()
+            result = await service.HandleGetRegressedQueriesDetailedSummaryReportRequest(new GetRegressedQueriesReportParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 ReturnAllQueries = true,
@@ -218,10 +208,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 MinExecutionCount = 1,
                 TimeIntervalHistory = TestTimeInterval,
                 TimeIntervalRecent = RecentTestTimeInterval
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetRegressedQueriesDetailedSummaryReportRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetRegressedQueriesDetailedSummaryReportRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetRegressedQueriesDetailedSummaryReportRequest.ReplaceLineEndings()));
         }
 
         [Test]
@@ -229,8 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         {
             QueryStoreService service = GetMockService();
 
-            MockRequest<QueryStoreQueryResult> request = new();
-            await service.HandleGetPlanSummaryChartViewRequest(new GetPlanSummaryParams()
+            QueryStoreQueryResult result = await service.HandleGetPlanSummaryChartViewRequest(new GetPlanSummaryParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 QueryId = 97,
@@ -238,13 +227,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 TimeIntervalMode = PlanTimeIntervalMode.SpecifiedRange,
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetPlanSummaryChartViewRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetPlanSummaryChartViewRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetPlanSummaryChartViewRequest.ReplaceLineEndings()));
 
-            request = new();
-            await service.HandleGetPlanSummaryGridViewRequest(new GetPlanSummaryGridViewParams()
+            result = await service.HandleGetPlanSummaryGridViewRequest(new GetPlanSummaryGridViewParams()
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 QueryId = 97,
@@ -254,10 +242,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 SelectedStatistic = Statistic.Stdev,
                 OrderByColumnId = "count_executions",
                 Descending = true
-            }, request.Object);
+            });
 
-            request.AssertSuccess(nameof(service.HandleGetPlanSummaryGridViewRequest));
-            Assert.That(request.Result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetPlanSummaryGridViewRequest.ReplaceLineEndings()));
+            Assert.True(result.Success);
+            Assert.That(result.Query.ReplaceLineEndings(), Is.EqualTo(QueryStoreBaselines.HandleGetPlanSummaryGridViewRequest.ReplaceLineEndings()));
         }
 
         private QueryStoreService GetMockService()

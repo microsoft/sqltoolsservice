@@ -1,11 +1,10 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 #nullable disable
 
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -106,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     }
                 }    
             };
-            qes.UpdateSettings(settings, null, new EventContext());
+            qes.UpdateSettings(settings, null);
 
             // Then: The settings object should match what it was updated to
             Assert.False(qes.Settings.QueryExecutionSettings.DisplayBitAsNumber);

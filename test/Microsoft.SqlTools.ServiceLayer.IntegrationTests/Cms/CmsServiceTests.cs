@@ -4,14 +4,12 @@
 //
 
 #nullable disable
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Cms.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
 using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -45,10 +43,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             string name = "TestAddCMS" + DateTime.Now.ToString();
             ConnectParams connectParams = CreateConnectParams();
 
-            // Prepare for list servers (may or may not have servers but will have listCmsServersResult)
-            var requestContext = new Mock<RequestContext<ListRegisteredServersResult>>();
-            requestContext.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServersList != null))).Returns(Task.FromResult(new object()));
-
             CreateCentralManagementServerParams connectToCMS = new CreateCentralManagementServerParams
             {
                 RegisteredServerName = name,
@@ -60,9 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             CmsService cmsService = CmsService.Instance;
 
             // Connect to CMS
-            await cmsService.HandleCreateCentralManagementServerRequest(connectToCMS, requestContext.Object);
-            await cmsService.CmsTask;
-            requestContext.VerifyAll();
+            ListRegisteredServersResult result = await cmsService.HandleCreateCentralManagementServerRequest(connectToCMS);
+            Assert.NotNull(result.RegisteredServersList);
         }
 
         [Test]
@@ -70,10 +63,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
         {
             string name = "TestAddRemoveRegisteredServer" + DateTime.Now.ToString();
             ConnectParams connectParams = await CreateAndConnectWithConnectParams();
-
-            // Prepare for Add Reg Server
-            var requestContext1 = new Mock<RequestContext<bool>>();
-            requestContext1.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
 
             AddRegisteredServerParams addRegServerParams = new AddRegisteredServerParams
             {
@@ -84,20 +73,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
                 RelativePath = "RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']" //Top level
             };
 
-            // Prepare for list servers
-            var requestContext2 = new Mock<RequestContext<ListRegisteredServersResult>>();
-            requestContext2.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServersList.Find(p => p.Name.Contains(name)) != null))).Returns(Task.FromResult(new object()));
-
             ListRegisteredServersParams listServersParams = new ListRegisteredServersParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = "RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']"
             };
 
-            // Prepare for remove Server
-            var requestContext3 = new Mock<RequestContext<bool>>();
-            requestContext1.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
-            
             RemoveRegisteredServerParams removeRegServerParams = new RemoveRegisteredServerParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
@@ -109,19 +90,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             CmsService cmsService = CmsService.Instance;
 
             // Add Reg Server
-            await cmsService.HandleAddRegisteredServerRequest(addRegServerParams, requestContext1.Object);
-            await cmsService.CmsTask;
-            requestContext1.VerifyAll();
+            bool addResult = await cmsService.HandleAddRegisteredServerRequest(addRegServerParams);
+            Assert.True(addResult);
 
             // List to validate
-            await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContext2.Object);
-            await cmsService.CmsTask;
-            requestContext2.VerifyAll();
+            ListRegisteredServersResult listResult = await cmsService.HandleListRegisteredServersRequest(listServersParams);
+            Assert.NotNull(listResult.RegisteredServersList.Find(p => p.Name.Contains(name)));
 
             // Clean up 
-            await cmsService.HandleRemoveRegisteredServerRequest(removeRegServerParams, requestContext3.Object);
-            await cmsService.CmsTask;
-            requestContext3.VerifyAll();
+            bool removeResult = await cmsService.HandleRemoveRegisteredServerRequest(removeRegServerParams);
+            Assert.True(removeResult);
         }
 
         [Test]
@@ -130,9 +108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             string name = "TestAddRemoveServerGroup" + DateTime.Now.ToString();
             ConnectParams connectParams = await CreateAndConnectWithConnectParams();
 
-            // Prepare for Server group add
-            var requestContext1 = new Mock<RequestContext<bool>>();
-            requestContext1.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
             AddServerGroupParams addRegServerParams = new AddServerGroupParams
             {
                 GroupName = name,
@@ -141,18 +116,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
                 RelativePath = null,
             };
 
-            // prepare for Server group list
-            var requestContext2 = new Mock<RequestContext<ListRegisteredServersResult>>();
-            requestContext2.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServerGroups.Find(p => p.Name.Contains(name)) != null))).Returns(Task.FromResult(new object()));
             ListRegisteredServersParams listServersParams = new ListRegisteredServersParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = null
             };
 
-            // prepare for server group remove
-            var requestContext3 = new Mock<RequestContext<bool>>();
-            requestContext1.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
             RemoveServerGroupParams removeRegServerParams = new RemoveServerGroupParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
@@ -163,17 +132,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             // Actual test start here
             CmsService cmsService = CmsService.Instance;
 
-            await cmsService.HandleAddServerGroupRequest(addRegServerParams, requestContext1.Object);
-            await cmsService.CmsTask;
-            requestContext1.VerifyAll();
+            bool addResult = await cmsService.HandleAddServerGroupRequest(addRegServerParams);
+            Assert.True(addResult);
 
-            await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContext2.Object);
-            await cmsService.CmsTask;
-            requestContext2.VerifyAll();
+            ListRegisteredServersResult listResult = await cmsService.HandleListRegisteredServersRequest(listServersParams);
+            Assert.NotNull(listResult.RegisteredServerGroups.Find(p => p.Name.Contains(name)));
 
-            await cmsService.HandleRemoveServerGroupRequest(removeRegServerParams, requestContext3.Object);
-            await cmsService.CmsTask;
-            requestContext3.VerifyAll();
+            bool removeResult = await cmsService.HandleRemoveServerGroupRequest(removeRegServerParams);
+            Assert.True(removeResult);
         }
 
         [Test]
@@ -181,10 +147,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
         {
             string name = "TestAddRemoveNestedGroup" + DateTime.Now.ToString();
             ConnectParams connectParams = await CreateAndConnectWithConnectParams();
-
-            // prepare for multi level server group add
-            var requestContextAdd = new Mock<RequestContext<bool>>();
-            requestContextAdd.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
 
             AddServerGroupParams addRegServerParams1 = new AddServerGroupParams
             {
@@ -212,22 +174,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
 
             // prepare for multi level server group list
 
-            var requestContextList1 = new Mock<RequestContext<ListRegisteredServersResult>>();
-            requestContextList1.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServerGroups.Find(p => p.Name.Contains(name + "_level3")) != null))).Returns(Task.FromResult(new object()));
-
-            var requestContextList2 = new Mock<RequestContext<ListRegisteredServersResult>>();
-            requestContextList2.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServerGroups.Find(p => p.Name.Contains(name + "_level3")) == null))).Returns(Task.FromResult(new object()));
-
             ListRegisteredServersParams listServersParams = new ListRegisteredServersParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = string.Format("RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']/ServerGroup[@Name='{0}']/ServerGroup[@Name='{1}']", name + "_level1", name + "_level2") // parent URN
             };
 
-            // prepare for multi level server group remove at level 3  and then at level 1
-            var requestContextRemove = new Mock<RequestContext<bool>>();
-            requestContextRemove.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
-            
             RemoveServerGroupParams removeRegServerParams = new RemoveServerGroupParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
@@ -246,37 +198,30 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             CmsService cmsService = CmsService.Instance;
 
             // Add three levels
-            await cmsService.HandleAddServerGroupRequest(addRegServerParams1, requestContextAdd.Object);
-            await cmsService.CmsTask;
-            requestContextAdd.VerifyAll();
+            bool addResult = await cmsService.HandleAddServerGroupRequest(addRegServerParams1);
+            Assert.True(addResult);
 
-            await cmsService.HandleAddServerGroupRequest(addRegServerParams2, requestContextAdd.Object);
-            await cmsService.CmsTask;
-            requestContextAdd.VerifyAll();
+            addResult = await cmsService.HandleAddServerGroupRequest(addRegServerParams2);
+            Assert.True(addResult);
 
-            await cmsService.HandleAddServerGroupRequest(addRegServerParams3, requestContextAdd.Object);
-            await cmsService.CmsTask;
-            requestContextAdd.VerifyAll();
+            addResult = await cmsService.HandleAddServerGroupRequest(addRegServerParams3);
+            Assert.True(addResult);
 
             // List Level 2 to find level three
-            await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContextList1.Object);
-            await cmsService.CmsTask;
-            requestContextList1.VerifyAll();
+            ListRegisteredServersResult listResult = await cmsService.HandleListRegisteredServersRequest(listServersParams);
+            Assert.NotNull(listResult.RegisteredServerGroups.Find(p => p.Name.Contains(name + "_level3")));
 
             // Remove level 3
-            await cmsService.HandleRemoveServerGroupRequest(removeRegServerParams, requestContextRemove.Object);
-            await cmsService.CmsTask;
-            requestContextRemove.VerifyAll();
+            bool removeResult = await cmsService.HandleRemoveServerGroupRequest(removeRegServerParams);
+            Assert.True(removeResult);
 
             // List Level 2 to validate Level 3 removal
-            await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContextList2.Object);
-            await cmsService.CmsTask;
-            requestContextList2.VerifyAll();
+            listResult = await cmsService.HandleListRegisteredServersRequest(listServersParams);
+            Assert.Null(listResult.RegisteredServerGroups.Find(p => p.Name.Contains(name + "_level3")));
 
             // Clean up - Remove Level 1
-            await cmsService.HandleRemoveServerGroupRequest(removeRegServerParamsCleanup, requestContextRemove.Object);
-            await cmsService.CmsTask;
-            requestContextRemove.VerifyAll();
+            removeResult = await cmsService.HandleRemoveServerGroupRequest(removeRegServerParamsCleanup);
+            Assert.True(removeResult);
         }
 
     }

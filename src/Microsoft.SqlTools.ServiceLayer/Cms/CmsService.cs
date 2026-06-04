@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -44,18 +44,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(CreateCentralManagementServerRequest.Type, this.HandleCreateCentralManagementServerRequest, true);
-            serviceHost.SetRequestHandler(ListRegisteredServersRequest.Type, this.HandleListRegisteredServersRequest, true);
-            serviceHost.SetRequestHandler(AddRegisteredServerRequest.Type, this.HandleAddRegisteredServerRequest, true);
-            serviceHost.SetRequestHandler(RemoveRegisteredServerRequest.Type, this.HandleRemoveRegisteredServerRequest, true);
-            serviceHost.SetRequestHandler(AddServerGroupRequest.Type, this.HandleAddServerGroupRequest, true);
-            serviceHost.SetRequestHandler(RemoveServerGroupRequest.Type, this.HandleRemoveServerGroupRequest, true);
+            serviceHost.RegisterRequestHandler(CreateCentralManagementServerRequest.Type, this.HandleCreateCentralManagementServerRequest);
+            serviceHost.RegisterRequestHandler(ListRegisteredServersRequest.Type, this.HandleListRegisteredServersRequest);
+            serviceHost.RegisterRequestHandler(AddRegisteredServerRequest.Type, this.HandleAddRegisteredServerRequest);
+            serviceHost.RegisterRequestHandler(RemoveRegisteredServerRequest.Type, this.HandleRemoveRegisteredServerRequest);
+            serviceHost.RegisterRequestHandler(AddServerGroupRequest.Type, this.HandleAddServerGroupRequest);
+            serviceHost.RegisterRequestHandler(RemoveServerGroupRequest.Type, this.HandleRemoveServerGroupRequest);
         }
 
-        public async Task HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams, RequestContext<ListRegisteredServersResult> requestContext)
+        public async Task<ListRegisteredServersResult> HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams)
         {
             Logger.Verbose("HandleCreateCentralManagementServerRequest");
-            CmsTask = Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 try
                 {
@@ -68,22 +68,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                     ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
                     if (result != null)
                     {
-                        await requestContext.SendResult(result);
-                        return;
+                        return result;
                     }
+
+                    return null;
                 }
                 catch (Exception ex)
                 {
                     // Exception related to connection/creation will only be caught here. Note that the outer catch will not catch them
-                    await requestContext.SendError(ex);
+                    throw RpcErrorException.Create(ex);
                 }
             });
+            CmsTask = task;
+            return await task;
         }
 
-        public async Task HandleAddRegisteredServerRequest(AddRegisteredServerParams cmsCreateParams, RequestContext<bool> requestContext)
+        public async Task<bool> HandleAddRegisteredServerRequest(AddRegisteredServerParams cmsCreateParams)
         {
             Logger.Verbose("HandleAddRegisteredServerRequest");
-            CmsTask = Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 try
                 {
@@ -100,24 +103,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                         registeredServer.ConnectionString = serverConn.ConnectionString;
                         registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
                         registeredServer.Create();
-                        await requestContext.SendResult(true);
+                        return true;
                     }
                     else
                     {
-                        await requestContext.SendResult(false);
+                        return false;
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
+                    throw RpcErrorException.Create(e);
                 }
             });
+            CmsTask = task;
+            return await task;
         }
 
-        public async Task HandleListRegisteredServersRequest(ListRegisteredServersParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
+        public async Task<ListRegisteredServersResult> HandleListRegisteredServersRequest(ListRegisteredServersParams listServerParams)
         {
             Logger.Verbose("HandleListRegisteredServersRequest");
-            CmsTask = Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 try
                 {
@@ -131,24 +136,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                         ServerGroup parentGroup = NavigateToServerGroup(store, listServerParams.RelativePath);
 
                         ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
-                        await requestContext.SendResult(result);
+                        return result;
                     }
                     else
                     {
-                        await requestContext.SendResult(null);
+                        return null;
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
+                    throw RpcErrorException.Create(e);
                 }
             });
+            CmsTask = task;
+            return await task;
         }
 
-        public async Task HandleRemoveRegisteredServerRequest(RemoveRegisteredServerParams removeServerParams, RequestContext<bool> requestContext)
+        public async Task<bool> HandleRemoveRegisteredServerRequest(RemoveRegisteredServerParams removeServerParams)
         {
             Logger.Verbose("HandleRemoveServerRequest");
-            CmsTask = Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 try
                 {
@@ -163,25 +170,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                         {
                             RegisteredServer regServ = parentGroup.RegisteredServers.OfType<RegisteredServer>().FirstOrDefault(r => r.Name == removeServerParams.RegisteredServerName); // since duplicates are not allowed
                             regServ?.Drop();
-                            await requestContext.SendResult(true);
+                            return true;
                         }
                     }
                     else
                     {
-                        await requestContext.SendResult(false);
+                        return false;
                     }
+
+                    return false;
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
+                    throw RpcErrorException.Create(e);
                 }
             });
+            CmsTask = task;
+            return await task;
         }
 
-        public async Task HandleAddServerGroupRequest(AddServerGroupParams addServerGroupParams, RequestContext<bool> requestContext)
+        public async Task<bool> HandleAddServerGroupRequest(AddServerGroupParams addServerGroupParams)
         {
             Logger.Verbose("HandleAddServerGroupRequest");
-            CmsTask = Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 try
                 {
@@ -205,24 +216,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                             Description = addServerGroupParams.GroupDescription
                         };
                         serverGroup.Create();
-                        await requestContext.SendResult(true);
+                        return true;
                     }
                     else
                     {
-                        await requestContext.SendResult(false);
+                        return false;
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
+                    throw RpcErrorException.Create(e);
                 }
             });
+            CmsTask = task;
+            return await task;
         }
 
-        public async Task HandleRemoveServerGroupRequest(RemoveServerGroupParams removeServerGroupParams, RequestContext<bool> requestContext)
+        public async Task<bool> HandleRemoveServerGroupRequest(RemoveServerGroupParams removeServerGroupParams)
         {
             Logger.Verbose("HandleRemoveServerGroupRequest");
-            CmsTask = Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 try
                 {
@@ -234,18 +247,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                         ServerGroup parentGroup = NavigateToServerGroup(store, removeServerGroupParams.RelativePath, false);
                         ServerGroup serverGrouptoRemove = parentGroup.ServerGroups.OfType<ServerGroup>().FirstOrDefault(r => r.Name == removeServerGroupParams.GroupName); // since duplicates are not allowed
                         serverGrouptoRemove?.Drop();
-                        await requestContext.SendResult(true);
+                        return true;
                     }
                     else
                     {
-                        await requestContext.SendResult(false);
+                        return false;
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
+                    throw RpcErrorException.Create(e);
                 }
             });
+            CmsTask = task;
+            return await task;
         }
 
         #endregion

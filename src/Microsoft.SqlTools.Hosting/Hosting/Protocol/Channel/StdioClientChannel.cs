@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 
 namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 {
@@ -21,8 +20,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         private string serviceProcessPath;
         private string serviceProcessArguments;
 
-        private Stream inputStream;
-        private Stream outputStream;
         private Process serviceProcess;
 
         /// <summary>
@@ -50,7 +47,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
             }
         }
 
-        protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
+        protected override void Initialize(Stream? inputStream = null, Stream? outputStream = null)
         {
             this.serviceProcess = new Process
             {
@@ -73,19 +70,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
             this.ProcessId = this.serviceProcess.Id;
 
             // Open the standard input/output streams
-            this.inputStream = inputStream ?? this.serviceProcess.StandardOutput.BaseStream;
-            this.outputStream = outputStream ?? this.serviceProcess.StandardInput.BaseStream;
-
-            // Set up the message reader and writer
-            this.MessageReader = 
-                new MessageReader(
-                    this.inputStream,
-                    messageSerializer);
-
-            this.MessageWriter = 
-                new MessageWriter(
-                    this.outputStream,
-                    messageSerializer);
+            this.InputStream = inputStream ?? this.serviceProcess.StandardOutput.BaseStream;
+            this.OutputStream = outputStream ?? this.serviceProcess.StandardInput.BaseStream;
 
             this.IsConnected = true;
         }
@@ -98,26 +84,16 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 
         protected override void Shutdown()
         {
-            if (this.inputStream != null)
+            if (this.InputStream != null)
             {
-                this.inputStream.Dispose();
-                this.inputStream = null;
+                this.InputStream.Dispose();
+                this.InputStream = null;
             }
 
-            if (this.outputStream != null)
+            if (this.OutputStream != null)
             {
-                this.outputStream.Dispose();
-                this.outputStream = null;
-            }
-
-            if (this.MessageReader != null)
-            {
-                this.MessageReader = null;
-            }
-
-            if (this.MessageWriter != null)
-            {
-                this.MessageWriter = null;
+                this.OutputStream.Dispose();
+                this.OutputStream = null;
             }
 
             this.serviceProcess.Kill();

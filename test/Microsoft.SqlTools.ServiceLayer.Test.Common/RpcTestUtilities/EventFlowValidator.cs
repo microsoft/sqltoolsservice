@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -11,35 +11,31 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities
 {
-    public class EventFlowValidator<TRequestContext>
+    public class EventFlowValidator<TResult> : IEventSender
     {
         private List<ExpectedEvent> ExpectedEvents { get; } = new List<ExpectedEvent>();
-        private List<ReceivedEvent> ReceivedUpdateEvents { get; } = new List<ReceivedEvent>();
         private List<ReceivedEvent> ReceivedEvents { get; } = new List<ReceivedEvent>();
-        private Mock<RequestContext<TRequestContext>> Context { get; }
+        private Dictionary<string, Action<object>> EventCallbacks { get; } = new Dictionary<string, Action<object>>();
         private bool _completed;
 
-        public EventFlowValidator(MockBehavior behavior = MockBehavior.Strict)
+        public EventFlowValidator()
         {
-            Context = new Mock<RequestContext<TRequestContext>>(behavior);
         }
 
-        public RequestContext<TRequestContext> Object => Context.Object;
-        public EventFlowValidator<TRequestContext> SetupCallbackOnMethodSendEvent<TParams>(EventType<TParams> matchingEvent, Action<TParams> callback)
+        public IEventSender Object => this;
+
+        public EventFlowValidator<TResult> SetupCallbackOnMethodSendEvent<TParams>(EventType<TParams> matchingEvent, Action<TParams> callback)
         {
-            Context.Setup(rc => rc.SendEvent(matchingEvent, It.IsAny<TParams>()))
-                .Callback<EventType<TParams>, TParams>((et, p) => callback(p))
-                .Returns(Task.FromResult(0));
+            EventCallbacks[matchingEvent.MethodName] = p => callback((TParams)p);
             return this;
         }
 
 
-        public EventFlowValidator<TRequestContext> AddEventValidation<TParams>(EventType<TParams> expectedEvent, Action<TParams> paramValidation, Action<TParams> userCallback = null)
+        public EventFlowValidator<TResult> AddEventValidation<TParams>(EventType<TParams> expectedEvent, Action<TParams> paramValidation, Action<TParams> userCallback = null)
         {
             ExpectedEvents.Add(new ExpectedEvent
             {
@@ -48,35 +44,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
                 Validator = paramValidation
             });
 
-            Context.Setup(rc => rc.SendEvent(expectedEvent, It.IsAny<TParams>()))
-                .Callback<EventType<TParams>, TParams>((et, p) =>
+            EventCallbacks[expectedEvent.MethodName] = p =>
+            {
+                ReceivedEvents.Add(new ReceivedEvent
                 {
-                    ReceivedEvents.Add(new ReceivedEvent
-                    {
-                        EventObject = p,
-                        EventType = EventTypes.Event
-                    });
-                    userCallback?.DynamicInvoke(p);
-                })
-                .Returns(Task.FromResult(0));
+                    EventObject = p,
+                    EventType = EventTypes.Event
+                });
+                userCallback?.DynamicInvoke(p);
+            };
 
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddResultValidation(Action<TRequestContext> resultValidation)
+        public EventFlowValidator<TResult> AddResultValidation(Action<TResult> resultValidation)
         {
             // Add the expected event
             ExpectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Result,
-                ParamType = typeof(TRequestContext),
+                ParamType = typeof(TResult),
                 Validator = resultValidation
             });
 
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddSimpleErrorValidation(Action<string, int> paramValidation)
+        public EventFlowValidator<TResult> AddSimpleErrorValidation(Action<string, int> paramValidation)
         {
             // Put together a validator that ensures a null data
 
@@ -95,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddStandardErrorValidation()
+        public EventFlowValidator<TResult> AddStandardErrorValidation()
         {
             // Add an error validator that just ensures a non-empty error message and null data obj
             return AddSimpleErrorValidation((msg, code) =>
@@ -104,29 +98,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             });
         }
 
-        public EventFlowValidator<TRequestContext> Complete()
+        public EventFlowValidator<TResult> Complete()
         {
-            // Add general handler for result handling
-            Context.Setup(rc => rc.SendResult(It.IsAny<TRequestContext>()))
-                .Callback<TRequestContext>(r => ReceivedEvents.Add(new ReceivedEvent
-                {
-                    EventObject = r,
-                    EventType = EventTypes.Result
-                }))
-                .Returns(Task.FromResult(0));
+            _completed = true;
+            return this;
+        }
 
-            // Add general handler for error event
-            Context.AddErrorHandling((msg, code, data) =>
+        public Task SetResult(TResult result)
+        {
+            ReceivedEvents.Add(new ReceivedEvent
+            {
+                EventObject = result,
+                EventType = EventTypes.Result
+            });
+            return Task.CompletedTask;
+        }
+
+        public Task SetError(string message, int code = 0, string data = null)
+        {
+            ReceivedEvents.Add(new ReceivedEvent
+            {
+                EventObject = new Error { Message = message, Code = code, Data = data },
+                EventType = EventTypes.Error
+            });
+            return Task.CompletedTask;
+        }
+
+        public Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
+        {
+            if (EventCallbacks.TryGetValue(eventType.MethodName, out Action<object> callback))
+            {
+                callback(eventParams);
+            }
+            else
             {
                 ReceivedEvents.Add(new ReceivedEvent
                 {
-                    EventObject = new Error { Message = msg, Code = code, Data = data },
-                    EventType = EventTypes.Error
+                    EventObject = eventParams,
+                    EventType = EventTypes.Event
                 });
-            });
+            }
 
-            _completed = true;
-            return this;
+            return Task.CompletedTask;
         }
 
         public void Validate()

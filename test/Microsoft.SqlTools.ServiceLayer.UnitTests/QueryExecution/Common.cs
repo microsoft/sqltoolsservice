@@ -1,4 +1,4 @@
-﻿// 
+// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -20,10 +20,10 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Microsoft.Data.SqlClient;
 using Moq;
 using Moq.Protected;
-using HostingProtocol = Microsoft.SqlTools.Hosting.Protocol;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
@@ -179,15 +179,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             return Enumerable.Repeat(StandardTestResultSet, dataSets).ToArray();
         }
 
-        public static async Task AwaitExecution(QueryExecutionService service, ExecuteDocumentSelectionParams qeParams,
-            HostingProtocol.RequestContext<ExecuteRequestResult> requestContext)
+        public static async Task<ExecuteRequestResult> AwaitExecution(
+            QueryExecutionService service,
+            ExecuteDocumentSelectionParams qeParams,
+            EventFlowValidator<ExecuteRequestResult>? eventSender = null)
         {
-            await service.HandleExecuteRequest(qeParams, requestContext);
-            await service.WorkTask;
+            if (eventSender != null)
+            {
+                service.EventSender = eventSender;
+            }
+
+            ExecuteRequestResult result = await service.HandleExecuteRequest(qeParams);
+            if (eventSender != null)
+            {
+                await eventSender.SetResult(result);
+            }
+
             if (service.ActiveQueries.TryGetValue(qeParams.OwnerUri, out Query? query) && query.ExecutionTask != null)
             {
-                await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
+                await query.ExecutionTask;
             }
+
+            return result;
         }
 
         #endregion
@@ -294,7 +307,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null!)
                 .Returns(isConnected);
 
-            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage, sizeFactor) };
+            return new QueryExecutionService(connectionService.Object, workspaceService)
+            {
+                BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage, sizeFactor),
+                EventSender = new EventFlowValidator<ExecuteRequestResult>().Complete()
+            };
         }
 
         public static QueryExecutionService GetPrimedExecutionService(

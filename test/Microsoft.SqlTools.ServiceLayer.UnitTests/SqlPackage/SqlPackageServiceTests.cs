@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.Tools.Schema.CommandLineTool;
 using Microsoft.Data.Tools.Schema.CommandLineTool.Contracts;
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage;
 using Microsoft.SqlTools.ServiceLayer.SqlPackage.Contracts;
 using Microsoft.SqlTools.SqlCore.DacFx.Contracts;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
@@ -46,12 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         public async Task GeneratePublishCommand_ShouldReturnValidCommand()
         {
             // Arrange
-            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
-            SqlPackageCommandResult? capturedResult = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
-                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
-                .Returns(Task.CompletedTask);
-
             var parameters = new SqlPackageCommandParams
             {
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
@@ -77,11 +69,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             parameters.DeploymentOptions.ExcludeObjectTypes.Value = ["ServerTriggers", "ExternalStreamingJobs"];
 
             // Act
-            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+            SqlPackageCommandResult result = await service.HandleGenerateSqlPackageCommandRequest(parameters);
 
             // Assert
-            Assert.IsNotNull(capturedResult, "Result should not be null");
-            var result = capturedResult!;
+            Assert.IsNotNull(result, "Result should not be null");
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;
@@ -95,12 +86,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         public async Task GenerateExtractCommand_ShouldReturnValidCommand()
         {
             // Arrange
-            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
-            SqlPackageCommandResult? capturedResult = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
-                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
-                .Returns(Task.CompletedTask);
-
             var parameters = new SqlPackageCommandParams
             {
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
@@ -119,11 +104,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             };
 
             // Act
-            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+            SqlPackageCommandResult result = await service.HandleGenerateSqlPackageCommandRequest(parameters);
 
             // Assert
-            Assert.IsNotNull(capturedResult, "Result should not be null");
-            var result = capturedResult!;
+            Assert.IsNotNull(result, "Result should not be null");
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;
@@ -136,12 +120,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         public async Task GenerateScriptCommand_ShouldReturnValidCommand()
         {
             // Arrange
-            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
-            SqlPackageCommandResult? capturedResult = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
-                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
-                .Returns(Task.CompletedTask);
-
             var parameters = new SqlPackageCommandParams
             {
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
@@ -167,11 +145,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             parameters.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.CommentOutSetVarDeclarations)].Value = false;
 
             // Act
-            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+            SqlPackageCommandResult result = await service.HandleGenerateSqlPackageCommandRequest(parameters);
 
             // Assert
-            Assert.IsNotNull(capturedResult, "Result should not be null");
-            var result = capturedResult!;
+            Assert.IsNotNull(result, "Result should not be null");
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;
@@ -184,12 +161,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         public async Task GenerateExportCommand_ShouldReturnValidCommand()
         {
             // Arrange
-            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
-            SqlPackageCommandResult? capturedResult = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
-                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
-                .Returns(Task.CompletedTask);
-
             var parameters = new SqlPackageCommandParams
             {
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
@@ -207,11 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             };
 
             // Act
-            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+            SqlPackageCommandResult result = await service.HandleGenerateSqlPackageCommandRequest(parameters);
 
             // Assert
-            Assert.IsNotNull(capturedResult, "Result should not be null");
-            var result = capturedResult!;
+            Assert.IsNotNull(result, "Result should not be null");
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;
@@ -224,12 +194,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         public async Task GenerateImportCommand_ShouldReturnValidCommand()
         {
             // Arrange
-            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
-            SqlPackageCommandResult? capturedResult = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
-                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
-                .Returns(Task.CompletedTask);
-
             var parameters = new SqlPackageCommandParams
             {
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
@@ -246,11 +210,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             };
 
             // Act
-            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+            SqlPackageCommandResult result = await service.HandleGenerateSqlPackageCommandRequest(parameters);
 
             // Assert
-            Assert.IsNotNull(capturedResult, "Result should not be null");
-            var result = capturedResult!;
+            Assert.IsNotNull(result, "Result should not be null");
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;
@@ -263,12 +226,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
         public async Task GenerateExtractCommand_WithUnmaskedData_ShouldIncludeUnmaskedFlag()
         {
             // Arrange
-            var requestContext = new Mock<RequestContext<SqlPackageCommandResult>>();
-            SqlPackageCommandResult? capturedResult = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<SqlPackageCommandResult>()))
-                .Callback<SqlPackageCommandResult>(r => capturedResult = r)
-                .Returns(Task.CompletedTask);
-
             var parameters = new SqlPackageCommandParams
             {
                 CommandLineArguments = new ServiceLayer.SqlPackage.Contracts.SqlPackageCommandLineArguments
@@ -282,11 +239,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlPackage
             };
 
             // Act
-            await service.HandleGenerateSqlPackageCommandRequest(parameters, requestContext.Object);
+            SqlPackageCommandResult result = await service.HandleGenerateSqlPackageCommandRequest(parameters);
 
             // Assert
-            Assert.IsNotNull(capturedResult, "Result should not be null");
-            var result = capturedResult!;
+            Assert.IsNotNull(result, "Result should not be null");
             Assert.IsTrue(result.Success, "Command generation should succeed");
             Assert.IsNotNull(result.Command, "Generated command should not be null");
             var command = result.Command!;

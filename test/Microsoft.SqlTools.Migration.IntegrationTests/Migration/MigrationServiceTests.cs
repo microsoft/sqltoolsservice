@@ -10,12 +10,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Migration.IntegrationTests.Utility;
 using Microsoft.SqlTools.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Moq;
 using NUnit.Framework;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
@@ -48,11 +45,9 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
                     ConnectionString = connectionResult.ConnectionInfo.ConnectionDetails.ConnectionString
                 };
 
-                var requestContext = new Mock<RequestContext<MigrationAssessmentResult>>();
-
                 MigrationService service = new MigrationService();
-                await service.HandleMigrationAssessmentsRequest(requestParams, requestContext.Object);
-                requestContext.VerifyAll();
+                MigrationAssessmentResult result = await service.HandleMigrationAssessmentsRequest(requestParams);
+                Assert.IsNotNull(result, "Migration assessment result is null");
             }
         }
 
@@ -76,10 +71,8 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
                 IsPremiumSSDV2Enabled = true,
             };
 
-            var requestContext = RequestContextMocks.Create<GetSkuRecommendationsResult>(r => result = r).AddErrorHandling(null);
-
             MigrationService service = new MigrationService();
-            await service.HandleGetSkuRecommendationsRequest(requestParams, requestContext.Object);
+            result = await service.HandleGetSkuRecommendationsRequest(requestParams);
             Assert.IsNotNull(result, "Get SKU Recommendation result is null");
             Assert.IsNotNull(result.SqlMiRecommendationResults, "Get MI SKU Recommendation baseline result is null");
             Assert.IsNotNull(result.ElasticSqlMiRecommendationResults, "Get MI SKU Recommendation elastic result is null");
@@ -113,10 +106,8 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
                     StaticQueryIntervalInSec = 3600,
                 };
 
-                var requestContext = RequestContextMocks.Create<StartPerfDataCollectionResult>(r => result = r).AddErrorHandling(null);
-
                 MigrationService service = new MigrationService();
-                await service.HandleStartPerfDataCollectionRequest(requestParams, requestContext.Object);
+                result = await service.HandleStartPerfDataCollectionRequest(requestParams);
                 Assert.IsNotNull(result, "Start Perf Data Collection result is null");
                 Assert.IsNotNull(result.DateTimeStarted, "Time perf data collection started is null");
 
@@ -127,9 +118,7 @@ namespace Microsoft.SqlTools.Migration.IntegrationTests.Migration
 
                 };
 
-                var stopRequestContext = RequestContextMocks.Create<StopPerfDataCollectionResult>(r => stopResult = r).AddErrorHandling(null);
-
-                await service.HandleStopPerfDataCollectionRequest(stopRequestParams, stopRequestContext.Object);
+                stopResult = await service.HandleStopPerfDataCollectionRequest(stopRequestParams);
                 Assert.IsNotNull(stopResult, "Stop Perf Data Collection result is null");
                 Assert.IsNotNull(stopResult.DateTimeStopped, "Time perf data collection stoped is null");
             }

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -61,10 +61,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ExternalLanguageStatusRequest.Type, this.HandleExternalLanguageStatusRequest, true);
-            serviceHost.SetRequestHandler(ExternalLanguageListRequest.Type, this.HandleExternalLanguageListRequest, true);
-            serviceHost.SetRequestHandler(ExternalLanguageDeleteRequest.Type, this.HandleExternalLanguageDeleteRequest, true);
-            serviceHost.SetRequestHandler(ExternalLanguageUpdateRequest.Type, this.HandleExternalLanguageUpdateRequest, true);
+            serviceHost.RegisterRequestHandler(ExternalLanguageStatusRequest.Type, this.HandleExternalLanguageStatusRequest);
+            serviceHost.RegisterRequestHandler(ExternalLanguageListRequest.Type, this.HandleExternalLanguageListRequest);
+            serviceHost.RegisterRequestHandler(ExternalLanguageDeleteRequest.Type, this.HandleExternalLanguageDeleteRequest);
+            serviceHost.RegisterRequestHandler(ExternalLanguageUpdateRequest.Type, this.HandleExternalLanguageUpdateRequest);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleExternalLanguageDeleteRequest(ExternalLanguageDeleteRequestParams parameters, RequestContext<ExternalLanguageDeleteResponseParams> requestContext)
+        public async Task<ExternalLanguageDeleteResponseParams> HandleExternalLanguageDeleteRequest(ExternalLanguageDeleteRequestParams parameters)
         {
             Logger.Verbose("HandleExternalLanguageDeleteRequest");
             ConnectionInfo connInfo;
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
+                throw RpcErrorException.Create(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
             else
             {
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
                     ExternalLanguageOperations.DeleteLanguage(dbConnection, parameters.LanguageName);
                 }
 
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleExternalLanguageUpdateRequest(ExternalLanguageUpdateRequestParams parameters, RequestContext<ExternalLanguageUpdateResponseParams> requestContext)
+        public async Task<ExternalLanguageUpdateResponseParams> HandleExternalLanguageUpdateRequest(ExternalLanguageUpdateRequestParams parameters)
         {
             Logger.Verbose("HandleExternalLanguageUpdateRequest");
             ConnectionInfo connInfo;
@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
+                throw RpcErrorException.Create(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
             else
             {
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
                     ExternalLanguageOperations.UpdateLanguage(dbConnection, parameters.Language);
                 }
 
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleExternalLanguageStatusRequest(ExternalLanguageStatusRequestParams parameters, RequestContext<ExternalLanguageStatusResponseParams> requestContext)
+        public async Task<ExternalLanguageStatusResponseParams> HandleExternalLanguageStatusRequest(ExternalLanguageStatusRequestParams parameters)
         {
             Logger.Verbose("HandleExternalLanguageStatusRequest");
             ConnectionInfo connInfo;
@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
+                throw RpcErrorException.Create(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
             else
             {
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
                     response.Status = ExternalLanguageOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
                 }
 
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <param name="parameters">Request parameters</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        public async Task HandleExternalLanguageListRequest(ExternalLanguageListRequestParams parameters, RequestContext<ExternalLanguageListResponseParams> requestContext)
+        public async Task<ExternalLanguageListResponseParams> HandleExternalLanguageListRequest(ExternalLanguageListRequestParams parameters)
         {
             Logger.Verbose("HandleExternalLanguageListRequest");
             ConnectionInfo connInfo;
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
             if (connInfo == null)
             {
-                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
+                throw RpcErrorException.Create(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
             else
             {
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
                     response.Languages = ExternalLanguageOperations.GetLanguages(dbConnection);
                 }
 
-                await requestContext.SendResult(response);
+                return response;
             }
         }
     }

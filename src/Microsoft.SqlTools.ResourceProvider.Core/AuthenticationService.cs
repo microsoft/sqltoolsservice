@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         {
         }
 
-        public override void InitializeService(IProtocolEndpoint serviceHost)
+        public override void InitializeService(IRpcServiceHost serviceHost)
         {
             Logger.Verbose("AuthenticationService initialized");
         }

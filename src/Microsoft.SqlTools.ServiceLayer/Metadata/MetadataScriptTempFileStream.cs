@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             try
             {
                 var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
-                using (StreamWriter sw = new StreamWriter(tempFilePath, false))
+                using (StreamWriter sw = new StreamWriter(tempFilePath))
                 {
                     foreach (var script in generatedScripts)
                     {

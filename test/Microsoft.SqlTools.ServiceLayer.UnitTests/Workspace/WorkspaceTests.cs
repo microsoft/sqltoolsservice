@@ -8,13 +8,11 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
@@ -35,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
             // ... And there is a callback registered for the file closed event
             ScriptFile closedFile = null;
             string closedUri = null;
-            workspaceService.RegisterTextDocCloseCallback((u, f, c) =>
+            workspaceService.RegisterTextDocCloseCallback((u, f) =>
             {
                 closedUri = u;
                 closedFile = f;
@@ -44,12 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // If:
             // ... An event to close the open file occurs
-            var eventContext = new Mock<EventContext>().Object;
             var requestParams = new DidCloseTextDocumentParams
             {
                 TextDocument = new TextDocumentItem {Uri = TestObjects.ScriptUri}
             };
-            await workspaceService.HandleDidCloseTextDocumentNotification(requestParams, eventContext);
+            await workspaceService.HandleDidCloseTextDocumentNotification(requestParams);
 
             // Then:
             // ... The file should no longer be in the open files
@@ -73,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // ... And there is a callback registered for the file closed event
             bool callbackCalled = false;
-            workspaceService.RegisterTextDocCloseCallback((u, f, c) =>
+            workspaceService.RegisterTextDocCloseCallback((u, f) =>
             {
                 callbackCalled = true;
                 return Task.FromResult(true);
@@ -81,13 +78,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // If:
             // ... An event to close the a file occurs
-            var eventContext = new Mock<EventContext>().Object;
             var requestParams = new DidCloseTextDocumentParams
             {
                 TextDocument = new TextDocumentItem {Uri = TestObjects.ScriptUri}
             };
             // Then:
-            await workspaceService.HandleDidCloseTextDocumentNotification(requestParams, eventContext);
+            await workspaceService.HandleDidCloseTextDocumentNotification(requestParams);
 
             // ... There should still be no open files
             // ... The callback should not have been called
@@ -166,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
                 TextDocument = new TextDocumentItem { Uri = filePath }
             };
 
-            await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
+            await workspaceService.HandleDidOpenTextDocumentNotification(openParams);
 
             // verify the file is not being tracked by workspace
             Assert.False(workspaceService.Workspace.ContainsFile(filePath));
@@ -177,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
                 TextDocument = new TextDocumentItem { Uri = filePath }
             };
 
-            await workspaceService.HandleDidCloseTextDocumentNotification(closeParams, eventContext: null);
+            await workspaceService.HandleDidCloseTextDocumentNotification(closeParams);
 
             // this is not that interesting validation since the open is ignored
             // the main validation is that close doesn't raise an exception
@@ -212,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
                 TextDocument = new TextDocumentItem { Uri = uri }
             };
 
-            await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
+            await workspaceService.HandleDidOpenTextDocumentNotification(openParams);
 
             // verify the file is being tracked by workspace
             Assert.True(workspaceService.Workspace.ContainsFile(uri));

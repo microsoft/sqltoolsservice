@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static Lazy<ObjectManagementService> objectManagementServiceInstance = new Lazy<ObjectManagementService>(() => new ObjectManagementService());
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
         public static ConnectionService connectionService;
-        private IProtocolEndpoint serviceHost;
+        private IRpcServiceHost serviceHost;
         private List<IObjectTypeHandler> objectTypeHandlers = new List<IObjectTypeHandler>();
         private ConcurrentDictionary<string, SqlObjectViewContext> contextMap = new ConcurrentDictionary<string, SqlObjectViewContext>();
 
@@ -60,33 +60,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IRpcServiceHost serviceHost)
         {
             this.serviceHost = serviceHost;
-            this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
-            this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
-            this.serviceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest, true);
-            this.serviceHost.SetRequestHandler(GetCredentialNamesRequest.Type, HandleGetCredentialNamesRequest, true);
-            this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
-            this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest, true);
-            this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
-            this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
-            this.serviceHost.SetRequestHandler(SearchRequest.Type, HandleSearchRequest, true);
-            this.serviceHost.SetRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest, true);
-            this.serviceHost.SetRequestHandler(AttachDatabaseRequest.Type, HandleAttachDatabaseRequest, true);
-            this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest, true);
-            this.serviceHost.SetRequestHandler(RenameDatabaseRequest.Type, HandleRenameDatabaseRequest, true);
-            this.serviceHost.SetRequestHandler(PurgeQueryStoreDataRequest.Type, HandlePurgeQueryStoreDataRequest, true);
+            this.serviceHost.RegisterRequestHandler(RenameRequest.Type, HandleRenameRequest);
+            this.serviceHost.RegisterRequestHandler(DropRequest.Type, HandleDropRequest);
+            this.serviceHost.RegisterRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest);
+            this.serviceHost.RegisterRequestHandler(GetCredentialNamesRequest.Type, HandleGetCredentialNamesRequest);
+            this.serviceHost.RegisterRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest);
+            this.serviceHost.RegisterRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest);
+            this.serviceHost.RegisterRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest);
+            this.serviceHost.RegisterRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest);
+            this.serviceHost.RegisterRequestHandler(SearchRequest.Type, HandleSearchRequest);
+            this.serviceHost.RegisterRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest);
+            this.serviceHost.RegisterRequestHandler(AttachDatabaseRequest.Type, HandleAttachDatabaseRequest);
+            this.serviceHost.RegisterRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest);
+            this.serviceHost.RegisterRequestHandler(RenameDatabaseRequest.Type, HandleRenameDatabaseRequest);
+            this.serviceHost.RegisterRequestHandler(PurgeQueryStoreDataRequest.Type, HandlePurgeQueryStoreDataRequest);
         }
 
-        internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
+        internal async Task<RenameRequestResponse> HandleRenameRequest(RenameRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
-            await requestContext.SendResult(new RenameRequestResponse());
+            return new RenameRequestResponse();
         }
 
-        internal async Task HandleRenameDatabaseRequest(RenameDatabaseRequestParams requestParams, RequestContext<RenameDatabaseResponse> requestContext)
+        internal async Task<RenameDatabaseResponse> HandleRenameDatabaseRequest(RenameDatabaseRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var operation = new RenameDatabaseOperation(handler, requestParams);
@@ -94,11 +94,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (requestParams.GenerateScript)
             {
                 operation.Execute(TaskExecutionMode.Script);
-                await requestContext.SendResult(new RenameDatabaseResponse
+                return new RenameDatabaseResponse
                 {
                     Script = operation.ScriptContent ?? string.Empty,
-                });
-                return;
+                };
             }
 
             ConnectionInfo connInfo;
@@ -117,43 +116,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
             TaskExecutionResult taskResult = await RunTaskAsync(sqlTask);
 
-            await requestContext.SendResult(new RenameDatabaseResponse
+            return new RenameDatabaseResponse
             {
                 TaskId = taskResult.TaskId,
                 ErrorMessage = taskResult.ErrorMessage,
-            });
+            };
         }
 
-        internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<DropRequestResponse> requestContext)
+        internal async Task<DropRequestResponse> HandleDropRequest(DropRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             await handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
-            await requestContext.SendResult(new DropRequestResponse());
+            return new DropRequestResponse();
         }
 
-        internal async Task HandleCreateCredentialRequest(CreateCredentialRequestParams requestParams, RequestContext<CreateCredentialRequestResponse> requestContext)
+        internal async Task<CreateCredentialRequestResponse> HandleCreateCredentialRequest(CreateCredentialRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
             await handler.Create(requestParams);
-            await requestContext.SendResult(new CreateCredentialRequestResponse());
+            return new CreateCredentialRequestResponse();
         }
 
-        internal async Task HandleGetCredentialNamesRequest(GetCredentialNamesRequestParams requestParams, RequestContext<List<string>> requestContext)
+        internal async Task<List<string>> HandleGetCredentialNamesRequest(GetCredentialNamesRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Credential) as CredentialHandler;
             var credentials = handler.GetCredentialNames(requestParams);
-            await requestContext.SendResult(credentials);
+            return credentials;
         }
 
-        internal async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
+        internal async Task<SqlObjectViewInfo> HandleInitializeViewRequest(InitializeViewRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             var result = await handler.InitializeObjectView(requestParams);
             contextMap[requestParams.ContextId] = result.Context;
-            await requestContext.SendResult(result.ViewInfo);
+            return result.ViewInfo;
         }
 
-        internal async Task HandleSaveObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectRequestResponse> requestContext)
+        internal async Task<SaveObjectRequestResponse> HandleSaveObjectRequest(SaveObjectRequestParams requestParams)
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
@@ -178,33 +177,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
             TaskExecutionResult taskResult = await RunTaskAsync(sqlTask, saveOperation.ExecutionException);
 
-            await requestContext.SendResult(new SaveObjectRequestResponse
+            return new SaveObjectRequestResponse
             {
                 TaskId = taskResult.TaskId,
                 ErrorMessage = taskResult.ErrorMessage,
-            });
+            };
         }
 
-        internal async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task<string> HandleScriptObjectRequest(ScriptObjectRequestParams requestParams)
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
             var obj = requestParams.Object.ToObject(handler.GetObjectType());
             var script = await handler.Script(context, obj as SqlObject);
-            await requestContext.SendResult(script);
+            return script;
         }
 
-        internal async Task HandleDisposeViewRequest(DisposeViewRequestParams requestParams, RequestContext<DisposeViewRequestResponse> requestContext)
+        internal async Task<DisposeViewRequestResponse> HandleDisposeViewRequest(DisposeViewRequestParams requestParams)
         {
             SqlObjectViewContext context;
             if (contextMap.Remove(requestParams.ContextId, out context))
             {
                 context.Dispose();
             }
-            await requestContext.SendResult(new DisposeViewRequestResponse());
+            return new DisposeViewRequestResponse();
         }
 
-        internal async Task HandleSearchRequest(SearchRequestParams requestParams, RequestContext<SearchResultItem[]> requestContext)
+        internal async Task<SearchResultItem[]> HandleSearchRequest(SearchRequestParams requestParams)
         {
             var context = this.GetContext(requestParams.ContextId);
             ConnectionInfo connInfo;
@@ -278,24 +277,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     });
                 }
             }
-            await requestContext.SendResult(res.ToArray());
+            return res.ToArray();
         }
 
-        internal async Task HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task<string> HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var sqlScript = handler.Detach(requestParams);
-            await requestContext.SendResult(sqlScript);
+            return sqlScript;
         }
 
-        internal async Task HandleAttachDatabaseRequest(AttachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task<string> HandleAttachDatabaseRequest(AttachDatabaseRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var sqlScript = handler.Attach(requestParams);
-            await requestContext.SendResult(sqlScript);
+            return sqlScript;
         }
 
-        internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<DropDatabaseResponse> requestContext)
+        internal async Task<DropDatabaseResponse> HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var operation = new DropDatabaseOperation(handler, requestParams);
@@ -303,11 +302,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (requestParams.GenerateScript)
             {
                 operation.Execute(TaskExecutionMode.Script);
-                await requestContext.SendResult(new DropDatabaseResponse
+                return new DropDatabaseResponse
                 {
                     Script = operation.ScriptContent ?? string.Empty,
-                });
-                return;
+                };
             }
 
             ConnectionInfo connInfo;
@@ -326,18 +324,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             SqlTask sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata);
             TaskExecutionResult taskResult = await RunTaskAsync(sqlTask);
 
-            await requestContext.SendResult(new DropDatabaseResponse
+            return new DropDatabaseResponse
             {
                 TaskId = taskResult.TaskId,
                 ErrorMessage = taskResult.ErrorMessage,
-            });
+            };
         }
 
-        internal async Task HandlePurgeQueryStoreDataRequest(PurgeQueryStoreDataRequestParams requestParams, RequestContext<PurgeQueryStoreDataRequestResponse> requestContext)
+        internal async Task<PurgeQueryStoreDataRequestResponse> HandlePurgeQueryStoreDataRequest(PurgeQueryStoreDataRequestParams requestParams)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             handler.PurgeQueryStoreData(requestParams);
-            await requestContext.SendResult(new PurgeQueryStoreDataRequestResponse());
+            return new PurgeQueryStoreDataRequestResponse();
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)

@@ -866,7 +866,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public async Task ConnectionChangedEventIsFiredWhenDatabaseContextChanges()
         {
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
 
             var connectionService = TestObjects.GetTestConnectionService();
             connectionService.ServiceHost = serviceHostMock.Object;
@@ -1969,7 +1969,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void ConnectionEmptyPasswordChange()
         {
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
 
             var connectionService = ConnectionService.Instance;
             connectionService.ServiceHost = serviceHostMock.Object;
@@ -1991,7 +1991,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void ConnectionInvalidParamPasswordChange()
         {
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
 
             var connectionService = ConnectionService.Instance;
             connectionService.ServiceHost = serviceHostMock.Object;
@@ -2013,7 +2013,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void InvalidConnectionPasswordChange()
         {
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
 
             var connectionService = ConnectionService.Instance;
             connectionService.ServiceHost = serviceHostMock.Object;
@@ -2033,7 +2033,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public async Task TryRequestRefreshAuthToken_ReturnsFalse_WhenSqlAuthProviderEnabled()
         {
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
             var connectionService = new ConnectionService(new TestSqlConnectionFactory());
             connectionService.ServiceHost = serviceHostMock.Object;
             connectionService.EnableSqlAuthenticationProvider = true;
@@ -2150,7 +2150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public async Task TryRequestRefreshAuthToken_SendsNotification_WhenSqlAuthProviderDisabled()
         {
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            var serviceHostMock = new Mock<IRpcServiceHost>();
             var connectionService = new ConnectionService(new TestSqlConnectionFactory());
             connectionService.ServiceHost = serviceHostMock.Object;
             connectionService.EnableSqlAuthenticationProvider = false;

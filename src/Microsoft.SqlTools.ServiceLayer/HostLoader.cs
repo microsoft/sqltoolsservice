@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// Internal to support testing. Initializes <see cref="IHostedService"/> instances in the service,
         /// and registers them for their preferred service type
         /// </summary>
-        internal static void InitializeHostedServices(RegisteredServiceProvider provider, IProtocolEndpoint host)
+        internal static void InitializeHostedServices(RegisteredServiceProvider provider, IRpcServiceHost host)
         {
             // Pre-register all services before initializing. This ensures that if one service wishes to reference
             // another one during initialization, it will be able to safely do so
@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 IDisposable disposable = service as IDisposable;
                 if (serviceHost != null && disposable != null)
                 {
-                    serviceHost.RegisterShutdownTask((_, _) =>
+                    serviceHost.RegisterShutdownTask(_ =>
                     {
                         disposable.Dispose();
                         return Task.FromResult(0);

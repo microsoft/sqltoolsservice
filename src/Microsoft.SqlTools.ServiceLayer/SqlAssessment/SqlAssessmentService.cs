@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -103,12 +103,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(InvokeRequest.Type, HandleInvokeRequest, true);
-            serviceHost.SetRequestHandler(GetAssessmentItemsRequest.Type, HandleGetAssessmentItemsRequest, true);
-            serviceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest, true);
+            serviceHost.RegisterRequestHandler(InvokeRequest.Type, HandleInvokeRequest);
+            serviceHost.RegisterRequestHandler(GetAssessmentItemsRequest.Type, HandleGetAssessmentItemsRequest);
+            serviceHost.RegisterRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
 
             // Register handler for shutdown event
-            serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
+            serviceHost.RegisterShutdownTask(shutdownParams =>
             {
                 Dispose();
                 return Task.FromResult(0);
@@ -117,23 +117,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
 
         #region Request Handlers
 
-        internal Task HandleGetAssessmentItemsRequest(
-            GetAssessmentItemsParams itemsParams,
-            RequestContext<AssessmentResult<CheckInfo>> requestContext)
+        internal Task<AssessmentResult<CheckInfo>> HandleGetAssessmentItemsRequest(
+            GetAssessmentItemsParams itemsParams)
         {
-            return this.HandleAssessmentRequest(requestContext, itemsParams, this.GetAssessmentItems);
+            return this.HandleAssessmentRequest(itemsParams, this.GetAssessmentItems);
         }
 
-        internal Task HandleInvokeRequest(
-            InvokeParams invokeParams,
-            RequestContext<AssessmentResult<AssessmentResultItem>> requestContext)
+        internal Task<AssessmentResult<AssessmentResultItem>> HandleInvokeRequest(
+            InvokeParams invokeParams)
         {
-            return this.HandleAssessmentRequest(requestContext, invokeParams, this.InvokeSqlAssessment);
+            return this.HandleAssessmentRequest(invokeParams, this.InvokeSqlAssessment);
         }
 
-        internal async Task HandleGenerateScriptRequest(
-            GenerateScriptParams parameters,
-            RequestContext<ResultStatus> requestContext)
+        internal async Task<ResultStatus> HandleGenerateScriptRequest(
+            GenerateScriptParams parameters)
         {
             GenerateScriptOperation operation = null;
             try
@@ -150,20 +147,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
 
                 var _ = SqlTaskManager.Instance.CreateAndRun<SqlTask>(metadata);
 
-                await requestContext.SendResult(new ResultStatus
+                return new ResultStatus
                 {
                     Success = true,
                     ErrorMessage = operation.ErrorMessage
-                });
+                };
             }
             catch (Exception e)
             {
                 Logger.Error("SQL Assessment: failed to generate a script. Error: " + e);
-                await requestContext.SendResult(new ResultStatus()
+                return new ResultStatus()
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
-                });
+                };
             }
         }
 
@@ -171,8 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
 
         #region Helpers
 
-        private async Task HandleAssessmentRequest<TResult>(
-            RequestContext<AssessmentResult<TResult>> requestContext,
+        private async Task<AssessmentResult<TResult>> HandleAssessmentRequest<TResult>(
             AssessmentParams requestParams,
             Func<SqlObjectLocator, Task<List<TResult>>> assessmentFunction)
             where TResult : AssessmentItemInfo
@@ -184,8 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                 // get connection
                 if (!ConnectionService.TryFindConnection(requestParams.OwnerUri, out var connInfo))
                 {
-                    await requestContext.SendError(SR.SqlAssessmentQueryInvalidOwnerUri);
-                    return;
+                    throw RpcErrorException.Create(SR.SqlAssessmentQueryInvalidOwnerUri);
                 }
 
                 ConnectParams connectParams = new ConnectParams
@@ -197,20 +192,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
 
                 if(!connInfo.TryGetConnection(ConnectionType.Default, out var connection))
                 {
-                    await requestContext.SendError(SR.SqlAssessmentConnectingError);
+                    throw RpcErrorException.Create(SR.SqlAssessmentConnectingError);
                 }
 
                 var workTask = CallAssessmentEngine<TResult>(
                         requestParams,
                         connectParams,
                         randomUri,
-                        assessmentFunction)
-                    .ContinueWith(async tsk =>
-                    {
-                        await requestContext.SendResult(tsk.Result);
-                    });
+                        assessmentFunction);
 
                 ActiveRequests.TryAdd(randomUri, workTask);
+                return await workTask;
             }
             catch (Exception ex)
             {
@@ -219,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                     throw;
                 }
 
-                await requestContext.SendError(ex.ToString());
+                throw RpcErrorException.Create(ex.ToString());
             }
         }
 

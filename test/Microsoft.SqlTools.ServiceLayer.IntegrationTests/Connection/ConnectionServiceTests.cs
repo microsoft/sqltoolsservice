@@ -13,9 +13,8 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 {
@@ -119,10 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var resultPassword = result.ConnectionInfo.ConnectionDetails.Password;
-            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
-
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + ConnectionService.PasswordPlaceholder))))
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new GetConnectionStringParams()
             {
@@ -132,17 +127,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 IncludeApplicationName = true
             };
 
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
+            string connectionString = await service.HandleGetConnectionStringRequest(requestParams);
+            Assert.True(connectionString.Contains("Password=" + ConnectionService.PasswordPlaceholder));
 
             // validate that the get command doesn't change any connection property and the following get commands work as expected
             requestParams.IncludePassword = true;
 
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + resultPassword))))
-                .Returns(Task.FromResult(new object()));
-
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
+            connectionString = await service.HandleGetConnectionStringRequest(requestParams);
+            Assert.True(connectionString.Contains("Password=" + resultPassword));
         }
 
         /// <summary>
@@ -156,10 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var resultApplicationName = result.ConnectionInfo.ConnectionDetails.ApplicationName;
-            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
 
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => !connectionString.Contains("Application Name=" + resultApplicationName))))
-                            .Returns(Task.FromResult(new object()));
             var requestParams = new GetConnectionStringParams()
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
@@ -168,8 +157,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 IncludeApplicationName = false
             };
 
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
+            string connectionString = await service.HandleGetConnectionStringRequest(requestParams);
+            Assert.False(connectionString.Contains("Application Name=" + resultApplicationName));
         }
 
         /// <summary>
@@ -197,12 +186,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             // get the expected connection string from the connection details being passed to ConnectionService
             string expectedConnectionString = ConnectionService.CreateConnectionStringBuilder(requestParams.ConnectionDetails).ToString();
 
-            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains(expectedConnectionString))))
-                            .Returns(Task.FromResult(new object()));                      
-
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
+            string connectionString = await service.HandleGetConnectionStringRequest(requestParams);
+            Assert.True(connectionString.Contains(expectedConnectionString));
         }
 
         [Test]
@@ -210,30 +195,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             ConnectionService service = ConnectionService.Instance;
 
-            ConnectionDetails result = null;
-            bool resultSent = false;
-            string error = null;
-            bool errorSent = false;
-            var requestContext = RequestContextMocks.Create<ConnectionDetails>(r => { result = r; resultSent = true; }).AddErrorHandling((msg, code, data) => { error = msg; errorSent = true; });
-
             // Validate successful parse
-            await service.HandleParseConnectionStringRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;", requestContext.Object);
+            ConnectionDetails result = await service.HandleParseConnectionStringRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;");
 
             Assert.That(result.ServerName, Is.EqualTo("tcp:{servername},1433"), "Valid connection string should return parsed ConnectionDetails object");
-            Assert.That(errorSent, Is.False, "Valid connection string should not return an error");
-            Assert.That(error, Is.Null, "Valid connection string should not throw an error");
 
             // Validate error thrown on unsuccessful parse
-            result = null;
-            resultSent = false;
-            error = null;
-            errorSent = false;
-
-            await service.HandleParseConnectionStringRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=NotRealAuthType;", requestContext.Object);
-
-            Assert.That(result, Is.Null, "Invalid connection string should not return ConnectionDetails");
-            Assert.That(resultSent, Is.False, "Invalid connection string should not return anything");
-            Assert.That(error, Is.EqualTo("Invalid value for key 'authentication'."), "Invalid connection string should return error message indicating the issue");
+            LocalRpcException ex = Assert.ThrowsAsync<LocalRpcException>(async () =>
+                await service.HandleParseConnectionStringRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=NotRealAuthType;"));
+            Assert.That(ex.Message, Is.EqualTo("Invalid value for key 'authentication'."));
         }
 
         [Test]
@@ -241,30 +211,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             ConnectionService service = ConnectionService.Instance;
 
-            ConnectionDetails result = null;
-            bool resultSent = false;
-            string error = null;
-            bool errorSent = false;
-            var requestContext = RequestContextMocks.Create<ConnectionDetails>(r => { result = r; resultSent = true; }).AddErrorHandling((msg, code, data) => { error = msg; errorSent = true; });
-
             // Validate successful parse
-            await service.HandleBuildConnectionInfoRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;", requestContext.Object);
+            ConnectionDetails result = await service.HandleBuildConnectionInfoRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=ActiveDirectoryInteractive;");
 
             Assert.That(result.ServerName, Is.EqualTo("tcp:{servername},1433"), "Valid connection string should return parsed ConnectionDetails object");
-            Assert.That(errorSent, Is.False, "Valid connection string should not return an error");
-            Assert.That(error, Is.Null, "Valid connection string should not throw an error");
 
             // Validate null returned instad of error thrown on unsuccessful parse
-            result = null;
-            resultSent = false;
-            error = null;
-            errorSent = false;
-
-            await service.HandleBuildConnectionInfoRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=NotRealAuthType;", requestContext.Object);
+            result = await service.HandleBuildConnectionInfoRequest("Server=tcp:{servername},1433;Initial Catalog={databasename};Authentication=NotRealAuthType;");
 
             Assert.That(result, Is.Null, "Invalid connection string response should be null");
-            Assert.That(resultSent, Is.True, "Invalid connection string should return null as result");
-            Assert.That(errorSent, Is.False, "Invalid connection string should not throw an error (instead, null result should have been sent");
         }
     }
 }

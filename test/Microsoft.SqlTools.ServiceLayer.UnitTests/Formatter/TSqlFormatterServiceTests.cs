@@ -9,11 +9,10 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
@@ -76,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             SetupScriptFile(defaultSqlContents);
             // When format document is called
             await TestUtils.RunAndVerify<TextEdit[]>(
-                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                test: () => FormatterService.HandleDocFormatRequest(docFormatParams),
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
@@ -93,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             SetupScriptFile(defaultSqlContents);
             // When format document is called
             await TestUtils.RunAndVerify<TextEdit[]>(
-                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                test: () => FormatterService.HandleDocFormatRequest(docFormatParams),
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
@@ -110,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             SetupScriptFile(defaultSqlContents);
             // When format document is called
             await TestUtils.RunAndVerify<TextEdit[]>(
-                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                test: () => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams),
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
@@ -127,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             SetupScriptFile(defaultSqlContents);
             // When format document is called
             await TestUtils.RunAndVerify<TextEdit[]>(
-                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                test: () => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams),
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
@@ -144,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 // Given a document that we want to format
                 preRunSetup: () => SetupLanguageService(),
                 // When format document is called
-                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                test: () => FormatterService.HandleDocFormatRequest(docFormatParams),
                 verify: (result, actualParams) =>
                 {
                     // Then expect a telemetry event to have been sent with the right format definition
@@ -161,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 // Given a document that we want to format
                 preRunSetup: () => SetupLanguageService(),
                 // When format range is called
-                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                test: () => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams),
                 verify: (result, actualParams) =>
                 {
                     // Then expect a telemetry event to have been sent with the right format definition
@@ -177,22 +176,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
         private async Task RunAndVerifyTelemetryTest(
             Action preRunSetup,
-            Func<RequestContext<TextEdit[]>, Task> test,
+            Func<Task<TextEdit[]>> test,
             Action<TextEdit[], TelemetryParams> verify)
         {
             SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
             TelemetryParams actualParams = null;
-            TextEdit[] result = null;
-            var contextMock = RequestContextMocks.Create<TextEdit[]>(r =>
-            {
-                result = r;
-            })
-            .AddErrorHandling(null)
-            .AddEventHandling(TelemetryNotification.Type, (e, p) =>
+            HostMock.Setup(h => h.SendEvent(TelemetryNotification.Type, It.IsAny<TelemetryParams>()))
+            .Callback((EventType<TelemetryParams> e, TelemetryParams p) =>
             {
                 actualParams = p;
                 semaphore.Release();
-            });
+            })
+            .Returns(Task.CompletedTask);
 
             // Given a document that we want to format
             if (preRunSetup != null)
@@ -202,28 +197,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             SetupScriptFile(defaultSqlContents);
 
             // When format document is called
-            await RunAndVerify<TextEdit[]>(
-                test: test,
-                contextMock: contextMock,
-                verify: () =>
-                {
-                    // Wait for the telemetry notification to be processed on a background thread
-                    semaphore.Wait(TimeSpan.FromSeconds(10));
-                    verify(result, actualParams);
-                });
-        }
+            TextEdit[] result = await test();
 
-        public static async Task RunAndVerify<T>(Func<RequestContext<T>, Task> test, Mock<RequestContext<T>> contextMock, Action verify)
-        {
-            await test(contextMock.Object);
-            VerifyResult(contextMock, verify);
-        }
-
-        public static void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action verify)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
-            verify();
+            // Wait for the telemetry notification to be processed on a background thread
+            semaphore.Wait(TimeSpan.FromSeconds(10));
+            verify(result, actualParams);
         }
 
         private static void AssertFormattingEqual(string expected, string actual)

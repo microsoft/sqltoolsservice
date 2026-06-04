@@ -15,7 +15,6 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 
@@ -32,27 +31,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             inProgressSerializations = new ConcurrentDictionary<string, DataSerializer>();
         }
 
-        public override void InitializeService(IProtocolEndpoint serviceHost)
+        public override void InitializeService(IRpcServiceHost serviceHost)
         {
             Logger.Verbose("SerializationService initialized");
-            serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest, true);
-            serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest, true);
+            serviceHost.RegisterRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest);
+            serviceHost.RegisterRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest);
         }
 
         /// <summary>
         /// Begin to process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal Task HandleSerializeStartRequest(SerializeDataStartRequestParams serializeParams,
-            RequestContext<SerializeDataResult> requestContext)
+        internal Task<SerializeDataResult> HandleSerializeStartRequest(SerializeDataStartRequestParams serializeParams)
         {
-            // Run in separate thread so that message thread isn't held up by a potentially time consuming file write
-            Task.Run(async () => {
-                await RunSerializeStartRequest(serializeParams, requestContext);
-            }).ContinueWithOnFaulted(async t => await SendErrorAndCleanup(serializeParams?.FilePath, requestContext, t.Exception));
-            return Task.CompletedTask;
+            return RunSerializeStartRequest(serializeParams);
         }
 
-        internal async Task RunSerializeStartRequest(SerializeDataStartRequestParams serializeParams, RequestContext<SerializeDataResult> requestContext)
+        internal async Task<SerializeDataResult> RunSerializeStartRequest(SerializeDataStartRequestParams serializeParams)
         {
             try
             {
@@ -76,15 +70,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 Logger.Verbose("HandleSerializeStartRequest");
                 SerializeDataResult result = serializer.ProcessRequest(serializeParams);
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
-                await SendErrorAndCleanup(serializeParams.FilePath, requestContext, ex);
+                return await SendErrorAndCleanup(serializeParams.FilePath, ex);
             }
         }
 
-        private async Task SendErrorAndCleanup(string filePath, RequestContext<SerializeDataResult> requestContext, Exception ex)
+        private async Task<SerializeDataResult> SendErrorAndCleanup(string filePath, Exception ex)
         {
             if (filePath != null)
             {
@@ -103,24 +97,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Do not care if there was an error removing this, must always delete if something failed
                 }
             }
-            await requestContext.SendError(ex.Message);
+            throw RpcErrorException.Create(ex.Message);
         }
 
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal Task HandleSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams,
-            RequestContext<SerializeDataResult> requestContext)
+        internal Task<SerializeDataResult> HandleSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams)
         {
-            // Run in separate thread so that message thread isn't held up by a potentially time consuming file write
-            Task.Run(async () =>
-            {
-                await RunSerializeContinueRequest(serializeParams, requestContext);
-            }).ContinueWithOnFaulted(async t => await SendErrorAndCleanup(serializeParams?.FilePath, requestContext, t.Exception));
-            return Task.CompletedTask;
+            return RunSerializeContinueRequest(serializeParams);
         }
 
-        internal async Task RunSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams, RequestContext<SerializeDataResult> requestContext)
+        internal async Task<SerializeDataResult> RunSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams)
         {
             try
             {
@@ -142,11 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Cleanup the serializer
                     this.inProgressSerializations.TryRemove(serializer.FilePath, out serializer);
                 }
-                await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
-                await SendErrorAndCleanup(serializeParams.FilePath, requestContext, ex);
+                return await SendErrorAndCleanup(serializeParams.FilePath, ex);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,7 +12,6 @@ using Microsoft.SqlTools.SqlCore.Performance.OverallResourceConsumption;
 using Microsoft.SqlTools.SqlCore.Performance.PlanSummary;
 using Microsoft.SqlTools.SqlCore.Performance.RegressedQueries;
 using Microsoft.SqlTools.SqlCore.Performance.TopResourceConsumers;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
@@ -50,30 +49,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         public void InitializeService(ServiceHost serviceHost)
         {
             // Top Resource Consumers report
-            serviceHost.SetRequestHandler(GetTopResourceConsumersSummaryRequest.Type, HandleGetTopResourceConsumersSummaryReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetTopResourceConsumersDetailedSummaryRequest.Type, HandleGetTopResourceConsumersDetailedSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetTopResourceConsumersSummaryRequest.Type, HandleGetTopResourceConsumersSummaryReportRequest);
+            serviceHost.RegisterRequestHandler(GetTopResourceConsumersDetailedSummaryRequest.Type, HandleGetTopResourceConsumersDetailedSummaryReportRequest);
 
             // Forced Plan Queries report
-            serviceHost.SetRequestHandler(GetForcedPlanQueriesReportRequest.Type, HandleGetForcedPlanQueriesReportRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetForcedPlanQueriesReportRequest.Type, HandleGetForcedPlanQueriesReportRequest);
 
             // Tracked Queries report
-            serviceHost.SetRequestHandler(GetTrackedQueriesReportRequest.Type, HandleGetTrackedQueriesReportRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetTrackedQueriesReportRequest.Type, HandleGetTrackedQueriesReportRequest);
 
             // High Variation Queries report
-            serviceHost.SetRequestHandler(GetHighVariationQueriesSummaryRequest.Type, HandleGetHighVariationQueriesSummaryReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetHighVariationQueriesDetailedSummaryRequest.Type, HandleGetHighVariationQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetHighVariationQueriesSummaryRequest.Type, HandleGetHighVariationQueriesSummaryReportRequest);
+            serviceHost.RegisterRequestHandler(GetHighVariationQueriesDetailedSummaryRequest.Type, HandleGetHighVariationQueriesDetailedSummaryReportRequest);
 
             // Overall Resource Consumption report
-            serviceHost.SetRequestHandler(GetOverallResourceConsumptionReportRequest.Type, HandleGetOverallResourceConsumptionReportRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetOverallResourceConsumptionReportRequest.Type, HandleGetOverallResourceConsumptionReportRequest);
 
             // Regressed Queries report
-            serviceHost.SetRequestHandler(GetRegressedQueriesSummaryRequest.Type, HandleGetRegressedQueriesSummaryReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetRegressedQueriesDetailedSummaryRequest.Type, HandleGetRegressedQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetRegressedQueriesSummaryRequest.Type, HandleGetRegressedQueriesSummaryReportRequest);
+            serviceHost.RegisterRequestHandler(GetRegressedQueriesDetailedSummaryRequest.Type, HandleGetRegressedQueriesDetailedSummaryReportRequest);
 
             // Plan Summary report
-            serviceHost.SetRequestHandler(GetPlanSummaryChartViewRequest.Type, HandleGetPlanSummaryChartViewRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetPlanSummaryGridViewRequest.Type, HandleGetPlanSummaryGridViewRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetForcedPlanRequest.Type, HandleGetForcedPlanRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(GetPlanSummaryChartViewRequest.Type, HandleGetPlanSummaryChartViewRequest);
+            serviceHost.RegisterRequestHandler(GetPlanSummaryGridViewRequest.Type, HandleGetPlanSummaryGridViewRequest);
+            serviceHost.RegisterRequestHandler(GetForcedPlanRequest.Type, HandleGetForcedPlanRequest);
         }
 
         #region Handlers
@@ -90,9 +89,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
         #region Top Resource Consumers report
 
-        internal async Task HandleGetTopResourceConsumersSummaryReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetTopResourceConsumersSummaryReportRequest(GetTopResourceConsumersReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 TopResourceConsumersConfiguration config = requestParams.Convert();
                 string query = QueryStoreQueryGenerator.GetTopResourceConsumersSummaryReportQuery(config, requestParams.OrderByColumnId, requestParams.Descending);
@@ -103,12 +102,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query,
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleGetTopResourceConsumersDetailedSummaryReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetTopResourceConsumersDetailedSummaryReportRequest(GetTopResourceConsumersReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 TopResourceConsumersConfiguration config = requestParams.Convert();
                 string query;
@@ -124,16 +123,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion
 
         #region Forced Plans report
 
-        internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 ForcedPlanQueriesConfiguration config = requestParams.Convert();
                 string query = QueryStoreQueryGenerator.GetForcedPlanQueriesReportQuery(config, requestParams.OrderByColumnId, requestParams.Descending);
@@ -144,16 +143,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion
 
         #region Tracked Queries report
 
-        internal async Task HandleGetTrackedQueriesReportRequest(GetTrackedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetTrackedQueriesReportRequest(GetTrackedQueriesReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 string query = QueryStoreQueryGenerator.GetTrackedQueriesReportQuery(requestParams.QuerySearchText);
 
@@ -163,16 +162,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion
 
         #region High Variation Queries report
 
-        internal async Task HandleGetHighVariationQueriesSummaryReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetHighVariationQueriesSummaryReportRequest(GetHighVariationQueriesReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 HighVariationConfiguration config = requestParams.Convert();
                 string query = QueryStoreQueryGenerator.GetHighVariationQueriesSummaryReportQuery(config, requestParams.OrderByColumnId, requestParams.Descending);
@@ -183,12 +182,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleGetHighVariationQueriesDetailedSummaryReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetHighVariationQueriesDetailedSummaryReportRequest(GetHighVariationQueriesReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 HighVariationConfiguration config = requestParams.Convert();
                 string query;
@@ -204,16 +203,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion
 
         #region Overall Resource Consumption report
 
-        internal async Task HandleGetOverallResourceConsumptionReportRequest(GetOverallResourceConsumptionReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetOverallResourceConsumptionReportRequest(GetOverallResourceConsumptionReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 OverallResourceConsumptionConfiguration config = requestParams.Convert();
                 string query;
@@ -229,16 +228,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion
 
         #region Regressed Queries report
 
-        internal async Task HandleGetRegressedQueriesSummaryReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetRegressedQueriesSummaryReportRequest(GetRegressedQueriesReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 RegressedQueriesConfiguration config = requestParams.Convert();
                 string query = QueryStoreQueryGenerator.GetRegressedQueriesSummaryReportQuery(config);
@@ -249,12 +248,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleGetRegressedQueriesDetailedSummaryReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetRegressedQueriesDetailedSummaryReportRequest(GetRegressedQueriesReportParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 RegressedQueriesConfiguration config = requestParams.Convert();
                 string query;
@@ -270,16 +269,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion
 
         #region Plan Summary report
 
-        internal async Task HandleGetPlanSummaryChartViewRequest(GetPlanSummaryParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetPlanSummaryChartViewRequest(GetPlanSummaryParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 PlanSummaryConfiguration config = requestParams.Convert();
                 string query = QueryStoreQueryGenerator.GetPlanSummaryChartViewQuery(config);
@@ -290,12 +289,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleGetPlanSummaryGridViewRequest(GetPlanSummaryGridViewParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetPlanSummaryGridViewRequest(GetPlanSummaryGridViewParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 PlanSummaryConfiguration config = requestParams.Convert();
                 string query = QueryStoreQueryGenerator.GetPlanSummaryGridViewQuery(config, requestParams.OrderByColumnId, requestParams.Descending);
@@ -306,12 +305,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
-        internal async Task HandleGetForcedPlanRequest(GetForcedPlanParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        internal async Task<QueryStoreQueryResult> HandleGetForcedPlanRequest(GetForcedPlanParams requestParams)
         {
-            await RunWithErrorHandling(() =>
+            return await RunWithErrorHandling(() =>
             {
                 string query = QueryStoreQueryGenerator.GetForcedPlanQuery(requestParams.QueryId, requestParams.PlanId);
 
@@ -321,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                     ErrorMessage = null,
                     Query = query
                 };
-            }, requestContext);
+            });
         }
 
         #endregion

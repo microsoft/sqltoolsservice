@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         protected Mock<WorkspaceService<SqlToolsSettings>> workspaceService;
 
-        protected Mock<RequestContext<T[]>> requestContext;
+        protected Mock<IEventSender> eventSender;
 
         protected Mock<ScriptFile> scriptFile;
 
@@ -89,14 +89,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
             langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(this.testScriptUri, connectionInfo);
             langService.BindingQueue = bindingQueue.Object;
-
-            // setup the mock for SendResult
-            requestContext = new Mock<RequestContext<T[]>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<T[]>()))
-                .Returns(Task.FromResult(0));
-            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));
+            eventSender = new Mock<IEventSender>();
+            eventSender.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.CompletedTask);
+            eventSender.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.CompletedTask);
+            langService.EventSenderInstance = eventSender.Object;
 
             // setup the IBinder mock
             binder = new Mock<IBinder>();

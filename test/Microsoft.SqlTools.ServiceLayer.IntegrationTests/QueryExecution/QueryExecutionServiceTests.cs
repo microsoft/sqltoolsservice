@@ -7,14 +7,13 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 {
@@ -105,8 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             };
 
             // change the connection URI
-            var requestContext = new Mock<EventContext>();
-            await QueryExecutionService.Instance.HandleConnectionUriChangedNotification(executeParams, requestContext.Object);
+            await QueryExecutionService.Instance.HandleConnectionUriChangedNotification(executeParams);
 
             { // rerun the query with new URI and confirm previous option persists
                 var queryResult = await ExecuteAndVerifyQuery(
@@ -121,25 +119,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 
         private async Task<ResultSetSubset> ExecuteAndVerifyQuery(string query, string ownerUri)
         {
-            var requestContext = new Mock<RequestContext<ExecuteRequestResult>>();
-            ManualResetEvent sendResultEvent = new ManualResetEvent(false);
-            ExecuteRequestResult? result = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<ExecuteRequestResult>()))
-                .Callback<ExecuteRequestResult>(r =>
-                {
-                    result = r;
-                    sendResultEvent.Set();
-                })
-                .Returns(Task.FromResult(new object()));
-
             var executeParams = new ExecuteStringParams
             {
                 OwnerUri = ownerUri,
                 Query = query
             };
-            await QueryExecutionService.Instance.HandleExecuteRequest(executeParams, requestContext.Object);
+            ExecuteRequestResult result = await QueryExecutionService.Instance.HandleExecuteRequest(executeParams);
 
-            sendResultEvent.WaitOne(TimeSpan.FromSeconds(10));
             Assert.NotNull(result);
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
@@ -152,43 +138,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
                 RowsCount = 1
             };
 
-            var subsetRequestContext = new Mock<RequestContext<SubsetResult>>();
-            SubsetResult? subsetResult = null;
-            subsetRequestContext.Setup(x => x.SendResult(It.IsAny<SubsetResult>()))
-                .Callback<SubsetResult>(r =>
-                {
-                    subsetResult = r;
-                })
-                .Returns(Task.FromResult(new object()));
-
-
-            await QueryExecutionService.Instance.HandleResultSubsetRequest(subsetParams, subsetRequestContext.Object);
+            SubsetResult subsetResult = await QueryExecutionService.Instance.HandleResultSubsetRequest(subsetParams);
 
             Assert.NotNull(subsetResult);
-            return subsetResult!.ResultSubset;
+            return subsetResult.ResultSubset;
         }
 
         /// <summary>
         /// Test that SimpleExecuteRequest collects and returns SQL error messages for queries with errors
         /// </summary>
         [Test]
-        public async Task SimpleExecuteRequestReturnsErrorMessages()
+        public void SimpleExecuteRequestReturnsErrorMessages()
         {
             // Establish a new connection
             ConnectionService.Instance.OwnerToConnectionMap.Clear();
             ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
-
-            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
-            ManualResetEvent errorEvent = new ManualResetEvent(false);
-            string? errorMessage = null;
-
-            requestContext.Setup(x => x.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
-                .Callback<string, int, string>((error, code, data) =>
-                {
-                    errorMessage = error;
-                    errorEvent.Set();
-                })
-                .Returns(Task.FromResult(new object()));
 
             var executeParams = new SimpleExecuteParams
             {
@@ -196,14 +160,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
                 QueryString = "SELECT * FROM NonExistentTable123456;"
             };
 
-            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+            LocalRpcException? ex = Assert.ThrowsAsync<LocalRpcException>(async () =>
+                await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams));
 
-            // Wait for error to be sent
-            bool gotError = errorEvent.WaitOne(TimeSpan.FromSeconds(10));
-            Assert.IsTrue(gotError, "Expected error message was not received");
-            Assert.IsNotNull(errorMessage, "Error message should not be null");
-            Assert.IsTrue(errorMessage!.Contains("NonExistentTable123456") || errorMessage!.Contains("Invalid object name"),
-                $"Error message should contain table name or invalid object error. Got: {errorMessage}");
+            Assert.NotNull(ex);
+            Assert.IsTrue(ex!.Message.Contains("NonExistentTable123456") || ex.Message.Contains("Invalid object name"),
+                $"Error message should contain table name or invalid object error. Got: {ex.Message}");
         }
 
         /// <summary>
@@ -216,18 +178,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             ConnectionService.Instance.OwnerToConnectionMap.Clear();
             ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
 
-            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
-            ManualResetEvent resultEvent = new ManualResetEvent(false);
-            SimpleExecuteResult? result = null;
-
-            requestContext.Setup(x => x.SendResult(It.IsAny<SimpleExecuteResult>()))
-                .Callback<SimpleExecuteResult>(r =>
-                {
-                    result = r;
-                    resultEvent.Set();
-                })
-                .Returns(Task.FromResult(new object()));
-
             // Use a query that doesn't return a result set - DECLARE creates a variable
             var executeParams = new SimpleExecuteParams
             {
@@ -235,15 +185,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
                 QueryString = "DECLARE @TestVar INT; SET @TestVar = 1;"
             };
 
-            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+            SimpleExecuteResult result = await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams);
 
-            // Wait for result to be sent
-            bool gotResult = resultEvent.WaitOne(TimeSpan.FromSeconds(10));
-            Assert.IsTrue(gotResult, "Expected result was not received");
             Assert.IsNotNull(result, "Result should not be null");
-            Assert.AreEqual(0, result!.RowCount, "Row count should be 0 for queries without result sets");
-            Assert.IsNotNull(result!.ColumnInfo, "Column info should not be null");
-            Assert.AreEqual(0, result!.ColumnInfo.Length, "Column info should be empty for queries without result sets");
+            Assert.AreEqual(0, result.RowCount, "Row count should be 0 for queries without result sets");
+            Assert.IsNotNull(result.ColumnInfo, "Column info should not be null");
+            Assert.AreEqual(0, result.ColumnInfo.Length, "Column info should be empty for queries without result sets");
         }
 
         /// <summary>
@@ -256,34 +203,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             ConnectionService.Instance.OwnerToConnectionMap.Clear();
             ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
 
-            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
-            ManualResetEvent resultEvent = new ManualResetEvent(false);
-            SimpleExecuteResult? result = null;
-
-            requestContext.Setup(x => x.SendResult(It.IsAny<SimpleExecuteResult>()))
-                .Callback<SimpleExecuteResult>(r =>
-                {
-                    result = r;
-                    resultEvent.Set();
-                })
-                .Returns(Task.FromResult(new object()));
-
             var executeParams = new SimpleExecuteParams
             {
                 OwnerUri = connectionInfo.OwnerUri,
                 QueryString = "PRINT 'Test message from PRINT'; SELECT 1 AS Value;"
             };
 
-            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+            SimpleExecuteResult result = await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams);
 
-            // Wait for result to be sent
-            bool gotResult = resultEvent.WaitOne(TimeSpan.FromSeconds(10));
-            Assert.IsTrue(gotResult, "Expected result was not received");
             Assert.IsNotNull(result, "Result should not be null");
-            Assert.IsNotNull(result!.Messages, "Messages should not be null");
-            Assert.IsTrue(result!.Messages.Length > 0, "Messages array should contain at least one message");
+            Assert.IsNotNull(result.Messages, "Messages should not be null");
+            Assert.IsTrue(result.Messages.Length > 0, "Messages array should contain at least one message");
             
-            var printMessage = result!.Messages.FirstOrDefault(m => m.Message.Contains("Test message from PRINT"));
+            var printMessage = result.Messages.FirstOrDefault(m => m.Message.Contains("Test message from PRINT"));
             Assert.IsNotNull(printMessage, "PRINT message should be captured in Messages array");
             Assert.IsFalse(printMessage!.IsError, "PRINT message should not be marked as error");
         }
@@ -298,35 +230,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             ConnectionService.Instance.OwnerToConnectionMap.Clear();
             ConnectionInfo connectionInfo = LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo;
 
-            var requestContext = new Mock<RequestContext<SimpleExecuteResult>>();
-            ManualResetEvent resultEvent = new ManualResetEvent(false);
-            SimpleExecuteResult? result = null;
-
-            requestContext.Setup(x => x.SendResult(It.IsAny<SimpleExecuteResult>()))
-                .Callback<SimpleExecuteResult>(r =>
-                {
-                    result = r;
-                    resultEvent.Set();
-                })
-                .Returns(Task.FromResult(new object()));
-
             var executeParams = new SimpleExecuteParams
             {
                 OwnerUri = connectionInfo.OwnerUri,
                 QueryString = "PRINT 'First message'; PRINT 'Second message'; SELECT 1 AS Value;"
             };
 
-            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams, requestContext.Object);
+            SimpleExecuteResult result = await QueryExecutionService.Instance.HandleSimpleExecuteRequest(executeParams);
 
-            // Wait for result to be sent
-            bool gotResult = resultEvent.WaitOne(TimeSpan.FromSeconds(10));
-            Assert.IsTrue(gotResult, "Expected result was not received");
             Assert.IsNotNull(result, "Result should not be null");
-            Assert.IsNotNull(result!.Messages, "Messages should not be null");
-            Assert.IsTrue(result!.Messages.Length >= 2, $"Messages array should contain at least 2 PRINT messages, found {result!.Messages.Length}");
+            Assert.IsNotNull(result.Messages, "Messages should not be null");
+            Assert.IsTrue(result.Messages.Length >= 2, $"Messages array should contain at least 2 PRINT messages, found {result.Messages.Length}");
             
-            var firstMessage = result!.Messages.FirstOrDefault(m => m.Message.Contains("First message"));
-            var secondMessage = result!.Messages.FirstOrDefault(m => m.Message.Contains("Second message"));
+            var firstMessage = result.Messages.FirstOrDefault(m => m.Message.Contains("First message"));
+            var secondMessage = result.Messages.FirstOrDefault(m => m.Message.Contains("Second message"));
             
             Assert.IsNotNull(firstMessage, "First PRINT message should be captured");
             Assert.IsNotNull(secondMessage, "Second PRINT message should be captured");

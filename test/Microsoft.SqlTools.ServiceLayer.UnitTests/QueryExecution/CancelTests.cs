@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using NUnit.Framework;
@@ -29,10 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Constants.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
@@ -43,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 {
                     Assert.Null(r.Messages);
                 }).Complete();
-            await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
+            await cancelRequest.SetResult(await queryService.HandleCancelRequest(cancelParams));
 
             // Then:
             // ... The query should not have been disposed but should have been cancelled
@@ -60,10 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri};
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query
@@ -74,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     Assert.False(string.IsNullOrWhiteSpace(r.Messages));
                 }).Complete();
 
-            await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
+            await cancelRequest.SetResult(await queryService.HandleCancelRequest(cancelParams));
 
             // Then:
             // ... The query should not have been disposed and cancel should not have excecuted
@@ -97,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 {
                     Assert.False(string.IsNullOrWhiteSpace(r.Messages));
                 }).Complete();
-            await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
+            await cancelRequest.SetResult(await queryService.HandleCancelRequest(cancelParams));
             cancelRequest.Validate();
         }
 

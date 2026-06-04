@@ -6,13 +6,11 @@
 #nullable disable
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -34,11 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 };
 
-                var requestContext = new Mock<RequestContext<AgentJobsResult>>();
-
                 AgentService service = new AgentService();
-                await service.HandleAgentJobsRequest(requestParams, requestContext.Object);
-                requestContext.VerifyAll();
+                AgentJobsResult result = await service.HandleAgentJobsRequest(requestParams);
+                Assert.True(result.Success);
             }
         }
 
@@ -59,11 +55,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     JobId = "e9420919-b8c2-4a3d-a26c-b7ffde5342cf"
                 };
 
-                var requestContext = new Mock<RequestContext<AgentJobHistoryResult>>();
-
                 AgentService service = new AgentService();
-                await service.HandleJobHistoryRequest(requestParams, requestContext.Object);
-                requestContext.VerifyAll();
+                AgentJobHistoryResult result = await service.HandleJobHistoryRequest(requestParams);
+                Assert.True(result.Success);
             }       
         }
 
@@ -80,11 +74,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     JobName = "Agent history clean up: distribution"
                 };
 
-                var requestContext = new Mock<RequestContext<ResultStatus>>();
-
                 AgentService service = new AgentService();
-                await service.HandleJobActionRequest(requestParams, requestContext.Object);
-                requestContext.VerifyAll();
+                ResultStatus result = await service.HandleJobActionRequest(requestParams);
+                Assert.True(result.Success);
             }     
         }
     }

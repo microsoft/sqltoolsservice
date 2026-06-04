@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -17,7 +17,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -70,21 +69,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest, true);
-            serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
-            serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest, true);
-            serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest, true);
-            serviceHost.SetRequestHandler(GetDataFolderRequest.Type, HandleGetDataFolderRequest, true);
-            serviceHost.SetRequestHandler(GetBackupFolderRequest.Type, HandleGetBackupFolderRequest, true);
-            serviceHost.SetRequestHandler(GetAssociatedFilesRequest.Type, HandleGetAssociatedFilesRequest, true);
+            serviceHost.RegisterRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest);
+            serviceHost.RegisterRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest);
+            serviceHost.RegisterRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
+            serviceHost.RegisterRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
+            serviceHost.RegisterRequestHandler(GetDataFolderRequest.Type, HandleGetDataFolderRequest);
+            serviceHost.RegisterRequestHandler(GetBackupFolderRequest.Type, HandleGetBackupFolderRequest);
+            serviceHost.RegisterRequestHandler(GetAssociatedFilesRequest.Type, HandleGetAssociatedFilesRequest);
         }
 
         /// <summary>
         /// Handle a request for the default database prototype info
         /// </summary>
-        public static async Task HandleDefaultDatabaseInfoRequest(
-            DefaultDatabaseInfoParams optionsParams,
-            RequestContext<DefaultDatabaseInfoResponse> requestContext)
+        public static async Task<DefaultDatabaseInfoResponse> HandleDefaultDatabaseInfoRequest(
+            DefaultDatabaseInfoParams optionsParams)
         {
             var response = new DefaultDatabaseInfoResponse();
             ConnectionInfo connInfo;
@@ -95,16 +93,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
             {
                 response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-                await requestContext.SendResult(response);
+                return response;
             }
         }
 
         /// <summary>
         /// Handles a create database request
         /// </summary>
-        internal static async Task HandleCreateDatabaseRequest(
-            CreateDatabaseParams databaseParams,
-            RequestContext<CreateDatabaseResponse> requestContext)
+        internal static async Task<CreateDatabaseResponse> HandleCreateDatabaseRequest(
+            CreateDatabaseParams databaseParams)
         {
             var response = new DefaultDatabaseInfoResponse();
             ConnectionInfo connInfo;
@@ -119,22 +116,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 Database db = prototype.ApplyChanges();
 
-                await requestContext.SendResult(new CreateDatabaseResponse()
+                return new CreateDatabaseResponse()
                 {
                     Result = true,
                     TaskId = 0
-                });
+                };
             }
         }
 
         /// <summary>
         /// Handle get database info request
         /// </summary>
-        internal static async Task HandleGetDatabaseInfoRequest(
-            GetDatabaseInfoParams databaseParams,
-            RequestContext<GetDatabaseInfoResponse> requestContext)
+        internal static async Task<GetDatabaseInfoResponse> HandleGetDatabaseInfoRequest(
+            GetDatabaseInfoParams databaseParams)
         {
-            Func<Task> requestHandler = async () =>
+            Func<Task<GetDatabaseInfoResponse>> requestHandler = async () =>
             {
                 ConnectionInfo connInfo;
                 AdminService.ConnectionServiceInstance.TryFindConnection(
@@ -147,26 +143,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     info = GetDatabaseInfo(connInfo);
                 }
 
-                await requestContext.SendResult(new GetDatabaseInfoResponse()
+                return new GetDatabaseInfoResponse()
                 {
                     DatabaseInfo = info
-                });
+                };
             };
 
-            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            try
             {
-                await requestContext.SendError(t.Exception.ToString());
-            });
+                return await requestHandler();
+            }
+            catch (Exception ex)
+            {
+                throw RpcErrorException.Create(ex.ToString());
+            }
         }
 
         /// <summary>
         /// Handle get database data folder info request
         /// </summary>
-        internal static async Task HandleGetDataFolderRequest(
-            GetDataFolderParams databaseParams,
-            RequestContext<string> requestContext)
+        internal static async Task<string> HandleGetDataFolderRequest(
+            GetDataFolderParams databaseParams)
         {
-            Func<Task> requestHandler = async () =>
+            Func<Task<string>> requestHandler = async () =>
             {
                 ConnectionInfo connInfo;
                 AdminService.ConnectionServiceInstance.TryFindConnection(
@@ -177,30 +176,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     // Connection gets disconnected when backup is done
                     ServerConnection serverConnection = new ServerConnection(sqlConn);
                     var dataFolder = CommonUtilities.GetDefaultDataFolder(serverConnection);
-                    await requestContext.SendResult(dataFolder);
+                    return dataFolder;
                 }
             };
 
-            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            try
             {
-                // Get innermost exception to get original error message
-                Exception ex = t.Exception;
+                return await requestHandler();
+            }
+            catch (Exception ex)
+            {
                 while (ex.InnerException != null)
                 {
                     ex = ex.InnerException;
                 };
-                await requestContext.SendError(ex.Message);
-            });
+                throw RpcErrorException.Create(ex.Message);
+            }
         }
 
         /// <summary>
         /// Handle get database backup folder info request
         /// </summary>
-        internal static async Task HandleGetBackupFolderRequest(
-            GetBackupFolderParams databaseParams,
-            RequestContext<string> requestContext)
+        internal static async Task<string> HandleGetBackupFolderRequest(
+            GetBackupFolderParams databaseParams)
         {
-            Func<Task> requestHandler = async () =>
+            Func<Task<string>> requestHandler = async () =>
             {
                 ConnectionInfo connInfo;
                 AdminService.ConnectionServiceInstance.TryFindConnection(
@@ -211,30 +211,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     // Connection gets disconnected when backup is done
                     ServerConnection serverConnection = new ServerConnection(sqlConn);
                     var backupFolder = CommonUtilities.GetDefaultBackupFolder(serverConnection);
-                    await requestContext.SendResult(backupFolder);
+                    return backupFolder;
                 }
             };
 
-            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            try
             {
-                // Get innermost exception to get original error message
-                Exception ex = t.Exception;
+                return await requestHandler();
+            }
+            catch (Exception ex)
+            {
                 while (ex.InnerException != null)
                 {
                     ex = ex.InnerException;
                 };
-                await requestContext.SendError(ex.Message);
-            });
+                throw RpcErrorException.Create(ex.Message);
+            }
         }
 
         /// <summary>
         /// Handle get associated database files request
         /// </summary>
-        internal static async Task HandleGetAssociatedFilesRequest(
-            GetAssociatedFilesParams databaseParams,
-            RequestContext<string[]> requestContext)
+        internal static async Task<string[]> HandleGetAssociatedFilesRequest(
+            GetAssociatedFilesParams databaseParams)
         {
-            Func<Task> requestHandler = async () =>
+            Func<Task<string[]>> requestHandler = async () =>
             {
                 ConnectionInfo connInfo;
                 AdminService.ConnectionServiceInstance.TryFindConnection(
@@ -245,20 +246,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     // Connection gets disconnected when backup is done
                     ServerConnection serverConnection = new ServerConnection(sqlConn);
                     var files = CommonUtilities.GetAssociatedFilePaths(serverConnection, databaseParams.PrimaryFilePath);
-                    await requestContext.SendResult(files);
+                    return files;
                 }
             };
 
-            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            try
             {
-                // Get innermost exception to get original error message
-                Exception ex = t.Exception;
+                return await requestHandler();
+            }
+            catch (Exception ex)
+            {
                 while (ex.InnerException != null)
                 {
                     ex = ex.InnerException;
                 };
-                await requestContext.SendError(ex.Message);
-            });
+                throw RpcErrorException.Create(ex.Message);
+            }
         }
 
         /// <summary>
@@ -268,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns></returns>
         internal static DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
         {
-            using (DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo, true))
+            using (DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo))
             {
                 return DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
             }
@@ -290,11 +293,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <summary>
         /// Handles a create login request
         /// </summary>
-        internal static async Task HandleCreateLoginRequest(
-            CreateLoginParams loginParams,
-            RequestContext<CreateLoginResponse> requestContext)
+        internal static async Task<CreateLoginResponse> HandleCreateLoginRequest(
+            CreateLoginParams loginParams)
         {
-            await requestContext.SendResult(new CreateLoginResponse());
+            return new CreateLoginResponse();
         }
     }
 }

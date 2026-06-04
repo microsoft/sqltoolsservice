@@ -7,7 +7,7 @@
 namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
-    /// Defines the message contract for errors returned via SendError.
+    /// Defines the message contract for RPC errors.
     /// </summary>
     public class Error
     {

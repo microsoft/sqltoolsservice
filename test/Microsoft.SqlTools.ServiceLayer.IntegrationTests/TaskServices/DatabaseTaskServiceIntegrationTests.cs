@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -22,7 +21,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
@@ -65,11 +63,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(databaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            var requestContext = new Mock<RequestContext<CreateDatabaseResponse>>();
-            CreateDatabaseResponse response = null;
-            requestContext.Setup(x => x.SendResult(It.IsAny<CreateDatabaseResponse>()))
-                .Callback<CreateDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var databaseInfo = new Microsoft.SqlTools.ServiceLayer.Admin.Contracts.DatabaseInfo();
             databaseInfo.Options.Add("name", databaseName);
@@ -80,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 DatabaseInfo = databaseInfo
             };
 
-            await AdminService.HandleCreateDatabaseRequest(requestParams, requestContext.Object);
+            CreateDatabaseResponse response = await AdminService.HandleCreateDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Result, Is.True);
@@ -96,11 +89,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(databaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            DropDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<DropDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DropDatabaseResponse>()))
-                .Callback<DropDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new DropDatabaseRequestParams
             {
@@ -111,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 GenerateScript = false,
             };
 
-            await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams, requestContext.Object);
+            DropDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
@@ -137,11 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(databaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            DropDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<DropDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DropDatabaseResponse>()))
-                .Callback<DropDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new DropDatabaseRequestParams
             {
@@ -152,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 GenerateScript = true,
             };
 
-            await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams, requestContext.Object);
+            DropDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Null.Or.Empty);
@@ -171,11 +154,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             string databaseName = GetUniqueDatabaseName("MissingDropTaskDb");
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            DropDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<DropDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DropDatabaseResponse>()))
-                .Callback<DropDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new DropDatabaseRequestParams
             {
@@ -186,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 GenerateScript = false,
             };
 
-            await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams, requestContext.Object);
+            DropDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
@@ -208,11 +186,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(renamedDatabaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            RenameDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
-                .Callback<RenameDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
             {
@@ -221,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 NewName = renamedDatabaseName,
             };
 
-            await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
+            RenameDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
@@ -250,11 +223,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(renamedDatabaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            RenameDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
-                .Callback<RenameDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
             {
@@ -264,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 DropConnections = true,
             };
 
-            await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
+            RenameDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
@@ -292,11 +260,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             databasesToDrop.Add(originalDatabaseName);
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            RenameDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
-                .Callback<RenameDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
             {
@@ -307,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 GenerateScript = true,
             };
 
-            await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
+            RenameDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Null.Or.Empty);
@@ -330,11 +293,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             string renamedDatabaseName = originalDatabaseName + "_renamed";
 
             TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", OwnerUri, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default);
-            RenameDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<RenameDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<RenameDatabaseResponse>()))
-                .Callback<RenameDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
 
             var requestParams = new RenameDatabaseRequestParams
             {
@@ -344,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 DropConnections = true,
             };
 
-            await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams, requestContext.Object);
+            RenameDatabaseResponse response = await ObjectManagementTestUtils.Service.HandleRenameDatabaseRequest(requestParams);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);

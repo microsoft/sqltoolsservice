@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
@@ -35,9 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 QuerySelection = Common.WholeDocument,
                 OwnerUri = Constants.OwnerUri
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             var executedQuery = queryService.ActiveQueries[Constants.OwnerUri];
 
@@ -73,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             try
             {
-                await queryService.HandleCopyResults2Request(copyParams, copyRequest.Object);
+                await copyRequest.SetResult(await queryService.HandleCopyResults2Request(copyParams));
                 copyRequest.Validate();
             }
             finally
@@ -100,9 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 QuerySelection = Common.WholeDocument,
                 OwnerUri = Constants.OwnerUri
             };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             var executedQuery = queryService.ActiveQueries[Constants.OwnerUri];
 
@@ -138,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             try
             {
-                await queryService.HandleCopyResults2Request(copyParams, copyRequest.Object);
+                await copyRequest.SetResult(await queryService.HandleCopyResults2Request(copyParams));
                 copyRequest.Validate();
             }
             finally

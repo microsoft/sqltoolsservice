@@ -24,14 +24,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Sends an event for specific document using the existing request context
         /// </summary>
-        public static void SendStatusChange<T>(RequestContext<T> requestContext, TextDocumentPosition textDocumentPosition, string status)
+        public static void SendStatusChange(IEventSender eventSender, TextDocumentPosition textDocumentPosition, string status)
         {
             Task.Factory.StartNew(async () =>
             {
-                if (requestContext != null)
+                if (eventSender != null)
                 {
                     string ownerUri = textDocumentPosition != null && textDocumentPosition.TextDocument != null ? textDocumentPosition.TextDocument.Uri : "";
-                    await requestContext.SendEvent(StatusChangedNotification.Type, new StatusChangeParams()
+                    await eventSender.SendEvent(StatusChangedNotification.Type, new StatusChangeParams()
                     {
                         OwnerUri = ownerUri,
                         Status = status
@@ -43,13 +43,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Sends a telemetry event for specific document using the existing request context
         /// </summary>
-        public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, string telemetryEvent)
+        public static void SendTelemetryEvent(IEventSender eventSender, string telemetryEvent)
         {
-            Validate.IsNotNull(nameof(requestContext), requestContext);
+            Validate.IsNotNull(nameof(eventSender), eventSender);
             Validate.IsNotNullOrWhitespaceString(nameof(telemetryEvent), telemetryEvent);
             Task.Factory.StartNew(async () =>
             {
-                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                await eventSender.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                 {
                     Params = new TelemetryProperties
                     {
@@ -62,14 +62,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Sends a telemetry event for specific document using the existing request context
         /// </summary>
-        public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, TelemetryProperties telemetryProps)
+        public static void SendTelemetryEvent(IEventSender eventSender, TelemetryProperties telemetryProps)
         {
-            Validate.IsNotNull(nameof(requestContext), requestContext);
+            Validate.IsNotNull(nameof(eventSender), eventSender);
             Validate.IsNotNull(nameof(telemetryProps), telemetryProps);
             Validate.IsNotNullOrWhitespaceString("telemetryProps.EventName", telemetryProps.EventName);
             Task.Factory.StartNew(async () =>
             {
-                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                await eventSender.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                 {
                     Params = telemetryProps
                 });

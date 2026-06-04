@@ -14,7 +14,6 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Moq;
 using NUnit.Framework;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
@@ -34,11 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             InitializeTestObjects();
             scriptParseInfo.BindingContextKind = BindingContextKindEnum.None;
             // request definition
-            var definitionTask = await Task.WhenAny(langService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
+            Task<Location[]> definitionRequest = langService.HandleDefinitionRequest(textDocument);
+            var definitionTask = await Task.WhenAny(definitionRequest, Task.Delay(TaskTimeout));
             await definitionTask;
-            // verify that send result was called once and send error was not called
-            requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Once());
-            requestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never());
+            Assert.NotNull(await definitionRequest);
         }
 
         /// <summary>

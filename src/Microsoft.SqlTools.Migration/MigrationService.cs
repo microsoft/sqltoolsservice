@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.Migration
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IRpcServiceHost ServiceHost
         {
             get;
             set;
@@ -104,36 +104,35 @@ namespace Microsoft.SqlTools.Migration
         /// <summary>
         /// Initializes the Migration Service instance
         /// </summary>
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IRpcServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest, true);
-            this.ServiceHost.SetRequestHandler(StartPerfDataCollectionRequest.Type, HandleStartPerfDataCollectionRequest, true);
-            this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest, true);
-            this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest, true);
-            this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest, true);
-            this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration, true);
-            this.ServiceHost.SetRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration, true);
-            this.ServiceHost.SetRequestHandler(ValidateSysAdminPermissionRequest.Type, HandleSysAdminPermissionValidation, true);
-            this.ServiceHost.SetRequestHandler(ValidateAADDomainNameRequest.Type, HandleAADDomainNameValidation, true);
-            this.ServiceHost.SetRequestHandler(ValidateLoginEligibilityRequest.Type, HandleLoginEligibilityValidation, true);
-            this.ServiceHost.SetRequestHandler(ValidateUserMappingRequest.Type, HandleUserMappingValidation, true);
-            this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
-            this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
-            this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
-            this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
-            this.ServiceHost.SetRequestHandler(TdeValidationRequest.Type, HandleTdeValidationRequest);
-            this.ServiceHost.SetRequestHandler(TdeValidationTitlesRequest.Type, HandleTdeValidationTitlesRequest);
-            this.ServiceHost.SetRequestHandler(GetArmTemplateRequest.Type, HandleGetArmTemplateRequest);
+            this.ServiceHost.RegisterRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
+            this.ServiceHost.RegisterRequestHandler(StartPerfDataCollectionRequest.Type, HandleStartPerfDataCollectionRequest);
+            this.ServiceHost.RegisterRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
+            this.ServiceHost.RegisterRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest);
+            this.ServiceHost.RegisterRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
+            this.ServiceHost.RegisterRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration);
+            this.ServiceHost.RegisterRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration);
+            this.ServiceHost.RegisterRequestHandler(ValidateSysAdminPermissionRequest.Type, HandleSysAdminPermissionValidation);
+            this.ServiceHost.RegisterRequestHandler(ValidateAADDomainNameRequest.Type, HandleAADDomainNameValidation);
+            this.ServiceHost.RegisterRequestHandler(ValidateLoginEligibilityRequest.Type, HandleLoginEligibilityValidation);
+            this.ServiceHost.RegisterRequestHandler(ValidateUserMappingRequest.Type, HandleUserMappingValidation);
+            this.ServiceHost.RegisterRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins);
+            this.ServiceHost.RegisterRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping);
+            this.ServiceHost.RegisterRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions);
+            this.ServiceHost.RegisterRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
+            this.ServiceHost.RegisterRequestHandler(TdeValidationRequest.Type, HandleTdeValidationRequest);
+            this.ServiceHost.RegisterRequestHandler(TdeValidationTitlesRequest.Type, HandleTdeValidationTitlesRequest);
+            this.ServiceHost.RegisterRequestHandler(GetArmTemplateRequest.Type, HandleGetArmTemplateRequest);
             Logger.Verbose("Migration Service initialized");
         }
 
         /// <summary>
         /// Handle request to start a migration session
         /// </summary>
-        internal async Task HandleMigrationAssessmentsRequest(
-            MigrationAssessmentsParams parameters,
-            RequestContext<MigrationAssessmentResult> requestContext)
+        internal async Task<MigrationAssessmentResult> HandleMigrationAssessmentsRequest(
+            MigrationAssessmentsParams parameters)
         {
             try
             {
@@ -148,22 +147,23 @@ namespace Microsoft.SqlTools.Migration
                     }
                     string[] assessmentConnectionStrings = connectionStrings.ToArray();
                     var results = await GetAssessmentItems(assessmentConnectionStrings, parameters.XEventsFilesFolderPath, parameters.collectAdhocQueries);
-                    await requestContext.SendResult(results);
+                    return results;
                 }
+
+                return new MigrationAssessmentResult();
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to start performance data collection process
         /// </summary>
-        internal async Task HandleStartPerfDataCollectionRequest(
-            StartPerfDataCollectionParams parameters,
-            RequestContext<StartPerfDataCollectionResult> requestContext)
+        internal Task<StartPerfDataCollectionResult> HandleStartPerfDataCollectionRequest(
+            StartPerfDataCollectionParams parameters)
         {
             string randomUri = Guid.NewGuid().ToString();
             try
@@ -179,34 +179,32 @@ namespace Microsoft.SqlTools.Migration
                 this.DataCollectionController.Start();
 
                 // TO-DO: what should be returned?
-                await requestContext.SendResult(new StartPerfDataCollectionResult() { DateTimeStarted = DateTime.UtcNow });
+                return Task.FromResult(new StartPerfDataCollectionResult() { DateTimeStarted = DateTime.UtcNow });
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to stop performance data collection process
         /// </summary>
-        internal async Task HandleStopPerfDataCollectionRequest(
-            StopPerfDataCollectionParams parameters,
-            RequestContext<StopPerfDataCollectionResult> requestContext)
+        internal Task<StopPerfDataCollectionResult> HandleStopPerfDataCollectionRequest(
+            StopPerfDataCollectionParams parameters)
         {
             this.DataCollectionController.Dispose();
 
             // TO-DO: what should be returned?
-            await requestContext.SendResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
+            return Task.FromResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
         }
 
         /// <summary>
         /// Handle request to refresh performance data collection status
         /// </summary>
-        internal async Task HandleRefreshPerfDataCollectionRequest(
-            RefreshPerfDataCollectionParams parameters,
-            RequestContext<RefreshPerfDataCollectionResult> requestContext)
+        internal Task<RefreshPerfDataCollectionResult> HandleRefreshPerfDataCollectionRequest(
+            RefreshPerfDataCollectionParams parameters)
         {
             bool isCollecting = !(this.DataCollectionController is null) ? this.DataCollectionController.IsRunning() : false;
             List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
@@ -220,14 +218,13 @@ namespace Microsoft.SqlTools.Migration
                 Errors = errors,
             };
 
-            await requestContext.SendResult(result);
+            return Task.FromResult(result);
         }
         /// <summary>
         /// Handle request to generate SKU recommendations
         /// </summary>
-        internal async Task HandleGetSkuRecommendationsRequest(
-            GetSkuRecommendationsParams parameters,
-            RequestContext<GetSkuRecommendationsResult> requestContext)
+        internal Task<GetSkuRecommendationsResult> HandleGetSkuRecommendationsRequest(
+            GetSkuRecommendationsParams parameters)
         {
             try
             {
@@ -285,29 +282,29 @@ namespace Microsoft.SqlTools.Migration
                     ElasticSkuRecommendationReportPaths = new List<string> { elasticResults.sqlDbReportPath, elasticResults.sqlMiReportPath, elasticResults.sqlVmReportPath },
                 };
 
-                await requestContext.SendResult(results);
+                return Task.FromResult(results);
             }
             catch (FailedToQueryCountersException)
             {
-                await requestContext.SendError($"Unable to read collected performance data from {parameters.DataFolder}. Please specify another folder or start data collection instead.");
+                throw RpcErrorException.Create($"Unable to read collected performance data from {parameters.DataFolder}. Please specify another folder or start data collection instead.");
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to start login migration.
         /// </summary>
-        internal async Task HandleStartLoginMigration(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationResult> requestContext)
+        internal async Task<LoginMigrationResult> HandleStartLoginMigration(
+            StartLoginMigrationParams parameters)
         {
+            ILoginsMigration loginMigration = null;
             try
             {
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
-                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
 
@@ -326,21 +323,26 @@ namespace Microsoft.SqlTools.Migration
                     ExceptionMap = exceptionMap
                 };
 
-                await requestContext.SendResult(results);
-                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
+            }
+            finally
+            {
+                if (loginMigration != null)
+                {
+                    loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                }
             }
         }
 
         /// <summary>
         /// Handle request to validate sysadmin permissions.
         /// </summary>
-        internal async Task HandleSysAdminPermissionValidation(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationPreValidationResult> requestContext)
+        internal async Task<LoginMigrationPreValidationResult> HandleSysAdminPermissionValidation(
+            StartLoginMigrationParams parameters)
         {
             try
             {
@@ -363,20 +365,19 @@ namespace Microsoft.SqlTools.Migration
                     ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
                 };
 
-                await requestContext.SendResult(results);
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to validate user mapping.
         /// </summary>
-        internal async Task HandleUserMappingValidation(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationPreValidationResult> requestContext)
+        internal Task<LoginMigrationPreValidationResult> HandleUserMappingValidation(
+            StartLoginMigrationParams parameters)
         {
             try
             {
@@ -399,20 +400,19 @@ namespace Microsoft.SqlTools.Migration
                     ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
                 };
 
-                await requestContext.SendResult(results);
+                return Task.FromResult(results);
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to validate login eligibility.
         /// </summary>
-        internal async Task HandleLoginEligibilityValidation(
-        StartLoginMigrationParams parameters,
-        RequestContext<LoginMigrationPreValidationResult> requestContext)
+        internal async Task<LoginMigrationPreValidationResult> HandleLoginEligibilityValidation(
+        StartLoginMigrationParams parameters)
         {
             try
             {
@@ -435,20 +435,19 @@ namespace Microsoft.SqlTools.Migration
                     ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
                 };
 
-                await requestContext.SendResult(results);
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to validate AAD domain name.
         /// </summary>
-        internal async Task HandleAADDomainNameValidation(
-        StartLoginMigrationParams parameters,
-        RequestContext<LoginMigrationPreValidationResult> requestContext)
+        internal Task<LoginMigrationPreValidationResult> HandleAADDomainNameValidation(
+        StartLoginMigrationParams parameters)
         {
             try
             {
@@ -471,20 +470,19 @@ namespace Microsoft.SqlTools.Migration
                     ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
                 };
 
-                await requestContext.SendResult(results);
+                return Task.FromResult(results);
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to validate login migration.
         /// </summary>
-        internal async Task HandleValidateLoginMigration(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationResult> requestContext)
+        internal async Task<LoginMigrationResult> HandleValidateLoginMigration(
+            StartLoginMigrationParams parameters)
         {
             try
             {
@@ -507,25 +505,25 @@ namespace Microsoft.SqlTools.Migration
 
                 };
 
-                await requestContext.SendResult(results);
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to migrate logins.
         /// </summary>
-        internal async Task HandleMigrateLogins(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationResult> requestContext)
+        internal async Task<LoginMigrationResult> HandleMigrateLogins(
+            StartLoginMigrationParams parameters)
         {
+            ILoginsMigration loginMigration = null;
             try
             {
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
-                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
@@ -549,26 +547,32 @@ namespace Microsoft.SqlTools.Migration
                     };
                 });
 
-                await requestContext.SendResult(results);
-                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
+            }
+            finally
+            {
+                if (loginMigration != null)
+                {
+                    loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                }
             }
         }
 
         /// <summary>
         /// Handle request to establish user mapping.
         /// </summary>
-        internal async Task HandleEstablishUserMapping(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationResult> requestContext)
+        internal async Task<LoginMigrationResult> HandleEstablishUserMapping(
+            StartLoginMigrationParams parameters)
         {
+            ILoginsMigration loginMigration = null;
             try
             {
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
-                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
@@ -593,21 +597,26 @@ namespace Microsoft.SqlTools.Migration
                     };
                 });
 
-                await requestContext.SendResult(results);
-                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
+            }
+            finally
+            {
+                if (loginMigration != null)
+                {
+                    loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                }
             }
         }
 
         /// <summary>
         /// Handle request generate the ARM template.
         /// </summary>
-        internal async Task HandleGetArmTemplateRequest(
-    string targetType,
-    RequestContext<List<string>> requestContext)
+        internal Task<List<string>> HandleGetArmTemplateRequest(
+    string targetType)
         {
             try
             {
@@ -648,25 +657,25 @@ namespace Microsoft.SqlTools.Migration
                         );
                     armTemplates.Add(jsonOutput);
                 }
-                await requestContext.SendResult(armTemplates);
+                return Task.FromResult(armTemplates);
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
             }
         }
 
         /// <summary>
         /// Handle request to migrate server roles and set permissions.
         /// </summary>
-        internal async Task HandleMigrateServerRolesAndSetPermissions(
-            StartLoginMigrationParams parameters,
-            RequestContext<LoginMigrationResult> requestContext)
+        internal async Task<LoginMigrationResult> HandleMigrateServerRolesAndSetPermissions(
+            StartLoginMigrationParams parameters)
         {
+            ILoginsMigration loginMigration = null;
             try
             {
                 ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
-                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 loginMigration.loginMigrationProgressNotificationEvent += HandleLoginMigrationProgressNotification;
@@ -754,12 +763,18 @@ namespace Microsoft.SqlTools.Migration
                     };
                 });
 
-                await requestContext.SendResult(results);
-                loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                return results;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.ToString());
+                throw RpcErrorException.Create(e.ToString());
+            }
+            finally
+            {
+                if (loginMigration != null)
+                {
+                    loginMigration.loginMigrationProgressNotificationEvent -= HandleLoginMigrationProgressNotification;
+                }
             }
         }
 
@@ -1230,9 +1245,8 @@ namespace Microsoft.SqlTools.Migration
         /// <param name="parameters">Parameters for the operation, as register during the type definition</param>
         /// <param name="requestContext">Context provided by the framework</param>
         /// <returns></returns>
-        internal async Task HandleTdeCertificateMigrationRequest(
-          CertificateMigrationParams parameters,
-          RequestContext<CertificateMigrationResult> requestContext)
+        internal async Task<CertificateMigrationResult> HandleTdeCertificateMigrationRequest(
+          CertificateMigrationParams parameters)
         {
             var result = new CertificateMigrationResult();
 
@@ -1262,30 +1276,28 @@ namespace Microsoft.SqlTools.Migration
                     Message = migrationResult.Message,
                     StatusCode = migrationResult.StatusCode
                 };
-                await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
+                await this.ServiceHost.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
 
                 result.MigrationStatuses.Add(migrationResult);
             }
 
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleTdeValidationRequest(
-            TdeValidationParams parameters,
-            RequestContext<TdeValidationResult[]> requestContext)
+        internal async Task<TdeValidationResult[]> HandleTdeValidationRequest(
+            TdeValidationParams parameters)
         {
             TdeValidationResult[] result =
                 await TdeMigration.RunTdeValidation(
                    parameters.SourceSqlConnectionString,
                    parameters.NetworkSharePath);
-            await requestContext.SendResult(result);
+            return result;
         }
 
-        internal async Task HandleTdeValidationTitlesRequest(
-            TdeValidationTitlesParams parameters,
-            RequestContext<string[]> requestContext)
+        internal Task<string[]> HandleTdeValidationTitlesRequest(
+            TdeValidationTitlesParams parameters)
         {
-            await requestContext.SendResult(TdeMigration.TdeValidationTitles);
+            return Task.FromResult(TdeMigration.TdeValidationTitles);
         }
 
         /// <summary>

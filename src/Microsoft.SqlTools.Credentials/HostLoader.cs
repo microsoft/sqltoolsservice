@@ -65,7 +65,7 @@ namespace  Microsoft.SqlTools.Credentials.Utility
         /// Internal to support testing. Initializes <see cref="IHostedService"/> instances in the service,
         /// and registers them for their preferred service type
         /// </summary>
-        internal static void InitializeHostedServices(RegisteredServiceProvider provider, IProtocolEndpoint host)
+        internal static void InitializeHostedServices(RegisteredServiceProvider provider, IRpcServiceHost host)
         {
             // Pre-register all services before initializing. This ensures that if one service wishes to reference
             // another one during initialization, it will be able to safely do so

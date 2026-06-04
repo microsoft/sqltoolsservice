@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -264,21 +264,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
         // The caller needs to handle the race conditions where multiple requests are being processed at the same time.
         /// </summary>
-        public static Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
+        public static async Task<T> HandleRequest<T>(Func<Task<T>> action)
         {
-            Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await action();
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e.Message);
-                    await requestContext.SendError(e);
-                }
-            });
-            return Task.CompletedTask;
+                return await action();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                throw RpcErrorException.Create(e);
+            }
         }
     }
 

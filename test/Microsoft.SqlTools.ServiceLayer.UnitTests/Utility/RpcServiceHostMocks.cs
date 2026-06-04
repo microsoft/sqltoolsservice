@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -13,10 +13,10 @@ using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
-    public static class ProtocolEndpointMocks
+    public static class RpcServiceHostMocks
     {
-        public static Mock<IProtocolEndpoint> AddEventHandling<TParams>(
-            this Mock<IProtocolEndpoint> mock,
+        public static Mock<IRpcServiceHost> AddEventHandling<TParams>(
+            this Mock<IRpcServiceHost> mock,
             EventType<TParams> expectedEvent,
             Action<EventType<TParams>, TParams> eventCallback)
         {

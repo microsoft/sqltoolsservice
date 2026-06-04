@@ -222,6 +222,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        internal IEventSender EventSenderInstance { get; set; }
+
         /// <summary>
         /// Gets the current settings
         /// </summary>
@@ -258,49 +260,49 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
-            // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
+            // serviceHost.RegisterRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
+            // serviceHost.RegisterRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
-            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
 
             // Returns hover details for the current token.
             // Parallel safe because it reads request-local state and shared metadata access is already serialized.
-            serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(HoverRequest.Type, HandleHoverRequest);
 
             // Resolves extra metadata for a selected completion item.
             // Parallel safe because it only reads the current completion snapshot.
-            serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
 
             // Returns completions at the current cursor position.
             // Parallel safe because newer requests cancel older ones before stale completion state can win.
-            serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
 
             // Resolves definition locations for the token under the cursor.
             // Parallel safe because each request uses its own temp script path and request-local state.
-            serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
 
             // Parses request text and returns syntax diagnostics.
             // Parallel safe because it only operates on request-local text and does not mutate LanguageService state.
-            serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest, isParallelProcessingSupported: true);
+            serviceHost.RegisterRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
 
             // Rebuilds IntelliSense metadata for a document.
             // Parallel safe because same-URI rebuilds are serialized explicitly by uriAsyncLocks.
-            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification, isParallelProcessingSupported: true);
+            serviceHost.RegisterNotificationHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
 
             // Updates whether a document should use MSSQL language services.
             // Parallel safe because same-URI flavor transitions are serialized before shared state is updated.
-            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification, isParallelProcessingSupported: true);
+            serviceHost.RegisterNotificationHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
 
             // Updates connection state after an auth token refresh completes.
             // Parallel safe because it only updates connection info token.
-            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
+            serviceHost.RegisterNotificationHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
 
-            serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
+            serviceHost.RegisterRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
-            serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
+            serviceHost.RegisterShutdownTask(shutdownParams =>
             {
                 Logger.Verbose("Shutting down language service");
                 DeletePeekDefinitionScripts();
@@ -309,6 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             });
 
             ServiceHostInstance = serviceHost;
+            EventSenderInstance = serviceHost;
 
             // Register the configuration update handler
             WorkspaceServiceInstance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
@@ -346,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="param"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
+        internal async Task<bool> HandleCompletionExtLoadRequest(CompletionExtensionParams param)
         {
             //register the new assembly
             var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
@@ -366,8 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 if (!CheckIfAssemblyShouldBeLoaded(param.AssemblyPath, extTypeName))
                 {
-                    await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
-                    return;
+                    throw RpcErrorException.Create(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
                 }
 
                 await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
@@ -375,17 +377,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!string.IsNullOrEmpty(extName))
                 {
                     completionExtensions[extName] = ext;
-                    await requestContext.SendResult(true);
-                    return;
+                    return true;
                 }
                 else
                 {
-                    await requestContext.SendError(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
-                    return;
+                    throw RpcErrorException.Create(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
                 }
             }
 
-            await requestContext.SendError(string.Format("Couldn't discover completion extension with type {0} in {1}", param.TypeName, param.AssemblyPath));
+            throw RpcErrorException.Create(string.Format("Couldn't discover completion extension with type {0} in {1}", param.TypeName, param.AssemblyPath));
         }
 
         /// <summary>
@@ -422,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="param"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
+        internal async Task<SyntaxParseResult> HandleSyntaxParseRequest(SyntaxParseParams param)
         {
             ParseResult result = Parser.Parse(param.Query);
             SyntaxParseResult syntaxResult = new SyntaxParseResult();
@@ -440,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 syntaxResult.Errors = errorMessages;
             }
-            await requestContext.SendResult(syntaxResult);
+            return syntaxResult;
         }
 
         /// <summary>
@@ -449,22 +449,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="textDocumentPosition"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleCompletionRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<CompletionItem[]> requestContext)
+        internal async Task<CompletionItem[]> HandleCompletionRequest(
+            TextDocumentPosition textDocumentPosition)
         {
             var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
             if (scriptFile == null)
             {
-                await requestContext.SendResult(null);
-                return;
+                return null;
             }
             // check if Intellisense suggestions are enabled
             if (ShouldSkipIntellisense(scriptFile.ClientUri))
             {
                 Logger.Verbose($"Skipping completion request for {scriptFile.ClientUri} because intellisense is disabled or file is non-MSSQL");
-                await requestContext.SendResult(null);
-                return;
+                return null;
             }
 
             // Cancel any previous in-flight completion so it doesn't
@@ -481,7 +478,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var completionItems = await GetCompletionItems(
                 textDocumentPosition, scriptFile, connInfo, cts.Token);
 
-            await requestContext.SendResult(completionItems);
+            return completionItems;
         }
 
         /// <summary>
@@ -491,27 +488,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleCompletionResolveRequest(
-            CompletionItem completionItem,
-            RequestContext<CompletionItem> requestContext)
+        internal async Task<CompletionItem> HandleCompletionResolveRequest(
+            CompletionItem completionItem)
         {
             // check if Intellisense suggestions are enabled
             // Note: Do not know file, so no need to check for MSSQL flavor
             if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
             {
-                await requestContext.SendResult(completionItem);
+                return completionItem;
             }
             else
             {
                 CompletionItem resolvedItem = ResolveCompletionItem(completionItem);
-                await requestContext.SendResult(resolvedItem);
+                return resolvedItem;
 
             }
         }
 
-        internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
+        internal async Task<Location[]> HandleDefinitionRequest(TextDocumentPosition textDocumentPosition)
         {
-            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(EventSenderInstance, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
             if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
@@ -529,23 +525,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 if (definitionResult != null && !definitionResult.IsErrorResult)
                 {
-                    await requestContext.SendResult(definitionResult.Locations);
                     succeeded = true;
+                    DocumentStatusHelper.SendTelemetryEvent(EventSenderInstance, CreatePeekTelemetryProps(succeeded, isConnected));
+                    DocumentStatusHelper.SendStatusChange(EventSenderInstance, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+                    return definitionResult.Locations;
                 }
                 else
                 {
-                    await requestContext.SendResult(Array.Empty<Location>());
+                    DocumentStatusHelper.SendTelemetryEvent(EventSenderInstance, CreatePeekTelemetryProps(succeeded, isConnected));
+                    DocumentStatusHelper.SendStatusChange(EventSenderInstance, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+                    return Array.Empty<Location>();
                 }
-
-                DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
             }
             else
             {
                 // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
-                await requestContext.SendResult(Array.Empty<Location>());
+                DocumentStatusHelper.SendStatusChange(EventSenderInstance, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+                return Array.Empty<Location>();
             }
-
-            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
         private static TelemetryProperties CreatePeekTelemetryProps(bool succeeded, bool connected)
@@ -561,14 +558,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             };
         }
 
-        internal async Task HandleSignatureHelpRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<SignatureHelp> requestContext)
+        internal async Task<SignatureHelp> HandleSignatureHelpRequest(
+            TextDocumentPosition textDocumentPosition)
         {
             // check if Intellisense suggestions are enabled
             if (ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                await requestContext.SendResult(null);
+                return null;
             }
             else
             {
@@ -579,23 +575,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     SignatureHelp help = await GetSignatureHelp(textDocumentPosition, scriptFile);
                     if (help != null)
                     {
-                        await requestContext.SendResult(help);
+                        return help;
                     }
                     else
                     {
-                        await requestContext.SendResult(new SignatureHelp());
+                        return new SignatureHelp();
                     }
                 }
                 else
                 {
-                    await requestContext.SendResult(null);
+                    return null;
                 }
             }
         }
 
-        private async Task HandleHoverRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<Hover> requestContext)
+        private async Task<Hover> HandleHoverRequest(
+            TextDocumentPosition textDocumentPosition)
         {
             // check if Quick Info hover tooltips are enabled
             if (CurrentWorkspaceSettings.IsQuickInfoEnabled
@@ -607,12 +602,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (scriptFile != null)
                 {
                     Hover hover = GetHoverItem(textDocumentPosition, scriptFile);
-                    await requestContext.SendResult(hover);
-                    return;
+                    return hover;
                 }
             }
 
-            await requestContext.SendResult(null);
+            return null;
         }
 
         #endregion
@@ -628,8 +622,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         public async Task HandleDidOpenTextDocumentNotification(
             string uri,
-            ScriptFile scriptFile,
-            EventContext eventContext)
+            ScriptFile scriptFile)
         {
             try
             {
@@ -638,8 +631,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
                     await RunScriptDiagnostics(
-                        new ScriptFile[] { scriptFile },
-                        eventContext);
+                        new ScriptFile[] { scriptFile });
                 }
             }
             catch (Exception ex)
@@ -654,7 +646,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="textChangeParams"></param>
         /// <param name="eventContext"></param>
-        public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext)
+        public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles)
         {
             try
             {
@@ -662,8 +654,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // Only process files that are MSSQL flavor
                     await this.RunScriptDiagnostics(
-                        changedFiles.ToArray(),
-                        eventContext);
+                        changedFiles.ToArray());
                 }
             }
             catch (Exception ex)
@@ -682,8 +673,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         public async Task HandleDidCloseTextDocumentNotification(
             string uri,
-            ScriptFile scriptFile,
-            EventContext eventContext)
+            ScriptFile scriptFile)
         {
             try
             {
@@ -694,7 +684,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
-                    await DiagnosticsHelper.ClearScriptDiagnostics(uri, eventContext);
+                    await DiagnosticsHelper.ClearScriptDiagnostics(uri, EventSenderInstance);
                 }
             }
             catch (Exception ex)
@@ -711,8 +701,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         /// <returns></returns>
         public async Task HandleDidSaveTextDocumentNotification(
-            string uri,
-            EventContext eventContext)
+            string uri)
         {
             try
             {
@@ -759,7 +748,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (savedFile != null)
                         filesToRefresh.Insert(0, savedFile);
                     if (filesToRefresh.Count > 0)
-                        await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
+                        await RunScriptDiagnostics(filesToRefresh.ToArray());
                 }
             }
             catch (Exception ex)
@@ -775,12 +764,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext">Event context</param>
         /// <returns>Async task</returns>
         public async Task HandleRebuildIntelliSenseNotification(
-            RebuildIntelliSenseParams rebuildParams,
-            EventContext eventContext)
+            RebuildIntelliSenseParams rebuildParams)
         {
             await RunSerializedByUriAsync(
                 rebuildParams.OwnerUri,
-                () => DoHandleRebuildIntellisenseNotification(rebuildParams, eventContext));
+                () => DoHandleRebuildIntellisenseNotification(rebuildParams));
         }
 
         /// <summary>
@@ -789,7 +777,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="rebuildParams">Rebuild params</param>
         /// <param name="eventContext">Event context</param>
         /// <returns>Async task</returns>
-        public virtual async Task DoHandleRebuildIntellisenseNotification(RebuildIntelliSenseParams rebuildParams, EventContext eventContext)
+        public virtual async Task DoHandleRebuildIntellisenseNotification(RebuildIntelliSenseParams rebuildParams)
         {
             try
             {
@@ -836,24 +824,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                         {
                             await RunScriptDiagnostics(
-                                                new ScriptFile[] { scriptFile },
-                                                eventContext);
+                                                new ScriptFile[] { scriptFile });
                         }
 
                         // Send a notification to signal that autocomplete is ready
-                        await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
+                        await EventSenderInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
                     }
                     else
                     {
                         // Send a notification to signal that autocomplete is ready
-                        await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+                        await EventSenderInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
                     }
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error("Unknown error " + ex.ToString());
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+                await EventSenderInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
             }
         }
 
@@ -865,8 +852,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         public async Task HandleDidChangeConfigurationNotification(
             SqlToolsSettings newSettings,
-            SqlToolsSettings oldSettings,
-            EventContext eventContext)
+            SqlToolsSettings oldSettings)
         {
             try
             {
@@ -887,13 +873,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
                         {
-                            await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
+                            await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, EventSenderInstance);
                         }
                     }
                     // otherwise rerun diagnostic analysis on all opened SQL files
                     else
                     {
-                        await RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
+                        await RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles());
                     }
                 }
             }
@@ -910,8 +896,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="info"></param>
         public async Task HandleDidChangeLanguageFlavorNotification(
-            LanguageFlavorChangeParams changeParams,
-            EventContext eventContext)
+            LanguageFlavorChangeParams changeParams)
         {
             try
             {
@@ -919,7 +904,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
                 await RunSerializedByUriAsync(
                     changeParams.Uri,
-                    () => DoHandleDidChangeLanguageFlavorNotification(changeParams, eventContext));
+                    () => DoHandleDidChangeLanguageFlavorNotification(changeParams));
             }
             catch (Exception ex)
             {
@@ -929,8 +914,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         private async Task DoHandleDidChangeLanguageFlavorNotification(
-            LanguageFlavorChangeParams changeParams,
-            EventContext eventContext)
+            LanguageFlavorChangeParams changeParams)
         {
             bool shouldBlock = false;
             if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
@@ -946,7 +930,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
                 if (CurrentWorkspace.ContainsFile(changeParams.Uri))
                 {
-                    await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
+                    await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, EventSenderInstance);
                 }
             }
             else
@@ -955,7 +939,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
                 // should rebuild intellisense when re-considering as sql
                 RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
-                await DoHandleRebuildIntellisenseNotification(param, eventContext);
+                await DoHandleRebuildIntellisenseNotification(param);
             }
         }
 
@@ -992,9 +976,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         internal Task HandleTokenRefreshedNotification(
-            TokenRefreshedParams tokenRefreshedParams,
-            EventContext eventContext
-        )
+            TokenRefreshedParams tokenRefreshedParams)
         {
             connectionService.UpdateAuthToken(tokenRefreshedParams);
             return Task.CompletedTask;
@@ -1242,7 +1224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue).ContinueWith(async _ =>
             {
                 // Send a notification to signal that autocomplete is ready
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+                await EventSenderInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
             });
         }
 
@@ -1287,7 +1269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     InitializeProjectFileContexts(fileUris, contextKey, databaseName);
                 }
 
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+                await EventSenderInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
             }
             catch (Exception ex)
             {
@@ -2206,7 +2188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (parseResult.Errors.Count() >= TSqlDetectionConstants.SqlFileErrorLimit)
             {
-                await ServiceHostInstance.SendEvent(
+                await EventSenderInstance.SendEvent(
                                    NonTSqlNotification.Type,
                                    new NonTSqlParams
                                    {
@@ -2233,7 +2215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     count++;
                     if (count == TSqlDetectionConstants.NonTSqlKeywordLimit)
                     {
-                        await ServiceHostInstance.SendEvent(
+                        await EventSenderInstance.SendEvent(
                         NonTSqlNotification.Type,
                         new NonTSqlParams
                         {
@@ -2372,7 +2354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="filesToAnalyze"></param>
         /// <param name="eventContext"></param>
-        private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
+        private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze)
         {
             if (!CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
@@ -2412,7 +2394,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
                         LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
-                        eventContext,
                         existingRequestCancellation.Token),
                 CancellationToken.None,
                 TaskCreationOptions.None,
@@ -2431,7 +2412,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private async Task DelayThenInvokeDiagnostics(
             int delayMilliseconds,
             ScriptFile[] filesToAnalyze,
-            EventContext eventContext,
             CancellationToken cancellationToken)
         {
             // First of all, wait for the desired delay period before
@@ -2465,7 +2445,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     else if (ShouldSkipNonMssqlFile(scriptFile.ClientUri))
                     {
                         // Clear out any existing markers in case file type was changed
-                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
+                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, EventSenderInstance);
                         continue;
                     }
 
@@ -2484,7 +2464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         var semanticMarkers = t.GetAwaiter().GetResult();
                         Logger.Verbose($"Analysis complete for script file: {scriptFile.FilePath}");
-                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
+                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, EventSenderInstance);
                     }, CancellationToken.None);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }

@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
@@ -37,17 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             var sessionId = new SessionId("testsession_1", 1);
             string testUri = "profiler_uri";
-            var requestContext = new Mock<RequestContext<StartProfilingResult>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                .Returns<StartProfilingResult>((result) =>
-                {
-                    Assert.Multiple(() =>
-                    {
-                        Assert.That(result.CanPause, Is.True, "Result.CanPause for RingBuffer sessions");
-                        Assert.That(result.UniqueSessionId, Is.EqualTo(sessionId.ToString()), "Result.UniqueSessionId");
-                    });
-                    return Task.FromResult(0);
-                });
 
             // capture Listener event notifications
             var profilerService = new ProfilerService();
@@ -63,8 +51,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             };
 
             // start profiling session
-            await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);            
-            requestContext.VerifyAll();            
+            StartProfilingResult result = await profilerService.HandleStartProfilingRequest(requestParams);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.CanPause, Is.True, "Result.CanPause for RingBuffer sessions");
+                Assert.That(result.UniqueSessionId, Is.EqualTo(sessionId.ToString()), "Result.UniqueSessionId");
+            });
         }
 
         /// <summary>
@@ -77,15 +69,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool success = false;
             bool stopped = false;
             string testUri = "test_session";
-
-            // capture stopping results
-            var requestContext = new Mock<RequestContext<StopProfilingResult>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<StopProfilingResult>()))
-                .Returns<StopProfilingResult>((result) =>
-                {
-                    success = true;
-                    return Task.FromResult(0);
-                });
 
             // capture if session was stopped
             var mockSession = new Mock<IXEventSession>();
@@ -108,9 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
 
-            await profilerService.HandleStopProfilingRequest(requestParams, requestContext.Object);
-
-            requestContext.VerifyAll();
+            StopProfilingResult result = await profilerService.HandleStopProfilingRequest(requestParams);
+            success = result != null;
 
             // check that session was succesfully stopped and stop was called
             Assert.True(success, nameof(success));
@@ -132,16 +114,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool? lastPauseState = null;
             string testUri = "test_session";
             int eventsReceivedCount = 0;
-
-            // capture pausing results
-            var requestContext = new Mock<RequestContext<PauseProfilingResult>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<PauseProfilingResult>()))
-                .Returns<PauseProfilingResult>((result) =>
-                {
-                    success = true;
-                    lastPauseState = result.IsPaused;
-                    return Task.FromResult(0);
-                });
 
             // Create test events
             var testEvents = new List<TestXEvent>
@@ -190,7 +162,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             int eventsBeforePause = eventsReceivedCount;
 
             // pause viewer
-            await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
+            PauseProfilingResult pauseResult = await profilerService.HandlePauseProfilingRequest(requestParams);
+            success = pauseResult != null;
+            lastPauseState = pauseResult.IsPaused;
             Assert.True(success, "Pause request should succeed");
             Assert.True(lastPauseState == true, "IsPaused should be true after pausing");
 
@@ -202,11 +176,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             success = false;
 
             // unpause viewer
-            await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
+            PauseProfilingResult resumeResult = await profilerService.HandlePauseProfilingRequest(requestParams);
+            success = resumeResult != null;
+            lastPauseState = resumeResult.IsPaused;
             Assert.True(success, "Unpause request should succeed");
             Assert.True(lastPauseState == false, "IsPaused should be false after unpausing");
-
-            requestContext.VerifyAll();
         }
 
         /// <summary>
@@ -268,20 +242,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var param = new StartProfilingParams() { OwnerUri = "someUri", SessionType = ProfilingSessionType.LocalFile, SessionName =  filePath};
             var mockSession = new Mock<IObservableXEventSession>();
             mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
-            var requestContext = new Mock<RequestContext<StartProfilingResult>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                .Returns<StartProfilingResult>((result) =>
-                {
-                    return Task.FromResult(0);
-                });
             var sessionFactory = new Mock<IXEventSessionFactory>();
             sessionFactory.Setup(s => s.OpenLocalFileSession(filePath))
                 .Returns (mockSession.Object)
                 .Verifiable();
             var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };
-            await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
+            StartProfilingResult result = await profilerService.HandleStartProfilingRequest(param);
             sessionFactory.Verify();
-            requestContext.VerifyAll();
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -290,21 +258,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var viewerId = "someUri";
             var filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Profiler", "TestXel_0.xel");
             var param = new StartProfilingParams() { OwnerUri = viewerId, SessionType = ProfilingSessionType.LocalFile, SessionName = filePath };
-            var requestContext = new Mock<RequestContext<StartProfilingResult>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                .Returns<StartProfilingResult>((result) =>
-                {
-                    Assert.Multiple(() =>
-                    {
-                        Assert.That(result.CanPause, Is.False, "local file session cannot be paused");
-                        Assert.That(result.UniqueSessionId, Is.EqualTo(filePath), "UniqueSessionId should match file path");
-                    });
-                    return Task.FromResult(0);
-                });
             var profilerService = new ProfilerService();
             var listener = new TestSessionListener();
             profilerService.SessionMonitor.AddSessionListener(listener);
-            await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
+            StartProfilingResult result = await profilerService.HandleStartProfilingRequest(param);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.CanPause, Is.False, "local file session cannot be paused");
+                Assert.That(result.UniqueSessionId, Is.EqualTo(filePath), "UniqueSessionId should match file path");
+            });
             var retries = 100;
             while (retries-- > 0 && !listener.StoppedSessions.Contains(viewerId))
             {
@@ -330,13 +292,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             var sessionFactory = new TestLiveStreamSessionFactory(new[] { failingFetcher });
 
-            var requestContext = new Mock<RequestContext<StartProfilingResult>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                .Returns<StartProfilingResult>((result) =>
-                {
-                    return Task.FromResult(0);
-                });
-
             var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory };
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             var connectionInfo = TestObjects.GetTestConnectionInfo();
@@ -344,7 +299,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             var listener = new TestSessionListener();
             profilerService.SessionMonitor.AddSessionListener(listener);
-            await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
+            StartProfilingResult result = await profilerService.HandleStartProfilingRequest(param);
+            Assert.That(result, Is.Not.Null);
             var retries = 30;
             while (retries-- > 0 && !listener.StoppedSessions.Any())
             {

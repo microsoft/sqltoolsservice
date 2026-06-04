@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         //Since this job was just return from SMO, it is an existing object
                         //Flag it with true to indicate is has already been created.
-                        this.jobAlerts.Add(new JobAlertData(alerts[i], true));
+                        this.jobAlerts.Add(new JobAlertData(alerts[i]));
                     }
                 }
             }

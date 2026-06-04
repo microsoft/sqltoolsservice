@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
@@ -140,9 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid set of results from it
@@ -153,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     // Then: Subset should not be null
                     Assert.NotNull(r.ResultSubset);
                 }).Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
+            await subsetRequest.SetResult(await queryService.HandleResultSubsetRequest(subsetParams));
             subsetRequest.Validate();
         }
 
@@ -165,8 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var contextMock = RequestContextMocks.Create<SubsetResult>(null);
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleResultSubsetRequest(subsetParams, contextMock.Object));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleResultSubsetRequest(subsetParams));
         }
 
         [Test]
@@ -177,16 +174,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasStartedRead = false;
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var contextMock = RequestContextMocks.Create<SubsetResult>(null);
-            Assert.That(() => queryService.HandleResultSubsetRequest(subsetParams, contextMock.Object), Throws.InvalidOperationException);
+            Assert.That(() => queryService.HandleResultSubsetRequest(subsetParams), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -197,15 +191,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var contextMock = RequestContextMocks.Create<SubsetResult>(null);
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleResultSubsetRequest(subsetParams, contextMock.Object));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleResultSubsetRequest(subsetParams));
         }
 
         #endregion

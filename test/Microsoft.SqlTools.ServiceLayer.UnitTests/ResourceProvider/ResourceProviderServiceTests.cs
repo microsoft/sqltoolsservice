@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
         public ResourceProviderServiceTests()
         {
-            HostMock = new Mock<IProtocolEndpoint>();
+            HostMock = new Mock<IRpcServiceHost>();
             AuthenticationManagerMock = new Mock<IAzureAuthenticationManager>();
             ResourceManagerMock = new Mock<IAzureResourceManager>();
             ServiceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory(ResourceProviderHostLoader.GetResourceProviderExtensionDlls());
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         protected RegisteredServiceProvider ServiceProvider { get; private set; }
-        protected Mock<IProtocolEndpoint> HostMock { get; private set; }
+        protected Mock<IRpcServiceHost> HostMock { get; private set; }
 
         protected Mock<IAzureAuthenticationManager> AuthenticationManagerMock { get; set; }
         protected Mock<IAzureResourceManager> ResourceManagerMock { get; set; }
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 ConnectionTypeId = "Other"
             };
             // When I ask whether the service can process an error as a firewall rule request
-            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>((context) => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams, context), (response) =>
+            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>(() => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams), (response) =>
             {
                 // Then I expect the response to be false and no IP information to be sent
                 Assert.NotNull(response);
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 ConnectionTypeId = "MSSQL"
             };
             // When I ask whether the service can process an error as a firewall rule request
-            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>((context) => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams, context), (response) =>
+            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>(() => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams), (response) =>
             {
                 // Then I expect the response to be true and the IP address to be extracted
                 Assert.NotNull(response);
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 ConnectionTypeId = "MSSQL"
             };
             // When I ask whether the service can process an error as a firewall rule request
-            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>((context) => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams, context), (response) =>
+            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>(() => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams), (response) =>
             {
                 // Then I expect the response to be false and no IP address to be defined
                 Assert.NotNull(response);
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 ConnectionTypeId = "MSSQL"
             };
             // When I ask whether the service can process an error as a firewall rule request
-            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>((context) => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams, context), (response) =>
+            await TestUtils.RunAndVerify<HandleFirewallRuleResponse>(() => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams), (response) =>
             {
                 // Then I expect the response to be OK as we require the known IP address to function
                 Assert.NotNull(response);
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 SecurityTokenMappings = new Dictionary<string, AccountSecurityToken>()
             };
             await TestUtils.RunAndVerify<CreateFirewallRuleResponse>(
-                (context) => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams, context),
+                () => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams),
                 (response) =>
             {
                 // Then I expect the response to be OK as we require the known IP address to function
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 SecurityTokenMappings = new Dictionary<string, AccountSecurityToken>()
             };
             await TestUtils.RunAndVerify<CreateFirewallRuleResponse>(
-                (context) => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams, context),
+                () => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams),
                 (response) =>
             {
                 // Then I expect the response to indicate that we failed due to token expiration

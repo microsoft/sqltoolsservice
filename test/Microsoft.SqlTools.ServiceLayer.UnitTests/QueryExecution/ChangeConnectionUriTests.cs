@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using NUnit.Framework;
@@ -29,9 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             
             const string newOwnerUri = "newTestFile";
@@ -45,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
         
             
-            await queryService.HandleConnectionUriChangedNotification(changeUriParams, new TestEventContext());
+            await queryService.HandleConnectionUriChangedNotification(changeUriParams);
 
             // Then:
             // ... And the active queries should have the new query.
@@ -66,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 NewOwnerUri = newOwnerUri
             };
 
-            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleConnectionUriChangedNotification(changeUriParams, new TestEventContext()));
+            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleConnectionUriChangedNotification(changeUriParams));
 
             Query query;
             Assert.False(queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query), "Query was removed from Active Queries");

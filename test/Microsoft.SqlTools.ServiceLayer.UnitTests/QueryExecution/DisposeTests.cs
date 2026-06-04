@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,10 +12,11 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RpcTestUtilities;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using NUnit.Framework;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
@@ -43,9 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
-            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(executeParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I dispose of the query
@@ -53,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
                 .AddStandardQueryDisposeValidator()
                 .Complete();
-            await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
+            await disposeRequest.SetResult(await queryService.HandleDisposeRequest(disposeParams));
 
             // Then:
             // ... And the active queries should be empty
@@ -62,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task QueryDisposeMissingQuery()
+        public void QueryDisposeMissingQuery()
         {
             // If:
             // ... I attempt to dispose a query that doesn't exist
@@ -70,13 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService.Object);
             var disposeParams = new QueryDisposeParams {OwnerUri = Constants.OwnerUri};
 
-            var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
-
-            // Then: I should have received an error
-            disposeRequest.Validate();
+            Assert.ThrowsAsync<LocalRpcException>(async () => await queryService.HandleDisposeRequest(disposeParams));
         }
 
         [Test]
@@ -90,9 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I execute some bogus query
             var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
-            var requestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
-            await queryService.WorkTask;
+            await queryService.HandleExecuteRequest(queryParams);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And it sticks around as an active query

@@ -8,9 +8,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Moq;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests
 {
@@ -30,54 +28,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests
 
         protected abstract RegisteredServiceProvider CreateServiceProviderWithMinServices();
 
-        protected async Task RunAndVerify<T, TResult>(Func<RequestContext<T>, Task<TResult>> test, Action<TResult> verify)
+        protected async Task RunAndVerify<TResult>(Func<Task<TResult>> test, Action<TResult> verify)
         {
-            T result = default(T);
-            var contextMock = RequestContextMocks.Create<T>(r => result = r).AddErrorHandling(null);
-            TResult actualResult = await test(contextMock.Object);
-            if (actualResult == null && typeof(TResult) == typeof(T))
-            {
-                actualResult = (TResult)Convert.ChangeType(result, typeof(TResult));
-            }
-            VerifyResult<T, TResult>(contextMock, verify, actualResult);
+            TResult actualResult = await test();
+            verify(actualResult);
         }
 
-        protected async Task RunAndVerify<T>(Func<RequestContext<T>, Task> test, Action<T> verify)
+        protected void RunAndVerifyError<T>(Func<Task<T>> test)
         {
-            T result = default(T);
-            var contextMock = RequestContextMocks.Create<T>(r => result = r).AddErrorHandling(null);
-            await test(contextMock.Object);
-            VerifyResult<T>(contextMock, verify, result);
+            Assert.ThrowsAsync<Exception>(async () => await test());
         }
 
-        protected async Task RunAndVerifyError<T>(Func<RequestContext<T>, Task> test)
+        protected void VerifyResult<TResult>(Action<TResult> verify, TResult actual)
         {
-            T result = default(T);
-            var contextMock = RequestContextMocks.Create<T>(r => result = r).AddErrorHandling(null);
-            contextMock.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(Task.FromResult(true));
-            await test(contextMock.Object);
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<Exception>()), Times.Once);
-        }
-
-        protected void VerifyResult<T, TResult>(Mock<RequestContext<T>> contextMock, Action<TResult> verify, TResult actual)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
             verify(actual);
         }
 
-        protected void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action<T> verify, T actual)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
-            verify(actual);
-        }
-
-        protected void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Once);
-        }
     }
 }

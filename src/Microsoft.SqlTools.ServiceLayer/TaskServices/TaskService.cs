@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     {
         private static readonly Lazy<TaskService> instance = new Lazy<TaskService>(() => new TaskService());
         private SqlTaskManager taskManager = null;
-        private IProtocolEndpoint serviceHost;
+        private IRpcServiceHost serviceHost;
 
         /// <summary>
         /// Gets the singleton instance object
@@ -49,21 +49,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public override void InitializeService(IProtocolEndpoint serviceHost)
+        public override void InitializeService(IRpcServiceHost serviceHost)
         {
             this.serviceHost = serviceHost;
             Logger.Verbose("TaskService initialized");
-            serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest, true);
-            serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest, true);
+            serviceHost.RegisterRequestHandler(ListTasksRequest.Type, HandleListTasksRequest);
+            serviceHost.RegisterRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest);
             TaskManager.TaskAdded += OnTaskAdded;
         }
 
         /// <summary>
         /// Handles a list tasks request
         /// </summary>
-        internal async Task HandleListTasksRequest(
-            ListTasksParams listTasksParams,
-            RequestContext<ListTasksResponse> context)
+        internal async Task<ListTasksResponse> HandleListTasksRequest(
+            ListTasksParams listTasksParams)
         {
             Logger.Verbose("HandleListTasksRequest");
 
@@ -80,10 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
             };
 
-            await HandleRequestAsync(getAllTasks, context, "HandleListTasksRequest");
+            return await HandleRequestAsync(getAllTasks, "HandleListTasksRequest");
         }
 
-        internal async Task HandleCancelTaskRequest(CancelTaskParams cancelTaskParams, RequestContext<bool> context)
+        internal async Task<bool> HandleCancelTaskRequest(CancelTaskParams cancelTaskParams)
         {
             Logger.Verbose("HandleCancelTaskRequest");
             Func<Task<bool>> cancelTask = () =>
@@ -106,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
             };
 
-            await HandleRequestAsync(cancelTask, context, "HandleCancelTaskRequest");
+            return await HandleRequestAsync(cancelTask, "HandleCancelTaskRequest");
         }
 
         private async void OnTaskAdded(object sender, TaskEventArgs<SqlTask> e)

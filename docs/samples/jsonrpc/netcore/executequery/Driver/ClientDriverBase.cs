@@ -6,20 +6,49 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using StreamJsonRpc;
 
 namespace Microsoft.SqlTools.JsonRpc.Driver
 {
+    public sealed class PendingRequest<TParams, TResponse>
+    {
+        internal PendingRequest(TParams parameters)
+        {
+            this.Parameters = parameters;
+            this.ResponseSource = new TaskCompletionSource<TResponse>();
+        }
+
+        public TParams Parameters { get; }
+
+        public TaskCompletionSource<TResponse> ResponseSource { get; }
+
+        public Task SetResult(TResponse response)
+        {
+            this.ResponseSource.TrySetResult(response);
+            return Task.CompletedTask;
+        }
+
+        public Task SetException(Exception exception)
+        {
+            this.ResponseSource.TrySetException(exception);
+            return Task.CompletedTask;
+        }
+    }
+
     /// <summary>
-    /// Wraps the ProtocolEndpoint class with queues to handle events/requests
+    /// Wraps a StreamJsonRpc client with queues to handle events/requests.
     /// </summary>
     public class ClientDriverBase
     {
-        protected ProtocolEndpoint protocolClient;
+        protected StreamJsonRpc.JsonRpc jsonRpc;
 
         protected StdioClientChannel clientChannel;
 
@@ -48,18 +77,39 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
             RequestType<TParams, TResult> requestType, 
             TParams requestParams)
         {
-            return 
-                this.protocolClient.SendRequest(
-                    requestType, 
-                    requestParams);
+            return this.jsonRpc.InvokeWithParameterObjectAsync<TResult>(
+                requestType.MethodName,
+                requestParams);
         }
 
         public Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
         {
-            return 
-                this.protocolClient.SendEvent(
-                    eventType,
-                    eventParams);
+            return this.jsonRpc.NotifyWithParameterObjectAsync(
+                eventType.MethodName,
+                eventParams);
+        }
+
+        protected void InitializeRpcClient()
+        {
+            this.clientChannel.Start();
+            this.jsonRpc = new StreamJsonRpc.JsonRpc(CreateMessageHandler(this.clientChannel.OutputStream, this.clientChannel.InputStream))
+            {
+                AllowModificationWhileListening = true,
+                CancelLocallyInvokedMethodsWhenConnectionIsClosed = true
+            };
+        }
+
+        protected async Task StartRpcClient()
+        {
+            await this.clientChannel.WaitForConnection();
+            this.jsonRpc.StartListening();
+        }
+
+        protected Task StopRpcClient()
+        {
+            this.jsonRpc?.Dispose();
+            this.clientChannel.Stop();
+            return Task.CompletedTask;
         }
 
         public void QueueEventsForType<TParams>(EventType<TParams> eventType)
@@ -70,12 +120,12 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
                     new AsyncQueue<object>(),
                     (key, queue) => queue);
 
-            this.protocolClient.SetEventHandler(
-                eventType,
-                (p, ctx) =>
+            this.jsonRpc.AddLocalRpcMethod(
+                eventType.MethodName,
+                new Func<TParams, Task>(p =>
                 {
                     return eventQueue.EnqueueAsync(p);   
-                });
+                }));
         }
 
         public async Task<TParams> WaitForEvent<TParams>(
@@ -98,9 +148,9 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
             {
                 TaskCompletionSource<TParams> eventTaskSource = new TaskCompletionSource<TParams>();
 
-                this.protocolClient.SetEventHandler(
-                    eventType,
-                    (p, ctx) =>
+                this.jsonRpc.AddLocalRpcMethod(
+                    eventType.MethodName,
+                    new Func<TParams, Task>(p =>
                     {
                         if (!eventTaskSource.Task.IsCompleted)
                         {
@@ -108,8 +158,7 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
                         }
 
                         return Task.FromResult(true);
-                    },
-                    true);  // Override any existing handler
+                    }));
 
                 eventTask = eventTaskSource.Task;
             }
@@ -130,11 +179,11 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
             return await eventTask;
         }
 
-        public async Task<Tuple<TParams, RequestContext<TResponse>>> WaitForRequest<TParams, TResponse>(
+        public async Task<PendingRequest<TParams, TResponse>> WaitForRequest<TParams, TResponse>(
             RequestType<TParams, TResponse> requestType,
             int timeoutMilliseconds = 5000)
         {
-            Task<Tuple<TParams, RequestContext<TResponse>>> requestTask = null;
+            Task<PendingRequest<TParams, TResponse>> requestTask = null;
 
             // Use the request queue if one has been registered
             AsyncQueue<object> requestQueue = null;
@@ -144,25 +193,27 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
                     requestQueue
                         .DequeueAsync()
                         .ContinueWith(
-                            task => (Tuple<TParams, RequestContext<TResponse>>)task.Result);
+                            task => (PendingRequest<TParams, TResponse>)task.Result);
             }
             else
             {
                 var requestTaskSource =
-                    new TaskCompletionSource<Tuple<TParams, RequestContext<TResponse>>>();
+                    new TaskCompletionSource<PendingRequest<TParams, TResponse>>();
 
-                this.protocolClient.SetRequestHandler(
-                    requestType,
-                    (p, ctx) =>
+                this.jsonRpc.AddLocalRpcMethod(
+                    requestType.MethodName,
+                    new Func<TParams, Task<TResponse>>(p =>
                     {
+                        PendingRequest<TParams, TResponse> pendingRequest =
+                            new PendingRequest<TParams, TResponse>(p);
+
                         if (!requestTaskSource.Task.IsCompleted)
                         {
-                            requestTaskSource.SetResult(
-                                new Tuple<TParams, RequestContext<TResponse>>(p, ctx));
+                            requestTaskSource.SetResult(pendingRequest);
                         }
 
-                        return Task.FromResult(true);
-                    });
+                        return pendingRequest.ResponseSource.Task;
+                    }));
 
                 requestTask = requestTaskSource.Task;
             }
@@ -181,6 +232,17 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
             }
 
             return await requestTask;
+        }
+
+        private static HeaderDelimitedMessageHandler CreateMessageHandler(Stream outputStream, Stream inputStream)
+        {
+            var formatter = new JsonMessageFormatter(Encoding.UTF8);
+            formatter.JsonSerializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            formatter.JsonSerializer.DateParseHandling = DateParseHandling.None;
+            formatter.JsonSerializer.NullValueHandling = NullValueHandling.Include;
+            formatter.JsonSerializer.TypeNameHandling = TypeNameHandling.None;
+
+            return new HeaderDelimitedMessageHandler(outputStream, inputStream, formatter);
         }
     }
 }
