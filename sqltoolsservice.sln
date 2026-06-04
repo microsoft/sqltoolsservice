@@ -99,9 +99,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Authenti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Connectors.VSCode", "src\Microsoft.SqlTools.Connectors.VSCode\Microsoft.SqlTools.Connectors.VSCode.csproj", "{8901F11F-E35E-43BC-A360-AB4802453086}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.LanguageService", "src\Microsoft.SqlTools.LanguageService\Microsoft.SqlTools.LanguageService.csproj", "{158EE5EB-B512-4372-AE3B-82941CB6727F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.LanguageService", "src\Microsoft.SqlTools.LanguageService\Microsoft.SqlTools.LanguageService.csproj", "{158EE5EB-B512-4372-AE3B-82941CB6727F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.LanguageService.UnitTests", "test\Microsoft.SqlTools.LanguageService.UnitTests\Microsoft.SqlTools.LanguageService.UnitTests.csproj", "{6D0421FC-C398-4357-A80D-7B301616632B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.LanguageService.UnitTests", "test\Microsoft.SqlTools.LanguageService.UnitTests\Microsoft.SqlTools.LanguageService.UnitTests.csproj", "{6D0421FC-C398-4357-A80D-7B301616632B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
