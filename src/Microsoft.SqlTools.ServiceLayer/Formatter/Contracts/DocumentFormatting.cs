@@ -6,7 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter.Contracts

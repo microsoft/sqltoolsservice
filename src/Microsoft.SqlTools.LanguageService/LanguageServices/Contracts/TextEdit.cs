@@ -8,7 +8,7 @@
 using System.Diagnostics;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
 {
 
     [DebuggerDisplay("NewText = {NewText}, Range = {Range.Start.Line}:{Range.Start.Character} - {Range.End.Line}:{Range.End.Character}")]

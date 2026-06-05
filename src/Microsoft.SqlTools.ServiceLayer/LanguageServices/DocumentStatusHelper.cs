@@ -7,7 +7,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
