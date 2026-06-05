@@ -21,12 +21,13 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Moq;
 using NUnit.Framework;
-using WsLocation = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using WsLocation = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
+using LangService = Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 {
@@ -36,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
     [TestFixture]
     public class ProjectLanguageServiceTests
     {
-        private LanguageService _langService;
+        private LangService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectPath;
         private SqlProject _project;
@@ -98,7 +99,7 @@ END
                 transactSqlVersion: TransactSqlVersion.Current);
 
             // Initialize language service
-            _langService = new LanguageService();
+            _langService = new LangService();
 
             // Set up workspace service
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
@@ -329,7 +330,7 @@ END
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                var langService = new LanguageService();
+                var langService = new LangService();
                 var workspaceService = new WorkspaceService<SqlToolsSettings>();
                 workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
                 langService.WorkspaceServiceInstance = workspaceService;
@@ -1140,7 +1141,7 @@ END
         private string _projectPath;
         private SqlProject _project;
         private TSqlModel _model;
-        private LanguageService _langService;
+        private LangService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectUri;
         private string _contextKey;
@@ -1227,7 +1228,7 @@ END
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);
 
-            _langService = new LanguageService();
+            _langService = new LangService();
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
             _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;

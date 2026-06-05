@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return this.ProjectParseOptions;
                 }
                 this.parseOptions ??= new ParseOptions(
-                        batchSeparator: LanguageService.DefaultBatchSeperator,
+                        batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
                         isQuotedIdentifierSet: true, 
                         compatibilityLevel: DatabaseCompatibilityLevel,
                         transactSqlVersion: TransactSqlVersion);

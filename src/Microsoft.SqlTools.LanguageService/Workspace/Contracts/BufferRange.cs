@@ -8,7 +8,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
 {
     /// <summary>
     /// Provides details about a range between two positions in
@@ -59,8 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         {
             if (start > end)
             {
-                throw new ArgumentException(SR.WorkspaceServiceBufferPositionOutOfOrder(start.Line, start.Column,
-                    end.Line, end.Column));
+                throw new ArgumentException(
+                    SR.WorkspaceServiceBufferPositionOutOfOrder(start.Line, start.Column, end.Line, end.Column));
             }
 
             this.Start = start;

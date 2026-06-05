@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -20,8 +20,9 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
-using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
 {
@@ -59,9 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         /// <summary>
         /// Gets the language service. Note: should handle case where this is null in cases where unit tests do not set this up
         /// </summary>
-        private LanguageService LanguageService
+        private LanguageServices.LanguageService LanguageService
         {
-            get { return ServiceProvider.GetService<LanguageService>(); }
+            get { return ServiceProvider.GetService<LanguageServices.LanguageService>(); }
         }
 
         /// <summary>

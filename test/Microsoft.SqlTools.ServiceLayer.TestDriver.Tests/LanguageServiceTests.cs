@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests

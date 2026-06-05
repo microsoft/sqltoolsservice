@@ -10949,11 +10949,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
         }
 
-        public static string WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol)
-        {
-            return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
-        }
-
         public static string EditDataUnsupportedObjectType(string typeName)
         {
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
@@ -11431,9 +11426,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string WorkspaceServicePositionColumnOutOfRange = "WorkspaceServicePositionColumnOutOfRange";
-
-
-            public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
             public const string EditDataObjectNotFound = "EditDataObjectNotFound";
@@ -15441,12 +15433,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public static string GetString(string key, object arg0, object arg1, object arg2)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
-            }
-
-
-            public static string GetString(string key, object arg0, object arg1, object arg2, object arg3)
-            {
-                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2, arg3);
             }
 
 

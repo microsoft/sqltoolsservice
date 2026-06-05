@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
@@ -87,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var statement2 = "SELECT * FROM sys.databases";
             string query = string.Format("{0}; {1}", statement1, statement2);
 
-            var statementInfo = LanguageService.Instance.ParseStatementAtPositionInfo(
+            var statementInfo = LanguageServices.LanguageService.Instance.ParseStatementAtPositionInfo(
                 query,
                 line: 0,
                 column: statement1.Length + 2);

@@ -15,5 +15,6 @@
 	<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 	<ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
 	<ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
+	<ProjectReference Include="../../src/Microsoft.SqlTools.LanguageService/Microsoft.SqlTools.LanguageService.csproj" />
   </ItemGroup>
 </Project>

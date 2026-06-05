@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         protected readonly string testConnectionKey = "testdbcontextkey";
 
-        protected LanguageService langService;
+        protected LanguageServices.LanguageService langService;
 
         protected Mock<ConnectedBindingQueue> bindingQueue;
 
@@ -82,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(this.testConnectionKey);
 
-            langService = new LanguageService();
+            langService = new LanguageServices.LanguageService();
             // inject mock instances into the Language Service
             langService.WorkspaceServiceInstance = workspaceService.Object;
             langService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
