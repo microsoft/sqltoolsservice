@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public async Task WriteRequest<TParams, TResult>(
             RequestType<TParams, TResult> requestType, 
             TParams requestParams,
-            int requestId)
+            MessageId requestId)
         {
             // Allow null content
             JToken contentObject =
@@ -99,12 +99,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             await this.WriteMessage(
                 Message.Request(
-                    requestId.ToString(), 
+                    requestId,
                     requestType.MethodName,
                     contentObject));
         }
 
-        public async Task WriteResponse<TResult>(TResult resultContent, string method, string requestId)
+        public async Task WriteResponse<TResult>(
+            TResult resultContent,
+            string method,
+            MessageId requestId)
         {
             // Allow null content
             JToken contentObject =
@@ -112,11 +115,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     JToken.FromObject(resultContent, contentSerializer) :
                     null;
 
-            await this.WriteMessage(
+            Message responseMessage =
                 Message.Response(
                     requestId,
                     method,
-                    contentObject));
+                    contentObject);
+
+            await this.WriteMessage(
+                responseMessage);
         }
 
         public async Task WriteEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
@@ -133,10 +139,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     contentObject));
         }
 
-        public async Task WriteError(string method, string requestId, Error error)
+        public async Task WriteError(string method, MessageId requestId, Error error)
         {
             JToken contentObject = JToken.FromObject(error, contentSerializer);
-            await this.WriteMessage(Message.ResponseError(requestId, method, contentObject));
+            Message responseMessage = Message.ResponseError(requestId, method, contentObject);
+            await this.WriteMessage(responseMessage);
         }
         
         #endregion

@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
             if (message.MessageType == MessageType.Request)
             {
                 messageObject.Add("type", JToken.FromObject("request"));
-                messageObject.Add("seq", JToken.FromObject(message.Id));
+                messageObject.Add("seq", message.Id.ToJToken());
                 messageObject.Add("command", message.Method);
                 messageObject.Add("arguments", message.Contents);
             }
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
             else if (message.MessageType == MessageType.Response)
             {
                 messageObject.Add("type", JToken.FromObject("response"));
-                messageObject.Add("request_seq", JToken.FromObject(message.Id));
+                messageObject.Add("request_seq", message.Id.ToJToken());
                 messageObject.Add("command", message.Method);
 
                 if (message.Error != null)
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                 if (string.Equals("request", messageType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return Message.Request(
-                        messageJson.GetValue("seq").ToString(),
+                        MessageId.Parse(messageJson.GetValue("seq")),
                         messageJson.GetValue("command").ToString(),
                         messageJson.GetValue("arguments"));
                 }
@@ -77,14 +77,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                         if (token.ToObject<bool>() == true)
                         {
                             return Message.Response(
-                                messageJson.GetValue("request_seq").ToString(),
+                                MessageId.Parse(messageJson.GetValue("request_seq")),
                                 messageJson.GetValue("command").ToString(),
                                 messageJson.GetValue("body"));
                         }
                         else
                         {
                             return Message.ResponseError(
-                                messageJson.GetValue("request_seq").ToString(),
+                                MessageId.Parse(messageJson.GetValue("request_seq")),
                                 messageJson.GetValue("command").ToString(),
                                 messageJson.GetValue("message"));
                         }
