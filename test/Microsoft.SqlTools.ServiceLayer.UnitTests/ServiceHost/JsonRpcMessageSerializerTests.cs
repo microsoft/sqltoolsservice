@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -157,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             await requestContext.SendResult(new TestMessageContents());
 
             string output = Encoding.UTF8.GetString(outputStream.ToArray());
-            int bodyStart = output.IndexOf("\r\n\r\n") + "\r\n\r\n".Length;
+            int bodyStart = output.IndexOf("\r\n\r\n", StringComparison.Ordinal) + "\r\n\r\n".Length;
             return JObject.Parse(output.Substring(bodyStart));
         }
 

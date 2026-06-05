@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                 if (string.Equals("request", messageType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return Message.Request(
-                        messageJson.GetValue("seq").ToString(),
+                        MessageId.Parse(messageJson.GetValue("seq")),
                         messageJson.GetValue("command").ToString(),
                         messageJson.GetValue("arguments"));
                 }
@@ -77,14 +77,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                         if (token.ToObject<bool>() == true)
                         {
                             return Message.Response(
-                                messageJson.GetValue("request_seq").ToString(),
+                                MessageId.Parse(messageJson.GetValue("request_seq")),
                                 messageJson.GetValue("command").ToString(),
                                 messageJson.GetValue("body"));
                         }
                         else
                         {
                             return Message.ResponseError(
-                                messageJson.GetValue("request_seq").ToString(),
+                                MessageId.Parse(messageJson.GetValue("request_seq")),
                                 messageJson.GetValue("command").ToString(),
                                 messageJson.GetValue("message"));
                         }
