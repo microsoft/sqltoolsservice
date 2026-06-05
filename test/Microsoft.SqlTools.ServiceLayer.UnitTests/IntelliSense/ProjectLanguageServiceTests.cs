@@ -22,8 +22,11 @@ using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Moq;
 using NUnit.Framework;
+using WsLocation = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 {
@@ -1124,5 +1127,374 @@ END
             Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable should still exist after modify");
             Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Not.Null, "NameTable should be unaffected by modify");
         }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Find All References (textDocument/references) tests
+    // Verifies HandleReferencesRequest, FindTokenLocationsInFile, and the
+    // TSqlModelMetadataProvider helper methods FindObject / GetReferencingFilePaths.
+    // ────────────────────────────────────────────────────────────────────────
+    [TestFixture]
+    public class FindReferencesTests
+    {
+        private string _projectPath;
+        private SqlProject _project;
+        private TSqlModel _model;
+        private LanguageService _langService;
+        private WorkspaceService<SqlToolsSettings> _workspaceService;
+        private string _projectUri;
+        private string _contextKey;
+        private string _databaseName;
+        private string _projectDir;
+
+        // SQL contents — no leading blank line so 0-based LSP line numbers match array indices.
+        //
+        // GetCustomerScript line layout (0-based):
+        //   0: "CREATE PROCEDURE dbo.GetCustomer"
+        //   1: "    @CustomerId INT"
+        //   2: "AS"
+        //   3: "BEGIN"
+        //   4: "    SELECT CustomerId, CustomerName"
+        //   5: "    FROM dbo.Customers"   ← "Customers" occupies chars 13-21
+        //   6: "    WHERE CustomerId = @CustomerId;"
+        //   7: "END"
+        private const string TableScript =
+            "CREATE TABLE dbo.Customers (\n" +
+            "    CustomerId INT PRIMARY KEY,\n" +
+            "    CustomerName NVARCHAR(100) NOT NULL\n" +
+            ");";
+
+        private const string GetCustomerScript =
+            "CREATE PROCEDURE dbo.GetCustomer\n" +
+            "    @CustomerId INT\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM dbo.Customers\n" +
+            "    WHERE CustomerId = @CustomerId;\n" +
+            "END";
+
+        // ListCustomersScript uses an unqualified reference so the tests exercise the
+        // DacFx model lookup fallback path (no preceding ".") that resolves by last name part
+        // (e.g. bare "Customers" → "dbo.Customers" via FindQualifiedNameByLastPart).
+        //
+        // ListCustomersScript line layout (0-based):
+        //   0: "CREATE PROCEDURE dbo.ListCustomers"
+        //   1: "AS"
+        //   2: "BEGIN"
+        //   3: "    SELECT CustomerId, CustomerName"
+        //   4: "    FROM Customers;"  ← bare name; "Customers" at chars 9-17
+        //   5: "END"
+        private const string ListCustomersScript =
+            "CREATE PROCEDURE dbo.ListCustomers\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM Customers;\n" +
+            "END";
+
+        // Orders table is intentionally never referenced by any stored procedure.
+        // Used by the isolation regression test.
+        // Line 0: "CREATE TABLE dbo.Orders ("  — "Orders" starts at char 17.
+        private const string OrdersScript =
+            "CREATE TABLE dbo.Orders (\n" +
+            "    OrderId INT PRIMARY KEY\n" +
+            ");"; 
+
+        [SetUp]
+        public void SetUp()
+        {
+            _projectPath = ProjectUtils.CreateTestProject("FindReferencesTestProject");
+            _project = SqlProject.OpenProject(_projectPath);
+            _projectDir = Path.GetDirectoryName(_projectPath);
+
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Customers.sql")), TableScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")), GetCustomerScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "ListCustomers.sql")), ListCustomersScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), OrdersScript);
+
+            _model = TSqlModelBuilder.LoadModel(_project);
+            _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
+
+            var metadataProvider = new TSqlModelMetadataProvider(_model, _databaseName);
+            var parseOptions = new ParseOptions(
+                batchSeparator: "GO",
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+
+            _langService = new LanguageService();
+            _workspaceService = new WorkspaceService<SqlToolsSettings>();
+            _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+            _langService.WorkspaceServiceInstance = _workspaceService;
+
+            _projectUri = new Uri(_projectPath).AbsoluteUri;
+            _contextKey = $"project_{_projectUri}";
+
+            _langService.UpdateLanguageServiceOnProjectOpen(
+                _projectUri, metadataProvider, parseOptions, _databaseName)
+                .GetAwaiter().GetResult();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _model?.Dispose();
+            ProjectUtils.DeleteTestProject(_projectPath);
+        }
+
+        private string GetFileUri(string relativeSlashPath)
+        {
+            // Split on '/' so Path.Combine inserts the correct separator on all platforms.
+            string abs = Path.Combine(_projectDir, Path.Combine(relativeSlashPath.Split('/')));
+            return new Uri(abs).AbsoluteUri;
+        }
+
+        /// <summary>
+        /// Loads all four SQL files (Customers.sql, Orders.sql, GetCustomer.sql, ListCustomers.sql)
+        /// into the workspace and stamps them with the project context via
+        /// <see cref="LanguageService.InitializeProjectFileContexts"/>. ParseResult is left null
+        /// so individual tests can verify on-demand parsing behaviour.
+        /// </summary>
+        private void LoadAllFilesIntoWorkspace()
+        {
+            var entries = new[]
+            {
+                (Path: "Tables/Customers.sql",              Content: TableScript),
+                (Path: "Tables/Orders.sql",                  Content: OrdersScript),
+                (Path: "StoredProcedures/GetCustomer.sql",  Content: GetCustomerScript),
+                (Path: "StoredProcedures/ListCustomers.sql", Content: ListCustomersScript),
+            };
+
+            var fileUris = System.Array.ConvertAll(entries, e =>
+            {
+                string uri = GetFileUri(e.Path);
+                _workspaceService.Workspace.GetFileBuffer(uri, e.Content);
+                return uri;
+            });
+
+            _langService.InitializeProjectFileContexts(fileUris, _contextKey, _databaseName);
+        }
+
+        // ── Guard: IntelliSense disabled ─────────────────────────────────────
+
+        [Test]
+        public async Task HandleReferencesRequest_ReturnsEmpty_WhenIntellisenseDisabled()
+        {
+            _langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            LoadAllFilesIntoWorkspace();
+
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty, "Should return empty when IntelliSense is disabled");
+        }
+
+        // ── Guard: file not in workspace ─────────────────────────────────────
+
+        [Test]
+        public async Task HandleReferencesRequest_ReturnsEmpty_WhenFileNotFound()
+        {
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = "file:///no/such/file.sql" },
+                    Position = new Position { Line = 0, Character = 0 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty, "Unknown file should return empty");
+        }
+
+        // ── Guard: file exists in workspace but not marked as a project file ─
+
+        [Test]
+        public async Task HandleReferencesRequest_ReturnsEmpty_ForNonProjectFile()
+        {
+            const string queryUri = "file:///test_non_project_refs.sql";
+            _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
+
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                    Position = new Position { Line = 0, Character = 20 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty, "Non-project file should return empty");
+        }
+
+        // ── Main integration: references returned across all project files ────
+
+        [Test]
+        public async Task HandleReferencesRequest_FindsReferencesAcrossAllProjectFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            // Cursor on "Customers" in line 5 of GetCustomer.sql:
+            //   "    FROM dbo.Customers"  — char 15 is inside the word (starts at char 13).
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Result should not be null");
+            Assert.That(result, Is.Not.Empty, "Should find at least one reference");
+
+            var files = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+            Assert.That(files.Any(f => f.Contains("GetCustomer.sql")), Is.True,
+                $"GetCustomer.sql should appear in results. Found: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
+                $"ListCustomers.sql should appear in results. Found: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should appear in results. Found: {string.Join(", ", files)}");
+
+            // ── Unqualified name (DacFx model lookup fallback) ──
+            // Cursor on bare "Customers" in ListCustomers.sql line 4: "    FROM Customers;"
+            // GetPrecedingSchemaPrefix returns null → FindQualifiedNameByLastPart("Customers")
+            // resolves to "dbo.Customers" directly from the DacFx model.
+            WsLocation[] result2 = null;
+            var ctx2 = new Mock<RequestContext<WsLocation[]>>();
+            ctx2.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result2 = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/ListCustomers.sql") },
+                    Position = new Position { Line = 4, Character = 12 }  // inside "Customers" (chars 9-17)
+                },
+                ctx2.Object);
+
+            Assert.That(result2, Is.Not.Null, "Unqualified-name result should not be null");
+            Assert.That(result2, Is.Not.Empty, "Unqualified name should find references via DacFx model lookup fallback");
+            var files2 = result2.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(files2.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should appear for unqualified name. Found: {string.Join(", ", files2)}");
+        }
+
+        // ── Unopened files: null ParseResult is populated on demand ───────────
+
+        [Test]
+        public async Task HandleReferencesRequest_ParsesUnopenedFiles_OnDemand()
+        {
+            // Load files into workspace without calling ParseAndBind.
+            // InitializeProjectFileContexts leaves ParseResult = null for all files.
+            LoadAllFilesIntoWorkspace();
+
+            string listCustomersUri = GetFileUri("StoredProcedures/ListCustomers.sql");
+            var listParseInfo = _langService.GetScriptParseInfo(listCustomersUri);
+            Assert.That(listParseInfo, Is.Not.Null, "ParseInfo should exist for ListCustomers.sql after InitializeProjectFileContexts");
+            Assert.That(listParseInfo.ParseResult, Is.Null, "ParseResult should be null before HandleReferencesRequest");
+
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+
+            // ListCustomers.sql must appear even though it had null ParseResult initially.
+            var files = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
+                $"ListCustomers.sql should appear even if ParseResult was initially null. Found: {string.Join(", ", files)}");
+
+            // ParseResult should now be populated as a side-effect of FindTokenLocationsInFile (lightweight parse).
+            Assert.That(listParseInfo.ParseResult, Is.Not.Null,
+                "ParseResult should be set after HandleReferencesRequest triggers on-demand parse");
+        }
+
+        // ── Regression: unrelated tables must not bleed into each other's results ─
+
+        [Test]
+        public async Task HandleReferencesRequest_DoesNotReturnUnrelatedFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            var ctx1 = new Mock<RequestContext<WsLocation[]>>();
+            WsLocation[] customersResult = null;
+            ctx1.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { customersResult = r; return Task.FromResult(0); });
+
+            // Find References on "Customers" in GetCustomer.sql — Orders.sql must NOT appear.
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx1.Object);
+
+            Assert.That(customersResult, Is.Not.Null);
+            var customersFiles = customersResult.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(customersFiles.Any(f => f.Contains("Orders.sql")), Is.False,
+                $"Orders.sql should NOT appear in Customers references. Found: {string.Join(", ", customersFiles)}");
+
+            // Find References on "Orders" in Orders.sql (line 0, char 20) — Customers-related files must NOT appear.
+            var ctx2 = new Mock<RequestContext<WsLocation[]>>();
+            WsLocation[] ordersResult = null;
+            ctx2.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { ordersResult = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Tables/Orders.sql") },
+                    Position = new Position { Line = 0, Character = 20 }
+                },
+                ctx2.Object);
+
+            Assert.That(ordersResult, Is.Not.Null);
+            var ordersFiles = ordersResult.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(ordersFiles.Any(f => f.Contains("GetCustomer.sql") || f.Contains("ListCustomers.sql")), Is.False,
+                $"Customers SPs should NOT appear in Orders references. Found: {string.Join(", ", ordersFiles)}");
+        }
+
     }
 }

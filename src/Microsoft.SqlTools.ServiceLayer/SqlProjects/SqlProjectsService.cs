@@ -562,6 +562,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
+        /// Returns the <see cref="TSqlModelMetadataProvider"/> for the given project URI without
+        /// going through the binding queue.  Used by Find All References so that a concurrent
+        /// save (which rebuilds the binding context) cannot cause FAR to return empty results.
+        /// </summary>
+        internal bool TryGetProvider(string projectUri, out TSqlModelMetadataProvider? provider)
+        {
+            if (projectIntelliSense.TryGetValue(projectUri, out var state))
+            {
+                provider = state.Provider;
+                return true;
+            }
+            provider = null;
+            return false;
+        }
+
+        /// <summary>
         /// Returns a snapshot of all file URIs registered for the given project, excluding <paramref name="excludeUri"/>.
         /// Used to re-trigger diagnostics on sibling files after a save updates <c>_duplicates</c>.
         /// </summary>

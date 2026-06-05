@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     {
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
                         DefinitionProvider = true,
-                        ReferencesProvider = false,
+                        ReferencesProvider = true,
                         DocumentFormattingProvider = true,
                         DocumentRangeFormattingProvider = true,
                         DocumentHighlightProvider = false,
