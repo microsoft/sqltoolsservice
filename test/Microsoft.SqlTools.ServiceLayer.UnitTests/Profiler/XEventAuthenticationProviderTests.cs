@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             XEventAuthenticationProvider.Register(
                 accountId: "acct-1",
                 tenantId: "tenant-1",
-                fetcher: () => Task.FromResult((expectedToken, expectedExpiry)));
+                fetcher: _ => Task.FromResult((expectedToken, expectedExpiry)));
 
             var provider = new XEventAuthenticationProvider();
             var parameters = CreateParameters(userId: "acct-1", authority: "https://login.microsoftonline.com/tenant-1");
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             XEventAuthenticationProvider.Register(
                 accountId: "acct-1",
                 tenantId: "tenant-A",
-                fetcher: () => Task.FromResult(("tok-A", DateTimeOffset.UtcNow.AddHours(1))));
+                fetcher: _ => Task.FromResult(("tok-A", DateTimeOffset.UtcNow.AddHours(1))));
 
             var provider = new XEventAuthenticationProvider();
             var parameters = CreateParameters(userId: "acct-1", authority: "https://login.microsoftonline.com/tenant-B");
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             XEventAuthenticationProvider.Register(
                 accountId: "acct-1",
                 tenantId: "tenant-1",
-                fetcher: () => Task.FromResult(("tok-1", DateTimeOffset.UtcNow.AddHours(1))));
+                fetcher: _ => Task.FromResult(("tok-1", DateTimeOffset.UtcNow.AddHours(1))));
 
             var provider = new XEventAuthenticationProvider();
             var parameters = CreateParameters(userId: "unknown-account", authority: "https://login.microsoftonline.com/tenant-1");
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             XEventAuthenticationProvider.Register(
                 accountId: "",
                 tenantId: "tenant-1",
-                fetcher: () => Task.FromResult(("tok", DateTimeOffset.UtcNow)));
+                fetcher: _ => Task.FromResult(("tok", DateTimeOffset.UtcNow)));
 
             XEventAuthenticationProvider.Register(
                 accountId: "acct-1",
@@ -133,12 +133,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             XEventAuthenticationProvider.Register(
                 accountId: "acct-1",
                 tenantId: "tenant-1",
-                fetcher: () => Task.FromResult(("old-token", DateTimeOffset.UtcNow.AddHours(1))));
+                fetcher: _ => Task.FromResult(("old-token", DateTimeOffset.UtcNow.AddHours(1))));
 
             XEventAuthenticationProvider.Register(
                 accountId: "acct-1",
                 tenantId: "tenant-1",
-                fetcher: () => Task.FromResult(("new-token", DateTimeOffset.UtcNow.AddHours(2))));
+                fetcher: _ => Task.FromResult(("new-token", DateTimeOffset.UtcNow.AddHours(2))));
 
             var provider = new XEventAuthenticationProvider();
             var parameters = CreateParameters(userId: "acct-1", authority: "https://login.microsoftonline.com/tenant-1");

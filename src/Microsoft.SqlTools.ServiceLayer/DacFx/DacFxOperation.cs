@@ -130,9 +130,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (this.ConnInfo.AzureTokenFetcher != null)
                 {
                     var fetcher = this.ConnInfo.AzureTokenFetcher;
+                    var connInfo = this.ConnInfo;
                     return new DacServices(
                         this.ConnectionString,
-                        new AccessTokenProvider(() => fetcher().GetAwaiter().GetResult().token));
+                        new AccessTokenProvider(() =>
+                            fetcher(connInfo.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource)
+                                .GetAwaiter().GetResult().token));
                 }
 
                 if (this.ConnInfo.ConnectionDetails.AzureAccountToken != null)

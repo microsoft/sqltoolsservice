@@ -59,12 +59,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 return null;
             }
 
-            // Prefer the dynamic AzureTokenFetcher (RequestMfaTokenFromClient mode) so DacFx can
-            // request a fresh token from the client every time it opens a connection.
             if (connInfo.AzureTokenFetcher != null)
             {
                 var fetcher = connInfo.AzureTokenFetcher;
-                return new AccessTokenProvider(() => fetcher().GetAwaiter().GetResult().token);
+                var capturedConnInfo = connInfo;
+                return new AccessTokenProvider(() =>
+                    fetcher(capturedConnInfo.LastAzureResourceRequested ?? AzureSqlResource)
+                        .GetAwaiter().GetResult().token);
             }
 
             if (connInfo.ConnectionDetails.AzureAccountToken != null)
