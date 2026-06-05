@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// Constructs new instance of ServiceHost using the host and profile details provided.
         /// Access is private to ensure only one instance exists at a time.
         /// </summary>
-        private ServiceHost() : base(new StdioServerChannel())
+        private ServiceHost() : base(new ServerChannel())
         {
             // Initialize the shutdown activities
             shutdownCallbacks = new List<ShutdownCallback>();
