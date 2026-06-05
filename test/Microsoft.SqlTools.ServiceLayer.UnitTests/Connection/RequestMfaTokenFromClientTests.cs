@@ -377,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 requestedResource = resource;
                 return Task.FromResult(("dataverse-tok", FarFuture));
             };
-            connInfo.LastAzureResourceRequested = "https://org6603e467.crm.dynamics.com/";
+            connInfo.LastAzureResourceRequested = "https://orgABCDEFG.crm.dynamics.com/";
 
             var sqlConn = new SqlConnection("Server=fake;");
             ServerConnection serverConn = ConnectionService.CreateServerConnection(sqlConn, connInfo);
@@ -390,7 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Multiple(() =>
             {
                 Assert.That(token, Is.EqualTo("dataverse-tok"));
-                Assert.That(requestedResource, Is.EqualTo("https://org6603e467.crm.dynamics.com/"),
+                Assert.That(requestedResource, Is.EqualTo("https://orgABCDEFG.crm.dynamics.com/"),
                     "SMO IRenewableToken path must request a token for the resource the SqlClient FedAuth handshake last captured, not the SQL default");
             });
         }
