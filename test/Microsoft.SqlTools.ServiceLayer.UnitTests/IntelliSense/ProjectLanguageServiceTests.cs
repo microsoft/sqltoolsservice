@@ -1630,14 +1630,14 @@ END
             _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
             // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
 
-            WorkspaceEdit result = null;
+            SqlProjectRenameResponse result = null;
             bool resultSent = false;
-            var ctx = new Mock<RequestContext<WorkspaceEdit>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<WorkspaceEdit>()))
-               .Returns<WorkspaceEdit>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+            var ctx = new Mock<RequestContext<SqlProjectRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlProjectRenameResponse>()))
+               .Returns<SqlProjectRenameResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
 
-            await _langService.HandleRenameRequest(
-                new RenameParams
+            await _langService.HandleSqlProjectRenameRequest(
+                new SqlProjectRenameParams
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = queryUri },
                     Position = new Position { Line = 0, Character = 20 },
@@ -1646,7 +1646,7 @@ END
                 ctx.Object);
 
             Assert.That(resultSent, Is.True, "SendResult should have been called");
-            Assert.That(result, Is.Null, "Non-project file should return null WorkspaceEdit");
+            Assert.That(result?.Changes, Is.Null, "Non-project file should return null Changes");
         }
 
         // ── Happy path: WorkspaceEdit covers all referencing files, every edit uses the new name ─
@@ -1657,15 +1657,15 @@ END
             LoadAllFilesIntoWorkspace();
             const string newName = "dbo.Clients";
 
-            WorkspaceEdit result = null;
-            var ctx = new Mock<RequestContext<WorkspaceEdit>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<WorkspaceEdit>()))
-               .Returns<WorkspaceEdit>(r => { result = r; return Task.FromResult(0); });
+            SqlProjectRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlProjectRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlProjectRenameResponse>()))
+               .Returns<SqlProjectRenameResponse>(r => { result = r; return Task.FromResult(0); });
 
             // Cursor on "Customers" in line 5 of GetCustomer.sql:
             //   "    FROM dbo.Customers"  — char 15 is inside "Customers" (starts at char 13).
-            await _langService.HandleRenameRequest(
-                new RenameParams
+            await _langService.HandleSqlProjectRenameRequest(
+                new SqlProjectRenameParams
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
                     Position = new Position { Line = 5, Character = 15 },
@@ -1673,7 +1673,7 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result, Is.Not.Null, "WorkspaceEdit should not be null");
+            Assert.That(result, Is.Not.Null, "SqlProjectRenameResponse should not be null");
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should contain at least one file");
 
             var files = result.Changes.Keys.ToList();
@@ -1696,14 +1696,14 @@ END
         {
             LoadAllFilesIntoWorkspace();
 
-            WorkspaceEdit result = null;
-            var ctx = new Mock<RequestContext<WorkspaceEdit>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<WorkspaceEdit>()))
-               .Returns<WorkspaceEdit>(r => { result = r; return Task.FromResult(0); });
+            SqlProjectRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlProjectRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlProjectRenameResponse>()))
+               .Returns<SqlProjectRenameResponse>(r => { result = r; return Task.FromResult(0); });
 
             // Rename "Customers" — Orders.sql references a completely different table.
-            await _langService.HandleRenameRequest(
-                new RenameParams
+            await _langService.HandleSqlProjectRenameRequest(
+                new SqlProjectRenameParams
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
                     Position = new Position { Line = 5, Character = 15 },

@@ -265,8 +265,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest, isParallelProcessingSupported: true);
 
             // Renames all occurrences of the symbol under the cursor across the project (SQL project files only).
+            // Returns element metadata so the client can append a .refactorlog entry after the user confirms.
             // Parallel safe: shares FindProjectSymbolLocations which is read-only after parse.
-            serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(SqlSymbolRenameRequest.Type, HandleSqlRenameRequest, isParallelProcessingSupported: true);
 
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
@@ -665,6 +666,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                // Keep the DacFx TSqlModel in sync with in-memory edits so that
+                // Find all References and rename results reflect unsaved changes.
+                foreach (var file in changedFiles)
+                {
+                    if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
+                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, file.ClientUri, deleted: false);
+                }
+
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
                     // Only process files that are MSSQL flavor
@@ -723,31 +732,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                // Only process .sql files — saving the .sqlproj itself (or any other non-SQL file)
-                // must not feed non-SQL content into TSqlModel.AddOrUpdateObjects.
-                if (!string.Equals(Path.GetExtension(uri), ".sql", StringComparison.OrdinalIgnoreCase))
-                {
+                if (!TryGetProjectUriForSqlFile(uri, out string projectUri))
                     return;
-                }
 
-                ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: false);
-                if (parseInfo == null || !parseInfo.IsProject)
-                {
-                    return;
-                }
-
-                string contextKey = parseInfo.ConnectionKey;                
-                if (contextKey == null || !contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal)) 
-                {
-                    return;
-                }
-
-                // Guard: the .sqlproj URI itself is stamped as a project file; skip it explicitly.
-                string projectUri = contextKey.Substring(ProjectContextKeyPrefix.Length);
-                if (string.Equals(uri, projectUri, StringComparison.OrdinalIgnoreCase)) 
-                {
-                    return;
-                }
                 await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
 
                 // After the model update, re-run diagnostics on ALL open project files
@@ -773,6 +760,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Error("Unknown error " + ex.ToString());
             }
+        }
+
+        /// <summary>
+        /// Returns the project URI for a given SQL file URI if the file belongs to a SQL project,
+        /// or <c>false</c> if the file should be skipped (not a .sql file, not a project file,
+        /// or the URI is the .sqlproj itself).
+        /// </summary>
+        private bool TryGetProjectUriForSqlFile(string fileUri, out string projectUri)
+        {
+            projectUri = null;
+
+            if (!string.Equals(Path.GetExtension(fileUri), ".sql", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            ScriptParseInfo parseInfo = GetScriptParseInfo(fileUri, createIfNotExists: false);
+            if (parseInfo == null || !parseInfo.IsProject)
+                return false;
+
+            string contextKey = parseInfo.ConnectionKey;
+            if (contextKey == null || !contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                return false;
+
+            projectUri = contextKey.Substring(ProjectContextKeyPrefix.Length);
+
+            // Skip the .sqlproj URI itself — it is stamped as a project file but must not be fed
+            // into TSqlModel.AddOrUpdateObjects.
+            if (string.Equals(fileUri, projectUri, StringComparison.OrdinalIgnoreCase))
+            {
+                projectUri = null;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1729,13 +1749,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Handles <c>textDocument/rename</c> (F2 rename) for SQL project files.
-        /// Reuses <see cref="FindProjectSymbolLocations"/> to find all occurrences of the symbol,
-        /// then wraps them into a <see cref="WorkspaceEdit"/> so VS Code can apply the rename
-        /// atomically across all files.  Only supported for project files (offline model);
-        /// returns <c>null</c> for connected-only scripts.
+        /// Handles <c>sql/rename</c> — finds all occurrences of the symbol at the cursor
+        /// using <see cref="FindProjectSymbolLocations"/>, returns a <see cref="SqlSymbolRenameResponse"/>
+        /// with both the WorkspaceEdit and the element name so the client can append a
+        /// <c>.refactorlog</c> entry after the user confirms the preview.
         /// </summary>
-        internal async Task HandleRenameRequest(RenameParams renameParams, RequestContext<WorkspaceEdit> requestContext)
+        internal async Task HandleSqlRenameRequest(
+            SqlSymbolRenameParams renameParams,
+            RequestContext<SqlSymbolRenameResponse> requestContext)
         {
             var locations = FindProjectSymbolLocations(
                 renameParams.TextDocument.Uri,
@@ -1748,16 +1769,73 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
 
-            // Convert Location[] → WorkspaceEdit grouped by file URI.
+            string elementName = GetTokenTextAtPosition(
+                renameParams.TextDocument.Uri,
+                renameParams.Position.Line,
+                renameParams.Position.Character);
+
             var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
             foreach (var loc in locations)
             {
                 if (!changes.TryGetValue(loc.Uri, out var edits))
                     changes[loc.Uri] = edits = new List<TextEdit>();
-                edits.Add(new TextEdit { Range = loc.Range, NewText = renameParams.NewName });
+
+                // Determine whether the token at this location was bracket-quoted so we can
+                // preserve the same quoting style on the replacement text.
+                // The range width tells us the original token length; if it starts with '['
+                // and ends with ']' in the source file we must wrap the new name too.
+                string newText = renameParams.NewName;
+                try
+                {
+                    var scriptFile = CurrentWorkspace.GetFile(loc.Uri);
+                    if (scriptFile != null)
+                    {
+                        int startChar = loc.Range.Start.Character;
+                        int endChar   = loc.Range.End.Character;
+                        string lineText = scriptFile.GetLine(loc.Range.Start.Line + 1); // GetLine is 1-based
+                        if (lineText != null && startChar < lineText.Length && lineText[startChar] == '[' &&
+                            !renameParams.NewName.StartsWith("["))
+                            newText = $"[{renameParams.NewName}]";
+                    }
+                }
+                catch { /* fall through — use unbracketed newText */ }
+
+                edits.Add(new TextEdit { Range = loc.Range, NewText = newText });
             }
 
-            await requestContext.SendResult(new WorkspaceEdit { Changes = changes });
+            await requestContext.SendResult(new SqlSymbolRenameResponse
+            {
+                Changes = changes,
+                ElementName = elementName,
+                NewName = renameParams.NewName
+            });
+        }
+
+        /// <summary>
+        /// Extracts the bare token text (brackets stripped) at the given 0-based line/column position.
+        /// Returns null if the position does not resolve to a significant token.
+        /// </summary>
+        private string GetTokenTextAtPosition(string fileUri, int line0, int col0)
+        {
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return null;
+
+            var parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (parseInfo?.ParseResult?.Script?.TokenManager == null)
+                return null;
+
+            int parserLine = line0 + 1;
+            int parserCol  = col0 + 1;
+            int tokenIndex = parseInfo.ParseResult.Script.TokenManager.FindToken(parserLine, parserCol);
+            if (tokenIndex < 0)
+                return null;
+
+            var token = parseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
+            if (token == null || !token.IsSignificant)
+                return null;
+
+            return TextUtilities.RemoveSquareBracketSyntax(token.Text);
         }
 
         /// <summary>
@@ -1772,12 +1850,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string fileUri = new Uri(filePath).AbsoluteUri;
             var parseInfo = GetScriptParseInfo(fileUri);
 
-            // If the file has never been parsed, parse it on demand (no binding needed — only
-            // token text and positions are required).  Prefer workspace content so that unsaved
-            // in-editor edits are reflected; fall back to reading the real disk file for project
-            // files that have never been opened in an editor.
-            // Guard with BuildingMetadataLock to avoid racing with concurrent ParseAndBind calls.
-            if (parseInfo != null && parseInfo.ParseResult == null)
+            // Re-parse the file from disk/workspace content so that token positions always
+            // reflect the latest saved state.  Using ??= would leave stale ParseResults for
+            // files that were modified by a rename but whose ParseResult was never invalidated.
+            if (parseInfo != null)
             {
                 var sf = CurrentWorkspace.GetFile(fileUri);
                 string? sqlText = sf?.Contents ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
@@ -1785,7 +1861,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        parseInfo.ParseResult ??= Parser.Parse(sqlText, this.DefaultParseOptions);
+                        parseInfo.ParseResult = Parser.Parse(sqlText, this.DefaultParseOptions);
                     }
                     finally
                     {
