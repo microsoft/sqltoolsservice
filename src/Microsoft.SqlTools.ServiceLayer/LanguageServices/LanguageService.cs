@@ -260,8 +260,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
+
+            // Returns all locations where the symbol under the cursor is referenced (currently supported for SQL project files only; returns empty for connected files).
+            // Parallel safe: the cursor file is re-parsed under a per-ScriptParseInfo lock when needed; token scanning across candidate files is read-only.
+            serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest, isParallelProcessingSupported: true);
 
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
@@ -1599,6 +1602,188 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             queueItem.ItemProcessed.WaitOne();
             var result = queueItem.GetResultAsT<DefinitionResult>();
             return result;
+        }
+
+        /// <summary>
+        /// Core resolution logic for <see cref="HandleReferencesRequest"/>.  Resolves every <see cref="Location"/> in the project
+        /// that matches the symbol at the given cursor position.
+        /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
+        /// project file.  Returns an empty array when the symbol could not be resolved.
+        /// </summary>
+        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+        {
+            if (ShouldSkipIntellisense(fileUri))
+                return null;
+
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return null;
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (scriptParseInfo == null || !scriptParseInfo.IsProject)
+                return null;
+
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+            }
+
+            // LSP positions are 0-based; SqlParser expects 1-based
+            int parserLine = line0 + 1;
+            int parserCol  = col0 + 1;
+
+            // Resolve the project URI from the context key so we can access the provider directly.
+            // Going through the binding queue would cause empty results when a concurrent save
+            // (which calls AddProjectContext and rebuilds the context) holds the binding lock.
+            string contextKey = scriptParseInfo.ConnectionKey;
+            string projectUri = (contextKey != null && contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                ? contextKey.Substring(ProjectContextKeyPrefix.Length)
+                : null;
+
+            if (projectUri == null ||
+                !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
+                bindCtx is not ConnectedBindingContext connBindCtx ||
+                connBindCtx.MetadataProvider is not TSqlModelMetadataProvider provider)
+                return Array.Empty<Location>();
+
+            // Step 1: get token at cursor
+            int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserCol) ?? -1;
+            if (tokenIndex < 0)
+                return Array.Empty<Location>();
+
+            var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
+            if (token == null || !token.IsSignificant)
+                return Array.Empty<Location>();
+
+            string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
+            if (string.IsNullOrWhiteSpace(tokenText))
+                return Array.Empty<Location>();
+
+            // Step 2: reconstruct schema-qualified name from any preceding dot-separated segments.
+            string schemaPrefix = GetPrecedingSchemaPrefix(
+                scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
+            string qualifiedName = schemaPrefix != null
+                ? $"{schemaPrefix}.{tokenText}"
+                : null;
+
+            // Normalize schema-qualified names: strip leading db-prefix segments until
+            // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
+            if (qualifiedName != null)
+            {
+                string? normalized = qualifiedName;
+                while (!string.IsNullOrEmpty(normalized) && !provider.TryGetSourceInformation(normalized, out _))
+                {
+                    int dot = normalized.IndexOf('.');
+                    if (dot < 0) { normalized = null; break; }
+                    normalized = normalized.Substring(dot + 1);
+                }
+                qualifiedName = string.IsNullOrEmpty(normalized) ? null : normalized;
+            }
+
+            // Fallback: for unqualified or unresolved names, look up directly in the DacFx
+            // model by the last name part. This works for project contexts where
+            // MetadataDisplayInfoProvider is not available (FindCompletions would return nothing).
+            qualifiedName ??= provider.FindQualifiedNameByLastPart(tokenText) ?? tokenText;
+
+            // Step 3: collect candidate files via DacFx dependency graph
+            var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                if (provider.TryGetSourceInformation(qualifiedName, out var defInfo) &&
+                    defInfo?.SourceName != null)
+                    candidateFiles.Add(defInfo.SourceName);
+                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                    candidateFiles.Add(path);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"FindProjectSymbolLocations error: {ex}");
+                return Array.Empty<Location>();
+            }
+
+            var results = new List<Location>();
+            foreach (string filePath in candidateFiles)
+            {
+                try { results.AddRange(FindTokenLocationsInFile(filePath, tokenText)); }
+                catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
+            }
+
+            return results.ToArray();
+        }
+
+        /// <summary>
+        /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
+        /// under the cursor is referenced across the project.  Only supported for project files
+        /// (offline model); returns an empty result for connected-only scripts.
+        /// </summary>
+        internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                referencesParams.TextDocument.Uri,
+                referencesParams.Position.Line,
+                referencesParams.Position.Character);
+
+            await requestContext.SendResult(locations ?? Array.Empty<Location>());
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Location"/> for every significant token in <paramref name="filePath"/>
+        /// whose bare text (brackets stripped) matches <paramref name="objectName"/> case-insensitively.
+        /// Uses the cached <see cref="ScriptParseInfo"/>; performs an on-demand lightweight parse (no binding)
+        /// if the file has never been opened and its <see cref="ScriptParseInfo.ParseResult"/> is null.
+        /// </summary>
+        private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
+        {
+            // Convert the file path to the URI key used by ScriptParseInfoMap.
+            string fileUri = new Uri(filePath).AbsoluteUri;
+            var parseInfo = GetScriptParseInfo(fileUri);
+
+            // If the file has never been parsed, parse it on demand (no binding needed — only
+            // token text and positions are required).  Prefer workspace content so that unsaved
+            // in-editor edits are reflected; fall back to reading the real disk file for project
+            // files that have never been opened in an editor.
+            // Guard with BuildingMetadataLock to avoid racing with concurrent ParseAndBind calls.
+            if (parseInfo != null && parseInfo.ParseResult == null)
+            {
+                var sf = CurrentWorkspace.GetFile(fileUri);
+                string? sqlText = sf?.Contents ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
+                if (sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+                {
+                    try
+                    {
+                        parseInfo.ParseResult ??= Parser.Parse(sqlText, this.DefaultParseOptions);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(parseInfo.BuildingMetadataLock);
+                    }
+                }
+            }
+
+            if (parseInfo?.ParseResult?.Script?.Tokens == null)
+                yield break;
+
+            foreach (Token token in parseInfo.ParseResult.Script.Tokens)
+            {
+                // token.IsSignificant is false for whitespace and comments — skip them.
+                if (!token.IsSignificant)
+                    continue;
+
+                string bare = TextUtilities.RemoveSquareBracketSyntax(token.Text);
+                if (!string.Equals(bare, objectName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // StartLocation is 1-based; LSP Position is 0-based.
+                yield return new Location
+                {
+                    Uri = fileUri,
+                    Range = new Range
+                    {
+                        Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 },
+                        End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 + (token.Text?.Length ?? 0) }
+                    }
+                };
+            }
         }
 
         private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,

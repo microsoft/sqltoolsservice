@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
 
             if (message.MessageType == MessageType.Request)
             {
-                messageObject.Add("id", JToken.FromObject(message.Id));
+                messageObject.Add("id", message.Id.ToJToken());
                 messageObject.Add("method", message.Method);
                 messageObject.Add("params", message.Contents);
             }
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
             }
             else if (message.MessageType == MessageType.Response)
             {
-                messageObject.Add("id", JToken.FromObject(message.Id));
+                messageObject.Add("id", message.Id.ToJToken());
 
                 if (message.Error != null)
                 {
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
             if (messageJson.TryGetValue("id", out token))
             {
                 // Message is a Request or Response
-                string messageId = token.ToString();
+                MessageId messageId = MessageId.Parse(token);
 
                 if (messageJson.TryGetValue("result", out token))
                 {
@@ -95,6 +95,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                 return Message.Event(token.ToString(), messageParams);
             }
         }
+
     }
 }
 
