@@ -24,7 +24,7 @@
     <None Include="Localization\sr.strings" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
     <InternalsVisibleTo Include="Microsoft.SqlTools.LanguageService.UnitTests" />
