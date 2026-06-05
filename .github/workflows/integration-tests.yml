@@ -136,7 +136,7 @@ jobs:
       - name: Run integration tests
         id: integration_tests
         continue-on-error: true
-        timeout-minutes: 60
+        timeout-minutes: 90
         shell: pwsh
         run: |
           dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj `
@@ -153,6 +153,7 @@ jobs:
           path: TestResults/*.trx
           reporter: dotnet-trx
           fail-on-error: false
+          fail-on-empty: false
 
       - name: Upload integration test results
         if: always()
@@ -168,6 +169,6 @@ jobs:
         run: docker rm -f sqltoolsservice-integration-tests *> $null
 
       - name: Fail workflow when integration tests fail
-        if: steps.integration_tests.outcome == 'failure'
+        if: always() && (steps.integration_tests.outcome != 'success' || hashFiles('TestResults/*.trx') == '')
         shell: pwsh
         run: exit 1
