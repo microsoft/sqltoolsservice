@@ -671,7 +671,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 foreach (var file in changedFiles)
                 {
                     if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
-                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, file.ClientUri, deleted: false);
+                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, file.ClientUri, deleted: false, sqlTextOverride: file.Contents);
                 }
 
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -1855,8 +1855,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // files that were modified by a rename but whose ParseResult was never invalidated.
             if (parseInfo != null)
             {
-                var sf = CurrentWorkspace.GetFile(fileUri);
-                string? sqlText = sf?.Contents ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
+                string? sqlText = File.Exists(filePath) ? File.ReadAllText(filePath) : null;
                 if (sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
                     try
