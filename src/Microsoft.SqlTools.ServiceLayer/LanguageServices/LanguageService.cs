@@ -1793,7 +1793,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         int startChar = loc.Range.Start.Character;
                         int endChar   = loc.Range.End.Character;
                         string lineText = scriptFile.GetLine(loc.Range.Start.Line + 1); // GetLine is 1-based
-                        if (lineText != null && startChar < lineText.Length && lineText[startChar] == '[' &&
+                        if (lineText != null &&
+                            startChar < lineText.Length && lineText[startChar] == '[' &&
+                            endChar > 0 && endChar - 1 < lineText.Length && lineText[endChar - 1] == ']' &&
                             !renameParams.NewName.StartsWith("["))
                             newText = $"[{renameParams.NewName}]";
                     }
@@ -1855,7 +1857,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // files that were modified by a rename but whose ParseResult was never invalidated.
             if (parseInfo != null)
             {
-                string? sqlText = File.Exists(filePath) ? File.ReadAllText(filePath) : null;
+                // Prefer the in-memory workspace buffer so token positions are consistent with
+                // the DacFx model (which is kept in sync via didChange). Fall back to disk for
+                // files that have never been opened in the editor.
+                var wsFile = CurrentWorkspace.GetFile(fileUri);
+                string? sqlText = wsFile?.Contents
+                    ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
                 if (sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
                     try

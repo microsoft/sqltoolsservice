@@ -1386,15 +1386,20 @@ END
                 $"ListCustomers.sql should appear in results. Found: {string.Join(", ", files)}");
             Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
                 $"Customers.sql (table definition) should appear in results. Found: {string.Join(", ", files)}");
+        }
 
-            // ── Unqualified name (DacFx model lookup fallback) ──
+        [Test]
+        public async Task HandleReferencesRequest_FindsReferences_UnqualifiedName()
+        {
+            LoadAllFilesIntoWorkspace();
+
             // Cursor on bare "Customers" in ListCustomers.sql line 4: "    FROM Customers;"
             // GetPrecedingSchemaPrefix returns null → FindQualifiedNameByLastPart("Customers")
             // resolves to "dbo.Customers" directly from the DacFx model.
-            WsLocation[] result2 = null;
-            var ctx2 = new Mock<RequestContext<WsLocation[]>>();
-            ctx2.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
-               .Returns<WsLocation[]>(r => { result2 = r; return Task.FromResult(0); });
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
 
             await _langService.HandleReferencesRequest(
                 new ReferencesParams
@@ -1402,13 +1407,13 @@ END
                     TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/ListCustomers.sql") },
                     Position = new Position { Line = 4, Character = 12 }  // inside "Customers" (chars 9-17)
                 },
-                ctx2.Object);
+                ctx.Object);
 
-            Assert.That(result2, Is.Not.Null, "Unqualified-name result should not be null");
-            Assert.That(result2, Is.Not.Empty, "Unqualified name should find references via DacFx model lookup fallback");
-            var files2 = result2.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-            Assert.That(files2.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
-                $"Customers.sql (table definition) should appear for unqualified name. Found: {string.Join(", ", files2)}");
+            Assert.That(result, Is.Not.Null, "Unqualified-name result should not be null");
+            Assert.That(result, Is.Not.Empty, "Unqualified name should find references via DacFx model lookup fallback");
+            var files = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should appear for unqualified name. Found: {string.Join(", ", files)}");
         }
 
         // ── Unopened files: null ParseResult is populated on demand ───────────
@@ -1495,84 +1500,6 @@ END
             Assert.That(ordersFiles.Any(f => f.Contains("GetCustomer.sql") || f.Contains("ListCustomers.sql")), Is.False,
                 $"Customers SPs should NOT appear in Orders references. Found: {string.Join(", ", ordersFiles)}");
         }
-
-        [Test]
-        public async Task HandleReferencesRequest_ReadsFromDisk_AfterRenameApply()
-        {
-            // Step 1: Load files into workspace with original "Customers" content.
-            LoadAllFilesIntoWorkspace();
-
-            const string OldName = "Customers";
-            const string NewName = "Clients";
-
-            string customersFilePath     = Path.Combine(_projectDir, "Tables",             "Customers.sql");
-            string getCustomerFilePath   = Path.Combine(_projectDir, "StoredProcedures",   "GetCustomer.sql");
-            string listCustomersFilePath = Path.Combine(_projectDir, "StoredProcedures",   "ListCustomers.sql");
-
-            string newTableScript         = TableScript.Replace(OldName, NewName);
-            string newGetCustomerScript   = GetCustomerScript.Replace(OldName, NewName);
-            string newListCustomersScript = ListCustomersScript.Replace(OldName, NewName);
-
-            // Step 2: Simulate rename Apply — write updated content to DISK.
-            // The workspace buffers for the candidate files (ListCustomers.sql, Customers.sql)
-            // are deliberately NOT updated here to prove that FAR reads from disk, not from
-            // the stale in-memory buffer.
-            File.WriteAllText(customersFilePath,     newTableScript);
-            File.WriteAllText(getCustomerFilePath,   newGetCustomerScript);
-            File.WriteAllText(listCustomersFilePath, newListCustomersScript);
-
-            // Step 3: Update the workspace buffer ONLY for the cursor file (GetCustomer.sql)
-            // because FindProjectSymbolLocations parses the cursor file from the workspace to
-            // locate the token at the given position.
-            string getCustomerUri = GetFileUri("StoredProcedures/GetCustomer.sql");
-            _workspaceService.Workspace.GetFileBuffer(getCustomerUri, newGetCustomerScript);
-
-            // Step 4: Invalidate the cached ParseResult so RequiresReparse triggers a fresh
-            // parse of the cursor file against the new workspace buffer content.
-            var parseInfo = _langService.GetScriptParseInfo(getCustomerUri);
-            if (parseInfo != null) parseInfo.ParseResult = null;
-
-            // Step 5: Update the DacFx model so the provider resolves "dbo.Clients" and
-            // GetReferencingFilePaths returns the updated candidate file set.
-            if (_langService.BindingQueue.BindingContextMap.TryGetValue(_contextKey, out var bindCtx) &&
-                bindCtx is ConnectedBindingContext connBindCtx &&
-                connBindCtx.MetadataProvider is TSqlModelMetadataProvider provider)
-            {
-                provider.Model.AddOrUpdateObjects(newTableScript,         customersFilePath,     new TSqlObjectOptions());
-                provider.UpdateForFileChange(customersFilePath, deleted: false);
-                provider.Model.AddOrUpdateObjects(newGetCustomerScript,   getCustomerFilePath,   new TSqlObjectOptions());
-                provider.UpdateForFileChange(getCustomerFilePath, deleted: false);
-                provider.Model.AddOrUpdateObjects(newListCustomersScript, listCustomersFilePath, new TSqlObjectOptions());
-                provider.UpdateForFileChange(listCustomersFilePath, deleted: false);
-            }
-
-            // Step 6: Run FAR at the same cursor position — "Clients" occupies the same
-            // offset as "Customers" did before the rename (line 5 "    FROM dbo.Clients").
-            WsLocation[] result = null;
-            var ctx = new Mock<RequestContext<WsLocation[]>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
-               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
-
-            await _langService.HandleReferencesRequest(
-                new ReferencesParams
-                {
-                    TextDocument = new TextDocumentIdentifier { Uri = getCustomerUri },
-                    Position = new Position { Line = 5, Character = 15 }
-                },
-                ctx.Object);
-
-            Assert.That(result, Is.Not.Null, "Result should not be null after rename");
-            Assert.That(result, Is.Not.Empty, "FAR should find at least one reference to the new name");
-
-            var uris = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-            Assert.That(uris.Any(f => f.Contains("GetCustomer.sql")), Is.True,
-                $"GetCustomer.sql should appear after rename. Found: {string.Join(", ", uris)}");
-            Assert.That(uris.Any(f => f.Contains("ListCustomers.sql")), Is.True,
-                $"ListCustomers.sql should appear (disk content has new name; workspace buffer was stale). Found: {string.Join(", ", uris)}");
-            Assert.That(uris.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
-                $"Customers.sql (table definition) should appear. Found: {string.Join(", ", uris)}");
-        }
-
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -1732,7 +1659,7 @@ END
         public async Task HandleRenameRequest_ProducesWorkspaceEditAcrossAllProjectFiles()
         {
             LoadAllFilesIntoWorkspace();
-            const string newName = "dbo.Clients";
+            const string newName = "Clients";
 
             SqlSymbolRenameResponse result = null;
             var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
@@ -1784,7 +1711,7 @@ END
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
                     Position = new Position { Line = 5, Character = 15 },
-                    NewName = "dbo.Clients"
+                    NewName = "Clients"
                 },
                 ctx.Object);
 
