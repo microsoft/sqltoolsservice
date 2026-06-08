@@ -1630,14 +1630,14 @@ END
             _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
             // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
 
-            SqlProjectRenameResponse result = null;
+            SqlSymbolRenameResponse result = null;
             bool resultSent = false;
-            var ctx = new Mock<RequestContext<SqlProjectRenameResponse>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlProjectRenameResponse>()))
-               .Returns<SqlProjectRenameResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
 
-            await _langService.HandleSqlProjectRenameRequest(
-                new SqlProjectRenameParams
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = queryUri },
                     Position = new Position { Line = 0, Character = 20 },
@@ -1657,15 +1657,15 @@ END
             LoadAllFilesIntoWorkspace();
             const string newName = "dbo.Clients";
 
-            SqlProjectRenameResponse result = null;
-            var ctx = new Mock<RequestContext<SqlProjectRenameResponse>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlProjectRenameResponse>()))
-               .Returns<SqlProjectRenameResponse>(r => { result = r; return Task.FromResult(0); });
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
 
             // Cursor on "Customers" in line 5 of GetCustomer.sql:
             //   "    FROM dbo.Customers"  — char 15 is inside "Customers" (starts at char 13).
-            await _langService.HandleSqlProjectRenameRequest(
-                new SqlProjectRenameParams
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
                     Position = new Position { Line = 5, Character = 15 },
@@ -1673,7 +1673,7 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result, Is.Not.Null, "SqlProjectRenameResponse should not be null");
+            Assert.That(result, Is.Not.Null, "SqlSymbolRenameResponse should not be null");
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should contain at least one file");
 
             var files = result.Changes.Keys.ToList();
@@ -1696,14 +1696,14 @@ END
         {
             LoadAllFilesIntoWorkspace();
 
-            SqlProjectRenameResponse result = null;
-            var ctx = new Mock<RequestContext<SqlProjectRenameResponse>>();
-            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlProjectRenameResponse>()))
-               .Returns<SqlProjectRenameResponse>(r => { result = r; return Task.FromResult(0); });
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
 
             // Rename "Customers" — Orders.sql references a completely different table.
-            await _langService.HandleSqlProjectRenameRequest(
-                new SqlProjectRenameParams
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
                 {
                     TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
                     Position = new Position { Line = 5, Character = 15 },
