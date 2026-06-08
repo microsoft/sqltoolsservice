@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using System.Collections.Generic;
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             var item = CreateCompletionItem(Label, Detail, InsertText, Kind, row, startColumn, endColumn);
             if (_isSnippet)
             {
-                item.InsertTextFormat = Contracts.InsertTextFormat.Snippet;
+                item.InsertTextFormat = InsertTextFormat.Snippet;
             }
             return item;
         }

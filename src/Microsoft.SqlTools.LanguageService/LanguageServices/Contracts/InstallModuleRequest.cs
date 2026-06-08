@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -7,12 +7,12 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
 {
-    public class ExpandAliasRequest
+    sealed class InstallModuleRequest
     {
         public static readonly
-            RequestType<string, string> Type =
-            RequestType<string, string>.Create("SqlTools/expandAlias");
+            RequestType<string, object> Type =
+            RequestType<string, object>.Create("SqlTools/installModule");
     }
 }

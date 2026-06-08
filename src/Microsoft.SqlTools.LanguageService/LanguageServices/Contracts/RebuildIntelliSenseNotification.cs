@@ -7,7 +7,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
 {
     /// <summary>
     /// Parameters to be sent back with a rebuild IntelliSense event

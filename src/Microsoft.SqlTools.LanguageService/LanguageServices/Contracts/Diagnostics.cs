@@ -8,7 +8,7 @@
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
 {
     public class PublishDiagnosticsNotification
     {
