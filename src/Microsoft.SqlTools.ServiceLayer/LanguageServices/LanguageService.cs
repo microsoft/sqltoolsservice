@@ -667,8 +667,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             try
             {
                 // Keep the DacFx TSqlModel in sync with in-memory edits so that
-                // Find all References and rename results reflect unsaved changes.
-                foreach (var file in changedFiles)
+                // Find All References and rename results reflect unsaved changes.
+                // Deduplicate by URI: a single didChange message can carry multiple incremental
+                // edits for the same file (e.g. paste, multi-cursor). All edits are already
+                // applied to ScriptFile.Contents by the time we get here, so one model update
+                // per unique file with the final content is sufficient.
+                foreach (var file in changedFiles.GroupBy(f => f.ClientUri).Select(g => g.Last()))
                 {
                     if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
                         await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, file.ClientUri, deleted: false, sqlTextOverride: file.Contents);
