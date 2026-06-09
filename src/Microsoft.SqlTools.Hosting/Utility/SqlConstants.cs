@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+
 namespace Microsoft.SqlTools.Utility
 {
     public class SqlConstants
@@ -22,5 +24,21 @@ namespace Microsoft.SqlTools.Utility
         public const string AzureTokenFolder = "Azure Accounts";
         public const string AzureAccountProviderCredentials = "azureAccountProviderCredentials";
         public const string MsalCacheName = "accessTokenCache";
+
+        /// <summary>
+        /// Default Entra resource URI for Azure SQL Database / Azure SQL Managed Instance.
+        /// Used as a fallback when a more specific resource isn't available from the calling context
+        /// (e.g. SMO's <c>IRenewableToken.GetAccessToken()</c>, which has no per-call resource parameter).
+        /// </summary>
+        public static string AzureSqlResource
+        {
+            get
+            {
+                var stack = new System.Diagnostics.StackTrace();
+                Console.WriteLine(stack.SafeToString());
+
+                return "https://database.windows.net/";
+            }
+        }
     }
 }

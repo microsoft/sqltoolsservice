@@ -99,10 +99,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
-        /// Map of <see cref="CachingTokenFetcher"/> instances keyed by {accountId, tenantId}
-        /// enabling multiple connections for the same account to share the a cached token + fetcher.
+        /// Map of <see cref="ResourceAwareAzureTokenFetcher"/> instances keyed by
+        /// {accountId, tenantId}. Each fetcher internally caches per-resource
+        /// <see cref="CachingTokenFetcher"/> instances so a single SqlConnection can request
+        /// tokens for different audiences (e.g. SQL vs Dataverse) without losing the shared
+        /// cache, and so multiple connections for the same account+tenant share state.
         /// </summary>
-        private readonly ConcurrentDictionary<(string accountId, string tenantId), CachingTokenFetcher>
+        private readonly ConcurrentDictionary<(string accountId, string tenantId), ResourceAwareAzureTokenFetcher>
             _azureTokenFetcherCache = new();
 
         /// <summary>
@@ -708,43 +711,100 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Returns a delegate that provides a valid Entra access token for the given account and
-        /// tenant, fetching one from the client via <c>account/securityTokenRequest</c>
-        /// only when a token is not already cached.
+        /// Returns a delegate that, given a target resource URI, provides a valid Entra access
+        /// token for <paramref name="accountId"/>/<paramref name="tenantId"/>. Multiple
+        /// connections sharing the same account+tenant share the same underlying
+        /// <see cref="ResourceAwareAzureTokenFetcher"/> instance — and therefore share per-resource
+        /// token caches — so a single SqlConnection can request tokens for different audiences
+        /// (e.g. <c>https://database.windows.net/</c> vs <c>https://&lt;org&gt;.crm.dynamics.com/</c>)
+        /// without redundant round-trips to the client when each resource's token is still valid.
         /// </summary>
-        private Func<Task<(string token, DateTimeOffset expiresOn)>>
+        private Func<string, Task<(string token, DateTimeOffset expiresOn)>>
             CreateAzureTokenFetcher(string accountId, string tenantId)
         {
             var fetcher = _azureTokenFetcherCache.GetOrAdd(
                 (accountId, tenantId),
-                _ => new CachingTokenFetcher(async () =>
-                {
-                    var request = new RequestSecurityTokenParams
-                    {
-                        Provider = "Azure",
-                        AccountId = accountId,
-                        TenantId = tenantId,
-                    };
-
-                    RequestSecurityTokenResponse response =
-                        await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-
-                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
-                }));
+                _ => new ResourceAwareAzureTokenFetcher(this, accountId, tenantId));
 
             return fetcher.GetTokenAsync;
         }
 
         /// <summary>
-        /// Wraps a token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>.
+        /// Per-(account, tenant) token fetcher that lazily creates and reuses a
+        /// <see cref="CachingTokenFetcher"/> per requested resource. Living for the lifetime of
+        /// the owning <see cref="ConnectionService"/>'s <c>_azureTokenFetcherCache</c> entry,
+        /// it preserves a stable delegate target across all callers that share the same account
+        /// + tenant, so identity-based reference equality on the returned fetcher remains
+        /// meaningful as a "same account" check.
+        /// </summary>
+        private sealed class ResourceAwareAzureTokenFetcher
+        {
+            private readonly ConnectionService _service;
+            private readonly string _accountId;
+            private readonly string _tenantId;
+            private readonly ConcurrentDictionary<string, CachingTokenFetcher> _perResource = new();
+
+            internal ResourceAwareAzureTokenFetcher(ConnectionService service, string accountId, string tenantId)
+            {
+                _service = service;
+                _accountId = accountId;
+                _tenantId = tenantId;
+            }
+
+            public Task<(string token, DateTimeOffset expiresOn)> GetTokenAsync(string resource)
+            {
+                if (string.IsNullOrEmpty(resource))
+                {
+                    throw new ArgumentException(
+                        "Cannot acquire an Azure access token without a target resource.",
+                        nameof(resource));
+                }
+
+                var fetcher = _perResource.GetOrAdd(resource, r => new CachingTokenFetcher(async () =>
+                {
+                    var request = new RequestSecurityTokenParams
+                    {
+                        Provider = "Azure",
+                        AccountId = _accountId,
+                        TenantId = _tenantId,
+                        Resource = r,
+                    };
+
+                    RequestSecurityTokenResponse response =
+                        await _service.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
+                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
+                }));
+
+                return fetcher.GetTokenAsync();
+            }
+        }
+
+        /// <summary>
+        /// Wraps a resource-aware token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>.
+        /// The target resource is read from <see cref="SqlAuthenticationParameters.Resource"/> on
+        /// every invocation so the driver can request tokens for whatever audience the server
+        /// advertises via FedAuthInfo (e.g. Dataverse TDS endpoints under <c>*.crm.dynamics.com</c>).
+        ///
+        /// When <paramref name="connInfo"/> is supplied, the resource is also captured into
+        /// <see cref="ConnectionInfo.LastAzureResourceRequested"/> so SMO's resource-less
+        /// <c>IRenewableToken.GetAccessToken()</c> path can later refresh tokens for the correct
+        /// audience instead of falling back to the SQL default.
         /// </summary>
         private static Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>>
-            ToSqlAccessTokenCallback(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
+            ToSqlAccessTokenCallback(
+                Func<string, Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher,
+                ConnectionInfo connInfo = null)
         {
-            return async (_, cancellationToken) =>
+            return async (parameters, cancellationToken) =>
             {
-                var (token, expiresOn) = await tokenFetcher().ConfigureAwait(continueOnCapturedContext: false);
+                if (connInfo != null && !string.IsNullOrEmpty(parameters.Resource))
+                {
+                    connInfo.LastAzureResourceRequested = parameters.Resource;
+                }
+
+                var (token, expiresOn) = await tokenFetcher(parameters.Resource).ConfigureAwait(continueOnCapturedContext: false);
                 return new SqlAuthenticationToken(token, expiresOn);
             };
         }
@@ -782,7 +842,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                     connectionInfo.AzureTokenFetcher = tokenFetcher;
                     connection = connectionInfo.Factory.CreateSqlConnection(connectionString, null, SqlRetryProviders.ServerlessDBRetryProvider());
-                    ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher);
+                    ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher, connectionInfo);
                 }
                 else // otherwise create a normal static connection
                 {
@@ -2000,8 +2060,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
+                                // In RequestMfaTokenFromClient mode, ConnectionDetails.AzureAccountToken is the original
+                                // (likely-expired) token captured at connect time — TryUpdateAccessToken no-ops in this mode
+                                // because the static field isn't the source of truth. Fetch a fresh token from the client instead.
+                                string azureToken = info.ConnectionDetails.AzureAccountToken;
+                                if (info.AzureTokenFetcher != null)
+                                {
+                                    var resource = info.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource;
+                                    azureToken = info.AzureTokenFetcher(resource).GetAwaiter().GetResult().token;
+                                }
+
                                 // create a sql connection instance
-                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
+                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, azureToken);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -2187,7 +2257,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                return new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
+                // SMO's IRenewableToken.GetAccessToken() has no per-call resource parameter, so we
+                // resolve the resource at call time by reading whatever the SqlClient FedAuth
+                // handshake captured most recently into ConnectionInfo. This is critical for
+                // non-SQL TDS audiences (e.g. *.crm.dynamics.com Dataverse endpoints); falling
+                // back to the SQL default would yield a token the server rejects with HTTP 401.
+                var fetcher = connInfo.AzureTokenFetcher;
+                return new ServerConnection(
+                    sqlConnection,
+                    new CallbackAzureAccessToken(
+                        () => fetcher(connInfo.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource)));
             }
             if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
@@ -2197,14 +2276,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on whether
-        /// <see cref="ConnectionInfo.AzureTokenFetcher"/> or <see cref="ConnectionDetails.AzureAccountToken"/> is present.
+        /// Sets the Azure auth token on a <see cref="SqlConnection"/> based on
+        /// <see cref="ConnectionInfo.AzureTokenFetcher"/> or <see cref="ConnectionDetails.AzureAccountToken"/>.
+        ///
+        /// In <see cref="RequestMfaTokenFromClient"/> mode we deliberately use a static
+        /// <see cref="SqlConnection.AccessToken"/> here (pre-fetched from the
+        /// <see cref="ConnectionInfo.AzureTokenFetcher"/>) instead of
+        /// <see cref="SqlConnection.AccessTokenCallback"/>. The reason: <see cref="OpenSqlConnection"/>
+        /// is the entry point used by <see cref="OpenServerConnectionInternal"/>, which wraps
+        /// the resulting SqlConnection in an SMO <see cref="ServerConnection"/> bound to a
+        /// <see cref="CallbackAzureAccessToken"/> <see cref="IRenewableToken"/>. SMO drives token
+        /// refresh by calling <c>IRenewableToken.GetAccessToken()</c> and then writing the
+        /// returned value to the underlying <c>SqlConnection.AccessToken</c>. MDS rejects that
+        /// write with "Cannot set the AccessToken property if the AccessTokenCallback has been
+        /// set" if both are wired — exactly what was observed when expanding a Table after the
+        /// initial Entra token had expired.
+        ///
+        /// The query-execution path in <see cref="TryOpenConnection"/> keeps
+        /// <see cref="SqlConnection.AccessTokenCallback"/> because that connection is never
+        /// wrapped in SMO; SqlClient handles refresh on its own there.
         /// </summary>
         internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo)
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher);
+                var resource = connInfo.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource;
+                var (token, _) = connInfo.AzureTokenFetcher(resource).GetAwaiter().GetResult();
+                sqlConn.AccessToken = token;
             }
             else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
