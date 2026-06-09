@@ -1514,7 +1514,7 @@ END
         private string _projectPath;
         private SqlProject _project;
         private TSqlModel _model;
-        private LanguageService _langService;
+        private LangService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectUri;
         private string _contextKey;
@@ -1577,7 +1577,7 @@ END
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);
 
-            _langService = new LanguageService();
+            _langService = new LangService();
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
             _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;
