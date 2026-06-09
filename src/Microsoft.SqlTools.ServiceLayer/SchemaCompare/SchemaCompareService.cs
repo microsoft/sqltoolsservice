@@ -166,11 +166,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.GenerateScriptTaskName;
 
-                SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
+                await sqlTask.RunAsync();
 
                 await requestContext.SendResult(new ResultStatus()
                 {
-                    Success = true,
+                    Success = string.IsNullOrEmpty(coreOp.ErrorMessage),
                     ErrorMessage = coreOp.ErrorMessage
                 });
             }
@@ -212,11 +213,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     Name = SR.PublishChangesTaskName
                 };
 
-                SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
+                await sqlTask.RunAsync();
 
                 await requestContext.SendResult(new ResultStatus()
                 {
-                    Success = true,
+                    Success = string.IsNullOrEmpty(coreOp.ErrorMessage),
                     ErrorMessage = coreOp.ErrorMessage
                 });
             }
