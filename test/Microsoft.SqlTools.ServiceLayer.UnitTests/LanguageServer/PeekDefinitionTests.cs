@@ -16,7 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using NUnit.Framework;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             Scripter peekDefinition = new Scripter(null, null);
             Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
-            LanguageService.Instance.DeletePeekDefinitionScripts();
+            LanguageServices.LanguageService.Instance.DeletePeekDefinitionScripts();
             Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
             Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             // Expected not to throw any exception
-            LanguageService.Instance.DeletePeekDefinitionScripts();
+            LanguageServices.LanguageService.Instance.DeletePeekDefinitionScripts();
         }
 
         [Test]

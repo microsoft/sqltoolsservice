@@ -11,9 +11,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
-using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {

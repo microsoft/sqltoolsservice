@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -11,13 +11,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
@@ -46,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             {
                 TextDocument = textDocument,
                 Options = new FormattingOptions() { InsertSpaces = true, TabSize = 4 },
-                Range = new ServiceLayer.Workspace.Contracts.Range()
+                Range = new Range()
                 {
                     // From first "(" to last ")"
                     Start = new Position { Line = 0, Character = 16 },

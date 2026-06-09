@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -18,7 +18,6 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -163,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // 3. Dispose TSqlModel to free DacFx unmanaged resources
                 if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
                 {
-                    LanguageService.Instance.TearDownProjectContext(
+                    LanguageServices.LanguageService.Instance.TearDownProjectContext(
                         requestParams.ProjectUri,
                         intelliSense.ContextKey,
                         intelliSense.FileUris);
@@ -189,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"{LanguageService.ProjectContextKeyPrefix}{projectUri}";
+                string contextKey = $"{LanguageServices.LanguageService.ProjectContextKeyPrefix}{projectUri}";
                 string projectDir = Path.GetDirectoryName(UriToLocalPath(new Uri(projectUri)))
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
 
@@ -226,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
                 var parseOptions = new ParseOptions(
-                    batchSeparator: LanguageService.DefaultBatchSeperator,
+                    batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
@@ -243,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     return;
                 }
 
-                await LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                await LanguageServices.LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                     projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
             }
             catch (Exception ex)
@@ -518,7 +517,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // "p." after "FROM sss.packages p") and object enumeration ("sss.") pick up
                 // the updated schema.
                 var newBinder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
-                LanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
+                LanguageServices.LanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
 
                 // Stamp the file URI with the project context so IntelliSense works when the
                 // user opens the file. For deletes the file is gone so nothing to stamp.
@@ -526,7 +525,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     string fileUri = new Uri(sourceName).AbsoluteUri;
                     lock (state.FileUris) { state.FileUris.Add(fileUri); }
-                    LanguageService.Instance.InitializeProjectFileContexts(
+                    LanguageServices.LanguageService.Instance.InitializeProjectFileContexts(
                         new[] { fileUri }, state.ContextKey, state.DatabaseName);
                 }
                 else
@@ -536,7 +535,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     // from the FileUris set so TearDownProjectContext won't try it again on close.
                     string fileUri = new Uri(sourceName).AbsoluteUri;
                     lock (state.FileUris) { state.FileUris.Remove(fileUri); }
-                    LanguageService.Instance.RemoveScriptParseInfo(fileUri);
+                    LanguageServices.LanguageService.Instance.RemoveScriptParseInfo(fileUri);
                 }
             }
             catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }

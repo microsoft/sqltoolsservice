@@ -6,7 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading;

@@ -30,16 +30,19 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -1897,7 +1900,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 yield return new Location
                 {
                     Uri = fileUri,
-                    Range = new Workspace.Contracts.Range
+                    Range = new Range
                     {
                         Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 },
                         End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 + (token.Text?.Length ?? 0) }
@@ -2090,7 +2093,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 new Location
                                 {
                                     Uri = fileUri,
-                                    Range = new Workspace.Contracts.Range
+                                    Range = new Range
                                     {
                                         // LSP is 0-based; DacFx SourceInformation is 1-based
                                         Start = new Position { Line = sourceInfo.StartLine - 1, Character = sourceInfo.StartColumn - 1 },
