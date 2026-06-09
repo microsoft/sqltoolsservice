@@ -105,10 +105,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             ConnectionService.Instance.RequestMfaTokenFromClient = false;
         }
 
-        // ---------------------------------------------------------------
-        // Category 3 — TryOpenConnection
-        // ---------------------------------------------------------------
-
         [Test]
         public async Task TryOpenConnectionSetsAccessTokenCallbackWhenFlagTrue()
         {
@@ -283,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.Multiple(() =>
             {
-                Assert.That(sqlConn.AccessToken, Is.EqualTo("prefetched-tok"),
+                Assert.That(sqlConn.AccessToken, Is.EqualTo("prefetched-token"),
                     "AccessToken should be set to a pre-fetched token in callback mode");
                 Assert.That(sqlConn.AccessTokenCallback, Is.Null,
                     "AccessTokenCallback must NOT be set when the SqlConnection will be wrapped in SMO ServerConnection — otherwise SMO's refresh path triggers an MDS exception.");
@@ -295,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void ConfigureSqlConnectionAuthSetsAccessTokenWhenFetcherNullAndTokenSet()
         {
-            const string token = "static-tok";
+            const string token = "static-token";
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
             connInfo.ConnectionDetails.AzureAccountToken = token;
@@ -344,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
-            connInfo.ConnectionDetails.AzureAccountToken = "static-tok";
+            connInfo.ConnectionDetails.AzureAccountToken = "static-token";
             connInfo.AzureTokenFetcher = null;
 
             var sqlConn = new SqlConnection("Server=fake;");
@@ -363,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             connInfo.AzureTokenFetcher = resource =>
             {
                 requestedResource = resource;
-                return Task.FromResult(("dataverse-tok", FarFuture));
+                return Task.FromResult(("dataverse-token", FarFuture));
             };
             connInfo.AzureResourceUri = "https://orgABCDEFG.crm.dynamics.com/";
 
