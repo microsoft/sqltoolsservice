@@ -92,23 +92,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         /// <summary>
         /// Delegate to fetch a fresh Azure access token from the client via <c>account/securityTokenRequest</c>
-        /// for a given target <c>resource</c> URI (e.g. <c>https://database.windows.net/</c> for SQL or
-        /// <c>https://&lt;org&gt;.crm.dynamics.com/</c> for a Dataverse TDS endpoint).
+        /// for a given target resource.
         /// Only used when RequestMfaTokenFromClient is enabled.
         /// </summary>
         public Func<string, Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
 
         /// <summary>
-        /// The Entra resource URI most recently requested by the SqlClient driver via
-        /// <see cref="System.Data.SqlClient.SqlConnection.AccessTokenCallback"/> for this connection
+        /// The Entra resource URI for this connection
         /// (e.g. <c>https://database.windows.net/</c> for Azure SQL or
-        /// <c>https://&lt;org&gt;.crm.dynamics.com/</c> for a Dataverse TDS endpoint).
+        /// <c>https://[org].crm.dynamics.com/</c> for a Dataverse TDS endpoint).
         ///
-        /// Captured because SMO's <c>IRenewableToken.GetAccessToken()</c> has no per-call resource
-        /// parameter, so when SMO later refreshes a token it would otherwise have to guess. The
-        /// SqlClient FedAuth handshake on initial open populates this with the audience the server
-        /// actually requires, so SMO can request a fresh token for the correct resource later.
-        /// Null until the first AccessTokenCallback invocation.
+        /// Captured because SMO's <c>IRenewableToken.GetAccessToken()</c> has no per-call resource parameter.
+        /// The SqlClient handshake on connection open populates this with the resource the server requires,
+        /// so SMO can request a fresh token for the correct resource later. Set with the first AccessTokenCallback invocation.
         /// </summary>
         public string AzureResourceUri { get; set; }
 
@@ -208,15 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Updates the Auth Token and Expires On fields.
-        ///
-        /// No-op when <see cref="AzureTokenFetcher"/> is set (RequestMfaTokenFromClient mode):
-        /// the static <see cref="ConnectionDetails.AzureAccountToken"/> isn't read on any active
-        /// code path in that mode (the SqlClient driver invokes the fetcher via
-        /// <c>AccessTokenCallback</c> on its own), and the client-supplied token may be for a
-        /// different resource than what the driver actually needs (e.g. Dataverse vs SQL), so
-        /// overwriting <see cref="ConnectionDetails.AzureAccountToken"/> with it would be
-        /// misleading and lead to subtle bugs.
+        /// Updates the Auth Token and Expires On fields when <see cref="AzureTokenFetcher"/> is not set.
         /// </summary>
         public bool TryUpdateAccessToken(SecurityToken? securityToken)
         {

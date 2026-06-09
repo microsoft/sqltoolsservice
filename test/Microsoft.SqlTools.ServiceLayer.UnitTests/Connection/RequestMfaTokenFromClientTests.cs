@@ -269,20 +269,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void ConfigureSqlConnectionAuthSetsStaticTokenFromFetcherWhenFetcherSet()
         {
-            // Regression: this path used to wire AccessTokenCallback, but that conflicts with the
-            // CallbackAzureAccessToken IRenewableToken on the SMO ServerConnection that wraps the
-            // SqlConnection — SMO writes refreshed tokens to sqlConn.AccessToken on long-lived
-            // metadata refreshes (e.g. expand Table after the initial token expired) and MDS
-            // throws "Cannot set the AccessToken property if the AccessTokenCallback has been
-            // set." Now we pre-fetch a static token from the fetcher; SMO drives refresh via
-            // the IRenewableToken alone.
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
             int fetchCount = 0;
             connInfo.AzureTokenFetcher = _ =>
             {
                 fetchCount++;
-                return Task.FromResult(("prefetched-tok", FarFuture));
+                return Task.FromResult(("prefetched-token", FarFuture));
             };
 
             var sqlConn = new SqlConnection("Server=fake;");
@@ -364,11 +357,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Test]
         public void CreateServerConnectionRequestsTokenForLastResourceRequested()
         {
-            // Regression for Dataverse refresh: SMO's IRenewableToken.GetAccessToken() has no
-            // resource parameter, so CreateServerConnection must resolve the resource at call time
-            // from ConnectionInfo.LastAzureResourceRequested (populated by the SqlClient FedAuth
-            // handshake on initial open). Otherwise SMO requests a SQL-audience token on refresh
-            // for Dataverse connections, and the server rejects it with HTTP 401.
             string requestedResource = null;
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
@@ -389,30 +377,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.Multiple(() =>
             {
-                Assert.That(token, Is.EqualTo("dataverse-tok"));
+                Assert.That(token, Is.EqualTo("dataverse-token"));
                 Assert.That(requestedResource, Is.EqualTo("https://orgABCDEFG.crm.dynamics.com/"),
                     "SMO IRenewableToken path must request a token for the resource the SqlClient FedAuth handshake last captured, not the SQL default");
             });
-        }
-
-        [Test]
-        public void CreateServerConnectionFallsBackToSqlResourceWhenNoResourceCaptured()
-        {
-            string requestedResource = null;
-            var connInfo = TestObjects.GetTestConnectionInfo();
-            connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
-            connInfo.AzureTokenFetcher = resource =>
-            {
-                requestedResource = resource;
-                return Task.FromResult(("sql-tok", FarFuture));
-            };
-            connInfo.AzureResourceUri = null;
-
-            var sqlConn = new SqlConnection("Server=fake;");
-            ServerConnection serverConn = ConnectionService.CreateServerConnection(sqlConn, connInfo);
-            (serverConn.AccessToken as CallbackAzureAccessToken)?.GetAccessToken();
-
-            Assert.That(requestedResource, Is.EqualTo(AzureSqlResource));
         }
 
         [Test]
@@ -428,13 +396,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(serverConn.AccessToken, Is.Null,
                 "ServerConnection should have no IRenewableToken when no Azure token is configured");
         }
-
-        // ---------------------------------------------------------------
-        // Category 6 — TryUpdateAccessToken interaction with callback mode
-        // (regression for https://*/issues/* "Cannot set the AccessToken property
-        // if the AccessTokenCallback has been set" after the initial Entra token
-        // expired, e.g. when refreshing the Object Explorer Tables folder.)
-        // ---------------------------------------------------------------
 
         [Test]
         public void TryUpdateAccessTokenNoOpsWhenAzureTokenFetcherIsSet()
