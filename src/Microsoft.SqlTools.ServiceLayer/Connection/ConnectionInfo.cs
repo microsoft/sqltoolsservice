@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// actually requires, so SMO can request a fresh token for the correct resource later.
         /// Null until the first AccessTokenCallback invocation.
         /// </summary>
-        public string LastAzureResourceRequested { get; set; }
+        public string AzureResourceUri { get; set; }
 
         /// <summary>
         /// Returns the connection Engine Edition

@@ -377,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 requestedResource = resource;
                 return Task.FromResult(("dataverse-tok", FarFuture));
             };
-            connInfo.LastAzureResourceRequested = "https://orgABCDEFG.crm.dynamics.com/";
+            connInfo.AzureResourceUri = "https://orgABCDEFG.crm.dynamics.com/";
 
             var sqlConn = new SqlConnection("Server=fake;");
             ServerConnection serverConn = ConnectionService.CreateServerConnection(sqlConn, connInfo);
@@ -406,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 requestedResource = resource;
                 return Task.FromResult(("sql-tok", FarFuture));
             };
-            connInfo.LastAzureResourceRequested = null;
+            connInfo.AzureResourceUri = null;
 
             var sqlConn = new SqlConnection("Server=fake;");
             ServerConnection serverConn = ConnectionService.CreateServerConnection(sqlConn, connInfo);

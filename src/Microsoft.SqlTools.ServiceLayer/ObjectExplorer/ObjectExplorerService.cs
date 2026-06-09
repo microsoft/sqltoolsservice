@@ -417,9 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             // when the static AzureAccountToken on ConnectionDetails has become stale.
                             if (session.ConnectionInfo.AzureTokenFetcher != null)
                             {
-                                var resource = session.ConnectionInfo.LastAzureResourceRequested
-                                    ?? SqlConstants.AzureSqlResource;
-                                azureToken = session.ConnectionInfo.AzureTokenFetcher(resource).GetAwaiter().GetResult().token;
+                                azureToken = session.ConnectionInfo.AzureTokenFetcher(session.ConnectionInfo.AzureResourceUri).GetAwaiter().GetResult().token;
                             }
                             else
                             {

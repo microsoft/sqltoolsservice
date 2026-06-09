@@ -788,7 +788,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// advertises via FedAuthInfo (e.g. Dataverse TDS endpoints under <c>*.crm.dynamics.com</c>).
         ///
         /// When <paramref name="connInfo"/> is supplied, the resource is also captured into
-        /// <see cref="ConnectionInfo.LastAzureResourceRequested"/> so SMO's resource-less
+        /// <see cref="ConnectionInfo.AzureResourceUri"/> so SMO's resource-less
         /// <c>IRenewableToken.GetAccessToken()</c> path can later refresh tokens for the correct
         /// audience instead of falling back to the SQL default.
         /// </summary>
@@ -801,7 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 if (connInfo != null && !string.IsNullOrEmpty(parameters.Resource))
                 {
-                    connInfo.LastAzureResourceRequested = parameters.Resource;
+                    connInfo.AzureResourceUri = parameters.Resource;
                 }
 
                 var (token, expiresOn) = await tokenFetcher(parameters.Resource).ConfigureAwait(continueOnCapturedContext: false);
@@ -2066,8 +2066,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                                 string azureToken = info.ConnectionDetails.AzureAccountToken;
                                 if (info.AzureTokenFetcher != null)
                                 {
-                                    var resource = info.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource;
-                                    azureToken = info.AzureTokenFetcher(resource).GetAwaiter().GetResult().token;
+                                    azureToken = info.AzureTokenFetcher(info.AzureResourceUri).GetAwaiter().GetResult().token;
                                 }
 
                                 // create a sql connection instance
@@ -2257,16 +2256,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                // SMO's IRenewableToken.GetAccessToken() has no per-call resource parameter, so we
-                // resolve the resource at call time by reading whatever the SqlClient FedAuth
-                // handshake captured most recently into ConnectionInfo. This is critical for
-                // non-SQL TDS audiences (e.g. *.crm.dynamics.com Dataverse endpoints); falling
-                // back to the SQL default would yield a token the server rejects with HTTP 401.
+                // SMO's IRenewableToken.GetAccessToken() has no per-call resource parameter,
+                // so we capture the resource URI that was used at connection and use that.
+                // This is critical for Azure SQL editions that present themselves as something other than Azure SQL DB
+                // (e.g. *.crm.dynamics.com Dataverse endpoints).
                 var fetcher = connInfo.AzureTokenFetcher;
                 return new ServerConnection(
                     sqlConnection,
                     new CallbackAzureAccessToken(
-                        () => fetcher(connInfo.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource)));
+                        () => fetcher(connInfo.AzureResourceUri)));
             }
             if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
@@ -2300,8 +2298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                var resource = connInfo.LastAzureResourceRequested ?? SqlConstants.AzureSqlResource;
-                var (token, _) = connInfo.AzureTokenFetcher(resource).GetAwaiter().GetResult();
+                var (token, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
                 sqlConn.AccessToken = token;
             }
             else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
