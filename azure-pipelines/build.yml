@@ -145,6 +145,7 @@ steps:
     # For configuring CODECOV_TOKEN see 'Prerequisites' section above
     .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t $(CODECOV_TOKEN) -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
   displayName: Upload Code coverage report to CodeCov
+  continueOnError: true
 
 - task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage report'
