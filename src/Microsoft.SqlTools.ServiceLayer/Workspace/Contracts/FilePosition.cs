@@ -5,6 +5,8 @@
 
 #nullable disable
 
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
 {
     /// <summary>

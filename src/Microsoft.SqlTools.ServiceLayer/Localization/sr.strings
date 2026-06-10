@@ -238,8 +238,6 @@ WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
 
 WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of column range for line {0}
 
-WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
-
 ############################################################################
 # Edit Data Service
 

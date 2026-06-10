@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using System;
 using System.Data.Common;
@@ -19,7 +20,7 @@ using System.IO;
 using System.Threading;
 using NUnit.Framework;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -218,9 +219,9 @@ GO";
         public void GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
-            var languageService = new LanguageService();
+            var langSvc = new ServiceLayer.LanguageServices.LanguageService();
             Mock<ConnectedBindingQueue> queueMock = new Mock<ConnectedBindingQueue>();
-            languageService.BindingQueue = queueMock.Object;
+            langSvc.BindingQueue = queueMock.Object;
             ManualResetEvent mre = new ManualResetEvent(true); // Do not block
             Mock<QueueItem> itemMock = new Mock<QueueItem>();
             itemMock.Setup(i => i.ItemProcessed).Returns(mre);
@@ -260,11 +261,11 @@ GO";
             scriptFile.Contents = "select * from dbo.func ()";
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
-            languageService.ScriptParseInfoMap.TryAdd(scriptFile.ClientUri, scriptInfo);
+            langSvc.ScriptParseInfoMap.TryAdd(scriptFile.ClientUri, scriptInfo);
 
             // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
             // before we want it to (this is testing the timeout trying to fetch the definitions after the parse)
-            var result = languageService.GetDefinition(textDocument, scriptFile, null);
+            var result = langSvc.GetDefinition(textDocument, scriptFile, null);
 
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
@@ -790,7 +791,7 @@ GO";
             bindingQueue.AddConnectionContext(connInfo);
             scriptFile.Contents = fileContents;
 
-            var service = new LanguageService();
+            var service = new ServiceLayer.LanguageServices.LanguageService();
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
