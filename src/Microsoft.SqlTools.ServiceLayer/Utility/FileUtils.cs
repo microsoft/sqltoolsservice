@@ -149,6 +149,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         }
 
         /// <summary>
+        /// Converts an OS-native absolute path to a <c>file://</c> URI string, normalising
+        /// Windows-style backslash separators first. Works correctly on all platforms:
+        /// Windows paths (<c>C:\path\file.sql</c>) and Unix paths (<c>/home/user/file.sql</c>)
+        /// both produce well-formed <c>file:///...</c> URIs.
+        /// <para>
+        /// Do not use <c>new Uri(osPath).AbsoluteUri</c> as a replacement: on Linux/macOS a
+        /// bare path without a scheme creates a relative <see cref="Uri"/>, and calling
+        /// <c>.AbsoluteUri</c> on a relative URI throws <see cref="InvalidOperationException"/>.
+        /// </para>
+        /// </summary>
+        internal static string LocalPathToFileUri(string localPath)
+        {
+            // Normalise Windows backslashes so the URI uses forward slashes on all platforms.
+            string p = localPath.Replace('\\', '/');
+            // Ensure a leading '/' so the result is well-formed "file:///..." on all platforms.
+            // Windows paths like "c:/Users/..." become "/c:/Users/..." here.
+            if (p.Length > 0 && p[0] != '/')
+                p = "/" + p;
+            return new Uri("file://" + p).AbsoluteUri;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Uri"/> with <see cref="Uri.IsFile"/> == true to an OS-native
+        /// absolute path, stripping the spurious leading '/' that some .NET runtimes return from
+        /// <see cref="Uri.LocalPath"/> on Windows (e.g. "/c:/Users/..." → "c:/Users/...").
+        /// </summary>
+        internal static string UriToLocalPath(Uri uri)
+        {
+            string localPath = uri.LocalPath;
+            // On Windows, Uri.LocalPath can start with "/c:/" — strip the leading slash.
+            int start = (localPath.Length >= 3 && localPath[0] == '/' &&
+                         char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
+            return localPath.Substring(start);
+        }
+
+        /// <summary>
         /// Attempts to resolve the given filePath to an absolute path to a file on disk, 
         /// defaulting to the original filePath if that fails. 
         /// </summary>

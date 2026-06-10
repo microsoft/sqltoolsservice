@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         // so we must normalise first or the resulting file URI will contain
                         // literal backslashes that never match VS Code's forward-slash URIs.
                         string norm = p.Replace('\\', Path.DirectorySeparatorChar);
-                        return LocalPathToFileUri(Path.IsPathRooted(norm) ? norm : Path.Combine(projectDir, norm));
+                        return Utility.FileUtilities.LocalPathToFileUri(Path.IsPathRooted(norm) ? norm : Path.Combine(projectDir, norm));
                     }),
                     StringComparer.OrdinalIgnoreCase);
 
@@ -527,7 +527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // user opens the file. For deletes the file is gone so nothing to stamp.
                 if (!deleted)
                 {
-                    string fileUri = LocalPathToFileUri(sourceName);
+                    string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                     lock (state.FileUris) { state.FileUris.Add(fileUri); }
                     LanguageServices.LanguageService.Instance.InitializeProjectFileContexts(
                         new[] { fileUri }, state.ContextKey, state.DatabaseName);
@@ -537,7 +537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     // Immediately remove the stale ScriptParseInfo so the context key for this
                     // file does not outlive the file's presence in the project. Also drop it
                     // from the FileUris set so TearDownProjectContext won't try it again on close.
-                    string fileUri = LocalPathToFileUri(sourceName);
+                    string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                     lock (state.FileUris) { state.FileUris.Remove(fileUri); }
                     LanguageServices.LanguageService.Instance.RemoveScriptParseInfo(fileUri);
                 }
@@ -602,7 +602,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
             if (Uri.TryCreate(filePathOrUri, UriKind.Absolute, out Uri? parsedUri) && parsedUri.IsFile)
-                return Path.GetFullPath(UriToLocalPath(parsedUri));
+                return Path.GetFullPath(Utility.FileUtilities.UriToLocalPath(parsedUri));
 
             // Already an absolute OS path — normalise separators/casing via Path.GetFullPath.
             if (Path.IsPathRooted(filePathOrUri))
@@ -623,38 +623,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private static string ToLocalPath(string uriOrPath)
         {
             if (Uri.TryCreate(uriOrPath, UriKind.Absolute, out Uri? uri) && uri.IsFile)
-                return UriToLocalPath(uri);
+                return Utility.FileUtilities.UriToLocalPath(uri);
             return uriOrPath; // already a plain OS path
-        }
-
-        /// <summary>
-        /// Converts an OS-native absolute path to a <c>file://</c> URI string, normalising
-        /// Windows-style backslash separators first. <c>.sqlproj</c> files always store relative
-        /// script paths with backslashes, which are not directory separators on macOS/Linux.
-        /// </summary>
-        private static string LocalPathToFileUri(string localPath)
-        {
-            // Normalise Windows backslashes so the URI uses forward slashes on all platforms.
-            string p = localPath.Replace('\\', '/');
-            // Ensure a leading '/' so the result is well-formed "file:///..." on all platforms.
-            // Windows paths like "c:/Users/..." become "/c:/Users/..." here.
-            if (p.Length > 0 && p[0] != '/')
-                p = "/" + p;
-            return new Uri("file://" + p).AbsoluteUri;
-        }
-
-        /// <summary>
-        /// Converts a <see cref="Uri"/> with <see cref="Uri.IsFile"/> == true to an OS-native
-        /// absolute path, stripping the spurious leading '/' that some .NET runtimes return from
-        /// <see cref="Uri.LocalPath"/> on Windows (e.g. "/c:/Users/..." → "c:/Users/...").
-        /// </summary>
-        private static string UriToLocalPath(Uri uri)
-        {
-            string localPath = uri.LocalPath;
-            // On Windows, Uri.LocalPath can start with "/c:/" — strip the leading slash.
-            int start = (localPath.Length >= 3 && localPath[0] == '/' &&
-                         char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
-            return localPath.Substring(start);
         }
 
         #endregion

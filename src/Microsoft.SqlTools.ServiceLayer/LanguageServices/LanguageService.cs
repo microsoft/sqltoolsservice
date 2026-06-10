@@ -1736,7 +1736,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
         {
             // Convert the file path to the URI key used by ScriptParseInfoMap.
-            string fileUri = new Uri(filePath).AbsoluteUri;
+            string fileUri = Utility.FileUtilities.LocalPathToFileUri(filePath);
             var parseInfo = GetScriptParseInfo(fileUri);
 
             // If the file has never been parsed, parse it on demand (no binding needed — only
@@ -1963,7 +1963,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (sourceInfo?.SourceName == null)
                             return CreateErrorResult(SR.PeekDefinitionNoResultsError);
 
-                        string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
+                        string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceInfo.SourceName);
                         return new DefinitionResult
                         {
                             Locations = new[]
