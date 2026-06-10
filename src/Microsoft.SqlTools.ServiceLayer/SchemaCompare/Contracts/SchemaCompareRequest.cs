@@ -49,6 +49,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool AreEqual { get; set; }
 
         public List<DiffEntry> Differences { get; set; }
+
+        /// <summary>
+        /// The DacFx <c>SqlServerVersion</c> short name detected for the source endpoint
+        /// after the comparison runs (e.g. "Sql160", "SqlDwUnified", "SqlAzure"). Null if
+        /// the comparison did not produce a source model.
+        /// </summary>
+        public string SourcePlatform { get; set; }
+
+        /// <summary>
+        /// The DacFx <c>SqlServerVersion</c> short name detected for the target endpoint.
+        /// Null if the comparison did not produce a target model.
+        /// </summary>
+        public string TargetPlatform { get; set; }
     }
 
     /// <summary>

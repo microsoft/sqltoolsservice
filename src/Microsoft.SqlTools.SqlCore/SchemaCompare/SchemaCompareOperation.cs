@@ -36,6 +36,21 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public List<DiffEntry> Differences;
 
+        /// <summary>
+        /// The DacFx <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> enum value
+        /// detected for the source endpoint after the comparison runs (e.g. "Sql160",
+        /// "SqlDwUnified", "SqlAzure"). Null if the comparison did not produce a source model
+        /// (e.g. when ComparisonResult.SourceModel is null or has no Version).
+        /// </summary>
+        public string SourcePlatform { get; set; }
+
+        /// <summary>
+        /// The DacFx <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> enum value
+        /// detected for the target endpoint after the comparison runs. Null if the comparison
+        /// did not produce a target model.
+        /// </summary>
+        public string TargetPlatform { get; set; }
+
         public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -116,6 +131,14 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                         this.Differences.Add(diffEntry);
                     }
                 }
+
+                // Expose the platform the comparison actually ran under so clients can show
+                // the user which T-SQL dialect Schema Compare is using (e.g. "SqlDwUnified"
+                // when comparing Fabric Warehouse endpoints). Reading model.Version returns
+                // a SqlServerVersion enum; ToString() yields the short name that matches the
+                // DacFx Sql*SchemaCompareSettingsService chain (Sql160, SqlAzure, SqlDwUnified, ...).
+                this.SourcePlatform = this.ComparisonResult.SourceModel?.Version.ToString();
+                this.TargetPlatform = this.ComparisonResult.TargetModel?.Version.ToString();
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
                 // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here

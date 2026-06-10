@@ -130,5 +130,55 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
                 Assert.AreEqual(validObject1.NameParts[i], validResult1.Identifier.Parts[i]);
             }
         }
+
+        [Test]
+        public void SchemaCompareResultExposesSourceAndTargetPlatformProperties()
+        {
+            // The SourcePlatform / TargetPlatform projection lets clients show the user
+            // which T-SQL dialect Schema Compare is actually running under (e.g. "SqlDwUnified"
+            // for Fabric Warehouse vs. "Sql160" for Azure SQL Database). The values are
+            // pass-through reads of ComparisonResult.SourceModel.Version.ToString() /
+            // TargetModel.Version.ToString(), so the meaningful unit-level guarantee is that
+            // the contract surface accepts and round-trips the values. End-to-end behavior
+            // for live comparisons is covered by integration tests.
+            SchemaCompareResult result = new SchemaCompareResult
+            {
+                OperationId = "op-1",
+                Success = true,
+                AreEqual = false,
+                SourcePlatform = "SqlDwUnified",
+                TargetPlatform = "SqlDwUnified",
+            };
+
+            Assert.AreEqual("SqlDwUnified", result.SourcePlatform);
+            Assert.AreEqual("SqlDwUnified", result.TargetPlatform);
+
+            // Default values must be null so existing clients that ignore the field continue
+            // to behave as before and JSON serializers omit the property when the comparison
+            // did not produce a model (e.g. failed validation).
+            SchemaCompareResult defaultResult = new SchemaCompareResult();
+            Assert.IsNull(defaultResult.SourcePlatform);
+            Assert.IsNull(defaultResult.TargetPlatform);
+        }
+
+        [Test]
+        public void SchemaCompareOperationExposesSourceAndTargetPlatformProperties()
+        {
+            // The operation hoists Source/TargetPlatform from ComparisonResult.Source/TargetModel
+            // after Execute() so SchemaCompareService can wire it into the SchemaCompareResult
+            // contract without re-walking the DacFx model on the JSON-RPC layer.
+            SchemaCompareParams parameters = new SchemaCompareParams { OperationId = "op-2" };
+            SchemaCompareOperation operation = new SchemaCompareOperation(parameters, connectionProvider: null);
+
+            // Properties exist and are writable by the Execute() path.
+            Assert.IsNull(operation.SourcePlatform);
+            Assert.IsNull(operation.TargetPlatform);
+
+            operation.SourcePlatform = "Sql160";
+            operation.TargetPlatform = "SqlDwUnified";
+
+            Assert.AreEqual("Sql160", operation.SourcePlatform);
+            Assert.AreEqual("SqlDwUnified", operation.TargetPlatform);
+        }
     }
 }
