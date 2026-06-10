@@ -8,5 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj" />
+    <ProjectReference Include="..\..\..\..\..\src\Microsoft.SqlTools.LanguageService\Microsoft.SqlTools.LanguageService.csproj" />
   </ItemGroup>
 </Project>

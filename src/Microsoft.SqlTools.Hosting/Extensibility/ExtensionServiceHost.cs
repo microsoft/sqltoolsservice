@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.Extensibility
 
         public ExtensionServiceHost(
         ExtensibleServiceHostOptions options
-        ) : base(new StdioServerChannel())
+        ) : base(new ServerChannel())
         {
             this.options = options;
 

@@ -107,6 +107,8 @@ namespace Microsoft.SqlTools.Utility
                                 break;
                             case "-vscode-debug-launch":
                                 break;
+                            case "-stdio":
+                                break;
                             default:
                                 ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;

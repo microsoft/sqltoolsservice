@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -10,7 +10,6 @@ using System.Reflection;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -24,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             HostMock = new Mock<IProtocolEndpoint>();
             WorkspaceServiceMock = new Mock<WorkspaceService<SqlToolsSettings>>();
-            LanguageServiceMock = new Mock<LanguageService>();
+            LanguageServiceMock = new Mock<LanguageServices.LanguageService>();
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
             ServiceProvider.RegisterSingleService(LanguageServiceMock.Object);
@@ -35,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         protected ExtensionServiceProvider ServiceProvider { get; private set; }
         protected Mock<IProtocolEndpoint> HostMock { get; private set; }
         protected Mock<WorkspaceService<SqlToolsSettings>> WorkspaceServiceMock { get; private set; }
-        protected Mock<LanguageService> LanguageServiceMock { get; private set; }
+        protected Mock<LanguageServices.LanguageService> LanguageServiceMock { get; private set; }
 
         protected TSqlFormatterService FormatterService { get; private set; }
 

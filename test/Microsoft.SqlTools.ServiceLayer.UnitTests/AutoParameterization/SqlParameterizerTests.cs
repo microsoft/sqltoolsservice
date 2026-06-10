@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,7 +12,7 @@ using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 
 using static System.Linq.Enumerable;
