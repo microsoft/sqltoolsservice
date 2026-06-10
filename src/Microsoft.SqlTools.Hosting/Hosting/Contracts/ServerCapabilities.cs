@@ -28,6 +28,14 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public bool? DocumentSymbolProvider { get; set; }
 
         public bool? WorkspaceSymbolProvider { get; set; }
+
+        public bool? FoldingRangeProvider { get; set; }
+
+        public SemanticTokensOptions SemanticTokensProvider { get; set; }
+
+        public bool? InlayHintProvider { get; set; }
+
+        public DiagnosticOptions DiagnosticProvider { get; set; }
     }
 
     /// <summary>
@@ -63,5 +71,52 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     {
         public string[] TriggerCharacters { get; set; }
     }
-}
 
+    /// <summary>
+    /// Declares the legend (token types and modifiers) that the encoded
+    /// semantic token data is interpreted against.
+    /// </summary>
+    public class SemanticTokensLegendOptions
+    {
+        public string[] TokenTypes { get; set; }
+
+        public string[] TokenModifiers { get; set; }
+    }
+
+    /// <summary>
+    /// Options advertised for the semantic tokens provider.
+    /// </summary>
+    public class SemanticTokensOptions
+    {
+        public SemanticTokensLegendOptions Legend { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the server supports computing
+        /// semantic tokens for a full document.
+        /// </summary>
+        public bool Full { get; set; }
+    }
+
+    /// <summary>
+    /// Options advertised for the pull-model diagnostic provider.
+    /// </summary>
+    public class DiagnosticOptions
+    {
+        /// <summary>
+        /// Gets or sets an optional identifier under which diagnostics are managed.
+        /// </summary>
+        public string Identifier { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether diagnostics for one document
+        /// can depend on the contents of other documents.
+        /// </summary>
+        public bool InterFileDependencies { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the server supports workspace
+        /// (whole-project) diagnostic pulls.
+        /// </summary>
+        public bool WorkspaceDiagnostics { get; set; }
+    }
+}

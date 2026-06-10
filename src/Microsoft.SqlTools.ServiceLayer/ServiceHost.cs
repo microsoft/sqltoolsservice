@@ -19,6 +19,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
 {
@@ -190,6 +191,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         SignatureHelpProvider = new SignatureHelpOptions
                         {
                             TriggerCharacters = new string[] { " ", "," }
+                        },
+                        DocumentSymbolProvider = true,
+                        FoldingRangeProvider = true,
+                        InlayHintProvider = true,
+                        SemanticTokensProvider = new SemanticTokensOptions
+                        {
+                            Full = true,
+                            Legend = new SemanticTokensLegendOptions
+                            {
+                                TokenTypes = SemanticTokensLegend.TokenTypes,
+                                TokenModifiers = SemanticTokensLegend.TokenModifiers
+                            }
+                        },
+                        DiagnosticProvider = new DiagnosticOptions
+                        {
+                            Identifier = ServiceHost.ProviderName,
+                            InterFileDependencies = false,
+                            WorkspaceDiagnostics = false
                         }
                     }
                 });

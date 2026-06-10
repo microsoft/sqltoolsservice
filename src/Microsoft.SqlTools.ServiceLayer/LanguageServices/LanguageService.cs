@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public class LanguageService : IDisposable
+    public partial class LanguageService : IDisposable
     {
         #region Singleton Instance Implementation
 
@@ -93,6 +93,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
+
+        // Set at initialize time. When true the client pulls diagnostics via
+        // textDocument/diagnostic, so the legacy push path is suppressed to
+        // avoid reporting the same diagnostics twice.
+        private bool clientSupportsPullDiagnostics = false;
 
         private ConnectionService connectionService = null;
 
@@ -301,6 +306,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
 
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
+
+            // Returns folding ranges (batches, statements, block comments) for a document.
+            // Parallel safe because it parses request-local text and does not mutate LanguageService state.
+            serviceHost.SetRequestHandler(FoldingRangeRequest.Type, HandleFoldingRangeRequest, isParallelProcessingSupported: true);
+
+            // Returns the top-level DDL symbols declared in a document.
+            // Parallel safe because it parses request-local text and does not mutate LanguageService state.
+            serviceHost.SetRequestHandler(DocumentSymbolRequest.Type, HandleDocumentSymbolRequest, isParallelProcessingSupported: true);
+
+            // Returns lexical semantic tokens for a document.
+            // Parallel safe because it parses request-local text and does not mutate LanguageService state.
+            serviceHost.SetRequestHandler(SemanticTokensRequest.Type, HandleSemanticTokensRequest, isParallelProcessingSupported: true);
+
+            // Returns inline block-end hints for a document range.
+            // Parallel safe because it parses request-local text and does not mutate LanguageService state.
+            serviceHost.SetRequestHandler(InlayHintRequest.Type, HandleInlayHintRequest, isParallelProcessingSupported: true);
+
+            // Returns a full pull-model diagnostic report for a document.
+            // Parallel safe because diagnostic computation is already serialized by ScriptParseInfo locks.
+            serviceHost.SetRequestHandler(DocumentDiagnosticRequest.Type, HandleDocumentDiagnosticRequest, isParallelProcessingSupported: true);
+
+            // Detect whether the client supports pull-model diagnostics. When it does the
+            // legacy push path is suppressed to avoid reporting diagnostics twice.
+            serviceHost.RegisterInitializeTask((parameters, context) =>
+            {
+                this.clientSupportsPullDiagnostics =
+                    parameters?.Capabilities?.TextDocument?.Diagnostic != null;
+                return Task.CompletedTask;
+            });
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
@@ -2559,6 +2593,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
+            if (this.clientSupportsPullDiagnostics)
+            {
+                // The client pulls diagnostics via textDocument/diagnostic, so skip the
+                // legacy push path to avoid reporting the same diagnostics twice.
+                return Task.FromResult(true);
+            }
+
             if (!CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
                 // If the user has disabled script analysis, skip it entirely
