@@ -126,6 +126,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private readonly ConcurrentDictionary<string, AsyncLock> uriAsyncLocks = new();
         private CancellationTokenSource completionRequestCancellation;
 
+        // Debounce state for project IntelliSense model updates (one CTS per file URI).
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _intelliSenseUpdateDebounce = new(StringComparer.OrdinalIgnoreCase);
+        private const int IntelliSenseUpdateDebounceMs = 500;
+
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
         /// </summary>
@@ -678,7 +682,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 foreach (var file in changedFiles.GroupBy(f => f.ClientUri).Select(g => g.Last()))
                 {
                     if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
-                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, file.ClientUri, deleted: false, sqlTextOverride: file.Contents);
+                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents);
                 }
 
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -694,6 +698,47 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
+        }
+
+        /// <summary>
+        /// Schedules a debounced DacFx TSqlModel update for the given file.
+        /// Any previously pending update for the same URI is cancelled so that rapid
+        /// keystrokes collapse into a single model rebuild fired after
+        /// <see cref="IntelliSenseUpdateDebounceMs"/> of inactivity.
+        /// </summary>
+        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents)
+        {
+            var newCts = new CancellationTokenSource();
+            if (_intelliSenseUpdateDebounce.TryRemove(fileUri, out var oldCts))
+            {
+                oldCts.Cancel();
+                oldCts.Dispose();
+            }
+            _intelliSenseUpdateDebounce[fileUri] = newCts;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(IntelliSenseUpdateDebounceMs, newCts.Token);
+                    await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(
+                        projectUri, fileUri, deleted: false, sqlTextOverride: contents);
+                }
+                catch (OperationCanceledException) { /* superseded by a newer edit — expected */ }
+                catch (Exception ex) { Logger.Error($"IntelliSense model update failed for {fileUri}: {ex}"); }
+                finally
+                {
+                    // Only remove and dispose if this task's CTS is still the current entry.
+                    // Using TryGetValue + ReferenceEquals avoids accidentally evicting a newer
+                    // CTS that a concurrent edit has already stored for the same file.
+                    if (_intelliSenseUpdateDebounce.TryGetValue(fileUri, out var currentCts)
+                        && ReferenceEquals(currentCts, newCts))
+                    {
+                        _intelliSenseUpdateDebounce.TryRemove(fileUri, out _);
+                        newCts.Dispose();
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -1770,7 +1815,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 renameParams.Position.Line,
                 renameParams.Position.Character);
 
-            if (locations == null)
+            if (locations == null || locations.Length == 0)
             {
                 await requestContext.SendResult(null);
                 return;
@@ -1859,9 +1904,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string fileUri = new Uri(filePath).AbsoluteUri;
             var parseInfo = GetScriptParseInfo(fileUri);
 
-            // Re-parse the file from disk/workspace content so that token positions always
-            // reflect the latest saved state.  Using ??= would leave stale ParseResults for
-            // files that were modified by a rename but whose ParseResult was never invalidated.
+            // Re-parse only when needed:
+            //   - open files: ParseResult is kept current by the didChange pipeline; skip re-parse
+            //     unless RequiresReparse detects the buffer has drifted (shouldn't happen normally).
+            //   - unopened files: ParseResult may be null or stale (e.g. a rename wrote edits to
+            //     disk without opening the file, so no didChange ever fired) — always re-parse from disk.
             if (parseInfo != null)
             {
                 // Prefer the in-memory workspace buffer so token positions are consistent with
@@ -1870,7 +1917,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var wsFile = CurrentWorkspace.GetFile(fileUri);
                 string? sqlText = wsFile?.Contents
                     ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
-                if (sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+
+                bool needsReparse = parseInfo.ParseResult == null          // never parsed
+                    || wsFile == null                                        // unopened: disk may differ
+                    || RequiresReparse(parseInfo, wsFile);                   // open but buffer drifted
+
+                if (needsReparse && sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
                 {
                     try
                     {
