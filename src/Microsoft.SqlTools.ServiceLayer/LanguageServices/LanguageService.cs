@@ -1848,11 +1848,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (lineText != null &&
                             startChar < lineText.Length && lineText[startChar] == '[' &&
                             endChar > 0 && endChar - 1 < lineText.Length && lineText[endChar - 1] == ']' &&
-                            !renameParams.NewName.StartsWith("["))
-                            newText = $"[{renameParams.NewName}]";
+                            !renameParams.NewName.StartsWith("[", StringComparison.Ordinal))
+                            newText = $"[{renameParams.NewName.Replace("]", "]]")}]";
                     }
                 }
-                catch { /* fall through — use unbracketed newText */ }
+                catch (Exception ex)
+                {
+                    Logger.Verbose($"HandleSqlRenameRequest: bracket-quoting detection failed for '{loc.Uri}': {ex.Message}");
+                    /* fall through — use unbracketed newText */
+                }
 
                 edits.Add(new TextEdit { Range = loc.Range, NewText = newText });
             }
