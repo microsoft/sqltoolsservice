@@ -1832,24 +1832,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!changes.TryGetValue(loc.Uri, out var edits))
                     changes[loc.Uri] = edits = new List<TextEdit>();
 
-                // Determine whether the token at this location was bracket-quoted so we can
-                // preserve the same quoting style on the replacement text.
-                // The range width tells us the original token length; if it starts with '['
-                // and ends with ']' in the source file we must wrap the new name too.
+                // Preserve bracket-quoting style: if the original token was bracket-quoted,
+                // wrap the new name in brackets too.
                 string newText = renameParams.NewName;
                 try
                 {
                     var scriptFile = CurrentWorkspace.GetFile(loc.Uri);
                     if (scriptFile != null)
                     {
-                        int startChar = loc.Range.Start.Character;
-                        int endChar   = loc.Range.End.Character;
                         string lineText = scriptFile.GetLine(loc.Range.Start.Line + 1); // GetLine is 1-based
-                        if (lineText != null &&
-                            startChar < lineText.Length && lineText[startChar] == '[' &&
-                            endChar > 0 && endChar - 1 < lineText.Length && lineText[endChar - 1] == ']' &&
-                            !renameParams.NewName.StartsWith("[", StringComparison.Ordinal))
-                            newText = $"[{renameParams.NewName.Replace("]", "]]")}]";
+                        newText = TextUtilities.ApplyBracketQuoting(
+                            lineText,
+                            loc.Range.Start.Character,
+                            loc.Range.End.Character,
+                            renameParams.NewName);
                     }
                 }
                 catch (Exception ex)
