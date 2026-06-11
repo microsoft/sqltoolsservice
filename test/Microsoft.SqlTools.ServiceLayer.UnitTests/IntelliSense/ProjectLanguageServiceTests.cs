@@ -1551,6 +1551,15 @@ END
             "    OrderId INT PRIMARY KEY\n" +
             ");";
 
+        // Uses bracket-quoted [Customers] so the bracket-quoting preservation logic fires.
+        // Line 3: "    SELECT * FROM dbo.[Customers];"  — '[' at char 21, ']' at char 31.
+        private const string BracketedReferenceScript =
+            "CREATE PROCEDURE dbo.GetBracketed\n" +  // line 0
+            "AS\n" +                                  // line 1
+            "BEGIN\n" +                               // line 2
+            "    SELECT * FROM dbo.[Customers];\n" +  // line 3 — [Customers] starts at char 21
+            "END";
+
         [SetUp]
         public void SetUp()
         {
@@ -1566,6 +1575,8 @@ END
                 new SqlObjectScript(Path.Combine("StoredProcedures", "ListCustomers.sql")), ListCustomersScript);
             _project.SqlObjectScripts.Add(
                 new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), OrdersScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetBracketed.sql")), BracketedReferenceScript);
 
             _model = TSqlModelBuilder.LoadModel(_project);
             _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
@@ -1607,9 +1618,9 @@ END
         {
             var entries = new[]
             {
-                (Path: "Tables/Customers.sql",              Content: TableScript),
-                (Path: "Tables/Orders.sql",                  Content: OrdersScript),
-                (Path: "StoredProcedures/GetCustomer.sql",  Content: GetCustomerScript),
+                (Path: "Tables/Customers.sql",               Content: TableScript),
+                (Path: "Tables/Orders.sql",                   Content: OrdersScript),
+                (Path: "StoredProcedures/GetCustomer.sql",   Content: GetCustomerScript),
                 (Path: "StoredProcedures/ListCustomers.sql", Content: ListCustomersScript),
             };
 
@@ -1720,6 +1731,64 @@ END
             Assert.That(result.Changes, Is.Not.Null);
             Assert.That(result.Changes.Keys.Any(f => f.Contains("Orders.sql")), Is.False,
                 $"Orders.sql should NOT appear when renaming Customers. Keys: {string.Join(", ", result.Changes.Keys)}");
+        }
+
+        // ── Bracket-quoting preservation ─────────────────────────────────────
+        // When the original token is bracket-quoted (e.g. [Customers]), the rename edit for
+        // that occurrence must also be bracket-quoted ([Clients]), while unbracketed occurrences
+        // (dbo.Customers, bare Customers) keep plain text.
+
+        [Test]
+        public async Task HandleRenameRequest_PreservesBracketQuoting()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string newName = "Clients";
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Load GetBracketed.sql into the workspace (not in LoadAllFilesIntoWorkspace to avoid
+            // affecting other tests that assert all NewText values are unbracketed).
+            string bracketedUri = GetFileUri("StoredProcedures/GetBracketed.sql");
+            _workspaceService.Workspace.GetFileBuffer(bracketedUri, BracketedReferenceScript);
+            _langService.InitializeProjectFileContexts(new[] { bracketedUri }, _contextKey, _databaseName);
+
+            // Cursor on [Customers] in GetBracketed.sql line 3:
+            //   "    SELECT * FROM dbo.[Customers];"
+            // '[' is at char 22, 'C' is at char 23 — place cursor on 'C' (inside the bracket token).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = bracketedUri },
+                    Position = new Position { Line = 3, Character = 23 },
+                    NewName = newName
+                },
+                ctx.Object);
+
+            string bracketedFileUri = bracketedUri;
+
+            Assert.That(result, Is.Not.Null, "SqlSymbolRenameResponse should not be null");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should not be empty");
+
+            // GetBracketed.sql uses [Customers] — that edit must be bracket-wrapped.
+            Assert.That(result.Changes.ContainsKey(bracketedFileUri), Is.True,
+                "GetBracketed.sql should be in the edit set");
+            var bracketedEdits = result.Changes[bracketedFileUri];
+            Assert.That(bracketedEdits.Any(e => e.NewText == $"[{newName}]"), Is.True,
+                $"The bracketed occurrence must be renamed to [{newName}], but got: " +
+                string.Join(", ", bracketedEdits.Select(e => e.NewText)));
+
+            // All other files use unbracketed identifiers — those edits must NOT be bracket-wrapped.
+            foreach (var kvp in result.Changes)
+            {
+                if (string.Equals(kvp.Key, bracketedFileUri, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                Assert.That(kvp.Value.All(e => e.NewText == newName), Is.True,
+                    $"Unbracketed occurrences in {kvp.Key} should be renamed to plain '{newName}', " +
+                    $"but got: {string.Join(", ", kvp.Value.Select(e => e.NewText))}");
+            }
         }
 
     }
