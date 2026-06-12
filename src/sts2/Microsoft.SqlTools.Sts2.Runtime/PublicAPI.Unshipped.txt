@@ -1,5 +1,62 @@
 #nullable enable
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SchemaId = "sts2.envelope/1" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Command = "cmd" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.ConfigChanged = "config.changed" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Control = "control" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Diagnostic = "diag" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.EffectRequest = "effect.req" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.EffectResponse = "effect.res" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Event = "evt" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Metric = "metric" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcInNotify = "rpc.in.notify" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcInRequest = "rpc.in.request" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutError = "rpc.out.error" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutNotify = "rpc.out.notify" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutResult = "rpc.out.result" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.StateSnapshot = "state.snapshot" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.TimerDue = "timer.due" -> string!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Cause.get -> long?
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Cause.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.ConfigVersion.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.ConfigVersion.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Corr.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Corr.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Digest.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Digest.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Equals(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Kind.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Payload.get -> System.Text.Json.JsonElement?
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Payload.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.PayloadMeta.get -> System.Text.Json.JsonElement?
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.PayloadMeta.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.RunId.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.RunId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Schema.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Schema.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Seq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Seq.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.SessionId.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.SessionId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Sts2Envelope() -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Ts.get -> System.DateTimeOffset
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Ts.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Type.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson
+override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.ToString() -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.DeserializeLine(string! line) -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
+static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SerializeLine(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope) -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.All.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
+static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.IsValid(string! kind) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.operator !=(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope? left, Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.operator ==(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope? left, Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.Canonicalize(System.Text.Json.JsonElement element) -> byte[]!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOf(System.Text.Json.JsonElement element) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOfCanonicalBytes(System.ReadOnlySpan<byte> canonicalUtf8) -> string!
