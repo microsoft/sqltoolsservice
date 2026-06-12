@@ -1,0 +1,19 @@
+M:System.Guid.NewGuid;Core must not create ambient ids (SPEC §9.3.2); ids arrive in envelopes
+T:System.Random;Core must not use randomness (SPEC §9.3.2)
+T:System.Security.Cryptography.RandomNumberGenerator;Core must not use randomness (SPEC §9.3.2)
+T:System.Threading.Tasks.Task;Core is synchronous (SPEC §9.3.3); no Task
+T:System.Threading.Tasks.Task`1;Core is synchronous (SPEC §9.3.3); no Task
+T:System.Threading.Tasks.ValueTask;Core is synchronous (SPEC §9.3.3); no ValueTask
+T:System.Threading.Tasks.ValueTask`1;Core is synchronous (SPEC §9.3.3); no ValueTask
+T:System.Threading.Thread;Core is synchronous (SPEC §9.3.3); no threads
+T:System.Threading.ThreadPool;Core is synchronous (SPEC §9.3.3); no thread pool
+T:System.Threading.Timer;Core must not schedule time (SPEC §9.3.3); timers are envelopes
+T:System.Threading.PeriodicTimer;Core must not schedule time (SPEC §9.3.3); timers are envelopes
+T:System.Threading.Channels.Channel;Core must not use channels (SPEC §9.3.3)
+T:System.Threading.Channels.Channel`1;Core must not use channels (SPEC §9.3.3)
+T:System.Threading.Monitor;Core is single-threaded synchronous (SPEC §9.3.3); no locks
+T:System.Threading.CancellationToken;Cancellation is a journaled message, not a token (SPEC §9.3.6)
+T:System.IO.File;Core performs no I/O (SPEC §9.2)
+T:System.IO.Directory;Core performs no I/O (SPEC §9.2)
+T:System.IO.Stream;Core performs no I/O (SPEC §9.2)
+T:System.Console;Core performs no console I/O (SPEC §9.2)

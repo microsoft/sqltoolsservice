@@ -1,0 +1,20 @@
+{
+  "solution": {
+    "path": "sqltoolsservice.sln",
+    "projects": [
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Contracts\\Microsoft.SqlTools.Sts2.Contracts.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Core\\Microsoft.SqlTools.Sts2.Core.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Abstractions\\Microsoft.SqlTools.Sts2.Abstractions.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Runtime\\Microsoft.SqlTools.Sts2.Runtime.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Hosting\\Microsoft.SqlTools.Sts2.Hosting.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Multiplexer\\Microsoft.SqlTools.Sts2.Multiplexer.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Bootstrap\\Microsoft.SqlTools.Sts2.Bootstrap.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Drivers.SqlClient\\Microsoft.SqlTools.Sts2.Drivers.SqlClient.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Drivers.Sqlite\\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Testing\\Microsoft.SqlTools.Sts2.Testing.csproj",
+      "tools\\sts2-replay\\sts2-replay.csproj",
+      "test\\sts2\\Microsoft.SqlTools.Sts2.UnitTests\\Microsoft.SqlTools.Sts2.UnitTests.csproj",
+      "test\\sts2\\Microsoft.SqlTools.Sts2.E2ETests\\Microsoft.SqlTools.Sts2.E2ETests.csproj"
+    ]
+  }
+}

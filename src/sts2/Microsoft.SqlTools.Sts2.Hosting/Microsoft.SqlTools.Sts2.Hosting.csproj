@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>STS2 StreamJsonRpc gateway and v2 method handlers. Translates JSON-RPC to sanitized envelopes.</Description>
+    <Sts2PublicApiTracked>true</Sts2PublicApiTracked>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Runtime\Microsoft.SqlTools.Sts2.Runtime.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Core\Microsoft.SqlTools.Sts2.Core.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
+    <PackageReference Include="StreamJsonRpc" />
+  </ItemGroup>
+</Project>

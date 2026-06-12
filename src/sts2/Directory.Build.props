@@ -1,0 +1,26 @@
+<Project>
+  <!-- Chain to the repo-root Directory.Build.props (warnings-as-errors, nullable, versioning). -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..'))" />
+
+  <PropertyGroup>
+    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <Sts2Project>true</Sts2Project>
+  </PropertyGroup>
+
+  <!-- Deterministic-core projects opt in via Sts2DeterministicTimeBan / Sts2DeterministicCoreBan. -->
+  <ItemGroup Condition="'$(Sts2DeterministicTimeBan)' == 'true' Or '$(Sts2DeterministicCoreBan)' == 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.Time.txt" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Sts2DeterministicCoreBan)' == 'true'">
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.Core.txt" />
+  </ItemGroup>
+
+  <!-- PublicAPI-tracked projects (Contracts, Core, Abstractions, Runtime, Hosting) opt in. -->
+  <ItemGroup Condition="'$(Sts2PublicApiTracked)' == 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

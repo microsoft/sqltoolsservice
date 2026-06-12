@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>STS2 driver port and clock/id abstractions. No concrete I/O.</Description>
+    <Sts2DeterministicTimeBan>true</Sts2DeterministicTimeBan>
+    <Sts2PublicApiTracked>true</Sts2PublicApiTracked>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
+  </ItemGroup>
+</Project>
