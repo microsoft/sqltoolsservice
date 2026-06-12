@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare
@@ -37,17 +38,17 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         public List<DiffEntry> Differences;
 
         /// <summary>
-        /// The DacFx <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> enum value
-        /// detected for the source endpoint after the comparison runs (e.g. "Sql160",
-        /// "SqlDwUnified", "SqlAzure"). Null if the comparison did not produce a source model
-        /// (e.g. when ComparisonResult.SourceModel is null or has no Version).
+        /// The platform the comparison ran under (DacFx <c>SqlPlatforms</c> enum name, e.g.
+        /// "Sql160", "SqlAzureV12", "SqlDwUnified"). Sourced from the comparison's
+        /// <c>DatabaseSchemaProvider.Platform</c> (the unified DSP the comparison normalized
+        /// to). Source and Target carry the same value because DacFx runs a single comparison
+        /// under a single DSP — see <see cref="TryGetComparisonPlatform"/>. Null if the
+        /// platform could not be detected (e.g. the comparison was never run).
         /// </summary>
         public string SourcePlatform { get; set; }
 
         /// <summary>
-        /// The DacFx <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> enum value
-        /// detected for the target endpoint after the comparison runs. Null if the comparison
-        /// did not produce a target model.
+        /// The platform the comparison ran under. See <see cref="SourcePlatform"/>.
         /// </summary>
         public string TargetPlatform { get; set; }
 
@@ -134,11 +135,23 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
                 // Expose the platform the comparison actually ran under so clients can show
                 // the user which T-SQL dialect Schema Compare is using (e.g. "SqlDwUnified"
-                // when comparing Fabric Warehouse endpoints). Reading model.Version returns
-                // a SqlServerVersion enum; ToString() yields the short name that matches the
-                // DacFx Sql*SchemaCompareSettingsService chain (Sql160, SqlAzure, SqlDwUnified, ...).
-                this.SourcePlatform = this.ComparisonResult.SourceModel?.Version.ToString();
-                this.TargetPlatform = this.ComparisonResult.TargetModel?.Version.ToString();
+                // when comparing Fabric Warehouse endpoints).
+                //
+                // We CANNOT use ComparisonResult.SourceModel.Version because DacFx maps the
+                // SqlDwUnified platform to SqlServerVersion.Sql150 in
+                // InternalModelUtils.CalculateVersionsForPlatform (it predates the
+                // SqlServerVersion.SqlDwUnified enum value). The TSqlModel.Version surface
+                // therefore reports "Sql150" for every Fabric Warehouse model, which would
+                // mislabel the platform pill in the UI.
+                //
+                // Instead, read the comparison's normalized DSP from
+                // SchemaComparisonResult.DataModel.DatabaseSchemaProvider.Platform via
+                // reflection. DatabaseSchemaProvider is internal-abstract in DacFx, but
+                // .Platform is a public abstract SqlPlatforms property (a public enum), and
+                // the cascade fix in PR 2143938 confirms this value is reliably populated.
+                string comparisonPlatform = TryGetComparisonPlatform(this.ComparisonResult);
+                this.SourcePlatform = comparisonPlatform;
+                this.TargetPlatform = comparisonPlatform;
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
                 // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here
@@ -157,5 +170,118 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         }
 
         internal event EventHandler<EventArgs> schemaCompareStarted;
+
+        // Cached reflection accessors for SchemaComparisonResult.DataModel.DatabaseSchemaProvider.Platform.
+        // Resolved lazily and atomically on first use so we pay the lookup cost once per process.
+        private static PropertyInfo s_dataModelProp;
+        private static PropertyInfo s_dspProp;
+        private static PropertyInfo s_platformProp;
+        private static bool s_reflectionInitFailed;
+        private static readonly object s_reflectionInitLock = new object();
+
+        /// <summary>
+        /// Returns the comparison's DSP platform as a string (e.g. "Sql160", "SqlDwUnified")
+        /// by reflecting into the internal <c>SchemaCompareDataModel.DatabaseSchemaProvider</c>
+        /// reachable from <see cref="SchemaComparisonResult"/>. Returns <c>null</c> if any step
+        /// of the lookup fails or returns null — callers should treat null as "unknown" and not
+        /// surface an error to the user, since the platform pill is a diagnostic affordance,
+        /// not a blocking signal.
+        /// </summary>
+        /// <remarks>
+        /// This is a reflection workaround for the lack of a public DacFx accessor exposing
+        /// the comparison's platform. <c>TSqlModel.Version</c> would be the natural API but
+        /// returns <c>Sql150</c> for Fabric Warehouse models (see
+        /// <c>InternalModelUtils.CalculateVersionsForPlatform</c>). If DacFx adds a public
+        /// <c>SchemaComparisonResult.Platform</c> property in the future, replace this with
+        /// the direct call.
+        /// </remarks>
+        private static string TryGetComparisonPlatform(SchemaComparisonResult result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (!EnsureReflectionMembers(result.GetType()))
+                {
+                    return null;
+                }
+
+                object dataModel = s_dataModelProp.GetValue(result);
+                if (dataModel == null)
+                {
+                    return null;
+                }
+
+                PropertyInfo dspProp = s_dspProp ?? dataModel.GetType().GetProperty("DatabaseSchemaProvider");
+                if (dspProp == null)
+                {
+                    return null;
+                }
+                s_dspProp = dspProp;
+
+                object dsp = dspProp.GetValue(dataModel);
+                if (dsp == null)
+                {
+                    return null;
+                }
+
+                PropertyInfo platformProp = s_platformProp ?? dsp.GetType().GetProperty("Platform");
+                if (platformProp == null)
+                {
+                    return null;
+                }
+                s_platformProp = platformProp;
+
+                object platformValue = platformProp.GetValue(dsp);
+                return platformValue?.ToString();
+            }
+            catch (Exception ex)
+            {
+                // Reflection failures are non-fatal: the platform pill simply won't render
+                // and the user keeps their compare results. Log so the failure is diagnosable
+                // from the STS log file without surfacing to the UI.
+                Logger.Warning(string.Format("Schema compare: failed to detect comparison platform via reflection: {0}", ex.Message));
+                return null;
+            }
+        }
+
+        private static bool EnsureReflectionMembers(Type resultType)
+        {
+            if (s_dataModelProp != null)
+            {
+                return true;
+            }
+            if (s_reflectionInitFailed)
+            {
+                return false;
+            }
+
+            lock (s_reflectionInitLock)
+            {
+                if (s_dataModelProp != null)
+                {
+                    return true;
+                }
+                if (s_reflectionInitFailed)
+                {
+                    return false;
+                }
+
+                PropertyInfo prop = resultType.GetProperty(
+                    "DataModel",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                if (prop == null)
+                {
+                    s_reflectionInitFailed = true;
+                    Logger.Warning("Schema compare: SchemaComparisonResult.DataModel property not found via reflection; platform pill will be unavailable.");
+                    return false;
+                }
+                s_dataModelProp = prop;
+                return true;
+            }
+        }
     }
 }
