@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             {
                 return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "openId is already in use: " + openId);
             }
-            if (state.Connections.Count >= Sts2Defaults.MaxConnections)
+            if (state.Connections.Count >= state.MaxConnections)
             {
                 return Error(state, corr, Sts2ErrorCodes.Busy, "Connection limit reached.");
             }
@@ -396,7 +396,22 @@ namespace Microsoft.SqlTools.Sts2.Core
                     });
                 }
             }
-            return CoreDecision.StateOnly(state with { ServiceVersion = serviceVersion, Drivers = drivers.ToImmutable() });
+            int maxConnections = state.MaxConnections;
+            if (envelope.Payload is { ValueKind: JsonValueKind.Object } payloadWithLimits
+                && payloadWithLimits.TryGetProperty("limits", out JsonElement limits)
+                && limits.ValueKind == JsonValueKind.Object
+                && limits.TryGetProperty("maxConnections", out JsonElement maxConn)
+                && maxConn.ValueKind == JsonValueKind.Number)
+            {
+                maxConnections = maxConn.GetInt32();
+            }
+
+            return CoreDecision.StateOnly(state with
+            {
+                ServiceVersion = serviceVersion,
+                Drivers = drivers.ToImmutable(),
+                MaxConnections = maxConnections,
+            });
         }
 
         private static CoreDecision Error(CoreState state, string corr, string dataCode, string message) =>

@@ -1,9 +1,17 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
 name: error-invalidrequest
 tags: [error, contract, dialect:neutral]
-status: stub
+status: active
 milestone: M2
 adapter: fake
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1 }
+    expectError: { dataCode: Sts2.InvalidRequest, jsonRpcCode: -32600 }
+  - request:
+      method: v2/connection.cancel
+      params: { wrongField: true }
+    expectError: { dataCode: Sts2.InvalidRequest }
+expect:
+  invariants: [I1, I5, I6, I7, I12]

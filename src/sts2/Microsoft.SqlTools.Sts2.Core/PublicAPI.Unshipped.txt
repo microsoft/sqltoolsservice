@@ -62,6 +62,8 @@ Microsoft.SqlTools.Sts2.Core.CoreState.Initialized.get -> bool
 Microsoft.SqlTools.Sts2.Core.CoreState.Initialized.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.get -> long
 Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.MaxConnections.get -> int
+Microsoft.SqlTools.Sts2.Core.CoreState.MaxConnections.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!

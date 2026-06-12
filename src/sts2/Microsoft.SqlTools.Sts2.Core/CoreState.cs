@@ -78,6 +78,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             ShuttingDown = false,
             Initialized = false,
             ServiceVersion = "0.0.0.0",
+            MaxConnections = Contracts.Sts2Defaults.MaxConnections,
             Drivers = ImmutableArray<DriverDescriptor>.Empty,
             Connections = ImmutableSortedDictionary<string, ConnectionInfo>.Empty,
             OpenIdToConnectionId = ImmutableSortedDictionary<string, string>.Empty,
@@ -96,6 +97,9 @@ namespace Microsoft.SqlTools.Sts2.Core
 
         /// <summary>Service version reported by initialize/ping.</summary>
         public required string ServiceVersion { get; init; }
+
+        /// <summary>Connection limit; configurable via journaled session.start limits.</summary>
+        public required int MaxConnections { get; init; }
 
         /// <summary>Drivers available in this composition.</summary>
         public required ImmutableArray<DriverDescriptor> Drivers { get; init; }

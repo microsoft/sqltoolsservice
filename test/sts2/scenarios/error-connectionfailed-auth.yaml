@@ -1,9 +1,16 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
 name: error-connectionfailed-auth
 tags: [error, connection, dialect:neutral]
-status: stub
+status: active
 milestone: M2
 adapter: fake
+driver:
+  open:
+    - outcome: authFail
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    expectError: { dataCode: Sts2.ConnectionFailed.Auth, jsonRpcCode: -32040 }
+expect:
+  invariants: [I1, I12]

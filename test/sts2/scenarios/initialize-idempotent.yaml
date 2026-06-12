@@ -1,9 +1,20 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
 name: initialize-idempotent
 tags: [initialize, contract, dialect:neutral]
-status: stub
+status: active
 milestone: M2
 adapter: fake
+steps:
+  - request:
+      method: v2/initialize
+      params: { clientName: "scenario", requestedSpecVersion: "2.0" }
+    expectResult:
+      specVersion: "2.0.0-preview.1"
+      capabilities: { forwardOnlyStreaming: true, oneActiveQueryPerConnection: true, redactedReplay: true, exportLog: false }
+  - request:
+      method: v2/initialize
+      params: { clientName: "scenario-again" }
+    expectResult:
+      specVersion: "2.0.0-preview.1"
+expect:
+  invariants: [I1, I5, I6, I7, I12]

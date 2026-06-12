@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private readonly IReadOnlyDictionary<string, IDbDriver> drivers;
         private readonly SecretSideTable secrets;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> opensInFlight = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, bool> preCanceledOpens = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IDbSession> sessions = new(StringComparer.Ordinal);
 
         /// <summary>Creates a runner over the registered drivers.</summary>
@@ -40,6 +42,31 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
         /// <summary>Live driver-session lease count (I8).</summary>
         public int OpenSessionCount => sessions.Count;
+
+        /// <summary>
+        /// Disposes any sessions still held and returns how many there were. Called at
+        /// run end; a non-zero return is an I8 lease violation for scenarios that closed
+        /// all their connections.
+        /// </summary>
+        public async ValueTask<int> DisposeLeakedSessionsAsync()
+        {
+            int leaked = 0;
+            foreach (string handleId in sessions.Keys.ToArray())
+            {
+                if (sessions.TryRemove(handleId, out IDbSession? session))
+                {
+                    leaked++;
+                    try
+                    {
+                        await session.DisposeAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
+                    {
+                    }
+                }
+            }
+            return leaked;
+        }
 
         /// <inheritdoc/>
         public void Run(EffectWorkItem effect, ICoordinatorInbox inbox)
@@ -55,9 +82,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 case "driver.cancelOpen":
                 {
                     string? openId = GetString(effect.Args, "openId");
-                    if (openId is not null && opensInFlight.TryGetValue(openId, out CancellationTokenSource? cts))
+                    if (openId is not null)
                     {
-                        cts.Cancel();
+                        if (opensInFlight.TryGetValue(openId, out CancellationTokenSource? cts))
+                        {
+                            cts.Cancel();
+                        }
+                        else
+                        {
+                            // The open effect's Task.Run may not have started yet: remember
+                            // the cancel so OpenAsync aborts the moment it registers.
+                            preCanceledOpens[openId] = true;
+                        }
                     }
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
                     break;
@@ -85,6 +121,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             var resolvedTokens = new List<string>();
             var cancelSource = new CancellationTokenSource();
             opensInFlight[openId] = cancelSource;
+            if (preCanceledOpens.TryRemove(openId, out _))
+            {
+                cancelSource.Cancel(); // cancelOpen raced ahead of this open's startup
+            }
 
             try
             {
