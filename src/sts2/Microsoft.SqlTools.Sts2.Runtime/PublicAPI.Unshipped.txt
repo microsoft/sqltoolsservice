@@ -34,8 +34,12 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.CoordinatorOptio
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? other) -> bool
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.QueueCapacity.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.QueueCapacity.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RowCapture.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RowCapture.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RunId.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RunId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.SqlCapture.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.SqlCapture.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.TimeProvider.get -> System.TimeProvider!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.TimeProvider.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder

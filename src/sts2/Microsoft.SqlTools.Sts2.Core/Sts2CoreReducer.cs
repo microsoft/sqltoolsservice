@@ -300,8 +300,14 @@ namespace Microsoft.SqlTools.Sts2.Core
         {
             string corr = envelope.Corr!;
             string? connectionId = GetString(envelope.Payload, "connectionId");
-            string? sql = GetString(envelope.Payload, "sql");
-            if (connectionId is null || sql is null)
+            // SQL may be plain text or a $redacted digest wrapper (sqlCapture=digest);
+            // Core relays it verbatim either way and never parses it (SPEC §13.3).
+            string? sqlRaw = envelope.Payload is { ValueKind: JsonValueKind.Object } pl
+                && pl.TryGetProperty("sql", out JsonElement sqlElement)
+                && sqlElement.ValueKind is JsonValueKind.String or JsonValueKind.Object
+                    ? sqlElement.GetRawText()
+                    : null;
+            if (connectionId is null || sqlRaw is null)
             {
                 return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "query.execute requires connectionId and sql.");
             }
@@ -318,7 +324,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             string queryId = string.Create(CultureInfo.InvariantCulture, $"q-{envelope.Seq}");
             string startEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-qstart-{envelope.Seq}");
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{JsonSerializer.Serialize(sql)}},"credit":{{Sts2Defaults.WindowPages}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}}}
                 """);
 
             CoreState next = state with

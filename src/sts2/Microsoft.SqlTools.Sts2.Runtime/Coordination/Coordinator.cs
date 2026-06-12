@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private readonly Channel<PendingInput> inputs;
         private readonly Task pump;
 
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, JsonElement> elidedFragments = new(StringComparer.Ordinal);
         private CoreState state;
         private long seqCounter;
 
@@ -102,7 +103,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         {
             await foreach (PendingInput input in inputs.Reader.ReadAllAsync().ConfigureAwait(false))
             {
-                Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, input.Payload, input.Cause);
+                JsonElement? captured = CaptureElision.ElideInput(options, input.Kind, input.Type, input.Payload, elidedFragments);
+                Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
                 await journal.AppendAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
 
                 CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
@@ -178,7 +180,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         {
             try
             {
-                emitRpc(message);
+                // The journal records elided payloads; the wire gets the originals back.
+                JsonElement? restored = CaptureElision.Substitute(message.Body, elidedFragments);
+                emitRpc(restored is null ? message : message with { Body = restored });
             }
             catch (Exception)
             {
@@ -190,7 +194,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         {
             try
             {
-                effectRunner.Run(effect, this);
+                JsonElement? restored = CaptureElision.Substitute(effect.Args, elidedFragments);
+                effectRunner.Run(restored is null ? effect : effect with { Args = restored.Value }, this);
             }
             catch (Exception)
             {
