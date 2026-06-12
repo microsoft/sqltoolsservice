@@ -1451,9 +1451,10 @@ END
             Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
                 $"ListCustomers.sql should appear even if ParseResult was initially null. Found: {string.Join(", ", files)}");
 
-            // ParseResult should now be populated as a side-effect of FindTokenLocationsInFile (disk parse).
-            Assert.That(listParseInfo.ParseResult, Is.Not.Null,
-                "ParseResult should be set after HandleReferencesRequest triggers on-demand parse");
+            // FindTokenLocationsInFile parses the file from disk into a local ParseResult without
+            // mutating shared state, so the cached ScriptParseInfo.ParseResult stays null.
+            Assert.That(listParseInfo.ParseResult, Is.Null,
+                "On-demand disk parse should not mutate the shared ScriptParseInfo.ParseResult");
         }
 
         // ── Isolation: unrelated tables must not appear in each other's results ─
@@ -1700,9 +1701,11 @@ END
             Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
                 $"Customers.sql (table definition) should be in the edit set. Keys: {string.Join(", ", files)}");
 
+            // Every edit renames to the new name. The bracket-quoted occurrence in GetBracketed.sql
+            // (a project file scanned from disk) is preserved as [Clients]; all others are plain.
             var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
-            Assert.That(allEdits.All(e => e.NewText == newName), Is.True,
-                $"Every TextEdit.NewText should equal '{newName}'. Found: {string.Join(", ", allEdits.Select(e => e.NewText).Distinct())}");
+            Assert.That(allEdits.All(e => e.NewText == newName || e.NewText == $"[{newName}]"), Is.True,
+                $"Every TextEdit.NewText should equal '{newName}' or '[{newName}]'. Found: {string.Join(", ", allEdits.Select(e => e.NewText).Distinct())}");
         }
 
         // ── Isolation: unrelated files must not appear in the edit set ──────────
