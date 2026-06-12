@@ -1,0 +1,9 @@
+# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
+# the milestone below. Header fields (name/tags/status/milestone/adapter) are
+# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
+# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+name: type-edge-values
+tags: [query, types, dialect:neutral]
+status: stub
+milestone: M3
+adapter: fake
