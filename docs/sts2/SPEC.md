@@ -1387,3 +1387,20 @@ These rules exist because the code will often be authored or modified by AI agen
 10. No clever hidden behavior: no reflection dispatch where a normal table is clearer, no ambient singletons in STS2, no product test switches, no swallowed exceptions.
 
 *End of spec.*
+
+---
+
+## 19. Implementation deviations log
+
+Per Karl (2026-06-12, M1 review gate): the sections above are the initial brainstorming
+contract and are preserved verbatim. Where the implementation deliberately deviates to
+make the system better, the deviation is recorded here (and mirrored in DECISIONS.md)
+instead of halting for SPEC-CHANGE review. Privacy, determinism, and no-gate-gaming
+rules remain non-negotiable.
+
+| # | Date | Deviates from | Change and rationale |
+|---|---|---|---|
+| DEV-001 | 2026-06-12 | §6.2 / §16 | Legacy `shutdown` calls `Environment.Exit(0)` without responding and `exit` is never handled (RF-0011), so the bounded journal-flush wait (`sts2.runtime.exitFlushMs`) applies to `shutdown` as well as `exit`; `ISts2LifecycleSink.OnShutdown` is `OnShutdownAsync`. |
+| DEV-002 | 2026-06-12 | §5.1 sketch | `Sts2Bootstrap.TryStart(string[] args, string? logFilePath)` omits the sketch's `commandOptions` parameter: Bootstrap cannot reference legacy types under the §4 matrix, and raw args suffice. |
+| DEV-003 | 2026-06-12 | §8.2 | Canonical JSON preserves number tokens verbatim (wire-faithful) instead of normalizing through a numeric type, which would silently alter precision. Frozen by golden tests. |
+| DEV-004 | 2026-06-12 | §4 matrix | Testing may additionally reference the YamlDotNet package for the §14.2 scenario runner (approved by Karl). The architecture test allowlist is updated to match. |
