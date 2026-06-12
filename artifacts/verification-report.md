@@ -2,6 +2,36 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## M2 - Connection vertical slice - 2026-06-12 - b2ced175+
+Gates:
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (140 tests)
+- scenario tests (Fake, active corpus): ok (14 active of 54)
+- contract tests (Sqlite): n/a (M4)
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok (12 lines / 3 files, unchanged)
+- build legacy exe (for E2E): ok
+- E2E disabled-mode v1 smoke + enabled-mode v1+v2: ok (4 tests, initialize added)
+
+New: driver port (SPEC §10.1 full shape) + FakeDriver (scripted outcomes, hang points, leases); Core connection machine (opening/open/closing, idempotent cancel/close, duplicate openId, maxConnections via journaled config); DriverEffectRunner (secret resolution at the edge, per-open CTS, bounded close, secret scrub on open completion); Sts2Session gateway (every v2 request redact->journal->Core->journaled response; LocalRpcException carries numeric code + data); YAML scenario runner (YamlDotNet, DEV-004) with bind/$profiles/race steps and per-run invariant checks; ConnectionSimulator 200 seeds; 14 scenarios active.
+Replay: all scenario + simulator journals identical (I7 checked per run); E2E journal under <logdir>/sts2
+Simulator: seeds=200 failures=0
+Mutation: n/a (M7)
+Perf: n/a (baseline due M3)
+Legacy diff: 12 lines / 3 files (unchanged since M0)
+API surface: Abstractions +245 (driver port), Core +~60 (connection machine, session config), Runtime +~75 (effect runner, replay), Hosting rebuilt (+29 Sts2Session, -Sts2RpcHost), Contracts +~40 (defaults, codes mapping, methods registry)
+Invariants exercised: I1, I5, I6, I7, I8, I12 per scenario/seed; I10-I14 in mux/E2E suites
+Decisions: DEV-004 applied (YamlDotNet in Testing); session.start config envelope (replay-safety, see risk note)
+Blockers: none
+Risk notes:
+- Two real bugs were caught by our own gates this milestone: (1) initial Core state parameterized via constructor diverged replay — fixed by journaling session config as a session.start control envelope; (2) driver.cancelOpen racing ahead of the open effect's task startup made cancels no-ops — fixed with a pre-cancel set. Both now have permanent regression coverage (ConnectionSessionReplaysIdentically, open-cancel-race scenario).
+- The gateway rejects unregistered v2 methods with plain -32601 (StreamJsonRpc), not Sts2.InvalidRequest; registered-but-invalid requests get stable Sts2.* codes. Acceptable wire behavior; revisit if the client needs uniform data.code.
+- Empty placeholder files (Sts2RpcHost.cs, DiagnosticsRpcTarget.cs, DiagnosticsPingContracts.cs) await deletion approval.
+Next: M3 (query streaming vertical)
+
 ## M1 - Spine: envelopes, journal, replay, review surface - 2026-06-12 - 9d077cd6
 Gates:
 - build (sts2 slnf, warnings as errors): ok

@@ -159,12 +159,26 @@ namespace Microsoft.SqlTools.Sts2.Testing
             return sb.ToString();
         }
 
-        /// <summary>STATE-MACHINE.md: Mermaid diagrams; M1 has only the toy machine.</summary>
+        /// <summary>STATE-MACHINE.md: Mermaid diagrams for the live machines.</summary>
         public static string StateMachine()
         {
             var sb = new StringBuilder(Header);
             sb.Append("# STS2 State Machines\n\n");
-            sb.Append("Connection and query state machines land with their verticals (M2/M3). The M1 toy machine proves the coordinator/journal/replay loop and is removed before preview.\n\n");
+            sb.Append("The query machine lands in M3. The M1 toy machine proves the coordinator/journal/replay loop and is removed before preview.\n\n");
+            sb.Append("## Connection machine (M2)\n\n");
+            sb.Append("One entry per connection in `CoreState.Connections`; `openId` is indexed while an open is in flight.\n\n");
+            sb.Append("```mermaid\nstateDiagram-v2\n");
+            sb.Append("    [*] --> Opening : v2/connection.open / effect driver.open (openId indexed)\n");
+            sb.Append("    Opening --> Open : effect.res ok / result(connectionId, serverInfo); openId released\n");
+            sb.Append("    Opening --> [*] : effect.res error / error(Sts2.ConnectionFailed.*)\n");
+            sb.Append("    Opening --> [*] : effect.res canceled / error(Sts2.Canceled)\n");
+            sb.Append("    Opening --> Opening : v2/connection.cancel / result {} + effect driver.cancelOpen (CancelRequested)\n");
+            sb.Append("    Opening --> Opening : v2/connection.close / result {} + effect driver.cancelOpen\n");
+            sb.Append("    Open --> Closing : v2/connection.close / effect driver.close\n");
+            sb.Append("    Closing --> [*] : effect.res / result {}\n");
+            sb.Append("    Closing --> Closing : v2/connection.close / result {} (idempotent)\n");
+            sb.Append("```\n\n");
+            sb.Append("Unknown ids on cancel/close return `{}` (idempotent, SPEC §7.9). A duplicate in-flight `openId` fails with `Sts2.InvalidRequest`; the `maxConnections` limit fails with `Sts2.Busy`.\n\n");
             sb.Append("## Toy machine (M1)\n\n");
             sb.Append("```mermaid\nstateDiagram-v2\n");
             sb.Append("    [*] --> Idle\n");

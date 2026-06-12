@@ -52,7 +52,12 @@ unit_tests() {
 
 scenario_corpus() {
     dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
-        --filter 'FullyQualifiedName~ScenarioCorpusTests'
+        --filter 'FullyQualifiedName~ScenarioCorpusTests|FullyQualifiedName~ActiveScenarioTests'
+}
+
+simulator() {
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
+        --filter 'FullyQualifiedName~SimulatorTests'
 }
 
 replay_verify() {
@@ -102,10 +107,10 @@ echo
 
 gate "build (sts2 slnf, warnings as errors)" build_sts2
 gate "unit+multiplexer+architecture tests" unit_tests
-gate "scenario corpus (stub validation)" scenario_corpus
-na "contract tests (Fake+Sqlite)" "M2+"
+gate "scenario tests (Fake, active corpus)" scenario_corpus
+na "contract tests (Sqlite)" "M4"
 gate "replay verify (sts2-replay)" replay_verify
-na "simulator" "M2"
+gate "simulator (200 seeds)" simulator
 gate "secret canary scan" secret_canary_scan
 gate "generated docs diff" generated_docs_diff
 gate "legacy diff budget" legacy_diff_budget
