@@ -291,3 +291,4 @@ docs/metadata
 # Designer Files
 *.Designer.cs
 .claude/ 
+artifacts/verify-latest.md
