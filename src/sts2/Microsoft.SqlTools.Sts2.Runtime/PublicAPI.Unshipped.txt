@@ -48,6 +48,14 @@ Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Ts.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Type.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretRedactor
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Count.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Remove(string! token) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.RemoveAll(System.Collections.Generic.IEnumerable<string!>! tokens) -> void
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.SecretSideTable() -> void
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Tokenize(string! secretValue) -> string!
+Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.TryResolve(string! token, out string! secretValue) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.ToString() -> string!
@@ -60,3 +68,4 @@ static Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.operator ==(Micros
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.Canonicalize(System.Text.Json.JsonElement element) -> byte[]!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOf(System.Text.Json.JsonElement element) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOfCanonicalBytes(System.ReadOnlySpan<byte> canonicalUtf8) -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretRedactor.Redact(System.Text.Json.Nodes.JsonNode? payload, Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable! sideTable) -> System.Text.Json.Nodes.JsonNode?
