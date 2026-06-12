@@ -1,1 +1,5 @@
 #nullable enable
+Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.Canonicalize(System.Text.Json.JsonElement element) -> byte[]!
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOf(System.Text.Json.JsonElement element) -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOfCanonicalBytes(System.ReadOnlySpan<byte> canonicalUtf8) -> string!
