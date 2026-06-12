@@ -6,11 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
@@ -21,6 +24,23 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     internal static class SchemaCompareUtils
     {
         private static readonly Regex ExcessWhitespaceRegex = new Regex(" {2,}", RegexOptions.Compiled);
+
+        // The DacFx full type-name suffixes for the constraint kinds that, on SqlDwUnified
+        // (Fabric Warehouse), are always emitted as standalone "ALTER TABLE ... ADD CONSTRAINT"
+        // statements rather than inlined into CREATE TABLE. We need to preserve their child
+        // scripts so the diff editor and aggregated generated script include the constraint
+        // definitions. Match SchemaComparisonExcludedObjectId.TypeName which is the
+        // full .NET type name like "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlPrimaryKeyConstraint".
+        private static readonly string[] ConstraintTypeNameSuffixes = new[]
+        {
+            "PrimaryKeyConstraint",
+            "ForeignKeyConstraint",
+            "UniqueConstraint",
+            "CheckConstraint",
+            "DefaultConstraint",
+        };
+
+        private const string SqlDwUnifiedPlatformName = "SqlDwUnified";
 
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
         {
@@ -51,6 +71,15 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
             {
+                // Fabric Warehouse (SqlDwUnified) never inlines PK/FK/UNIQUE/CHECK/DEFAULT
+                // constraints into CREATE TABLE — every constraint is emitted as a standalone
+                // "ALTER TABLE ... ADD CONSTRAINT ..." script. The legacy filter below skips
+                // child scripts that start with "alter" on the assumption that they're
+                // duplicates of inline constraints already present in the parent's CREATE.
+                // For SqlDwUnified that assumption is wrong: the ALTER script is the ONLY
+                // place the constraint is defined, so we must keep it.
+                bool keepAlterScript = IsConstraintChildOnSqlDwUnified(diffEntry, schemaComparisonResult);
+
                 // set source and target scripts
                 if (difference.SourceObject != null)
                 {
@@ -58,7 +87,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
                     // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
                     // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
+                    if (keepAlterScript || !sourceScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
                     }
@@ -69,7 +98,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
                     // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
                     // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!targetScript.ToLowerInvariant().StartsWith("alter"))
+                    if (keepAlterScript || !targetScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
                     }
@@ -85,6 +114,33 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             return diffEntry;
         }
+
+        private static bool IsConstraintChildOnSqlDwUnified(DiffEntry diffEntry, SchemaComparisonResult schemaComparisonResult)
+        {
+            string typeName = diffEntry.SourceObjectType ?? diffEntry.TargetObjectType;
+            if (string.IsNullOrEmpty(typeName))
+            {
+                return false;
+            }
+
+            bool isConstraint = false;
+            foreach (string suffix in ConstraintTypeNameSuffixes)
+            {
+                if (typeName.EndsWith(suffix, StringComparison.Ordinal))
+                {
+                    isConstraint = true;
+                    break;
+                }
+            }
+            if (!isConstraint)
+            {
+                return false;
+            }
+
+            string platform = GetComparisonPlatform(schemaComparisonResult);
+            return string.Equals(platform, SqlDwUnifiedPlatformName, StringComparison.Ordinal);
+        }
+
 
         internal static SchemaComparisonExcludedObjectId CreateExcludedObject(SchemaCompareObjectId sourceObj)
         {
@@ -154,6 +210,136 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 script += Environment.NewLine + "GO";
             }
             return script;
+        }
+
+        // Cached reflection accessors for SchemaComparisonResult.DataModel.DatabaseSchemaProvider.Platform.
+        // Resolved lazily and atomically on first use so we pay the lookup cost once per process.
+        private static PropertyInfo s_dataModelProp;
+        private static PropertyInfo s_dspProp;
+        private static PropertyInfo s_platformProp;
+        private static bool s_reflectionInitFailed;
+        private static readonly object s_reflectionInitLock = new object();
+
+        // Per-result cache so CreateDiffEntry's recursive walk does not re-reflect for every child.
+        // ConditionalWeakTable doesn't allow null values, so we sentinel "unknown" as empty string.
+        private static readonly ConditionalWeakTable<SchemaComparisonResult, string> s_platformByResult =
+            new ConditionalWeakTable<SchemaComparisonResult, string>();
+
+        /// <summary>
+        /// Returns the comparison's DSP platform as a string (e.g. "Sql160", "SqlDwUnified")
+        /// by reflecting into the internal <c>SchemaCompareDataModel.DatabaseSchemaProvider</c>
+        /// reachable from <see cref="SchemaComparisonResult"/>. Returns <c>null</c> if any step
+        /// of the lookup fails or returns null. Result is cached per <c>SchemaComparisonResult</c>
+        /// instance so repeated calls are O(1) after the first.
+        /// </summary>
+        /// <remarks>
+        /// This is a reflection workaround for the lack of a public DacFx accessor exposing
+        /// the comparison's platform. <c>TSqlModel.Version</c> would be the natural API but
+        /// returns <c>Sql150</c> for Fabric Warehouse models (see
+        /// <c>InternalModelUtils.CalculateVersionsForPlatform</c>). If DacFx adds a public
+        /// <c>SchemaComparisonResult.Platform</c> property in the future, replace this with
+        /// the direct call.
+        /// </remarks>
+        internal static string GetComparisonPlatform(SchemaComparisonResult result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            if (s_platformByResult.TryGetValue(result, out string cached))
+            {
+                return string.IsNullOrEmpty(cached) ? null : cached;
+            }
+
+            string platform = TryGetComparisonPlatformCore(result);
+            // ConditionalWeakTable rejects nulls, so store empty for "unknown".
+            s_platformByResult.Add(result, platform ?? string.Empty);
+            return platform;
+        }
+
+        private static string TryGetComparisonPlatformCore(SchemaComparisonResult result)
+        {
+            try
+            {
+                if (!EnsureReflectionMembers(result.GetType()))
+                {
+                    return null;
+                }
+
+                object dataModel = s_dataModelProp.GetValue(result);
+                if (dataModel == null)
+                {
+                    return null;
+                }
+
+                PropertyInfo dspProp = s_dspProp ?? dataModel.GetType().GetProperty("DatabaseSchemaProvider");
+                if (dspProp == null)
+                {
+                    return null;
+                }
+                s_dspProp = dspProp;
+
+                object dsp = dspProp.GetValue(dataModel);
+                if (dsp == null)
+                {
+                    return null;
+                }
+
+                PropertyInfo platformProp = s_platformProp ?? dsp.GetType().GetProperty("Platform");
+                if (platformProp == null)
+                {
+                    return null;
+                }
+                s_platformProp = platformProp;
+
+                object platformValue = platformProp.GetValue(dsp);
+                return platformValue?.ToString();
+            }
+            catch (Exception ex)
+            {
+                // Reflection failures are non-fatal: the platform pill simply won't render
+                // and the user keeps their compare results. Log so the failure is diagnosable
+                // from the STS log file without surfacing to the UI.
+                Logger.Warning(string.Format("Schema compare: failed to detect comparison platform via reflection: {0}", ex.Message));
+                return null;
+            }
+        }
+
+        private static bool EnsureReflectionMembers(Type resultType)
+        {
+            if (s_dataModelProp != null)
+            {
+                return true;
+            }
+            if (s_reflectionInitFailed)
+            {
+                return false;
+            }
+
+            lock (s_reflectionInitLock)
+            {
+                if (s_dataModelProp != null)
+                {
+                    return true;
+                }
+                if (s_reflectionInitFailed)
+                {
+                    return false;
+                }
+
+                PropertyInfo prop = resultType.GetProperty(
+                    "DataModel",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                if (prop == null)
+                {
+                    s_reflectionInitFailed = true;
+                    Logger.Warning("Schema compare: SchemaComparisonResult.DataModel property not found via reflection; platform pill will be unavailable.");
+                    return false;
+                }
+                s_dataModelProp = prop;
+                return true;
+            }
         }
     }
 }
