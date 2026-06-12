@@ -1895,50 +1895,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Returns a <see cref="Location"/> for every significant token in <paramref name="filePath"/>
         /// whose bare text (brackets stripped) matches <paramref name="objectName"/> case-insensitively.
-        /// Uses the cached <see cref="ScriptParseInfo"/>; performs an on-demand lightweight parse (no binding)
-        /// if the file has never been opened and its <see cref="ScriptParseInfo.ParseResult"/> is null.
+        /// Reads the file content from disk — the same source the DacFx model (candidate files and
+        /// token positions) is built from — and parses it into a local <see cref="ParseResult"/>
+        /// without mutating shared state or taking the binding lock.
         /// </summary>
         private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
         {
-            // Convert the file path to the URI key used by ScriptParseInfoMap.
-            string fileUri = new Uri(filePath).AbsoluteUri;
-            var parseInfo = GetScriptParseInfo(fileUri);
-
-            // Re-parse only when needed:
-            //   - open files: ParseResult is kept current by the didChange pipeline; skip re-parse
-            //     unless RequiresReparse detects the buffer has drifted (shouldn't happen normally).
-            //   - unopened files: ParseResult may be null or stale (e.g. a rename wrote edits to
-            //     disk without opening the file, so no didChange ever fired) — always re-parse from disk.
-            if (parseInfo != null)
-            {
-                // Prefer the in-memory workspace buffer so token positions are consistent with
-                // the DacFx model (which is kept in sync via didChange). Fall back to disk for
-                // files that have never been opened in the editor.
-                var wsFile = CurrentWorkspace.GetFile(fileUri);
-                string? sqlText = wsFile?.Contents
-                    ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
-
-                bool needsReparse = parseInfo.ParseResult == null          // never parsed
-                    || wsFile == null                                        // unopened: disk may differ
-                    || RequiresReparse(parseInfo, wsFile);                   // open but buffer drifted
-
-                if (needsReparse && sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
-                {
-                    try
-                    {
-                        parseInfo.ParseResult = Parser.Parse(sqlText, this.DefaultParseOptions);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(parseInfo.BuildingMetadataLock);
-                    }
-                }
-            }
-
-            if (parseInfo?.ParseResult?.Script?.Tokens == null)
+            // Read directly from disk to stay consistent with the DacFx model, which is built from
+            // the saved project files. The workspace buffer cache is not used here because it can
+            // hold duplicate entries for the same path under different URI encodings.
+            string sqlText = File.Exists(filePath) ? File.ReadAllText(filePath) : null;
+            if (sqlText == null)
                 yield break;
 
-            foreach (Token token in parseInfo.ParseResult.Script.Tokens)
+            string fileUri = new Uri(filePath).AbsoluteUri;
+
+            IEnumerable<Token> tokens = Parser.Parse(sqlText, this.DefaultParseOptions)?.Script?.Tokens;
+            if (tokens == null)
+                yield break;
+
+            foreach (Token token in tokens)
             {
                 // token.IsSignificant is false for whitespace and comments — skip them.
                 if (!token.IsSignificant)
@@ -2566,6 +2542,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="parseResult"></param>
         public async Task<bool> CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
         {
+            if (parseResult?.Script == null)
+            {
+                return false;
+            }
+
             if (parseResult.Errors.Count() >= TSqlDetectionConstants.SqlFileErrorLimit)
             {
                 await ServiceHostInstance.SendEvent(
