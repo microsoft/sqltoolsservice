@@ -1,5 +1,30 @@
 #nullable enable
-Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost
-Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost.Completion.get -> System.Threading.Tasks.Task!
-Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost.DisposeAsync() -> System.Threading.Tasks.ValueTask
-static Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost.Attach(System.IO.Stream! input, System.IO.Stream! output, string! serviceVersion) -> Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost!
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Completion.get -> System.Threading.Tasks.Task!
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Coordinator.get -> Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator!
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session.SignalLifecycleAsync(string! signal) -> System.Threading.Tasks.Task!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.<Clone>$() -> Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.CommandLine.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.CommandLine.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Drivers.get -> System.Collections.Generic.IReadOnlyDictionary<string!, Microsoft.SqlTools.Sts2.Abstractions.IDbDriver!>!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Drivers.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Equals(Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? other) -> bool
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Input.get -> System.IO.Stream!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Input.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.JournalDirectory.get -> string!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.JournalDirectory.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Output.get -> System.IO.Stream!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Output.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.RunId.get -> string!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.RunId.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ServiceVersion.get -> string!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ServiceVersion.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Sts2SessionOptions() -> void
+override Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ToString() -> string!
+static Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Start(Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions! options) -> Microsoft.SqlTools.Sts2.Hosting.Sts2Session!
+static Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.operator !=(Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? left, Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? right) -> bool
+static Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.operator ==(Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? left, Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? right) -> bool

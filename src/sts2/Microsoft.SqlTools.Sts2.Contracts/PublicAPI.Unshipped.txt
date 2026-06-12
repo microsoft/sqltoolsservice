@@ -25,22 +25,6 @@ const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.QueryFailedTransport = "S
 const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Unavailable = "Sts2.Unavailable" -> string!
 const Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants.MethodPrefix = "v2/" -> string!
 const Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants.SpecVersion = "2.0.0-preview.1" -> string!
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams.DiagnosticsPingParams() -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams.Echo.get -> string?
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams.Echo.init -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.DiagnosticsPingResult() -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.Echo.get -> string?
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.Echo.init -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.Health.get -> string!
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.Health.init -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.LatestJournalSeq.get -> long
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.LatestJournalSeq.init -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.ServiceVersion.get -> string!
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.ServiceVersion.init -> void
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.SpecVersion.get -> string!
-Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.SpecVersion.init -> void
 Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults
 Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes
 Microsoft.SqlTools.Sts2.Contracts.Sts2JsonRpcCodes

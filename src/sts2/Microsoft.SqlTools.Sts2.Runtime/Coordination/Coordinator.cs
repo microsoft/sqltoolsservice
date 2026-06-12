@@ -81,6 +81,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         public ValueTask PostEffectResponseAsync(string effectId, string effectName, JsonElement? payload, long causeSeq) =>
             inputs.Writer.WriteAsync(new PendingInput(EnvelopeKinds.EffectResponse, effectName, null, effectId, payload, causeSeq));
 
+        /// <summary>Flushes the journal to disk (lifecycle flush, SPEC §6.2).</summary>
+        public ValueTask FlushJournalAsync() => journal.FlushAsync();
+
         /// <summary>Stops accepting input, drains the pump, and closes the journal.</summary>
         public async ValueTask DisposeAsync()
         {

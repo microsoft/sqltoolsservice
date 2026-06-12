@@ -4,7 +4,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 
-$output = & dotnet build (Join-Path $root 'sqltoolsservice-sts2.slnf') -v q --nologo 2>&1 | Out-String
+$output = & dotnet build (Join-Path $root 'sqltoolsservice-sts2.slnf') -v q --nologo -consoleLoggerParameters:'NoSummary;DisableConsoleColor' 2>&1 | Out-String -Width 1000000
 $pattern = [regex]"(?m)^(?<file>[^(\r\n]+)\(\d+,\d+\): error RS0016: Symbol '(?<symbol>.+?)' is not part of the declared public API"
 $additions = @{}
 foreach ($m in $pattern.Matches(($output -replace "\x1b\[[0-9;]*m", ''))) {

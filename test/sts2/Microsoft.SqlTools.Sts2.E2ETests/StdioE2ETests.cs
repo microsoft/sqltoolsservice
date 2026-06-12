@@ -71,6 +71,29 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         }
 
         [Fact]
+        public async Task EnabledMode_InitializeWorksAndJournalIsWritten()
+        {
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+
+            JsonElement initialize = await client.RequestAsync("v2/initialize", new { clientName = "e2e" }, TestTimeout);
+            Assert.True(initialize.TryGetProperty("result", out JsonElement result), "initialize failed: " + initialize.GetRawText());
+            Assert.Equal("2.0.0-preview.1", result.GetProperty("specVersion").GetString());
+            Assert.True(result.GetProperty("limits").GetProperty("pageRows").GetInt32() > 0);
+
+            // The journal exists under <log-dir>/sts2 in enabled mode (SPEC §8.3).
+            string journalDir = Path.Combine(logDirectory, "sts2");
+            Assert.True(Directory.Exists(journalDir), "journal directory missing: " + journalDir);
+            Assert.NotEmpty(Directory.EnumerateFiles(journalDir, "journal-*.jsonl"));
+
+            // Unregistered v2 methods get JSON-RPC method-not-found from the gateway
+            // (numeric code, I12-compatible); registered-but-invalid requests get
+            // Sts2.* identities from Core (covered by unit scenarios).
+            JsonElement unknown = await client.RequestAsync("v2/does.not.exist", new { }, TestTimeout);
+            Assert.True(unknown.TryGetProperty("error", out JsonElement error), "expected error: " + unknown.GetRawText());
+            Assert.Equal(-32601, error.GetProperty("code").GetInt32());
+        }
+
+        [Fact]
         public async Task EnabledMode_ShutdownTerminatesProcess()
         {
             await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);

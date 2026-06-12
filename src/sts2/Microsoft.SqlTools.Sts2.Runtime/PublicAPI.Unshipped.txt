@@ -22,6 +22,7 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Completion.get -> Syste
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Coordinator(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter! journal, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions! options, Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner! effectRunner, System.Action<Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage!>! emitRpc) -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.CurrentState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.FlushJournalAsync() -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.LatestSeq.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostControlAsync(string! signal, System.Text.Json.JsonElement? payload = null) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask

@@ -6,6 +6,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Hosting;
@@ -67,19 +68,32 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
             };
 
             var multiplexer = new StdioMultiplexer(realInput, realOutput, options);
-            Sts2RpcHost rpcHost = Sts2RpcHost.Attach(
-                multiplexer.Sts2Input,
-                multiplexer.Sts2Output,
-                serviceVersion: typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0");
+
+            string logDirectory = string.IsNullOrWhiteSpace(logFilePath)
+                ? Path.GetTempPath()
+                : Path.GetDirectoryName(Path.GetFullPath(logFilePath)) ?? Path.GetTempPath();
+            string runId = string.Create(
+                CultureInfo.InvariantCulture,
+                $"run-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{Environment.ProcessId}");
+            Sts2Session session = Sts2Session.Start(new Sts2SessionOptions
+            {
+                Input = multiplexer.Sts2Input,
+                Output = multiplexer.Sts2Output,
+                RunId = runId,
+                JournalDirectory = Path.Combine(logDirectory, "sts2"),
+                ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
+                // Production drivers register here when the adapters land (M4 sqlite, M5 sqlclient).
+                CommandLine = args.Where(a => !a.Contains("password", StringComparison.OrdinalIgnoreCase)).ToArray(),
+            });
 
             // Crash containment (SPEC §6.5): if the STS2 host dies, mark the channel dead
             // so v2 requests get synthesized errors while legacy traffic continues.
-            _ = rpcHost.Completion.ContinueWith(
+            _ = session.Completion.ContinueWith(
                 t => multiplexer.MarkSts2Dead("STS2 host terminated: " + (t.Exception?.GetBaseException().Message ?? "connection closed")),
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
-            multiplexer.Start(new M0LifecycleSink(diagnosticsLog));
-            return new Sts2BootstrapHandle(multiplexer.LegacyInput, multiplexer.LegacyOutput, multiplexer, rpcHost, diagnosticsLog);
+            multiplexer.Start(new SessionLifecycleSink(session, diagnosticsLog));
+            return new Sts2BootstrapHandle(multiplexer.LegacyInput, multiplexer.LegacyOutput, multiplexer, session, diagnosticsLog);
         }
 
         private static StreamWriter? TryCreateDiagnosticsLog(string? logFilePath)
@@ -115,30 +129,35 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
         }
 
         /// <summary>
-        /// M0 lifecycle sink: there is no journal yet, so shutdown is a no-op and the exit
-        /// flush only flushes the diagnostics log. The journaled implementation lands in M1.
+        /// Journals the mirrored lifecycle signal and flushes before legacy can act on it
+        /// (this repo's legacy host exits the process from shutdown, RF-0011).
         /// </summary>
-        private sealed class M0LifecycleSink : ISts2LifecycleSink
+        private sealed class SessionLifecycleSink : ISts2LifecycleSink
         {
+            private readonly Sts2Session session;
             private readonly StreamWriter? diagnosticsLog;
 
-            internal M0LifecycleSink(StreamWriter? diagnosticsLog)
+            internal SessionLifecycleSink(Sts2Session session, StreamWriter? diagnosticsLog)
             {
+                this.session = session;
                 this.diagnosticsLog = diagnosticsLog;
             }
 
-            public Task OnShutdownAsync() => OnExitAsync();
+            public Task OnShutdownAsync() => SignalAsync("lifecycle.shutdown");
 
-            public Task OnExitAsync()
+            public Task OnExitAsync() => SignalAsync("lifecycle.exit");
+
+            private async Task SignalAsync(string signal)
             {
                 try
                 {
+                    await session.SignalLifecycleAsync(signal).ConfigureAwait(false);
                     diagnosticsLog?.Flush();
                 }
-                catch (Exception ex) when (ex is IOException or ObjectDisposedException)
+                catch (Exception ex) when (ex is IOException or ObjectDisposedException or InvalidOperationException)
                 {
+                    // Flush is best effort under a bounded wait; the mux forwards regardless.
                 }
-                return Task.CompletedTask;
             }
         }
     }

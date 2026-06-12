@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
     public sealed class Sts2BootstrapHandle : IAsyncDisposable
     {
         private readonly StdioMultiplexer? multiplexer;
-        private readonly Sts2RpcHost? rpcHost;
+        private readonly Sts2Session? session;
         private readonly StreamWriter? diagnosticsLog;
 
         internal static Sts2BootstrapHandle Disabled { get; } = new(null, null, null, null, null);
@@ -28,13 +28,13 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
             Stream? legacyInputStream,
             Stream? legacyOutputStream,
             StdioMultiplexer? multiplexer,
-            Sts2RpcHost? rpcHost,
+            Sts2Session? session,
             StreamWriter? diagnosticsLog)
         {
             LegacyInputStream = legacyInputStream;
             LegacyOutputStream = legacyOutputStream;
             this.multiplexer = multiplexer;
-            this.rpcHost = rpcHost;
+            this.session = session;
             this.diagnosticsLog = diagnosticsLog;
         }
 
@@ -52,9 +52,9 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
         /// </summary>
         public async ValueTask DisposeAsync()
         {
-            if (rpcHost is not null)
+            if (session is not null)
             {
-                await rpcHost.DisposeAsync().ConfigureAwait(false);
+                await session.DisposeAsync().ConfigureAwait(false);
             }
             if (multiplexer is not null)
             {
