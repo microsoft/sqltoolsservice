@@ -1,1 +1,152 @@
 #nullable enable
+abstract Microsoft.SqlTools.Sts2.Core.CoreOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreOutput!
+Microsoft.SqlTools.Sts2.Core.CoreDecision
+Microsoft.SqlTools.Sts2.Core.CoreDecision.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreDecision!
+Microsoft.SqlTools.Sts2.Core.CoreDecision.CoreDecision(Microsoft.SqlTools.Sts2.Core.CoreState! NewState, System.Collections.Immutable.ImmutableArray<Microsoft.SqlTools.Sts2.Core.CoreOutput!> Outputs) -> void
+Microsoft.SqlTools.Sts2.Core.CoreDecision.Deconstruct(out Microsoft.SqlTools.Sts2.Core.CoreState! NewState, out System.Collections.Immutable.ImmutableArray<Microsoft.SqlTools.Sts2.Core.CoreOutput!> Outputs) -> void
+Microsoft.SqlTools.Sts2.Core.CoreDecision.Equals(Microsoft.SqlTools.Sts2.Core.CoreDecision? other) -> bool
+Microsoft.SqlTools.Sts2.Core.CoreDecision.NewState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
+Microsoft.SqlTools.Sts2.Core.CoreDecision.NewState.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreDecision.Outputs.get -> System.Collections.Immutable.ImmutableArray<Microsoft.SqlTools.Sts2.Core.CoreOutput!>
+Microsoft.SqlTools.Sts2.Core.CoreDecision.Outputs.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreEnvelope!
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.CoreEnvelope() -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Corr.get -> string?
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Corr.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Equals(Microsoft.SqlTools.Sts2.Core.CoreEnvelope? other) -> bool
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Kind.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Payload.get -> System.Text.Json.JsonElement?
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Payload.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Seq.get -> long
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Seq.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.SessionId.get -> string?
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.SessionId.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Type.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Type.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreOutput
+Microsoft.SqlTools.Sts2.Core.CoreOutput.CoreOutput() -> void
+Microsoft.SqlTools.Sts2.Core.CoreOutput.CoreOutput(Microsoft.SqlTools.Sts2.Core.CoreOutput! original) -> void
+Microsoft.SqlTools.Sts2.Core.CoreState
+Microsoft.SqlTools.Sts2.Core.CoreState.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreState!
+Microsoft.SqlTools.Sts2.Core.CoreState.CoreState() -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.Equals(Microsoft.SqlTools.Sts2.Core.CoreState? other) -> bool
+Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.get -> long
+Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.get -> bool
+Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.ToyCounter.get -> int
+Microsoft.SqlTools.Sts2.Core.CoreState.ToyCounter.init -> void
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.get -> System.Text.Json.JsonElement
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.init -> void
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Deconstruct(out string! Name, out System.Text.Json.JsonElement Data) -> void
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.DiagnosticOutput(string! Name, System.Text.Json.JsonElement Data) -> void
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Equals(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? other) -> bool
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Name.get -> string!
+Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Name.init -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Args.get -> System.Text.Json.JsonElement
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Args.init -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Corr.get -> string?
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Corr.init -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Deconstruct(out string! EffectId, out string! EffectName, out System.Text.Json.JsonElement Args, out string? Corr) -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectId.get -> string!
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectId.init -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectName.get -> string!
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectName.init -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectRequestOutput(string! EffectId, string! EffectName, System.Text.Json.JsonElement Args, string? Corr) -> void
+Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? other) -> bool
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Corr.get -> string!
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Corr.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.DataCode.get -> string!
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.DataCode.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Deconstruct(out string! Corr, out int JsonRpcCode, out string! Message, out string! DataCode) -> void
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Equals(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? other) -> bool
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.JsonRpcCode.get -> int
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.JsonRpcCode.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Message.get -> string!
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Message.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.RpcErrorOutput(string! Corr, int JsonRpcCode, string! Message, string! DataCode) -> void
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Deconstruct(out string! Method, out System.Text.Json.JsonElement Params) -> void
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Equals(Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? other) -> bool
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Method.get -> string!
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Method.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Params.get -> System.Text.Json.JsonElement
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Params.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.RpcNotifyOutput(string! Method, System.Text.Json.JsonElement Params) -> void
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Corr.get -> string!
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Corr.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Deconstruct(out string! Corr, out System.Text.Json.JsonElement Result) -> void
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Equals(Microsoft.SqlTools.Sts2.Core.RpcResultOutput? other) -> bool
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Result.get -> System.Text.Json.JsonElement
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Result.init -> void
+Microsoft.SqlTools.Sts2.Core.RpcResultOutput.RpcResultOutput(string! Corr, System.Text.Json.JsonElement Result) -> void
+Microsoft.SqlTools.Sts2.Core.Sts2CoreReducer
+override Microsoft.SqlTools.Sts2.Core.CoreDecision.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.CoreDecision.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.CoreDecision.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.CoreEnvelope.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.CoreEnvelope.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.CoreEnvelope.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.CoreOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.CoreOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.CoreOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.CoreState.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.CoreState.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.CoreState.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.DiagnosticOutput!
+override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.EffectRequestOutput!
+override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.RpcErrorOutput!
+override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput!
+override Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.RpcResultOutput!
+override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.ToString() -> string!
+override sealed Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreDecision.operator !=(Microsoft.SqlTools.Sts2.Core.CoreDecision? left, Microsoft.SqlTools.Sts2.Core.CoreDecision? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreDecision.operator ==(Microsoft.SqlTools.Sts2.Core.CoreDecision? left, Microsoft.SqlTools.Sts2.Core.CoreDecision? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreDecision.StateOnly(Microsoft.SqlTools.Sts2.Core.CoreState! newState) -> Microsoft.SqlTools.Sts2.Core.CoreDecision!
+static Microsoft.SqlTools.Sts2.Core.CoreEnvelope.operator !=(Microsoft.SqlTools.Sts2.Core.CoreEnvelope? left, Microsoft.SqlTools.Sts2.Core.CoreEnvelope? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreEnvelope.operator ==(Microsoft.SqlTools.Sts2.Core.CoreEnvelope? left, Microsoft.SqlTools.Sts2.Core.CoreEnvelope? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreOutput.operator !=(Microsoft.SqlTools.Sts2.Core.CoreOutput? left, Microsoft.SqlTools.Sts2.Core.CoreOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreOutput.operator ==(Microsoft.SqlTools.Sts2.Core.CoreOutput? left, Microsoft.SqlTools.Sts2.Core.CoreOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreState.Initial.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
+static Microsoft.SqlTools.Sts2.Core.CoreState.operator !=(Microsoft.SqlTools.Sts2.Core.CoreState? left, Microsoft.SqlTools.Sts2.Core.CoreState? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreState.operator ==(Microsoft.SqlTools.Sts2.Core.CoreState? left, Microsoft.SqlTools.Sts2.Core.CoreState? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.operator !=(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? left, Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.operator ==(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? left, Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.operator !=(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? left, Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.operator ==(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? left, Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.operator !=(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? left, Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.operator ==(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? left, Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.operator !=(Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? left, Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.operator ==(Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? left, Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.RpcResultOutput.operator !=(Microsoft.SqlTools.Sts2.Core.RpcResultOutput? left, Microsoft.SqlTools.Sts2.Core.RpcResultOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.RpcResultOutput.operator ==(Microsoft.SqlTools.Sts2.Core.RpcResultOutput? left, Microsoft.SqlTools.Sts2.Core.RpcResultOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.Sts2CoreReducer.Decide(Microsoft.SqlTools.Sts2.Core.CoreState! state, Microsoft.SqlTools.Sts2.Core.CoreEnvelope! envelope) -> Microsoft.SqlTools.Sts2.Core.CoreDecision!
+virtual Microsoft.SqlTools.Sts2.Core.CoreOutput.EqualityContract.get -> System.Type!
+virtual Microsoft.SqlTools.Sts2.Core.CoreOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+virtual Microsoft.SqlTools.Sts2.Core.CoreOutput.PrintMembers(System.Text.StringBuilder! builder) -> bool

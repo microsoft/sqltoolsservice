@@ -15,6 +15,54 @@ const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutNotify = "rp
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutResult = "rpc.out.result" -> string!
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.StateSnapshot = "state.snapshot" -> string!
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.TimerDue = "timer.due" -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Completion.get -> System.Threading.Tasks.Task!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Coordinator(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter! journal, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions! options, Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner! effectRunner, System.Action<Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage!>! emitRpc) -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.CurrentState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.LatestSeq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostControlAsync(string! signal) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcNotificationAsync(string! method, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcRequestAsync(string! method, string! corr, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.CoordinatorOptions() -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.QueueCapacity.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.QueueCapacity.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RunId.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RunId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.TimeProvider.get -> System.TimeProvider!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.TimeProvider.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Args.get -> System.Text.Json.JsonElement
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Args.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.CauseSeq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.CauseSeq.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.EffectId.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.EffectId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.EffectName.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.EffectName.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.EffectWorkItem() -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox
+Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner
+Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner.Run(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem! effect, Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox! inbox) -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Body.get -> System.Text.Json.JsonElement?
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Body.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Corr.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Corr.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Kind.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.OutboundRpcMessage() -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Type.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope
@@ -122,6 +170,15 @@ Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.RemoveAll(System.Colle
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.SecretSideTable() -> void
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Tokenize(string! secretValue) -> string!
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.TryResolve(string! token, out string! secretValue) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.ToString() -> string!
@@ -137,6 +194,12 @@ override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.ToString() ->
 override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.ToString() -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.DeserializeLine(string! line) -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SerializeLine(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.All.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
