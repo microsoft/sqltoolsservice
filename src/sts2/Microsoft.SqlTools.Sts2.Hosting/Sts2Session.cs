@@ -201,6 +201,19 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             [JsonRpcMethod("v2/connection.close", UseSingleObjectParameterDeserialization = true)]
             public Task<JsonElement?> ConnectionCloseAsync(JsonElement? args = null) => session.InvokeAsync("v2/connection.close", args);
 
+            [JsonRpcMethod("v2/query.execute", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> QueryExecuteAsync(JsonElement? args = null) => session.InvokeAsync("v2/query.execute", args);
+
+            [JsonRpcMethod("v2/query.cancel", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> QueryCancelAsync(JsonElement? args = null) => session.InvokeAsync("v2/query.cancel", args);
+
+            [JsonRpcMethod("v2/query.dispose", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> QueryDisposeAsync(JsonElement? args = null) => session.InvokeAsync("v2/query.dispose", args);
+
+            [JsonRpcMethod("v2/query.ack", UseSingleObjectParameterDeserialization = true)]
+            public Task QueryAckAsync(JsonElement? args = null) =>
+                session.coordinator.PostRpcNotificationAsync("v2/query.ack", args).AsTask();
+
             [JsonRpcMethod("v2/diagnostics.ping", UseSingleObjectParameterDeserialization = true)]
             public Task<JsonElement?> PingAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.ping", args);
         }

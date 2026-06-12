@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         [Fact]
         public async Task PingReportsRealJournalSeq()
         {
-            await RequestAsync("v2/toy.echo", """{"text":"warm"}""");
+            await RequestAsync("v2/diagnostics.ping", """{"echo":"warm"}""");
             OutboundRpcMessage ping = await RequestAsync("v2/diagnostics.ping", """{"echo":"x"}""");
             Assert.Equal("rpc.out.result", ping.Kind);
             Assert.True(ping.Body!.Value.GetProperty("latestJournalSeq").GetInt64() >= 3);

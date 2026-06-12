@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
     public sealed class FakeDriver : IDbDriver
     {
         private readonly ConcurrentQueue<FakeOpenBehavior> openBehaviors = new();
+        private readonly ConcurrentQueue<FakeQueryScript> queryScripts = new();
         private int openSessions;
 
         /// <inheritdoc/>
@@ -55,6 +56,13 @@ namespace Microsoft.SqlTools.Sts2.Testing
         public FakeDriver EnqueueOpen(FakeOpenBehavior behavior)
         {
             openBehaviors.Enqueue(behavior);
+            return this;
+        }
+
+        /// <summary>Queues the script for the next ExecuteAsync call; defaults to <see cref="FakeQueryScript.Default"/>.</summary>
+        public FakeDriver EnqueueQuery(FakeQueryScript script)
+        {
+            queryScripts.Enqueue(script);
             return this;
         }
 
@@ -100,6 +108,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
         private sealed class FakeSession : IDbSession
         {
             private readonly FakeDriver owner;
+            private readonly CancellationTokenSource queryCancel = new();
             private int disposed;
 
             internal FakeSession(FakeDriver owner)
@@ -111,20 +120,127 @@ namespace Microsoft.SqlTools.Sts2.Testing
 
             public async IAsyncEnumerable<ExecEvent> ExecuteAsync(QueryExecuteRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                // Query scripting arrives in M3.
-                await Task.CompletedTask.ConfigureAwait(false);
-                throw new DbDriverException(Sts2ErrorCodes.Internal, "FakeDriver query scripting lands in M3.");
-#pragma warning disable CS0162 // unreachable: satisfies the async-iterator yield requirement
-                yield break;
-#pragma warning restore CS0162
+                FakeQueryScript script = owner.queryScripts.TryDequeue(out FakeQueryScript? scripted)
+                    ? scripted
+                    : FakeQueryScript.Default;
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, queryCancel.Token);
+
+                yield return new ExecStarted(request.QueryId);
+                var pageSeqByResultSet = new Dictionary<int, int>();
+                var rowOffsetByResultSet = new Dictionary<int, long>();
+
+                foreach (FakeQueryStep step in script.Steps)
+                {
+                    if (step.DelayMs > 0)
+                    {
+                        await Task.Delay(step.DelayMs, linked.Token).ConfigureAwait(false);
+                    }
+                    linked.Token.ThrowIfCancellationRequested();
+
+                    switch (step.Type)
+                    {
+                        case "resultSet":
+                            yield return new ResultSetStarted(step.ResultSetId, FabricateColumns(step.Columns, step.EdgeValues));
+                            break;
+
+                        case "rows":
+                        {
+                            int pageSeq = pageSeqByResultSet.TryGetValue(step.ResultSetId, out int p) ? p : 0;
+                            long rowOffset = rowOffsetByResultSet.TryGetValue(step.ResultSetId, out long o) ? o : 0;
+                            yield return new RowsPage(step.ResultSetId, pageSeq, rowOffset, FabricateRows(step, rowOffset));
+                            pageSeqByResultSet[step.ResultSetId] = pageSeq + 1;
+                            rowOffsetByResultSet[step.ResultSetId] = rowOffset + step.Rows;
+                            break;
+                        }
+
+                        case "message":
+                            yield return new ServerMessage("info", step.Number, step.Severity, step.Text ?? "message", null);
+                            break;
+
+                        case "resultSetDone":
+                            yield return new ResultSetCompleted(step.ResultSetId, step.RowCount);
+                            break;
+
+                        case "completed":
+                            yield return new ExecCompleted([step.RowsAffected]);
+                            break;
+
+                        case "error":
+                            throw new DbDriverException(
+                                step.ErrorCode ?? Sts2ErrorCodes.QueryFailedServer,
+                                step.Text ?? "Scripted server error.",
+                                new ServerErrorDetail { Number = step.Number, Severity = step.Severity, State = 1 });
+
+                        case "sever":
+                            throw new DbDriverException(Sts2ErrorCodes.QueryFailedTransport, "Connection severed mid-stream.");
+
+                        case "hang":
+                            await Task.Delay(Timeout.Infinite, linked.Token).ConfigureAwait(false);
+                            break;
+
+                        default:
+                            throw new DbDriverException(Sts2ErrorCodes.Internal, "Unknown scripted step: " + step.Type);
+                    }
+                }
             }
 
-            public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken) => ValueTask.CompletedTask;
+            private static IReadOnlyList<ColumnInfo> FabricateColumns(int count, bool edgeValues)
+            {
+                var columns = new List<ColumnInfo>(count);
+                for (int i = 0; i < count; i++)
+                {
+                    columns.Add(new ColumnInfo
+                    {
+                        Name = "col" + i,
+                        EngineType = edgeValues ? "sql_variant" : (i == 0 ? "bigint" : "nvarchar"),
+                        Nullable = i != 0,
+                    });
+                }
+                return columns;
+            }
+
+            private static IReadOnlyList<IReadOnlyList<object?>> FabricateRows(FakeQueryStep step, long rowOffset)
+            {
+                var rows = new List<IReadOnlyList<object?>>(step.Rows);
+                for (int r = 0; r < step.Rows; r++)
+                {
+                    long row = rowOffset + r;
+                    var cells = new List<object?>(step.Columns);
+                    for (int c = 0; c < step.Columns; c++)
+                    {
+                        if (step.EdgeValues)
+                        {
+                            // Deterministic typed-wrapper edge values (SPEC §7.7).
+                            cells.Add(((row + c) % 4) switch
+                            {
+                                0 => System.Text.Json.Nodes.JsonNode.Parse("""{"$t":"decimal","v":"12.50"}"""),
+                                1 => System.Text.Json.Nodes.JsonNode.Parse("""{"$t":"datetimeoffset","v":"2026-06-12T00:00:00+00:00"}"""),
+                                2 => null, // DBNull -> JSON null
+                                _ => System.Text.Json.Nodes.JsonNode.Parse("""{"$t":"binary","v":"AQID"}"""),
+                            });
+                        }
+                        else
+                        {
+                            cells.Add(c == 0 ? row : (object)("s" + row + "-" + c));
+                        }
+                    }
+                    rows.Add(cells);
+                }
+                return rows;
+            }
+
+            public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
+            {
+                queryCancel.Cancel();
+                return ValueTask.CompletedTask;
+            }
 
             public ValueTask DisposeAsync()
             {
                 if (Interlocked.Exchange(ref disposed, 1) == 0)
                 {
+                    queryCancel.Cancel();
+                    queryCancel.Dispose();
                     owner.SessionClosed();
                 }
                 return ValueTask.CompletedTask;

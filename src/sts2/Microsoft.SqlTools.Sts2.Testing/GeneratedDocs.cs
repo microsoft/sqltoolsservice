@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
         {
             var sb = new StringBuilder(Header);
             sb.Append("# STS2 State Machines\n\n");
-            sb.Append("The query machine lands in M3. The M1 toy machine proves the coordinator/journal/replay loop and is removed before preview.\n\n");
+            sb.Append("The connection and query machines are live. The M1 toy machine was removed in M3.\n\n");
             sb.Append("## Connection machine (M2)\n\n");
             sb.Append("One entry per connection in `CoreState.Connections`; `openId` is indexed while an open is in flight.\n\n");
             sb.Append("```mermaid\nstateDiagram-v2\n");
@@ -179,15 +179,21 @@ namespace Microsoft.SqlTools.Sts2.Testing
             sb.Append("    Closing --> Closing : v2/connection.close / result {} (idempotent)\n");
             sb.Append("```\n\n");
             sb.Append("Unknown ids on cancel/close return `{}` (idempotent, SPEC §7.9). A duplicate in-flight `openId` fails with `Sts2.InvalidRequest`; the `maxConnections` limit fails with `Sts2.Busy`.\n\n");
-            sb.Append("## Toy machine (M1)\n\n");
+            sb.Append("## Query machine (M3)\n\n");
+            sb.Append("One entry per query in `CoreState.Queries`; one active query per connection (`Sts2.Busy` otherwise). Backpressure: Core grants page credit via `driver.queryAdvance`; the runner's enumerator pull blocks without credit (SPEC §7.8, I9).\n\n");
             sb.Append("```mermaid\nstateDiagram-v2\n");
-            sb.Append("    [*] --> Idle\n");
-            sb.Append("    Idle --> Idle : v2/toy.echo / result(echo, counter+1)\n");
-            sb.Append("    Idle --> EffectPending : v2/toy.effect / effect.req(toy.delay, eff-seq)\n");
-            sb.Append("    EffectPending --> Idle : effect.res(eff-seq) / result(observed)\n");
-            sb.Append("    Idle --> ShuttingDown : control lifecycle.shutdown|lifecycle.exit\n");
-            sb.Append("    ShuttingDown --> [*]\n");
+            sb.Append("    [*] --> Running : v2/query.execute / result(queryId) + effect driver.queryStart(credit)\n");
+            sb.Append("    Running --> Running : queryEvent rows / notify query.rows (pagesSent+1, credit-1)\n");
+            sb.Append("    Running --> Running : queryEvent resultSet|message / notify\n");
+            sb.Append("    Running --> Running : v2/query.ack / effect driver.queryAdvance(newCredit)\n");
+            sb.Append("    Running --> CancelRequested : v2/query.cancel / result {} + effect driver.queryCancel\n");
+            sb.Append("    Running --> Completed : queryEvent completed|error / notify query.complete (exactly once, I2)\n");
+            sb.Append("    CancelRequested --> Completed : queryEvent canceled|completed|error / notify query.complete\n");
+            sb.Append("    Running --> Disposed : v2/query.dispose / result {} + effect driver.queryDispose (output suppressed, I3)\n");
+            sb.Append("    Completed --> Disposed : v2/query.dispose / result {}\n");
+            sb.Append("    Disposed --> [*]\n");
             sb.Append("```\n\n");
+            sb.Append("`connection.close` with an active query cancels the query first; the connection closes when the query reaches a terminal state (SPEC §7.9).\n\n");
             sb.Append("Unknown requests produce `Sts2.InvalidRequest`; malformed envelopes produce `core.unexpectedInput` diagnostics. The reducer never throws (SPEC §9.2).\n");
             return sb.ToString();
         }

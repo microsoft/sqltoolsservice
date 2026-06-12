@@ -3,10 +3,18 @@ abstract Microsoft.SqlTools.Sts2.Core.CoreOutput.<Clone>$() -> Microsoft.SqlTool
 const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Closing = "closing" -> string!
 const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Open = "open" -> string!
 const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Opening = "opening" -> string!
+const Microsoft.SqlTools.Sts2.Core.QueryPhase.CancelRequested = "cancelRequested" -> string!
+const Microsoft.SqlTools.Sts2.Core.QueryPhase.Completed = "completed" -> string!
+const Microsoft.SqlTools.Sts2.Core.QueryPhase.Disposed = "disposed" -> string!
+const Microsoft.SqlTools.Sts2.Core.QueryPhase.Running = "running" -> string!
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.ConnectionInfo!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ActiveQueryId.get -> string?
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ActiveQueryId.init -> void
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CancelRequested.get -> bool
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CancelRequested.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CloseAfterQuery.get -> bool
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CloseAfterQuery.init -> void
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CloseCorr.get -> string?
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CloseCorr.init -> void
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ConnectionId.get -> string!
@@ -66,14 +74,12 @@ Microsoft.SqlTools.Sts2.Core.CoreState.MaxConnections.get -> int
 Microsoft.SqlTools.Sts2.Core.CoreState.MaxConnections.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.init -> void
-Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
-Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.Queries.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, Microsoft.SqlTools.Sts2.Core.QueryInfo!>!
+Microsoft.SqlTools.Sts2.Core.CoreState.Queries.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.get -> string!
 Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.get -> bool
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.init -> void
-Microsoft.SqlTools.Sts2.Core.CoreState.ToyCounter.get -> int
-Microsoft.SqlTools.Sts2.Core.CoreState.ToyCounter.init -> void
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.get -> System.Text.Json.JsonElement
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.init -> void
@@ -104,6 +110,25 @@ Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectName.get -> string!
 Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectName.init -> void
 Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.EffectRequestOutput(string! EffectId, string! EffectName, System.Text.Json.JsonElement Args, string? Corr) -> void
 Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? other) -> bool
+Microsoft.SqlTools.Sts2.Core.QueryInfo
+Microsoft.SqlTools.Sts2.Core.QueryInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.QueryInfo!
+Microsoft.SqlTools.Sts2.Core.QueryInfo.CompleteSent.get -> bool
+Microsoft.SqlTools.Sts2.Core.QueryInfo.CompleteSent.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.ConnectionId.get -> string!
+Microsoft.SqlTools.Sts2.Core.QueryInfo.ConnectionId.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.CreditOutstanding.get -> int
+Microsoft.SqlTools.Sts2.Core.QueryInfo.CreditOutstanding.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.Equals(Microsoft.SqlTools.Sts2.Core.QueryInfo? other) -> bool
+Microsoft.SqlTools.Sts2.Core.QueryInfo.PagesAcked.get -> int
+Microsoft.SqlTools.Sts2.Core.QueryInfo.PagesAcked.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.PagesSent.get -> int
+Microsoft.SqlTools.Sts2.Core.QueryInfo.PagesSent.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.Phase.get -> string!
+Microsoft.SqlTools.Sts2.Core.QueryInfo.Phase.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.QueryId.get -> string!
+Microsoft.SqlTools.Sts2.Core.QueryInfo.QueryId.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.QueryInfo() -> void
+Microsoft.SqlTools.Sts2.Core.QueryPhase
 Microsoft.SqlTools.Sts2.Core.RpcErrorOutput
 Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Corr.get -> string!
 Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Corr.init -> void
@@ -159,6 +184,9 @@ override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.<Clone>$() -> Microsof
 override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.QueryInfo.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.QueryInfo.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.QueryInfo.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.RpcErrorOutput!
 override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.GetHashCode() -> int
@@ -194,6 +222,8 @@ static Microsoft.SqlTools.Sts2.Core.DriverDescriptor.operator !=(Microsoft.SqlTo
 static Microsoft.SqlTools.Sts2.Core.DriverDescriptor.operator ==(Microsoft.SqlTools.Sts2.Core.DriverDescriptor? left, Microsoft.SqlTools.Sts2.Core.DriverDescriptor? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.operator !=(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? left, Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.operator ==(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? left, Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.QueryInfo.operator !=(Microsoft.SqlTools.Sts2.Core.QueryInfo? left, Microsoft.SqlTools.Sts2.Core.QueryInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.QueryInfo.operator ==(Microsoft.SqlTools.Sts2.Core.QueryInfo? left, Microsoft.SqlTools.Sts2.Core.QueryInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.operator !=(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? left, Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.operator ==(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? left, Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.operator !=(Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? left, Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput? right) -> bool

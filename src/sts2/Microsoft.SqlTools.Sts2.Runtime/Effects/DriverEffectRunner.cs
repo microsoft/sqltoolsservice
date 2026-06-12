@@ -32,6 +32,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private readonly ConcurrentDictionary<string, CancellationTokenSource> opensInFlight = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, bool> preCanceledOpens = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IDbSession> sessions = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, QueryPump> queryPumps = new(StringComparer.Ordinal);
+
+        /// <summary>Live pump state for one streaming query.</summary>
+        private sealed class QueryPump
+        {
+            public required IDbSession Session { get; init; }
+
+            /// <summary>Backpressure credits (SPEC §7.8): one rows page may post per credit.</summary>
+            public required SemaphoreSlim Credits { get; init; }
+
+            public CancellationTokenSource Cancellation { get; } = new();
+
+            /// <summary>True after dispose: no further events may post (I3).</summary>
+            public volatile bool Suppressed;
+        }
 
         /// <summary>Creates a runner over the registered drivers.</summary>
         public DriverEffectRunner(IReadOnlyDictionary<string, IDbDriver> drivers, SecretSideTable secrets)
@@ -103,9 +118,54 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     _ = Task.Run(() => CloseAsync(effect, inbox));
                     break;
 
-                case "toy.delay": // M1 spine scaffolding; removed in M3
-                    _ = PostAsync(inbox, effect, effect.Args.GetRawText());
+                case "driver.queryStart":
+                    _ = Task.Run(() => StartQueryPumpAsync(effect, inbox));
                     break;
+
+                case "driver.queryAdvance":
+                {
+                    string? queryId = GetString(effect.Args, "queryId");
+                    int credit = effect.Args.TryGetProperty("credit", out JsonElement c) && c.ValueKind == JsonValueKind.Number ? c.GetInt32() : 0;
+                    if (queryId is not null && credit > 0 && queryPumps.TryGetValue(queryId, out QueryPump? pump))
+                    {
+                        pump.Credits.Release(credit);
+                    }
+                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    break;
+                }
+
+                case "driver.queryCancel":
+                {
+                    string? queryId = GetString(effect.Args, "queryId");
+                    if (queryId is not null && queryPumps.TryGetValue(queryId, out QueryPump? pump))
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await pump.Session.CancelAsync(queryId, CancellationToken.None).ConfigureAwait(false);
+                            }
+                            catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
+                            {
+                            }
+                            pump.Cancellation.Cancel();
+                        });
+                    }
+                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    break;
+                }
+
+                case "driver.queryDispose":
+                {
+                    string? queryId = GetString(effect.Args, "queryId");
+                    if (queryId is not null && queryPumps.TryRemove(queryId, out QueryPump? pump))
+                    {
+                        pump.Suppressed = true; // I3: no further events after dispose
+                        pump.Cancellation.Cancel();
+                    }
+                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    break;
+                }
 
                 default:
                     _ = PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
@@ -183,6 +243,165 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 opensInFlight.TryRemove(openId, out _);
                 cancelSource.Dispose();
             }
+        }
+
+        private async Task StartQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox)
+        {
+            string queryId = GetString(effect.Args, "queryId") ?? "?";
+            string? handleId = GetString(effect.Args, "handleId");
+            string sql = GetString(effect.Args, "sql") ?? string.Empty;
+            int initialCredit = effect.Args.TryGetProperty("credit", out JsonElement c) && c.ValueKind == JsonValueKind.Number
+                ? c.GetInt32()
+                : 1;
+
+            if (handleId is null || !sessions.TryGetValue(handleId, out IDbSession? session))
+            {
+                await PostQueryEventAsync(inbox, effect, queryId,
+                    $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.NotFound)}},"message":"No session for handle."}""").ConfigureAwait(false);
+                return;
+            }
+
+            var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
+            queryPumps[queryId] = pump;
+            await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
+
+            try
+            {
+                var request = new QueryExecuteRequest
+                {
+                    QueryId = queryId,
+                    Sql = sql,
+                    PageRows = Sts2Defaults.PageRows,
+                    PageBytes = Sts2Defaults.PageBytes,
+                };
+                await foreach (ExecEvent execEvent in pump.Session.ExecuteAsync(request, pump.Cancellation.Token).ConfigureAwait(false))
+                {
+                    if (pump.Suppressed)
+                    {
+                        break;
+                    }
+                    switch (execEvent)
+                    {
+                        case ExecStarted:
+                            break; // already announced
+
+                        case ResultSetStarted resultSet:
+                            await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                                $$"""{"eventType":"resultSet","resultSetId":{{resultSet.ResultSetId}},"columns":{{SerializeColumns(resultSet.Columns)}}}""")).ConfigureAwait(false);
+                            break;
+
+                        case RowsPage page:
+                            // Backpressure (SPEC §7.8): a rows page may only post when the
+                            // window has credit; this await is what stops the enumerator.
+                            await pump.Credits.WaitAsync(pump.Cancellation.Token).ConfigureAwait(false);
+                            if (pump.Suppressed)
+                            {
+                                break;
+                            }
+                            await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},"rows":{{SerializeRows(page.Cells)}}}""")).ConfigureAwait(false);
+                            break;
+
+                        case ServerMessage message:
+                            await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                                $$"""{"eventType":"message","messageClass":{{JsonSerializer.Serialize(message.MessageClass)}},"number":{{message.Number}},"severity":{{message.Severity}},"text":{{JsonSerializer.Serialize(message.Text)}}}""")).ConfigureAwait(false);
+                            break;
+
+                        case ResultSetCompleted done:
+                            await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                                $$"""{"eventType":"resultSetDone","resultSetId":{{done.ResultSetId}},"rowCount":{{done.RowCount}}}""")).ConfigureAwait(false);
+                            break;
+
+                        case ExecCompleted completed:
+                            await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}}}""")).ConfigureAwait(false);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                if (!pump.Suppressed)
+                {
+                    await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"canceled"}""").ConfigureAwait(false);
+                }
+            }
+            catch (DbDriverException ex)
+            {
+                if (!pump.Suppressed)
+                {
+                    string server = ex.Server is null
+                        ? "null"
+                        : string.Create(CultureInfo.InvariantCulture,
+                            $$"""{"number":{{ex.Server.Number}},"severity":{{ex.Server.Severity}},"state":{{ex.Server.State}},"line":{{(ex.Server.Line?.ToString(CultureInfo.InvariantCulture) ?? "null")}}}""");
+                    await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                        $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(ex.Code)}},"message":{{JsonSerializer.Serialize(ex.Message)}},"server":{{server}}}""")).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!pump.Suppressed)
+                {
+                    await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                        $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.Internal)}},"message":{{JsonSerializer.Serialize("Driver threw an unclassified exception: " + ex.GetType().Name)}}}""")).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                queryPumps.TryRemove(queryId, out _);
+            }
+        }
+
+        private static string SerializeColumns(IReadOnlyList<ColumnInfo> columns)
+        {
+            var array = new System.Text.Json.Nodes.JsonArray();
+            foreach (ColumnInfo column in columns)
+            {
+                array.Add(new System.Text.Json.Nodes.JsonObject
+                {
+                    ["name"] = column.Name,
+                    ["type"] = column.EngineType,
+                    ["nullable"] = column.Nullable,
+                });
+            }
+            return array.ToJsonString();
+        }
+
+        private static string SerializeRows(IReadOnlyList<IReadOnlyList<object?>> rows)
+        {
+            var array = new System.Text.Json.Nodes.JsonArray();
+            foreach (IReadOnlyList<object?> row in rows)
+            {
+                var cells = new System.Text.Json.Nodes.JsonArray();
+                foreach (object? cell in row)
+                {
+                    cells.Add(cell switch
+                    {
+                        null => null,
+                        long l => System.Text.Json.Nodes.JsonValue.Create(l),
+                        int i => System.Text.Json.Nodes.JsonValue.Create(i),
+                        double d => System.Text.Json.Nodes.JsonValue.Create(d),
+                        bool b => System.Text.Json.Nodes.JsonValue.Create(b),
+                        string s => System.Text.Json.Nodes.JsonValue.Create(s),
+                        System.Text.Json.Nodes.JsonNode node => node.DeepClone(),
+                        _ => System.Text.Json.Nodes.JsonValue.Create(cell.ToString()),
+                    });
+                }
+                array.Add(cells);
+            }
+            return array.ToJsonString();
+        }
+
+        private static Task PostQueryEventAsync(ICoordinatorInbox inbox, EffectWorkItem effect, string queryId, string eventCore)
+        {
+            // queryId is merged in so Core routes without tracking effect ids.
+            string payload = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}},{{eventCore[1..]}}""");
+            return inbox.PostEffectResponseAsync("evt-" + queryId, "driver.queryEvent",
+                JsonDocument.Parse(payload).RootElement, effect.CauseSeq).AsTask();
         }
 
         private async Task CloseAsync(EffectWorkItem effect, ICoordinatorInbox inbox)

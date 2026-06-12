@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using Microsoft.SqlTools.Sts2.Core;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
@@ -189,13 +188,44 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
             },
         };
 
-        /// <summary>Deterministic redacted JSON dump of a Core state (SPEC §12.2).</summary>
+        /// <summary>
+        /// Deterministic redacted JSON dump of a Core state (SPEC §12.2, I16): ids,
+        /// phases, and counters only — never secrets, row cells, or SQL text.
+        /// </summary>
         public static string DumpState(CoreState state, long atSeq)
         {
             ArgumentNullException.ThrowIfNull(state);
-            var pending = string.Join(",", state.PendingToyEffects.Select(
-                kv => $"{JsonSerializer.Serialize(kv.Key)}:{JsonSerializer.Serialize(kv.Value)}"));
-            return $"{{\"atSeq\":{atSeq},\"lastSeq\":{state.LastSeq},\"pendingToyEffects\":{{{pending}}},\"shuttingDown\":{(state.ShuttingDown ? "true" : "false")},\"toyCounter\":{state.ToyCounter}}}";
+            var connections = new System.Text.Json.Nodes.JsonObject();
+            foreach ((string id, ConnectionInfo connection) in state.Connections)
+            {
+                connections[id] = new System.Text.Json.Nodes.JsonObject
+                {
+                    ["phase"] = connection.Phase,
+                    ["openId"] = connection.OpenId,
+                    ["activeQueryId"] = connection.ActiveQueryId,
+                };
+            }
+            var queries = new System.Text.Json.Nodes.JsonObject();
+            foreach ((string id, QueryInfo query) in state.Queries)
+            {
+                queries[id] = new System.Text.Json.Nodes.JsonObject
+                {
+                    ["phase"] = query.Phase,
+                    ["connectionId"] = query.ConnectionId,
+                    ["pagesSent"] = query.PagesSent,
+                    ["pagesAcked"] = query.PagesAcked,
+                };
+            }
+            var dump = new System.Text.Json.Nodes.JsonObject
+            {
+                ["atSeq"] = atSeq,
+                ["lastSeq"] = state.LastSeq,
+                ["shuttingDown"] = state.ShuttingDown,
+                ["initialized"] = state.Initialized,
+                ["connections"] = connections,
+                ["queries"] = queries,
+            };
+            return dump.ToJsonString();
         }
     }
 }

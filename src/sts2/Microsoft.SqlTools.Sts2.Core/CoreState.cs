@@ -43,6 +43,53 @@ namespace Microsoft.SqlTools.Sts2.Core
 
         /// <summary>True after <c>connection.cancel</c> targeted the in-flight open.</summary>
         public bool CancelRequested { get; init; }
+
+        /// <summary>The single active query on this connection (SPEC §7.9: one at a time).</summary>
+        public string? ActiveQueryId { get; init; }
+
+        /// <summary>True when a close waits for the active query to reach a terminal state.</summary>
+        public bool CloseAfterQuery { get; init; }
+    }
+
+    /// <summary>Lifecycle phase of one query.</summary>
+    public static class QueryPhase
+    {
+        /// <summary>Streaming or about to stream.</summary>
+        public const string Running = "running";
+
+        /// <summary>Cancel requested; awaiting the terminal driver event.</summary>
+        public const string CancelRequested = "cancelRequested";
+
+        /// <summary>Terminal: query.complete sent exactly once (I2).</summary>
+        public const string Completed = "completed";
+
+        /// <summary>Disposed: resources released, further output suppressed (I3).</summary>
+        public const string Disposed = "disposed";
+    }
+
+    /// <summary>Pure state of one query. Never contains row cells (SPEC §9.2).</summary>
+    public sealed record QueryInfo
+    {
+        /// <summary>Server-generated query id (<c>q-&lt;seq&gt;</c>).</summary>
+        public required string QueryId { get; init; }
+
+        /// <summary>Owning connection.</summary>
+        public required string ConnectionId { get; init; }
+
+        /// <summary>One of <see cref="QueryPhase"/>.</summary>
+        public required string Phase { get; init; }
+
+        /// <summary>Rows pages sent to the client so far.</summary>
+        public required int PagesSent { get; init; }
+
+        /// <summary>Rows pages acked by the client (count, monotonic).</summary>
+        public required int PagesAcked { get; init; }
+
+        /// <summary>Credit granted to the effect runner not yet consumed by a page.</summary>
+        public required int CreditOutstanding { get; init; }
+
+        /// <summary>True once <c>query.complete</c> was emitted (I2/I3 guard).</summary>
+        public required bool CompleteSent { get; init; }
     }
 
     /// <summary>A driver advertised by <c>v2/initialize</c>.</summary>
@@ -82,8 +129,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             Drivers = ImmutableArray<DriverDescriptor>.Empty,
             Connections = ImmutableSortedDictionary<string, ConnectionInfo>.Empty,
             OpenIdToConnectionId = ImmutableSortedDictionary<string, string>.Empty,
-            ToyCounter = 0,
-            PendingToyEffects = ImmutableSortedDictionary<string, string>.Empty,
+            Queries = ImmutableSortedDictionary<string, QueryInfo>.Empty,
         };
 
         /// <summary>Seq of the last envelope this state reflects.</summary>
@@ -110,10 +156,7 @@ namespace Microsoft.SqlTools.Sts2.Core
         /// <summary>In-flight and open openId index for cancel routing and duplicate detection.</summary>
         public required ImmutableSortedDictionary<string, string> OpenIdToConnectionId { get; init; }
 
-        /// <summary>Toy: number of <c>v2/toy.echo</c> requests handled (removed in M3).</summary>
-        public required int ToyCounter { get; init; }
-
-        /// <summary>Toy: effect id -> originating RPC corr (removed in M3).</summary>
-        public required ImmutableSortedDictionary<string, string> PendingToyEffects { get; init; }
+        /// <summary>Queries by query id, including terminal ones until disposed.</summary>
+        public required ImmutableSortedDictionary<string, QueryInfo> Queries { get; init; }
     }
 }

@@ -23,9 +23,7 @@ Spec version: `2.0.0-preview.1`. Method prefix: `v2/`.
 | `v2/diagnostics.health` | request | M2 | Counters, queue depths, open leases, recent errors. |
 | `v2/diagnostics.state` | request | M3 | Redacted state snapshot at current or requested seq. |
 | `v2/diagnostics.exportLog` | request | M6 | Produce a redacted export bundle. |
-| `v2/diagnostics.setCapture` | request | M3 | Change capture mode at runtime; journaled config change. |
-| `v2/toy.echo` (toy) | request | M1 | M1 spine probe: echoes text and counts calls. Removed before preview. |
-| `v2/toy.effect` (toy) | request | M1 | M1 spine probe: round-trips through the effect runner. Removed before preview. |
+| `v2/diagnostics.setCapture` | request | M4 | Change capture mode at runtime; journaled config change. |
 | `v2/fatal` | server notification | M0 | STS2 crash containment notice with redacted summary and journal path. |
 
 ## Stable error codes (`error.data.code`)

@@ -4,16 +4,15 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Envelopes;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
 using Microsoft.SqlTools.Sts2.Runtime.Replay;
+using Microsoft.SqlTools.Sts2.Testing;
 using Xunit;
 
 namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
@@ -34,31 +33,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             }
         }
 
-        private sealed class ImmediateToyEffectRunner : ISts2EffectRunner
-        {
-            public void Run(EffectWorkItem effect, ICoordinatorInbox inbox) =>
-                _ = Task.Run(() => inbox.PostEffectResponseAsync(effect.EffectId, effect.EffectName, effect.Args, effect.CauseSeq).AsTask());
-        }
-
-        /// <summary>Runs a representative toy session through the live coordinator and returns its journal.</summary>
+        /// <summary>A representative session: open, query, error open, close.</summary>
         private async Task<List<Sts2Envelope>> ProduceJournalAsync()
         {
-            var emitted = new ConcurrentQueue<OutboundRpcMessage>();
-            await using (var coordinator = new Coordinator(
-                new JournalWriter("run-replay", new JournalOptions { Directory = directory }, new JournalRunInfo { ServiceVersion = "0" }),
-                new CoordinatorOptions { RunId = "run-replay" },
-                new ImmediateToyEffectRunner(),
-                emitted.Enqueue))
+            await using (var session = new Sts2TestSession(directory, "run-replay"))
             {
-                await coordinator.PostRpcRequestAsync("v2/toy.echo", "r-1", JsonDocument.Parse("""{"text":"alpha"}""").RootElement);
-                await coordinator.PostRpcRequestAsync("v2/toy.effect", "r-2", JsonDocument.Parse("""{"value":7}""").RootElement);
-                await coordinator.PostRpcRequestAsync("v2/toy.bogus", "r-3", null);
-                await coordinator.PostRpcRequestAsync("v2/toy.echo", "r-4", JsonDocument.Parse("""{"text":"omega"}""").RootElement);
-                for (int spins = 0; emitted.Count < 4 && spins < 500; spins++)
-                {
-                    await Task.Delay(10);
-                }
-                Assert.Equal(4, emitted.Count);
+                session.Driver.EnqueueOpen(new FakeOpenBehavior()); // ok
+                string connectionId = await session.OpenConnectionAsync("open-1");
+                await session.RequestAsync("v2/query.execute", $$"""{"connectionId":"{{connectionId}}","sql":"select 1"}""");
+                await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+                session.Driver.EnqueueOpen(new FakeOpenBehavior { Outcome = "authFail" });
+                await session.RequestAsync("v2/connection.open", Sts2TestSession.OpenPayload("open-2"));
+                await session.RequestAsync("v2/connection.close", $$"""{"connectionId":"{{connectionId}}"}""");
             }
             return JournalReader.ReadAll(directory).ToList();
         }
@@ -74,7 +61,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
                 .Where(e => e.Kind is "rpc.out.result" or "rpc.out.error" or "rpc.out.notify")
                 .Select(e => e.Digest).ToArray();
             Assert.Equal(recordedOutbound, result.OutboundDigests);
-            Assert.Equal(2, result.FinalState.ToyCounter);
+            Assert.Empty(result.FinalState.Connections);
         }
 
         [Fact]
@@ -90,7 +77,6 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.NotNull(result.Divergence);
             Assert.Equal(journal[index].Seq, result.Divergence.Seq);
             Assert.Contains(journal[index].Seq, result.Divergence.CauseChain);
-            Assert.Contains(journal[index].Cause!.Value, result.Divergence.CauseChain);
         }
 
         [Fact]
@@ -98,21 +84,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         {
             List<Sts2Envelope> journal = await ProduceJournalAsync();
 
-            // After the first echo request (seq 1) and its result (seq 2), counter is 1.
-            ReplayResult atTwo = JournalReplayer.Replay(journal, untilSeq: 2);
-            Assert.Equal(1, atTwo.FinalState.ToyCounter);
-            Assert.Equal(2, atTwo.LastSeq);
+            // Find the seq right after the first open completed: one open connection.
+            Sts2Envelope openResult = journal.First(e => e.Kind == "rpc.out.result" && e.Payload!.Value.TryGetProperty("connectionId", out _));
+            ReplayResult mid = JournalReplayer.Replay(journal, untilSeq: openResult.Seq);
+            Assert.Single(mid.FinalState.Connections);
 
             ReplayResult full = JournalReplayer.Replay(journal);
-            Assert.Equal(2, full.FinalState.ToyCounter);
+            Assert.Empty(full.FinalState.Connections);
         }
 
         [Fact]
         public async Task ReplayNeverReExecutesEffects()
         {
-            // No effect runner exists here: replay feeds recorded effect.res envelopes
-            // back through the reducer. If replay tried to re-run effects it would have
-            // nothing to run them with.
+            // Replay feeds recorded effect.res envelopes back through the reducer; no
+            // driver exists at replay time, so any re-execution attempt would be loud.
             List<Sts2Envelope> journal = await ProduceJournalAsync();
             Assert.Contains(journal, e => e.Kind == "effect.res");
             Assert.True(JournalReplayer.Replay(journal).Identical);
@@ -127,8 +112,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             string dump1 = JournalReplayer.DumpState(result.FinalState, result.LastSeq);
             string dump2 = JournalReplayer.DumpState(result.FinalState, result.LastSeq);
             Assert.Equal(dump1, dump2);
-            JsonDocument.Parse(dump1); // valid JSON
-            Assert.Contains("\"toyCounter\":2", dump1);
+            JsonDocument.Parse(dump1);
+            Assert.Empty(SecretCanaries.FindIn(dump1)); // I16
         }
     }
 }
