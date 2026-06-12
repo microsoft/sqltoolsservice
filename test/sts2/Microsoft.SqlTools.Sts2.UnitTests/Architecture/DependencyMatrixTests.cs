@@ -39,8 +39,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
                 (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"], ["Microsoft.Data.SqlClient"]),
             ["Microsoft.SqlTools.Sts2.Drivers.Sqlite"] =
                 (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"], ["Microsoft.Data.Sqlite"]),
+            // YamlDotNet: scenario runner YAML parsing (SPEC §19 DEV-004)
             ["Microsoft.SqlTools.Sts2.Testing"] =
-                (["Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Abstractions"], []),
+                (["Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Abstractions"], ["YamlDotNet"]),
         };
 
         private static readonly string[] AnalyzerPackages =

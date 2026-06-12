@@ -66,6 +66,7 @@
 
     <!-- STS2 (docs/sts2/SPEC.md) -->
     <PackageReference Update="StreamJsonRpc" Version="2.25.28" />
+    <PackageReference Update="YamlDotNet" Version="18.0.0" />
     <PackageReference Update="Microsoft.Data.Sqlite" Version="10.0.9" />
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />

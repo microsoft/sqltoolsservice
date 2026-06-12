@@ -71,5 +71,5 @@ Coordinator pump, write-ahead journal, redaction, secret side table, effect runn
 FakeDriver, scenario runner, simulator helpers, invariant checker.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts, Microsoft.SqlTools.Sts2.Core, Microsoft.SqlTools.Sts2.Runtime
-- Package references: none (BCL only)
+- Package references: YamlDotNet
 

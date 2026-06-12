@@ -7,5 +7,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Core\Microsoft.SqlTools.Sts2.Core.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
+    <!-- Scenario runner YAML parsing (SPEC §19 DEV-004) -->
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 </Project>

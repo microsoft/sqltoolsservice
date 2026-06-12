@@ -1,4 +1,17 @@
 #nullable enable
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.CloseTimeoutMs = 5000 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.ConnectTimeoutMs = 15000 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.ExitFlushMs = 500 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.JournalFlushIntervalMs = 250 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.JournalSegmentBytes = 67108864 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.MaxCellBytes = 1048576 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.MaxConnections = 64 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.MaxFrameBytes = 67108864 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.PageBytes = 262144 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.PageRows = 1000 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.QueryDefaultTimeoutMs = 0 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.TruncatedPrefixBytes = 65536 -> int
+const Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults.WindowPages = 4 -> int
 const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Busy = "Sts2.Busy" -> string!
 const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Canceled = "Sts2.Canceled" -> string!
 const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedAuth = "Sts2.ConnectionFailed.Auth" -> string!
@@ -28,7 +41,9 @@ Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.ServiceVersi
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.ServiceVersion.init -> void
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.SpecVersion.get -> string!
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.SpecVersion.init -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2Defaults
 Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes
+Microsoft.SqlTools.Sts2.Contracts.Sts2JsonRpcCodes
 Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo
 Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo!
 Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Equals(Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? other) -> bool
@@ -48,6 +63,7 @@ Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants
 override Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.ToString() -> string!
+static Microsoft.SqlTools.Sts2.Contracts.Sts2JsonRpcCodes.For(string! dataCode) -> int
 static Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.operator !=(Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? left, Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.operator ==(Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? left, Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Contracts.Sts2Methods.All.get -> System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo!>!

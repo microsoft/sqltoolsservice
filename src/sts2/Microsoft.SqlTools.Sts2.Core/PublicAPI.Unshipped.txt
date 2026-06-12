@@ -1,5 +1,27 @@
 #nullable enable
 abstract Microsoft.SqlTools.Sts2.Core.CoreOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreOutput!
+const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Closing = "closing" -> string!
+const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Open = "open" -> string!
+const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Opening = "opening" -> string!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.ConnectionInfo!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CancelRequested.get -> bool
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CancelRequested.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CloseCorr.get -> string?
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.CloseCorr.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ConnectionId.get -> string!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ConnectionId.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ConnectionInfo() -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.Equals(Microsoft.SqlTools.Sts2.Core.ConnectionInfo? other) -> bool
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.HandleId.get -> string?
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.HandleId.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.OpenCorr.get -> string!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.OpenCorr.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.OpenId.get -> string!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.OpenId.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.Phase.get -> string!
+Microsoft.SqlTools.Sts2.Core.ConnectionInfo.Phase.init -> void
+Microsoft.SqlTools.Sts2.Core.ConnectionPhase
 Microsoft.SqlTools.Sts2.Core.CoreDecision
 Microsoft.SqlTools.Sts2.Core.CoreDecision.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreDecision!
 Microsoft.SqlTools.Sts2.Core.CoreDecision.CoreDecision(Microsoft.SqlTools.Sts2.Core.CoreState! NewState, System.Collections.Immutable.ImmutableArray<Microsoft.SqlTools.Sts2.Core.CoreOutput!> Outputs) -> void
@@ -30,12 +52,22 @@ Microsoft.SqlTools.Sts2.Core.CoreOutput.CoreOutput() -> void
 Microsoft.SqlTools.Sts2.Core.CoreOutput.CoreOutput(Microsoft.SqlTools.Sts2.Core.CoreOutput! original) -> void
 Microsoft.SqlTools.Sts2.Core.CoreState
 Microsoft.SqlTools.Sts2.Core.CoreState.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreState!
+Microsoft.SqlTools.Sts2.Core.CoreState.Connections.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, Microsoft.SqlTools.Sts2.Core.ConnectionInfo!>!
+Microsoft.SqlTools.Sts2.Core.CoreState.Connections.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.CoreState() -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.Drivers.get -> System.Collections.Immutable.ImmutableArray<Microsoft.SqlTools.Sts2.Core.DriverDescriptor!>
+Microsoft.SqlTools.Sts2.Core.CoreState.Drivers.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.Equals(Microsoft.SqlTools.Sts2.Core.CoreState? other) -> bool
+Microsoft.SqlTools.Sts2.Core.CoreState.Initialized.get -> bool
+Microsoft.SqlTools.Sts2.Core.CoreState.Initialized.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.get -> long
 Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
 Microsoft.SqlTools.Sts2.Core.CoreState.PendingToyEffects.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.get -> bool
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ToyCounter.get -> int
@@ -48,6 +80,16 @@ Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.DiagnosticOutput(string! Name, Sys
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Equals(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? other) -> bool
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Name.get -> string!
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Name.init -> void
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.DriverDescriptor!
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Dialects.get -> System.Collections.Immutable.ImmutableArray<string!>
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Dialects.init -> void
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.DriverDescriptor() -> void
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Equals(Microsoft.SqlTools.Sts2.Core.DriverDescriptor? other) -> bool
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Name.get -> string!
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Name.init -> void
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Production.get -> bool
+Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Production.init -> void
 Microsoft.SqlTools.Sts2.Core.EffectRequestOutput
 Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Args.get -> System.Text.Json.JsonElement
 Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Args.init -> void
@@ -89,6 +131,9 @@ Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Result.get -> System.Text.Json.Json
 Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Result.init -> void
 Microsoft.SqlTools.Sts2.Core.RpcResultOutput.RpcResultOutput(string! Corr, System.Text.Json.JsonElement Result) -> void
 Microsoft.SqlTools.Sts2.Core.Sts2CoreReducer
+override Microsoft.SqlTools.Sts2.Core.ConnectionInfo.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.ConnectionInfo.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Core.CoreDecision.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.CoreDecision.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Core.CoreDecision.ToString() -> string!
@@ -105,6 +150,9 @@ override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.<Clone>$() -> Microsoft.S
 override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Core.DriverDescriptor.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.DriverDescriptor.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.DriverDescriptor.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.EffectRequestOutput!
 override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.GetHashCode() -> int
@@ -126,6 +174,8 @@ override sealed Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(Microsof
 override sealed Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+static Microsoft.SqlTools.Sts2.Core.ConnectionInfo.operator !=(Microsoft.SqlTools.Sts2.Core.ConnectionInfo? left, Microsoft.SqlTools.Sts2.Core.ConnectionInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.ConnectionInfo.operator ==(Microsoft.SqlTools.Sts2.Core.ConnectionInfo? left, Microsoft.SqlTools.Sts2.Core.ConnectionInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.CoreDecision.operator !=(Microsoft.SqlTools.Sts2.Core.CoreDecision? left, Microsoft.SqlTools.Sts2.Core.CoreDecision? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.CoreDecision.operator ==(Microsoft.SqlTools.Sts2.Core.CoreDecision? left, Microsoft.SqlTools.Sts2.Core.CoreDecision? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.CoreDecision.StateOnly(Microsoft.SqlTools.Sts2.Core.CoreState! newState) -> Microsoft.SqlTools.Sts2.Core.CoreDecision!
@@ -138,6 +188,8 @@ static Microsoft.SqlTools.Sts2.Core.CoreState.operator !=(Microsoft.SqlTools.Sts
 static Microsoft.SqlTools.Sts2.Core.CoreState.operator ==(Microsoft.SqlTools.Sts2.Core.CoreState? left, Microsoft.SqlTools.Sts2.Core.CoreState? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.operator !=(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? left, Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.operator ==(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? left, Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.DriverDescriptor.operator !=(Microsoft.SqlTools.Sts2.Core.DriverDescriptor? left, Microsoft.SqlTools.Sts2.Core.DriverDescriptor? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.DriverDescriptor.operator ==(Microsoft.SqlTools.Sts2.Core.DriverDescriptor? left, Microsoft.SqlTools.Sts2.Core.DriverDescriptor? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.operator !=(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? left, Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.operator ==(Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? left, Microsoft.SqlTools.Sts2.Core.EffectRequestOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.operator !=(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? left, Microsoft.SqlTools.Sts2.Core.RpcErrorOutput? right) -> bool

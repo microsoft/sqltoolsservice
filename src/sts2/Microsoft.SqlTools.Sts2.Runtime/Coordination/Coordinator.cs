@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private readonly Channel<PendingInput> inputs;
         private readonly Task pump;
 
-        private CoreState state = CoreState.Initial;
+        private CoreState state;
         private long seqCounter;
 
         /// <summary>Creates the coordinator and starts its pump. Takes ownership of <paramref name="journal"/>.</summary>
@@ -46,6 +46,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.effectRunner = effectRunner ?? throw new ArgumentNullException(nameof(effectRunner));
             this.emitRpc = emitRpc ?? throw new ArgumentNullException(nameof(emitRpc));
+            state = CoreState.Initial; // session config enters via a journaled session.start envelope
 
             inputs = Channel.CreateBounded<PendingInput>(new BoundedChannelOptions(options.QueueCapacity)
             {
@@ -72,9 +73,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         public ValueTask PostRpcNotificationAsync(string method, JsonElement? payload, string? sessionId = null) =>
             inputs.Writer.WriteAsync(new PendingInput(EnvelopeKinds.RpcInNotify, method, sessionId, null, payload, Cause: null));
 
-        /// <summary>Posts a root control signal (for example <c>lifecycle.shutdown</c>).</summary>
-        public ValueTask PostControlAsync(string signal) =>
-            inputs.Writer.WriteAsync(new PendingInput(EnvelopeKinds.Control, signal, null, null, null, Cause: null));
+        /// <summary>Posts a root control signal (for example <c>session.start</c> or <c>lifecycle.shutdown</c>).</summary>
+        public ValueTask PostControlAsync(string signal, JsonElement? payload = null) =>
+            inputs.Writer.WriteAsync(new PendingInput(EnvelopeKinds.Control, signal, null, null, payload, Cause: null));
 
         /// <inheritdoc/>
         public ValueTask PostEffectResponseAsync(string effectId, string effectName, JsonElement? payload, long causeSeq) =>

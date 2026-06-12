@@ -1,1 +1,246 @@
 #nullable enable
+abstract Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecEvent!
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo!
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Collation.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Collation.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.ColumnInfo() -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.EngineType.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.EngineType.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Equals(Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Length.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Length.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Name.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Name.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Nullable.get -> bool?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Nullable.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Precision.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Precision.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Scale.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Scale.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest!
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ApplicationName.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ApplicationName.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Auth.get -> Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial!
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Auth.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectionOpenRequest() -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectTimeoutMs.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectTimeoutMs.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Database.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Database.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Equals(Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Options.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Options.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Server.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Server.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DbDriverException
+Microsoft.SqlTools.Sts2.Abstractions.DbDriverException.Code.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DbDriverException.DbDriverException(string! code, string! message, Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail? server = null, System.Exception? inner = null) -> void
+Microsoft.SqlTools.Sts2.Abstractions.DbDriverException.Server.get -> Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail?
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities!
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Dialects.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Dialects.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.DriverCapabilities() -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Production.get -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Production.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Deconstruct(out System.Collections.Generic.IReadOnlyList<long>! RowsAffected) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.ExecCompleted(System.Collections.Generic.IReadOnlyList<long>! RowsAffected) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.RowsAffected.get -> System.Collections.Generic.IReadOnlyList<long>!
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.RowsAffected.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecEvent
+Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.ExecEvent() -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.ExecEvent(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent! original) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecStarted
+Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.Deconstruct(out string! QueryId) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecStarted? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.ExecStarted(string! QueryId) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.QueryId.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.QueryId.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.IDbDriver
+Microsoft.SqlTools.Sts2.Abstractions.IDbDriver.Capabilities.get -> Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities!
+Microsoft.SqlTools.Sts2.Abstractions.IDbDriver.Name.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.IDbDriver.OpenAsync(Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest! request, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<Microsoft.SqlTools.Sts2.Abstractions.IDbSession!>
+Microsoft.SqlTools.Sts2.Abstractions.IDbSession
+Microsoft.SqlTools.Sts2.Abstractions.IDbSession.CancelAsync(string! queryId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Abstractions.IDbSession.ExecuteAsync(Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest! request, System.Threading.CancellationToken cancellationToken) -> System.Collections.Generic.IAsyncEnumerable<Microsoft.SqlTools.Sts2.Abstractions.ExecEvent!>!
+Microsoft.SqlTools.Sts2.Abstractions.IDbSession.Server.get -> Microsoft.SqlTools.Sts2.Abstractions.ServerInfo!
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest!
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Equals(Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageBytes.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageBytes.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageRows.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageRows.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryExecuteRequest() -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryId.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryId.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryTimeoutMs.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryTimeoutMs.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Sql.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Sql.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.Deconstruct(out int ResultSetId, out long RowCount) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.ResultSetCompleted(int ResultSetId, long RowCount) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.ResultSetId.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.ResultSetId.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.RowCount.get -> long
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.RowCount.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.Columns.get -> System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo!>!
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.Columns.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.Deconstruct(out int ResultSetId, out System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo!>! Columns) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.ResultSetId.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.ResultSetId.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.ResultSetStarted(int ResultSetId, System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo!>! Columns) -> void
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.Cells.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<object?>!>!
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.Cells.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.Deconstruct(out int ResultSetId, out int PageSeq, out long RowOffset, out System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<object?>!>! Cells) -> void
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.Equals(Microsoft.SqlTools.Sts2.Abstractions.RowsPage? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.PageSeq.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.PageSeq.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.ResultSetId.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.ResultSetId.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.RowOffset.get -> long
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.RowOffset.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.RowsPage.RowsPage(int ResultSetId, int PageSeq, long RowOffset, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<object?>!>! Cells) -> void
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial!
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.Equals(Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.Kind.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.Secret.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.Secret.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.SecretMaterial() -> void
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.User.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.User.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail!
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Equals(Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Line.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Line.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Number.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Number.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.ServerErrorDetail() -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Severity.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Severity.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.State.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.State.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ServerInfo!
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Dialect.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Dialect.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.EngineEdition.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.EngineEdition.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Equals(Microsoft.SqlTools.Sts2.Abstractions.ServerInfo? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Product.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Product.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.ServerInfo() -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Version.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Version.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Deconstruct(out string! MessageClass, out int Number, out int Severity, out string! Text, out int? Line) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Equals(Microsoft.SqlTools.Sts2.Abstractions.ServerMessage? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Line.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Line.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.MessageClass.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.MessageClass.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Number.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Number.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.ServerMessage(string! MessageClass, int Number, int Severity, string! Text, int? Line) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Severity.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Severity.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Text.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Text.init -> void
+override Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted!
+override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecStarted!
+override Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted!
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted!
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.RowsPage.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.RowsPage!
+override Microsoft.SqlTools.Sts2.Abstractions.RowsPage.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.RowsPage.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.RowsPage.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ServerMessage!
+override Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.ToString() -> string!
+override sealed Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Abstractions.RowsPage.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+override sealed Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo? left, Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo? left, Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? left, Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? left, Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? left, Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? left, Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? left, Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? left, Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecStarted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecStarted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ExecStarted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ExecStarted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecStarted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.operator !=(Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest? left, Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.operator ==(Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest? left, Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted? left, Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted? left, Microsoft.SqlTools.Sts2.Abstractions.ResultSetStarted? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.RowsPage.operator !=(Microsoft.SqlTools.Sts2.Abstractions.RowsPage? left, Microsoft.SqlTools.Sts2.Abstractions.RowsPage? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.RowsPage.operator ==(Microsoft.SqlTools.Sts2.Abstractions.RowsPage? left, Microsoft.SqlTools.Sts2.Abstractions.RowsPage? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.operator !=(Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial? left, Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial.operator ==(Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial? left, Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail? left, Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail? left, Microsoft.SqlTools.Sts2.Abstractions.ServerErrorDetail? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ServerInfo? left, Microsoft.SqlTools.Sts2.Abstractions.ServerInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ServerInfo? left, Microsoft.SqlTools.Sts2.Abstractions.ServerInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ServerMessage? left, Microsoft.SqlTools.Sts2.Abstractions.ServerMessage? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ServerMessage? left, Microsoft.SqlTools.Sts2.Abstractions.ServerMessage? right) -> bool
+virtual Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.EqualityContract.get -> System.Type!
+virtual Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? other) -> bool
+virtual Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.PrintMembers(System.Text.StringBuilder! builder) -> bool
