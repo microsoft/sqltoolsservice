@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Globalization;
 using System.Text.Json;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -122,58 +121,33 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         private async Task JournalAndActAsync(CoreOutput output, long causeSeq, string requestType)
         {
-            switch (output)
+            CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, requestType);
+            Sts2Envelope envelope = BuildEnvelope(encoded.Kind, encoded.Type, null, encoded.Corr, encoded.Payload, causeSeq);
+            await journal.AppendAsync(envelope, flush: IsFlushPoint(encoded.Kind)).ConfigureAwait(false);
+
+            switch (encoded.Kind)
             {
-                case RpcResultOutput result:
-                {
-                    Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.RpcOutResult, requestType, null, result.Corr, result.Result, causeSeq);
-                    await journal.AppendAsync(envelope, flush: true).ConfigureAwait(false);
-                    Emit(new OutboundRpcMessage { Kind = envelope.Kind, Corr = result.Corr, Type = requestType, Body = result.Result });
+                case EnvelopeKinds.RpcOutResult:
+                case EnvelopeKinds.RpcOutError:
+                case EnvelopeKinds.RpcOutNotify:
+                    Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = encoded.Payload });
                     break;
-                }
 
-                case RpcErrorOutput error:
-                {
-                    JsonElement body = JsonDocument.Parse(string.Create(
-                        CultureInfo.InvariantCulture,
-                        $"{{\"code\":{error.JsonRpcCode},\"message\":{JsonSerializer.Serialize(error.Message)},\"data\":{{\"code\":{JsonSerializer.Serialize(error.DataCode)},\"retryable\":false,\"corr\":{JsonSerializer.Serialize(error.Corr)}}}}}")).RootElement;
-                    Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.RpcOutError, requestType, null, error.Corr, body, causeSeq);
-                    await journal.AppendAsync(envelope, flush: true).ConfigureAwait(false);
-                    Emit(new OutboundRpcMessage { Kind = envelope.Kind, Corr = error.Corr, Type = requestType, Body = body });
-                    break;
-                }
-
-                case RpcNotifyOutput notify:
-                {
-                    Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.RpcOutNotify, notify.Method, null, null, notify.Params, causeSeq);
-                    await journal.AppendAsync(envelope, flush: false).ConfigureAwait(false);
-                    Emit(new OutboundRpcMessage { Kind = envelope.Kind, Corr = null, Type = notify.Method, Body = notify.Params });
-                    break;
-                }
-
-                case EffectRequestOutput effect:
-                {
-                    Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.EffectRequest, effect.EffectName, null, effect.EffectId, effect.Args, causeSeq);
-                    await journal.AppendAsync(envelope, flush: false).ConfigureAwait(false);
+                case EnvelopeKinds.EffectRequest:
                     RunEffect(new EffectWorkItem
                     {
                         CauseSeq = envelope.Seq,
-                        EffectId = effect.EffectId,
-                        EffectName = effect.EffectName,
-                        Args = effect.Args,
+                        EffectId = encoded.Corr!,
+                        EffectName = encoded.Type,
+                        Args = encoded.Payload!.Value,
                     });
                     break;
-                }
 
-                case DiagnosticOutput diagnostic:
-                {
-                    Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.Diagnostic, diagnostic.Name, null, null, diagnostic.Data, causeSeq);
-                    await journal.AppendAsync(envelope, flush: true).ConfigureAwait(false);
-                    break;
-                }
+                case EnvelopeKinds.Diagnostic:
+                    break; // journaled; nothing to emit
 
                 default:
-                    throw new InvalidOperationException("Unknown CoreOutput type: " + output.GetType().Name);
+                    throw new InvalidOperationException("Unhandled encoded output kind: " + encoded.Kind);
             }
         }
 

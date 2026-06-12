@@ -1,4 +1,6 @@
 #nullable enable
+~override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Equals(object obj) -> bool
+~override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.ToString() -> string
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SchemaId = "sts2.envelope/1" -> string!
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Command = "cmd" -> string!
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.ConfigChanged = "config.changed" -> string!
@@ -35,6 +37,20 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RunId.get -> str
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RunId.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.TimeProvider.get -> System.TimeProvider!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.TimeProvider.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Corr.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Corr.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Deconstruct(out string! Kind, out string! Type, out string? Corr, out System.Text.Json.JsonElement? Payload) -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.EncodedOutput() -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.EncodedOutput(string! Kind, string! Type, string? Corr, System.Text.Json.JsonElement? Payload) -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Kind.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Payload.get -> System.Text.Json.JsonElement?
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Payload.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Type.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Args.get -> System.Text.Json.JsonElement
@@ -170,9 +186,37 @@ Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.RemoveAll(System.Colle
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.SecretSideTable() -> void
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Tokenize(string! secretValue) -> string!
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.TryResolve(string! token, out string! secretValue) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Replay.JournalReplayer
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.CauseChain.get -> System.Collections.Generic.IReadOnlyList<long>!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.CauseChain.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Equals(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Recorded.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Recorded.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.ReplayDivergence() -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Replayed.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Replayed.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Seq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Seq.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Divergence.get -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence?
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Divergence.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Equals(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.FinalState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.FinalState.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Identical.get -> bool
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Identical.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.LastSeq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.LastSeq.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.OutboundDigests.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.OutboundDigests.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.ReplayResult() -> void
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.ToString() -> string!
@@ -194,8 +238,18 @@ override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.ToString() ->
 override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.ToString() -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.Encode(Microsoft.SqlTools.Sts2.Core.CoreOutput! output, string! requestType) -> Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodeErrorBody(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput! error) -> System.Text.Json.JsonElement
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
@@ -220,3 +274,10 @@ static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.operator ==(Mic
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretRedactor.Redact(System.Text.Json.Nodes.JsonNode? payload, Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable! sideTable) -> System.Text.Json.Nodes.JsonNode?
+static Microsoft.SqlTools.Sts2.Runtime.Replay.JournalReplayer.CauseChainOf(System.Collections.Generic.IReadOnlyDictionary<long, long?>! causeBySeq, long seq) -> System.Collections.Generic.IReadOnlyList<long>!
+static Microsoft.SqlTools.Sts2.Runtime.Replay.JournalReplayer.DumpState(Microsoft.SqlTools.Sts2.Core.CoreState! state, long atSeq) -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Replay.JournalReplayer.Replay(System.Collections.Generic.IEnumerable<Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!>! envelopes, long? untilSeq = null) -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult!
+static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.operator !=(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.operator ==(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.operator !=(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.operator ==(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? right) -> bool
