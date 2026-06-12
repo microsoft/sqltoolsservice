@@ -48,6 +48,72 @@ Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Ts.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Type.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.CommandLine.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.CommandLine.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Equals(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.GitCommit.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.GitCommit.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.JournalManifest() -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Os.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Os.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.ProcessId.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.ProcessId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.RunId.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.RunId.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.RuntimeVersion.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.RuntimeVersion.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Schema.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Schema.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Segments.get -> System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Segments.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.ServiceVersion.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.ServiceVersion.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.WrittenAt.get -> System.DateTimeOffset
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.WrittenAt.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.Directory.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.Directory.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.Equals(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.FlushIntervalMs.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.FlushIntervalMs.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.JournalOptions() -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.SegmentBytes.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.SegmentBytes.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.TimeProvider.get -> System.TimeProvider!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.TimeProvider.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalReader
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.CommandLine.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.CommandLine.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.Equals(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.GitCommit.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.GitCommit.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.JournalRunInfo() -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.ServiceVersion.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.ServiceVersion.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Bytes.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Bytes.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Equals(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.FileName.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.FileName.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.JournalSegment() -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.PreviousSegmentSha256.get -> string?
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.PreviousSegmentSha256.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Sha256.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Sha256.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.AppendAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.FlushAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.JournalWriter(string! runId, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions! options, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo! runInfo) -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.LatestSeq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.ManifestPath.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretRedactor
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Count.get -> int
@@ -59,6 +125,18 @@ Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.TryResolve(string! tok
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.ToString() -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.DeserializeLine(string! line) -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SerializeLine(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.All.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
@@ -68,4 +146,14 @@ static Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope.operator ==(Micros
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.Canonicalize(System.Text.Json.JsonElement element) -> byte[]!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOf(System.Text.Json.JsonElement element) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.CanonicalJson.DigestOfCanonicalBytes(System.ReadOnlySpan<byte> canonicalUtf8) -> string!
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalReader.ReadAll(string! directoryOrManifestPath) -> System.Collections.Generic.IEnumerable<Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!>!
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalReader.ReadManifest(string! manifestPath) -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest!
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretRedactor.Redact(System.Text.Json.Nodes.JsonNode? payload, Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable! sideTable) -> System.Text.Json.Nodes.JsonNode?
