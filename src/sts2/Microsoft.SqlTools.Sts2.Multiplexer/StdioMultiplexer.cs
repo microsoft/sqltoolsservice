@@ -267,15 +267,17 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 {
                     case "shutdown":
                         // Raw frame goes to legacy only; STS2 sees a mirrored signal and
-                        // can never produce a duplicate JSON-RPC response (I14).
-                        TryNotifyShutdown();
+                        // can never produce a duplicate JSON-RPC response (I14). The flush
+                        // wait is bounded and happens BEFORE legacy can act: this repo's
+                        // legacy host exits the process from its shutdown handler (RF-0011).
+                        await WaitForLifecycleFlushAsync(static s => s.OnShutdownAsync(), "shutdown", ct).ConfigureAwait(false);
                         await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
                         return;
 
                     case "exit":
                         // Flush STS2 journals (bounded) BEFORE legacy can act on exit and
                         // terminate the process; otherwise the journal tail is lost.
-                        await WaitForExitFlushAsync(ct).ConfigureAwait(false);
+                        await WaitForLifecycleFlushAsync(static s => s.OnExitAsync(), "exit", ct).ConfigureAwait(false);
                         idTable.Clear();
                         await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
                         return;
@@ -331,19 +333,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             await WriteToChannelAsync(sts2Inbound.Writer, frameBytes, ct).ConfigureAwait(false);
         }
 
-        private void TryNotifyShutdown()
-        {
-            try
-            {
-                lifecycleSink?.OnShutdown();
-            }
-            catch (Exception ex)
-            {
-                Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError, "OnShutdown threw: " + ex.Message);
-            }
-        }
-
-        private async Task WaitForExitFlushAsync(CancellationToken ct)
+        private async Task WaitForLifecycleFlushAsync(Func<ISts2LifecycleSink, Task> flushSelector, string signal, CancellationToken ct)
         {
             if (lifecycleSink is null || sts2Dead == 1)
             {
@@ -351,13 +341,13 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
             try
             {
-                Task flush = lifecycleSink.OnExitAsync();
+                Task flush = flushSelector(lifecycleSink);
                 Task timeout = Task.Delay(TimeSpan.FromMilliseconds(options.ExitFlushMilliseconds), ct);
                 Task winner = await Task.WhenAny(flush, timeout).ConfigureAwait(false);
                 if (winner == timeout)
                 {
                     Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError,
-                        $"STS2 exit flush did not complete within {options.ExitFlushMilliseconds}ms; forwarding exit anyway.");
+                        $"STS2 {signal} flush did not complete within {options.ExitFlushMilliseconds}ms; forwarding {signal} anyway.");
                 }
                 else
                 {
@@ -370,7 +360,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
             catch (Exception ex)
             {
-                Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError, "OnExitAsync threw: " + ex.Message);
+                Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError, "Lifecycle sink threw on " + signal + ": " + ex.Message);
             }
         }
 

@@ -8,6 +8,7 @@ using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Sts2.Bootstrap;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -61,7 +62,11 @@ namespace Microsoft.SqlTools.ServiceLayer
                 var hostDetails = new HostDetails(version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions);
+
+                // STS2 seam (docs/sts2/SPEC.md §5): disabled returns null streams, preserving
+                // the existing ServiceHost.Initialize(null, null) console-stream behavior.
+                await using Sts2BootstrapHandle sts2 = Sts2Bootstrap.TryStart(args, logFilePath);
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions, sts2.LegacyInputStream, sts2.LegacyOutputStream);
                 serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
                 serviceHost.MessageDispatcher.ParallelMessageProcessingLimit = commandOptions.ParallelMessageProcessingLimit;
 

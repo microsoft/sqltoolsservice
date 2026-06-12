@@ -16,7 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     {
         internal const string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
 
-        private static readonly string[] serviceLayerCommandArgs = { "-d", "--developers" };
+        // "--enable-sts2" is owned by Sts2Bootstrap; filtered here so the base parser's
+        // unknown-argument handling (usage on stdout + exit) never sees it.
+        private static readonly string[] serviceLayerCommandArgs = { "-d", "--developers", "--enable-sts2" };
 
         /**
          * List of contributors to this project, used as part of the onboarding process.

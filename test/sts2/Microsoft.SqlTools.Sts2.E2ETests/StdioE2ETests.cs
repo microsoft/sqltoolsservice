@@ -1,0 +1,89 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Microsoft.SqlTools.Sts2.E2ETests
+{
+    /// <summary>
+    /// SPEC §5.3 and §16 M0: spawned-exe tests over real stdio, enabled and disabled modes.
+    /// </summary>
+    public class StdioE2ETests : IDisposable
+    {
+        private readonly string logDirectory = Path.Combine(
+            Path.GetTempPath(), "sts2-e2e-" + Guid.NewGuid().ToString("N"));
+
+        private static CancellationToken TestTimeout => new CancellationTokenSource(TimeSpan.FromSeconds(60)).Token;
+
+        public void Dispose()
+        {
+            try
+            {
+                Directory.Delete(logDirectory, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best effort; temp cleanup.
+            }
+        }
+
+        [Fact]
+        public async Task DisabledMode_V1VersionWorks_AndNoSts2ArtifactsAreCreated()
+        {
+            await using var client = ServiceProcessClient.Start(enableSts2: false, logDirectory);
+
+            JsonElement response = await client.RequestAsync("version", new { }, TestTimeout);
+            Assert.True(response.TryGetProperty("result", out JsonElement result), "version request failed: " + response.GetRawText());
+            Assert.Equal(JsonValueKind.String, result.ValueKind);
+            Assert.False(string.IsNullOrWhiteSpace(result.GetString()));
+
+            // SPEC §5.3: disabled mode creates no multiplexer diagnostic log and no journal dir.
+            Assert.Empty(Directory.EnumerateFiles(logDirectory, "sts2-mux-*.log"));
+            Assert.False(Directory.Exists(Path.Combine(logDirectory, "sts2")), "disabled mode must not create an sts2 journal directory");
+        }
+
+        [Fact]
+        public async Task EnabledMode_PingAndV1VersionShareOneSession()
+        {
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+
+            // v2 and v1 requests interleaved on the same stdio stream (SPEC §1.1).
+            JsonElement ping = await client.RequestAsync("v2/diagnostics.ping", new { echo = "m0-e2e" }, TestTimeout);
+            Assert.True(ping.TryGetProperty("result", out JsonElement pingResult), "ping failed: " + ping.GetRawText());
+            Assert.Equal("2.0.0-preview.1", pingResult.GetProperty("specVersion").GetString());
+            Assert.Equal("m0-e2e", pingResult.GetProperty("echo").GetString());
+            Assert.Equal("ok", pingResult.GetProperty("health").GetString());
+
+            JsonElement version = await client.RequestAsync("version", new { }, TestTimeout);
+            Assert.True(version.TryGetProperty("result", out JsonElement versionResult), "version failed: " + version.GetRawText());
+            Assert.Equal(JsonValueKind.String, versionResult.ValueKind);
+
+            // And v2 again after v1, proving routing is stable across interleaving.
+            JsonElement ping2 = await client.RequestAsync("v2/diagnostics.ping", new { echo = "again" }, TestTimeout);
+            Assert.Equal("again", ping2.GetProperty("result").GetProperty("echo").GetString());
+        }
+
+        [Fact]
+        public async Task EnabledMode_ShutdownTerminatesProcess()
+        {
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+
+            // Prove the session is alive before shutting down.
+            JsonElement ping = await client.RequestAsync("v2/diagnostics.ping", new { }, TestTimeout);
+            Assert.True(ping.TryGetProperty("result", out _));
+
+            // Legacy never responds to shutdown: its handler runs shutdown callbacks and
+            // calls Environment.Exit(0) directly, and no exit handler exists (RF-0011).
+            // The multiplexer's bounded flush wait happens before the frame reaches legacy.
+            await client.SendRequestFireAndForgetAsync("shutdown", TestTimeout);
+            Assert.True(await client.WaitForExitAsync(TimeSpan.FromSeconds(30)), "process did not exit after shutdown request");
+        }
+    }
+}

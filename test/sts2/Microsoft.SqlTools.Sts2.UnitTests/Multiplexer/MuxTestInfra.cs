@@ -168,23 +168,27 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 
     internal sealed class TestLifecycleSink : ISts2LifecycleSink
     {
-        private readonly TaskCompletionSource exitFlushed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource flushed = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public int ShutdownCalls;
         public int ExitCalls;
 
-        /// <summary>When false the sink hangs until <see cref="CompleteExitFlush"/> is called.</summary>
-        public bool CompleteExitImmediately { get; init; } = true;
+        /// <summary>When false the sink hangs until <see cref="CompleteFlush"/> is called.</summary>
+        public bool CompleteFlushImmediately { get; init; } = true;
 
-        public void OnShutdown() => Interlocked.Increment(ref ShutdownCalls);
+        public Task OnShutdownAsync()
+        {
+            Interlocked.Increment(ref ShutdownCalls);
+            return CompleteFlushImmediately ? Task.CompletedTask : flushed.Task;
+        }
 
         public Task OnExitAsync()
         {
             Interlocked.Increment(ref ExitCalls);
-            return CompleteExitImmediately ? Task.CompletedTask : exitFlushed.Task;
+            return CompleteFlushImmediately ? Task.CompletedTask : flushed.Task;
         }
 
-        public void CompleteExitFlush() => exitFlushed.TrySetResult();
+        public void CompleteFlush() => flushed.TrySetResult();
     }
 
     /// <summary>Manually advanced clock for id-table TTL tests.</summary>

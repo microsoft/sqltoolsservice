@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         [Fact]
         public async Task ExitWaitsForSts2FlushBeforeForwardingToLegacy()
         {
-            var sink = new TestLifecycleSink { CompleteExitImmediately = false };
+            var sink = new TestLifecycleSink { CompleteFlushImmediately = false };
             await using var h = new MuxHarness(lifecycleSink: sink);
 
             await h.ClientSendsAsync("""{"jsonrpc":"2.0","method":"exit"}""", TestTimeout);
@@ -51,14 +51,33 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
             Assert.False(legacyRead.IsCompleted, "exit reached legacy before STS2 flush completed");
             Assert.Equal(1, sink.ExitCalls);
 
-            sink.CompleteExitFlush();
+            sink.CompleteFlush();
             Assert.Contains("exit", await legacyRead);
+        }
+
+        [Fact]
+        public async Task ShutdownWaitsForSts2FlushBeforeForwardingToLegacy()
+        {
+            // This repo's legacy host exits the process from its shutdown handler
+            // (RF-0011), so the flush-before-forward guarantee applies to shutdown too.
+            var sink = new TestLifecycleSink { CompleteFlushImmediately = false };
+            await using var h = new MuxHarness(lifecycleSink: sink);
+
+            await h.ClientSendsAsync("""{"jsonrpc":"2.0","id":40,"method":"shutdown"}""", TestTimeout);
+
+            Task<string> legacyRead = h.LegacyReceivesAsync(TestTimeout);
+            await Task.Delay(100);
+            Assert.False(legacyRead.IsCompleted, "shutdown reached legacy before STS2 flush completed");
+            Assert.Equal(1, sink.ShutdownCalls);
+
+            sink.CompleteFlush();
+            Assert.Contains("shutdown", await legacyRead);
         }
 
         [Fact]
         public async Task ExitForwardsAfterBoundedTimeoutWhenFlushHangs()
         {
-            var sink = new TestLifecycleSink { CompleteExitImmediately = false }; // never completed
+            var sink = new TestLifecycleSink { CompleteFlushImmediately = false }; // never completed
             await using var h = new MuxHarness(
                 new MultiplexerOptions { ExitFlushMilliseconds = 250 },
                 lifecycleSink: sink);
@@ -70,6 +89,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 
             Assert.True(sw.ElapsedMilliseconds >= 200, $"exit forwarded too early ({sw.ElapsedMilliseconds}ms): flush wait was skipped");
             Assert.True(sw.ElapsedMilliseconds < 5000, $"exit took {sw.ElapsedMilliseconds}ms: bounded wait not enforced");
+        }
+
+        [Fact]
+        public async Task ShutdownForwardsAfterBoundedTimeoutWhenFlushHangs()
+        {
+            var sink = new TestLifecycleSink { CompleteFlushImmediately = false }; // never completed
+            await using var h = new MuxHarness(
+                new MultiplexerOptions { ExitFlushMilliseconds = 250 },
+                lifecycleSink: sink);
+
+            var sw = Stopwatch.StartNew();
+            await h.ClientSendsAsync("""{"jsonrpc":"2.0","id":1,"method":"shutdown"}""", TestTimeout);
+            Assert.Contains("shutdown", await h.LegacyReceivesAsync(TestTimeout));
+            sw.Stop();
+
+            Assert.True(sw.ElapsedMilliseconds >= 200, $"shutdown forwarded too early ({sw.ElapsedMilliseconds}ms): flush wait was skipped");
+            Assert.True(sw.ElapsedMilliseconds < 5000, $"shutdown took {sw.ElapsedMilliseconds}ms: bounded wait not enforced");
         }
 
         [Fact]

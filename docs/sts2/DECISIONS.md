@@ -16,9 +16,13 @@ Two-way doors are recorded in one line and work proceeds. `SPEC-CHANGE` entries 
 - **RF-0009:** Package versions are centralized in `Packages.props` (`PackageReference Update` pattern, version-less `PackageReference Include` in csproj). NuGet feed is nuget.org plus a local folder feed. `StreamJsonRpc`, `Microsoft.Data.Sqlite`, and analyzer packages are not yet referenced anywhere; they will be added to `Packages.props`.
 - **RF-0010:** Repo-wide `Directory.Build.props` already enforces `TreatWarningsAsErrors`, `Nullable=enable`, `EnforceCodeStyleInBuild`, and `GenerateDocumentationFile` for all projects, including new STS2 projects.
 
+- **RF-0011:** Legacy `ServiceHost.HandleShutdownRequest` (src/Microsoft.SqlTools.ServiceLayer/ServiceHost.cs:147-156) runs shutdown callbacks then calls `Environment.Exit(0)` directly. It never sends a JSON-RPC response to `shutdown`, and no `exit` handler is registered — `shutdown` IS the process kill switch in this repo; LSP-style shutdown-then-exit does not apply. Verified by spawned E2E.
+
 ## Decisions
 
 - **D-0001** (two-way, 2026-06-12): No root `CLAUDE.md` existed. Created one containing only the runbook's STS2 branch-rules snippet.
 - **D-0002** (two-way, 2026-06-12): Working branch is `sts2/main` created from `main` at 77498823, per runbook recommendation.
 - **D-0003** (two-way, 2026-06-12): STS2 test framework is xunit (already centrally versioned in `Packages.props`; repo uses both nunit and xunit). M0 test projects: `test/sts2/Microsoft.SqlTools.Sts2.UnitTests` (unit + multiplexer + architecture + banned-API tests) and `test/sts2/Microsoft.SqlTools.Sts2.E2ETests` (spawned-exe stdio tests).
 - **D-0004** (two-way, 2026-06-12): `--enable-sts2` is filtered from legacy arg parsing via `serviceLayerCommandArgs` (see RF-0007); Bootstrap owns STS2 flag parsing.
+- **D-0005** (two-way, 2026-06-12): Because of RF-0011, the multiplexer applies the bounded journal-flush wait (`sts2.runtime.exitFlushMs`) to **`shutdown` as well as `exit`** before forwarding to legacy, and `ISts2LifecycleSink.OnShutdown` became `OnShutdownAsync`. This preserves SPEC §6.2's intent (journal tail survives process death) without changing the wire contract, pinned defaults, or invariants; I14 unchanged (no duplicate shutdown response is possible since the raw frame still goes to legacy only).
+- **D-0006** (two-way, 2026-06-12): `Sts2Bootstrap.TryStart(string[] args, string? logFilePath)` — the spec sketch's `commandOptions` parameter is omitted because Bootstrap cannot reference the legacy `ServiceLayerCommandOptions` type (dependency matrix); raw args are sufficient.

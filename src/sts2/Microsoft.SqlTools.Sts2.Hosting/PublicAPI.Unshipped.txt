@@ -1,1 +1,5 @@
 #nullable enable
+Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost
+Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost.Completion.get -> System.Threading.Tasks.Task!
+Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost.DisposeAsync() -> System.Threading.Tasks.ValueTask
+static Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost.Attach(System.IO.Stream! input, System.IO.Stream! output, string! serviceVersion) -> Microsoft.SqlTools.Sts2.Hosting.Sts2RpcHost!
