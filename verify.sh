@@ -44,9 +44,37 @@ build_sts2() {
 }
 
 unit_tests() {
-    # Unit, multiplexer (incl. single-writer property test), architecture, and
-    # banned-API wiring tests all live in the UnitTests project at M0.
+    # Unit, multiplexer (incl. single-writer property test), architecture, banned-API,
+    # core reducer, coordinator, journal, redaction, and replay tests. Also produces
+    # the artifacts/test-journals corpus consumed by the replay gate below.
     dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo
+}
+
+scenario_corpus() {
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
+        --filter 'FullyQualifiedName~ScenarioCorpusTests'
+}
+
+replay_verify() {
+    dotnet run --project tools/sts2-replay --no-build -- verify artifacts/test-journals
+}
+
+secret_canary_scan() {
+    # I6: produced artifacts and generated docs must never contain a canary value.
+    # Canary literals are defined in src/sts2/Microsoft.SqlTools.Sts2.Testing/SecretCanaries.cs.
+    local hits
+    hits=$(grep -r -l -e 'CANARY-pw-1f9b3c7d2e' -e 'CANARY-at-5a8d0e' artifacts docs/sts2 2>/dev/null || true)
+    if [ -n "$hits" ]; then
+        echo "    canary found in:"
+        printf '%s\n' "$hits" | sed 's/^/      /'
+        return 1
+    fi
+    return 0
+}
+
+generated_docs_diff() {
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
+        --filter 'FullyQualifiedName~GeneratedDocsTests'
 }
 
 build_legacy_exe() {
@@ -74,12 +102,12 @@ echo
 
 gate "build (sts2 slnf, warnings as errors)" build_sts2
 gate "unit+multiplexer+architecture tests" unit_tests
-na "scenario tests (Fake)" "M1"
+gate "scenario corpus (stub validation)" scenario_corpus
 na "contract tests (Fake+Sqlite)" "M2+"
-na "replay verify" "M1"
-na "simulator" "M1"
-na "secret canary scan" "M1"
-na "generated docs diff" "M1"
+gate "replay verify (sts2-replay)" replay_verify
+na "simulator" "M2"
+gate "secret canary scan" secret_canary_scan
+gate "generated docs diff" generated_docs_diff
 gate "legacy diff budget" legacy_diff_budget
 gate "build legacy exe (for E2E)" build_legacy_exe
 gate "E2E disabled-mode v1 smoke + enabled-mode v1+v2" e2e_tests

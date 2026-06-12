@@ -1,4 +1,17 @@
 #nullable enable
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Busy = "Sts2.Busy" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Canceled = "Sts2.Canceled" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedAuth = "Sts2.ConnectionFailed.Auth" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedNetwork = "Sts2.ConnectionFailed.Network" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedTimeout = "Sts2.ConnectionFailed.Timeout" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Internal = "Sts2.Internal" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.InvalidRequest = "Sts2.InvalidRequest" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.NotFound = "Sts2.NotFound" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.QueryFailedServer = "Sts2.QueryFailed.Server" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.QueryFailedTransport = "Sts2.QueryFailed.Transport" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Unavailable = "Sts2.Unavailable" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants.MethodPrefix = "v2/" -> string!
+const Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants.SpecVersion = "2.0.0-preview.1" -> string!
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams.DiagnosticsPingParams() -> void
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingParams.Echo.get -> string?
@@ -16,17 +29,25 @@ Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.ServiceVersi
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.SpecVersion.get -> string!
 Microsoft.SqlTools.Sts2.Contracts.Diagnostics.DiagnosticsPingResult.SpecVersion.init -> void
 Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Busy = "Sts2.Busy" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Canceled = "Sts2.Canceled" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedAuth = "Sts2.ConnectionFailed.Auth" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedNetwork = "Sts2.ConnectionFailed.Network" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.ConnectionFailedTimeout = "Sts2.ConnectionFailed.Timeout" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Internal = "Sts2.Internal" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.InvalidRequest = "Sts2.InvalidRequest" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.NotFound = "Sts2.NotFound" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.QueryFailedServer = "Sts2.QueryFailed.Server" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.QueryFailedTransport = "Sts2.QueryFailed.Transport" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2ErrorCodes.Unavailable = "Sts2.Unavailable" -> string!
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo!
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Equals(Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? other) -> bool
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Kind.init -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Milestone.get -> string!
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Milestone.init -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Name.get -> string!
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Name.init -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Sts2MethodInfo() -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Summary.get -> string!
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Summary.init -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Toy.get -> bool
+Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Toy.init -> void
+Microsoft.SqlTools.Sts2.Contracts.Sts2Methods
 Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants
-const Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants.MethodPrefix = "v2/" -> string!
-const Microsoft.SqlTools.Sts2.Contracts.Sts2WireConstants.SpecVersion = "2.0.0-preview.1" -> string!
+override Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.ToString() -> string!
+static Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.operator !=(Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? left, Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo.operator ==(Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? left, Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo? right) -> bool
+static Microsoft.SqlTools.Sts2.Contracts.Sts2Methods.All.get -> System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Contracts.Sts2MethodInfo!>!
