@@ -2,6 +2,39 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## M5 - SqlClient adapter + engine truth (partial: engine tests CI/nightly) - 2026-06-13 - 78405c53
+Gates (verify.sh --quick green; --full green with engine n/a):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (224 tests; Engine+Perf excluded)
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok (12 lines / 3 files, unchanged)
+- build legacy exe (for E2E): ok
+- E2E disabled + enabled + Sqlite-over-stdio: ok (5 tests)
+- SQL Server engine suite (dialect:tsql, --full): n/a — no STS2_SQLSERVER_CONNSTRING (Docker daemon not running locally; CI/nightly runs it)
+- perf/memory smoke (--full): ok — 135k rows/s digest mode
+
+New: SqlClientDriver/SqlClientSession over Microsoft.Data.SqlClient (conn-string for sqlLogin/accessToken/integrated with encrypt/trust, page-by-page streaming, column schema → ColumnInfo with precision/scale/length/nullable, CLR-typed cells, SqlException → Sts2.* mapping, SqlCommand.Cancel + token cancellation, lease/dispose); WireValueEncoder extracted and shared with the runner (SPEC §7.7 type matrix: decimal/datetime2/datetimeoffset/time/guid/binary/non-finite floats → typed wrappers, invariant strings), validated server-free; skippable engine suite + SQL Server probe (STS2_SQLSERVER_CONNSTRING); Bootstrap registers sqlclient + sqlite.
+Engine truth: deferred to CI/nightly — Docker daemon is not running locally. dialect:tsql tests (Category=Engine) skip with a logged reason; docs/sts2/ENGINE-TESTS.md documents the container + connection-string path. Server-free logic (conn-string, error classification, full type-encoding matrix) is unit-tested locally (22 tests). The T-SQL truth-capture tool is seeded by SqlClientEngineTests and finalized in CI.
+Replay: unchanged (no journal-path change)
+Simulator: seeds=200 failures=0
+Mutation: n/a (M7)
+Perf: 135k rows/s digest mode (M3 baseline holds)
+Legacy diff: 12 lines / 3 files (unchanged since M0)
+API surface: Drivers.SqlClient (new public driver + conn-string/error-mapping helpers), Runtime +WireValueEncoder
+Invariants exercised: type-matrix encoding (server-free), full set in Fake/Sqlite paths
+Decisions: none new
+Blockers: none — but M5 is PARTIAL pending a CI run of the engine suite (see risk)
+Risk notes:
+- **M5 is not fully verifiable in this environment**: the Docker daemon is not running, so no SQL Server is reachable. The adapter compiles, its server-free logic is fully unit-tested, and the engine tests are written and skip cleanly — but their green run against a real engine is a CI/nightly responsibility (SPEC §14.5 explicitly permits this with a clear report line, which this is). Before the M7 preview tag, CI must run `verify.sh --full` with STS2_SQLSERVER_CONNSTRING set and the engine suite green.
+- SqlClient streams page-by-page (no full-result buffering), unlike the Sqlite adapter which buffers per result set; both satisfy the port contract.
+- Empty placeholder files (Sts2RpcHost.cs, DiagnosticsRpcTarget.cs, DiagnosticsPingContracts.cs) still await deletion approval.
+Next: M6 (client interop + export bundle loop)
+
 ## M4 - Sqlite adapter - 2026-06-13 - a2285cba
 Gates (verify.sh --quick green):
 - build (sts2 slnf, warnings as errors): ok
