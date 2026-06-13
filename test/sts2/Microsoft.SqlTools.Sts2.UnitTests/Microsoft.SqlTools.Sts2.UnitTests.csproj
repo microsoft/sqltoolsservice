@@ -10,6 +10,13 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Bounded parallelism: simulator/scenario tests spawn many background coordinator
+         and query-pump tasks; uncapped parallelism starves the thread pool (SPEC §14.4
+         flaky-simulator guard). The product runs one coordinator per process. -->
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Core\Microsoft.SqlTools.Sts2.Core.csproj" />

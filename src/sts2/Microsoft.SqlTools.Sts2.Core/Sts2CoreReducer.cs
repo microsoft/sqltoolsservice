@@ -230,15 +230,19 @@ namespace Microsoft.SqlTools.Sts2.Core
             {
                 case ConnectionPhase.Opening:
                 {
-                    // Close during open: reply {} now, cancel the open; the open request
-                    // itself terminates with Sts2.Canceled when the effect resolves.
+                    // Close during open: reply {} now, cancel the open. CloseAfterQuery
+                    // also marks "close once opened" so that if the open WINS the cancel
+                    // race and becomes Open, the open-result handler closes it instead of
+                    // orphaning the session (leak found by simulator seed 47).
                     string cancelEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-cancel-{envelope.Seq}");
                     string cancelArgs = string.Create(CultureInfo.InvariantCulture, $$"""
                         {"connectionId":{{JsonSerializer.Serialize(connectionId)}},"openId":{{JsonSerializer.Serialize(connection.OpenId)}}}
                         """);
                     CoreState next = state with
                     {
-                        Connections = state.Connections.SetItem(connectionId, connection with { CancelRequested = true }),
+                        // CloseCorr stays null: the close was already answered with {}.
+                        Connections = state.Connections.SetItem(connectionId,
+                            connection with { CancelRequested = true, CloseAfterQuery = true }),
                     };
                     return new CoreDecision(next,
                     [
@@ -438,11 +442,30 @@ namespace Microsoft.SqlTools.Sts2.Core
             };
             string effectId = string.Create(CultureInfo.InvariantCulture, $"drv-qdispose-{envelope.Seq}");
             string args = string.Create(CultureInfo.InvariantCulture, $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}}}""");
-            return new CoreDecision(next,
-            [
+            var outputs = new List<CoreOutput>
+            {
                 new RpcResultOutput(corr, Json("{}")),
                 new EffectRequestOutput(effectId, "driver.queryDispose", Json(args), corr),
-            ]);
+            };
+
+            // A close was parked on this query (CloseAfterQuery); the disposed query's
+            // terminal is suppressed, so the close must proceed from here or it would
+            // wait forever (deadlock found by simulator seed, M3).
+            if (next.Connections.TryGetValue(query.ConnectionId, out ConnectionInfo? connection)
+                && connection.CloseAfterQuery && connection.Phase == ConnectionPhase.Open)
+            {
+                string closeEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-close-{envelope.Seq}");
+                string closeArgs = string.Create(CultureInfo.InvariantCulture, $$"""
+                    {"connectionId":{{JsonSerializer.Serialize(connection.ConnectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}}}
+                    """);
+                outputs.Add(new EffectRequestOutput(closeEffectId, "driver.close", Json(closeArgs), connection.CloseCorr));
+                next = next with
+                {
+                    Connections = next.Connections.SetItem(connection.ConnectionId,
+                        connection with { Phase = ConnectionPhase.Closing }),
+                };
+            }
+            return new CoreDecision(next, [.. outputs]);
         }
 
         private static CoreDecision DecideQueryEvent(CoreState state, CoreEnvelope envelope)
@@ -579,6 +602,31 @@ namespace Microsoft.SqlTools.Sts2.Core
                 string serverInfo = envelope.Payload!.Value.TryGetProperty("serverInfo", out JsonElement si)
                     ? si.GetRawText()
                     : "null";
+
+                // The open WON a cancel/close race (CloseAfterQuery). The open request
+                // still terminates with success, but the connection must close, not orphan.
+                if (connection.CloseAfterQuery)
+                {
+                    string closeEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-close-{envelope.Seq}");
+                    string closeArgs = string.Create(CultureInfo.InvariantCulture, $$"""
+                        {"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(handleId)}}}
+                        """);
+                    CoreState closing = state with
+                    {
+                        Connections = state.Connections.SetItem(connectionId,
+                            connection with { Phase = ConnectionPhase.Closing, HandleId = handleId }),
+                        OpenIdToConnectionId = state.OpenIdToConnectionId.Remove(connection.OpenId),
+                    };
+                    string raceResult = string.Create(CultureInfo.InvariantCulture, $$"""
+                        {"connectionId":{{JsonSerializer.Serialize(connectionId)}},"serverInfo":{{serverInfo}}}
+                        """);
+                    return new CoreDecision(closing,
+                    [
+                        new RpcResultOutput(connection.OpenCorr, Json(raceResult)),
+                        new EffectRequestOutput(closeEffectId, "driver.close", Json(closeArgs), null),
+                    ]);
+                }
+
                 CoreState next = state with
                 {
                     Connections = state.Connections.SetItem(connectionId,
@@ -610,13 +658,17 @@ namespace Microsoft.SqlTools.Sts2.Core
         {
             string? connectionId = GetString(envelope.Payload, "connectionId");
             if (connectionId is null || !state.Connections.TryGetValue(connectionId, out ConnectionInfo? connection)
-                || connection.Phase != ConnectionPhase.Closing || connection.CloseCorr is null)
+                || connection.Phase != ConnectionPhase.Closing)
             {
                 return Unexpected(state, envelope, "driver.close result for unknown or non-closing connection");
             }
 
             CoreState next = state with { Connections = state.Connections.Remove(connectionId) };
-            return new CoreDecision(next, [new RpcResultOutput(connection.CloseCorr, Json("{}"))]);
+            // CloseCorr is null for a close that was already answered with {} (the
+            // close-during-open race); only emit a result when a caller is waiting.
+            return connection.CloseCorr is null
+                ? CoreDecision.StateOnly(next)
+                : new CoreDecision(next, [new RpcResultOutput(connection.CloseCorr, Json("{}"))]);
         }
 
         // ---------------- control & helpers ----------------

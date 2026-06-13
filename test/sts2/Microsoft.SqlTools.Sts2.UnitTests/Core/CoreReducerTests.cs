@@ -201,6 +201,38 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
         }
 
         [Fact]
+        public void CloseDuringOpenThatWinsTheRaceClosesNotOrphans()
+        {
+            // Regression for the simulator-found leak (seed 47): close arrives while the
+            // connection is Opening (replies {} + cancelOpen). The open then WINS the
+            // cancel race and reports ok. The connection must close, not become a
+            // permanently-open orphan, and the driver.close must carry the handle.
+            CoreState opening = Sts2CoreReducer.Decide(CoreState.Initial,
+                Request(1, "v2/connection.open", "r-open", """{"openId":"o-1","profile":{"driver":"fake"}}""")).NewState;
+
+            CoreDecision close = Sts2CoreReducer.Decide(opening,
+                Request(2, "v2/connection.close", "r-close", """{"connectionId":"c-1"}"""));
+            Assert.IsType<RpcResultOutput>(close.Outputs[0]); // {} now
+            Assert.IsType<EffectRequestOutput>(close.Outputs[1]); // driver.cancelOpen
+            Assert.True(close.NewState.Connections["c-1"].CloseAfterQuery);
+
+            // Open wins the race: ok arrives after the close.
+            CoreDecision openWon = Sts2CoreReducer.Decide(close.NewState, EffectResponse(3, "driver.open", "drv-open-1",
+                """{"connectionId":"c-1","openId":"o-1","status":"ok","handleId":"h-1","serverInfo":{"product":"Fake"}}"""));
+            Assert.IsType<RpcResultOutput>(openWon.Outputs[0]); // open request still succeeds
+            EffectRequestOutput closeEffect = Assert.IsType<EffectRequestOutput>(openWon.Outputs[1]);
+            Assert.Equal("driver.close", closeEffect.EffectName);
+            Assert.Equal("h-1", closeEffect.Args.GetProperty("handleId").GetString());
+            Assert.Equal(ConnectionPhase.Closing, openWon.NewState.Connections["c-1"].Phase);
+
+            // driver.close resolves: connection gone, no spurious result (close already answered).
+            CoreDecision closed = Sts2CoreReducer.Decide(openWon.NewState, EffectResponse(4, "driver.close", "drv-close-3",
+                """{"connectionId":"c-1","status":"ok"}"""));
+            Assert.Empty(closed.Outputs);
+            Assert.Empty(closed.NewState.Connections);
+        }
+
+        [Fact]
         public void DecideIsDeterministic()
         {
             CoreEnvelope envelope = Request(3, "v2/query.execute", "r-q", """{"connectionId":"c-1","sql":"select 1"}""");
