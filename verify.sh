@@ -141,7 +141,11 @@ gate "unit+multiplexer+architecture tests" unit_tests
 gate "scenario tests (Fake, active corpus)" scenario_corpus
 gate "contract tests (Sqlite, real I/O)" contract_tests_sqlite
 gate "replay verify (sts2-replay)" replay_verify
-gate "simulator (200 seeds)" simulator
+# The 200-seed simulator is the quick gate; --full runs the 10k variant instead (below),
+# so the heavy simulator is never run twice back-to-back.
+if [ "$MODE" != "--full" ]; then
+    gate "simulator (200 seeds)" simulator
+fi
 gate "secret canary scan" secret_canary_scan
 gate "generated docs diff" generated_docs_diff
 gate "legacy diff budget" legacy_diff_budget

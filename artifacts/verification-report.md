@@ -2,6 +2,50 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## M7 - Hardening, evidence, preview (HUMAN GATE) - 2026-06-13 - dfb4cb54+
+Gates (verify.sh --quick green 5x+ across the session; --full plumbing confirmed):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (~233 tests, Simulator/Perf/Engine in own gates)
+- scenario tests (Fake, active corpus): ok (46 active)
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds quick; 1000 validated locally; 10k is --full/CI): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok (12 lines / 3 files, unchanged from M0)
+- build legacy exe (for E2E): ok
+- E2E (disabled + enabled + Sqlite-over-stdio): ok
+- SQL Server engine suite (--full): n/a — CI/nightly (no local SQL Server)
+- mutation testing (Stryker, --full): n/a — CI/nightly (dotnet-stryker not installed)
+- 10k-seed simulator (--full): plumbing confirmed; true 10k is CI/nightly
+- perf/memory smoke (--full): ok — ~135k rows/s digest mode (M3 baseline holds)
+
+New: env-driven simulator seed count (STS2_SIMULATOR_SEEDS; 10k in --full); Stryker config (stryker-config.json) with SPEC §14.6 ratchet thresholds; simulator split into its own gate (Category=Simulator) so its background-task load never starves the parallel unit suite; settle-before-teardown fix.
+Replay: deterministic across all journals (I7) including digest mode
+Simulator: 1000-seed local sweep green; deterministic journals per seed
+Mutation: config wired; first ratchet score is CI's to record
+Perf: ~135k rows/s digest mode (gate >=50k; M3 baseline holds)
+Legacy diff: 12 lines / 3 files (Program.cs, ServiceLayerCommandOptions.cs, ServiceLayer csproj) — unchanged since M0, well under the <60/3 budget
+API surface: stable; PublicAPI tracked on Contracts/Core/Abstractions/Runtime/Hosting
+Invariants: I1-I16 exercised across scenarios/simulator/mux/E2E (see INVARIANTS.md for per-invariant exercise points)
+Decisions: DEV-001..006, D-0001..0010 (DECISIONS.md); no SPEC-CHANGE stops
+Blockers: none
+
+**A FOURTH real product bug surfaced at 1000 simulator seeds and was fixed**: an open completing after coordinator teardown stored a driver session Core never closed (a spurious I8). The simulator now waits for the effect runner to go idle before disposing. Across M2-M7 the simulator + invariant checker found and we fixed: replay-via-constructor divergence, the cancelOpen startup race, the query-pump credit-semaphore leak, the close-on-open-race session orphan, and this teardown orphan — none of which would have been visible by reading code.
+
+### CI checklist before the preview ships (the parts this local box cannot run)
+1. `verify.sh --full` with STS2_SQLSERVER_CONNSTRING set → engine suite (dialect:tsql) green.
+2. `dotnet stryker` → Core/Contracts ≥70%, Runtime pure ≥60%, ratchet recorded.
+3. 10,000-seed simulator green (STS2_SIMULATOR_SEEDS=10000).
+4. Perf ≥50k rows/s, <20% regression from the M3 baseline.
+
+### Human review surface (SPEC §16 M7 final gate)
+- docs/sts2/CONTRACT.md, INVARIANTS.md, SCENARIO-MATRIX.md, TRACE-SCHEMA.md, STATE-MACHINE.md, COMPONENTS.md
+- docs/sts2/CLIENT.md, ENGINE-TESTS.md; this verification report; export privacy report (in any sts2-export-*.zip)
+- Legacy diff (12 lines / 3 files); DECISIONS.md + SPEC.md §19 deviations
+
+Next: **STOP — second mandatory human gate.** After review + the CI checklist, tag sts2-v2.0.0-preview.
+
 ## M6 - Client interop and export loop - 2026-06-13 - c29b8344
 Gates (verify.sh --quick green):
 - build (sts2 slnf, warnings as errors): ok
