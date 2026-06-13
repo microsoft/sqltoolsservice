@@ -26,5 +26,6 @@
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Multiplexer\Microsoft.SqlTools.Sts2.Multiplexer.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Bootstrap\Microsoft.SqlTools.Sts2.Bootstrap.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Testing\Microsoft.SqlTools.Sts2.Testing.csproj" />
+    <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Drivers.Sqlite\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj" />
   </ItemGroup>
 </Project>

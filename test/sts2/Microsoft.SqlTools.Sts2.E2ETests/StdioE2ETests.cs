@@ -94,6 +94,59 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         }
 
         [Fact]
+        public async Task EnabledMode_SqliteQueryStreamsOverRealStdio()
+        {
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+            await client.RequestAsync("v2/initialize", new { clientName = "e2e" }, TestTimeout);
+
+            JsonElement open = await client.RequestAsync("v2/connection.open",
+                new { openId = "o-1", profile = new { server = ":memory:", driver = "sqlite", auth = new { kind = "integrated" } } }, TestTimeout);
+            Assert.True(open.TryGetProperty("result", out JsonElement openResult), "open failed: " + open.GetRawText());
+            string connectionId = openResult.GetProperty("connectionId").GetString()!;
+
+            // One active query per connection: each must complete (async notification)
+            // before the next executes.
+            await ExecuteToCompletionAsync(client, connectionId, "create table t(n integer)", TestTimeout);
+            await ExecuteToCompletionAsync(client, connectionId, "insert into t values (10),(20)", TestTimeout);
+            JsonElement completeParams = await ExecuteToCompletionAsync(client, connectionId, "select n from t order by n", TestTimeout);
+            Assert.Equal("succeeded", completeParams.GetProperty("status").GetString());
+        }
+
+        private static async Task<JsonElement> ExecuteToCompletionAsync(
+            ServiceProcessClient client, string connectionId, string sql, System.Threading.CancellationToken ct)
+        {
+            JsonElement execute = await client.RequestAsync("v2/query.execute", new { connectionId, sql }, ct);
+            Assert.True(execute.TryGetProperty("result", out JsonElement result), "execute rejected: " + execute.GetRawText());
+            string queryId = result.GetProperty("queryId").GetString()!;
+            while (!ct.IsCancellationRequested)
+            {
+                (string _, JsonElement completeParams) = await WaitForNotificationAsync(client, "v2/query.complete", ct);
+                if (completeParams.GetProperty("queryId").GetString() == queryId)
+                {
+                    return completeParams;
+                }
+            }
+            throw new TimeoutException("query " + queryId + " did not complete");
+        }
+
+        private static async Task<(string Method, JsonElement Params)> WaitForNotificationAsync(
+            ServiceProcessClient client, string method, System.Threading.CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                while (client.Notifications.TryDequeue(out (string Method, JsonElement Params) notification))
+                {
+                    if (notification.Method == method)
+                    {
+                        return notification;
+                    }
+                }
+                await Task.Delay(20, ct);
+            }
+            throw new TimeoutException("notification " + method + " not received");
+        }
+
+        [Fact]
         public async Task EnabledMode_ShutdownTerminatesProcess()
         {
             await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);

@@ -4,11 +4,14 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Sts2.Abstractions;
+using Microsoft.SqlTools.Sts2.Drivers.Sqlite;
 using Microsoft.SqlTools.Sts2.Hosting;
 using Microsoft.SqlTools.Sts2.Multiplexer;
 
@@ -82,7 +85,8 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
                 RunId = runId,
                 JournalDirectory = Path.Combine(logDirectory, "sts2"),
                 ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
-                // Production drivers register here when the adapters land (M4 sqlite, M5 sqlclient).
+                // sqlite is the portable adapter (M4); sqlclient is registered in M5.
+                Drivers = new Dictionary<string, IDbDriver> { ["sqlite"] = new SqliteDriver() },
                 CommandLine = args.Where(a => !a.Contains("password", StringComparison.OrdinalIgnoreCase)).ToArray(),
             });
 

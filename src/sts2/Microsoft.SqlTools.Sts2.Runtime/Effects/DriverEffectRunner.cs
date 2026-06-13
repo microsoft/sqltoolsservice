@@ -437,6 +437,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 var cells = new System.Text.Json.Nodes.JsonArray();
                 foreach (object? cell in row)
                 {
+                    // Wire encoding (SPEC §7.7): JSON natives where lossless, typed
+                    // wrappers for binary and other ambiguous values.
                     cells.Add(cell switch
                     {
                         null => null,
@@ -445,6 +447,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                         double d => System.Text.Json.Nodes.JsonValue.Create(d),
                         bool b => System.Text.Json.Nodes.JsonValue.Create(b),
                         string s => System.Text.Json.Nodes.JsonValue.Create(s),
+                        byte[] bytes => new System.Text.Json.Nodes.JsonObject
+                        {
+                            ["$t"] = "binary",
+                            ["v"] = Convert.ToBase64String(bytes),
+                        },
                         System.Text.Json.Nodes.JsonNode node => node.DeepClone(),
                         _ => System.Text.Json.Nodes.JsonValue.Create(cell.ToString()),
                     });

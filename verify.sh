@@ -66,6 +66,11 @@ simulator() {
         --filter 'FullyQualifiedName~SimulatorTests'
 }
 
+contract_tests_sqlite() {
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
+        --filter 'FullyQualifiedName~SqliteDriverTests|FullyQualifiedName~SqliteContractTests|FullyQualifiedName~DriverIsolationTests'
+}
+
 replay_verify() {
     dotnet run --project tools/sts2-replay --no-build -- verify artifacts/test-journals
 }
@@ -116,7 +121,7 @@ gate "build (sts2 slnf, warnings as errors)" build_sts2
 rm -rf artifacts/test-journals
 gate "unit+multiplexer+architecture tests" unit_tests
 gate "scenario tests (Fake, active corpus)" scenario_corpus
-na "contract tests (Sqlite)" "M4"
+gate "contract tests (Sqlite, real I/O)" contract_tests_sqlite
 gate "replay verify (sts2-replay)" replay_verify
 gate "simulator (200 seeds)" simulator
 gate "secret canary scan" secret_canary_scan
