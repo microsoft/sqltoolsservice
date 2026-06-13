@@ -45,9 +45,9 @@ namespace Microsoft.SqlTools.Sts2.Contracts
             new() { Name = "v2/query.cancel", Kind = "request", Summary = "Cancel query by queryId; idempotent.", Milestone = "M3" },
             new() { Name = "v2/query.dispose", Kind = "request", Summary = "Release query resources; idempotent.", Milestone = "M3" },
             new() { Name = "v2/diagnostics.ping", Kind = "request", Summary = "Echo, health summary, latest journal seq.", Milestone = "M0" },
-            new() { Name = "v2/diagnostics.health", Kind = "request", Summary = "Counters, queue depths, open leases, recent errors.", Milestone = "M2" },
-            new() { Name = "v2/diagnostics.state", Kind = "request", Summary = "Redacted state snapshot at current or requested seq.", Milestone = "M3" },
-            new() { Name = "v2/diagnostics.exportLog", Kind = "request", Summary = "Produce a redacted export bundle.", Milestone = "M6" },
+            new() { Name = "v2/diagnostics.health", Kind = "request", Summary = "Counters, active connections/queries, fatal status, config version.", Milestone = "M6" },
+            new() { Name = "v2/diagnostics.state", Kind = "request", Summary = "Redacted state snapshot: connection/query ids, phases, counters.", Milestone = "M6" },
+            new() { Name = "v2/diagnostics.exportLog", Kind = "request", Summary = "Produce a redacted export bundle (zip with manifest, privacy report, journals, generated docs).", Milestone = "M6" },
             new() { Name = "v2/diagnostics.setCapture", Kind = "request", Summary = "Change capture mode at runtime; journaled config change.", Milestone = "M4" },
             new() { Name = "v2/fatal", Kind = "server notification", Summary = "STS2 crash containment notice with redacted summary and journal path.", Milestone = "M0" },
         ];

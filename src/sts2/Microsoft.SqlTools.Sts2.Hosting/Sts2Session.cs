@@ -43,6 +43,9 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         /// <summary>Registered drivers; empty until the real adapters land (M4/M5).</summary>
         public IReadOnlyDictionary<string, IDbDriver> Drivers { get; init; } = new Dictionary<string, IDbDriver>();
 
+        /// <summary>Directory export bundles are written to; defaults to the journal directory.</summary>
+        public string? ExportDirectory { get; init; }
+
         /// <summary>Command line with secrets removed, recorded in the journal manifest.</summary>
         public IReadOnlyList<string> CommandLine { get; init; } = [];
     }
@@ -80,7 +83,13 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             ArgumentNullException.ThrowIfNull(options);
 
             var secrets = new SecretSideTable();
-            var effectRunner = new DriverEffectRunner(options.Drivers, secrets);
+            var exportTemplate = new Runtime.Export.ExportBundleRequest
+            {
+                RunId = options.RunId,
+                JournalDirectory = options.JournalDirectory,
+                OutputDirectory = options.ExportDirectory ?? options.JournalDirectory,
+            };
+            var effectRunner = new DriverEffectRunner(options.Drivers, secrets, exportTemplate);
             var journal = new JournalWriter(options.RunId,
                 new JournalOptions { Directory = options.JournalDirectory },
                 new JournalRunInfo { ServiceVersion = options.ServiceVersion, CommandLine = options.CommandLine });
@@ -216,6 +225,15 @@ namespace Microsoft.SqlTools.Sts2.Hosting
 
             [JsonRpcMethod("v2/diagnostics.ping", UseSingleObjectParameterDeserialization = true)]
             public Task<JsonElement?> PingAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.ping", args);
+
+            [JsonRpcMethod("v2/diagnostics.health", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> HealthAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.health", args);
+
+            [JsonRpcMethod("v2/diagnostics.state", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> StateAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.state", args);
+
+            [JsonRpcMethod("v2/diagnostics.exportLog", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> ExportLogAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.exportLog", args);
         }
     }
 }

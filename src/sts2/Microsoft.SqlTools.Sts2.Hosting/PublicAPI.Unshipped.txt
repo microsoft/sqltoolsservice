@@ -11,6 +11,8 @@ Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.CommandLine.init -> void
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Drivers.get -> System.Collections.Generic.IReadOnlyDictionary<string!, Microsoft.SqlTools.Sts2.Abstractions.IDbDriver!>!
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Drivers.init -> void
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Equals(Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? other) -> bool
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ExportDirectory.get -> string?
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ExportDirectory.init -> void
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Input.get -> System.IO.Stream!
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Input.init -> void
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.JournalDirectory.get -> string!

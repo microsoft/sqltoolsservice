@@ -61,6 +61,9 @@ namespace Microsoft.SqlTools.Sts2.Core
             {
                 "v2/initialize" => DecideInitialize(state, envelope),
                 "v2/diagnostics.ping" => DecidePing(state, envelope),
+                "v2/diagnostics.health" => DecideHealth(state, envelope),
+                "v2/diagnostics.state" => DecideState(state, envelope),
+                "v2/diagnostics.exportLog" => DecideExportLog(state, envelope),
                 "v2/connection.open" => DecideConnectionOpen(state, envelope),
                 "v2/connection.cancel" => DecideConnectionCancel(state, envelope),
                 "v2/connection.close" => DecideConnectionClose(state, envelope),
@@ -132,6 +135,71 @@ namespace Microsoft.SqlTools.Sts2.Core
                 {"specVersion":{{JsonSerializer.Serialize(Sts2WireConstants.SpecVersion)}},"serviceVersion":{{JsonSerializer.Serialize(state.ServiceVersion)}},"echo":{{JsonSerializer.Serialize(echo)}},"latestJournalSeq":{{envelope.Seq}},"health":{{JsonSerializer.Serialize(state.ShuttingDown ? "shuttingDown" : "ok")}}}
                 """);
             return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(result))]);
+        }
+
+        private static CoreDecision DecideHealth(CoreState state, CoreEnvelope envelope)
+        {
+            int activeQueries = state.Queries.Count(q => q.Value.Phase is QueryPhase.Running or QueryPhase.CancelRequested);
+            var result = new JsonObject
+            {
+                ["latestJournalSeq"] = envelope.Seq,
+                ["activeConnections"] = state.Connections.Count,
+                ["activeQueries"] = activeQueries,
+                ["totalQueries"] = state.Queries.Count,
+                ["fatal"] = false,
+                ["shuttingDown"] = state.ShuttingDown,
+                ["configVersion"] = 1,
+            };
+            return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(result.ToJsonString()))]);
+        }
+
+        private static CoreDecision DecideState(CoreState state, CoreEnvelope envelope)
+        {
+            // Redacted snapshot only (SPEC §12.2, I16): ids/phases/counters, never secrets,
+            // row cells, or SQL text.
+            var connections = new JsonObject();
+            foreach ((string id, ConnectionInfo connection) in state.Connections)
+            {
+                connections[id] = new JsonObject
+                {
+                    ["phase"] = connection.Phase,
+                    ["openId"] = connection.OpenId,
+                    ["activeQueryId"] = connection.ActiveQueryId,
+                };
+            }
+            var queries = new JsonObject();
+            foreach ((string id, QueryInfo query) in state.Queries)
+            {
+                queries[id] = new JsonObject
+                {
+                    ["phase"] = query.Phase,
+                    ["connectionId"] = query.ConnectionId,
+                    ["pagesSent"] = query.PagesSent,
+                    ["pagesAcked"] = query.PagesAcked,
+                };
+            }
+            var result = new JsonObject
+            {
+                ["atSeq"] = envelope.Seq,
+                ["shuttingDown"] = state.ShuttingDown,
+                ["connections"] = connections,
+                ["queries"] = queries,
+            };
+            return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(result.ToJsonString()))]);
+        }
+
+        private static CoreDecision DecideExportLog(CoreState state, CoreEnvelope envelope)
+        {
+            // Export is an edge effect (file I/O); the runner writes the bundle and the
+            // result corr is resolved when diag.export returns.
+            bool includeSql = envelope.Payload is { ValueKind: JsonValueKind.Object } p
+                && p.TryGetProperty("includeSqlText", out JsonElement sqlText) && sqlText.ValueKind == JsonValueKind.True;
+            string effectId = string.Create(CultureInfo.InvariantCulture, $"diag-export-{envelope.Seq}");
+            // The request corr travels in the args so the runner can echo it back (the
+            // effect encoding does not carry the originating request corr).
+            string args = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"corr":{{JsonSerializer.Serialize(envelope.Corr)}},"includeSqlText":{{(includeSql ? "true" : "false")}},"atSeq":{{envelope.Seq}}}""");
+            return new CoreDecision(state, [new EffectRequestOutput(effectId, "diag.export", Json(args), envelope.Corr)]);
         }
 
         // ---------------- connection machine ----------------
@@ -583,8 +651,27 @@ namespace Microsoft.SqlTools.Sts2.Core
             "driver.queryCancel" => CoreDecision.StateOnly(state),
             "driver.queryDispose" => CoreDecision.StateOnly(state),
             "driver.queryEvent" => DecideQueryEvent(state, envelope),
+            "diag.export" => DecideExportResult(state, envelope),
             _ => Unexpected(state, envelope, "unknown effect response type"),
         };
+
+        private static CoreDecision DecideExportResult(CoreState state, CoreEnvelope envelope)
+        {
+            // The runner echoes the originating request corr in the payload.
+            string? corr = GetString(envelope.Payload, "corr");
+            if (corr is null)
+            {
+                return Unexpected(state, envelope, "diag.export result without corr");
+            }
+            string status = GetString(envelope.Payload, "status") ?? "error";
+            if (status == "ok")
+            {
+                string result = string.Create(CultureInfo.InvariantCulture,
+                    $$"""{"bundlePath":{{JsonSerializer.Serialize(GetString(envelope.Payload, "bundlePath"))}},"bytes":{{GetRaw(envelope.Payload!.Value, "bytes", "0")}}}""");
+                return new CoreDecision(state, [new RpcResultOutput(corr, Json(result))]);
+            }
+            return Error(state, corr, Sts2ErrorCodes.Internal, GetString(envelope.Payload, "message") ?? "Export failed.");
+        }
 
         private static CoreDecision DecideDriverOpenResult(CoreState state, CoreEnvelope envelope)
         {

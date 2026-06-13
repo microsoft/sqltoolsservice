@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -54,11 +55,20 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             public volatile bool Suppressed;
         }
 
+        private readonly Export.ExportBundleRequest? exportTemplate;
+        private readonly TimeProvider timeProvider;
+
         /// <summary>Creates a runner over the registered drivers.</summary>
-        public DriverEffectRunner(IReadOnlyDictionary<string, IDbDriver> drivers, SecretSideTable secrets)
+        public DriverEffectRunner(
+            IReadOnlyDictionary<string, IDbDriver> drivers,
+            SecretSideTable secrets,
+            Export.ExportBundleRequest? exportTemplate = null,
+            TimeProvider? timeProvider = null)
         {
             this.drivers = drivers ?? throw new ArgumentNullException(nameof(drivers));
             this.secrets = secrets ?? throw new ArgumentNullException(nameof(secrets));
+            this.exportTemplate = exportTemplate;
+            this.timeProvider = timeProvider ?? TimeProvider.System;
         }
 
         /// <summary>Live driver-session lease count (I8).</summary>
@@ -211,6 +221,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
                     break;
                 }
+
+                case "diag.export":
+                    _ = Task.Run(() => ExportAsync(effect, inbox));
+                    break;
 
                 default:
                     _ = PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
@@ -451,6 +465,31 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}},{{eventCore[1..]}}""");
             return inbox.PostEffectResponseAsync("evt-" + queryId, "driver.queryEvent",
                 JsonDocument.Parse(payload).RootElement, effect.CauseSeq).AsTask();
+        }
+
+        private async Task ExportAsync(EffectWorkItem effect, ICoordinatorInbox inbox)
+        {
+            string? corr = GetString(effect.Args, "corr");
+            if (exportTemplate is null)
+            {
+                await PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
+                    $$"""{"corr":{{JsonSerializer.Serialize(corr)}},"status":"error","message":"Export is not configured for this session."}""")).ConfigureAwait(false);
+                return;
+            }
+
+            try
+            {
+                bool includeSql = effect.Args.TryGetProperty("includeSqlText", out JsonElement s) && s.ValueKind == JsonValueKind.True;
+                Export.ExportBundleResult result = await Task.Run(() => Export.ExportBundleWriter.Write(
+                    exportTemplate with { IncludeSqlText = includeSql }, timeProvider)).ConfigureAwait(false);
+                await PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
+                    $$"""{"corr":{{JsonSerializer.Serialize(corr)}},"status":"ok","bundlePath":{{JsonSerializer.Serialize(result.BundlePath)}},"bytes":{{result.Bytes}}}""")).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+            {
+                await PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
+                    $$"""{"corr":{{JsonSerializer.Serialize(corr)}},"status":"error","message":{{JsonSerializer.Serialize("Export failed: " + ex.Message)}}}""")).ConfigureAwait(false);
+            }
         }
 
         private async Task CloseAsync(EffectWorkItem effect, ICoordinatorInbox inbox)
