@@ -2,6 +2,36 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## M6 - Client interop and export loop - 2026-06-13 - c29b8344
+Gates (verify.sh --quick green):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (233 tests)
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok (12 lines / 3 files, unchanged)
+- build legacy exe (for E2E): ok
+- E2E (disabled + enabled + Sqlite-over-stdio): ok
+
+New: export bundle (v2/diagnostics.exportLog → diag.export effect → ExportBundleWriter produces a real .zip with manifest + per-segment sha256, privacy report with canary scan, journal segments, generated docs); sts2-replay export-check (manifest hashes + privacy + presence); export round-trip test (digest-mode session with canary creds + sensitive SQL → canary-clean bundle, no SQL/row literals, export-check passes, tamper caught by hash mismatch); diagnostics.health (counters) + diagnostics.state (redacted ids/phases, I16) through Core/gateway; multiplexer interleaving torture (300 colliding legacy+STS2 server-request ids rewritten distinctly, restored to exact original numeric ids per channel, I13); CLIENT.md + vscode-jsonrpc TypeScript sample.
+Replay: export bundles replay-verifiable; all journals identical (I7)
+Simulator: seeds=200 failures=0
+Mutation: n/a (M7)
+Perf: M3 baseline holds
+Legacy diff: 12 lines / 3 files (unchanged since M0)
+API surface: Runtime +ExportBundleWriter/ExportBundleRequest/Result, +diagnostics methods in Core; Hosting +export wiring
+Invariants exercised: I13 (torture, 300 ids), I16 (state redaction + export privacy), I6 (canary scan over bundle), full set in Fake/Sqlite paths
+Decisions: none new
+Blockers: none
+Risk notes:
+- The TypeScript sample (CLIENT.md) is documented, not run in CI — no Node toolchain is assumed in this repo. Its wire shapes are kept aligned with the generated CONTRACT.md by eye; a future CI lane could run it against the spawned exe.
+- The "concurrent v1+v2 under load" DoD item is covered at the transport layer by the multiplexer interleaving torture test (300 concurrent colliding ids) plus the existing enabled-mode E2E that drives v1 (version) and v2 (initialize/ping/sqlite query) in one session; a dedicated high-load spawned-exe stress E2E is deferred to M7 hardening.
+- Empty placeholder files (Sts2RpcHost.cs, DiagnosticsRpcTarget.cs, DiagnosticsPingContracts.cs) still await deletion approval.
+Next: M7 (hardening, evidence, preview tag) — ENDS AT THE SECOND MANDATORY HUMAN GATE.
+
 ## M5 - SqlClient adapter + engine truth (partial: engine tests CI/nightly) - 2026-06-13 - 78405c53
 Gates (verify.sh --quick green; --full green with engine n/a):
 - build (sts2 slnf, warnings as errors): ok
