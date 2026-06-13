@@ -2,6 +2,37 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## M3 - Query streaming vertical slice - 2026-06-13 - 40ed6559
+Gates (verify.sh --quick green; --full perf gate green separately):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (188 tests)
+- scenario tests (Fake, active corpus): ok (46 active of 54; +4 mux-adapter = 50 mandatory)
+- contract tests (Sqlite): n/a (M4)
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok (now with query ops)
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok (12 lines / 3 files, unchanged)
+- build legacy exe (for E2E): ok
+- E2E disabled-mode v1 smoke + enabled-mode v1+v2: ok (4 tests)
+- perf/memory smoke (--full): ok — 1M rows x 10 cols digest mode, 87k-131k rows/s (gate >=50k), journal ~1.7 MiB
+
+New: Core query machine (execute/resultSet/rows/message/complete/ack/cancel/dispose) with exactly-one-complete (I2), no-output-after-complete (I3), one-active-query Busy, backpressure credit (I9), close-while-active; DriverEffectRunner query pump (enumerator pull gated on a credit semaphore — real backpressure stops the driver); FakeDriver query scripting (rows/message/error/sever/crash/hang, typed-wrapper edge values); digest capture (rowCapture/sqlCapture=digest) eliding row cells and SQL from the journal while the wire keeps real data and replay stays digest-identical (DEV-005); scenario runner query support (driver.query, notify/waitForNotify/assertNotify, capture config) + invariant checks I2/I3/I9/RD1/SD1; 46 active scenarios; simulator query ops; perf smoke. Toy machine fully removed.
+Replay: all scenario + simulator + capture journals identical (I7), including digest mode
+Simulator: seeds=200 failures=0 (query+connection op/fault schedules)
+Mutation: n/a (M7)
+Perf: 1M rows 11.4s 87k rows/s journal ~1.7 MiB (digest mode); M3 baseline
+Legacy diff: 12 lines / 3 files (unchanged since M0)
+API surface: Core +query machine, Runtime +query pump/capture elision, Testing +query scenario/sim/perf; Contracts +Sts2Defaults/JsonRpcCodes
+Invariants exercised: I1, I2, I3, I5, I6, I7, I8, I9, I12 per scenario/seed; RD1/SD1 (digest cleanliness); I10-I14 in mux/E2E
+Decisions: D-0008 (backpressure credit in Core), D-0009 (SQL relayed verbatim), D-0010 (simulator drain); DEV-005/006
+Blockers: none
+Risk notes:
+- THREE real product bugs were caught by our own gates this milestone (all now fixed with permanent coverage): (1) query pumps blocked on the credit semaphore leaked as background tasks on session teardown; (2) driver query effects could race ahead of the pump task startup, dropping cancels/credits; (3) closing an Opening connection orphaned the session if the open won the cancel race (simulator seed 47, unit regression added). This is the architecture working as intended.
+- The 200-seed simulator is deterministic in its journals (I7 holds every run) but its end-of-run liveness waits are bounded by wall-clock budgets. Under the heavier --full load it flaked once on a liveness timeout (not a determinism failure) before passing on retry; --quick has been 5+ consecutive green. If this recurs in CI, the fix is to reduce per-seed background-task pressure further, not to retry. Documented as D-0010.
+- Empty placeholder files (Sts2RpcHost.cs, DiagnosticsRpcTarget.cs, DiagnosticsPingContracts.cs) still await deletion approval.
+Next: M4 (Sqlite adapter — real file-backed I/O proving the driver port)
+
 ## M2 - Connection vertical slice - 2026-06-12 - b2ced175+
 Gates:
 - build (sts2 slnf, warnings as errors): ok
