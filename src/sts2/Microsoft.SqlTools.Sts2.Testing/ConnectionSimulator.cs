@@ -244,6 +244,30 @@ namespace Microsoft.SqlTools.Sts2.Testing
                 // genuinely missing terminal is left to the I1 invariant check (precise
                 // diagnostics) rather than a blunt per-corr timeout.
                 await WaitForQuiescenceAsync(terminalsByCorr, awaitedCorrs, TimeSpan.FromSeconds(10));
+
+                // Let in-flight opens and query pumps settle so the coordinator processes
+                // their effect responses (and their proper close/cancel) BEFORE teardown.
+                // An open that completes after dispose would store a session Core never
+                // closes, surfacing as a spurious I8 leak.
+                int settleMs = 0;
+                while (settleMs < 10_000
+                    && (effectRunner.OpensInFlightCount > 0
+                        || effectRunner.ActiveQueryPumpCount > 0
+                        || coordinator.CurrentState.Connections.Count > 0))
+                {
+                    foreach (string connectionId in coordinator.CurrentState.Connections.Keys)
+                    {
+                        if (alreadyClosed.Add(connectionId))
+                        {
+                            string corr = "r-settle-" + (++closeCounter).ToString(CultureInfo.InvariantCulture);
+                            awaitedCorrs.Add(corr);
+                            await coordinator.PostRpcRequestAsync("v2/connection.close", corr,
+                                JsonDocument.Parse("{\"connectionId\":\"" + connectionId + "\"}").RootElement);
+                        }
+                    }
+                    await Task.Delay(15);
+                    settleMs += 15;
+                }
             }
             finally
             {

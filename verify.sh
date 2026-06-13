@@ -47,8 +47,10 @@ unit_tests() {
     # Unit, multiplexer (incl. single-writer property test), architecture, banned-API,
     # core reducer, coordinator, journal, redaction, and replay tests. Also produces
     # the artifacts/test-journals corpus consumed by the replay gate below.
-    # Perf and Engine suites run in --full only (Engine skips without a server).
-    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo --filter 'Category!=Perf&Category!=Engine'
+    # Perf and Engine run in --full only; Simulator has its own gate (heavy background
+    # tasks would starve under the unit suite's parallel load).
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
+        --filter 'Category!=Perf&Category!=Engine&Category!=Simulator'
 }
 
 engine_suite() {
@@ -63,14 +65,23 @@ perf_smoke() {
         --logger 'console;verbosity=detailed'
 }
 
+mutation_testing() {
+    dotnet stryker --config-file stryker-config.json
+}
+
+simulator_full() {
+    # SPEC §14.4 full run: 10,000 seeds. Deterministic journals per seed (I7).
+    STS2_SIMULATOR_SEEDS="${STS2_SIMULATOR_SEEDS:-10000}" \
+        dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo --filter 'Category=Simulator'
+}
+
 scenario_corpus() {
     dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
         --filter 'FullyQualifiedName~ScenarioCorpusTests|FullyQualifiedName~ActiveScenarioTests'
 }
 
 simulator() {
-    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
-        --filter 'FullyQualifiedName~SimulatorTests'
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo --filter 'Category=Simulator'
 }
 
 contract_tests_sqlite() {
@@ -144,8 +155,12 @@ if [ "$MODE" = "--full" ]; then
         na "SQL Server engine suite (dialect:tsql)" "no STS2_SQLSERVER_CONNSTRING — CI/nightly only"
         engine_suite >/dev/null 2>&1 || true  # exercise the skip path so it stays compiling/green
     fi
-    na "mutation testing" "M7"
-    na "10k-seed simulator" "M7"
+    if dotnet stryker --version >/dev/null 2>&1; then
+        gate "mutation testing (Stryker, ratchet)" mutation_testing
+    else
+        na "mutation testing (Stryker, ratchet)" "dotnet-stryker not installed — CI/nightly only"
+    fi
+    gate "10k-seed simulator" simulator_full
     gate "perf/memory smoke (1M rows digest mode, >=50k rows/s)" perf_smoke
 fi
 

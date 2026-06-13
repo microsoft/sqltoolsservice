@@ -75,6 +75,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         public int OpenSessionCount => sessions.Count;
 
         /// <summary>
+        /// Opens whose driver call has not yet resolved. A run must let these settle before
+        /// teardown, or an open that completes post-dispose stores a session Core never
+        /// closes (an I8 false-positive — the session is orphaned, not leaked by the machine).
+        /// </summary>
+        public int OpensInFlightCount => opensInFlight.Count;
+
+        /// <summary>Query pumps still streaming.</summary>
+        public int ActiveQueryPumpCount => queryPumps.Count;
+
+        /// <summary>
         /// Cancels any running query pumps and in-flight opens, disposes any sessions
         /// still held, and returns how many sessions there were. Called at run end:
         /// cancelling the pumps releases their credit-semaphore waits so no background

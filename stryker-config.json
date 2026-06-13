@@ -1,0 +1,28 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "sts2",
+      "module": "sts2-core-contracts-runtime"
+    },
+    "test-projects": [
+      "test/sts2/Microsoft.SqlTools.Sts2.UnitTests/Microsoft.SqlTools.Sts2.UnitTests.csproj"
+    ],
+    "mutate": [
+      "src/sts2/Microsoft.SqlTools.Sts2.Core/**/*.cs",
+      "src/sts2/Microsoft.SqlTools.Sts2.Contracts/**/*.cs",
+      "src/sts2/Microsoft.SqlTools.Sts2.Runtime/Journaling/CanonicalJson.cs",
+      "src/sts2/Microsoft.SqlTools.Sts2.Runtime/Envelopes/**/*.cs",
+      "src/sts2/Microsoft.SqlTools.Sts2.Runtime/Redaction/**/*.cs",
+      "src/sts2/Microsoft.SqlTools.Sts2.Runtime/Journaling/JournalManifest.cs",
+      "src/sts2/Microsoft.SqlTools.Sts2.Runtime/Effects/WireValueEncoder.cs"
+    ],
+    "test-case-filter": "Category!=Perf&Category!=Engine&Category!=Simulator",
+    "thresholds": {
+      "high": 85,
+      "low": 70,
+      "break": 70
+    },
+    "comment": "SPEC §14.6: Core/Contracts start at 70% and ratchet up only; Runtime pure units (canonical digest, redaction, envelope codec, journal manifest, WireValueEncoder) start at 60% via the mutate filter above. CI records the score and raises the break threshold; it never lowers it.",
+    "reporters": ["progress", "html", "json"]
+  }
+}
