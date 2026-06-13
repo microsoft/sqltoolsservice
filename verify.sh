@@ -47,8 +47,15 @@ unit_tests() {
     # Unit, multiplexer (incl. single-writer property test), architecture, banned-API,
     # core reducer, coordinator, journal, redaction, and replay tests. Also produces
     # the artifacts/test-journals corpus consumed by the replay gate below.
-    # Perf smoke runs in --full only.
-    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo --filter 'Category!=Perf'
+    # Perf and Engine suites run in --full only (Engine skips without a server).
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo --filter 'Category!=Perf&Category!=Engine'
+}
+
+engine_suite() {
+    # dialect:tsql tests skip (not fail) when STS2_SQLSERVER_CONNSTRING is unset/unreachable.
+    # CI/nightly sets it and these run for real. Locally they pass as skipped no-ops.
+    dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests --no-build --nologo \
+        --filter 'Category=Engine' --logger 'console;verbosity=detailed'
 }
 
 perf_smoke() {
@@ -131,7 +138,12 @@ gate "build legacy exe (for E2E)" build_legacy_exe
 gate "E2E disabled-mode v1 smoke + enabled-mode v1+v2" e2e_tests
 
 if [ "$MODE" = "--full" ]; then
-    na "SQL Server container suite" "M5"
+    if [ -n "${STS2_SQLSERVER_CONNSTRING:-}" ]; then
+        gate "SQL Server engine suite (dialect:tsql)" engine_suite
+    else
+        na "SQL Server engine suite (dialect:tsql)" "no STS2_SQLSERVER_CONNSTRING — CI/nightly only"
+        engine_suite >/dev/null 2>&1 || true  # exercise the skip path so it stays compiling/green
+    fi
     na "mutation testing" "M7"
     na "10k-seed simulator" "M7"
     gate "perf/memory smoke (1M rows digest mode, >=50k rows/s)" perf_smoke

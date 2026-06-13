@@ -89,6 +89,7 @@ Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.DisposeLeakedSessions
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.DriverEffectRunner(System.Collections.Generic.IReadOnlyDictionary<string!, Microsoft.SqlTools.Sts2.Abstractions.IDbDriver!>! drivers, Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable! secrets) -> void
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.OpenSessionCount.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.Run(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem! effect, Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox! inbox) -> void
+Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope
@@ -264,6 +265,7 @@ static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator !=(M
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder.Encode(object? cell) -> System.Text.Json.Nodes.JsonNode?
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.DeserializeLine(string! line) -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SerializeLine(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.All.get -> System.Collections.Generic.IReadOnlyCollection<string!>!

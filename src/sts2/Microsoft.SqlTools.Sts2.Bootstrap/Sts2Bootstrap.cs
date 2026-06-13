@@ -85,8 +85,11 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
                 RunId = runId,
                 JournalDirectory = Path.Combine(logDirectory, "sts2"),
                 ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
-                // sqlite is the portable adapter (M4); sqlclient is registered in M5.
-                Drivers = new Dictionary<string, IDbDriver> { ["sqlite"] = new SqliteDriver() },
+                Drivers = new Dictionary<string, IDbDriver>
+                {
+                    ["sqlclient"] = new Drivers.SqlClient.SqlClientDriver(), // production (M5)
+                    ["sqlite"] = new SqliteDriver(),                        // portable (M4)
+                },
                 CommandLine = args.Where(a => !a.Contains("password", StringComparison.OrdinalIgnoreCase)).ToArray(),
             });
 
