@@ -2,6 +2,36 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## M4 - Sqlite adapter - 2026-06-13 - a2285cba
+Gates (verify.sh --quick green):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (202 tests)
+- scenario tests (Fake, active corpus): ok (46 active)
+- contract tests (Sqlite, real I/O): ok (6 driver + 3 contract + 5 isolation)
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok (12 lines / 3 files, unchanged)
+- build legacy exe (for E2E): ok
+- E2E disabled + enabled v1+v2 + Sqlite query over stdio: ok (5 tests)
+
+New: SqliteDriver/SqliteSession over Microsoft.Data.Sqlite (in-memory + file-backed, paged streaming, CLR-typed cells, exception→Sts2.* mapping, cooperative cancel, lease/dispose); cross-driver contract harness driving the full coordinator/Core/effect-runner stack through real Sqlite (real tables/rows) and asserting the same wire shape + invariants as the Fake scenarios incl. identical replay (I7); architecture test proving Core/Contracts have zero Microsoft.Data.* references (assembly metadata + source scan); Bootstrap registers sqlite; E2E streams a real Sqlite query over stdio. Refactor: driver cells are plain CLR values, binary→base64 wire encoding moved to the runner.
+Replay: Sqlite session journals replay identically (I7), same as Fake
+Simulator: seeds=200 failures=0
+Mutation: n/a (M7)
+Perf: M3 baseline holds (no perf-path change)
+Legacy diff: 12 lines / 3 files (unchanged since M0)
+API surface: Drivers.Sqlite (new public driver), Abstractions unchanged
+Invariants exercised: I1, I2, I3, I7, I8, I12 via the Sqlite contract path; full set in Fake scenarios/simulator
+Decisions: none new; DEV log unchanged
+Blockers: none
+Risk notes:
+- The Sqlite adapter buffers each result set before yielding events (a C# constraint: you cannot `yield` across a try/catch that maps SqliteException). For neutral contract scope and the page sizes used this is fine; SqlClient (M5) will stream page-by-page without full-result buffering for large sets.
+- Cancellation is honored between pages, not mid-row (Sqlite reads are fast). Acceptable for neutral scope; SqlClient cancel uses SqlCommand.Cancel (M5).
+- Empty placeholder files (Sts2RpcHost.cs, DiagnosticsRpcTarget.cs, DiagnosticsPingContracts.cs) still await deletion approval.
+Next: M5 (SqlClient adapter + SQL Server engine truth — needs Docker/container in --full)
+
 ## M3 - Query streaming vertical slice - 2026-06-13 - 40ed6559
 Gates (verify.sh --quick green; --full perf gate green separately):
 - build (sts2 slnf, warnings as errors): ok
