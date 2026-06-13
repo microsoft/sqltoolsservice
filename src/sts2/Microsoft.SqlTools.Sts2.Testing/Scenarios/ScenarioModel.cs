@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
     /// <summary>One executable scenario step.</summary>
     public sealed record ScenarioStep
     {
-        /// <summary><c>request</c> or <c>awaitTerminal</c>.</summary>
+        /// <summary><c>request</c>, <c>awaitTerminal</c>, <c>notify</c>, <c>waitForNotify</c>, <c>assertNotify</c>, or <c>control</c>.</summary>
         public required string Kind { get; init; }
 
         /// <summary>v2 method for request steps.</summary>
@@ -44,6 +44,21 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
 
         /// <summary>Bindings: result property name -> variable name (with $).</summary>
         public IReadOnlyDictionary<string, string> Bind { get; init; } = new Dictionary<string, string>();
+
+        /// <summary>Notification method for notify/waitForNotify/assertNotify steps.</summary>
+        public string? NotifyMethod { get; init; }
+
+        /// <summary>Expected notification count (waitForNotify: at least; assertNotify: exactly).</summary>
+        public int NotifyCount { get; init; } = 1;
+
+        /// <summary>Partial-match expectation for assertNotify (matched against the LAST matching notification).</summary>
+        public JsonNode? NotifyMatch { get; init; }
+
+        /// <summary>Settle delay before assertNotify counts, for has-not-happened assertions.</summary>
+        public int SettleMs { get; init; }
+
+        /// <summary>Control signal for control steps.</summary>
+        public string? ControlSignal { get; init; }
     }
 
     /// <summary>A parsed scenario file: header, driver script, steps, invariants.</summary>
@@ -63,5 +78,14 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
 
         /// <summary>Optional limit overrides journaled into session.start (for example maxConnections).</summary>
         public JsonNode? ConfigLimits { get; init; }
+
+        /// <summary>Scripted FakeDriver query executions, in order.</summary>
+        public IReadOnlyList<FakeQueryScript> QueryScripts { get; init; } = [];
+
+        /// <summary>Row capture mode for the coordinator (<c>full</c>|<c>digest</c>).</summary>
+        public string RowCapture { get; init; } = "full";
+
+        /// <summary>SQL capture mode (<c>text</c>|<c>digest</c>).</summary>
+        public string SqlCapture { get; init; } = "text";
     }
 }

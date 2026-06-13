@@ -1,9 +1,14 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
 name: ack-unknown
 tags: [query, ack, dialect:neutral]
-status: stub
+status: active
 milestone: M3
 adapter: fake
+steps:
+  - notify: { method: v2/query.ack, params: { queryId: "q-never-existed", pageSeq: 0 } }
+  - request:
+      method: v2/diagnostics.ping
+      params: { echo: "unbothered" }
+    expectResult: { echo: "unbothered" }
+expect:
+  invariants: [I1, I5, I6, I7, I12]

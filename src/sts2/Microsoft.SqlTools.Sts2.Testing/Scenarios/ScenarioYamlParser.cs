@@ -32,17 +32,51 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
             ScenarioInfo info = ScenarioCatalog.LoadOne(filePath);
 
             var openBehaviors = new List<FakeOpenBehavior>();
-            if (TryGet(root, "driver", out YamlNode? driver) && driver is YamlMappingNode driverMap
-                && TryGet(driverMap, "open", out YamlNode? open) && open is YamlSequenceNode openList)
+            var queryScripts = new List<FakeQueryScript>();
+            if (TryGet(root, "driver", out YamlNode? driver) && driver is YamlMappingNode driverMap)
             {
-                foreach (YamlNode item in openList)
+                if (TryGet(driverMap, "open", out YamlNode? open) && open is YamlSequenceNode openList)
                 {
-                    var map = (YamlMappingNode)item;
-                    openBehaviors.Add(new FakeOpenBehavior
+                    foreach (YamlNode item in openList)
                     {
-                        Outcome = GetScalar(map, "outcome") ?? "ok",
-                        DelayMs = int.Parse(GetScalar(map, "delayMs") ?? "0", CultureInfo.InvariantCulture),
-                    });
+                        var map = (YamlMappingNode)item;
+                        openBehaviors.Add(new FakeOpenBehavior
+                        {
+                            Outcome = GetScalar(map, "outcome") ?? "ok",
+                            DelayMs = int.Parse(GetScalar(map, "delayMs") ?? "0", CultureInfo.InvariantCulture),
+                        });
+                    }
+                }
+                if (TryGet(driverMap, "query", out YamlNode? query) && query is YamlSequenceNode queryList)
+                {
+                    foreach (YamlNode scriptNode in queryList)
+                    {
+                        var scriptMap = (YamlMappingNode)scriptNode;
+                        var querySteps = new List<FakeQueryStep>();
+                        if (TryGet(scriptMap, "steps", out YamlNode? stepsSeq) && stepsSeq is YamlSequenceNode stepList2)
+                        {
+                            foreach (YamlNode stepNode in stepList2)
+                            {
+                                var map = (YamlMappingNode)stepNode;
+                                querySteps.Add(new FakeQueryStep
+                                {
+                                    Type = GetScalar(map, "type") ?? throw new InvalidDataException(filePath + ": query step missing type"),
+                                    ResultSetId = ParseInt(map, "resultSetId"),
+                                    Columns = GetScalar(map, "columns") is string cols ? int.Parse(cols, CultureInfo.InvariantCulture) : 2,
+                                    Rows = ParseInt(map, "rows"),
+                                    EdgeValues = GetScalar(map, "edgeValues") == "true",
+                                    Text = GetScalar(map, "text"),
+                                    Number = ParseInt(map, "number"),
+                                    Severity = ParseInt(map, "severity"),
+                                    ErrorCode = GetScalar(map, "errorCode"),
+                                    RowCount = ParseInt(map, "rowCount"),
+                                    RowsAffected = ParseInt(map, "rowsAffected"),
+                                    DelayMs = ParseInt(map, "delayMs"),
+                                });
+                            }
+                        }
+                        queryScripts.Add(new FakeQueryScript { Steps = querySteps });
+                    }
                 }
             }
 
@@ -62,13 +96,30 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
                 invariants.AddRange(invList.Select(n => ((YamlScalarNode)n).Value!));
             }
 
+            JsonNode? configNode = TryGet(root, "config", out YamlNode? config) ? ToJson(config!) : null;
+            string rowCapture = "full";
+            string sqlCapture = "text";
+            JsonNode? limits = null;
+            if (configNode is System.Text.Json.Nodes.JsonObject configObj)
+            {
+                rowCapture = configObj["rowCapture"]?.GetValue<string>() ?? "full";
+                sqlCapture = configObj["sqlCapture"]?.GetValue<string>() ?? "text";
+                if (configObj["maxConnections"] is not null)
+                {
+                    limits = new System.Text.Json.Nodes.JsonObject { ["maxConnections"] = configObj["maxConnections"]!.DeepClone() };
+                }
+            }
+
             return new ScenarioDefinition
             {
                 Info = info,
                 OpenBehaviors = openBehaviors,
+                QueryScripts = queryScripts,
                 Steps = steps,
                 Invariants = invariants,
-                ConfigLimits = TryGet(root, "config", out YamlNode? config) ? ToJson(config!) : null,
+                ConfigLimits = limits,
+                RowCapture = rowCapture,
+                SqlCapture = sqlCapture,
             };
         }
 
@@ -98,7 +149,44 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
                     ExpectError = ParseExpectedError(step),
                 };
             }
-            throw new InvalidDataException(filePath + ": step must be 'request' or 'awaitTerminal'");
+            if (TryGet(step, "notify", out YamlNode? notifyNode) && notifyNode is YamlMappingNode notifyMap)
+            {
+                return new ScenarioStep
+                {
+                    Kind = "notify",
+                    NotifyMethod = GetScalar(notifyMap, "method") ?? throw new InvalidDataException(filePath + ": notify missing method"),
+                    Params = TryGet(notifyMap, "params", out YamlNode? np) ? ToJson(np!) : null,
+                };
+            }
+            if (TryGet(step, "waitForNotify", out YamlNode? waitNode) && waitNode is YamlMappingNode waitMap)
+            {
+                return new ScenarioStep
+                {
+                    Kind = "waitForNotify",
+                    NotifyMethod = GetScalar(waitMap, "method") ?? throw new InvalidDataException(filePath + ": waitForNotify missing method"),
+                    NotifyCount = ParseInt(waitMap, "count", 1),
+                };
+            }
+            if (TryGet(step, "assertNotify", out YamlNode? assertNode) && assertNode is YamlMappingNode assertMap)
+            {
+                return new ScenarioStep
+                {
+                    Kind = "assertNotify",
+                    NotifyMethod = GetScalar(assertMap, "method") ?? throw new InvalidDataException(filePath + ": assertNotify missing method"),
+                    NotifyCount = ParseInt(assertMap, "count", 1),
+                    NotifyMatch = TryGet(assertMap, "match", out YamlNode? match) ? ToJson(match!) : null,
+                    SettleMs = ParseInt(assertMap, "settleMs"),
+                };
+            }
+            if (TryGet(step, "control", out YamlNode? controlNode) && controlNode is YamlMappingNode controlMap)
+            {
+                return new ScenarioStep
+                {
+                    Kind = "control",
+                    ControlSignal = GetScalar(controlMap, "signal") ?? throw new InvalidDataException(filePath + ": control missing signal"),
+                };
+            }
+            throw new InvalidDataException(filePath + ": unknown step kind");
         }
 
         private static ScenarioExpectedError? ParseExpectedError(YamlMappingNode step)
@@ -173,5 +261,8 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
 
         private static string? GetScalar(YamlMappingNode map, string key) =>
             TryGet(map, key, out YamlNode? value) && value is YamlScalarNode scalar ? scalar.Value : null;
+
+        private static int ParseInt(YamlMappingNode map, string key, int fallback = 0) =>
+            GetScalar(map, key) is string value ? int.Parse(value, CultureInfo.InvariantCulture) : fallback;
     }
 }

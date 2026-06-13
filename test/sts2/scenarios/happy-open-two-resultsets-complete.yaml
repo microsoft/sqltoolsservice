@@ -1,9 +1,37 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
 name: happy-open-two-resultsets-complete
 tags: [query, happy, dialect:neutral]
-status: stub
+status: active
 milestone: M3
 adapter: fake
+driver:
+  query:
+    - steps:
+        - { type: resultSet, resultSetId: 0, columns: 2 }
+        - { type: rows, resultSetId: 0, rows: 3 }
+        - { type: message, text: "informational", number: 50000, severity: 0 }
+        - { type: resultSetDone, resultSetId: 0, rowCount: 3 }
+        - { type: resultSet, resultSetId: 1, columns: 3 }
+        - { type: rows, resultSetId: 1, rows: 2 }
+        - { type: resultSetDone, resultSetId: 1, rowCount: 2 }
+        - { type: completed, rowsAffected: 5 }
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    bind: { connectionId: $c }
+  - request:
+      method: v2/query.execute
+      params: { connectionId: $c, sql: "select x from t" }
+    bind: { queryId: $q }
+  - waitForNotify: { method: v2/query.complete, count: 1 }
+  - assertNotify: { method: v2/query.resultSet, count: 2 }
+  - assertNotify: { method: v2/query.rows, count: 2 }
+  - assertNotify: { method: v2/query.message, count: 1 }
+  - assertNotify: { method: v2/query.complete, count: 1, match: { status: succeeded } }
+  - request:
+      method: v2/connection.close
+      params: { connectionId: $c }
+    expectResult: {}
+expect:
+  invariants: [I1, I2, I3, I5, I6, I7, I8, I9, I12]

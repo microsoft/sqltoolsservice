@@ -45,6 +45,99 @@ namespace Microsoft.SqlTools.Sts2.Testing
                         }
                         break;
 
+                    case "I2": // query terminality: every accepted, non-disposed query completes exactly once
+                    {
+                        Dictionary<string, long?> acceptedQueries = AcceptedQueries(journal);
+                        foreach ((string queryId, long? disposedAtSeq) in acceptedQueries)
+                        {
+                            int completes = journal.Count(e => e.Kind == EnvelopeKinds.RpcOutNotify
+                                && e.Type == "v2/query.complete"
+                                && GetQueryId(e) == queryId);
+                            bool disposedBeforeComplete = disposedAtSeq is not null && completes == 0;
+                            if (!disposedBeforeComplete && completes != 1)
+                            {
+                                violations.Add($"I2: query {queryId} emitted {completes} query.complete notifications (expected exactly 1)");
+                            }
+                        }
+                        break;
+                    }
+
+                    case "I3": // no output after complete
+                    {
+                        var completeSeqByQuery = journal
+                            .Where(e => e.Kind == EnvelopeKinds.RpcOutNotify && e.Type == "v2/query.complete")
+                            .GroupBy(GetQueryId)
+                            .ToDictionary(g => g.Key!, g => g.Min(e => e.Seq));
+                        foreach (Sts2Envelope envelope in journal.Where(e => e.Kind == EnvelopeKinds.RpcOutNotify
+                            && e.Type is "v2/query.rows" or "v2/query.resultSet" or "v2/query.message"))
+                        {
+                            string? queryId = GetQueryId(envelope);
+                            if (queryId is not null && completeSeqByQuery.TryGetValue(queryId, out long completeSeq)
+                                && envelope.Seq > completeSeq)
+                            {
+                                violations.Add($"I3: {envelope.Type} at seq {envelope.Seq} follows query.complete (seq {completeSeq}) for {queryId}");
+                            }
+                        }
+                        break;
+                    }
+
+                    case "I9": // backpressure: unacked pages never exceed the window
+                    {
+                        var sent = new Dictionary<string, int>();
+                        var acked = new Dictionary<string, int>();
+                        foreach (Sts2Envelope envelope in journal)
+                        {
+                            if (envelope.Kind == EnvelopeKinds.RpcOutNotify && envelope.Type == "v2/query.rows"
+                                && GetQueryId(envelope) is string sentQuery)
+                            {
+                                sent[sentQuery] = sent.GetValueOrDefault(sentQuery) + 1;
+                                int unacked = sent[sentQuery] - acked.GetValueOrDefault(sentQuery);
+                                if (unacked > Contracts.Sts2Defaults.WindowPages)
+                                {
+                                    violations.Add($"I9: query {sentQuery} had {unacked} unacked pages at seq {envelope.Seq} (window {Contracts.Sts2Defaults.WindowPages})");
+                                }
+                            }
+                            else if (envelope.Kind == EnvelopeKinds.RpcInNotify && envelope.Type == "v2/query.ack"
+                                && GetQueryId(envelope) is string ackQuery)
+                            {
+                                if (envelope.Payload!.Value.TryGetProperty("throughPageSeq", out JsonElement through)
+                                    && through.ValueKind == JsonValueKind.Number)
+                                {
+                                    acked[ackQuery] = Math.Max(acked.GetValueOrDefault(ackQuery), through.GetInt32() + 1);
+                                }
+                                else
+                                {
+                                    acked[ackQuery] = Math.Min(sent.GetValueOrDefault(ackQuery), acked.GetValueOrDefault(ackQuery) + 1);
+                                }
+                            }
+                        }
+                        break;
+                    }
+
+                    case "RD1": // row digest capture: no row cells in the journal
+                        foreach (Sts2Envelope envelope in journal.Where(e =>
+                            e.Type is "driver.queryEvent" or "v2/query.rows" && e.Payload is not null))
+                        {
+                            if (envelope.Payload!.Value.TryGetProperty("rows", out JsonElement rows)
+                                && rows.ValueKind == JsonValueKind.Array)
+                            {
+                                violations.Add($"RD1: seq {envelope.Seq} journaled literal row cells under rowCapture=digest");
+                            }
+                        }
+                        break;
+
+                    case "SD1": // sql digest capture: no SQL text in the journal
+                        foreach (Sts2Envelope envelope in journal.Where(e =>
+                            e.Type is "v2/query.execute" or "driver.queryStart" && e.Payload is not null))
+                        {
+                            if (envelope.Payload!.Value.TryGetProperty("sql", out JsonElement sql)
+                                && sql.ValueKind == JsonValueKind.String)
+                            {
+                                violations.Add($"SD1: seq {envelope.Seq} journaled literal SQL text under sqlCapture=digest");
+                            }
+                        }
+                        break;
+
                     case "I5": // journal causality
                         long expected = 1;
                         var seqs = new HashSet<long>();
@@ -108,5 +201,33 @@ namespace Microsoft.SqlTools.Sts2.Testing
             }
             return violations;
         }
+
+        /// <summary>Accepted queryIds mapped to the seq of their dispose request, if any.</summary>
+        private static Dictionary<string, long?> AcceptedQueries(IReadOnlyList<Sts2Envelope> journal)
+        {
+            var accepted = new Dictionary<string, long?>(StringComparer.Ordinal);
+            foreach (Sts2Envelope envelope in journal.Where(e => e.Kind == EnvelopeKinds.RpcOutResult
+                && e.Payload is { ValueKind: JsonValueKind.Object } p
+                && p.TryGetProperty("queryId", out JsonElement q) && q.ValueKind == JsonValueKind.String
+                && p.EnumerateObject().Count() == 1))
+            {
+                accepted[envelope.Payload!.Value.GetProperty("queryId").GetString()!] = null;
+            }
+            foreach (Sts2Envelope envelope in journal.Where(e => e.Kind == EnvelopeKinds.RpcInRequest && e.Type == "v2/query.dispose"))
+            {
+                string? queryId = GetQueryId(envelope);
+                if (queryId is not null && accepted.ContainsKey(queryId))
+                {
+                    accepted[queryId] ??= envelope.Seq;
+                }
+            }
+            return accepted;
+        }
+
+        private static string? GetQueryId(Sts2Envelope envelope) =>
+            envelope.Payload is { ValueKind: JsonValueKind.Object } p
+            && p.TryGetProperty("queryId", out JsonElement q) && q.ValueKind == JsonValueKind.String
+                ? q.GetString()
+                : null;
     }
 }

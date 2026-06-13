@@ -59,24 +59,35 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
             {
                 fakeDriver.EnqueueOpen(behavior);
             }
+            foreach (FakeQueryScript script in scenario.QueryScripts)
+            {
+                fakeDriver.EnqueueQuery(script);
+            }
 
             var secrets = new SecretSideTable();
             var effectRunner = new DriverEffectRunner(
                 new Dictionary<string, IDbDriver> { ["fake"] = fakeDriver }, secrets);
             var emitted = new ConcurrentDictionary<string, TaskCompletionSource<OutboundRpcMessage>>(StringComparer.Ordinal);
             var terminalsByCorr = new ConcurrentDictionary<string, int>(StringComparer.Ordinal);
+            var notifications = new System.Collections.Concurrent.ConcurrentQueue<OutboundRpcMessage>();
 
             var coordinator = new Coordinator(
                 new JournalWriter(scenario.Info.Name,
                     new JournalOptions { Directory = journalDirectory },
                     new JournalRunInfo { ServiceVersion = "scenario" }),
-                new CoordinatorOptions { RunId = scenario.Info.Name },
+                new CoordinatorOptions
+                {
+                    RunId = scenario.Info.Name,
+                    RowCapture = scenario.RowCapture,
+                    SqlCapture = scenario.SqlCapture,
+                },
                 effectRunner,
                 message =>
                 {
                     if (message.Corr is null)
                     {
-                        return; // notifications: matched via expect.outbound from M3
+                        notifications.Enqueue(message);
+                        return;
                     }
                     terminalsByCorr.AddOrUpdate(message.Corr, 1, (_, n) => n + 1);
                     emitted.GetOrAdd(message.Corr, _ => new TaskCompletionSource<OutboundRpcMessage>(TaskCreationOptions.RunContinuationsAsynchronously))
@@ -137,6 +148,60 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
                             AssertStep(scenario.Info.Name, step, terminal, bindings, failures);
                             break;
                         }
+
+                        case "notify":
+                        {
+                            JsonElement? payload = null;
+                            if (step.Params is not null)
+                            {
+                                JsonNode substituted = Substitute(step.Params.DeepClone(), bindings)!;
+                                payload = JsonDocument.Parse(substituted.ToJsonString()).RootElement;
+                            }
+                            await coordinator.PostRpcNotificationAsync(step.NotifyMethod!, payload);
+                            break;
+                        }
+
+                        case "waitForNotify":
+                        {
+                            bool arrived = false;
+                            for (int spins = 0; spins < 1500 && !arrived; spins++)
+                            {
+                                arrived = notifications.Count(n => n.Type == step.NotifyMethod) >= step.NotifyCount;
+                                if (!arrived)
+                                {
+                                    await Task.Delay(10);
+                                }
+                            }
+                            if (!arrived)
+                            {
+                                failures.Add($"waitForNotify: never saw {step.NotifyCount}x {step.NotifyMethod} " +
+                                    $"(have {notifications.Count(n => n.Type == step.NotifyMethod)})");
+                            }
+                            break;
+                        }
+
+                        case "assertNotify":
+                        {
+                            if (step.SettleMs > 0)
+                            {
+                                await Task.Delay(step.SettleMs);
+                            }
+                            List<OutboundRpcMessage> matching = notifications.Where(n => n.Type == step.NotifyMethod).ToList();
+                            if (matching.Count != step.NotifyCount)
+                            {
+                                failures.Add($"assertNotify: expected exactly {step.NotifyCount}x {step.NotifyMethod}, saw {matching.Count}");
+                            }
+                            else if (step.NotifyMatch is not null && matching.Count > 0
+                                && !PartialMatch(step.NotifyMatch, matching[^1].Body!.Value, out string? mismatch))
+                            {
+                                failures.Add($"assertNotify {step.NotifyMethod}: {mismatch}");
+                            }
+                            break;
+                        }
+
+                        case "control":
+                            await coordinator.PostControlAsync(step.ControlSignal!);
+                            break;
 
                         default:
                             failures.Add("unknown step kind: " + step.Kind);

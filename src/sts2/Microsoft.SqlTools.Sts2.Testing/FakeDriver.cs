@@ -174,6 +174,10 @@ namespace Microsoft.SqlTools.Sts2.Testing
                         case "sever":
                             throw new DbDriverException(Sts2ErrorCodes.QueryFailedTransport, "Connection severed mid-stream.");
 
+                        case "crash":
+                            // Unclassified driver exception: the runner must map it to Sts2.Internal.
+                            throw new InvalidOperationException("Scripted unclassified driver crash.");
+
                         case "hang":
                             await Task.Delay(Timeout.Infinite, linked.Token).ConfigureAwait(false);
                             break;

@@ -1,9 +1,25 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+# The script completes immediately while a cancel races in: whichever wins, exactly
+# one terminal complete may be emitted (I2) and nothing may follow it (I3).
 name: cancel-vs-complete-race
 tags: [query, cancel, race, dialect:neutral]
-status: stub
+status: active
 milestone: M3
 adapter: fake
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    bind: { connectionId: $c }
+  - request:
+      method: v2/query.execute
+      params: { connectionId: $c, sql: "select x from t" }
+    bind: { queryId: $q }
+  - request:
+      method: v2/query.cancel
+      params: { queryId: $q }
+    expectResult: {}
+  - waitForNotify: { method: v2/query.complete, count: 1 }
+  - assertNotify: { method: v2/query.complete, count: 1, settleMs: 250 }
+expect:
+  invariants: [I1, I2, I3, I5, I6, I7, I12]
