@@ -207,9 +207,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (string.Equals(node.Value, this.objectName, StringComparison.OrdinalIgnoreCase))
                 {
-                    // The fragment span covers any surrounding brackets/quotes; bracket-quoting is
-                    // re-applied to the replacement text from the original line.
-                    AddSpan(node.StartLine, node.StartColumn, node.FragmentLength);
+                    // Emit the span of the source token itself (which includes any surrounding
+                    // brackets or quotes) so bracket-quoting can be re-applied to the replacement
+                    // text. The AST node's fragment span excludes the brackets for quoted
+                    // identifiers, which would defeat that detection.
+                    TSqlParserToken token = node.ScriptTokenStream[node.FirstTokenIndex];
+                    AddSpan(token.Line, token.Column, token.Text?.Length ?? 0);
                 }
             }
 

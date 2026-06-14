@@ -1795,4 +1795,84 @@ END
         }
 
     }
+
+    /// <summary>
+    /// Focused tests for <see cref="RenameScriptDomHelper"/>, the ScriptDom-based syntactic
+    /// analysis that backs rename / find-all-references. These cover the behaviour the AST visitor
+    /// adds over the old token scan: bracket spans and extended-property precision.
+    /// </summary>
+    [TestFixture]
+    public class RenameScriptDomHelperTests
+    {
+        private string _tempFile;
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (_tempFile != null && File.Exists(_tempFile))
+            {
+                File.Delete(_tempFile);
+            }
+            _tempFile = null;
+        }
+
+        /// <summary>Writes <paramref name="sql"/> to a fresh temp .sql file and returns its path.</summary>
+        private string WriteTempSql(string sql)
+        {
+            _tempFile = Path.Combine(Path.GetTempPath(), $"rename_{Guid.NewGuid():N}.sql");
+            File.WriteAllText(_tempFile, sql);
+            return _tempFile;
+        }
+
+        private static string MatchedText(string sql, WsLocation loc)
+        {
+            string[] lines = sql.Replace("\r\n", "\n").Split('\n');
+            string line = lines[loc.Range.Start.Line];
+            return line.Substring(loc.Range.Start.Character, loc.Range.End.Character - loc.Range.Start.Character);
+        }
+
+        [Test]
+        public void FindNameLocationsInFile_BracketedIdentifier_SpanIncludesBrackets()
+        {
+            // The emitted span must cover the brackets so bracket-quoting can be re-applied on rename.
+            const string sql = "SELECT * FROM dbo.[Customers];";
+            string path = WriteTempSql(sql);
+
+            var locations = RenameScriptDomHelper.FindNameLocationsInFile(path, "Customers").ToList();
+
+            Assert.That(locations.Count, Is.EqualTo(1));
+            Assert.That(MatchedText(sql, locations[0]), Is.EqualTo("[Customers]"));
+        }
+
+        [Test]
+        public void FindNameLocationsInFile_MatchesExtendedPropertyLevelName_NotUnrelatedLiterals()
+        {
+            // Only the @level1name literal denotes the object; the matching @value literal and a
+            // plain INSERT literal must be ignored — this precision is the key win over a token scan.
+            const string sql =
+                "EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'Customers', " +
+                "@level0type = N'SCHEMA', @level0name = N'dbo', " +
+                "@level1type = N'TABLE', @level1name = N'Customers';\n" +
+                "INSERT INTO dbo.Log (Note) VALUES (N'Customers');";
+            string path = WriteTempSql(sql);
+
+            var locations = RenameScriptDomHelper.FindNameLocationsInFile(path, "Customers").ToList();
+
+            Assert.That(locations.Count, Is.EqualTo(1), "Only the @level1name literal should match");
+            // Inner text only — the N'...' quoting is left intact by the rename.
+            Assert.That(MatchedText(sql, locations[0]), Is.EqualTo("Customers"));
+        }
+
+        [Test]
+        public void TryResolveCursorName_DottedReference_ReturnsQualifiedName()
+        {
+            const string sql = "SELECT * FROM dbo.Customers;";
+            // "Customers" starts at char 18 — place the cursor inside it.
+            bool ok = RenameScriptDomHelper.TryResolveCursorName(sql, 0, 20, out string bare, out string qualified);
+
+            Assert.That(ok, Is.True);
+            Assert.That(bare, Is.EqualTo("Customers"));
+            Assert.That(qualified, Is.EqualTo("dbo.Customers"));
+        }
+    }
 }
