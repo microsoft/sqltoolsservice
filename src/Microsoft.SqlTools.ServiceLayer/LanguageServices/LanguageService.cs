@@ -1742,10 +1742,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Normalize schema-qualified names: strip leading db-prefix segments until
             // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
+            // CanResolveName matches both top-level objects and columns, so a column reference
+            // such as dbo.Table.Column is preserved instead of being stripped away.
             if (qualifiedName != null)
             {
                 string? normalized = qualifiedName;
-                while (!string.IsNullOrEmpty(normalized) && !provider.TryGetSourceInformation(normalized, out _))
+                while (!string.IsNullOrEmpty(normalized) && !provider.CanResolveName(normalized))
                 {
                     int dot = normalized.IndexOf('.');
                     if (dot < 0) { normalized = null; break; }
@@ -1763,9 +1765,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             try
             {
-                if (provider.TryGetSourceInformation(qualifiedName, out var defInfo) &&
-                    defInfo?.SourceName != null)
-                    candidateFiles.Add(defInfo.SourceName);
+                string defFile = provider.GetDefiningFilePath(qualifiedName);
+                if (defFile != null)
+                    candidateFiles.Add(defFile);
                 foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
                     candidateFiles.Add(path);
             }
@@ -1920,18 +1922,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!token.IsSignificant)
                     continue;
 
-                string bare = TextUtilities.RemoveSquareBracketSyntax(token.Text);
+                string text = token.Text ?? string.Empty;
+                int offset = 0;
+                int length = text.Length;
+
+                // Extended properties reference the name as a string literal ('name' / N'name'),
+                // e.g. sp_addextendedproperty @level1name = N'Orders'. Match the inner text and
+                // skip past the opening quote so a rename rewrites only the name, not the quotes.
+                if (length >= 2 && text[length - 1] == '\'')
+                {
+                    if (text[0] == '\'') offset = 1;
+                    else if ((text[0] == 'N' || text[0] == 'n') && text[1] == '\'') offset = 2;
+                }
+                string bare = offset > 0
+                    ? text.Substring(offset, length - offset - 1)
+                    : TextUtilities.RemoveSquareBracketSyntax(text);
+
                 if (!string.Equals(bare, objectName, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                // StartLocation is 1-based; LSP Position is 0-based.
+                int startCol = token.StartLocation.ColumnNumber - 1 + offset;
                 yield return new Location
                 {
                     Uri = fileUri,
                     Range = new Range
                     {
-                        Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 },
-                        End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 + (token.Text?.Length ?? 0) }
+                        Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = startCol },
+                        End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = startCol + bare.Length }
                     }
                 };
             }
