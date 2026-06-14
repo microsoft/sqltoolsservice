@@ -1678,114 +1678,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return result;
         }
 
-        /// <summary>
-        /// Core resolution logic for <see cref="HandleReferencesRequest"/>.  Resolves every <see cref="Location"/> in the project
-        /// that matches the symbol at the given cursor position.
-        /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
-        /// project file.  Returns an empty array when the symbol could not be resolved.
-        /// </summary>
-        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
-        {
-            if (ShouldSkipIntellisense(fileUri))
-                return null;
+        #region Rename Refactor
 
-            var scriptFile = CurrentWorkspace.GetFile(fileUri);
-            if (scriptFile == null)
-                return null;
-
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            if (scriptParseInfo == null || !scriptParseInfo.IsProject)
-                return null;
-
-            if (RequiresReparse(scriptParseInfo, scriptFile))
-            {
-                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
-            }
-
-            // LSP positions are 0-based; SqlParser expects 1-based
-            int parserLine = line0 + 1;
-            int parserCol  = col0 + 1;
-
-            // Resolve the project URI from the context key so we can access the provider directly.
-            // Going through the binding queue would cause empty results when a concurrent save
-            // (which calls AddProjectContext and rebuilds the context) holds the binding lock.
-            string contextKey = scriptParseInfo.ConnectionKey;
-            string projectUri = (contextKey != null && contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
-                ? contextKey.Substring(ProjectContextKeyPrefix.Length)
-                : null;
-
-            if (projectUri == null ||
-                !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
-                bindCtx is not ConnectedBindingContext connBindCtx ||
-                connBindCtx.MetadataProvider is not TSqlModelMetadataProvider provider)
-                return Array.Empty<Location>();
-
-            // Step 1: get token at cursor
-            int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserCol) ?? -1;
-            if (tokenIndex < 0)
-                return Array.Empty<Location>();
-
-            var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
-            if (token == null || !token.IsSignificant)
-                return Array.Empty<Location>();
-
-            string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
-            if (string.IsNullOrWhiteSpace(tokenText))
-                return Array.Empty<Location>();
-
-            // Step 2: reconstruct schema-qualified name from any preceding dot-separated segments.
-            string schemaPrefix = GetPrecedingSchemaPrefix(
-                scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
-            string qualifiedName = schemaPrefix != null
-                ? $"{schemaPrefix}.{tokenText}"
-                : null;
-
-            // Normalize schema-qualified names: strip leading db-prefix segments until
-            // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
-            // CanResolveName matches both top-level objects and columns, so a column reference
-            // such as dbo.Table.Column is preserved instead of being stripped away.
-            if (qualifiedName != null)
-            {
-                string? normalized = qualifiedName;
-                while (!string.IsNullOrEmpty(normalized) && !provider.CanResolveName(normalized))
-                {
-                    int dot = normalized.IndexOf('.');
-                    if (dot < 0) { normalized = null; break; }
-                    normalized = normalized.Substring(dot + 1);
-                }
-                qualifiedName = string.IsNullOrEmpty(normalized) ? null : normalized;
-            }
-
-            // Fallback: for unqualified or unresolved names, look up directly in the DacFx
-            // model by the last name part. This works for project contexts where
-            // MetadataDisplayInfoProvider is not available (FindCompletions would return nothing).
-            qualifiedName ??= provider.FindQualifiedNameByLastPart(tokenText) ?? tokenText;
-
-            // Step 3: collect candidate files via DacFx dependency graph
-            var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            try
-            {
-                string defFile = provider.GetDefiningFilePath(qualifiedName);
-                if (defFile != null)
-                    candidateFiles.Add(defFile);
-                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
-                    candidateFiles.Add(path);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"FindProjectSymbolLocations error: {ex}");
-                return Array.Empty<Location>();
-            }
-
-            var results = new List<Location>();
-            foreach (string filePath in candidateFiles)
-            {
-                try { results.AddRange(FindTokenLocationsInFile(filePath, tokenText)); }
-                catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
-            }
-
-            return results.ToArray();
-        }
+        // Rename / Find-All-References support for SQL project files.
+        //
+        // The feature splits into two concerns:
+        //   1. DacFx answers the semantic question "which files reference this object?" via the
+        //      dependency graph exposed by TSqlModelMetadataProvider.
+        //   2. ScriptDom answers the syntactic question "where, exactly, does the name appear in
+        //      each file?" by walking a real T-SQL abstract syntax tree.
+        //
+        // The ScriptDom parsing/visitor logic lives in RenameScriptDomHelper; the request handlers
+        // below stay here because they need the LanguageService workspace and binding state.
 
         /// <summary>
         /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
@@ -1834,8 +1738,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!changes.TryGetValue(loc.Uri, out var edits))
                     changes[loc.Uri] = edits = new List<TextEdit>();
 
-                // Preserve bracket-quoting style: if the original token was bracket-quoted,
-                // wrap the new name in brackets too.
+                // Preserve bracket-quoting style: if the original span was bracket-quoted,
+                // wrap the new name in brackets too.  Extended-property names sit inside string
+                // literals (the neighbouring characters are quotes, not brackets) so they are
+                // rewritten verbatim.
                 string newText = renameParams.NewName;
                 try
                 {
@@ -1868,8 +1774,103 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Extracts the bare token text (brackets stripped) at the given 0-based line/column position.
-        /// Returns null if the position does not resolve to a significant token.
+        /// Core resolution logic for <see cref="HandleReferencesRequest"/> and
+        /// <see cref="HandleSqlRenameRequest"/>.  Resolves every <see cref="Location"/> in the
+        /// project that matches the symbol at the given cursor position.
+        /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
+        /// project file.  Returns an empty array when the symbol could not be resolved.
+        /// </summary>
+        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+        {
+            if (ShouldSkipIntellisense(fileUri))
+                return null;
+
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return null;
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (scriptParseInfo == null || !scriptParseInfo.IsProject)
+                return null;
+
+            // Ensure the DacFx model and binding context for this project are current so the
+            // metadata provider can be resolved below.  (This is model binding, not position
+            // parsing — the cursor position is resolved with ScriptDom further down.)
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+            }
+
+            // Resolve the project URI from the context key so we can access the provider directly.
+            // Going through the binding queue would cause empty results when a concurrent save
+            // (which calls AddProjectContext and rebuilds the context) holds the binding lock.
+            string contextKey = scriptParseInfo.ConnectionKey;
+            string projectUri = (contextKey != null && contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                ? contextKey.Substring(ProjectContextKeyPrefix.Length)
+                : null;
+
+            if (projectUri == null ||
+                !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
+                bindCtx is not ConnectedBindingContext connBindCtx ||
+                connBindCtx.MetadataProvider is not TSqlModelMetadataProvider provider)
+                return Array.Empty<Location>();
+
+            // Step 1+2: resolve the clicked name (and any schema-qualified prefix) from the editor
+            // buffer using the ScriptDom token stream.
+            if (!RenameScriptDomHelper.TryResolveCursorName(scriptFile.Contents, line0, col0, out string tokenText, out string qualifiedName)
+                || string.IsNullOrWhiteSpace(tokenText))
+                return Array.Empty<Location>();
+
+            // Normalize schema-qualified names: strip leading db-prefix segments until
+            // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
+            // CanResolveName matches both top-level objects and columns, so a column reference
+            // such as dbo.Table.Column is preserved instead of being stripped away.
+            if (qualifiedName != null)
+            {
+                string normalized = qualifiedName;
+                while (!string.IsNullOrEmpty(normalized) && !provider.CanResolveName(normalized))
+                {
+                    int dot = normalized.IndexOf('.');
+                    if (dot < 0) { normalized = null; break; }
+                    normalized = normalized.Substring(dot + 1);
+                }
+                qualifiedName = string.IsNullOrEmpty(normalized) ? null : normalized;
+            }
+
+            // Fallback: for unqualified or unresolved names, look up directly in the DacFx
+            // model by the last name part. This works for project contexts where
+            // MetadataDisplayInfoProvider is not available (FindCompletions would return nothing).
+            qualifiedName ??= provider.FindQualifiedNameByLastPart(tokenText) ?? tokenText;
+
+            // Step 3: collect candidate files via DacFx dependency graph
+            var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                string defFile = provider.GetDefiningFilePath(qualifiedName);
+                if (defFile != null)
+                    candidateFiles.Add(defFile);
+                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                    candidateFiles.Add(path);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"FindProjectSymbolLocations error: {ex}");
+                return Array.Empty<Location>();
+            }
+
+            var results = new List<Location>();
+            foreach (string filePath in candidateFiles)
+            {
+                try { results.AddRange(RenameScriptDomHelper.FindNameLocationsInFile(filePath, tokenText)); }
+                catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
+            }
+
+            return results.ToArray();
+        }
+
+        /// <summary>
+        /// Extracts the bare name (brackets/quotes stripped) of the symbol at the given 0-based
+        /// line/column position. Returns <c>null</c> if the position does not resolve to a name.
         /// </summary>
         private string GetTokenTextAtPosition(string fileUri, int line0, int col0)
         {
@@ -1877,82 +1878,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (scriptFile == null)
                 return null;
 
-            var parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            if (parseInfo?.ParseResult?.Script?.TokenManager == null)
-                return null;
-
-            int parserLine = line0 + 1;
-            int parserCol  = col0 + 1;
-            int tokenIndex = parseInfo.ParseResult.Script.TokenManager.FindToken(parserLine, parserCol);
-            if (tokenIndex < 0)
-                return null;
-
-            var token = parseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
-            if (token == null || !token.IsSignificant)
-                return null;
-
-            return TextUtilities.RemoveSquareBracketSyntax(token.Text);
+            return RenameScriptDomHelper.TryResolveCursorName(scriptFile.Contents, line0, col0, out string tokenText, out _)
+                ? tokenText
+                : null;
         }
 
-        /// <summary>
-        /// Returns a <see cref="Location"/> for every significant token in <paramref name="filePath"/>
-        /// whose bare text (brackets stripped) matches <paramref name="objectName"/> case-insensitively.
-        /// Reads the file content from disk — the same source the DacFx model (candidate files and
-        /// token positions) is built from — and parses it into a local <see cref="ParseResult"/>
-        /// without mutating shared state or taking the binding lock.
-        /// </summary>
-        private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
-        {
-            // Read directly from disk to stay consistent with the DacFx model, which is built from
-            // the saved project files. The workspace buffer cache is not used here because it can
-            // hold duplicate entries for the same path under different URI encodings.
-            string sqlText = File.Exists(filePath) ? File.ReadAllText(filePath) : null;
-            if (sqlText == null)
-                yield break;
-
-            string fileUri = new Uri(filePath).AbsoluteUri;
-
-            IEnumerable<Token> tokens = Parser.Parse(sqlText, this.DefaultParseOptions)?.Script?.Tokens;
-            if (tokens == null)
-                yield break;
-
-            foreach (Token token in tokens)
-            {
-                // token.IsSignificant is false for whitespace and comments — skip them.
-                if (!token.IsSignificant)
-                    continue;
-
-                string text = token.Text ?? string.Empty;
-                int offset = 0;
-                int length = text.Length;
-
-                // Extended properties reference the name as a string literal ('name' / N'name'),
-                // e.g. sp_addextendedproperty @level1name = N'Orders'. Match the inner text and
-                // skip past the opening quote so a rename rewrites only the name, not the quotes.
-                if (length >= 2 && text[length - 1] == '\'')
-                {
-                    if (text[0] == '\'') offset = 1;
-                    else if ((text[0] == 'N' || text[0] == 'n') && text[1] == '\'') offset = 2;
-                }
-                string bare = offset > 0
-                    ? text.Substring(offset, length - offset - 1)
-                    : TextUtilities.RemoveSquareBracketSyntax(text);
-
-                if (!string.Equals(bare, objectName, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                int startCol = token.StartLocation.ColumnNumber - 1 + offset;
-                yield return new Location
-                {
-                    Uri = fileUri,
-                    Range = new Range
-                    {
-                        Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = startCol },
-                        End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = startCol + bare.Length }
-                    }
-                };
-            }
-        }
+        #endregion
 
         private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
                 ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfo connInfo)
