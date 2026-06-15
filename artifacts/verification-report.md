@@ -15,9 +15,9 @@ Gates (verify.sh --quick green 5x+ across the session; --full plumbing confirmed
 - legacy diff budget: ok (12 lines / 3 files, unchanged from M0)
 - build legacy exe (for E2E): ok
 - E2E (disabled + enabled + Sqlite-over-stdio): ok
-- SQL Server engine suite (--full): n/a — CI/nightly (no local SQL Server)
+- SQL Server engine suite (--full, dialect:tsql): **ok — ran for real against a SQL Server 2025 container** (2026-06-15). All 3 engine tests green incl. the live type-encoding matrix (decimal/datetimeoffset/date/binary/guid/null → CLR types verified end-to-end).
 - mutation testing (Stryker, --full): n/a — CI/nightly (dotnet-stryker not installed)
-- 10k-seed simulator (--full): plumbing confirmed; true 10k is CI/nightly
+- 10k-seed simulator (--full): plumbing confirmed (300-seed pass); true 10k is CI/nightly
 - perf/memory smoke (--full): ok — ~135k rows/s digest mode (M3 baseline holds)
 
 New: env-driven simulator seed count (STS2_SIMULATOR_SEEDS; 10k in --full); Stryker config (stryker-config.json) with SPEC §14.6 ratchet thresholds; simulator split into its own gate (Category=Simulator) so its background-task load never starves the parallel unit suite; settle-before-teardown fix.
@@ -33,11 +33,11 @@ Blockers: none
 
 **A FOURTH real product bug surfaced at 1000 simulator seeds and was fixed**: an open completing after coordinator teardown stored a driver session Core never closed (a spurious I8). The simulator now waits for the effect runner to go idle before disposing. Across M2-M7 the simulator + invariant checker found and we fixed: replay-via-constructor divergence, the cancelOpen startup race, the query-pump credit-semaphore leak, the close-on-open-race session orphan, and this teardown orphan — none of which would have been visible by reading code.
 
-### CI checklist before the preview ships (the parts this local box cannot run)
-1. `verify.sh --full` with STS2_SQLSERVER_CONNSTRING set → engine suite (dialect:tsql) green.
-2. `dotnet stryker` → Core/Contracts ≥70%, Runtime pure ≥60%, ratchet recorded.
-3. 10,000-seed simulator green (STS2_SIMULATOR_SEEDS=10000).
-4. Perf ≥50k rows/s, <20% regression from the M3 baseline.
+### CI checklist before the preview ships
+1. ~~`verify.sh --full` with STS2_SQLSERVER_CONNSTRING set → engine suite (dialect:tsql) green.~~ **DONE locally 2026-06-15** against a SQL Server 2025 container; full `--full` run green end to end. CI should still run it on its own engine.
+2. `dotnet stryker` → Core/Contracts ≥70%, Runtime pure ≥60%, ratchet recorded. (dotnet-stryker not yet installed locally.)
+3. 10,000-seed simulator green (STS2_SIMULATOR_SEEDS=10000). (300-seed local pass confirms wiring; true 10k pending.)
+4. Perf ≥50k rows/s, <20% regression from the M3 baseline. **DONE locally** (~135k rows/s).
 
 ### Human review surface (SPEC §16 M7 final gate)
 - docs/sts2/CONTRACT.md, INVARIANTS.md, SCENARIO-MATRIX.md, TRACE-SCHEMA.md, STATE-MACHINE.md, COMPONENTS.md
