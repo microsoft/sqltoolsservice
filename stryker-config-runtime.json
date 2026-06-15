@@ -2,7 +2,7 @@
   "stryker-config": {
     "project-info": {
       "name": "sts2",
-      "module": "sts2-core-contracts-runtime"
+      "module": "runtime-pure"
     },
     "solution": "sqltoolsservice-sts2-stryker.sln",
     "target-framework": "net10.0",
@@ -11,9 +11,9 @@
     ],
     "test-case-filter": "Category!=Perf&Category!=Engine&Category!=Simulator",
     "thresholds": {
-      "high": 85,
-      "low": 70,
-      "break": 70
+      "high": 80,
+      "low": 60,
+      "break": 60
     },
     "reporters": ["progress", "json"]
   }

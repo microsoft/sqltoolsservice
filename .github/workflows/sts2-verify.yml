@@ -28,9 +28,15 @@ jobs:
   verify-full:
     runs-on: ubuntu-latest
     env:
-      # The 10k simulator and Stryker make this a long job; PRs run the same gates so
-      # regressions are caught before merge to sts2/main.
-      STS2_SIMULATOR_SEEDS: ${{ github.event.inputs.simulatorSeeds || '10000' }}
+      # Tiered to keep PR feedback fast while nightly/dispatch run the full hardening.
+      # The true 10k simulator is ~3h, so PRs use a smaller sweep and skip Stryker;
+      # the engine suite + perf still gate every PR. The journals are deterministic per
+      # seed regardless of count (I7), so the smaller PR sweep is still meaningful.
+      STS2_SIMULATOR_SEEDS: ${{ (github.event_name == 'schedule' && '10000') || github.event.inputs.simulatorSeeds || (github.event_name == 'pull_request' && '500') || '1000' }}
+      # Stryker is wired but currently reports n/a (Buildalyzer cannot resolve this repo's
+      # property-based TFMs). Once that tooling issue is resolved, set STS2_RUN_STRYKER=1
+      # on the nightly schedule to record the first mutation score.
+      STS2_RUN_STRYKER: '0'
 
     steps:
       - name: Checkout repository

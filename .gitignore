@@ -292,3 +292,6 @@ docs/metadata
 *.Designer.cs
 .claude/ 
 artifacts/verify-latest.md
+
+# Stryker.NET mutation testing output
+StrykerOutput/
