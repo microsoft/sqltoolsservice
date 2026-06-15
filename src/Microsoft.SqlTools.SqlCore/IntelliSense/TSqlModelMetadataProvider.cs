@@ -547,6 +547,97 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             return obj?.Name?.Parts != null ? string.Join(".", obj.Name.Parts) : null;
         }
 
+        /// <summary>
+        /// Tries to retrieve the four strings needed to write a DacFx <c>.refactorlog</c> entry
+        /// for a rename operation.<br/>
+        /// Handles two cases:
+        /// <list type="bullet">
+        ///   <item>Schema-level objects (table, view, procedure, function) — looked up via <paramref name="qualifiedName"/>.</item>
+        ///   <item>Columns — when <paramref name="qualifiedName"/> is not found as a top-level object,
+        ///         scans every table for a column whose last name part matches <paramref name="lastNamePart"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="qualifiedName">Schema-qualified name computed during the rename (e.g. "dbo.Customers").</param>
+        /// <param name="lastNamePart">The bare token text at the cursor (e.g. "Customers" or "Id").</param>
+        /// <param name="elementName">Bracket-quoted full element name: <c>[dbo].[Customers]</c> or <c>[dbo].[T1].[C1]</c>.</param>
+        /// <param name="elementType">Refactorlog element type string: e.g. <c>SqlTable</c>, <c>SqlSimpleColumn</c>.</param>
+        /// <param name="parentElementName">Bracket-quoted parent name: <c>[dbo]</c> or <c>[dbo].[T1]</c>.</param>
+        /// <param name="parentElementType">Refactorlog parent type string: <c>SqlSchema</c> or <c>SqlTable</c>.</param>
+        /// <returns>True when all four values are populated; false when the symbol cannot be mapped.</returns>
+        public bool TryGetRefactorInfo(
+            string qualifiedName,
+            string lastNamePart,
+            out string? elementName,
+            out string? elementType,
+            out string? parentElementName,
+            out string? parentElementType)
+        {
+            elementName = elementType = parentElementName = parentElementType = null;
+
+            // ── Case 1: schema-level object ────────────────────────────────────────
+            TSqlObject? obj = _model.GetObjects(DacQueryScopes.UserDefined)
+                .FirstOrDefault(o =>
+                    o.Name?.Parts != null &&
+                    string.Equals(string.Join(".", o.Name.Parts), qualifiedName, StringComparison.OrdinalIgnoreCase));
+
+            if (obj != null)
+            {
+                string? refactorType = SchemaLevelRefactorType(obj.ObjectType);
+                if (refactorType == null) return false;
+
+                elementName       = BracketParts(obj.Name.Parts);
+                elementType       = refactorType;
+                // Parent is the schema (all parts except last).
+                parentElementName = BracketParts(obj.Name.Parts, skipLast: 1);
+                parentElementType = "SqlSchema";
+                return true;
+            }
+
+            // ── Case 2: column — scan tables for a child column matching lastNamePart ─
+            if (string.IsNullOrEmpty(lastNamePart)) return false;
+
+            foreach (TSqlObject table in _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table))
+            {
+                foreach (TSqlObject col in table.GetReferenced(Table.Columns))
+                {
+                    if (col.Name?.Parts == null || col.Name.Parts.Count == 0) continue;
+                    string colShortName = col.Name.Parts[col.Name.Parts.Count - 1];
+                    if (!string.Equals(colShortName, lastNamePart, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    elementName       = BracketParts(col.Name.Parts);
+                    elementType       = "SqlSimpleColumn";
+                    parentElementName = BracketParts(table.Name.Parts);
+                    parentElementType = "SqlTable";
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>Converts a list of name parts into a bracket-quoted string, e.g. ["dbo","T1"] → "[dbo].[T1]".</summary>
+        /// <param name="parts">Name parts from <see cref="TSqlObject.Name"/>.</param>
+        /// <param name="skipLast">How many trailing parts to omit (0 = include all).</param>
+        private static string BracketParts(IList<string> parts, int skipLast = 0)
+        {
+            int take = parts.Count - skipLast;
+            if (take <= 0) return string.Empty;
+            return string.Join(".", parts.Take(take).Select(p => $"[{p}]"));
+        }
+
+        /// <summary>Maps a DacFx <see cref="ModelTypeClass"/> to the refactorlog element type string for schema-level objects.</summary>
+        private static string? SchemaLevelRefactorType(ModelTypeClass modelType)
+        {
+            if (modelType == ModelSchema.Table)               return "SqlTable";
+            if (modelType == ModelSchema.View)                return "SqlView";
+            if (modelType == ModelSchema.Procedure)           return "SqlProcedure";
+            if (modelType == ModelSchema.ScalarFunction)      return "SqlScalarFunction";
+            if (modelType == ModelSchema.TableValuedFunction) return "SqlTableValuedFunction";
+            if (modelType == ModelSchema.DataType)            return "SqlUserDefinedDataType";
+            if (modelType == ModelSchema.TableType)           return "SqlTableType";
+            return null;
+        }
+
         private static bool TryGetSqlObjectType(ModelTypeClass modelType, out SqlObjectType sqlType)
         {
             if (modelType == ModelSchema.Table)               { sqlType = SqlObjectType.Table;                return true; }

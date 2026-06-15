@@ -43,12 +43,30 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         public Dictionary<string, List<TextEdit>> Changes { get; set; }
 
         /// <summary>
-        /// The original (unbracketed) element name at the cursor position.
-        /// Used by the client to write the <c>.refactorlog</c> entry.
+        /// Fully bracket-quoted element name, e.g. <c>[dbo].[Customers]</c>.
+        /// Used by the client as <c>ElementName</c> in the <c>.refactorlog</c> entry.
         /// </summary>
         public string ElementName { get; set; }
 
-        /// <summary>The new name as echoed back from the request.</summary>
+        /// <summary>
+        /// DacFx refactorlog element type string, e.g. <c>SqlTable</c>, <c>SqlSimpleColumn</c>.
+        /// Null when the element type cannot be determined or does not need a refactorlog entry.
+        /// </summary>
+        public string ElementType { get; set; }
+
+        /// <summary>
+        /// Fully bracket-quoted parent element name, e.g. <c>[dbo]</c> or <c>[dbo].[Table1]</c>.
+        /// </summary>
+        public string ParentElementName { get; set; }
+
+        /// <summary>
+        /// DacFx refactorlog parent element type string, e.g. <c>SqlSchema</c>, <c>SqlTable</c>.
+        /// </summary>
+        public string ParentElementType { get; set; }
+
+        /// <summary>
+        /// The new name as echoed back from the request.
+        /// </summary>
         public string NewName { get; set; }
     }
 }

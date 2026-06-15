@@ -1794,6 +1794,64 @@ END
             }
         }
 
+        // ── TryGetRefactorInfo: refactorlog element-type resolution ──────────────
+        // The client uses these fields to write a Rename Refactor operation into the
+        // .refactorlog. A schema-level object resolves to its Sql* type with a SqlSchema
+        // parent; a column resolves to SqlSimpleColumn with its owning SqlTable parent.
+
+        [Test]
+        public void TryGetRefactorInfo_SchemaLevelTable_ReturnsSqlTableWithSchemaParent()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.Customers", "Customers",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.True, "A schema-level table should resolve refactor info");
+            Assert.That(elementName, Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(elementType, Is.EqualTo("SqlTable"));
+            Assert.That(parentElementName, Is.EqualTo("[dbo]"));
+            Assert.That(parentElementType, Is.EqualTo("SqlSchema"));
+        }
+
+        [Test]
+        public void TryGetRefactorInfo_Column_ReturnsSqlSimpleColumnWithTableParent()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            // "CustomerName" is a column on dbo.Customers, not a schema-level object,
+            // so Case 1 misses and the column scan (Case 2) resolves it.
+            bool resolved = provider.TryGetRefactorInfo(
+                "CustomerName", "CustomerName",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.True, "A table column should resolve refactor info");
+            Assert.That(elementName, Is.EqualTo("[dbo].[Customers].[CustomerName]"));
+            Assert.That(elementType, Is.EqualTo("SqlSimpleColumn"));
+            Assert.That(parentElementName, Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(parentElementType, Is.EqualTo("SqlTable"));
+        }
+
+        [Test]
+        public void TryGetRefactorInfo_UnknownSymbol_ReturnsFalse()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.DoesNotExist", "DoesNotExist",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.False, "An unknown symbol should not resolve refactor info");
+            Assert.That(elementName, Is.Null);
+            Assert.That(elementType, Is.Null);
+            Assert.That(parentElementName, Is.Null);
+            Assert.That(parentElementType, Is.Null);
+        }
+
     }
 
     /// <summary>
