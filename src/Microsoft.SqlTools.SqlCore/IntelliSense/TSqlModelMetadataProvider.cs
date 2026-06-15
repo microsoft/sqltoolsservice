@@ -353,24 +353,181 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         }
 
         /// <summary>
-        /// Returns the distinct source file paths of all user-defined objects that directly
-        /// reference <paramref name="qualifiedName"/> according to the DacFx dependency graph.
+        /// Returns the distinct source file paths of all objects that directly reference
+        /// <paramref name="qualifiedName"/> according to the DacFx dependency graph.
         /// Returns an empty sequence when the object cannot be resolved in the model.
+        /// <para>
+        /// When <paramref name="qualifiedName"/> is a top-level object (table/view/procedure), the
+        /// result includes references to the object itself AND references to each of its columns,
+        /// because column-level references (e.g. an extended property on a column) attach to the
+        /// column object, not to the parent. When <paramref name="qualifiedName"/> is a column
+        /// (e.g. <c>dbo.Table.Column</c>), the column's own referencing files are returned.
+        /// </para>
+        /// <para>
+        /// Uses <see cref="DacQueryScopes.All"/> (not <see cref="DacQueryScopes.UserDefined"/>) so
+        /// that extended properties — emitted as <c>sp_addextendedproperty</c> in their own file —
+        /// are included. DacFx does not classify extended properties as user-defined, so the narrower
+        /// scope would drop a separate extended-property file from the rename candidate set. System
+        /// objects surfaced by the wider scope have no source file and are filtered out below.
+        /// </para>
         /// </summary>
         public IEnumerable<string> GetReferencingFilePaths(string qualifiedName)
         {
-            TSqlObject? target = FindObject(qualifiedName);
-            if (target == null)
+            if (string.IsNullOrEmpty(qualifiedName))
                 return Enumerable.Empty<string>();
 
             var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (TSqlObject dep in target.GetReferencing(DacQueryScopes.UserDefined))
+
+            TSqlObject? topLevel = FindObject(qualifiedName);
+            if (topLevel != null)
+            {
+                // Table/view/proc: its own references plus every column's references.
+                CollectReferencingSourceFiles(topLevel, found);
+                foreach (TSqlObject column in GetColumnsOf(qualifiedName))
+                    CollectReferencingSourceFiles(column, found);
+            }
+            else
+            {
+                // Not a top-level object — resolve it as a column. Match the fully qualified
+                // name first (e.g. "dbo.Table.Column"); if the name is unqualified (e.g. just
+                // "Column"), fall back to every column that shares that final name part so the
+                // referencing files of the intended column are not missed.
+                foreach (TSqlObject column in FindColumns(qualifiedName))
+                    CollectReferencingSourceFiles(column, found);
+            }
+
+            return found;
+        }
+
+        /// <summary>
+        /// Adds the source file of every object that directly references <paramref name="obj"/>
+        /// (using <see cref="DacQueryScopes.All"/>) into <paramref name="found"/>. System objects
+        /// with no source file are skipped.
+        /// </summary>
+        private static void CollectReferencingSourceFiles(TSqlObject obj, HashSet<string> found)
+        {
+            foreach (TSqlObject dep in obj.GetReferencing(DacQueryScopes.All))
             {
                 string? path = dep.GetSourceInformation()?.SourceName;
                 if (path != null)
                     found.Add(path);
             }
-            return found;
+        }
+
+        /// <summary>
+        /// Returns the column objects belonging to the table whose schema-qualified name is
+        /// <paramref name="tableQualifiedName"/> (e.g. all columns of "dbo.Orders"). Columns are
+        /// not top-level types in DacFx and cannot be queried via <c>GetObjects</c>; they are
+        /// reached as composing children of the table via <see cref="TSqlObject.GetChildren()"/>.
+        /// </summary>
+        private IEnumerable<TSqlObject> GetColumnsOf(string tableQualifiedName)
+        {
+            TSqlObject? table = FindObject(tableQualifiedName);
+            return table == null ? Enumerable.Empty<TSqlObject>() : GetColumnChildren(table);
+        }
+
+        /// <summary>
+        /// Returns the child objects of <paramref name="table"/> that are columns.
+        /// </summary>
+        private static IEnumerable<TSqlObject> GetColumnChildren(TSqlObject table)
+        {
+            foreach (TSqlObject child in table.GetChildren(DacQueryScopes.All))
+            {
+                if (child.ObjectType == ModelSchema.Column)
+                    yield return child;
+            }
+        }
+
+        /// <summary>
+        /// Resolves a column reference to one or more <see cref="TSqlObject"/> columns. A fully
+        /// qualified name (e.g. "dbo.Table.Column") resolves to the matching column of that table;
+        /// an unqualified name (e.g. "Column") resolves to every column across all user-defined
+        /// objects whose final name part matches. Columns are reached via the parent's
+        /// <see cref="TSqlObject.GetChildren()"/> because they are not top-level DacFx types.
+        /// </summary>
+        private IEnumerable<TSqlObject> FindColumns(string columnName)
+        {
+            int lastDot = columnName.LastIndexOf('.');
+            if (lastDot > 0)
+            {
+                // Qualified: resolve the parent table, then match the trailing column name part.
+                string parentName = columnName.Substring(0, lastDot);
+                string lastPart = columnName.Substring(lastDot + 1);
+                TSqlObject? table = FindObject(parentName);
+                if (table == null)
+                    yield break;
+                foreach (TSqlObject column in GetColumnChildren(table))
+                {
+                    if (column.Name?.Parts != null && column.Name.Parts.Count > 0 &&
+                        string.Equals(column.Name.Parts[column.Name.Parts.Count - 1], lastPart, StringComparison.OrdinalIgnoreCase))
+                        yield return column;
+                }
+                yield break;
+            }
+
+            // Unqualified: scan every user-defined object's columns for a matching final name part.
+            foreach (TSqlObject obj in _model.GetObjects(DacQueryScopes.UserDefined))
+            {
+                foreach (TSqlObject column in GetColumnChildren(obj))
+                {
+                    if (column.Name?.Parts != null && column.Name.Parts.Count > 0 &&
+                        string.Equals(column.Name.Parts[column.Name.Parts.Count - 1], columnName, StringComparison.OrdinalIgnoreCase))
+                        yield return column;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> when <paramref name="qualifiedName"/> resolves to a top-level object
+        /// (table/view/procedure/function) or to a column. Used to normalize names that may carry a
+        /// database prefix or be column references.
+        /// </summary>
+        public bool CanResolveName(string qualifiedName)
+        {
+            if (string.IsNullOrEmpty(qualifiedName))
+                return false;
+            lock (_sourceLock)
+            {
+                if (_sourceLocations.ContainsKey(qualifiedName))
+                    return true;
+            }
+            return FindColumns(qualifiedName).Any();
+        }
+
+        /// <summary>
+        /// Returns the source file that defines <paramref name="qualifiedName"/>, resolving both
+        /// top-level objects and columns. A column resolves to its own source file, or, if DacFx
+        /// reports none, to the parent table's file. Returns <c>null</c> when unresolved.
+        /// </summary>
+        public string? GetDefiningFilePath(string qualifiedName)
+        {
+            if (string.IsNullOrEmpty(qualifiedName))
+                return null;
+
+            lock (_sourceLock)
+            {
+                if (_sourceLocations.TryGetValue(qualifiedName, out SourceInformation? si) && si?.SourceName != null)
+                    return si.SourceName;
+            }
+
+            // Column (qualified or unqualified): use the column's own source file, falling back to
+            // the parent table's file when DacFx reports no source for the column itself.
+            TSqlObject? column = FindColumns(qualifiedName).FirstOrDefault();
+            string? columnSource = column?.GetSourceInformation()?.SourceName;
+            if (columnSource != null)
+                return columnSource;
+
+            if (column?.Name?.Parts != null && column.Name.Parts.Count >= 2)
+            {
+                string parentName = string.Join(".", column.Name.Parts.Take(column.Name.Parts.Count - 1));
+                lock (_sourceLock)
+                {
+                    if (_sourceLocations.TryGetValue(parentName, out SourceInformation? parentSi))
+                        return parentSi?.SourceName;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
