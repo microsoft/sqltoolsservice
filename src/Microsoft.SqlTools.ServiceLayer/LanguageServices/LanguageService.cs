@@ -1885,8 +1885,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 edits.Add(new TextEdit { Range = loc.Range, NewText = newText });
             }
 
-            // Populate refactorlog metadata using the qualifiedName and provider already resolved
-            // during the location scan — no extra model round-trip needed.
+            // Resolve refactorlog metadata using the qualifiedName and provider already resolved
+            // during the location scan — no extra model round-trip needed — then build the full
+            // .refactorlog document so the client only has to write the returned content.
             string refactorElementName = null, refactorElementType = null;
             string refactorParentName  = null, refactorParentType  = null;
             if (provider != null && qualifiedName != null)
@@ -1897,14 +1898,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     out refactorParentName,  out refactorParentType);
             }
 
+            // Only objects with a resolved element type (table, column, etc.) need a refactorlog entry.
+            string refactorLogContent = null;
+            if (refactorElementType != null)
+            {
+                refactorLogContent = RefactorLogGenerator.GenerateRenameDocument(
+                    renameParams.ExistingRefactorLogContent,
+                    refactorElementName,
+                    refactorElementType,
+                    refactorParentName,
+                    refactorParentType,
+                    renameParams.NewName);
+            }
+
             await requestContext.SendResult(new SqlSymbolRenameResponse
             {
-                Changes           = changes,
-                ElementName       = refactorElementName,
-                ElementType       = refactorElementType,
-                ParentElementName = refactorParentName,
-                ParentElementType = refactorParentType,
-                NewName           = renameParams.NewName
+                Changes            = changes,
+                RefactorLogContent = refactorLogContent,
+                NewName            = renameParams.NewName
             });
         }
 

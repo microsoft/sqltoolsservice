@@ -29,6 +29,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
     {
         /// <summary>The new name typed by the user in the rename input box.</summary>
         public string NewName { get; set; }
+
+        /// <summary>
+        /// Current content of the project's <c>.refactorlog</c> file, or <see langword="null"/>/empty
+        /// if the project does not have one yet. The server appends the new rename operation to this
+        /// content and returns the full document in <see cref="SqlSymbolRenameResponse.RefactorLogContent"/>.
+        /// </summary>
+        public string ExistingRefactorLogContent { get; set; }
     }
 
     /// <summary>
@@ -43,26 +50,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         public Dictionary<string, List<TextEdit>> Changes { get; set; }
 
         /// <summary>
-        /// Fully bracket-quoted element name, e.g. <c>[dbo].[Customers]</c>.
-        /// Used by the client as <c>ElementName</c> in the <c>.refactorlog</c> entry.
+        /// Full content of the <c>.refactorlog</c> file with the new rename operation appended,
+        /// ready for the client to write. Null when the renamed symbol does not require a
+        /// <c>.refactorlog</c> entry (e.g. the element type could not be determined).
         /// </summary>
-        public string ElementName { get; set; }
-
-        /// <summary>
-        /// DacFx refactorlog element type string, e.g. <c>SqlTable</c>, <c>SqlSimpleColumn</c>.
-        /// Null when the element type cannot be determined or does not need a refactorlog entry.
-        /// </summary>
-        public string ElementType { get; set; }
-
-        /// <summary>
-        /// Fully bracket-quoted parent element name, e.g. <c>[dbo]</c> or <c>[dbo].[Table1]</c>.
-        /// </summary>
-        public string ParentElementName { get; set; }
-
-        /// <summary>
-        /// DacFx refactorlog parent element type string, e.g. <c>SqlSchema</c>, <c>SqlTable</c>.
-        /// </summary>
-        public string ParentElementType { get; set; }
+        public string RefactorLogContent { get; set; }
 
         /// <summary>
         /// The new name as echoed back from the request.
