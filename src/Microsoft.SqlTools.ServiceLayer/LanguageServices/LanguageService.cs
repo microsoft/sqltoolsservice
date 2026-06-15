@@ -130,6 +130,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _intelliSenseUpdateDebounce = new(StringComparer.OrdinalIgnoreCase);
         private const int IntelliSenseUpdateDebounceMs = 500;
 
+        // Serializes DacFx model mutations per project so that concurrent edits across multiple
+        // files in the same project do not race when updating shared model/provider state.
+        private readonly ConcurrentDictionary<string, AsyncLock> projectModelUpdateLocks = new(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
         /// </summary>
@@ -721,8 +725,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     await Task.Delay(IntelliSenseUpdateDebounceMs, newCts.Token);
-                    await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(
-                        projectUri, fileUri, deleted: false, sqlTextOverride: contents);
+
+                    // Serialize model mutations for this project so concurrent edits across
+                    // multiple files don't race when updating shared model/provider state.
+                    AsyncLock projectLock = projectModelUpdateLocks.GetOrAdd(projectUri, _ => new AsyncLock());
+                    using (await projectLock.LockAsync())
+                    {
+                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(
+                            projectUri, fileUri, deleted: false, sqlTextOverride: contents);
+                    }
                 }
                 catch (OperationCanceledException) { /* superseded by a newer edit — expected */ }
                 catch (Exception ex) { Logger.Error($"IntelliSense model update failed for {fileUri}: {ex}"); }
@@ -1733,6 +1744,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 renameParams.Position.Character);
 
             var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
+
+            // Cache line lookups so each candidate file is read at most once, regardless of how
+            // many occurrences it contains.
+            var lineCache = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
             foreach (var loc in locations)
             {
                 if (!changes.TryGetValue(loc.Uri, out var edits))
@@ -1741,20 +1756,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Preserve bracket-quoting style: if the original span was bracket-quoted,
                 // wrap the new name in brackets too.  Extended-property names sit inside string
                 // literals (the neighbouring characters are quotes, not brackets) so they are
-                // rewritten verbatim.
+                // rewritten verbatim.  Works for both open files (workspace buffer) and project
+                // files discovered via the dependency graph that are not open (read from disk).
                 string newText = renameParams.NewName;
                 try
                 {
-                    var scriptFile = CurrentWorkspace.GetFile(loc.Uri);
-                    if (scriptFile != null)
-                    {
-                        string lineText = scriptFile.GetLine(loc.Range.Start.Line + 1); // GetLine is 1-based
-                        newText = TextUtilities.ApplyBracketQuoting(
-                            lineText,
-                            loc.Range.Start.Character,
-                            loc.Range.End.Character,
-                            renameParams.NewName);
-                    }
+                    string lineText = GetSourceLine(loc.Uri, loc.Range.Start.Line, lineCache);
+                    newText = TextUtilities.ApplyBracketQuoting(
+                        lineText,
+                        loc.Range.Start.Character,
+                        loc.Range.End.Character,
+                        renameParams.NewName);
                 }
                 catch (Exception ex)
                 {
@@ -1771,6 +1783,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ElementName = elementName,
                 NewName = renameParams.NewName
             });
+        }
+
+        /// <summary>
+        /// Returns the source text of a single 0-based line for the given file URI.  Prefers the
+        /// in-memory workspace buffer (so unsaved edits are honoured) and falls back to reading the
+        /// file from disk for project files that are not open in the editor.  Results are cached in
+        /// <paramref name="lineCache"/> so each file is read at most once per request.
+        /// </summary>
+        private string GetSourceLine(string fileUri, int line0, Dictionary<string, string[]> lineCache)
+        {
+            if (!lineCache.TryGetValue(fileUri, out string[] lines))
+            {
+                string contents = CurrentWorkspace.GetFile(fileUri)?.Contents;
+                if (contents != null)
+                {
+                    lines = contents.Split('\n');
+                }
+                else
+                {
+                    string localPath = new Uri(fileUri).LocalPath;
+                    lines = File.Exists(localPath) ? File.ReadAllLines(localPath) : Array.Empty<string>();
+                }
+                lineCache[fileUri] = lines;
+            }
+
+            return (line0 >= 0 && line0 < lines.Length) ? lines[line0].TrimEnd('\r') : null;
         }
 
         /// <summary>
