@@ -328,7 +328,8 @@ ORDER BY platform";
         {
             using (IDbCommand command = connection.CreateCommand())
             {
-                command.CommandText = script;
+                command.CommandText = script;  // CodeQL [SM03934] - parameters are added separately and not concatenated to the command text, so this is not vulnerable to SQL injection
+                                               // additionally this is a private method only used internally with predefined scripts and parameters
                 foreach (var item in parameters)
                 {
                     var parameter = command.CreateParameter();
