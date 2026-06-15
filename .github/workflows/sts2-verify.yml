@@ -1,0 +1,110 @@
+name: STS2 Verify
+
+# Runs the STS2 verification gates (docs/sts2/SPEC.md §15). The --full run includes the
+# dialect:tsql engine suite against a real SQL Server 2025 container, the 10,000-seed
+# simulator, the perf smoke, and Stryker mutation testing — the CI-only parts of the
+# verification report's checklist.
+
+on:
+  push:
+    branches:
+      - sts2/main
+  pull_request:
+    branches:
+      - sts2/main
+  schedule:
+    - cron: '0 3 * * *'   # nightly full run
+  workflow_dispatch:
+    inputs:
+      simulatorSeeds:
+        description: 'Simulator seed count'
+        required: false
+        default: '10000'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-full:
+    runs-on: ubuntu-latest
+    env:
+      # The 10k simulator and Stryker make this a long job; PRs run the same gates so
+      # regressions are caught before merge to sts2/main.
+      STS2_SIMULATOR_SEEDS: ${{ github.event.inputs.simulatorSeeds || '10000' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Generate SQL authentication password
+        shell: pwsh
+        run: |
+          $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.ToCharArray()
+          $passwordBody = -join (1..24 | ForEach-Object { $chars[(Get-Random -Maximum $chars.Length)] })
+          $sqlPassword = "A1!b$passwordBody" # 'A1!' prefix meets SQL password complexity
+          Write-Output "::add-mask::$sqlPassword"
+          Add-Content -Path $env:GITHUB_ENV -Value "SQL_PASSWORD=$sqlPassword"
+
+      - name: Start SQL Server 2025 container
+        shell: pwsh
+        run: |
+          docker pull mcr.microsoft.com/mssql/server:2025-latest
+          docker rm -f sts2-sqlserver *> $null
+          docker run `
+            --detach `
+            --name sts2-sqlserver `
+            --publish 1433:1433 `
+            --env ACCEPT_EULA=Y `
+            --env MSSQL_PID=Developer `
+            --env MSSQL_SA_PASSWORD="$env:SQL_PASSWORD" `
+            mcr.microsoft.com/mssql/server:2025-latest
+
+      - name: Wait for SQL Server and create Sts2TestDb
+        shell: pwsh
+        run: |
+          $ready = $false
+          for ($attempt = 1; $attempt -le 30; $attempt++) {
+            docker exec sts2-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $env:SQL_PASSWORD -C -Q "SELECT 1" *> $null
+            if ($LASTEXITCODE -eq 0) { $ready = $true; break }
+            Start-Sleep -Seconds 5
+          }
+          if (-not $ready) { throw "SQL Server did not become ready" }
+          docker exec sts2-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $env:SQL_PASSWORD -C `
+            -Q "if db_id('Sts2TestDb') is null create database Sts2TestDb;"
+          $cs = "Server=localhost,1433;Database=Sts2TestDb;User ID=sa;Password=$env:SQL_PASSWORD;Encrypt=True;TrustServerCertificate=True;Connect Timeout=30"
+          Add-Content -Path $env:GITHUB_ENV -Value "STS2_SQLSERVER_CONNSTRING=$cs"
+
+      - name: Install Stryker.NET
+        run: dotnet tool install --global dotnet-stryker
+
+      - name: Build STS2 solution filter
+        run: dotnet build sqltoolsservice-sts2.slnf -c Debug
+
+      - name: Build legacy service exe (for E2E)
+        run: dotnet build src/Microsoft.SqlTools.ServiceLayer -c Debug
+
+      - name: verify.sh --full
+        run: |
+          chmod +x ./verify.sh
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          ./verify.sh --full
+
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: sts2-verification
+          path: |
+            artifacts/verify-latest.md
+            artifacts/verification-report.md
+            StrykerOutput/**/reports/**
+          if-no-files-found: ignore
+
+      - name: Stop SQL Server container
+        if: always()
+        run: docker rm -f sts2-sqlserver || true
