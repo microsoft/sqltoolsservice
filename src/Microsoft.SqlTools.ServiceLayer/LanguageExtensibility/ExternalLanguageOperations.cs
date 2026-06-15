@@ -328,7 +328,7 @@ ORDER BY platform";
         {
             using (IDbCommand command = connection.CreateCommand())
             {
-command.CommandText = script;  // CodeQL [SM03934] Script text is built by internal helpers; identifiers are bracket-escaped and string literals are quote-escaped; binary content is passed via parameters.
+                command.CommandText = script;  // CodeQL [SM03934] Script text is built by internal helpers; identifiers are bracket-escaped and string literals are quote-escaped; binary content is passed via parameters.
                                                // This private helper is only called from ExternalLanguageOperations with those sanitization steps applied.
                 foreach (var item in parameters)
                 {
