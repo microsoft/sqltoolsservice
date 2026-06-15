@@ -75,7 +75,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 CreateProperty("ParentElementType", parentElementType),
                 CreateProperty("NewName", newName));
 
-            document.Root!.Add(operation);
+            XElement operationsRoot = document.Root ?? throw new InvalidOperationException("Refactorlog document is missing its root element.");
+            operationsRoot.Add(operation);
 
             return document.Declaration + Environment.NewLine + document.ToString();
         }
