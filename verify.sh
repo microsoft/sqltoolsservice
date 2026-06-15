@@ -159,7 +159,7 @@ if [ "$MODE" = "--full" ]; then
         na "SQL Server engine suite (dialect:tsql)" "no STS2_SQLSERVER_CONNSTRING — CI/nightly only"
         engine_suite >/dev/null 2>&1 || true  # exercise the skip path so it stays compiling/green
     fi
-    if dotnet stryker --version >/dev/null 2>&1; then
+    if command -v dotnet-stryker >/dev/null 2>&1 || dotnet tool list --global 2>/dev/null | grep -qi 'dotnet-stryker'; then
         gate "mutation testing (Stryker, ratchet)" mutation_testing
     else
         na "mutation testing (Stryker, ratchet)" "dotnet-stryker not installed — CI/nightly only"
