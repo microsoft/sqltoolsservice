@@ -36,20 +36,30 @@ esac
 ONLY="${1:-all}"
 
 run_one() {
-    local project="$1" config="$2" mutate="$3"
+    local project="$1" config="$2" mutate="${3:-}"
     if [ "$ONLY" != "all" ] && [ "$ONLY" != "$project" ]; then
         return 0
     fi
     echo "==> Stryker: $project"
-    dotnet stryker --config-file "$config" --project "$project" --mutate "$mutate"
+    # When no glob is given, the config's "mutate" array scopes the files (Stryker globs do
+    # NOT support brace expansion, so multi-file scopes must be config arrays, not one glob).
+    if [ -n "$mutate" ]; then
+        dotnet stryker --config-file "$config" --project "$project" --mutate "$mutate"
+    else
+        dotnet stryker --config-file "$config" --project "$project"
+    fi
     local code=$?
     echo "    $project: exit $code"
     return $code
 }
 
+# Ratchet thresholds (SPEC §14.6): set to the achieved baseline so scores cannot regress.
+#   Core      break 70 (achieved 71.2%) — the SPEC floor for the pure reducer
+#   Contracts break 90 (achieved 95.2%) — ratcheted up from the 70 floor
+#   Runtime   break 60 (pure units only) — the SPEC floor
 failed=0
-run_one "Microsoft.SqlTools.Sts2.Core.csproj"     stryker-config.json         '**/*.cs' || failed=1
-run_one "Microsoft.SqlTools.Sts2.Contracts.csproj" stryker-config.json         '**/*.cs' || failed=1
-run_one "Microsoft.SqlTools.Sts2.Runtime.csproj"   stryker-config-runtime.json '{**/Journaling/CanonicalJson.cs,**/Journaling/JournalManifest.cs,**/Envelopes/*.cs,**/Redaction/*.cs,**/Effects/WireValueEncoder.cs}' || failed=1
+run_one "Microsoft.SqlTools.Sts2.Core.csproj"      stryker-config.json          '**/*.cs' || failed=1
+run_one "Microsoft.SqlTools.Sts2.Contracts.csproj" stryker-config-contracts.json '**/*.cs' || failed=1
+run_one "Microsoft.SqlTools.Sts2.Runtime.csproj"   stryker-config-runtime.json  || failed=1
 
 exit $failed

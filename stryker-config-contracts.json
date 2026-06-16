@@ -2,7 +2,7 @@
   "stryker-config": {
     "project-info": {
       "name": "sts2",
-      "module": "runtime-pure"
+      "module": "contracts"
     },
     "solution": "sqltoolsservice-sts2-stryker.sln",
     "target-framework": "net10.0",
@@ -10,17 +10,10 @@
       "test/sts2/Microsoft.SqlTools.Sts2.UnitTests/Microsoft.SqlTools.Sts2.UnitTests.csproj"
     ],
     "test-case-filter": "Category!=Perf&Category!=Engine&Category!=Simulator",
-    "mutate": [
-      "**/Journaling/CanonicalJson.cs",
-      "**/Journaling/JournalManifest.cs",
-      "**/Envelopes/*.cs",
-      "**/Redaction/*.cs",
-      "**/Effects/WireValueEncoder.cs"
-    ],
     "thresholds": {
-      "high": 80,
-      "low": 60,
-      "break": 60
+      "high": 95,
+      "low": 90,
+      "break": 90
     },
     "reporters": ["progress", "json"]
   }
