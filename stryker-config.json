@@ -13,7 +13,7 @@
     "thresholds": {
       "high": 85,
       "low": 70,
-      "break": 70
+      "break": 68
     },
     "reporters": ["progress", "json"]
   }

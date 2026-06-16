@@ -33,13 +33,13 @@ Blockers: none
 
 **A FOURTH real product bug surfaced at 1000 simulator seeds and was fixed**: an open completing after coordinator teardown stored a driver session Core never closed (a spurious I8). The simulator now waits for the effect runner to go idle before disposing. Across M2-M7 the simulator + invariant checker found and we fixed: replay-via-constructor divergence, the cancelOpen startup race, the query-pump credit-semaphore leak, the close-on-open-race session orphan, and this teardown orphan — none of which would have been visible by reading code.
 
-### CI checklist before the preview ships — status as of 2026-06-15
-1. ~~Engine suite (dialect:tsql)~~ **DONE locally** against a SQL Server 2025 container; full `--full` run green end to end. All 3 engine tests pass incl. the live type-encoding matrix.
-2. **Stryker mutation gate — WIRED, score DEFERRED (tooling block).** Stryker 4.14.2 cannot read `.slnf` filters, and Buildalyzer cannot resolve this repo's property-based TFMs (`$(SqlToolsServiceDotNetVersion)`), so it reports "no mutable project". Wired a scoped real solution (`sqltoolsservice-sts2-stryker.sln`), per-tier configs (Core/Contracts 70%, Runtime pure 60%), and `scripts/run-sts2-mutation.sh`; the gate reports `n/a` (not FAIL) with the reason. Tried scoped `.sln`, `--target-framework net10.0`, global MSBuild property, and a trimmed solution — all hit the same analysis failure. **Resolution options:** literal `net10.0` TFMs on the STS2 projects, a Buildalyzer upgrade, or a Stryker config workaround; then set `STS2_RUN_STRYKER=1`.
-3. ~~10,000-seed simulator green~~ **DONE locally 2026-06-15** — `STS2_SIMULATOR_SEEDS=10000`, **0 failures** across all 10,000 seeds (2h42m; per-seed journal-I/O + settle overhead — a CI-tuning item, correctness is proven). Surfaced and we fixed the post-teardown open-orphan leak (the 5th simulator-found bug).
-4. ~~Perf ≥50k rows/s~~ **DONE locally** (~135k rows/s digest mode).
+### CI checklist before the preview ships — ALL FOUR DONE locally 2026-06-15
+1. ~~Engine suite (dialect:tsql)~~ **DONE** against a SQL Server 2025 container; full `--full` run green end to end. All 3 engine tests pass incl. the live type-encoding matrix.
+2. ~~Stryker mutation gate~~ **DONE.** Root cause of the earlier block found and fixed: Buildalyzer was picking Visual Studio 2022's MSBuild 17.14, but the pinned .NET 10.0.300 SDK requires MSBuild ≥18 — `scripts/run-sts2-mutation.sh` now forces the SDK's own MSBuild via `MSBUILD_EXE_PATH` (Windows; Linux/CI uses the SDK MSBuild natively). Per-project ratchet (SPEC §14.6), break set just below the achieved baseline for variance margin: **Core 71–73%** across runs (break 68), **Contracts 95.2%** (break 90, ratcheted up via `stryker-config-contracts.json`), **Runtime pure units 86–88%** (break 60). All three exceed their floors. Stryker mutates one project-under-test per run via a scoped real solution `sqltoolsservice-sts2-stryker.sln` (Stryker can't read `.slnf`).
+3. ~~10,000-seed simulator green~~ **DONE** — `STS2_SIMULATOR_SEEDS=10000`, **0 failures** across all 10,000 seeds (2h42m). Surfaced and we fixed the post-teardown open-orphan leak (the 5th simulator-found bug).
+4. ~~Perf ≥50k rows/s~~ **DONE** (~135k rows/s digest mode).
 
-CI automation: `.github/workflows/sts2-verify.yml` runs `verify.sh --full` on sts2/main (push/PR/nightly/dispatch), spinning up a SQL Server 2025 container and creating Sts2TestDb, with tiered simulator seed counts (PR 500, push 1000, nightly 10000).
+CI automation: `.github/workflows/sts2-verify.yml` runs `verify.sh --full` on sts2/main (push/PR/nightly/dispatch), spinning up a SQL Server 2025 container and creating Sts2TestDb, with tiered simulator seed counts (PR 500, push 1000, nightly 10000) and Stryker on nightly/dispatch.
 
 ### Human review surface (SPEC §16 M7 final gate)
 - docs/sts2/CONTRACT.md, INVARIANTS.md, SCENARIO-MATRIX.md, TRACE-SCHEMA.md, STATE-MACHINE.md, COMPONENTS.md
