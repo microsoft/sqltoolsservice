@@ -143,8 +143,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             {
                 await pump.ConfigureAwait(false);
             }
+            catch
+            {
+                // A fatal pump fault is already recorded in FatalReason; disposing must still
+                // close the journal, so swallow here rather than masking it.
+            }
             finally
             {
+                elidedFragments.Clear(); // bound the side table: drop any unsubstituted fragments
                 await journal.DisposeAsync().ConfigureAwait(false);
             }
         }

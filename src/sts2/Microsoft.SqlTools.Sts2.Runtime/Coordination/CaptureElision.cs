@@ -17,6 +17,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
     /// and replayed digests match exactly (I7 holds in digest mode). The original
     /// fragments live in an in-memory side table and are substituted back at the wire
     /// and effect-runner edges — like the secret side table, they never serialize.
+    /// <para>
+    /// Keying by content digest is safe because the coordinator pump is single-threaded:
+    /// each fragment is Wrapped (added) and then Substituted (removed) within one input's
+    /// processing, before the next input is Wrapped, so two equal fragments are never live
+    /// in the table at once. The coordinator clears the table on dispose to bound any
+    /// fragment that was journaled but whose output Core ultimately suppressed.
+    /// </para>
     /// </summary>
     internal static class CaptureElision
     {

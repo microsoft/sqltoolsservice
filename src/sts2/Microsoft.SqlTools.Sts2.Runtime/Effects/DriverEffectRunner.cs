@@ -31,15 +31,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private readonly IReadOnlyDictionary<string, IDbDriver> drivers;
         private readonly SecretSideTable secrets;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> opensInFlight = new(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, bool> preCanceledOpens = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IDbSession> sessions = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, QueryPump> queryPumps = new(StringComparer.Ordinal);
-
-        // Pre-arrival state for effects that race ahead of the pump's Task.Run startup
-        // (same class of race as preCanceledOpens; found by simulator seeds).
-        private readonly ConcurrentDictionary<string, bool> preCanceledQueries = new(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, bool> preSuppressedQueries = new(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, int> preCredits = new(StringComparer.Ordinal);
 
         /// <summary>Live pump state for one streaming query.</summary>
         private sealed class QueryPump
@@ -141,28 +134,30 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         {
             ArgumentNullException.ThrowIfNull(effect);
             ArgumentNullException.ThrowIfNull(inbox);
+            // Run() executes synchronously on the single coordinator pump thread, in journal
+            // order. Open/query handles are therefore REGISTERED here, synchronously, before
+            // the async Task.Run that does the I/O — so any later effect on the same handle
+            // (cancel/advance/dispose) always finds a live record. This structurally removes
+            // the pre-arrival races the simulator once exposed (no reconciliation side tables).
             switch (effect.EffectName)
             {
                 case "driver.open":
-                    _ = Task.Run(() => OpenAsync(effect, inbox));
+                {
+                    string openId = GetString(effect.Args, "openId") ?? "?";
+                    var cancelSource = new CancellationTokenSource();
+                    opensInFlight[openId] = cancelSource;
+                    _ = Task.Run(() => OpenAsync(effect, inbox, openId, cancelSource));
                     break;
+                }
 
                 case "driver.cancelOpen":
                 {
                     string? openId = GetString(effect.Args, "openId");
-                    if (openId is not null)
+                    if (openId is not null && opensInFlight.TryGetValue(openId, out CancellationTokenSource? cts))
                     {
-                        if (opensInFlight.TryGetValue(openId, out CancellationTokenSource? cts))
-                        {
-                            cts.Cancel();
-                        }
-                        else
-                        {
-                            // The open effect's Task.Run may not have started yet: remember
-                            // the cancel so OpenAsync aborts the moment it registers.
-                            preCanceledOpens[openId] = true;
-                        }
+                        cts.Cancel();
                     }
+                    // A missing entry means the open already resolved; the cancel is a no-op.
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
                     break;
                 }
@@ -172,24 +167,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     break;
 
                 case "driver.queryStart":
-                    _ = Task.Run(() => StartQueryPumpAsync(effect, inbox));
+                    StartQueryPump(effect, inbox);
                     break;
 
                 case "driver.queryAdvance":
                 {
                     string? queryId = GetString(effect.Args, "queryId");
                     int credit = effect.Args.TryGetProperty("credit", out JsonElement c) && c.ValueKind == JsonValueKind.Number ? c.GetInt32() : 0;
-                    if (queryId is not null && credit > 0)
+                    if (queryId is not null && credit > 0 && queryPumps.TryGetValue(queryId, out QueryPump? pump))
                     {
-                        if (queryPumps.TryGetValue(queryId, out QueryPump? pump))
-                        {
-                            pump.Credits.Release(credit);
-                        }
-                        else
-                        {
-                            preCredits.AddOrUpdate(queryId, credit, (_, n) => n + credit);
-                        }
+                        pump.Credits.Release(credit);
                     }
+                    // A missing pump means the query already terminated; the credit is moot.
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
                     break;
                 }
@@ -197,26 +186,19 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 case "driver.queryCancel":
                 {
                     string? queryId = GetString(effect.Args, "queryId");
-                    if (queryId is not null)
+                    if (queryId is not null && queryPumps.TryGetValue(queryId, out QueryPump? pump))
                     {
-                        if (queryPumps.TryGetValue(queryId, out QueryPump? pump))
+                        _ = Task.Run(async () =>
                         {
-                            _ = Task.Run(async () =>
+                            try
                             {
-                                try
-                                {
-                                    await pump.Session.CancelAsync(queryId, CancellationToken.None).ConfigureAwait(false);
-                                }
-                                catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
-                                {
-                                }
-                                pump.Cancellation.Cancel();
-                            });
-                        }
-                        else
-                        {
-                            preCanceledQueries[queryId] = true;
-                        }
+                                await pump.Session.CancelAsync(queryId, CancellationToken.None).ConfigureAwait(false);
+                            }
+                            catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
+                            {
+                            }
+                            pump.Cancellation.Cancel();
+                        });
                     }
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
                     break;
@@ -225,17 +207,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 case "driver.queryDispose":
                 {
                     string? queryId = GetString(effect.Args, "queryId");
-                    if (queryId is not null)
+                    if (queryId is not null && queryPumps.TryRemove(queryId, out QueryPump? pump))
                     {
-                        if (queryPumps.TryRemove(queryId, out QueryPump? pump))
-                        {
-                            pump.Suppressed = true; // I3: no further events after dispose
-                            pump.Cancellation.Cancel();
-                        }
-                        else
-                        {
-                            preSuppressedQueries[queryId] = true;
-                        }
+                        pump.Suppressed = true; // I3: no further events after dispose
+                        pump.Cancellation.Cancel();
                     }
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
                     break;
@@ -252,17 +227,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             }
         }
 
-        private async Task OpenAsync(EffectWorkItem effect, ICoordinatorInbox inbox)
+        private async Task OpenAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string openId, CancellationTokenSource cancelSource)
         {
+            // cancelSource is registered in opensInFlight by Run() before this task starts, so
+            // a racing cancelOpen has already cancelled it if it arrived first.
             string connectionId = GetString(effect.Args, "connectionId") ?? "?";
-            string openId = GetString(effect.Args, "openId") ?? "?";
             var resolvedTokens = new List<string>();
-            var cancelSource = new CancellationTokenSource();
-            opensInFlight[openId] = cancelSource;
-            if (preCanceledOpens.TryRemove(openId, out _))
-            {
-                cancelSource.Cancel(); // cancelOpen raced ahead of this open's startup
-            }
 
             try
             {
@@ -323,7 +293,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             }
         }
 
-        private async Task StartQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox)
+        /// <summary>
+        /// Synchronously creates and registers the query pump (on the pump thread) so racing
+        /// advance/cancel/dispose effects find it, then kicks the async streaming task.
+        /// </summary>
+        private void StartQueryPump(EffectWorkItem effect, ICoordinatorInbox inbox)
         {
             string queryId = GetString(effect.Args, "queryId") ?? "?";
             string? handleId = GetString(effect.Args, "handleId");
@@ -334,27 +308,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             if (handleId is null || !sessions.TryGetValue(handleId, out IDbSession? session))
             {
-                await PostQueryEventAsync(inbox, effect, queryId,
-                    $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.NotFound)}},"message":"No session for handle."}""").ConfigureAwait(false);
+                _ = PostQueryEventAsync(inbox, effect, queryId,
+                    $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.NotFound)}},"message":"No session for handle."}""");
                 return;
             }
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            // Apply anything that raced ahead of this pump's startup.
-            if (preCredits.TryRemove(queryId, out int racedCredit) && racedCredit > 0)
-            {
-                pump.Credits.Release(racedCredit);
-            }
-            if (preSuppressedQueries.TryRemove(queryId, out _))
-            {
-                pump.Suppressed = true;
-                pump.Cancellation.Cancel();
-            }
-            if (preCanceledQueries.TryRemove(queryId, out _))
-            {
-                pump.Cancellation.Cancel();
-            }
+            _ = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, pump));
+        }
+
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, QueryPump pump)
+        {
             await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
 
             try
