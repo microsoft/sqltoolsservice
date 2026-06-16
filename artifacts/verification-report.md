@@ -2,6 +2,47 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## Observability & event-capture pass (pre-viewer cleanup) - 2026-06-16 - 625f66ad+
+Comprehensive design/quality pass against the §12 observability goals, driven by a read-only
+design audit. Goal: make this part of the system "done right" — a real flexible event-capture
+framework the VS Code diagnostic viewer hooks into — before that integration begins.
+
+Gates (verify.sh --quick green):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok (237 unit; +21 new observability tests)
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok — I7 holds with config.changed + metric envelopes in the stream
+- simulator: ok (200 quick; **2000-seed sweep green** validating the runner refactor)
+- secret canary scan: ok
+- generated docs diff: ok (TRACE-SCHEMA/CONTRACT/INVARIANTS regenerated)
+- legacy diff budget: ok (12 lines / 3 files, unchanged)
+- E2E (disabled + enabled + Sqlite-over-stdio): ok — exercises the real production session
+  (digest capture, metric cadence, setCapture wired)
+- SQL Server engine suite (dialect:tsql): **ok — ran for real** against the SQL Server 2025
+  container (2026-06-16); all 3 engine tests green incl. the live type-encoding matrix.
+
+What changed (SPEC §19 DEV-007..DEV-010):
+- **Event-capture framework**: `IEnvelopeSink` fan-out — journal is the write-ahead primary
+  sink; aux observers (metrics, live tail, test capture) are best-effort, fault-isolated,
+  counted. `BroadcastEnvelopeSink` live tail (bounded drop-oldest-with-count) is the viewer's
+  feed; `MetricsEnvelopeSink` + `Sts2EventSource` EventCounters. See OBSERVABILITY.md.
+- **Complete health** (§12.1): 11/11 fields — pure Core + live Runtime overlay (queue depth,
+  leases, real fatal+reason, dropped-diagnostic counts, configVersion, error histogram).
+- **Unified state dump**: one `CoreStateDump`; live `diagnostics.state` Core portion is now
+  byte-identical to replay `DumpState`, enriched with the flags that explain a parked machine.
+- **setCapture + config.changed + real configVersion**: capture config lives in Core state,
+  seeded via session.start, changed at runtime, journaled, replay-visible (I15 exercised);
+  three hard-coded `configVersion=1` literals removed.
+- **Runner hardening**: four pre-arrival reconciliation dictionaries removed via synchronous
+  registration; capture-elision table bounded on dispose; swallowed coordinator faults now
+  counted. Trace-schema honesty: reserved kinds marked.
+
+New tests: EnvelopeSinkTests, MetricsAndHealthTests, StateDumpUnificationTests, SetCaptureTests.
+Legacy diff: 12 lines / 3 files — unchanged.
+API surface: tracked; PublicAPI regenerated across Core/Runtime/Hosting.
+Blockers: none. Next: VS Code extension integration + diagnostic event viewer (build against OBSERVABILITY.md).
+
 ## M7 - Hardening, evidence, preview (HUMAN GATE) - 2026-06-13 - dfb4cb54+
 Gates (verify.sh --quick green 5x+ across the session; --full plumbing confirmed):
 - build (sts2 slnf, warnings as errors): ok
