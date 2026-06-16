@@ -30,6 +30,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         /// <summary>SQL capture (SPEC §8.4): <c>text</c> journals SQL inline; <c>digest</c> elides it the same way.</summary>
         public string SqlCapture { get; init; } = "text";
+
+        /// <summary>
+        /// Journal a <c>metric</c> snapshot envelope every N processed inputs (SPEC §12.3).
+        /// 0 (default) disables metric journaling — the live metrics channel and health
+        /// still report counts. The cadence is counted in inputs, so it is deterministic
+        /// per run; metric envelopes are journaled-only (never dispatched, replay-skipped).
+        /// </summary>
+        public int MetricSampleEvery { get; init; }
     }
 
     /// <summary>An outbound JSON-RPC message decided by Core, already journaled.</summary>
@@ -76,5 +84,22 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
     {
         /// <summary>Runs one effect; implementations post observations back through <paramref name="inbox"/>.</summary>
         void Run(EffectWorkItem effect, ICoordinatorInbox inbox);
+    }
+
+    /// <summary>
+    /// Optional runtime-handle counters an effect runner can expose for the health snapshot
+    /// (SPEC §12.1). These are Runtime facts Core cannot see across the pure boundary, so
+    /// they are merged into the health response at the coordinator edge.
+    /// </summary>
+    public interface IEffectRunnerDiagnostics
+    {
+        /// <summary>Live driver-session leases currently held (I8).</summary>
+        int OpenLeases { get; }
+
+        /// <summary>Open attempts whose driver call has not yet resolved.</summary>
+        int OpensInFlight { get; }
+
+        /// <summary>Query pumps still streaming.</summary>
+        int ActiveQueryPumps { get; }
     }
 }

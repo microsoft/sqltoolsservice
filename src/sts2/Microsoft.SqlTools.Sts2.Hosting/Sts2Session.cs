@@ -110,18 +110,17 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 new JournalOptions { Directory = options.JournalDirectory },
                 new JournalRunInfo { ServiceVersion = options.ServiceVersion, CommandLine = options.CommandLine });
 
-            // Built-in observers, registered ahead of any caller-supplied sinks: a live tail
-            // for the diagnostic viewer and a metrics emitter (SPEC §12). Both are best-effort
-            // aux sinks — they never block the pump or affect write-ahead.
+            // The coordinator owns the metrics sink; here we add a live tail for the
+            // diagnostic viewer plus any caller-supplied observers (SPEC §12). All are
+            // best-effort aux sinks — they never block the pump or affect write-ahead.
             var liveTail = new BroadcastEnvelopeSink();
-            var metrics = new MetricsEnvelopeSink();
-            var auxSinks = new List<IEnvelopeSink>(2 + options.EnvelopeSinks.Count) { metrics, liveTail };
+            var auxSinks = new List<IEnvelopeSink>(1 + options.EnvelopeSinks.Count) { liveTail };
             auxSinks.AddRange(options.EnvelopeSinks);
 
             Sts2Session? session = null;
             var coordinator = new Coordinator(
                 journal,
-                new CoordinatorOptions { RunId = options.RunId },
+                new CoordinatorOptions { RunId = options.RunId, MetricSampleEvery = 1000 },
                 effectRunner,
                 message => session?.HandleOutbound(message),
                 auxSinks);

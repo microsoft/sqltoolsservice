@@ -30,14 +30,14 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         private int corrCounter;
 
         public Sts2TestSession(string directory, string runId = "test-session", string rowCapture = "full", string sqlCapture = "text",
-            IReadOnlyList<IEnvelopeSink>? auxSinks = null)
+            IReadOnlyList<IEnvelopeSink>? auxSinks = null, int metricSampleEvery = 0)
         {
             Driver = new FakeDriver();
             Secrets = new SecretSideTable();
             EffectRunner = new DriverEffectRunner(new Dictionary<string, IDbDriver> { ["fake"] = Driver }, Secrets);
             Coordinator = new Coordinator(
                 new JournalWriter(runId, new JournalOptions { Directory = directory }, new JournalRunInfo { ServiceVersion = "9.9.9" }),
-                new CoordinatorOptions { RunId = runId, RowCapture = rowCapture, SqlCapture = sqlCapture },
+                new CoordinatorOptions { RunId = runId, RowCapture = rowCapture, SqlCapture = sqlCapture, MetricSampleEvery = metricSampleEvery },
                 EffectRunner,
                 Emitted.Enqueue,
                 auxSinks);

@@ -19,13 +19,16 @@ const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.StateSnapshot = "s
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.TimerDue = "timer.due" -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Completion.get -> System.Threading.Tasks.Task!
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.ConfigVersion.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Coordinator(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter! journal, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions! options, Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner! effectRunner, System.Action<Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage!>! emitRpc, System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink!>? auxSinks = null) -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.CurrentState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.DisposeAsync() -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.EffectFaultCount.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.EmitFaultCount.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.FatalReason.get -> string?
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.FlushJournalAsync() -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.LatestSeq.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Metrics.get -> Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostControlAsync(string! signal, System.Text.Json.JsonElement? payload = null) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcNotificationAsync(string! method, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask
@@ -36,6 +39,8 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.CoordinatorOptions() -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? other) -> bool
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.MetricSampleEvery.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.MetricSampleEvery.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.QueueCapacity.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.QueueCapacity.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.RowCapture.get -> string!
@@ -74,6 +79,10 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.EffectWorkItem() -> 
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Equals(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? other) -> bool
 Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox
 Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.IEffectRunnerDiagnostics
+Microsoft.SqlTools.Sts2.Runtime.Coordination.IEffectRunnerDiagnostics.ActiveQueryPumps.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Coordination.IEffectRunnerDiagnostics.OpenLeases.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Coordination.IEffectRunnerDiagnostics.OpensInFlight.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner
 Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner.Run(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem! effect, Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox! inbox) -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage

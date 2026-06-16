@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
     /// completes (SPEC §8.5 lifecycle). Every observation re-enters the coordinator as
     /// an <c>effect.res</c> envelope.
     /// </summary>
-    public sealed class DriverEffectRunner : ISts2EffectRunner
+    public sealed class DriverEffectRunner : ISts2EffectRunner, IEffectRunnerDiagnostics
     {
         private readonly IReadOnlyDictionary<string, IDbDriver> drivers;
         private readonly SecretSideTable secrets;
@@ -83,6 +83,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
         /// <summary>Query pumps still streaming.</summary>
         public int ActiveQueryPumpCount => queryPumps.Count;
+
+        /// <inheritdoc/>
+        int IEffectRunnerDiagnostics.OpenLeases => sessions.Count;
+
+        /// <inheritdoc/>
+        int IEffectRunnerDiagnostics.OpensInFlight => opensInFlight.Count;
+
+        /// <inheritdoc/>
+        int IEffectRunnerDiagnostics.ActiveQueryPumps => queryPumps.Count;
 
         /// <summary>
         /// Cancels any running query pumps and in-flight opens, disposes any sessions

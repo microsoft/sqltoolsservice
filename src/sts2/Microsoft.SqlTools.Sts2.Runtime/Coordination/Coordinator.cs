@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Core;
@@ -28,6 +29,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private static readonly JsonElement NullElement = JsonDocument.Parse("null").RootElement;
 
         private readonly JournalWriter journal;
+        private readonly MetricsEnvelopeSink metrics;
         private readonly CompositeEnvelopeSink auxSinks;
         private readonly CoordinatorOptions options;
         private readonly ISts2EffectRunner effectRunner;
@@ -40,6 +42,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private long seqCounter;
         private long emitFaults;
         private long effectFaults;
+        private long inputsProcessed;
+        private int configVersion = 1;
+        private volatile string? fatalReason;
 
         /// <summary>Creates the coordinator and starts its pump. Takes ownership of <paramref name="journal"/>.</summary>
         /// <param name="journal">The write-ahead journal — the privileged first sink.</param>
@@ -62,7 +67,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.effectRunner = effectRunner ?? throw new ArgumentNullException(nameof(effectRunner));
             this.emitRpc = emitRpc ?? throw new ArgumentNullException(nameof(emitRpc));
-            this.auxSinks = new CompositeEnvelopeSink(auxSinks ?? Array.Empty<IEnvelopeSink>());
+
+            // Metrics are first-class coordinator state: the metrics sink always runs ahead
+            // of caller-supplied observers, and health reads its tallies directly.
+            metrics = new MetricsEnvelopeSink();
+            var allSinks = new List<IEnvelopeSink> { metrics };
+            if (auxSinks is not null)
+            {
+                allSinks.AddRange(auxSinks);
+            }
+            this.auxSinks = new CompositeEnvelopeSink(allSinks, onFault: (_, _) => Sts2EventSource.Log.SinkFaultObserved());
             state = CoreState.Initial; // session config enters via a journaled session.start envelope
 
             inputs = Channel.CreateBounded<PendingInput>(new BoundedChannelOptions(options.QueueCapacity)
@@ -93,6 +107,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         /// <summary>Effect dispatches that faulted before reaching the runner.</summary>
         public long EffectFaultCount => System.Threading.Interlocked.Read(ref effectFaults);
+
+        /// <summary>The metrics tallies over this session's envelope stream (SPEC §12.3).</summary>
+        public MetricsEnvelopeSink Metrics => metrics;
+
+        /// <summary>Current config snapshot version stamped on envelopes (SPEC §8.4).</summary>
+        public int ConfigVersion => configVersion;
+
+        /// <summary>Non-null once the pump has faulted fatally; the redacted reason (SPEC §12.1).</summary>
+        public string? FatalReason => fatalReason;
 
         /// <summary>Posts an inbound JSON-RPC request.</summary>
         public ValueTask PostRpcRequestAsync(string method, string corr, JsonElement? payload, string? sessionId = null) =>
@@ -129,28 +152,60 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         private async Task RunPumpAsync()
         {
-            await foreach (PendingInput input in inputs.Reader.ReadAllAsync().ConfigureAwait(false))
+            try
             {
-                JsonElement? captured = CaptureElision.ElideInput(options, input.Kind, input.Type, input.Payload, elidedFragments);
-                Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
-                await JournalAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
-
-                CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
+                await foreach (PendingInput input in inputs.Reader.ReadAllAsync().ConfigureAwait(false))
                 {
-                    Seq = envelope.Seq,
-                    Kind = envelope.Kind,
-                    Type = envelope.Type,
-                    SessionId = envelope.SessionId,
-                    Corr = envelope.Corr,
-                    Payload = envelope.Payload,
-                });
-                state = decision.NewState;
+                    JsonElement? captured = CaptureElision.ElideInput(options, input.Kind, input.Type, input.Payload, elidedFragments);
+                    Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
+                    await JournalAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
 
-                foreach (CoreOutput output in decision.Outputs)
-                {
-                    await JournalAndActAsync(output, causeSeq: envelope.Seq, requestType: envelope.Type).ConfigureAwait(false);
+                    CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
+                    {
+                        Seq = envelope.Seq,
+                        Kind = envelope.Kind,
+                        Type = envelope.Type,
+                        SessionId = envelope.SessionId,
+                        Corr = envelope.Corr,
+                        Payload = envelope.Payload,
+                    });
+                    state = decision.NewState;
+
+                    foreach (CoreOutput output in decision.Outputs)
+                    {
+                        await JournalAndActAsync(output, causeSeq: envelope.Seq, requestType: envelope.Type).ConfigureAwait(false);
+                    }
+
+                    await MaybeSampleMetricsAsync().ConfigureAwait(false);
                 }
             }
+            catch (Exception ex)
+            {
+                // The pump is the single-threaded heart of the machine. A fault here is
+                // fatal and must be visible, not silent (SPEC §12.1, §18.10) — record a
+                // redacted reason for health and re-throw so Completion faults for crash
+                // containment.
+                fatalReason = ex.GetType().Name;
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Journals a <c>metric</c> snapshot envelope on the configured input cadence
+        /// (SPEC §12.3). The envelope is journaled-only (never dispatched to Core and
+        /// skipped on replay), so it carries the metric history into the trace and exports
+        /// without affecting replay determinism.
+        /// </summary>
+        private async ValueTask MaybeSampleMetricsAsync()
+        {
+            inputsProcessed++;
+            if (options.MetricSampleEvery <= 0 || inputsProcessed % options.MetricSampleEvery != 0)
+            {
+                return;
+            }
+            JsonElement snapshot = JsonDocument.Parse(BuildMetricSnapshot().ToJsonString()).RootElement;
+            Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.Metric, "sts2.snapshot", null, null, snapshot, cause: null);
+            await JournalAsync(envelope, flush: false).ConfigureAwait(false);
         }
 
         private async Task JournalAndActAsync(CoreOutput output, long causeSeq, string requestType)
@@ -162,6 +217,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             switch (encoded.Kind)
             {
                 case EnvelopeKinds.RpcOutResult:
+                {
+                    // The journaled health result is pure Core (replay-deterministic); the
+                    // wire response carries the live Runtime overlay (SPEC §12.1), mirroring
+                    // how capture elision keeps the journal authoritative while the wire is
+                    // enriched.
+                    JsonElement? body = encoded.Type == "v2/diagnostics.health" && encoded.Payload is { } core
+                        ? OverlayRuntimeHealth(core)
+                        : encoded.Payload;
+                    Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = body });
+                    break;
+                }
+
                 case EnvelopeKinds.RpcOutError:
                 case EnvelopeKinds.RpcOutNotify:
                     Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = encoded.Payload });
@@ -206,10 +273,73 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             Corr = corr,
             Cause = cause,
             Type = type,
-            ConfigVersion = 1, // config machinery arrives with setCapture (M1 later slice / M2)
+            ConfigVersion = configVersion,
             Digest = CanonicalJson.DigestOf(payload ?? NullElement),
             Payload = payload,
         };
+
+        /// <summary>
+        /// Merges the live Runtime health facts (SPEC §12.1) onto the pure-Core health
+        /// result: queue depth, driver-handle leases, dropped-diagnostic counts, fatal
+        /// status, config version, and the recent error histogram. None of this is in the
+        /// journaled result, so replay stays deterministic.
+        /// </summary>
+        private JsonElement OverlayRuntimeHealth(JsonElement coreHealth)
+        {
+            JsonObject obj = JsonNode.Parse(coreHealth.GetRawText())!.AsObject();
+            obj["configVersion"] = configVersion;
+            obj["queueDepth"] = QueueDepth;
+            obj["fatal"] = fatalReason is not null;
+            if (fatalReason is not null)
+            {
+                obj["fatalReason"] = fatalReason;
+            }
+            if (effectRunner is IEffectRunnerDiagnostics diag)
+            {
+                obj["openLeases"] = diag.OpenLeases;
+                obj["opensInFlight"] = diag.OpensInFlight;
+                obj["activeQueryPumps"] = diag.ActiveQueryPumps;
+            }
+            obj["droppedDiagnostics"] = new JsonObject
+            {
+                ["emit"] = EmitFaultCount,
+                ["effect"] = EffectFaultCount,
+                ["sink"] = SinkFaultCount,
+            };
+            obj["envelopesObserved"] = metrics.Total;
+            var histogram = new JsonObject();
+            foreach (KeyValuePair<string, long> entry in metrics.ErrorsByCode())
+            {
+                histogram[entry.Key] = entry.Value;
+            }
+            obj["recentErrors"] = histogram;
+            return JsonDocument.Parse(obj.ToJsonString()).RootElement;
+        }
+
+        /// <summary>Builds the <c>metric</c> envelope payload from the live tallies (SPEC §12.3).</summary>
+        private JsonObject BuildMetricSnapshot()
+        {
+            var byKind = new JsonObject();
+            foreach (KeyValuePair<string, long> entry in metrics.EnvelopesByKind())
+            {
+                byKind[entry.Key] = entry.Value;
+            }
+            var errors = new JsonObject();
+            foreach (KeyValuePair<string, long> entry in metrics.ErrorsByCode())
+            {
+                errors[entry.Key] = entry.Value;
+            }
+            return new JsonObject
+            {
+                ["envelopes"] = metrics.Total,
+                ["errors"] = metrics.Errors,
+                ["queueDepth"] = QueueDepth,
+                ["openLeases"] = effectRunner is IEffectRunnerDiagnostics d ? d.OpenLeases : 0,
+                ["droppedSink"] = SinkFaultCount,
+                ["byKind"] = byKind,
+                ["errorsByCode"] = errors,
+            };
+        }
 
         private static bool IsFlushPoint(string kind) =>
             kind is EnvelopeKinds.RpcOutResult or EnvelopeKinds.RpcOutError

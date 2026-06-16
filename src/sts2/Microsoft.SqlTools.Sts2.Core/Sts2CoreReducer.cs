@@ -139,16 +139,22 @@ namespace Microsoft.SqlTools.Sts2.Core
 
         private static CoreDecision DecideHealth(CoreState state, CoreEnvelope envelope)
         {
+            // Pure-Core facts only (deterministic, replay-comparable). The coordinator
+            // overlays Runtime facts — queue depth, leases, fatal status, dropped-diagnostic
+            // counts, configVersion, error histogram — onto the wire response at the emit
+            // edge (SPEC §12.1), so the journaled result stays pure and I7 holds.
             int activeQueries = state.Queries.Count(q => q.Value.Phase is QueryPhase.Running or QueryPhase.CancelRequested);
+            int unackedPages = state.Queries.Values
+                .Where(q => q.Phase is QueryPhase.Running or QueryPhase.CancelRequested)
+                .Sum(q => q.PagesSent - q.PagesAcked);
             var result = new JsonObject
             {
                 ["latestJournalSeq"] = envelope.Seq,
                 ["activeConnections"] = state.Connections.Count,
                 ["activeQueries"] = activeQueries,
                 ["totalQueries"] = state.Queries.Count,
-                ["fatal"] = false,
+                ["unackedPages"] = unackedPages,
                 ["shuttingDown"] = state.ShuttingDown,
-                ["configVersion"] = 1,
             };
             return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(result.ToJsonString()))]);
         }
