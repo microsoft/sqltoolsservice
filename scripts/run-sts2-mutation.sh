@@ -16,6 +16,23 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 export PATH="$PATH:$HOME/.dotnet/tools"
 
+# On Windows, Stryker's Buildalyzer picks Visual Studio's MSBuild by default, but the .NET
+# SDK pinned in global.json requires MSBuild >= 18 (VS 2022 ships 17.x), which fails to
+# resolve Microsoft.NET.Sdk. Force the .NET SDK's own MSBuild (18.x). On Linux/CI there is
+# no VS to mis-pick, so Buildalyzer uses the SDK MSBuild naturally and we leave it alone.
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*|*NT*)
+        if [ -z "${MSBUILD_EXE_PATH:-}" ]; then
+            sdk_version="$(dotnet --version)"
+            sdk_dir="$(dotnet --list-sdks | grep -F "$sdk_version " | sed -E 's/^[^[]*\[(.+)\]$/\1/')"
+            if [ -n "$sdk_dir" ]; then
+                export MSBUILD_EXE_PATH="${sdk_dir}\\${sdk_version}\\MSBuild.dll"
+                echo "Using SDK MSBuild: $MSBUILD_EXE_PATH"
+            fi
+        fi
+        ;;
+esac
+
 ONLY="${1:-all}"
 
 run_one() {

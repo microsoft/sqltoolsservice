@@ -33,10 +33,8 @@ jobs:
       # the engine suite + perf still gate every PR. The journals are deterministic per
       # seed regardless of count (I7), so the smaller PR sweep is still meaningful.
       STS2_SIMULATOR_SEEDS: ${{ (github.event_name == 'schedule' && '10000') || github.event.inputs.simulatorSeeds || (github.event_name == 'pull_request' && '500') || '1000' }}
-      # Stryker is wired but currently reports n/a (Buildalyzer cannot resolve this repo's
-      # property-based TFMs). Once that tooling issue is resolved, set STS2_RUN_STRYKER=1
-      # on the nightly schedule to record the first mutation score.
-      STS2_RUN_STRYKER: '0'
+      # Mutation testing is slow; run it on nightly/dispatch, skip on PR/push for fast feedback.
+      STS2_SKIP_STRYKER: ${{ (github.event_name == 'pull_request' || github.event_name == 'push') && '1' || '0' }}
 
     steps:
       - name: Checkout repository
