@@ -15,6 +15,7 @@ using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Effects;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
+using Microsoft.SqlTools.Sts2.Runtime.Observability;
 using Microsoft.SqlTools.Sts2.Runtime.Redaction;
 using Microsoft.SqlTools.Sts2.Testing;
 
@@ -28,7 +29,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
     {
         private int corrCounter;
 
-        public Sts2TestSession(string directory, string runId = "test-session", string rowCapture = "full", string sqlCapture = "text")
+        public Sts2TestSession(string directory, string runId = "test-session", string rowCapture = "full", string sqlCapture = "text",
+            IReadOnlyList<IEnvelopeSink>? auxSinks = null)
         {
             Driver = new FakeDriver();
             Secrets = new SecretSideTable();
@@ -37,7 +39,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
                 new JournalWriter(runId, new JournalOptions { Directory = directory }, new JournalRunInfo { ServiceVersion = "9.9.9" }),
                 new CoordinatorOptions { RunId = runId, RowCapture = rowCapture, SqlCapture = sqlCapture },
                 EffectRunner,
-                Emitted.Enqueue);
+                Emitted.Enqueue,
+                auxSinks);
             Coordinator.PostControlAsync("session.start", JsonDocument.Parse("""
                 {"serviceVersion":"9.9.9","drivers":[{"name":"fake","dialects":["neutral","tsql"],"production":false}]}
                 """).RootElement).AsTask().GetAwaiter().GetResult();

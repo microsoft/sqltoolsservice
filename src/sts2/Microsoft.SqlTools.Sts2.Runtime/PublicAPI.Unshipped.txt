@@ -19,15 +19,19 @@ const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.StateSnapshot = "s
 const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.TimerDue = "timer.due" -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Completion.get -> System.Threading.Tasks.Task!
-Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Coordinator(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter! journal, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions! options, Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner! effectRunner, System.Action<Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage!>! emitRpc) -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Coordinator(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter! journal, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions! options, Microsoft.SqlTools.Sts2.Runtime.Coordination.ISts2EffectRunner! effectRunner, System.Action<Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage!>! emitRpc, System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink!>? auxSinks = null) -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.CurrentState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.EffectFaultCount.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.EmitFaultCount.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.FlushJournalAsync() -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.LatestSeq.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostControlAsync(string! signal, System.Text.Json.JsonElement? payload = null) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcNotificationAsync(string! method, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcRequestAsync(string! method, string! corr, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.QueueDepth.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.SinkFaultCount.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.CoordinatorOptions() -> void
@@ -214,6 +218,34 @@ Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.FlushAsync() -> System.
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.JournalWriter(string! runId, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions! options, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo! runInfo) -> void
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.LatestSeq.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalWriter.ManifestPath.get -> string!
+Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink
+Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink.BroadcastEnvelopeSink(int subscriberCapacity = 4096) -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink.OnEnvelopeAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink.Subscribe() -> Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription!
+Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink.SubscriberCount.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink.TotalDropped.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.CompositeEnvelopeSink
+Microsoft.SqlTools.Sts2.Runtime.Observability.CompositeEnvelopeSink.CompositeEnvelopeSink(System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink!>! sinks, System.Action<Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink!, System.Exception!>? onFault = null) -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.CompositeEnvelopeSink.Count.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Observability.CompositeEnvelopeSink.FaultCount.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.CompositeEnvelopeSink.OnEnvelopeAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription
+Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription.Dispose() -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription.Dropped.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription.Reader.get -> System.Threading.Channels.ChannelReader<Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!>!
+Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink
+Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink.OnEnvelopeAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.EnvelopesByKind() -> System.Collections.Immutable.ImmutableSortedDictionary<string!, long>!
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.Errors.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.ErrorsByCode() -> System.Collections.Immutable.ImmutableSortedDictionary<string!, long>!
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.MetricsEnvelopeSink() -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.OnEnvelopeAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.Total.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource
+Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource.EnvelopeObserved() -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource.ErrorObserved() -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource.SinkFaultObserved() -> void
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretRedactor
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable
 Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable.Count.get -> int
@@ -330,3 +362,4 @@ static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.operator !=(Micro
 static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.operator ==(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.operator !=(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.operator ==(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? right) -> bool
+static readonly Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource.Log -> Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource!

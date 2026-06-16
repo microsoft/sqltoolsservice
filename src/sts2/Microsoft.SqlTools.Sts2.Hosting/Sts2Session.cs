@@ -17,6 +17,7 @@ using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Effects;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
+using Microsoft.SqlTools.Sts2.Runtime.Observability;
 using Microsoft.SqlTools.Sts2.Runtime.Redaction;
 using StreamJsonRpc;
 
@@ -48,6 +49,13 @@ namespace Microsoft.SqlTools.Sts2.Hosting
 
         /// <summary>Command line with secrets removed, recorded in the journal manifest.</summary>
         public IReadOnlyList<string> CommandLine { get; init; } = [];
+
+        /// <summary>
+        /// Extra envelope observers to attach to this session (SPEC §12). They see every
+        /// journaled envelope in seq order, best-effort. The session always registers a
+        /// metrics sink and a live-tail broadcast sink ahead of these.
+        /// </summary>
+        public IReadOnlyList<IEnvelopeSink> EnvelopeSinks { get; init; } = [];
     }
 
     /// <summary>
@@ -61,14 +69,16 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         private readonly JsonRpc rpc;
         private readonly Coordinator coordinator;
         private readonly SecretSideTable secrets;
+        private readonly BroadcastEnvelopeSink liveTail;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<OutboundRpcMessage>> pendingRequests = new(StringComparer.Ordinal);
         private int corrCounter;
 
-        private Sts2Session(JsonRpc rpc, Coordinator coordinator, SecretSideTable secrets)
+        private Sts2Session(JsonRpc rpc, Coordinator coordinator, SecretSideTable secrets, BroadcastEnvelopeSink liveTail)
         {
             this.rpc = rpc;
             this.coordinator = coordinator;
             this.secrets = secrets;
+            this.liveTail = liveTail;
         }
 
         /// <summary>Faults when the RPC connection or host dies; used for crash containment.</summary>
@@ -76,6 +86,12 @@ namespace Microsoft.SqlTools.Sts2.Hosting
 
         /// <summary>The coordinator, exposed for lifecycle signals and diagnostics.</summary>
         public Coordinator Coordinator => coordinator;
+
+        /// <summary>
+        /// The in-process live tail of the envelope stream (SPEC §12). Subscribe to feed a
+        /// diagnostic viewer or attached tool with every journaled envelope in seq order.
+        /// </summary>
+        public BroadcastEnvelopeSink LiveTail => liveTail;
 
         /// <summary>Builds and starts a session over the given streams.</summary>
         public static Sts2Session Start(Sts2SessionOptions options)
@@ -94,18 +110,27 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 new JournalOptions { Directory = options.JournalDirectory },
                 new JournalRunInfo { ServiceVersion = options.ServiceVersion, CommandLine = options.CommandLine });
 
+            // Built-in observers, registered ahead of any caller-supplied sinks: a live tail
+            // for the diagnostic viewer and a metrics emitter (SPEC §12). Both are best-effort
+            // aux sinks — they never block the pump or affect write-ahead.
+            var liveTail = new BroadcastEnvelopeSink();
+            var metrics = new MetricsEnvelopeSink();
+            var auxSinks = new List<IEnvelopeSink>(2 + options.EnvelopeSinks.Count) { metrics, liveTail };
+            auxSinks.AddRange(options.EnvelopeSinks);
+
             Sts2Session? session = null;
             var coordinator = new Coordinator(
                 journal,
                 new CoordinatorOptions { RunId = options.RunId },
                 effectRunner,
-                message => session?.HandleOutbound(message));
+                message => session?.HandleOutbound(message),
+                auxSinks);
 
             var formatter = new SystemTextJsonFormatter();
             formatter.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             var handler = new HeaderDelimitedMessageHandler(options.Output, options.Input, formatter);
             var rpc = new JsonRpc(handler);
-            session = new Sts2Session(rpc, coordinator, secrets);
+            session = new Sts2Session(rpc, coordinator, secrets, liveTail);
             rpc.AddLocalRpcTarget(new GatewayTarget(session), null);
             rpc.StartListening();
 

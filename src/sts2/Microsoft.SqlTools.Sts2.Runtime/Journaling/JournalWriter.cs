@@ -12,15 +12,17 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Runtime.Envelopes;
+using Microsoft.SqlTools.Sts2.Runtime.Observability;
 
 namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
 {
     /// <summary>
     /// Append-only write-ahead JSONL journal (SPEC §8.3). The coordinator appends an
     /// envelope BEFORE dispatching it; the journal order is the truth. Single-threaded
-    /// by contract: only the coordinator pump writes.
+    /// by contract: only the coordinator pump writes. It is the privileged, first
+    /// <see cref="IEnvelopeSink"/>: every other observer sees what the journal recorded.
     /// </summary>
-    public sealed class JournalWriter : IAsyncDisposable
+    public sealed class JournalWriter : IEnvelopeSink, IAsyncDisposable
     {
         private static readonly JsonSerializerOptions ManifestJsonOptions = new()
         {
@@ -94,6 +96,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                 await RotateAsync().ConfigureAwait(false);
             }
         }
+
+        /// <summary>
+        /// <see cref="IEnvelopeSink"/> entry point: identical to <see cref="AppendAsync"/>.
+        /// The coordinator awaits this as the write-ahead primary before Core dispatch.
+        /// </summary>
+        ValueTask IEnvelopeSink.OnEnvelopeAsync(Sts2Envelope envelope, bool flush) => AppendAsync(envelope, flush);
 
         /// <summary>Flushes the active segment to disk.</summary>
         public async ValueTask FlushAsync()

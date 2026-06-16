@@ -3,6 +3,7 @@ Microsoft.SqlTools.Sts2.Hosting.Sts2Session
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Completion.get -> System.Threading.Tasks.Task!
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Coordinator.get -> Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator!
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session.LiveTail.get -> Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink!
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.SignalLifecycleAsync(string! signal) -> System.Threading.Tasks.Task!
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.<Clone>$() -> Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions!
@@ -10,6 +11,8 @@ Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.CommandLine.get -> System.Col
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.CommandLine.init -> void
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Drivers.get -> System.Collections.Generic.IReadOnlyDictionary<string!, Microsoft.SqlTools.Sts2.Abstractions.IDbDriver!>!
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Drivers.init -> void
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.EnvelopeSinks.get -> System.Collections.Generic.IReadOnlyList<Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink!>!
+Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.EnvelopeSinks.init -> void
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.Equals(Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions? other) -> bool
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ExportDirectory.get -> string?
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions.ExportDirectory.init -> void

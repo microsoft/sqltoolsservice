@@ -4,12 +4,14 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Core;
 using Microsoft.SqlTools.Sts2.Runtime.Envelopes;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
+using Microsoft.SqlTools.Sts2.Runtime.Observability;
 
 namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 {
@@ -26,6 +28,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private static readonly JsonElement NullElement = JsonDocument.Parse("null").RootElement;
 
         private readonly JournalWriter journal;
+        private readonly CompositeEnvelopeSink auxSinks;
         private readonly CoordinatorOptions options;
         private readonly ISts2EffectRunner effectRunner;
         private readonly Action<OutboundRpcMessage> emitRpc;
@@ -35,18 +38,31 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, JsonElement> elidedFragments = new(StringComparer.Ordinal);
         private CoreState state;
         private long seqCounter;
+        private long emitFaults;
+        private long effectFaults;
 
         /// <summary>Creates the coordinator and starts its pump. Takes ownership of <paramref name="journal"/>.</summary>
+        /// <param name="journal">The write-ahead journal — the privileged first sink.</param>
+        /// <param name="options">Coordinator configuration.</param>
+        /// <param name="effectRunner">The async edge that executes journaled effects.</param>
+        /// <param name="emitRpc">Sends an outbound RPC message to the gateway.</param>
+        /// <param name="auxSinks">
+        /// Auxiliary envelope observers (metrics, live tail, test capture). They see every
+        /// envelope AFTER journaling, in seq order, best-effort: a faulty sink is counted
+        /// and skipped, never stalling the pump or breaking write-ahead (SPEC §12).
+        /// </param>
         public Coordinator(
             JournalWriter journal,
             CoordinatorOptions options,
             ISts2EffectRunner effectRunner,
-            Action<OutboundRpcMessage> emitRpc)
+            Action<OutboundRpcMessage> emitRpc,
+            IReadOnlyList<IEnvelopeSink>? auxSinks = null)
         {
             this.journal = journal ?? throw new ArgumentNullException(nameof(journal));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.effectRunner = effectRunner ?? throw new ArgumentNullException(nameof(effectRunner));
             this.emitRpc = emitRpc ?? throw new ArgumentNullException(nameof(emitRpc));
+            this.auxSinks = new CompositeEnvelopeSink(auxSinks ?? Array.Empty<IEnvelopeSink>());
             state = CoreState.Initial; // session config enters via a journaled session.start envelope
 
             inputs = Channel.CreateBounded<PendingInput>(new BoundedChannelOptions(options.QueueCapacity)
@@ -65,6 +81,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         /// <summary>Latest journaled sequence number.</summary>
         public long LatestSeq => journal.LatestSeq;
+
+        /// <summary>Current pending depth of the bounded input queue (SPEC §12.1).</summary>
+        public int QueueDepth => inputs.Reader.Count;
+
+        /// <summary>Auxiliary-sink faults swallowed (a misbehaving observer, SPEC §12.1).</summary>
+        public long SinkFaultCount => auxSinks.FaultCount;
+
+        /// <summary>Outbound emissions dropped by a transport fault (SPEC §12.1 dropped diagnostics).</summary>
+        public long EmitFaultCount => System.Threading.Interlocked.Read(ref emitFaults);
+
+        /// <summary>Effect dispatches that faulted before reaching the runner.</summary>
+        public long EffectFaultCount => System.Threading.Interlocked.Read(ref effectFaults);
 
         /// <summary>Posts an inbound JSON-RPC request.</summary>
         public ValueTask PostRpcRequestAsync(string method, string corr, JsonElement? payload, string? sessionId = null) =>
@@ -105,7 +133,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             {
                 JsonElement? captured = CaptureElision.ElideInput(options, input.Kind, input.Type, input.Payload, elidedFragments);
                 Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
-                await journal.AppendAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
+                await JournalAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
 
                 CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
                 {
@@ -129,7 +157,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         {
             CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, requestType);
             Sts2Envelope envelope = BuildEnvelope(encoded.Kind, encoded.Type, null, encoded.Corr, encoded.Payload, causeSeq);
-            await journal.AppendAsync(envelope, flush: IsFlushPoint(encoded.Kind)).ConfigureAwait(false);
+            await JournalAsync(envelope, flush: IsFlushPoint(encoded.Kind)).ConfigureAwait(false);
 
             switch (encoded.Kind)
             {
@@ -155,6 +183,17 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 default:
                     throw new InvalidOperationException("Unhandled encoded output kind: " + encoded.Kind);
             }
+        }
+
+        /// <summary>
+        /// Journals an envelope (write-ahead primary) then fans it out to auxiliary
+        /// observers. The journal append is awaited before any observer runs and before
+        /// the caller dispatches the envelope, preserving the write-ahead rule (§8.3).
+        /// </summary>
+        private async ValueTask JournalAsync(Sts2Envelope envelope, bool flush)
+        {
+            await journal.AppendAsync(envelope, flush).ConfigureAwait(false);
+            await auxSinks.OnEnvelopeAsync(envelope, flush).ConfigureAwait(false);
         }
 
         private Sts2Envelope BuildEnvelope(string kind, string type, string? sessionId, string? corr, JsonElement? payload, long? cause) => new()
@@ -187,6 +226,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             catch (Exception)
             {
                 // The gateway owns transport failures; the journal already has the truth.
+                // Count it so health can surface dropped outbound diagnostics (§12.1).
+                System.Threading.Interlocked.Increment(ref emitFaults);
             }
         }
 
@@ -199,7 +240,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             }
             catch (Exception)
             {
-                // Effect runner faults surface as missing effect.res; M2 adds fault envelopes.
+                // Effect runner faults surface as missing effect.res; counted for health (§12.1).
+                System.Threading.Interlocked.Increment(ref effectFaults);
             }
         }
     }
