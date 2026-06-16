@@ -128,19 +128,13 @@ steps:
 
 - pwsh: |
     $ProgressPreference = 'SilentlyContinue'
-
-    # Fingerprint from https://about.codecov.io/security/#tabs--PublicKeys
-    $expectedCodecovFingerprint = "27034E7FDB850E0BBC2C62FF806BB28AED779869"
+    # Key information
+    # * https://docs.codecov.com/docs/secure-credential-transmission
+    # * https://github.com/codecov/codecov-action/issues/1956
 
     # Download public key from key server
-    Invoke-WebRequest -Uri "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x${expectedCodecovFingerprint}" -OutFile codecov.asc
+    Invoke-WebRequest -Uri https://keybase.io/codecovsecops/pgp_keys.asc -OutFile codecov.asc
     gpg.exe --import codecov.asc
-
-    # Verify the fingerprint of the imported key
-    $actualCodecovFingerprint = ((gpg.exe --with-colons --fingerprint $expectedCodecovFingerprint | Select-String '^fpr:::::::::' | Select-Object -First 1).Line.Split(':')[9])
-    if ($actualCodecovFingerprint -ne $expectedCodecovFingerprint) {
-      throw "Codecov signing key fingerprint mismatch. Expected $expectedCodecovFingerprint but found $actualCodecovFingerprint."
-    }
 
     # Download the Codecov CLI
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
@@ -157,10 +151,10 @@ steps:
 
     # For configuring CODECOV_TOKEN see 'Prerequisites' section above
 
-    # Upload the code coverage report to Codecov
+    # Upload the code coverage report to CodeCov
     .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t $(CODECOV_TOKEN) -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
   displayName: Upload Code coverage report to CodeCov
-  continueOnError: true # TODO: remove once working
+  continueOnError: true
 
 - task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage report'
