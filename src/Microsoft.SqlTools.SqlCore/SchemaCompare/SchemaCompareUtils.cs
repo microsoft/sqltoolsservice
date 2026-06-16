@@ -118,7 +118,29 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         private static bool IsConstraintChildOnSqlDwUnified(DiffEntry diffEntry, SchemaComparisonResult schemaComparisonResult)
         {
             string typeName = diffEntry.SourceObjectType ?? diffEntry.TargetObjectType;
-            if (string.IsNullOrEmpty(typeName))
+            string platform = GetComparisonPlatform(schemaComparisonResult);
+            return ShouldPreserveAlterScriptForConstraint(typeName, platform);
+        }
+
+        /// <summary>
+        /// Pure helper: decides whether a diff-entry's "starts-with-alter" script must be
+        /// preserved instead of stripped. Returns true when the given DacFx object type name
+        /// is one of the constraint kinds we fold under a parent table
+        /// (<see cref="ConstraintTypeNameSuffixes"/>) and the comparison is running under the
+        /// Fabric Warehouse DSP (<see cref="SqlDwUnifiedPlatformName"/>). All other inputs
+        /// — non-constraint types, non-Fabric platforms, null/empty type or platform —
+        /// return false, preserving the legacy strip-on-alter behaviour for SQL Server,
+        /// Azure SQL, and Synapse comparisons.
+        /// </summary>
+        /// <remarks>
+        /// Extracted from <see cref="IsConstraintChildOnSqlDwUnified"/> so it can be unit
+        /// tested without manufacturing a real <see cref="SchemaComparisonResult"/> graph
+        /// (DacFx's comparison types are sealed with no public constructor that yields a
+        /// usable platform projection).
+        /// </remarks>
+        internal static bool ShouldPreserveAlterScriptForConstraint(string objectTypeName, string platform)
+        {
+            if (string.IsNullOrEmpty(objectTypeName))
             {
                 return false;
             }
@@ -126,7 +148,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             bool isConstraint = false;
             foreach (string suffix in ConstraintTypeNameSuffixes)
             {
-                if (typeName.EndsWith(suffix, StringComparison.Ordinal))
+                if (objectTypeName.EndsWith(suffix, StringComparison.Ordinal))
                 {
                     isConstraint = true;
                     break;
@@ -137,7 +159,6 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 return false;
             }
 
-            string platform = GetComparisonPlatform(schemaComparisonResult);
             return string.Equals(platform, SqlDwUnifiedPlatformName, StringComparison.Ordinal);
         }
 
