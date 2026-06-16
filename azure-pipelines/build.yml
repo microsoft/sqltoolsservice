@@ -128,13 +128,26 @@ steps:
 
 - pwsh: |
     $ProgressPreference = 'SilentlyContinue'
-    Invoke-WebRequest -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
+
+    # Fingerprint from https://about.codecov.io/security/#tabs--PublicKeys
+    $expectedCodecovFingerprint = "27034E7FDB850E0BBC2C62FF806BB28AED779869"
+
+    # Download public key from key server
+    Invoke-WebRequest -Uri "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x${expectedCodecovFingerprint}" -OutFile codecov.asc
     gpg.exe --import codecov.asc
 
+    # Verify the fingerprint of the imported key
+    $actualCodecovFingerprint = ((gpg.exe --with-colons --fingerprint $expectedCodecovFingerprint | Select-String '^fpr:::::::::' | Select-Object -First 1).Line.Split(':')[9])
+    if ($actualCodecovFingerprint -ne $expectedCodecovFingerprint) {
+      throw "Codecov signing key fingerprint mismatch. Expected $expectedCodecovFingerprint but found $actualCodecovFingerprint."
+    }
+
+    # Download the Codecov CLI
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM -Outfile codecov.exe.SHA256SUM
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM.sig -Outfile codecov.exe.SHA256SUM.sig
 
+    # Verify the hash of the downloaded Codecov CLI
     gpg.exe --verify codecov.exe.SHA256SUM.sig codecov.exe.SHA256SUM
     If ($(Compare-Object -ReferenceObject  $(($(certUtil -hashfile codecov.exe SHA256)[1], "codecov.exe") -join "  ") -DifferenceObject $(Get-Content codecov.exe.SHA256SUM)).length -eq 0) {
         echo "codecov.exe SHASUM verified"
@@ -143,9 +156,11 @@ steps:
     }
 
     # For configuring CODECOV_TOKEN see 'Prerequisites' section above
+
+    # Upload the code coverage report to Codecov
     .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t $(CODECOV_TOKEN) -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
   displayName: Upload Code coverage report to CodeCov
-  continueOnError: true
+  continueOnError: true # TODO: remove once working
 
 - task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage report'
