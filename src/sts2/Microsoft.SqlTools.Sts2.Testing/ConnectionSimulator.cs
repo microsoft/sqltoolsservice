@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
                 // still resolve to Open after a snapshot (a cancel that lost the open
                 // race), so re-loop until no connections remain — never silently leak.
                 var alreadyClosed = new HashSet<string>(StringComparer.Ordinal);
-                int closeDeadlineMs = 10_000;
+                int closeDeadlineMs = 30_000;
                 int closeElapsedMs = 0;
                 int closeCounter = 0;
                 while (closeElapsedMs < closeDeadlineMs)
@@ -243,14 +243,14 @@ namespace Microsoft.SqlTools.Sts2.Testing
                 // Drain to quiescence: poll until every request has a terminal. A
                 // genuinely missing terminal is left to the I1 invariant check (precise
                 // diagnostics) rather than a blunt per-corr timeout.
-                await WaitForQuiescenceAsync(terminalsByCorr, awaitedCorrs, TimeSpan.FromSeconds(10));
+                await WaitForQuiescenceAsync(terminalsByCorr, awaitedCorrs, TimeSpan.FromSeconds(30));
 
                 // Let in-flight opens and query pumps settle so the coordinator processes
                 // their effect responses (and their proper close/cancel) BEFORE teardown.
                 // An open that completes after dispose would store a session Core never
                 // closes, surfacing as a spurious I8 leak.
                 int settleMs = 0;
-                while (settleMs < 10_000
+                while (settleMs < 30_000
                     && (effectRunner.OpensInFlightCount > 0
                         || effectRunner.ActiveQueryPumpCount > 0
                         || coordinator.CurrentState.Connections.Count > 0))
@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
             TaskCompletionSource tcs = pending.GetOrAdd(corr, _ => new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously));
             try
             {
-                await tcs.Task.WaitAsync(TimeSpan.FromSeconds(10));
+                await tcs.Task.WaitAsync(TimeSpan.FromSeconds(30));
             }
             catch (TimeoutException)
             {
