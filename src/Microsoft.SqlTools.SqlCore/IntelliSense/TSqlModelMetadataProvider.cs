@@ -575,10 +575,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             elementName = elementType = parentElementName = parentElementType = null;
 
             // ── Case 1: schema-level object ────────────────────────────────────────
-            TSqlObject? obj = _model.GetObjects(DacQueryScopes.UserDefined)
-                .FirstOrDefault(o =>
-                    o.Name?.Parts != null &&
-                    string.Equals(string.Join(".", o.Name.Parts), qualifiedName, StringComparison.OrdinalIgnoreCase));
+            TSqlObject? obj = FindObject(qualifiedName);
 
             if (obj != null)
             {

@@ -78,7 +78,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             XElement operationsRoot = document.Root ?? throw new InvalidOperationException("Refactorlog document is missing its root element.");
             operationsRoot.Add(operation);
 
-            return document.Declaration + Environment.NewLine + document.ToString();
+            // Only prefix the declaration (and its trailing newline) when one is present; a parsed
+            // document without a declaration would otherwise produce a leading blank line.
+            return document.Declaration != null
+                ? document.Declaration + Environment.NewLine + document.ToString()
+                : document.ToString();
         }
 
         private static XElement CreateProperty(string name, string value)
