@@ -161,37 +161,10 @@ namespace Microsoft.SqlTools.Sts2.Core
 
         private static CoreDecision DecideState(CoreState state, CoreEnvelope envelope)
         {
-            // Redacted snapshot only (SPEC §12.2, I16): ids/phases/counters, never secrets,
-            // row cells, or SQL text.
-            var connections = new JsonObject();
-            foreach ((string id, ConnectionInfo connection) in state.Connections)
-            {
-                connections[id] = new JsonObject
-                {
-                    ["phase"] = connection.Phase,
-                    ["openId"] = connection.OpenId,
-                    ["activeQueryId"] = connection.ActiveQueryId,
-                };
-            }
-            var queries = new JsonObject();
-            foreach ((string id, QueryInfo query) in state.Queries)
-            {
-                queries[id] = new JsonObject
-                {
-                    ["phase"] = query.Phase,
-                    ["connectionId"] = query.ConnectionId,
-                    ["pagesSent"] = query.PagesSent,
-                    ["pagesAcked"] = query.PagesAcked,
-                };
-            }
-            var result = new JsonObject
-            {
-                ["atSeq"] = envelope.Seq,
-                ["shuttingDown"] = state.ShuttingDown,
-                ["connections"] = connections,
-                ["queries"] = queries,
-            };
-            return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(result.ToJsonString()))]);
+            // The one shared redacted dump (SPEC §12.2, I16): ids/phases/counters/flags,
+            // never secrets, row cells, or SQL text. The coordinator overlays Runtime handle
+            // summaries on the wire response; the journaled result stays pure for replay.
+            return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(CoreStateDump.ToJson(state, envelope.Seq)))]);
         }
 
         private static CoreDecision DecideExportLog(CoreState state, CoreEnvelope envelope)

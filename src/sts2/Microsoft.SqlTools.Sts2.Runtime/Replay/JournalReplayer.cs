@@ -189,43 +189,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
         };
 
         /// <summary>
-        /// Deterministic redacted JSON dump of a Core state (SPEC §12.2, I16): ids,
-        /// phases, and counters only — never secrets, row cells, or SQL text.
+        /// Deterministic redacted JSON dump of a Core state (SPEC §12.2, I16), in the one
+        /// shared <see cref="CoreStateDump"/> format so replay state compares byte-for-byte
+        /// against the live <c>diagnostics.state</c> Core portion.
         /// </summary>
-        public static string DumpState(CoreState state, long atSeq)
-        {
-            ArgumentNullException.ThrowIfNull(state);
-            var connections = new System.Text.Json.Nodes.JsonObject();
-            foreach ((string id, ConnectionInfo connection) in state.Connections)
-            {
-                connections[id] = new System.Text.Json.Nodes.JsonObject
-                {
-                    ["phase"] = connection.Phase,
-                    ["openId"] = connection.OpenId,
-                    ["activeQueryId"] = connection.ActiveQueryId,
-                };
-            }
-            var queries = new System.Text.Json.Nodes.JsonObject();
-            foreach ((string id, QueryInfo query) in state.Queries)
-            {
-                queries[id] = new System.Text.Json.Nodes.JsonObject
-                {
-                    ["phase"] = query.Phase,
-                    ["connectionId"] = query.ConnectionId,
-                    ["pagesSent"] = query.PagesSent,
-                    ["pagesAcked"] = query.PagesAcked,
-                };
-            }
-            var dump = new System.Text.Json.Nodes.JsonObject
-            {
-                ["atSeq"] = atSeq,
-                ["lastSeq"] = state.LastSeq,
-                ["shuttingDown"] = state.ShuttingDown,
-                ["initialized"] = state.Initialized,
-                ["connections"] = connections,
-                ["queries"] = queries,
-            };
-            return dump.ToJsonString();
-        }
+        public static string DumpState(CoreState state, long atSeq) => CoreStateDump.ToJson(state, atSeq);
     }
 }

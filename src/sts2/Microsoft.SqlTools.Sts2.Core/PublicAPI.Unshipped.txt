@@ -80,6 +80,7 @@ Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.get -> string!
 Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.get -> bool
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreStateDump
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.get -> System.Text.Json.JsonElement
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.init -> void
@@ -216,6 +217,8 @@ static Microsoft.SqlTools.Sts2.Core.CoreOutput.operator ==(Microsoft.SqlTools.St
 static Microsoft.SqlTools.Sts2.Core.CoreState.Initial.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
 static Microsoft.SqlTools.Sts2.Core.CoreState.operator !=(Microsoft.SqlTools.Sts2.Core.CoreState? left, Microsoft.SqlTools.Sts2.Core.CoreState? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.CoreState.operator ==(Microsoft.SqlTools.Sts2.Core.CoreState? left, Microsoft.SqlTools.Sts2.Core.CoreState? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.CoreStateDump.ToJson(Microsoft.SqlTools.Sts2.Core.CoreState! state, long atSeq) -> string!
+static Microsoft.SqlTools.Sts2.Core.CoreStateDump.ToNode(Microsoft.SqlTools.Sts2.Core.CoreState! state, long atSeq) -> System.Text.Json.Nodes.JsonObject!
 static Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.operator !=(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? left, Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.operator ==(Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? left, Microsoft.SqlTools.Sts2.Core.DiagnosticOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.DriverDescriptor.operator !=(Microsoft.SqlTools.Sts2.Core.DriverDescriptor? left, Microsoft.SqlTools.Sts2.Core.DriverDescriptor? right) -> bool

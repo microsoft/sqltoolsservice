@@ -222,9 +222,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                     // wire response carries the live Runtime overlay (SPEC §12.1), mirroring
                     // how capture elision keeps the journal authoritative while the wire is
                     // enriched.
-                    JsonElement? body = encoded.Type == "v2/diagnostics.health" && encoded.Payload is { } core
-                        ? OverlayRuntimeHealth(core)
-                        : encoded.Payload;
+                    JsonElement? body = encoded.Payload;
+                    if (encoded.Payload is { } core)
+                    {
+                        if (encoded.Type == "v2/diagnostics.health")
+                        {
+                            body = OverlayRuntimeHealth(core);
+                        }
+                        else if (encoded.Type == "v2/diagnostics.state")
+                        {
+                            body = OverlayRuntimeState(core);
+                        }
+                    }
                     Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = body });
                     break;
                 }
@@ -313,6 +322,30 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 histogram[entry.Key] = entry.Value;
             }
             obj["recentErrors"] = histogram;
+            return JsonDocument.Parse(obj.ToJsonString()).RootElement;
+        }
+
+        /// <summary>
+        /// Attaches a <c>runtime</c> section to the live state response (SPEC §12.2): the
+        /// driver-handle summaries and config version replay cannot know. The journaled
+        /// state result stays the pure Core dump, so replay state matches it exactly.
+        /// </summary>
+        private JsonElement OverlayRuntimeState(JsonElement coreState)
+        {
+            JsonObject obj = JsonNode.Parse(coreState.GetRawText())!.AsObject();
+            var runtime = new JsonObject
+            {
+                ["configVersion"] = configVersion,
+                ["queueDepth"] = QueueDepth,
+                ["fatal"] = fatalReason is not null,
+            };
+            if (effectRunner is IEffectRunnerDiagnostics diag)
+            {
+                runtime["openLeases"] = diag.OpenLeases;
+                runtime["opensInFlight"] = diag.OpensInFlight;
+                runtime["activeQueryPumps"] = diag.ActiveQueryPumps;
+            }
+            obj["runtime"] = runtime;
             return JsonDocument.Parse(obj.ToJsonString()).RootElement;
         }
 
