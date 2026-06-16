@@ -4,6 +4,8 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -22,14 +24,14 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        private static readonly IReadOnlyDictionary<string, string> TargetDatabaseEngineTypeMap =
+        private static readonly FrozenDictionary<string, string> TargetDatabaseEngineTypeMap =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 [nameof(ScriptDatabaseEngineType.SqlAzure)] = nameof(DatabaseEngineType.SqlAzureDatabase),
                 [nameof(ScriptDatabaseEngineType.SingleInstance)] = nameof(DatabaseEngineType.Standalone)
-            };
+            }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
-        private static readonly IReadOnlyDictionary<string, string> TargetDatabaseEngineEditionMap =
+        private static readonly FrozenDictionary<string, string> TargetDatabaseEngineEditionMap =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 [nameof(ScriptDatabaseEngineEdition.SqlAzureDatabaseEdition)] = nameof(DatabaseEngineEdition.SqlDatabase),
@@ -43,7 +45,10 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 [nameof(ScriptDatabaseEngineEdition.SqlServerExpressEdition)] = nameof(DatabaseEngineEdition.Express),
                 [nameof(ScriptDatabaseEngineEdition.SqlDatabaseEdgeEdition)] = nameof(DatabaseEngineEdition.SqlDatabaseEdge),
                 [nameof(ScriptDatabaseEngineEdition.SqlAzureArcManagedInstanceEdition)] = nameof(DatabaseEngineEdition.SqlAzureArcManagedInstance)
-            };
+            }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+
+        private static readonly ConcurrentDictionary<Type, FrozenSet<string>> EnumNamesCache =
+            new ConcurrentDictionary<Type, FrozenSet<string>>();
 
         private bool disposed = false;
 
@@ -213,15 +218,18 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                             // names match the values STS sends) or the core enums (Common.DatabaseEngineType /
                             // DatabaseEngineEdition, which use different names). When the value already exists in
                             // the target enum it is parsed as-is; otherwise it is mapped to the core enum name.
-                            string enumValue = isDirectEnumName
-                                ? stringValue
-                                : MapEnumValue(optionPropInfo.Name, stringValue);
+                            bool wasMapped = false;
+                            string enumValue = stringValue;
+                            if (!isDirectEnumName)
+                            {
+                                enumValue = MapEnumValue(optionPropInfo.Name, stringValue, out wasMapped);
+                            }
 
                             // If the value still does not match a name on the target enum, log a clear
                             // warning so consumers can identify values (for example newly added SMO
                             // editions) that lack a mapping. Enum.Parse below would otherwise throw and
                             // be swallowed with only a generic message.
-                            if (!isDirectEnumName && !IsDefinedEnumName(advancedOptionPropInfo.PropertyType, enumValue))
+                            if (!isDirectEnumName && !wasMapped && !IsDefinedEnumName(advancedOptionPropInfo.PropertyType, enumValue))
                             {
                                 Logger.Warning(string.Format(
                                     "Option {0} value '{1}' (mapped to '{2}') is not a defined name on enum {3}. A mapping may be missing for a newly added SMO {3} value.",
@@ -267,15 +275,11 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
                 return false;
             }
 
-            foreach (string name in Enum.GetNames(enumType))
-            {
-                if (string.Equals(name, value, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
+            FrozenSet<string> enumNames = EnumNamesCache.GetOrAdd(
+                enumType,
+                type => Enum.GetNames(type).ToFrozenSet(StringComparer.OrdinalIgnoreCase));
 
-            return false;
+            return enumNames.Contains(value);
         }
 
         /// <summary>
@@ -287,21 +291,23 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
         /// emitted as separate ALTER TABLE statements). Unmapped values are returned unchanged.
         /// </summary>
         internal static string MapEnumValue(string propertyName, string value)
+            => MapEnumValue(propertyName, value, out _);
+
+        internal static string MapEnumValue(string propertyName, string value, out bool wasMapped)
         {
             if (propertyName == nameof(ScriptOptions.TargetDatabaseEngineType))
             {
-                return TargetDatabaseEngineTypeMap.TryGetValue(value, out string mappedValue)
-                    ? mappedValue
-                    : value;
+                wasMapped = TargetDatabaseEngineTypeMap.TryGetValue(value, out string mappedValue);
+                return wasMapped ? mappedValue : value;
             }
 
             if (propertyName == nameof(ScriptOptions.TargetDatabaseEngineEdition))
             {
-                return TargetDatabaseEngineEditionMap.TryGetValue(value, out string mappedValue)
-                    ? mappedValue
-                    : value;
+                wasMapped = TargetDatabaseEngineEditionMap.TryGetValue(value, out string mappedValue);
+                return wasMapped ? mappedValue : value;
             }
 
+            wasMapped = false;
             return value;
         }
 
