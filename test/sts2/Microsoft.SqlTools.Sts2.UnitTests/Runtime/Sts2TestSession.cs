@@ -37,12 +37,13 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             EffectRunner = new DriverEffectRunner(new Dictionary<string, IDbDriver> { ["fake"] = Driver }, Secrets);
             Coordinator = new Coordinator(
                 new JournalWriter(runId, new JournalOptions { Directory = directory }, new JournalRunInfo { ServiceVersion = "9.9.9" }),
-                new CoordinatorOptions { RunId = runId, RowCapture = rowCapture, SqlCapture = sqlCapture, MetricSampleEvery = metricSampleEvery },
+                new CoordinatorOptions { RunId = runId, MetricSampleEvery = metricSampleEvery },
                 EffectRunner,
                 Emitted.Enqueue,
                 auxSinks);
-            Coordinator.PostControlAsync("session.start", JsonDocument.Parse("""
-                {"serviceVersion":"9.9.9","drivers":[{"name":"fake","dialects":["neutral","tsql"],"production":false}]}
+            // Capture modes enter through the journaled session.start so replay starts identically.
+            Coordinator.PostControlAsync("session.start", JsonDocument.Parse($$"""
+                {"serviceVersion":"9.9.9","capture":{"row":"{{rowCapture}}","sql":"{{sqlCapture}}"},"drivers":[{"name":"fake","dialects":["neutral","tsql"],"production":false}]}
                 """).RootElement).AsTask().GetAwaiter().GetResult();
         }
 

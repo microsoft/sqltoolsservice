@@ -126,6 +126,9 @@ namespace Microsoft.SqlTools.Sts2.Core
             Initialized = false,
             ServiceVersion = "0.0.0.0",
             MaxConnections = Contracts.Sts2Defaults.MaxConnections,
+            RowCapture = "full",
+            SqlCapture = "text",
+            ConfigVersion = 1,
             Drivers = ImmutableArray<DriverDescriptor>.Empty,
             Connections = ImmutableSortedDictionary<string, ConnectionInfo>.Empty,
             OpenIdToConnectionId = ImmutableSortedDictionary<string, string>.Empty,
@@ -146,6 +149,15 @@ namespace Microsoft.SqlTools.Sts2.Core
 
         /// <summary>Connection limit; configurable via journaled session.start limits.</summary>
         public required int MaxConnections { get; init; }
+
+        /// <summary>Row capture mode (<c>full</c> | <c>digest</c>); seeded by session.start, changed by setCapture (SPEC §8.4).</summary>
+        public required string RowCapture { get; init; }
+
+        /// <summary>SQL capture mode (<c>text</c> | <c>digest</c>); seeded by session.start, changed by setCapture (SPEC §8.4).</summary>
+        public required string SqlCapture { get; init; }
+
+        /// <summary>Monotonic config snapshot version; bumped on each capture change (SPEC §8.4, I15).</summary>
+        public required int ConfigVersion { get; init; }
 
         /// <summary>Drivers available in this composition.</summary>
         public required ImmutableArray<DriverDescriptor> Drivers { get; init; }

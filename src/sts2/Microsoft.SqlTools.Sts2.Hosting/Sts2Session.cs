@@ -145,6 +145,9 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             var sessionStart = new JsonObject
             {
                 ["serviceVersion"] = options.ServiceVersion,
+                // Privacy-preserving capture by default (SPEC §8.4): row cells and SQL are
+                // elided to digests before journaling. Changeable at runtime via setCapture.
+                ["capture"] = new JsonObject { ["row"] = "digest", ["sql"] = "digest" },
                 ["drivers"] = drivers,
             };
             coordinator.PostControlAsync("session.start", ToElement(sessionStart)).AsTask().GetAwaiter().GetResult();
@@ -258,6 +261,9 @@ namespace Microsoft.SqlTools.Sts2.Hosting
 
             [JsonRpcMethod("v2/diagnostics.exportLog", UseSingleObjectParameterDeserialization = true)]
             public Task<JsonElement?> ExportLogAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.exportLog", args);
+
+            [JsonRpcMethod("v2/diagnostics.setCapture", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> SetCaptureAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.setCapture", args);
         }
     }
 }

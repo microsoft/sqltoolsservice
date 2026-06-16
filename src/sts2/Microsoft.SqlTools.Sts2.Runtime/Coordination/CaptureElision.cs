@@ -20,9 +20,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
     /// </summary>
     internal static class CaptureElision
     {
-        /// <summary>Elides capture-sensitive fields of an input payload per the configured modes.</summary>
+        /// <summary>
+        /// Elides capture-sensitive fields of an input payload per the active capture modes
+        /// (read from Core state, so a runtime setCapture takes effect on the next envelope).
+        /// </summary>
         internal static JsonElement? ElideInput(
-            CoordinatorOptions options,
+            string rowCapture,
+            string sqlCapture,
             string kind,
             string type,
             JsonElement? payload,
@@ -33,13 +37,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 return payload;
             }
 
-            bool elideRows = options.RowCapture == "digest"
+            bool elideRows = rowCapture == "digest"
                 && kind == Envelopes.EnvelopeKinds.EffectResponse
                 && type == "driver.queryEvent"
                 && p.TryGetProperty("eventType", out JsonElement et)
                 && et.ValueKind == JsonValueKind.String
                 && et.GetString() == "rows";
-            bool elideSql = options.SqlCapture == "digest"
+            bool elideSql = sqlCapture == "digest"
                 && kind == Envelopes.EnvelopeKinds.RpcInRequest
                 && type == "v2/query.execute";
 

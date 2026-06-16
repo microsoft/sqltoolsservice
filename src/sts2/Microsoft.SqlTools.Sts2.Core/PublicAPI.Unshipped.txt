@@ -7,6 +7,12 @@ const Microsoft.SqlTools.Sts2.Core.QueryPhase.CancelRequested = "cancelRequested
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.Completed = "completed" -> string!
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.Disposed = "disposed" -> string!
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.Running = "running" -> string!
+Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput
+Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Config.get -> System.Text.Json.JsonElement
+Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Config.init -> void
+Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.ConfigChangedOutput(System.Text.Json.JsonElement Config) -> void
+Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Deconstruct(out System.Text.Json.JsonElement Config) -> void
+Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Equals(Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput? other) -> bool
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.ConnectionInfo!
 Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ActiveQueryId.get -> string?
@@ -60,6 +66,8 @@ Microsoft.SqlTools.Sts2.Core.CoreOutput.CoreOutput() -> void
 Microsoft.SqlTools.Sts2.Core.CoreOutput.CoreOutput(Microsoft.SqlTools.Sts2.Core.CoreOutput! original) -> void
 Microsoft.SqlTools.Sts2.Core.CoreState
 Microsoft.SqlTools.Sts2.Core.CoreState.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.CoreState!
+Microsoft.SqlTools.Sts2.Core.CoreState.ConfigVersion.get -> int
+Microsoft.SqlTools.Sts2.Core.CoreState.ConfigVersion.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.Connections.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, Microsoft.SqlTools.Sts2.Core.ConnectionInfo!>!
 Microsoft.SqlTools.Sts2.Core.CoreState.Connections.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.CoreState() -> void
@@ -76,10 +84,14 @@ Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.get -> System.Collec
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.Queries.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, Microsoft.SqlTools.Sts2.Core.QueryInfo!>!
 Microsoft.SqlTools.Sts2.Core.CoreState.Queries.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.RowCapture.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreState.RowCapture.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.get -> string!
 Microsoft.SqlTools.Sts2.Core.CoreState.ServiceVersion.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.get -> bool
 Microsoft.SqlTools.Sts2.Core.CoreState.ShuttingDown.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.SqlCapture.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreState.SqlCapture.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreStateDump
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput
 Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Data.get -> System.Text.Json.JsonElement
@@ -159,6 +171,10 @@ Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Result.get -> System.Text.Json.Json
 Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Result.init -> void
 Microsoft.SqlTools.Sts2.Core.RpcResultOutput.RpcResultOutput(string! Corr, System.Text.Json.JsonElement Result) -> void
 Microsoft.SqlTools.Sts2.Core.Sts2CoreReducer
+override Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput!
+override Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Core.ConnectionInfo.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.ConnectionInfo.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Core.ConnectionInfo.ToString() -> string!
@@ -200,11 +216,14 @@ override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.<Clone>$() -> Microsoft.Sq
 override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Core.RpcResultOutput.ToString() -> string!
+override sealed Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.DiagnosticOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.EffectRequestOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.RpcNotifyOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
 override sealed Microsoft.SqlTools.Sts2.Core.RpcResultOutput.Equals(Microsoft.SqlTools.Sts2.Core.CoreOutput? other) -> bool
+static Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.operator !=(Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput? left, Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput? right) -> bool
+static Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.operator ==(Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput? left, Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.ConnectionInfo.operator !=(Microsoft.SqlTools.Sts2.Core.ConnectionInfo? left, Microsoft.SqlTools.Sts2.Core.ConnectionInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.ConnectionInfo.operator ==(Microsoft.SqlTools.Sts2.Core.ConnectionInfo? left, Microsoft.SqlTools.Sts2.Core.ConnectionInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Core.CoreDecision.operator !=(Microsoft.SqlTools.Sts2.Core.CoreDecision? left, Microsoft.SqlTools.Sts2.Core.CoreDecision? right) -> bool

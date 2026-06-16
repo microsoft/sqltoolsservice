@@ -78,8 +78,6 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
                 new CoordinatorOptions
                 {
                     RunId = scenario.Info.Name,
-                    RowCapture = scenario.RowCapture,
-                    SqlCapture = scenario.SqlCapture,
                 },
                 effectRunner,
                 message =>
@@ -100,6 +98,12 @@ namespace Microsoft.SqlTools.Sts2.Testing.Scenarios
                 var sessionStart = JsonNode.Parse("""
                     {"serviceVersion":"scenario","drivers":[{"name":"fake","dialects":["neutral","tsql"],"production":false}]}
                     """)!.AsObject();
+                // Capture modes are journaled into session.start so replay starts identically.
+                sessionStart["capture"] = new JsonObject
+                {
+                    ["row"] = scenario.RowCapture,
+                    ["sql"] = scenario.SqlCapture,
+                };
                 if (scenario.ConfigLimits is not null)
                 {
                     sessionStart["limits"] = scenario.ConfigLimits.DeepClone();

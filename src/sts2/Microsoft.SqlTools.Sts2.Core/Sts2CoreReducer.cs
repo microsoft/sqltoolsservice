@@ -63,6 +63,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                 "v2/diagnostics.ping" => DecidePing(state, envelope),
                 "v2/diagnostics.health" => DecideHealth(state, envelope),
                 "v2/diagnostics.state" => DecideState(state, envelope),
+                "v2/diagnostics.setCapture" => DecideSetCapture(state, envelope),
                 "v2/diagnostics.exportLog" => DecideExportLog(state, envelope),
                 "v2/connection.open" => DecideConnectionOpen(state, envelope),
                 "v2/connection.cancel" => DecideConnectionCancel(state, envelope),
@@ -119,8 +120,9 @@ namespace Microsoft.SqlTools.Sts2.Core
                 },
                 ["journal"] = new JsonObject
                 {
-                    ["capture"] = "digest",
-                    ["sqlCapture"] = "digest",
+                    ["capture"] = state.RowCapture,
+                    ["sqlCapture"] = state.SqlCapture,
+                    ["configVersion"] = state.ConfigVersion,
                     ["latestSeq"] = envelope.Seq,
                 },
             };
@@ -165,6 +167,41 @@ namespace Microsoft.SqlTools.Sts2.Core
             // never secrets, row cells, or SQL text. The coordinator overlays Runtime handle
             // summaries on the wire response; the journaled result stays pure for replay.
             return new CoreDecision(state, [new RpcResultOutput(envelope.Corr!, Json(CoreStateDump.ToJson(state, envelope.Seq)))]);
+        }
+
+        private static CoreDecision DecideSetCapture(CoreState state, CoreEnvelope envelope)
+        {
+            string corr = envelope.Corr!;
+            string rowCapture = GetString(envelope.Payload, "rowCapture") ?? state.RowCapture;
+            string sqlCapture = GetString(envelope.Payload, "sqlCapture") ?? state.SqlCapture;
+
+            if (rowCapture is not ("full" or "digest"))
+            {
+                return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "rowCapture must be 'full' or 'digest'.");
+            }
+            if (sqlCapture is not ("text" or "digest"))
+            {
+                return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "sqlCapture must be 'text' or 'digest'.");
+            }
+
+            // Idempotent: an unchanged request echoes the current config without bumping the
+            // version or journaling a config.changed (SPEC §11.1).
+            bool unchanged = rowCapture == state.RowCapture && sqlCapture == state.SqlCapture;
+            int newVersion = unchanged ? state.ConfigVersion : state.ConfigVersion + 1;
+            string config = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"rowCapture":{{JsonSerializer.Serialize(rowCapture)}},"sqlCapture":{{JsonSerializer.Serialize(sqlCapture)}},"configVersion":{{newVersion}}}""");
+
+            if (unchanged)
+            {
+                return new CoreDecision(state, [new RpcResultOutput(corr, Json(config))]);
+            }
+
+            CoreState next = state with { RowCapture = rowCapture, SqlCapture = sqlCapture, ConfigVersion = newVersion };
+            return new CoreDecision(next,
+            [
+                new RpcResultOutput(corr, Json(config)),
+                new ConfigChangedOutput(Json(config)),
+            ]);
         }
 
         private static CoreDecision DecideExportLog(CoreState state, CoreEnvelope envelope)
@@ -777,11 +814,25 @@ namespace Microsoft.SqlTools.Sts2.Core
                 maxConnections = maxConn.GetInt32();
             }
 
+            // Initial capture modes enter through the journaled session.start so replay
+            // starts from the same capture state the live run did (SPEC §8.4, I7).
+            string rowCapture = state.RowCapture;
+            string sqlCapture = state.SqlCapture;
+            if (envelope.Payload is { ValueKind: JsonValueKind.Object } capturePayload
+                && capturePayload.TryGetProperty("capture", out JsonElement capture)
+                && capture.ValueKind == JsonValueKind.Object)
+            {
+                rowCapture = GetString(capture, "row") ?? rowCapture;
+                sqlCapture = GetString(capture, "sql") ?? sqlCapture;
+            }
+
             return CoreDecision.StateOnly(state with
             {
                 ServiceVersion = serviceVersion,
                 Drivers = drivers.ToImmutable(),
                 MaxConnections = maxConnections,
+                RowCapture = rowCapture,
+                SqlCapture = sqlCapture,
             });
         }
 

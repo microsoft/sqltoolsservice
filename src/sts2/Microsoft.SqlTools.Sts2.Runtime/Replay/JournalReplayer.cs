@@ -118,6 +118,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                     case EnvelopeKinds.RpcOutNotify:
                     case EnvelopeKinds.EffectRequest:
                     case EnvelopeKinds.Diagnostic:
+                    case EnvelopeKinds.ConfigChanged:
                     {
                         if (pendingOutputs.Count == 0)
                         {
@@ -140,7 +141,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                     }
 
                     default:
-                        break; // metric, config.changed, state.snapshot: not replay-relevant at M1
+                        break; // metric, state.snapshot: journaled-only, not replay-relevant
                 }
             }
 

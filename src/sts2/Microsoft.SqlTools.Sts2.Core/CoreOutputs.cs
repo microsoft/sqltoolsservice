@@ -26,6 +26,13 @@ namespace Microsoft.SqlTools.Sts2.Core
     /// <summary>Journal a diagnostic.</summary>
     public sealed record DiagnosticOutput(string Name, JsonElement Data) : CoreOutput;
 
+    /// <summary>
+    /// Journal a configuration change (SPEC §8.4/§11.1). Core has already applied the new
+    /// config to its state and bumped the version; this output records it in the trace so
+    /// the change is replay-visible (I15) and the Runtime can enact the new capture mode.
+    /// </summary>
+    public sealed record ConfigChangedOutput(JsonElement Config) : CoreOutput;
+
     /// <summary>The reducer's verdict: the next state plus everything to do (SPEC §9.2).</summary>
     public sealed record CoreDecision(CoreState NewState, ImmutableArray<CoreOutput> Outputs)
     {

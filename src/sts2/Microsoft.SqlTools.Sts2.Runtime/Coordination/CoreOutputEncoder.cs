@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 RpcNotifyOutput notify => new EncodedOutput(EnvelopeKinds.RpcOutNotify, notify.Method, null, notify.Params),
                 EffectRequestOutput effect => new EncodedOutput(EnvelopeKinds.EffectRequest, effect.EffectName, effect.EffectId, effect.Args),
                 DiagnosticOutput diagnostic => new EncodedOutput(EnvelopeKinds.Diagnostic, diagnostic.Name, null, diagnostic.Data),
+                ConfigChangedOutput config => new EncodedOutput(EnvelopeKinds.ConfigChanged, "capture", null, config.Config),
                 _ => throw new InvalidOperationException("Unknown CoreOutput type: " + output.GetType().Name),
             };
         }

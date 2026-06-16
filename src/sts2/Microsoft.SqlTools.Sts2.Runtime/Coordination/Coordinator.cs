@@ -43,7 +43,6 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private long emitFaults;
         private long effectFaults;
         private long inputsProcessed;
-        private int configVersion = 1;
         private volatile string? fatalReason;
 
         /// <summary>Creates the coordinator and starts its pump. Takes ownership of <paramref name="journal"/>.</summary>
@@ -111,8 +110,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         /// <summary>The metrics tallies over this session's envelope stream (SPEC §12.3).</summary>
         public MetricsEnvelopeSink Metrics => metrics;
 
-        /// <summary>Current config snapshot version stamped on envelopes (SPEC §8.4).</summary>
-        public int ConfigVersion => configVersion;
+        /// <summary>Current config snapshot version stamped on envelopes (SPEC §8.4), owned by Core state.</summary>
+        public int ConfigVersion => state.ConfigVersion;
 
         /// <summary>Non-null once the pump has faulted fatally; the redacted reason (SPEC §12.1).</summary>
         public string? FatalReason => fatalReason;
@@ -156,7 +155,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             {
                 await foreach (PendingInput input in inputs.Reader.ReadAllAsync().ConfigureAwait(false))
                 {
-                    JsonElement? captured = CaptureElision.ElideInput(options, input.Kind, input.Type, input.Payload, elidedFragments);
+                    // Capture modes come from Core state, so a runtime setCapture applies to
+                    // the next envelope (the state field still holds the pre-decision state).
+                    JsonElement? captured = CaptureElision.ElideInput(
+                        state.RowCapture, state.SqlCapture, input.Kind, input.Type, input.Payload, elidedFragments);
                     Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
                     await JournalAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
 
@@ -254,7 +256,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                     break;
 
                 case EnvelopeKinds.Diagnostic:
-                    break; // journaled; nothing to emit
+                case EnvelopeKinds.ConfigChanged:
+                    break; // journaled; Core already applied the change to its state
 
                 default:
                     throw new InvalidOperationException("Unhandled encoded output kind: " + encoded.Kind);
@@ -282,7 +285,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             Corr = corr,
             Cause = cause,
             Type = type,
-            ConfigVersion = configVersion,
+            ConfigVersion = state.ConfigVersion,
             Digest = CanonicalJson.DigestOf(payload ?? NullElement),
             Payload = payload,
         };
@@ -296,7 +299,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private JsonElement OverlayRuntimeHealth(JsonElement coreHealth)
         {
             JsonObject obj = JsonNode.Parse(coreHealth.GetRawText())!.AsObject();
-            obj["configVersion"] = configVersion;
+            obj["configVersion"] = state.ConfigVersion;
             obj["queueDepth"] = QueueDepth;
             obj["fatal"] = fatalReason is not null;
             if (fatalReason is not null)
@@ -335,7 +338,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             JsonObject obj = JsonNode.Parse(coreState.GetRawText())!.AsObject();
             var runtime = new JsonObject
             {
-                ["configVersion"] = configVersion,
+                ["configVersion"] = state.ConfigVersion,
                 ["queueDepth"] = QueueDepth,
                 ["fatal"] = fatalReason is not null,
             };
@@ -376,7 +379,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         private static bool IsFlushPoint(string kind) =>
             kind is EnvelopeKinds.RpcOutResult or EnvelopeKinds.RpcOutError
-                 or EnvelopeKinds.Diagnostic or EnvelopeKinds.Control;
+                 or EnvelopeKinds.Diagnostic or EnvelopeKinds.Control or EnvelopeKinds.ConfigChanged;
 
         private void Emit(OutboundRpcMessage message)
         {

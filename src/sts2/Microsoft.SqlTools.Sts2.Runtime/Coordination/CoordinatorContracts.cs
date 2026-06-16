@@ -22,16 +22,6 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         public int QueueCapacity { get; init; } = 1024;
 
         /// <summary>
-        /// Row capture (SPEC §8.4): <c>full</c> journals row cells inline (test default);
-        /// <c>digest</c> replaces them with an authoritative-digest wrapper before
-        /// journaling — the wire still carries full rows via emission substitution.
-        /// </summary>
-        public string RowCapture { get; init; } = "full";
-
-        /// <summary>SQL capture (SPEC §8.4): <c>text</c> journals SQL inline; <c>digest</c> elides it the same way.</summary>
-        public string SqlCapture { get; init; } = "text";
-
-        /// <summary>
         /// Journal a <c>metric</c> snapshot envelope every N processed inputs (SPEC §12.3).
         /// 0 (default) disables metric journaling — the live metrics channel and health
         /// still report counts. The cadence is counted in inputs, so it is deterministic
