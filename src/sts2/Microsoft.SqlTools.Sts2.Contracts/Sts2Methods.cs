@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.Sts2.Contracts
             new() { Name = "v2/diagnostics.health", Kind = "request", Summary = "Counters, active connections/queries, fatal status, config version.", Milestone = "M6" },
             new() { Name = "v2/diagnostics.state", Kind = "request", Summary = "Redacted state snapshot: connection/query ids, phases, counters.", Milestone = "M6" },
             new() { Name = "v2/diagnostics.exportLog", Kind = "request", Summary = "Produce a redacted export bundle (zip with manifest, privacy report, journals, generated docs).", Milestone = "M6" },
-            new() { Name = "v2/diagnostics.setCapture", Kind = "request", Summary = "Change capture mode at runtime; journaled config change.", Milestone = "M4" },
+            new() { Name = "v2/diagnostics.setCapture", Kind = "request", Summary = "Change capture mode at runtime; journals a config.changed and bumps configVersion.", Milestone = "M7" },
             new() { Name = "v2/fatal", Kind = "server notification", Summary = "STS2 crash containment notice with redacted summary and journal path.", Milestone = "M0" },
         ];
     }

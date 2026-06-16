@@ -86,9 +86,12 @@ namespace Microsoft.SqlTools.Sts2.Testing
             sb.Append("| payloadMeta | any? | redaction/elision metadata |\n");
 
             sb.Append("\n## Kinds\n\n");
+            sb.Append("Whether each kind is emitted in v2.0, and by what. \"Reserved\" kinds are part of the closed schema (SPEC §8.1) but are not produced in v2.0; they are listed so the schema is honest about what a trace can actually contain.\n\n");
+            sb.Append("| Kind | Status | Emitted by |\n|---|---|---|\n");
             foreach (string kind in EnvelopeKinds.All.OrderBy(k => k, StringComparer.Ordinal))
             {
-                sb.Append("- `").Append(kind).Append("`\n");
+                (string status, string by) = KindEmission(kind);
+                sb.Append("| `").Append(kind).Append("` | ").Append(status).Append(" | ").Append(by).Append(" |\n");
             }
 
             sb.Append("\n## Redaction markers\n\n");
@@ -97,6 +100,27 @@ namespace Microsoft.SqlTools.Sts2.Testing
             sb.Append("Canonical payload form: UTF-8, ordinal-sorted keys, no insignificant whitespace, number tokens verbatim (D-0007).\n");
             return sb.ToString();
         }
+
+        /// <summary>Emission status of one envelope kind in v2.0 (SPEC §8.1, §18.10 honesty).</summary>
+        private static (string Status, string By) KindEmission(string kind) => kind switch
+        {
+            EnvelopeKinds.RpcInRequest => ("emitted", "inbound JSON-RPC requests (coordinator)"),
+            EnvelopeKinds.RpcInNotify => ("emitted", "inbound JSON-RPC notifications (coordinator)"),
+            EnvelopeKinds.RpcOutResult => ("emitted", "Core results (rpc.out.result)"),
+            EnvelopeKinds.RpcOutError => ("emitted", "Core errors (rpc.out.error)"),
+            EnvelopeKinds.RpcOutNotify => ("emitted", "Core notifications (query.rows, query.complete, ...)"),
+            EnvelopeKinds.EffectRequest => ("emitted", "Core effect requests (driver.*, diag.export)"),
+            EnvelopeKinds.EffectResponse => ("emitted", "effect-runner observations (driver.queryEvent, ...)"),
+            EnvelopeKinds.Control => ("emitted", "session.start, lifecycle.shutdown/exit"),
+            EnvelopeKinds.Diagnostic => ("emitted", "Core diagnostics (core.unexpectedInput)"),
+            EnvelopeKinds.ConfigChanged => ("emitted", "setCapture (config change, I15)"),
+            EnvelopeKinds.Metric => ("emitted (opt-in)", "coordinator metric snapshots when MetricSampleEvery > 0; the live metrics channel always tallies"),
+            EnvelopeKinds.Command => ("reserved", "no internal command bus in v2.0"),
+            EnvelopeKinds.Event => ("reserved", "query events travel as effect.res (driver.queryEvent), not evt"),
+            EnvelopeKinds.TimerDue => ("reserved", "open/close timeouts run inside the effect runner, not as journaled timers"),
+            EnvelopeKinds.StateSnapshot => ("reserved", "replay-shortcut snapshot optimization, not produced in v2.0"),
+            _ => ("reserved", "-"),
+        };
 
         /// <summary>INVARIANTS.md: I1-I16 with their enforcement points.</summary>
         public static string Invariants()
@@ -117,7 +141,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
                 ("I12", "JSON-RPC error shape", "Response errors have numeric error.code and stable error.data.code.", "CoordinatorTests.UnknownMethodJournalsAndEmitsStableError, MultiplexerContainmentTests"),
                 ("I13", "Multiplexer id rewrite", "Server-initiated request ids cannot collide across legacy and STS2; responses restore original ids.", "MultiplexerIdRewriteTests"),
                 ("I14", "Lifecycle mirroring", "shutdown and exit flush STS2 without duplicate legacy shutdown responses.", "MultiplexerLifecycleTests, StdioE2ETests"),
-                ("I15", "Config traceability", "Every effective config change is journaled and visible in replayed state.", "config.changed envelopes (M3)"),
+                ("I15", "Config traceability", "Every effective config change is journaled and visible in replayed state.", "SetCaptureTests (config.changed + replay-visible configVersion)"),
                 ("I16", "State redaction", "diagnostics.state and replay state dumps contain no secrets, row cells, or SQL text unless explicitly permitted.", "ReplayTests.StateDumpIsDeterministicOrderedJson (M3 widens)"),
             ];
 

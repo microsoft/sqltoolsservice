@@ -23,7 +23,7 @@ Spec version: `2.0.0-preview.1`. Method prefix: `v2/`.
 | `v2/diagnostics.health` | request | M6 | Counters, active connections/queries, fatal status, config version. |
 | `v2/diagnostics.state` | request | M6 | Redacted state snapshot: connection/query ids, phases, counters. |
 | `v2/diagnostics.exportLog` | request | M6 | Produce a redacted export bundle (zip with manifest, privacy report, journals, generated docs). |
-| `v2/diagnostics.setCapture` | request | M4 | Change capture mode at runtime; journaled config change. |
+| `v2/diagnostics.setCapture` | request | M7 | Change capture mode at runtime; journals a config.changed and bumps configVersion. |
 | `v2/fatal` | server notification | M0 | STS2 crash containment notice with redacted summary and journal path. |
 
 ## Stable error codes (`error.data.code`)

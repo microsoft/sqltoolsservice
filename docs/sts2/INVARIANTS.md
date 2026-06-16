@@ -91,7 +91,7 @@ shutdown and exit flush STS2 without duplicate legacy shutdown responses.
 
 Every effective config change is journaled and visible in replayed state.
 
-*Exercised by:* config.changed envelopes (M3)
+*Exercised by:* SetCaptureTests (config.changed + replay-visible configVersion)
 
 ## I16 — State redaction
 

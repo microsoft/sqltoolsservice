@@ -21,21 +21,25 @@ Envelope schema id: `sts2.envelope/1` (SPEC §8.1). Journal lines are single-lin
 
 ## Kinds
 
-- `cmd`
-- `config.changed`
-- `control`
-- `diag`
-- `effect.req`
-- `effect.res`
-- `evt`
-- `metric`
-- `rpc.in.notify`
-- `rpc.in.request`
-- `rpc.out.error`
-- `rpc.out.notify`
-- `rpc.out.result`
-- `state.snapshot`
-- `timer.due`
+Whether each kind is emitted in v2.0, and by what. "Reserved" kinds are part of the closed schema (SPEC §8.1) but are not produced in v2.0; they are listed so the schema is honest about what a trace can actually contain.
+
+| Kind | Status | Emitted by |
+|---|---|---|
+| `cmd` | reserved | no internal command bus in v2.0 |
+| `config.changed` | emitted | setCapture (config change, I15) |
+| `control` | emitted | session.start, lifecycle.shutdown/exit |
+| `diag` | emitted | Core diagnostics (core.unexpectedInput) |
+| `effect.req` | emitted | Core effect requests (driver.*, diag.export) |
+| `effect.res` | emitted | effect-runner observations (driver.queryEvent, ...) |
+| `evt` | reserved | query events travel as effect.res (driver.queryEvent), not evt |
+| `metric` | emitted (opt-in) | coordinator metric snapshots when MetricSampleEvery > 0; the live metrics channel always tallies |
+| `rpc.in.notify` | emitted | inbound JSON-RPC notifications (coordinator) |
+| `rpc.in.request` | emitted | inbound JSON-RPC requests (coordinator) |
+| `rpc.out.error` | emitted | Core errors (rpc.out.error) |
+| `rpc.out.notify` | emitted | Core notifications (query.rows, query.complete, ...) |
+| `rpc.out.result` | emitted | Core results (rpc.out.result) |
+| `state.snapshot` | reserved | replay-shortcut snapshot optimization, not produced in v2.0 |
+| `timer.due` | reserved | open/close timeouts run inside the effect runner, not as journaled timers |
 
 ## Redaction markers
 
