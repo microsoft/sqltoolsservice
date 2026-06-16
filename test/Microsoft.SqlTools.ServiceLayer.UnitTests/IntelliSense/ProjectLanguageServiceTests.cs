@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -1792,6 +1793,134 @@ END
                     $"Unbracketed occurrences in {kvp.Key} should be renamed to plain '{newName}', " +
                     $"but got: {string.Join(", ", kvp.Value.Select(e => e.NewText))}");
             }
+        }
+
+        // ── Refactorlog content generation ───────────────────────────────────
+        // The rename response carries the full .refactorlog document with the new Rename Refactor
+        // operation appended. Verify that supplying ExistingRefactorLogContent produces a valid
+        // document whose appended operation has the expected ElementType/ElementName/NewName.
+
+        [Test]
+        public async Task HandleRenameRequest_AppendsRenameOperationToExistingRefactorLog()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string newName = "Clients";
+
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            // A pre-existing .refactorlog with one unrelated operation already recorded.
+            var existingDoc = new XDocument(
+                new XDeclaration("1.0", "utf-8", null),
+                new XElement(ns + "Operations",
+                    new XAttribute("Version", "1.0"),
+                    new XElement(ns + "Operation",
+                        new XAttribute("Name", "Rename Refactor"),
+                        new XAttribute("Key", Guid.NewGuid().ToString()),
+                        new XAttribute("ChangeDateTime", "01/01/2020 00:00:00"),
+                        new XElement(ns + "Property",
+                            new XAttribute("Name", "ElementName"),
+                            new XAttribute("Value", "[dbo].[Orders]")))));
+            string existingRefactorLog = existingDoc.Declaration + Environment.NewLine + existingDoc.ToString();
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = newName,
+                    ExistingRefactorLogContent = existingRefactorLog
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "SqlSymbolRenameResponse should not be null");
+            Assert.That(result.NewName, Is.EqualTo(newName));
+            Assert.That(result.RefactorLogContent, Is.Not.Null.And.Not.Empty,
+                "RefactorLogContent should be populated for a schema-level table rename");
+
+            // The returned content must be valid XML rooted at the Operations element.
+            XDocument doc = XDocument.Parse(result.RefactorLogContent);
+            Assert.That(doc.Root?.Name, Is.EqualTo(ns + "Operations"),
+                "Refactorlog root should be the Operations element");
+
+            var operations = doc.Root.Elements(ns + "Operation").ToList();
+            Assert.That(operations.Count, Is.EqualTo(2),
+                "The pre-existing operation should be preserved and the new rename appended");
+
+            // The newly appended operation describes the Customers → Clients table rename.
+            XElement appended = operations.Last();
+            string PropertyValue(string name) => appended.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That((string)appended.Attribute("Name"), Is.EqualTo("Rename Refactor"));
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlTable"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(PropertyValue("ParentElementType"), Is.EqualTo("SqlSchema"));
+            Assert.That(PropertyValue("ParentElementName"), Is.EqualTo("[dbo]"));
+            Assert.That(PropertyValue("NewName"), Is.EqualTo(newName));
+        }
+
+        // ── TryGetRefactorInfo: refactorlog element-type resolution ──────────────
+        // The client uses these fields to write a Rename Refactor operation into the
+        // .refactorlog. A schema-level object resolves to its Sql* type with a SqlSchema
+        // parent; a column resolves to SqlSimpleColumn with its owning SqlTable parent.
+
+        [Test]
+        public void TryGetRefactorInfo_SchemaLevelTable_ReturnsSqlTableWithSchemaParent()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.Customers", "Customers",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.True, "A schema-level table should resolve refactor info");
+            Assert.That(elementName, Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(elementType, Is.EqualTo("SqlTable"));
+            Assert.That(parentElementName, Is.EqualTo("[dbo]"));
+            Assert.That(parentElementType, Is.EqualTo("SqlSchema"));
+        }
+
+        [Test]
+        public void TryGetRefactorInfo_Column_ReturnsSqlSimpleColumnWithTableParent()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            // "CustomerName" is a column on dbo.Customers, not a schema-level object,
+            // so Case 1 misses and the column scan (Case 2) resolves it. The production call site
+            // passes the resolved schema.table.column name, so exercise that qualified path here.
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.Customers.CustomerName", "CustomerName",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.True, "A table column should resolve refactor info");
+            Assert.That(elementName, Is.EqualTo("[dbo].[Customers].[CustomerName]"));
+            Assert.That(elementType, Is.EqualTo("SqlSimpleColumn"));
+            Assert.That(parentElementName, Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(parentElementType, Is.EqualTo("SqlTable"));
+        }
+
+        [Test]
+        public void TryGetRefactorInfo_UnknownSymbol_ReturnsFalse()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.DoesNotExist", "DoesNotExist",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.False, "An unknown symbol should not resolve refactor info");
+            Assert.That(elementName, Is.Null);
+            Assert.That(elementType, Is.Null);
+            Assert.That(parentElementName, Is.Null);
+            Assert.That(parentElementType, Is.Null);
         }
 
     }

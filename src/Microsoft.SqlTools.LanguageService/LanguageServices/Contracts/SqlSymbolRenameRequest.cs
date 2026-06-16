@@ -29,6 +29,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
     {
         /// <summary>The new name typed by the user in the rename input box.</summary>
         public string NewName { get; set; }
+
+        /// <summary>
+        /// Current content of the project's <c>.refactorlog</c> file, or <see langword="null"/>/empty
+        /// if the project does not have one yet. The server appends the new rename operation to this
+        /// content and returns the full document in <see cref="SqlSymbolRenameResponse.RefactorLogContent"/>.
+        /// </summary>
+        public string ExistingRefactorLogContent { get; set; }
     }
 
     /// <summary>
@@ -43,12 +50,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         public Dictionary<string, List<TextEdit>> Changes { get; set; }
 
         /// <summary>
-        /// The original (unbracketed) element name at the cursor position.
-        /// Used by the client to write the <c>.refactorlog</c> entry.
+        /// Full content of the <c>.refactorlog</c> file with the new rename operation appended,
+        /// ready for the client to write. Null when the renamed symbol does not require a
+        /// <c>.refactorlog</c> entry (e.g. the element type could not be determined).
         /// </summary>
-        public string ElementName { get; set; }
+        public string RefactorLogContent { get; set; }
 
-        /// <summary>The new name as echoed back from the request.</summary>
+        /// <summary>
+        /// The new name as echoed back from the request.
+        /// </summary>
         public string NewName { get; set; }
     }
 }

@@ -1703,123 +1703,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // below stay here because they need the LanguageService workspace and binding state.
 
         /// <summary>
-        /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
-        /// under the cursor is referenced across the project.  Only supported for project files
-        /// (offline model); returns an empty result for connected-only scripts.
-        /// </summary>
-        internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
-        {
-            var locations = FindProjectSymbolLocations(
-                referencesParams.TextDocument.Uri,
-                referencesParams.Position.Line,
-                referencesParams.Position.Character);
-
-            await requestContext.SendResult(locations ?? Array.Empty<Location>());
-        }
-
-        /// <summary>
-        /// Handles <c>sql/rename</c> — finds all occurrences of the symbol at the cursor
-        /// using <see cref="FindProjectSymbolLocations"/>, returns a <see cref="SqlSymbolRenameResponse"/>
-        /// with both the WorkspaceEdit and the element name so the client can append a
-        /// <c>.refactorlog</c> entry after the user confirms the preview.
-        /// </summary>
-        internal async Task HandleSqlRenameRequest(
-            SqlSymbolRenameParams renameParams,
-            RequestContext<SqlSymbolRenameResponse> requestContext)
-        {
-            var locations = FindProjectSymbolLocations(
-                renameParams.TextDocument.Uri,
-                renameParams.Position.Line,
-                renameParams.Position.Character);
-
-            if (locations == null || locations.Length == 0)
-            {
-                await requestContext.SendResult(null);
-                return;
-            }
-
-            string elementName = GetTokenTextAtPosition(
-                renameParams.TextDocument.Uri,
-                renameParams.Position.Line,
-                renameParams.Position.Character);
-
-            var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
-
-            // Cache line lookups so each candidate file is read at most once, regardless of how
-            // many occurrences it contains.
-            var lineCache = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
-            foreach (var loc in locations)
-            {
-                if (!changes.TryGetValue(loc.Uri, out var edits))
-                    changes[loc.Uri] = edits = new List<TextEdit>();
-
-                // Preserve bracket-quoting style: if the original span was bracket-quoted,
-                // wrap the new name in brackets too.  Extended-property names sit inside string
-                // literals (the neighbouring characters are quotes, not brackets) so they are
-                // rewritten verbatim.  Works for both open files (workspace buffer) and project
-                // files discovered via the dependency graph that are not open (read from disk).
-                string newText = renameParams.NewName;
-                try
-                {
-                    string lineText = GetSourceLine(loc.Uri, loc.Range.Start.Line, lineCache);
-                    newText = TextUtilities.ApplyBracketQuoting(
-                        lineText,
-                        loc.Range.Start.Character,
-                        loc.Range.End.Character,
-                        renameParams.NewName);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Verbose($"HandleSqlRenameRequest: bracket-quoting detection failed for '{loc.Uri}': {ex.Message}");
-                    /* fall through — use unbracketed newText */
-                }
-
-                edits.Add(new TextEdit { Range = loc.Range, NewText = newText });
-            }
-
-            await requestContext.SendResult(new SqlSymbolRenameResponse
-            {
-                Changes = changes,
-                ElementName = elementName,
-                NewName = renameParams.NewName
-            });
-        }
-
-        /// <summary>
-        /// Returns the source text of a single 0-based line for the given file URI.  Prefers the
-        /// in-memory workspace buffer (so unsaved edits are honoured) and falls back to reading the
-        /// file from disk for project files that are not open in the editor.  Results are cached in
-        /// <paramref name="lineCache"/> so each file is read at most once per request.
-        /// </summary>
-        private string GetSourceLine(string fileUri, int line0, Dictionary<string, string[]> lineCache)
-        {
-            if (!lineCache.TryGetValue(fileUri, out string[] lines))
-            {
-                string contents = CurrentWorkspace.GetFile(fileUri)?.Contents;
-                if (contents != null)
-                {
-                    lines = contents.Split('\n');
-                }
-                else
-                {
-                    string localPath = new Uri(fileUri).LocalPath;
-                    lines = File.Exists(localPath) ? File.ReadAllLines(localPath) : Array.Empty<string>();
-                }
-                lineCache[fileUri] = lines;
-            }
-
-            return (line0 >= 0 && line0 < lines.Length) ? lines[line0].TrimEnd('\r') : null;
-        }
-
-        /// <summary>
         /// Core resolution logic for <see cref="HandleReferencesRequest"/> and
         /// <see cref="HandleSqlRenameRequest"/>.  Resolves every <see cref="Location"/> in the
         /// project that matches the symbol at the given cursor position.
         /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
         /// project file.  Returns an empty array when the symbol could not be resolved.
         /// </summary>
-        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+        /// <param name="qualifiedNameOut">The resolved schema-qualified name (e.g. "dbo.Customers") used for refactorlog lookup; null on failure.</param>
+        /// <param name="providerOut">The <see cref="TSqlModelMetadataProvider"/> resolved for the project; null on failure.</param>
+        /// <param name="tokenTextOut">The bare (unbracketed) token text at the cursor; null on failure.</param>
+        internal Location[] FindProjectSymbolLocations(
+            string fileUri, int line0, int col0,
+            out string qualifiedNameOut,
+            out TSqlModelMetadataProvider providerOut,
+            out string tokenTextOut)
         {
+            qualifiedNameOut = null;
+            providerOut      = null;
+            tokenTextOut     = null;
+
             if (ShouldSkipIntellisense(fileUri))
                 return null;
 
@@ -1831,9 +1733,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (scriptParseInfo == null || !scriptParseInfo.IsProject)
                 return null;
 
-            // Ensure the DacFx model and binding context for this project are current so the
-            // metadata provider can be resolved below.  (This is model binding, not position
-            // parsing — the cursor position is resolved with ScriptDom further down.)
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
@@ -1903,7 +1802,147 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
             }
 
+            qualifiedNameOut = qualifiedName;
+            providerOut      = provider;
+            tokenTextOut     = tokenText;
             return results.ToArray();
+        }
+
+        // Overload for callers that only need the locations (references handler, tests).
+        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+            => FindProjectSymbolLocations(fileUri, line0, col0, out _, out _, out _);
+
+        /// <summary>
+        /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
+        /// under the cursor is referenced across the project.  Only supported for project files
+        /// (offline model); returns an empty result for connected-only scripts.
+        /// </summary>
+        internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                referencesParams.TextDocument.Uri,
+                referencesParams.Position.Line,
+                referencesParams.Position.Character);
+
+            await requestContext.SendResult(locations ?? Array.Empty<Location>());
+        }
+
+        /// <summary>
+        /// Handles <c>sql/rename</c> — finds all occurrences of the symbol at the cursor
+        /// using <see cref="FindProjectSymbolLocations"/>, returns a <see cref="SqlSymbolRenameResponse"/>
+        /// with both the WorkspaceEdit and the element name so the client can append a
+        /// <c>.refactorlog</c> entry after the user confirms the preview.
+        /// </summary>
+        internal async Task HandleSqlRenameRequest(
+            SqlSymbolRenameParams renameParams,
+            RequestContext<SqlSymbolRenameResponse> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                renameParams.TextDocument.Uri,
+                renameParams.Position.Line,
+                renameParams.Position.Character,
+                out string qualifiedName,
+                out TSqlModelMetadataProvider provider,
+                out string tokenText);
+
+            if (locations == null || locations.Length == 0)
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
+
+            // Cache line lookups so each candidate file is read at most once, regardless of how
+            // many occurrences it contains.
+            var lineCache = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+            foreach (var loc in locations)
+            {
+                if (!changes.TryGetValue(loc.Uri, out var edits))
+                    changes[loc.Uri] = edits = new List<TextEdit>();
+
+                // Preserve bracket-quoting style: if the original span was bracket-quoted,
+                // wrap the new name in brackets too.  Extended-property names sit inside string
+                // literals (the neighbouring characters are quotes, not brackets) so they are
+                // rewritten verbatim.  Works for both open files (workspace buffer) and project
+                // files discovered via the dependency graph that are not open (read from disk).
+                string newText = renameParams.NewName;
+                try
+                {
+                    string lineText = GetSourceLine(loc.Uri, loc.Range.Start.Line, lineCache);
+                    newText = TextUtilities.ApplyBracketQuoting(
+                        lineText,
+                        loc.Range.Start.Character,
+                        loc.Range.End.Character,
+                        renameParams.NewName);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Verbose($"HandleSqlRenameRequest: bracket-quoting detection failed for '{loc.Uri}': {ex.Message}");
+                    /* fall through — use unbracketed newText */
+                }
+
+                edits.Add(new TextEdit { Range = loc.Range, NewText = newText });
+            }
+
+            // Resolve refactorlog metadata using the qualifiedName and provider already resolved
+            // during the location scan — no extra model round-trip needed — then build the full
+            // .refactorlog document so the client only has to write the returned content.
+            string refactorElementName = null, refactorElementType = null;
+            string refactorParentName  = null, refactorParentType  = null;
+            if (provider != null && qualifiedName != null)
+            {
+                provider.TryGetRefactorInfo(
+                    qualifiedName, tokenText,
+                    out refactorElementName, out refactorElementType,
+                    out refactorParentName,  out refactorParentType);
+            }
+
+            // Only objects with a resolved element type (table, column, etc.) need a refactorlog entry.
+            string refactorLogContent = null;
+            if (refactorElementType != null)
+            {
+                refactorLogContent = RefactorLogGenerator.GenerateRenameDocument(
+                    renameParams.ExistingRefactorLogContent,
+                    refactorElementName,
+                    refactorElementType,
+                    refactorParentName,
+                    refactorParentType,
+                    renameParams.NewName);
+            }
+
+            await requestContext.SendResult(new SqlSymbolRenameResponse
+            {
+                Changes            = changes,
+                RefactorLogContent = refactorLogContent,
+                NewName            = renameParams.NewName
+            });
+        }
+
+        /// <summary>
+        /// Returns the source text of a single 0-based line for the given file URI.  Prefers the
+        /// in-memory workspace buffer (so unsaved edits are honoured) and falls back to reading the
+        /// file from disk for project files that are not open in the editor.  Results are cached in
+        /// <paramref name="lineCache"/> so each file is read at most once per request.
+        /// </summary>
+        private string GetSourceLine(string fileUri, int line0, Dictionary<string, string[]> lineCache)
+        {
+            if (!lineCache.TryGetValue(fileUri, out string[] lines))
+            {
+                string contents = CurrentWorkspace.GetFile(fileUri)?.Contents;
+                if (contents != null)
+                {
+                    lines = contents.Split('\n');
+                }
+                else
+                {
+                    string localPath = new Uri(fileUri).LocalPath;
+                    lines = File.Exists(localPath) ? File.ReadAllLines(localPath) : Array.Empty<string>();
+                }
+                lineCache[fileUri] = lines;
+            }
+
+            return (line0 >= 0 && line0 < lines.Length) ? lines[line0].TrimEnd('\r') : null;
         }
 
         /// <summary>
