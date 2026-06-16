@@ -593,23 +593,24 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 return true;
             }
 
-            // ── Case 2: column — scan tables for a child column matching lastNamePart ─
-            if (string.IsNullOrEmpty(lastNamePart)) return false;
+            // ── Case 2: column — resolve via FindColumns, preferring the qualified name ─
+            // Match on the resolved qualifiedName first (e.g. "dbo.Customers.CustomerName") so the
+            // correct column is selected even when its short name is shared across tables (e.g. "Id");
+            // only fall back to the bare lastNamePart when the qualified lookup finds nothing.
+            TSqlObject? col = null;
+            if (!string.IsNullOrEmpty(qualifiedName))
+                col = FindColumns(qualifiedName).FirstOrDefault();
+            if (col == null && !string.IsNullOrEmpty(lastNamePart))
+                col = FindColumns(lastNamePart).FirstOrDefault();
 
-            foreach (TSqlObject table in _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table))
+            if (col?.Name?.Parts != null && col.Name.Parts.Count >= 2)
             {
-                foreach (TSqlObject col in table.GetReferenced(Table.Columns))
-                {
-                    if (col.Name?.Parts == null || col.Name.Parts.Count == 0) continue;
-                    string colShortName = col.Name.Parts[col.Name.Parts.Count - 1];
-                    if (!string.Equals(colShortName, lastNamePart, StringComparison.OrdinalIgnoreCase)) continue;
-
-                    elementName       = BracketParts(col.Name.Parts);
-                    elementType       = "SqlSimpleColumn";
-                    parentElementName = BracketParts(table.Name.Parts);
-                    parentElementType = "SqlTable";
-                    return true;
-                }
+                elementName       = BracketParts(col.Name.Parts);
+                elementType       = "SqlSimpleColumn";
+                // Parent is the owning table (all parts except the column name).
+                parentElementName = BracketParts(col.Name.Parts, skipLast: 1);
+                parentElementType = "SqlTable";
+                return true;
             }
 
             return false;
@@ -622,7 +623,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             int take = parts.Count - skipLast;
             if (take <= 0) return string.Empty;
-            return string.Join(".", parts.Take(take).Select(p => $"[{p}]"));
+            // SQL bracket quoting requires a literal "]" inside an identifier to be escaped as "]]".
+            return string.Join(".", parts.Take(take).Select(p => $"[{p.Replace("]", "]]")}]"));
         }
 
         /// <summary>Maps a DacFx <see cref="ModelTypeClass"/> to the refactorlog element type string for schema-level objects.</summary>

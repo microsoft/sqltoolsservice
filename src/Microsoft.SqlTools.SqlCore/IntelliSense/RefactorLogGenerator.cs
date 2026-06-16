@@ -90,11 +90,19 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             if (!string.IsNullOrWhiteSpace(existingContent))
             {
-                XDocument existing = XDocument.Parse(existingContent);
-
-                if (existing.Root != null && existing.Root.Name == RefactorNamespace + OperationsElement)
+                try
                 {
-                    return existing;
+                    XDocument existing = XDocument.Parse(existingContent);
+
+                    if (existing.Root != null && existing.Root.Name == RefactorNamespace + OperationsElement)
+                    {
+                        return existing;
+                    }
+                }
+                catch (System.Xml.XmlException)
+                {
+                    // The supplied .refactorlog content is missing, truncated, or otherwise invalid
+                    // XML. Fall through and create a fresh document rather than failing the rename.
                 }
             }
 
