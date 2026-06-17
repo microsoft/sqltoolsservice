@@ -490,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted)
+        internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string? sqlTextOverride = null)
         {
             if (!projectIntelliSense.TryGetValue(projectUri, out var state)) return;
             try
@@ -498,8 +498,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
                 if (!deleted)
                 {
-                    if (!File.Exists(sourceName)) return;
-                    string sqlText = await File.ReadAllTextAsync(sourceName).ConfigureAwait(false);
+                    string? sqlText = sqlTextOverride ?? (File.Exists(sourceName)
+                        ? await File.ReadAllTextAsync(sourceName).ConfigureAwait(false)
+                        : null);
+                    if (sqlText == null) return;
                     if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
                     state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
                 }

@@ -128,13 +128,20 @@ steps:
 
 - pwsh: |
     $ProgressPreference = 'SilentlyContinue'
-    Invoke-WebRequest -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
+    # Key information
+    # * https://docs.codecov.com/docs/secure-credential-transmission
+    # * https://github.com/codecov/codecov-action/issues/1956
+
+    # Download public key from key server
+    Invoke-WebRequest -Uri https://keybase.io/codecovsecops/pgp_keys.asc -OutFile codecov.asc
     gpg.exe --import codecov.asc
 
+    # Download the Codecov CLI
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM -Outfile codecov.exe.SHA256SUM
     Invoke-WebRequest -Uri https://cli.codecov.io/latest/windows/codecov.exe.SHA256SUM.sig -Outfile codecov.exe.SHA256SUM.sig
 
+    # Verify the hash of the downloaded Codecov CLI
     gpg.exe --verify codecov.exe.SHA256SUM.sig codecov.exe.SHA256SUM
     If ($(Compare-Object -ReferenceObject  $(($(certUtil -hashfile codecov.exe SHA256)[1], "codecov.exe") -join "  ") -DifferenceObject $(Get-Content codecov.exe.SHA256SUM)).length -eq 0) {
         echo "codecov.exe SHASUM verified"
@@ -143,6 +150,8 @@ steps:
     }
 
     # For configuring CODECOV_TOKEN see 'Prerequisites' section above
+
+    # Upload the code coverage report to CodeCov
     .\codecov.exe --verbose upload-process -C $(Build.SourceVersion) -t $(CODECOV_TOKEN) -f "$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml" --disable-search
   displayName: Upload Code coverage report to CodeCov
 
