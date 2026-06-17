@@ -11,7 +11,7 @@ After this, launching a debug session of the MSSQL extension uses your local STS
 ## When to use
 
 - The user just built STS (or asks you to) and wants to test it in the MSSQL extension.
-- The user says "use my local STS in MSSQL", "point MSSQL at local STS", "hook up local STS", "set `MSSQL_SQLTOOLSSERVICE`, or "set the STS env var".
+- The user says "use my local STS in MSSQL", "point MSSQL at local STS", "hook up local STS", "set `MSSQL_SQLTOOLSSERVICE`", or "set the STS env var".
 - The MSSQL repo may or may not be in the same workspace as STS; this skill handles both cases.
 
 ## Prerequisite
@@ -87,7 +87,7 @@ Reference for the env var:
 
 1. Resolve the exact path you wrote and confirm it exists:
    ```pwsh
-   Test-Path "<the configured absolute path>\MicrosoftSqlToolsServiceLayer.exe"
+   Test-Path "<the configured absolute path>/MicrosoftSqlToolsServiceLayer[.exe for Windows]"
    ```
 2. Re-read both launch.json files and confirm `MSSQL_SQLTOOLSSERVICE` shows up with the right value in every config's `env` block.
 3. Tell the user:
@@ -102,4 +102,4 @@ Reference for the env var:
 - **Forgetting to escape backslashes** in the JSON string. `"c:\Users\..."`  is invalid JSON.
 - **Pointing at `…/Debug/net10.0/` instead of `…/publish/…/default/net10.0/`**.
   The `bin/Debug` output isn't a published runnable; only the `artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net10.0` folder is.
-- **Pointing at the wrong STS clone's artifact output stale path** if the user has multiple STS clones. The user means to use the the clone that this skill resides in.
+- **Pointing at the wrong STS clone's artifact output stale path** if the user has multiple STS clones. The user means to use the clone that this skill resides in.

@@ -11,9 +11,9 @@ Build and publish the SQL Tools Service locally via the Cake `LocalPublish` targ
 
 - Iterating on STS code and wanting a fresh self-contained build.
 - Preparing a local STS for vscode-mssql or any other client that consumes it
-- The user says "build STS", "publish STS", "local publish", "rebuild  STS".
+- The user says "build STS", "publish STS", "local publish", "rebuild STS".
 
-This skill **only builds**. To wire the output into a vscode-mssql repo's environment , run the `hook-local-sts-into-mssql` skill afterward.
+This skill **only builds**. To wire the output into a vscode-mssql repo's environment, run the `hook-local-sts-into-mssql` skill afterward.
 
 ## Procedure
 
@@ -59,15 +59,15 @@ Tell the user:
 
 Defined in `build.cake` (search for `Task(...)`). For day-to-day dev, `LocalPublish` is what you want. The others are situational:
 
-| Target | What it does | When to use |
-|---|---|---|
-| `LocalPublish` | Build + publish for the current RID only | Default dev loop |
-| `Quick` | `Cleanup` + `LocalPublish` | After a botched build to start clean |
-| `Install` | `Cleanup` + `LocalPublish` + copy to `~/.sqltoolsservice/local/` | Sharing with a globally-configured client |
-| `Local` | `Setup` + `Restore` + `TestAll` + `LocalPublish` | Pre-PR sanity pass |
-| `Default` | Alias for `Local` | Same as above |
-| `AllPublish` | Publish for all RIDs in `build.json` | Reproducing CI artifacts |
-| `TestAll` / `TestCore` | Run unit tests | Test-only iteration |
+| Target                 | What it does                                                     | When to use                               |
+| ---------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| `LocalPublish`         | Build + publish for the current RID only                         | Default dev loop                          |
+| `Quick`                | `Cleanup` + `LocalPublish`                                       | After a botched build to start clean      |
+| `Install`              | `Cleanup` + `LocalPublish` + copy to `~/.sqltoolsservice/local/` | Sharing with a globally-configured client |
+| `Local`                | `Setup` + `Restore` + `TestAll` + `LocalPublish`                 | Pre-PR sanity pass                        |
+| `Default`              | Alias for `Local`                                                | Same as above                             |
+| `AllPublish`           | Publish for all RIDs in `build.json`                             | Reproducing CI artifacts                  |
+| `TestAll` / `TestCore` | Run unit tests, must include --runTests argument                 | Test-only iteration                       |
 
 Configuration flag accepts `Debug` (default for local work) or `Release`.
 
