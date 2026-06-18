@@ -213,8 +213,10 @@ namespace Microsoft.SqlTools.Sts2.Testing
             sb.Append("    Running --> CancelRequested : v2/query.cancel / result {} + effect driver.queryCancel\n");
             sb.Append("    Running --> Completed : queryEvent completed|error / notify query.complete (exactly once, I2)\n");
             sb.Append("    CancelRequested --> Completed : queryEvent canceled|completed|error / notify query.complete\n");
-            sb.Append("    Running --> Disposed : v2/query.dispose / result {} + effect driver.queryDispose (output suppressed, I3)\n");
-            sb.Append("    Completed --> Disposed : v2/query.dispose / result {}\n");
+            sb.Append("    Running --> Disposing : v2/query.dispose / result {} + effect driver.queryDispose (connection held, events suppressed)\n");
+            sb.Append("    CancelRequested --> Disposing : v2/query.dispose / result {} + effect driver.queryDispose\n");
+            sb.Append("    Disposing --> Disposed : driver.queryDispose result (pump stopped) / notify query.complete(status=disposed) — exactly one terminal (I2, D-0011)\n");
+            sb.Append("    Completed --> Disposed : v2/query.dispose / result {} (terminal already sent)\n");
             sb.Append("    Disposed --> [*]\n");
             sb.Append("```\n\n");
             sb.Append("`connection.close` with an active query cancels the query first; the connection closes when the query reaches a terminal state (SPEC §7.9).\n\n");

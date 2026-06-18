@@ -44,6 +44,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             public CancellationTokenSource Cancellation { get; } = new();
 
+            /// <summary>The streaming task; awaited on dispose so the reader fully unwinds (R009).</summary>
+            public Task? PumpTask;
+
             /// <summary>True after dispose: no further events may post (I3).</summary>
             public volatile bool Suppressed;
         }
@@ -221,8 +224,30 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     {
                         pump.Suppressed = true; // I3: no further events after dispose
                         pump.Cancellation.Cancel();
+                        // Await the streaming task BEFORE acking so the driver reader/command is
+                        // fully unwound before Core frees the connection — a new query can never
+                        // race the old reader on the same session (R009/D-0011).
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                if (pump.PumpTask is Task task)
+                                {
+                                    await task.ConfigureAwait(false);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // The pump's own faults are already classified into events.
+                            }
+                            await PostDisposeAckAsync(inbox, effect, queryId).ConfigureAwait(false);
+                        });
                     }
-                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    else
+                    {
+                        // No live pump (the query already terminated): ack immediately.
+                        _ = PostDisposeAckAsync(inbox, effect, queryId ?? "?");
+                    }
                     break;
                 }
 
@@ -344,7 +369,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            _ = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, pump));
         }
 
         private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, QueryPump pump)
@@ -589,6 +614,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             string payload = string.Create(CultureInfo.InvariantCulture, $$"""
                 {"connectionId":{{JsonSerializer.Serialize(connectionId)}},"openId":{{JsonSerializer.Serialize(openId)}},{{payloadCore[1..]}}
                 """);
+            return PostAsync(inbox, effect, payload);
+        }
+
+        private static Task PostDisposeAckAsync(ICoordinatorInbox inbox, EffectWorkItem effect, string queryId)
+        {
+            // The dispose result carries the queryId so Core routes it to the dispose handler
+            // (which emits the single query.complete(disposed) once the pump has stopped).
+            string payload = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}},"status":"ok"}""");
             return PostAsync(inbox, effect, payload);
         }
 

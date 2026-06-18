@@ -1,6 +1,7 @@
 # STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
-# Dispose abandons the query: output (including the terminal) is suppressed (I3);
-# disposed queries are exempt from I2 by definition.
+# Dispose of an active query emits exactly ONE terminal — query.complete(status:disposed) —
+# once the runner confirms the streaming pump stopped (D-0011). Every accepted query has a
+# pinned terminal (I2), and no driver event leaks past it (I3).
 name: dispose-while-streaming
 tags: [query, dispose, dialect:neutral]
 status: active
@@ -26,7 +27,7 @@ steps:
       method: v2/query.dispose
       params: { queryId: $q }
     expectResult: {}
-  - assertNotify: { method: v2/query.complete, count: 0, settleMs: 300 }
+  - waitForNotify: { method: v2/query.complete, count: 1 }
   - request:
       method: v2/diagnostics.ping
       params: { echo: "post-dispose" }

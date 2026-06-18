@@ -342,6 +342,37 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Equal("r-close-1", closeResult.Corr); // exactly the original waiter, answered once
         }
 
+        [Fact]
+        public void DisposeOfActiveQueryEmitsExactlyOneTerminalAfterPumpStops() // D-0011 / R008
+        {
+            CoreState state = QueryWithFourPagesSent(); // running, mid-stream
+
+            // Dispose answers {} and asks the runner to stop the pump, but emits NO terminal
+            // yet and HOLDS the connection (ActiveQueryId stays set).
+            CoreDecision dispose = Sts2CoreReducer.Decide(state, Request(20, "v2/query.dispose", "r-d", """{"queryId":"q-3"}"""));
+            Assert.Equal(2, dispose.Outputs.Length);
+            Assert.IsType<RpcResultOutput>(dispose.Outputs[0]);
+            EffectRequestOutput disp = Assert.IsType<EffectRequestOutput>(dispose.Outputs[1]);
+            Assert.Equal("driver.queryDispose", disp.EffectName);
+            Assert.Equal(QueryPhase.Disposing, dispose.NewState.Queries["q-3"].Phase);
+            Assert.Equal("q-3", dispose.NewState.Connections["c-1"].ActiveQueryId); // connection held
+
+            // A driver event arriving during disposing is suppressed (no double terminal).
+            CoreDecision straggler = Sts2CoreReducer.Decide(dispose.NewState, EffectResponse(21, "driver.queryEvent", "evt-q-3",
+                """{"queryId":"q-3","eventType":"canceled"}"""));
+            Assert.Empty(straggler.Outputs);
+
+            // The runner confirms the pump stopped -> exactly one query.complete(disposed),
+            // connection released.
+            CoreDecision done = Sts2CoreReducer.Decide(straggler.NewState, EffectResponse(22, "driver.queryDispose", "drv-qdispose-20",
+                """{"queryId":"q-3","status":"ok"}"""));
+            RpcNotifyOutput complete = Assert.IsType<RpcNotifyOutput>(Assert.Single(done.Outputs));
+            Assert.Equal("v2/query.complete", complete.Method);
+            Assert.Equal("disposed", complete.Params.GetProperty("status").GetString());
+            Assert.Equal(QueryPhase.Disposed, done.NewState.Queries["q-3"].Phase);
+            Assert.Null(done.NewState.Connections["c-1"].ActiveQueryId);
+        }
+
         private static CoreEnvelope Notify(long seq, string type, string payloadJson) => new()
         {
             Seq = seq,

@@ -35,8 +35,10 @@ stateDiagram-v2
     Running --> CancelRequested : v2/query.cancel / result {} + effect driver.queryCancel
     Running --> Completed : queryEvent completed|error / notify query.complete (exactly once, I2)
     CancelRequested --> Completed : queryEvent canceled|completed|error / notify query.complete
-    Running --> Disposed : v2/query.dispose / result {} + effect driver.queryDispose (output suppressed, I3)
-    Completed --> Disposed : v2/query.dispose / result {}
+    Running --> Disposing : v2/query.dispose / result {} + effect driver.queryDispose (connection held, events suppressed)
+    CancelRequested --> Disposing : v2/query.dispose / result {} + effect driver.queryDispose
+    Disposing --> Disposed : driver.queryDispose result (pump stopped) / notify query.complete(status=disposed) — exactly one terminal (I2, D-0011)
+    Completed --> Disposed : v2/query.dispose / result {} (terminal already sent)
     Disposed --> [*]
 ```
 

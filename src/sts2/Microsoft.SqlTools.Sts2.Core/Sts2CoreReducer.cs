@@ -338,7 +338,7 @@ namespace Microsoft.SqlTools.Sts2.Core
 
                 case ConnectionPhase.Open when connection.ActiveQueryId is string activeQueryId
                     && state.Queries.TryGetValue(activeQueryId, out QueryInfo? activeQuery)
-                    && activeQuery.Phase is QueryPhase.Running or QueryPhase.CancelRequested:
+                    && activeQuery.Phase is QueryPhase.Running or QueryPhase.CancelRequested or QueryPhase.Disposing:
                 {
                     // A close is already parked on this connection waiting for the query to
                     // terminate. A second close must NOT overwrite the first waiter's corr
@@ -528,27 +528,70 @@ namespace Microsoft.SqlTools.Sts2.Core
                 return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "query.dispose requires queryId.");
             }
 
-            if (!state.Queries.TryGetValue(queryId, out QueryInfo? query) || query.Phase == QueryPhase.Disposed)
+            // Idempotent for unknown, already-disposing, or already-disposed queries.
+            if (!state.Queries.TryGetValue(queryId, out QueryInfo? query)
+                || query.Phase is QueryPhase.Disposing or QueryPhase.Disposed)
             {
                 return new CoreDecision(state, [new RpcResultOutput(corr, Json("{}"))]);
             }
 
-            CoreState next = state with
-            {
-                Queries = state.Queries.SetItem(queryId, query with { Phase = QueryPhase.Disposed }),
-                Connections = ClearActiveQuery(state.Connections, query.ConnectionId, queryId),
-            };
             string effectId = string.Create(CultureInfo.InvariantCulture, $"drv-qdispose-{envelope.Seq}");
             string args = string.Create(CultureInfo.InvariantCulture, $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}}}""");
-            var outputs = new List<CoreOutput>
+
+            // The query already emitted its terminal (completed/error/canceled). Dispose just
+            // releases resources — mark Disposed, free the connection, no second complete.
+            if (query.CompleteSent)
             {
+                CoreState done = state with
+                {
+                    Queries = state.Queries.SetItem(queryId, query with { Phase = QueryPhase.Disposed }),
+                    Connections = ClearActiveQuery(state.Connections, query.ConnectionId, queryId),
+                };
+                return new CoreDecision(done,
+                [
+                    new RpcResultOutput(corr, Json("{}")),
+                    new EffectRequestOutput(effectId, "driver.queryDispose", Json(args), corr),
+                ]);
+            }
+
+            // Active query (D-0011, R009): answer dispose {} now and ask the runner to stop the
+            // pump, but HOLD the connection (keep ActiveQueryId) and emit NO terminal yet. The
+            // driver.queryDispose result confirms the pump fully stopped; only then does Core
+            // emit the single query.complete(disposed) and release the connection — so a new
+            // query can never race the old reader on the same session.
+            CoreState next = state with
+            {
+                Queries = state.Queries.SetItem(queryId, query with { Phase = QueryPhase.Disposing }),
+            };
+            return new CoreDecision(next,
+            [
                 new RpcResultOutput(corr, Json("{}")),
                 new EffectRequestOutput(effectId, "driver.queryDispose", Json(args), corr),
-            };
+            ]);
+        }
 
-            // A close was parked on this query (CloseAfterQuery); the disposed query's
-            // terminal is suppressed, so the close must proceed from here or it would
-            // wait forever (deadlock found by simulator seed, M3).
+        private static CoreDecision DecideDriverQueryDisposeResult(CoreState state, CoreEnvelope envelope)
+        {
+            string? queryId = GetString(envelope.Payload, "queryId");
+            // Only an active dispose (Disposing) emits the terminal; the already-terminated
+            // dispose path (CompleteSent) is just an ack.
+            if (queryId is null || !state.Queries.TryGetValue(queryId, out QueryInfo? query)
+                || query.Phase != QueryPhase.Disposing)
+            {
+                return CoreDecision.StateOnly(state);
+            }
+
+            string notify = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}},"status":"disposed","rowsAffected":null}""");
+            QueryInfo terminal = query with { Phase = QueryPhase.Disposed, CompleteSent = true };
+            CoreState next = state with
+            {
+                Queries = state.Queries.SetItem(queryId, terminal),
+                Connections = ClearActiveQuery(state.Connections, query.ConnectionId, queryId),
+            };
+            var outputs = new List<CoreOutput> { new RpcNotifyOutput("v2/query.complete", Json(notify)) };
+
+            // The connection is free now; proceed any close that was parked behind the query.
             if (next.Connections.TryGetValue(query.ConnectionId, out ConnectionInfo? connection)
                 && connection.CloseAfterQuery && connection.Phase == ConnectionPhase.Open)
             {
@@ -575,8 +618,10 @@ namespace Microsoft.SqlTools.Sts2.Core
                 return Unexpected(state, envelope, "query event for unknown query");
             }
 
-            // I3: no output after complete; disposed queries are silent too.
-            if (query.CompleteSent || query.Phase == QueryPhase.Disposed)
+            // I3: no output after complete; disposed/disposing queries are silent too — the
+            // single terminal for a dispose is the synthetic query.complete(disposed) emitted
+            // when the runner confirms the pump stopped, so driver events here must not race it.
+            if (query.CompleteSent || query.Phase is QueryPhase.Disposed or QueryPhase.Disposing)
             {
                 return CoreDecision.StateOnly(state);
             }
@@ -679,7 +724,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             "driver.queryStart" => CoreDecision.StateOnly(state), // pump started; events follow
             "driver.queryAdvance" => CoreDecision.StateOnly(state),
             "driver.queryCancel" => CoreDecision.StateOnly(state),
-            "driver.queryDispose" => CoreDecision.StateOnly(state),
+            "driver.queryDispose" => DecideDriverQueryDisposeResult(state, envelope),
             "driver.queryEvent" => DecideQueryEvent(state, envelope),
             "diag.export" => DecideExportResult(state, envelope),
             _ => Unexpected(state, envelope, "unknown effect response type"),

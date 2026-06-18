@@ -45,16 +45,17 @@ namespace Microsoft.SqlTools.Sts2.Testing
                         }
                         break;
 
-                    case "I2": // query terminality: every accepted, non-disposed query completes exactly once
+                    case "I2": // query terminality: every accepted query completes exactly once (D-0011)
                     {
-                        Dictionary<string, long?> acceptedQueries = AcceptedQueries(journal);
-                        foreach ((string queryId, long? disposedAtSeq) in acceptedQueries)
+                        // Disposed queries are no longer exempt — an active dispose now emits a
+                        // single query.complete(status:disposed), so EVERY accepted query has
+                        // exactly one terminal notification.
+                        foreach (string queryId in AcceptedQueries(journal).Keys)
                         {
                             int completes = journal.Count(e => e.Kind == EnvelopeKinds.RpcOutNotify
                                 && e.Type == "v2/query.complete"
                                 && GetQueryId(e) == queryId);
-                            bool disposedBeforeComplete = disposedAtSeq is not null && completes == 0;
-                            if (!disposedBeforeComplete && completes != 1)
+                            if (completes != 1)
                             {
                                 violations.Add($"I2: query {queryId} emitted {completes} query.complete notifications (expected exactly 1)");
                             }

@@ -6,6 +6,7 @@ const Microsoft.SqlTools.Sts2.Core.ConnectionPhase.Opening = "opening" -> string
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.CancelRequested = "cancelRequested" -> string!
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.Completed = "completed" -> string!
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.Disposed = "disposed" -> string!
+const Microsoft.SqlTools.Sts2.Core.QueryPhase.Disposing = "disposing" -> string!
 const Microsoft.SqlTools.Sts2.Core.QueryPhase.Running = "running" -> string!
 Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput
 Microsoft.SqlTools.Sts2.Core.ConfigChangedOutput.Config.get -> System.Text.Json.JsonElement

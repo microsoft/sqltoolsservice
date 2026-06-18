@@ -60,6 +60,9 @@ namespace Microsoft.SqlTools.Sts2.Core
         /// <summary>Cancel requested; awaiting the terminal driver event.</summary>
         public const string CancelRequested = "cancelRequested";
 
+        /// <summary>Dispose requested on an active query; awaiting the runner's pump-stopped confirmation (D-0011).</summary>
+        public const string Disposing = "disposing";
+
         /// <summary>Terminal: query.complete sent exactly once (I2).</summary>
         public const string Completed = "completed";
 
