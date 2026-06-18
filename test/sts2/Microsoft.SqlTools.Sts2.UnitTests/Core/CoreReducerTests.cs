@@ -265,5 +265,89 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             DiagnosticOutput diag = Assert.IsType<DiagnosticOutput>(Assert.Single(decision.Outputs));
             Assert.Equal("core.unexpectedInput", diag.Name);
         }
+
+        // ---- review hardening regressions ----
+
+        private static CoreState QueryWithFourPagesSent()
+        {
+            CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
+                Request(3, "v2/query.execute", "r-q", """{"connectionId":"c-1","sql":"select 1"}""")).NewState;
+            for (int page = 0; page < 4; page++)
+            {
+                state = Sts2CoreReducer.Decide(state, EffectResponse(4 + page, "driver.queryEvent", "evt-q-3",
+                    $$"""{"queryId":"q-3","eventType":"rows","pageSeq":{{page}},"rows":[[1]]}""")).NewState;
+            }
+            return state;
+        }
+
+        [Fact]
+        public void FutureOrDuplicateAckCannotOverGrantCreditBeyondWindow() // R011
+        {
+            CoreState state = QueryWithFourPagesSent(); // 4 sent, 0 credit, 0 acked
+
+            // A wildly-out-of-range high-water ack must not push pagesAcked past PagesSent,
+            // so credit can never exceed the window (I9).
+            CoreDecision ack = Sts2CoreReducer.Decide(state, Notify(10, "v2/query.ack",
+                """{"queryId":"q-3","throughPageSeq":1000000}"""));
+            EffectRequestOutput advance = Assert.IsType<EffectRequestOutput>(Assert.Single(ack.Outputs));
+            Assert.Equal(4, advance.Args.GetProperty("credit").GetInt32()); // exactly the window, not more
+            Assert.Equal(4, ack.NewState.Queries["q-3"].PagesAcked);        // clamped to PagesSent
+            Assert.Equal(4, ack.NewState.Queries["q-3"].CreditOutstanding);
+
+            // A duplicate of the same ack grants nothing further.
+            CoreDecision again = Sts2CoreReducer.Decide(ack.NewState, Notify(11, "v2/query.ack",
+                """{"queryId":"q-3","throughPageSeq":1000000}"""));
+            Assert.Empty(again.Outputs);
+        }
+
+        [Theory]
+        [InlineData("1.5")]
+        [InlineData("1e999")]
+        [InlineData("99999999999")]
+        [InlineData("-5")]
+        public void MalformedAckNumbersDoNotThrow(string throughValue) // R026
+        {
+            CoreState state = QueryWithFourPagesSent();
+            // The reducer is total: a non-integral / out-of-range / negative number must not
+            // fault the pump.
+            CoreDecision decision = Sts2CoreReducer.Decide(state, Notify(10, "v2/query.ack",
+                $$"""{"queryId":"q-3","throughPageSeq":{{throughValue}}}"""));
+            // Either ignored or treated as per-page; never an exception, never over-window.
+            Assert.True(decision.NewState.Queries["q-3"].CreditOutstanding <= Contracts.Sts2Defaults.WindowPages);
+        }
+
+        [Fact]
+        public void DuplicateCloseWhileQueryActiveDoesNotOrphanFirstRequest() // R010
+        {
+            CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
+                Request(3, "v2/query.execute", "r-q", """{"connectionId":"c-1","sql":"select 1"}""")).NewState;
+
+            // First close parks behind the active query (no result yet) and cancels it.
+            CoreDecision close1 = Sts2CoreReducer.Decide(state, Request(4, "v2/connection.close", "r-close-1", """{"connectionId":"c-1"}"""));
+            Assert.IsType<EffectRequestOutput>(Assert.Single(close1.Outputs)); // driver.queryCancel only
+            Assert.Equal("r-close-1", close1.NewState.Connections["c-1"].CloseCorr);
+
+            // Second close must be answered {} immediately and MUST NOT overwrite the first waiter.
+            CoreDecision close2 = Sts2CoreReducer.Decide(close1.NewState, Request(5, "v2/connection.close", "r-close-2", """{"connectionId":"c-1"}"""));
+            RpcResultOutput dup = Assert.IsType<RpcResultOutput>(Assert.Single(close2.Outputs));
+            Assert.Equal("r-close-2", dup.Corr);
+            Assert.Equal("r-close-1", close2.NewState.Connections["c-1"].CloseCorr); // first waiter preserved
+
+            // Query terminal -> driver.close; close resolves -> the FIRST close finally gets its {}.
+            CoreState afterCancel = Sts2CoreReducer.Decide(close2.NewState, EffectResponse(6, "driver.queryEvent", "evt-q-3",
+                """{"queryId":"q-3","eventType":"canceled"}""")).NewState;
+            CoreDecision closed = Sts2CoreReducer.Decide(afterCancel, EffectResponse(7, "driver.close", "drv-close-6",
+                """{"connectionId":"c-1","status":"ok"}"""));
+            RpcResultOutput closeResult = Assert.IsType<RpcResultOutput>(Assert.Single(closed.Outputs));
+            Assert.Equal("r-close-1", closeResult.Corr); // exactly the original waiter, answered once
+        }
+
+        private static CoreEnvelope Notify(long seq, string type, string payloadJson) => new()
+        {
+            Seq = seq,
+            Kind = "rpc.in.notify",
+            Type = type,
+            Payload = JsonDocument.Parse(payloadJson).RootElement.Clone(),
+        };
     }
 }

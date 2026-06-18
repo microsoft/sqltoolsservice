@@ -101,7 +101,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             Assert.NotEmpty(metricEnvelopes); // cadence fired
             Sts2Envelope sample = metricEnvelopes[0];
             Assert.Equal("sts2.snapshot", sample.Type);
-            Assert.Null(sample.Cause); // journaled-only, no causal parent
+            Assert.NotNull(sample.Cause); // caused by the input that reached the cadence (R040)
+            Assert.True(sample.Cause < sample.Seq); // valid causal parent (I5)
             Assert.True(sample.Payload!.Value.GetProperty("envelopes").GetInt64() > 0);
             Assert.True(sample.Payload!.Value.TryGetProperty("byKind", out _));
 

@@ -106,7 +106,8 @@ namespace Microsoft.SqlTools.Sts2.Core
                     ["forwardOnlyStreaming"] = true,
                     ["oneActiveQueryPerConnection"] = true,
                     ["redactedReplay"] = true,
-                    ["exportLog"] = false,
+                    ["exportLog"] = true, // v2/diagnostics.exportLog is registered and implemented
+                    ["setCapture"] = true,
                 },
                 ["drivers"] = driverArray,
                 ["limits"] = new JsonObject
@@ -339,6 +340,15 @@ namespace Microsoft.SqlTools.Sts2.Core
                     && state.Queries.TryGetValue(activeQueryId, out QueryInfo? activeQuery)
                     && activeQuery.Phase is QueryPhase.Running or QueryPhase.CancelRequested:
                 {
+                    // A close is already parked on this connection waiting for the query to
+                    // terminate. A second close must NOT overwrite the first waiter's corr
+                    // (I1: the first close still owes exactly one terminal response). Answer
+                    // the duplicate idempotently with {} and keep the original CloseCorr (R010).
+                    if (connection.CloseAfterQuery)
+                    {
+                        return new CoreDecision(state, [new RpcResultOutput(corr, Json("{}"))]);
+                    }
+
                     // SPEC §7.9: close cancels the active query first; the connection
                     // closes when the query reaches a terminal state.
                     var outputs = new List<CoreOutput>();
@@ -448,9 +458,13 @@ namespace Microsoft.SqlTools.Sts2.Core
 
             int pagesAcked = query.PagesAcked;
             if (envelope.Payload is { } p && p.TryGetProperty("throughPageSeq", out JsonElement through)
-                && through.ValueKind == JsonValueKind.Number)
+                && through.ValueKind == JsonValueKind.Number && through.TryGetInt32(out int throughPageSeq))
             {
-                pagesAcked = Math.Max(pagesAcked, through.GetInt32() + 1); // high-water (0-based pageSeq)
+                // High-water (0-based pageSeq). Clamp to [current, PagesSent] so a duplicate,
+                // out-of-order, or impossibly-large client ack can never push pagesAcked past
+                // what was actually sent and over-grant credit beyond the window (I9, R011).
+                int requested = throughPageSeq >= 0 ? throughPageSeq + 1 : pagesAcked;
+                pagesAcked = Math.Min(query.PagesSent, Math.Max(pagesAcked, requested));
             }
             else
             {
@@ -809,9 +823,10 @@ namespace Microsoft.SqlTools.Sts2.Core
                 && payloadWithLimits.TryGetProperty("limits", out JsonElement limits)
                 && limits.ValueKind == JsonValueKind.Object
                 && limits.TryGetProperty("maxConnections", out JsonElement maxConn)
-                && maxConn.ValueKind == JsonValueKind.Number)
+                && maxConn.ValueKind == JsonValueKind.Number
+                && maxConn.TryGetInt32(out int parsedMax) && parsedMax > 0)
             {
-                maxConnections = maxConn.GetInt32();
+                maxConnections = parsedMax;
             }
 
             // Initial capture modes enter through the journaled session.start so replay

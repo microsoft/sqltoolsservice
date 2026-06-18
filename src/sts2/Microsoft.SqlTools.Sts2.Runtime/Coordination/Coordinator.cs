@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                         await JournalAndActAsync(output, causeSeq: envelope.Seq, requestType: envelope.Type).ConfigureAwait(false);
                     }
 
-                    await MaybeSampleMetricsAsync().ConfigureAwait(false);
+                    await MaybeSampleMetricsAsync(triggeringSeq: envelope.Seq).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -204,15 +204,17 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         /// skipped on replay), so it carries the metric history into the trace and exports
         /// without affecting replay determinism.
         /// </summary>
-        private async ValueTask MaybeSampleMetricsAsync()
+        private async ValueTask MaybeSampleMetricsAsync(long triggeringSeq)
         {
             inputsProcessed++;
             if (options.MetricSampleEvery <= 0 || inputsProcessed % options.MetricSampleEvery != 0)
             {
                 return;
             }
+            // The sample is caused by the input whose processing reached the cadence, so it
+            // carries that cause rather than being a spurious root (R040, I5/trace-schema).
             JsonElement snapshot = JsonDocument.Parse(BuildMetricSnapshot().ToJsonString()).RootElement;
-            Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.Metric, "sts2.snapshot", null, null, snapshot, cause: null);
+            Sts2Envelope envelope = BuildEnvelope(EnvelopeKinds.Metric, "sts2.snapshot", null, null, snapshot, cause: triggeringSeq);
             await JournalAsync(envelope, flush: false).ConfigureAwait(false);
         }
 
