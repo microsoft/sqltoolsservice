@@ -3,6 +3,7 @@ Microsoft.SqlTools.Sts2.Hosting.Sts2Session
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Completion.get -> System.Threading.Tasks.Task!
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.Coordinator.get -> Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator!
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Hosting.Sts2Session.FatalReason.get -> string?
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.LiveTail.get -> Microsoft.SqlTools.Sts2.Runtime.Observability.BroadcastEnvelopeSink!
 Microsoft.SqlTools.Sts2.Hosting.Sts2Session.SignalLifecycleAsync(string! signal) -> System.Threading.Tasks.Task!
 Microsoft.SqlTools.Sts2.Hosting.Sts2SessionOptions

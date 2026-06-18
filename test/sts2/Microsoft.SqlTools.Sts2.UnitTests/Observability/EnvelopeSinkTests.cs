@@ -148,6 +148,33 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             Assert.Equal(0, broadcast.TotalDropped); // an unsubscribed consumer is not slow
         }
 
+        [Fact]
+        public async Task MailboxSinkNeverBlocksThePublisherEvenIfInnerHangs() // R003
+        {
+            using var release = new System.Threading.SemaphoreSlim(0);
+            var hanging = new BlockingEnvelopeSink(release);
+            await using var mailbox = new MailboxEnvelopeSink(hanging, capacity: 4);
+
+            // Publish far more than the mailbox holds while the inner sink is wedged on the
+            // very first envelope. Each publish must return promptly (non-blocking); the
+            // overflow is dropped and counted, never stalling the caller (the pump).
+            for (long seq = 1; seq <= 100; seq++)
+            {
+                ValueTask publish = mailbox.OnEnvelopeAsync(Envelope(seq), flush: false);
+                Assert.True(publish.IsCompleted); // returned synchronously — no pump stall
+                await publish;
+            }
+            Assert.True(mailbox.Dropped > 0); // a wedged consumer drops, it does not block
+
+            release.Release(int.MaxValue); // let the inner sink drain on dispose
+        }
+
+        private sealed class BlockingEnvelopeSink(System.Threading.SemaphoreSlim gate) : IEnvelopeSink
+        {
+            public async ValueTask OnEnvelopeAsync(Sts2Envelope envelope, bool flush) =>
+                await gate.WaitAsync().ConfigureAwait(false); // hang until released
+        }
+
         private static Sts2Envelope Envelope(long seq) => new()
         {
             RunId = "test",

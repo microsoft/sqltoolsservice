@@ -96,6 +96,7 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Type.get -> stri
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.ActiveQueryPumpCount.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.DisposeAsync() -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.DisposeLeakedSessionsAsync() -> System.Threading.Tasks.ValueTask<int>
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.DriverEffectRunner(System.Collections.Generic.IReadOnlyDictionary<string!, Microsoft.SqlTools.Sts2.Abstractions.IDbDriver!>! drivers, Microsoft.SqlTools.Sts2.Runtime.Redaction.SecretSideTable! secrets, Microsoft.SqlTools.Sts2.Runtime.Export.ExportBundleRequest? exportTemplate = null, System.TimeProvider? timeProvider = null) -> void
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.OpenSessionCount.get -> int
@@ -241,6 +242,12 @@ Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription.Dropped.get -
 Microsoft.SqlTools.Sts2.Runtime.Observability.EnvelopeSubscription.Reader.get -> System.Threading.Channels.ChannelReader<Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!>!
 Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink
 Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink.OnEnvelopeAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Observability.MailboxEnvelopeSink
+Microsoft.SqlTools.Sts2.Runtime.Observability.MailboxEnvelopeSink.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Observability.MailboxEnvelopeSink.Dropped.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.MailboxEnvelopeSink.FaultCount.get -> long
+Microsoft.SqlTools.Sts2.Runtime.Observability.MailboxEnvelopeSink.MailboxEnvelopeSink(Microsoft.SqlTools.Sts2.Runtime.Observability.IEnvelopeSink! inner, int capacity = 4096) -> void
+Microsoft.SqlTools.Sts2.Runtime.Observability.MailboxEnvelopeSink.OnEnvelopeAsync(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope, bool flush) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink
 Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.EnvelopesByKind() -> System.Collections.Immutable.ImmutableSortedDictionary<string!, long>!
 Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink.Errors.get -> long

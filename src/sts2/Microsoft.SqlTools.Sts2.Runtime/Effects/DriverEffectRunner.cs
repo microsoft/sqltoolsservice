@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
     /// completes (SPEC §8.5 lifecycle). Every observation re-enters the coordinator as
     /// an <c>effect.res</c> envelope.
     /// </summary>
-    public sealed class DriverEffectRunner : ISts2EffectRunner, IEffectRunnerDiagnostics
+    public sealed class DriverEffectRunner : ISts2EffectRunner, IEffectRunnerDiagnostics, IAsyncDisposable
     {
         private readonly IReadOnlyDictionary<string, IDbDriver> drivers;
         private readonly SecretSideTable secrets;
@@ -127,6 +127,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 }
             }
             return leaked;
+        }
+
+        /// <summary>
+        /// Owns and releases all runner resources (R013): cancels pumps/opens and disposes
+        /// every live session, semaphore, and cancellation source. The session disposes the
+        /// runner after the coordinator pump has drained, so no new effects arrive during disposal.
+        /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeLeakedSessionsAsync().ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -258,8 +268,27 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     string serverInfo = string.Create(CultureInfo.InvariantCulture, $$"""
                         {"product":{{JsonSerializer.Serialize(session.Server.Product)}},"version":{{JsonSerializer.Serialize(session.Server.Version)}},"engineEdition":{{JsonSerializer.Serialize(session.Server.EngineEdition)}},"dialect":{{JsonSerializer.Serialize(session.Server.Dialect)}}}
                         """);
-                    await PostOpenResultAsync(inbox, effect, connectionId, openId,
-                        $$"""{"status":"ok","handleId":{{JsonSerializer.Serialize(handleId)}},"serverInfo":{{serverInfo}}}""").ConfigureAwait(false);
+                    try
+                    {
+                        await PostOpenResultAsync(inbox, effect, connectionId, openId,
+                            $$"""{"status":"ok","handleId":{{JsonSerializer.Serialize(handleId)}},"serverInfo":{{serverInfo}}}""").ConfigureAwait(false);
+                    }
+                    catch (Exception)
+                    {
+                        // The coordinator could not accept the open result (e.g. it is shutting
+                        // down / its inbox is closed). Core will never learn this handle, so the
+                        // freshly-opened session would be owned by no one — dispose it (R014).
+                        if (sessions.TryRemove(handleId, out IDbSession? orphan))
+                        {
+                            try
+                            {
+                                await orphan.DisposeAsync().ConfigureAwait(false);
+                            }
+                            catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
+                            {
+                            }
+                        }
+                    }
                 }
                 catch (OperationCanceledException)
                 {

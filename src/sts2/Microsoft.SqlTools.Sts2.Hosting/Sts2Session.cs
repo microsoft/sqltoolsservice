@@ -14,6 +14,7 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
+using Microsoft.SqlTools.Sts2.Contracts;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Effects;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
@@ -68,21 +69,40 @@ namespace Microsoft.SqlTools.Sts2.Hosting
     {
         private readonly JsonRpc rpc;
         private readonly Coordinator coordinator;
+        private readonly DriverEffectRunner effectRunner;
         private readonly SecretSideTable secrets;
         private readonly BroadcastEnvelopeSink liveTail;
+        private readonly IReadOnlyList<MailboxEnvelopeSink> mailboxSinks;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<OutboundRpcMessage>> pendingRequests = new(StringComparer.Ordinal);
+        private readonly TaskCompletionSource sessionEnded = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int corrCounter;
+        private string? fatalReason;
+        private int shuttingDown;
 
-        private Sts2Session(JsonRpc rpc, Coordinator coordinator, SecretSideTable secrets, BroadcastEnvelopeSink liveTail)
+        private Sts2Session(JsonRpc rpc, Coordinator coordinator, DriverEffectRunner effectRunner,
+            SecretSideTable secrets, BroadcastEnvelopeSink liveTail, IReadOnlyList<MailboxEnvelopeSink> mailboxSinks)
         {
             this.rpc = rpc;
             this.coordinator = coordinator;
+            this.effectRunner = effectRunner;
             this.secrets = secrets;
             this.liveTail = liveTail;
+            this.mailboxSinks = mailboxSinks;
+
+            // Composite session lifetime (R001): a fault in ANY core component — the RPC
+            // connection OR the coordinator pump (journal/core/sink failure) — transitions
+            // STS2 to fatal, fails pending requests, and faults Completion so the multiplexer
+            // marks the channel dead. The old code observed only rpc.Completion, so a pump
+            // fault could silently strand every request.
+            ObserveComponent(rpc.Completion, "rpc");
+            ObserveComponent(coordinator.Completion, "coordinator");
         }
 
-        /// <summary>Faults when the RPC connection or host dies; used for crash containment.</summary>
-        public Task Completion => rpc.Completion;
+        /// <summary>Faults when any core component dies unexpectedly; used for crash containment (R001).</summary>
+        public Task Completion => sessionEnded.Task;
+
+        /// <summary>Non-null once the session has entered fatal containment; the redacted reason.</summary>
+        public string? FatalReason => fatalReason;
 
         /// <summary>The coordinator, exposed for lifecycle signals and diagnostics.</summary>
         public Coordinator Coordinator => coordinator;
@@ -111,11 +131,14 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 new JournalRunInfo { ServiceVersion = options.ServiceVersion, CommandLine = options.CommandLine });
 
             // The coordinator owns the metrics sink; here we add a live tail for the
-            // diagnostic viewer plus any caller-supplied observers (SPEC §12). All are
-            // best-effort aux sinks — they never block the pump or affect write-ahead.
+            // diagnostic viewer plus any caller-supplied observers (SPEC §12). Third-party
+            // sinks are wrapped in a non-blocking mailbox (R003) so a slow/hanging/throwing
+            // observer can never stall the pump or break write-ahead; the built-in live tail
+            // is already non-blocking and runs inline.
             var liveTail = new BroadcastEnvelopeSink();
-            var auxSinks = new List<IEnvelopeSink>(1 + options.EnvelopeSinks.Count) { liveTail };
-            auxSinks.AddRange(options.EnvelopeSinks);
+            var mailboxSinks = options.EnvelopeSinks.Select(s => new MailboxEnvelopeSink(s)).ToArray();
+            var auxSinks = new List<IEnvelopeSink>(1 + mailboxSinks.Length) { liveTail };
+            auxSinks.AddRange(mailboxSinks);
 
             Sts2Session? session = null;
             var coordinator = new Coordinator(
@@ -129,7 +152,7 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             formatter.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             var handler = new HeaderDelimitedMessageHandler(options.Output, options.Input, formatter);
             var rpc = new JsonRpc(handler);
-            session = new Sts2Session(rpc, coordinator, secrets, liveTail);
+            session = new Sts2Session(rpc, coordinator, effectRunner, secrets, liveTail, mailboxSinks);
             rpc.AddLocalRpcTarget(new GatewayTarget(session), null);
             rpc.StartListening();
 
@@ -164,9 +187,78 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         /// <inheritdoc/>
         public async ValueTask DisposeAsync()
         {
+            Interlocked.Exchange(ref shuttingDown, 1); // a clean dispose is not a fatal fault
             rpc.Dispose();
+            // Stop intake and drain the pump first, then dispose the resources it owns: the
+            // effect runner (sessions, pumps, CTS, semaphores — R013) and the observer
+            // mailboxes (their worker tasks). Order matters: the runner must outlive the pump.
             await coordinator.DisposeAsync().ConfigureAwait(false);
+            await effectRunner.DisposeAsync().ConfigureAwait(false);
+            foreach (MailboxEnvelopeSink mailbox in mailboxSinks)
+            {
+                await mailbox.DisposeAsync().ConfigureAwait(false);
+            }
+            sessionEnded.TrySetResult(); // clean shutdown completes Completion without faulting
         }
+
+        private void ObserveComponent(Task completion, string name)
+        {
+            _ = completion.ContinueWith(
+                t => EnterFatal(name + " faulted: " + (t.Exception?.GetBaseException().Message ?? "unknown")),
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+        }
+
+        /// <summary>
+        /// Enters fatal containment exactly once: records the reason, fails every pending
+        /// request with <c>Sts2.Unavailable</c>, and faults <see cref="Completion"/> so the
+        /// multiplexer marks the channel dead while legacy traffic continues.
+        /// </summary>
+        private void EnterFatal(string reason)
+        {
+            if (Interlocked.CompareExchange(ref fatalReason, reason, null) is not null || Volatile.Read(ref shuttingDown) != 0)
+            {
+                return;
+            }
+            foreach (string corr in pendingRequests.Keys.ToArray())
+            {
+                if (pendingRequests.TryRemove(corr, out TaskCompletionSource<OutboundRpcMessage>? tcs))
+                {
+                    tcs.TrySetResult(UnavailableMessage(corr, reason));
+                }
+            }
+            sessionEnded.TrySetException(new InvalidOperationException("STS2 fatal: " + reason));
+        }
+
+        private static OutboundRpcMessage UnavailableMessage(string corr, string reason) => new()
+        {
+            Kind = "rpc.out.error",
+            Corr = corr,
+            Type = "v2/unavailable",
+            Body = ToElement(new JsonObject
+            {
+                ["code"] = Sts2JsonRpcCodes.For(Sts2ErrorCodes.Unavailable),
+                ["message"] = "STS2 is unavailable: " + reason,
+                ["data"] = new JsonObject
+                {
+                    ["code"] = Sts2ErrorCodes.Unavailable,
+                    ["retryable"] = true,
+                    ["corr"] = corr,
+                },
+            }),
+        };
+
+        private static LocalRpcException UnavailableException(string reason) =>
+            new("STS2 is unavailable: " + reason)
+            {
+                ErrorCode = Sts2JsonRpcCodes.For(Sts2ErrorCodes.Unavailable),
+                ErrorData = ToElement(new JsonObject
+                {
+                    ["code"] = Sts2ErrorCodes.Unavailable,
+                    ["retryable"] = true,
+                })!.Value,
+            };
 
         private void HandleOutbound(OutboundRpcMessage message)
         {
@@ -183,6 +275,13 @@ namespace Microsoft.SqlTools.Sts2.Hosting
 
         private async Task<JsonElement?> InvokeAsync(string method, JsonElement? parameters)
         {
+            // Fatal containment (R001): once STS2 is dead, answer new requests immediately with
+            // Sts2.Unavailable rather than posting into a stopped pump (which would hang).
+            if (Volatile.Read(ref fatalReason) is string reason)
+            {
+                throw UnavailableException(reason);
+            }
+
             string corr = "r-" + Interlocked.Increment(ref corrCounter).ToString(CultureInfo.InvariantCulture);
             var tcs = new TaskCompletionSource<OutboundRpcMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             pendingRequests[corr] = tcs;
