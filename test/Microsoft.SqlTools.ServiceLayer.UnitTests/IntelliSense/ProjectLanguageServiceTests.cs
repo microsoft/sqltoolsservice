@@ -1923,6 +1923,110 @@ END
             Assert.That(parentElementType, Is.Null);
         }
 
+        // ── Move to Schema (sql/moveToSchema) ────────────────────────────────
+        // HandleMoveToSchemaRequest reuses FindProjectSymbolLocations to find every reference, then
+        // rewrites the schema qualifier (or inserts one for unqualified names) and appends a
+        // "Move Schema" operation to the .refactorlog. These cover the guard, the happy path with
+        // refactorlog generation, and the same-schema no-op.
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_ForNonProjectFile()
+        {
+            const string queryUri = "file:///test_non_project_move.sql";
+            _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    TargetSchema = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Non-project file should return a null response");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_RewritesReferencesAndAppendsMoveSchemaOperation()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string targetSchema = "sales";
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers".
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    TargetSchema = targetSchema
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "SqlMoveToSchemaResponse should not be null");
+            Assert.That(result.TargetSchema, Is.EqualTo(targetSchema));
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should cover the referencing files");
+
+            // The two-part reference (dbo.Customers) becomes a [sales] qualifier; the bare reference
+            // (Customers in ListCustomers.sql) gets a "[sales]." qualifier inserted before it.
+            var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
+            Assert.That(allEdits.Any(e => e.NewText == "[sales]"), Is.True,
+                "A two-part reference should have its schema qualifier rewritten to [sales]");
+            Assert.That(allEdits.Any(e => e.NewText == "[sales]."), Is.True,
+                "An unqualified reference should have a [sales]. qualifier inserted");
+
+            // The refactorlog carries a Move Schema operation for the moved table.
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            XDocument doc = XDocument.Parse(result.RefactorLogContent);
+            XElement op = doc.Root.Elements(ns + "Operation").Last();
+            string PropertyValue(string name) => op.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That((string)op.Attribute("Name"), Is.EqualTo("Move Schema"));
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlTable"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(PropertyValue("NewSchema"), Is.EqualTo(targetSchema));
+            Assert.That(PropertyValue("IsNewSchemaExternal"), Is.EqualTo("False"));
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_WhenTargetSchemaMatchesCurrent()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            // dbo.Customers is already in dbo — moving it to dbo is a no-op.
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    TargetSchema = "dbo"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Moving to the current schema should return a null response");
+        }
+
     }
 
     /// <summary>
@@ -2002,6 +2106,39 @@ END
             Assert.That(ok, Is.True);
             Assert.That(bare, Is.EqualTo("Customers"));
             Assert.That(qualified, Is.EqualTo("dbo.Customers"));
+        }
+
+        // ── Schema-move edits ────────────────────────────────────────────────
+        // FindSchemaMoveEditsInFile rewrites an existing schema qualifier in place, and inserts a
+        // new qualifier (zero-width edit) before an otherwise-unqualified reference.
+
+        [Test]
+        public void FindSchemaMoveEditsInFile_TwoPartName_RewritesSchemaQualifier()
+        {
+            const string sql = "SELECT * FROM dbo.Customers;";
+            string path = WriteTempSql(sql);
+
+            var edits = RenameScriptDomHelper.FindSchemaMoveEditsInFile(path, "Customers", "dbo", "sales").ToList();
+
+            Assert.That(edits.Count, Is.EqualTo(1));
+            Assert.That(edits[0].NewText, Is.EqualTo("[sales]"));
+            Assert.That(MatchedText(sql, edits[0].Location), Is.EqualTo("dbo"),
+                "The replaced span should cover the existing schema qualifier");
+        }
+
+        [Test]
+        public void FindSchemaMoveEditsInFile_UnqualifiedName_InsertsSchemaQualifier()
+        {
+            const string sql = "SELECT * FROM Customers;";
+            string path = WriteTempSql(sql);
+
+            var edits = RenameScriptDomHelper.FindSchemaMoveEditsInFile(path, "Customers", "dbo", "sales").ToList();
+
+            Assert.That(edits.Count, Is.EqualTo(1));
+            Assert.That(edits[0].NewText, Is.EqualTo("[sales]."));
+            Assert.That(edits[0].Location.Range.Start.Character,
+                Is.EqualTo(edits[0].Location.Range.End.Character),
+                "An inserted qualifier should be a zero-width edit");
         }
     }
 }

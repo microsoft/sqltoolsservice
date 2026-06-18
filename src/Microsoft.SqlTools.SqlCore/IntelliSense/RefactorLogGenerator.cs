@@ -35,6 +35,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private const string ChangeDateTimeAttribute = "ChangeDateTime";
         private const string OperationsVersion = "1.0";
         private const string RenameOperationName = "Rename Refactor";
+        private const string MoveSchemaOperationName = "Move Schema";
         private const string ChangeDateTimeFormat = "MM/dd/yyyy HH:mm:ss";
 
         /// <summary>
@@ -74,6 +75,47 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 CreateProperty("ParentElementName", parentElementName),
                 CreateProperty("ParentElementType", parentElementType),
                 CreateProperty("NewName", newName));
+
+            XElement operationsRoot = document.Root ?? throw new InvalidOperationException("Refactorlog document is missing its root element.");
+            operationsRoot.Add(operation);
+
+            // Only prefix the declaration (and its trailing newline) when one is present; a parsed
+            // document without a declaration would otherwise produce a leading blank line.
+            return document.Declaration != null
+                ? document.Declaration + Environment.NewLine + document.ToString()
+                : document.ToString();
+        }
+
+        /// <summary>
+        /// Returns refactor log content with a new move-schema operation appended.
+        /// </summary>
+        /// <param name="existingContent">
+        /// Current content of the .refactorlog file, or <see langword="null"/>/empty if the project does not have one yet.
+        /// </param>
+        /// <param name="elementName">Fully-bracketed name of the moved element, e.g. <c>[dbo].[BillOfMaterials]</c>.</param>
+        /// <param name="elementType">DacFx element type of the moved element, e.g. <c>SqlTable</c>.</param>
+        /// <param name="newSchema">Target schema (unbracketed) the element is moved to.</param>
+        /// <returns>The full .refactorlog file content to be written by the caller.</returns>
+        public static string GenerateMoveSchemaDocument(
+            string? existingContent,
+            string elementName,
+            string elementType,
+            string newSchema)
+        {
+            ThrowIfNullOrWhiteSpace(elementName, nameof(elementName));
+            ThrowIfNullOrWhiteSpace(elementType, nameof(elementType));
+            ThrowIfNullOrWhiteSpace(newSchema, nameof(newSchema));
+
+            XDocument document = LoadOrCreateDocument(existingContent);
+
+            XElement operation = new XElement(RefactorNamespace + OperationElement,
+                new XAttribute(NameAttribute, MoveSchemaOperationName),
+                new XAttribute(KeyAttribute, Guid.NewGuid().ToString()),
+                new XAttribute(ChangeDateTimeAttribute, DateTime.UtcNow.ToString(ChangeDateTimeFormat, CultureInfo.InvariantCulture)),
+                CreateProperty("ElementName", elementName),
+                CreateProperty("ElementType", elementType),
+                CreateProperty("NewSchema", newSchema),
+                CreateProperty("IsNewSchemaExternal", "False"));
 
             XElement operationsRoot = document.Root ?? throw new InvalidOperationException("Refactorlog document is missing its root element.");
             operationsRoot.Add(operation);
