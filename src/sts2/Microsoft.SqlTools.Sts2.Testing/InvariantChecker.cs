@@ -163,9 +163,13 @@ namespace Microsoft.SqlTools.Sts2.Testing
 
                     case "I7": // replay determinism
                         ReplayResult replay = JournalReplayer.Replay(journal);
-                        if (!replay.Identical)
+                        if (replay.Outcome == ReplayOutcome.Diverged)
                         {
                             violations.Add($"I7: replay diverged at seq {replay.Divergence!.Seq}: recorded {replay.Divergence.Recorded}; replayed {replay.Divergence.Replayed}; causes {string.Join("<-", replay.Divergence.CauseChain)}");
+                        }
+                        else if (replay.Outcome == ReplayOutcome.Incomplete)
+                        {
+                            violations.Add($"I7: journal is truncated — {replay.PendingOutputCount} reduced output(s) after seq {replay.LastSeq} were never recorded");
                         }
                         break;
 

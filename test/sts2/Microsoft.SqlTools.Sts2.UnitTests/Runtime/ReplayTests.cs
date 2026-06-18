@@ -80,6 +80,48 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task TruncatedJournalIsIncompleteNotIdentical() // R006
+        {
+            List<Sts2Envelope> journal = await ProduceJournalAsync();
+
+            // A complete journal verifies.
+            Assert.Equal(ReplayOutcome.Verified, JournalReplayer.Replay(journal).Outcome);
+
+            // Truncating mid-output must be caught: strict replay reports Incomplete, never
+            // Verified/Identical. (A cut landing exactly on a complete boundary may verify —
+            // that is a legitimately complete prefix.) Crucially, a Verified prefix must have
+            // an empty pending queue, and an Incomplete one must never claim Identical.
+            bool sawIncomplete = false;
+            for (int cut = 1; cut < journal.Count; cut++)
+            {
+                ReplayResult partial = JournalReplayer.Replay(journal.Take(cut).ToList());
+                if (partial.Outcome == ReplayOutcome.Verified)
+                {
+                    Assert.Equal(0, partial.PendingOutputCount);
+                }
+                else if (partial.Outcome == ReplayOutcome.Incomplete)
+                {
+                    Assert.False(partial.Identical);
+                    Assert.True(partial.PendingOutputCount > 0);
+                    sawIncomplete = true;
+                }
+            }
+            Assert.True(sawIncomplete, "expected at least one mid-output truncation to be flagged Incomplete");
+        }
+
+        [Fact]
+        public async Task TamperedCorrelationIsDetected() // R006 (corr was previously ignored)
+        {
+            List<Sts2Envelope> journal = await ProduceJournalAsync();
+            int index = journal.FindIndex(e => e.Kind == "rpc.out.result" && e.Corr is not null);
+            journal[index] = journal[index] with { Corr = "r-tampered" };
+
+            ReplayResult result = JournalReplayer.Replay(journal);
+            Assert.Equal(ReplayOutcome.Diverged, result.Outcome);
+            Assert.Equal(journal[index].Seq, result.Divergence!.Seq);
+        }
+
+        [Fact]
         public async Task UntilReturnsStateAtRequestedSeq()
         {
             List<Sts2Envelope> journal = await ProduceJournalAsync();

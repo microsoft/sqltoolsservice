@@ -273,6 +273,10 @@ Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Replayed.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Replayed.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Seq.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.Seq.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome.Diverged = 1 -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome.Incomplete = 2 -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome.Verified = 0 -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult!
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Divergence.get -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence?
@@ -281,11 +285,14 @@ Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Equals(Microsoft.SqlTools.St
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.FinalState.get -> Microsoft.SqlTools.Sts2.Core.CoreState!
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.FinalState.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Identical.get -> bool
-Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Identical.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.LastSeq.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.LastSeq.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.OutboundDigests.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.OutboundDigests.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Outcome.get -> Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayOutcome
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Outcome.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.PendingOutputCount.get -> int
+Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.PendingOutputCount.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.ReplayResult() -> void
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.GetHashCode() -> int

@@ -29,11 +29,30 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
         public required IReadOnlyList<long> CauseChain { get; init; }
     }
 
+    /// <summary>Replay verdict (SPEC §13.2, R006).</summary>
+    public enum ReplayOutcome
+    {
+        /// <summary>Every recorded output matched and no expected output was left unrecorded at end of journal.</summary>
+        Verified,
+
+        /// <summary>An output's kind/type/corr/digest mismatched, or an output was missing/extra at a causal position.</summary>
+        Diverged,
+
+        /// <summary>The journal ended (or a partial <c>until</c> stop) with reduced-but-unrecorded outputs still pending — a truncated tail.</summary>
+        Incomplete,
+    }
+
     /// <summary>Outcome of replaying one journal.</summary>
     public sealed record ReplayResult
     {
-        /// <summary>True when the outbound digest sequence matched exactly (I7).</summary>
-        public required bool Identical { get; init; }
+        /// <summary>The replay verdict.</summary>
+        public required ReplayOutcome Outcome { get; init; }
+
+        /// <summary>True only on an exact, complete match (I7) — never on a truncated tail.</summary>
+        public bool Identical => Outcome == ReplayOutcome.Verified;
+
+        /// <summary>Number of expected outputs the reducer produced that the journal never recorded (truncation).</summary>
+        public int PendingOutputCount { get; init; }
 
         /// <summary>Digest of every outbound RPC envelope, in order, as produced by replay.</summary>
         public required IReadOnlyList<string> OutboundDigests { get; init; }
@@ -126,12 +145,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                                 recorded: $"{envelope.Kind}/{envelope.Type} digest={envelope.Digest}",
                                 replayed: "no output at this causal position");
                         }
-                        (string kind, string type, _, string digest) = pendingOutputs.Dequeue();
-                        if (kind != envelope.Kind || type != envelope.Type || digest != envelope.Digest)
+                        (string kind, string type, string? corr, string digest) = pendingOutputs.Dequeue();
+                        if (kind != envelope.Kind || type != envelope.Type || corr != envelope.Corr || digest != envelope.Digest)
                         {
                             return Diverged(envelope.Seq, causeBySeq, outboundDigests, state, lastSeq,
-                                recorded: $"{envelope.Kind}/{envelope.Type} digest={envelope.Digest}",
-                                replayed: $"{kind}/{type} digest={digest}");
+                                recorded: $"{envelope.Kind}/{envelope.Type} corr={envelope.Corr} digest={envelope.Digest}",
+                                replayed: $"{kind}/{type} corr={corr} digest={digest}");
                         }
                         if (kind is EnvelopeKinds.RpcOutResult or EnvelopeKinds.RpcOutError or EnvelopeKinds.RpcOutNotify)
                         {
@@ -145,9 +164,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                 }
             }
 
+            // Strict completeness (R006): the reducer produced outputs the journal never
+            // recorded. The old code returned Identical for any prefix; a truncated tail
+            // (missing final result/notification/effect/config.changed) must NOT pass the
+            // determinism gate. A partial `until` stop that cuts mid-output is Incomplete too.
             return new ReplayResult
             {
-                Identical = true,
+                Outcome = pendingOutputs.Count == 0 ? ReplayOutcome.Verified : ReplayOutcome.Incomplete,
+                PendingOutputCount = pendingOutputs.Count,
                 OutboundDigests = outboundDigests,
                 FinalState = state,
                 LastSeq = lastSeq,
@@ -176,7 +200,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
             string recorded,
             string replayed) => new()
         {
-            Identical = false,
+            Outcome = ReplayOutcome.Diverged,
             OutboundDigests = outboundDigests,
             FinalState = state,
             LastSeq = lastSeq,
