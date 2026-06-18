@@ -38,6 +38,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         private readonly Task pump;
 
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, JsonElement> elidedFragments = new(StringComparer.Ordinal);
+        private readonly List<string> capturedKeys = new(); // per-turn elided-fragment keys (R005)
         private CoreState state;
         private long seqCounter;
         private long emitFaults;
@@ -163,8 +164,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 {
                     // Capture modes come from Core state, so a runtime setCapture applies to
                     // the next envelope (the state field still holds the pre-decision state).
+                    // capturedKeys records the elided fragments this turn added, so any the
+                    // outputs do not substitute back (a rejected execute, a suppressed row
+                    // event) are released at the end of the turn instead of lingering (R005).
+                    capturedKeys.Clear();
                     JsonElement? captured = CaptureElision.ElideInput(
-                        state.RowCapture, state.SqlCapture, input.Kind, input.Type, input.Payload, elidedFragments);
+                        state.RowCapture, state.SqlCapture, input.Kind, input.Type, input.Payload, elidedFragments, capturedKeys);
                     Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
                     await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(envelope.Kind, envelope.Type)).ConfigureAwait(false);
 
@@ -182,6 +187,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                     foreach (CoreOutput output in decision.Outputs)
                     {
                         await JournalAndActAsync(output, causeSeq: envelope.Seq, requestType: envelope.Type).ConfigureAwait(false);
+                    }
+
+                    // Release fragments no output reclaimed (substitution removes consumed ones).
+                    foreach (string key in capturedKeys)
+                    {
+                        elidedFragments.TryRemove(key, out _);
                     }
 
                     await MaybeSampleMetricsAsync(triggeringSeq: envelope.Seq).ConfigureAwait(false);

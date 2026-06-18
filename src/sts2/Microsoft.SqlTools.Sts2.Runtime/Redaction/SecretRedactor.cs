@@ -32,15 +32,17 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Redaction
         /// <summary>
         /// Returns a copy of <paramref name="payload"/> with secret string values replaced
         /// by side-table tokens. Under any object named <c>auth</c>, every string field
-        /// except <c>kind</c> and <c>user</c> is a secret.
+        /// except <c>kind</c> and <c>user</c> is a secret. When <paramref name="createdTokens"/>
+        /// is supplied, every token minted for this payload is added to it so the caller can
+        /// release them if the request is rejected before a driver consumes them (R004).
         /// </summary>
-        public static JsonNode? Redact(JsonNode? payload, SecretSideTable sideTable)
+        public static JsonNode? Redact(JsonNode? payload, SecretSideTable sideTable, ICollection<string>? createdTokens = null)
         {
             ArgumentNullException.ThrowIfNull(sideTable);
-            return RedactNode(payload, sideTable, underAuth: false);
+            return RedactNode(payload, sideTable, underAuth: false, createdTokens);
         }
 
-        private static JsonNode? RedactNode(JsonNode? node, SecretSideTable sideTable, bool underAuth)
+        private static JsonNode? RedactNode(JsonNode? node, SecretSideTable sideTable, bool underAuth, ICollection<string>? createdTokens)
         {
             switch (node)
             {
@@ -53,14 +55,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Redaction
                             && value.GetValueKind() == JsonValueKind.String
                             && (SecretKeys.Contains(key) || (underAuth && !AuthClearKeys.Contains(key)));
 
-                        redactedObject[key] = isSecret
-                            ? JsonValue.Create(sideTable.Tokenize(value!.GetValue<string>()))
-                            : RedactNode(value, sideTable, underAuth || valueIsAuthObject);
+                        if (isSecret)
+                        {
+                            string token = sideTable.Tokenize(value!.GetValue<string>());
+                            createdTokens?.Add(token);
+                            redactedObject[key] = JsonValue.Create(token);
+                        }
+                        else
+                        {
+                            redactedObject[key] = RedactNode(value, sideTable, underAuth || valueIsAuthObject, createdTokens);
+                        }
                     }
                     return redactedObject;
 
                 case JsonArray array:
-                    return new JsonArray(array.Select(item => RedactNode(item, sideTable, underAuth)).ToArray());
+                    return new JsonArray(array.Select(item => RedactNode(item, sideTable, underAuth, createdTokens)).ToArray());
 
                 case null:
                     return null;

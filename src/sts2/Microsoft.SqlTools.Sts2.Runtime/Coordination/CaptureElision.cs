@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
@@ -37,7 +38,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             string kind,
             string type,
             JsonElement? payload,
-            ConcurrentDictionary<string, JsonElement> sideTable)
+            ConcurrentDictionary<string, JsonElement> sideTable,
+            ICollection<string>? addedKeys = null)
         {
             if (payload is not { ValueKind: JsonValueKind.Object } p)
             {
@@ -62,11 +64,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             JsonObject obj = JsonNode.Parse(p.GetRawText())!.AsObject();
             if (elideRows && obj["rows"] is JsonNode rows)
             {
-                obj["rows"] = Wrap("rows", rows, sideTable);
+                JsonObject wrapper = Wrap("rows", rows, sideTable);
+                addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
+                obj["rows"] = wrapper;
             }
             if (elideSql && obj["sql"] is JsonNode sql)
             {
-                obj["sql"] = Wrap("sql", sql, sideTable);
+                JsonObject wrapper = Wrap("sql", sql, sideTable);
+                addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
+                obj["sql"] = wrapper;
             }
             return JsonDocument.Parse(obj.ToJsonString()).RootElement;
         }

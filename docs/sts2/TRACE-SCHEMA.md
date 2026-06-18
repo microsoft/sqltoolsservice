@@ -44,5 +44,5 @@ Whether each kind is emitted in v2.0, and by what. "Reserved" kinds are part of 
 ## Redaction markers
 
 Redacted scalar: `{"$redacted":true,"kind":"sql","digest":"sha256:...","bytes":N}` — the wrapper carries the original scalar's authoritative digest (SPEC §8.2).
-Secret token: `secret:sha256:<12-hex>:<counter>` — real material lives only in the in-memory side table (SPEC §8.5).
+Secret token: `secret:ref:<32-hex>:<counter>` — an OPAQUE random reference (derived from no part of the secret); real material lives only in the in-memory side table (SPEC §8.5).
 Canonical payload form: UTF-8, ordinal-sorted keys, no insignificant whitespace, number tokens verbatim (D-0007).

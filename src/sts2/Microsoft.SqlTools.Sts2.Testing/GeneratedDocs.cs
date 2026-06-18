@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
 
             sb.Append("\n## Redaction markers\n\n");
             sb.Append("Redacted scalar: `{\"$redacted\":true,\"kind\":\"sql\",\"digest\":\"sha256:...\",\"bytes\":N}` — the wrapper carries the original scalar's authoritative digest (SPEC §8.2).\n");
-            sb.Append("Secret token: `secret:sha256:<12-hex>:<counter>` — real material lives only in the in-memory side table (SPEC §8.5).\n");
+            sb.Append("Secret token: `secret:ref:<32-hex>:<counter>` — an OPAQUE random reference (derived from no part of the secret); real material lives only in the in-memory side table (SPEC §8.5).\n");
             sb.Append("Canonical payload form: UTF-8, ordinal-sorted keys, no insignificant whitespace, number tokens verbatim (D-0007).\n");
             return sb.ToString();
         }

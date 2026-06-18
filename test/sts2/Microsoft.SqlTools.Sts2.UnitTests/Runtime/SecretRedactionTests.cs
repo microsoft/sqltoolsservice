@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.SqlTools.Sts2.Runtime.Redaction;
@@ -31,11 +32,31 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             """;
 
         [Fact]
-        public void TokenHasPinnedFormat()
+        public void TokenIsOpaqueRandomNotDerivedFromTheSecret() // R032
         {
             var table = new SecretSideTable();
-            string token = table.Tokenize(SecretCanaries.Password);
-            Assert.Matches(@"^secret:sha256:[0-9a-f]{12}:\d+$", token);
+            string a = table.Tokenize(SecretCanaries.Password);
+            string b = table.Tokenize(SecretCanaries.Password); // SAME secret
+
+            Assert.Matches(@"^secret:ref:[0-9a-f]{32}:\d+$", a);
+            // Identical secrets get DIFFERENT, unpredictable tokens (no correlation, no
+            // brute-forceable hash prefix of the credential).
+            Assert.NotEqual(a, b);
+        }
+
+        [Fact]
+        public void RedactReportsCreatedTokensForCleanup() // R004
+        {
+            var table = new SecretSideTable();
+            var created = new List<string>();
+            SecretRedactor.Redact(JsonNode.Parse(ConnectionOpenPayload), table, created);
+
+            // The gateway uses this list to release tokens on EVERY terminal, including a
+            // request Core rejects before any driver resolves them.
+            Assert.Equal(2, created.Count);
+            Assert.All(created, t => Assert.True(table.TryResolve(t, out _)));
+            table.RemoveAll(created);
+            Assert.Equal(0, table.Count);
         }
 
         [Fact]
@@ -64,8 +85,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             JsonNode auth = redacted["profile"]!["auth"]!;
             Assert.Equal("sqlLogin", auth["kind"]!.GetValue<string>());
             Assert.Equal("sa", auth["user"]!.GetValue<string>());
-            Assert.StartsWith("secret:sha256:", auth["password"]!.GetValue<string>());
-            Assert.StartsWith("secret:sha256:", auth["customSecret"]!.GetValue<string>());
+            Assert.StartsWith("secret:ref:", auth["password"]!.GetValue<string>());
+            Assert.StartsWith("secret:ref:", auth["customSecret"]!.GetValue<string>());
             Assert.Equal(2, table.Count);
 
             // The original secrets are recoverable only through the side table.

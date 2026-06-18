@@ -286,23 +286,39 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             var tcs = new TaskCompletionSource<OutboundRpcMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             pendingRequests[corr] = tcs;
 
-            // Secrets are tokenized BEFORE the envelope exists (SPEC §8.5).
+            // Secrets are tokenized BEFORE the envelope exists (SPEC §8.5). Track the tokens
+            // so they are released on EVERY terminal — including requests Core rejects before
+            // a driver ever resolves them (Busy/invalid/duplicate-openId), which previously
+            // leaked credential material for the process lifetime (R004).
+            var tokens = new List<string>();
             JsonElement? redacted = parameters is { } p
-                ? ToElement(SecretRedactor.Redact(JsonNode.Parse(p.GetRawText()), secrets))
+                ? ToElement(SecretRedactor.Redact(JsonNode.Parse(p.GetRawText()), secrets, tokens))
                 : null;
-            await coordinator.PostRpcRequestAsync(method, corr, redacted).ConfigureAwait(false);
-
-            OutboundRpcMessage outcome = await tcs.Task.ConfigureAwait(false);
-            if (outcome.Kind == "rpc.out.error")
+            try
             {
-                JsonElement body = outcome.Body!.Value;
-                throw new LocalRpcException(body.GetProperty("message").GetString())
+                await coordinator.PostRpcRequestAsync(method, corr, redacted).ConfigureAwait(false);
+
+                OutboundRpcMessage outcome = await tcs.Task.ConfigureAwait(false);
+                if (outcome.Kind == "rpc.out.error")
                 {
-                    ErrorCode = body.GetProperty("code").GetInt32(),
-                    ErrorData = body.GetProperty("data"),
-                };
+                    JsonElement body = outcome.Body!.Value;
+                    throw new LocalRpcException(body.GetProperty("message").GetString())
+                    {
+                        ErrorCode = body.GetProperty("code").GetInt32(),
+                        ErrorData = body.GetProperty("data"),
+                    };
+                }
+                return outcome.Body;
             }
-            return outcome.Body;
+            finally
+            {
+                // Idempotent: on a successful open the effect runner already removed these
+                // when the open attempt completed; here we catch the rejected/fatal paths.
+                if (tokens.Count > 0)
+                {
+                    secrets.RemoveAll(tokens);
+                }
+            }
         }
 
         private static JsonElement? ToElement(JsonNode? node)

@@ -28,8 +28,24 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                 ?? throw new InvalidDataException("Empty journal manifest: " + manifestPath);
         }
 
-        private static readonly System.Text.RegularExpressions.Regex SegmentName =
-            new(@"^journal-(?<run>.+)-\d{4}\.jsonl$", System.Text.RegularExpressions.RegexOptions.Compiled);
+        /// <summary>Extracts the runId from a <c>journal-{runId}-{NNNN}.jsonl</c> segment file name, or null.</summary>
+        private static string? RunIdOf(string fileName)
+        {
+            const string prefix = "journal-";
+            const string suffix = ".jsonl";
+            if (!fileName.StartsWith(prefix, StringComparison.Ordinal) || !fileName.EndsWith(suffix, StringComparison.Ordinal))
+            {
+                return null;
+            }
+            string core = fileName[prefix.Length..^suffix.Length]; // {runId}-{NNNN}
+            int dash = core.LastIndexOf('-');
+            if (dash <= 0)
+            {
+                return null;
+            }
+            string index = core[(dash + 1)..];
+            return index.Length == 4 && index.All(char.IsAsciiDigit) ? core[..dash] : null;
+        }
 
         /// <summary>
         /// Reads every envelope from a journal directory (or a manifest path) in segment
@@ -50,9 +66,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                 .ToArray();
 
             var runs = segments
-                .Select(s => SegmentName.Match(Path.GetFileName(s)))
-                .Where(m => m.Success)
-                .Select(m => m.Groups["run"].Value)
+                .Select(s => RunIdOf(Path.GetFileName(s)))
+                .Where(r => r is not null)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             if (runs.Length > 1)

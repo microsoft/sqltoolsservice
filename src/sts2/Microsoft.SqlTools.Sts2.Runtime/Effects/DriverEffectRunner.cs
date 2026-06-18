@@ -545,7 +545,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 {
                     if (property.Value.ValueKind == JsonValueKind.String
                         && property.Value.GetString() is string token
-                        && token.StartsWith("secret:sha256:", StringComparison.Ordinal)
+                        && token.StartsWith("secret:", StringComparison.Ordinal)
                         && secrets.TryResolve(token, out string resolved))
                     {
                         resolvedTokens.Add(token);

@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
@@ -93,7 +92,7 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
                     ["sqlclient"] = new Drivers.SqlClient.SqlClientDriver(), // production (M5)
                     ["sqlite"] = new SqliteDriver(),                        // portable (M4)
                 },
-                CommandLine = args.Where(a => !a.Contains("password", StringComparison.OrdinalIgnoreCase)).ToArray(),
+                CommandLine = SanitizeCommandLine(args),
             });
 
             // Crash containment (SPEC §6.5): if the STS2 host dies, mark the channel dead
@@ -104,6 +103,32 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
 
             multiplexer.Start(new SessionLifecycleSink(session, diagnosticsLog));
             return new Sts2BootstrapHandle(multiplexer.LegacyInput, multiplexer.LegacyOutput, multiplexer, session, diagnosticsLog);
+        }
+
+        /// <summary>
+        /// Records the command line for the journal manifest by SHAPE, not by blocklist
+        /// (R033): flag NAMES are kept verbatim (they aren't secret and are useful forensics),
+        /// but every value/positional — which can carry a connection string, access token, or
+        /// user-specific path — is redacted, including the inline value of <c>--flag=value</c>.
+        /// The old substring-"password" filter missed tokens, connection strings, and
+        /// next-argument value forms.
+        /// </summary>
+        private static IReadOnlyList<string> SanitizeCommandLine(string[] args)
+        {
+            var result = new List<string>(args.Length);
+            foreach (string arg in args)
+            {
+                if (arg.StartsWith('-'))
+                {
+                    int sep = arg.IndexOfAny(['=', ':']);
+                    result.Add(sep > 0 ? string.Concat(arg.AsSpan(0, sep + 1), "<redacted>") : arg);
+                }
+                else
+                {
+                    result.Add("<redacted>");
+                }
+            }
+            return result;
         }
 
         private static StreamWriter? TryCreateDiagnosticsLog(string? logFilePath)

@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 
 namespace Microsoft.SqlTools.Sts2.Runtime.Redaction
@@ -37,17 +36,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Redaction
         }
 
         /// <summary>
-        /// Stores <paramref name="secretValue"/> and returns its token:
-        /// <c>secret:sha256:&lt;12-hex-prefix&gt;:&lt;counter&gt;</c>.
+        /// Stores <paramref name="secretValue"/> and returns an OPAQUE token:
+        /// <c>secret:ref:&lt;16-random-bytes-hex&gt;:&lt;counter&gt;</c>. The token is
+        /// cryptographically random and derived from no part of the secret (R032), so a
+        /// journal reveals nothing about candidate values and identical secrets are not
+        /// correlatable within or across runs. The earlier <c>sha256:&lt;prefix&gt;</c> form
+        /// leaked a 48-bit hash prefix of the credential.
         /// </summary>
         public string Tokenize(string secretValue)
         {
             ArgumentNullException.ThrowIfNull(secretValue);
-            Span<byte> hash = stackalloc byte[32];
-            SHA256.HashData(Encoding.UTF8.GetBytes(secretValue), hash);
-            string prefix = Convert.ToHexStringLower(hash[..6]);
+            Span<byte> random = stackalloc byte[16];
+            RandomNumberGenerator.Fill(random);
+            string opaque = Convert.ToHexStringLower(random);
             long n = Interlocked.Increment(ref counter);
-            string token = string.Create(CultureInfo.InvariantCulture, $"secret:sha256:{prefix}:{n}");
+            string token = string.Create(CultureInfo.InvariantCulture, $"secret:ref:{opaque}:{n}");
             lock (gate)
             {
                 secretsByToken[token] = secretValue;
