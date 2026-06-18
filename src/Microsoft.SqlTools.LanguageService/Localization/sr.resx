@@ -124,5 +124,6 @@
   </data>
   <data name="ErrorEmptyStringReplacement" xml:space="preserve">
     <value>Replacement of an empty string by an empty string.</value>
+    <comment></comment>
   </data>
 </root>
