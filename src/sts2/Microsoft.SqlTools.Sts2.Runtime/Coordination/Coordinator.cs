@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                     JsonElement? captured = CaptureElision.ElideInput(
                         state.RowCapture, state.SqlCapture, input.Kind, input.Type, input.Payload, elidedFragments);
                     Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
-                    await JournalAsync(envelope, flush: IsFlushPoint(envelope.Kind)).ConfigureAwait(false);
+                    await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(envelope.Kind, envelope.Type)).ConfigureAwait(false);
 
                     CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
                     {
@@ -222,7 +222,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         {
             CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, requestType);
             Sts2Envelope envelope = BuildEnvelope(encoded.Kind, encoded.Type, null, encoded.Corr, encoded.Payload, causeSeq);
-            await JournalAsync(envelope, flush: IsFlushPoint(encoded.Kind)).ConfigureAwait(false);
+            await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(encoded.Kind, encoded.Type)).ConfigureAwait(false);
 
             switch (encoded.Kind)
             {
@@ -386,10 +386,6 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 ["errorsByCode"] = errors,
             };
         }
-
-        private static bool IsFlushPoint(string kind) =>
-            kind is EnvelopeKinds.RpcOutResult or EnvelopeKinds.RpcOutError
-                 or EnvelopeKinds.Diagnostic or EnvelopeKinds.Control or EnvelopeKinds.ConfigChanged;
 
         private void Emit(OutboundRpcMessage message)
         {

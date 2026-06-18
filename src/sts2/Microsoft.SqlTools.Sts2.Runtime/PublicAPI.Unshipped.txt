@@ -61,6 +61,7 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Pay
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Payload.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Type.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Type.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.DurabilityPolicy
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.Args.get -> System.Text.Json.JsonElement
@@ -329,6 +330,7 @@ static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.Encode(Mic
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodeErrorBody(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput! error) -> System.Text.Json.JsonElement
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.DurabilityPolicy.IsCheckpoint(string! kind, string! type) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
