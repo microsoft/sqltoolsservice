@@ -1562,6 +1562,20 @@ END
             "    SELECT * FROM dbo.[Customers];\n" +  // line 3 — [Customers] starts at char 21
             "END";
 
+        private const string MemoryOptimizedTableScript =
+            "CREATE TABLE dbo.MemOptTable (\n" +
+            "    Id INT NOT NULL PRIMARY KEY NONCLUSTERED HASH WITH (BUCKET_COUNT = 1000000),\n" +
+            "    Value NVARCHAR(100)\n" +
+            ") WITH (MEMORY_OPTIMIZED = ON, DURABILITY = SCHEMA_AND_DATA);";
+
+        private const string SalesSchemaScript = "CREATE SCHEMA sales;";
+
+        private const string SalesCustomersTableScript =
+            "CREATE TABLE sales.Customers (\n" +
+            "    CustomerId INT PRIMARY KEY,\n" +
+            "    Region NVARCHAR(50)\n" +
+            ");";  
+
         [SetUp]
         public void SetUp()
         {
@@ -1579,6 +1593,12 @@ END
                 new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), OrdersScript);
             _project.SqlObjectScripts.Add(
                 new SqlObjectScript(Path.Combine("StoredProcedures", "GetBracketed.sql")), BracketedReferenceScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "MemOptTable.sql")), MemoryOptimizedTableScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Schemas", "sales.sql")), SalesSchemaScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "SalesCustomers.sql")), SalesCustomersTableScript);
 
             _model = TSqlModelBuilder.LoadModel(_project);
             _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
@@ -1616,15 +1636,28 @@ END
             return new Uri(abs).AbsoluteUri;
         }
 
-        private void LoadAllFilesIntoWorkspace()
+        private void LoadAllFilesIntoWorkspace(bool includeMemOptTable = false, bool includeSalesSchema = false)
         {
-            var entries = new[]
+            var entriesList = new System.Collections.Generic.List<(string Path, string Content)>
             {
                 (Path: "Tables/Customers.sql",               Content: TableScript),
                 (Path: "Tables/Orders.sql",                   Content: OrdersScript),
                 (Path: "StoredProcedures/GetCustomer.sql",   Content: GetCustomerScript),
                 (Path: "StoredProcedures/ListCustomers.sql", Content: ListCustomersScript),
             };
+            
+            if (includeMemOptTable)
+            {
+                entriesList.Add((Path: "Tables/MemOptTable.sql", Content: MemoryOptimizedTableScript));
+            }
+            
+            if (includeSalesSchema)
+            {
+                entriesList.Add((Path: "Schemas/sales.sql", Content: SalesSchemaScript));
+                entriesList.Add((Path: "Tables/SalesCustomers.sql", Content: SalesCustomersTableScript));
+            }
+            
+            var entries = entriesList.ToArray();
 
             var fileUris = System.Array.ConvertAll(entries, e =>
             {
@@ -2025,6 +2058,57 @@ END
 
             Assert.That(resultSent, Is.True, "SendResult should have been called");
             Assert.That(result, Is.Null, "Moving to the current schema should return a null response");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_ForMemoryOptimizedTable()
+        {
+            LoadAllFilesIntoWorkspace(includeMemOptTable: true);
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            // Try to move memory-optimized table to another schema (cursor on "MemOptTable" in the CREATE TABLE line)
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Tables/MemOptTable.sql") },
+                    Position = new Position { Line = 0, Character = 20 },
+                    TargetSchema = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Memory-optimized tables should be rejected (ALTER SCHEMA TRANSFER does not support them)");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_WhenNameCollisionExists()
+        {
+            LoadAllFilesIntoWorkspace(includeSalesSchema: true);
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            // Try to move dbo.Customers to sales schema (but sales.Customers already exists)
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers"
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    TargetSchema = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Name collision should cause the operation to be rejected");
         }
 
     }

@@ -22,6 +22,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
+using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
@@ -1984,6 +1985,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (string.Equals(oldSchema, moveParams.TargetSchema, StringComparison.OrdinalIgnoreCase))
             {
                 // Already in the target schema — nothing to do.
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Validate memory-optimized tables cannot be moved
+            // (ALTER SCHEMA TRANSFER does not support them).
+            DacModel.TSqlObject obj = provider.FindObject(qualifiedName);
+            if (obj != null && obj.ObjectType == DacModel.ModelSchema.Table)
+            {
+                bool isMemoryOptimized = obj.GetProperty<bool>(DacModel.Table.MemoryOptimized);
+                if (isMemoryOptimized)
+                {
+                    await requestContext.SendResult(null);
+                    return;
+                }
+            }
+
+            // Check for name collision: reject if an object with the same name already exists in
+            // the target schema.
+            string unqualifiedName = TextUtilities.RemoveSquareBracketSyntax(elementName.Split('.').Last());
+            string targetQualifiedName = $"{moveParams.TargetSchema}.{unqualifiedName}";
+            DacModel.TSqlObject existingObject = provider.FindObject(targetQualifiedName);
+            if (existingObject != null)
+            {
                 await requestContext.SendResult(null);
                 return;
             }

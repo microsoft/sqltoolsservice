@@ -496,6 +496,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             try
             {
                 string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
+                bool parseSucceeded = false;
+                
                 if (!deleted)
                 {
                     string? sqlText = sqlTextOverride ?? (File.Exists(sourceName)
@@ -503,14 +505,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         : null);
                     if (sqlText == null) return;
                     if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
-                    state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                    
+                    // Always delete first to clear any stale objects/errors from previous failed parses.
+                    // DacFx's AddOrUpdateObjects checks ThrowIfModelErrorsExist() before processing
+                    // new content, so stale errors from a previous parse failure would reject valid SQL.
+                    state.Model.DeleteObjects(sourceName);
+                    
+                    try
+                    {
+                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                        parseSucceeded = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Parse failed - tell provider the file is effectively deleted so its
+                        // indexes don't reference objects that don't exist in the model.
+                        Logger.Error($"UpdateProjectIntelliSenseAsync parse error for {sourceName}: {ex}");
+                        // parseSucceeded stays false, so provider will be updated with deleted=true
+                    }
                 }
                 else
                 {
                     if (!projectIntelliSense.ContainsKey(projectUri)) return;
                     state.Model.DeleteObjects(sourceName);
                 }
-                state.Provider.UpdateForFileChange(sourceName, deleted);
+                
+                // Update provider: deleted=true for actual deletes OR failed parses
+                state.Provider.UpdateForFileChange(sourceName, deleted || !parseSucceeded);
 
                 // The binder built at project-open time holds a snapshot of the metadata.
                 // After mutating the provider, recreate the binder so alias resolution (e.g.
