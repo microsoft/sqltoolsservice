@@ -36,6 +36,14 @@ namespace Microsoft.SqlTools.LanguageService
             return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
         }
 
+        public static string ErrorEmptyStringReplacement
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorEmptyStringReplacement);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -45,6 +53,8 @@ namespace Microsoft.SqlTools.LanguageService
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+            public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
 
 
             private Keys()

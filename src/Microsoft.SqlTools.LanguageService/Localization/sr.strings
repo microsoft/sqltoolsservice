@@ -19,3 +19,8 @@
 # Workspace Service
 
 WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
+
+############################################################################
+# Formatter
+
+ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
