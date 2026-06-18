@@ -43,36 +43,45 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             activeCommand = command;
 
-            await using (command.ConfigureAwait(false))
+            // Clear activeCommand in finally so a faulted reader/row read never leaves it
+            // pointing at a disposed command (R035). The finally runs when the enumerator is
+            // disposed — on completion, break, or exception.
+            try
             {
-                SqlDataReader reader = await OpenReaderAsync(command, cancellationToken).ConfigureAwait(false);
-                await using (reader.ConfigureAwait(false))
+                await using (command.ConfigureAwait(false))
                 {
-                    int resultSetId = 0;
-                    long totalAffected = 0;
-                    bool more;
-                    do
+                    SqlDataReader reader = await OpenReaderAsync(command, cancellationToken).ConfigureAwait(false);
+                    await using (reader.ConfigureAwait(false))
                     {
-                        if (reader.FieldCount > 0)
+                        int resultSetId = 0;
+                        long totalAffected = 0;
+                        bool more;
+                        do
                         {
-                            await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, cancellationToken).ConfigureAwait(false))
+                            if (reader.FieldCount > 0)
                             {
-                                yield return execEvent;
+                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, cancellationToken).ConfigureAwait(false))
+                                {
+                                    yield return execEvent;
+                                }
+                                resultSetId++;
                             }
-                            resultSetId++;
+                            else if (reader.RecordsAffected > 0)
+                            {
+                                totalAffected += reader.RecordsAffected;
+                            }
+                            more = await NextResultAsync(reader, cancellationToken).ConfigureAwait(false);
                         }
-                        else if (reader.RecordsAffected > 0)
-                        {
-                            totalAffected += reader.RecordsAffected;
-                        }
-                        more = await NextResultAsync(reader, cancellationToken).ConfigureAwait(false);
-                    }
-                    while (more);
+                        while (more);
 
-                    yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected]);
+                        yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected]);
+                    }
                 }
             }
-            activeCommand = null;
+            finally
+            {
+                activeCommand = null;
+            }
         }
 
         private static async Task<SqlDataReader> OpenReaderAsync(SqlCommand command, CancellationToken cancellationToken)

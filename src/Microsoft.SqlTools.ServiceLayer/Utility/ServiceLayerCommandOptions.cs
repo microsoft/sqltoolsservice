@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             "Charles-Gagnon"
             };
 
-        public ServiceLayerCommandOptions(string[] args) : base(args.Where(arg => !serviceLayerCommandArgs.Contains(arg)).ToArray(), ServiceLayerServiceName)
+        public ServiceLayerCommandOptions(string[] args) : base(args.Where(arg => !serviceLayerCommandArgs.Contains(arg, StringComparer.OrdinalIgnoreCase)).ToArray(), ServiceLayerServiceName)
         {
             for (int i = 0; i < args.Length; ++i)
             {

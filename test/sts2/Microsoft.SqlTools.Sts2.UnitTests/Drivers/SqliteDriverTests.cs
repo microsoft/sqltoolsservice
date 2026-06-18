@@ -134,6 +134,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task CancelDoesNotStickToTheNextQuery() // R016
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            await ExecuteAsync(session, "create table t(n integer)");
+            await ExecuteAsync(session, "with recursive c(n) as (select 1 union all select n+1 from c where n < 5) insert into t select n from c");
+
+            // Cancel a (started but unconsumed) query — the per-query CTS must not poison later queries.
+            await session.CancelAsync("q-cancelled", CancellationToken.None);
+
+            // A subsequent query must run to completion, not be insta-cancelled by a sticky CTS.
+            List<ExecEvent> events = await ExecuteAsync(session, "select n from t order by n");
+            Assert.Equal(5, events.OfType<RowsPage>().Sum(p => p.Cells.Count));
+            Assert.IsType<ExecCompleted>(events[^1]);
+        }
+
+        [Fact]
         public async Task SessionDisposeReleasesConnection()
         {
             var driver = new SqliteDriver();

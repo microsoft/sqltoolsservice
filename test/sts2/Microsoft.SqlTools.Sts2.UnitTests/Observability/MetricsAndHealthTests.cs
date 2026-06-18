@@ -65,8 +65,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             JsonElement dropped = body.GetProperty("droppedDiagnostics");
             Assert.Equal(0, dropped.GetProperty("emit").GetInt64());
             Assert.Equal(0, dropped.GetProperty("sink").GetInt64());
-            // The malformed close produced an InvalidRequest error in the histogram.
-            Assert.Equal(1, body.GetProperty("recentErrors").GetProperty("Sts2.InvalidRequest").GetInt32());
+            // The malformed close produced an InvalidRequest error in the lifetime histogram.
+            Assert.Equal(1, body.GetProperty("errorsByCodeTotal").GetProperty("Sts2.InvalidRequest").GetInt32());
         }
 
         [Fact]

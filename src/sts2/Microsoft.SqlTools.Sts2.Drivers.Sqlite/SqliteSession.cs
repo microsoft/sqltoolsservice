@@ -18,7 +18,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
     internal sealed class SqliteSession : IDbSession
     {
         private readonly SqliteConnection connection;
-        private readonly CancellationTokenSource activeQueryCancel = new();
+        private readonly Lock cancelGate = new();
+        private CancellationTokenSource? currentQueryCancel;
         private int disposed;
 
         internal SqliteSession(SqliteConnection connection, ServerInfo server)
@@ -32,61 +33,82 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         public async IAsyncEnumerable<ExecEvent> ExecuteAsync(QueryExecuteRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, activeQueryCancel.Token);
             int pageRows = request.PageRows > 0 ? request.PageRows : Sts2Defaults.PageRows;
+
+            // A FRESH per-query cancellation source: cancelling one query must never stick to
+            // the next (the old session-wide CTS made every query after a cancel insta-cancel — R016).
+            var queryCancel = new CancellationTokenSource();
+            lock (cancelGate)
+            {
+                currentQueryCancel = queryCancel;
+            }
+            using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, queryCancel.Token);
 
             yield return new ExecStarted(request.QueryId);
 
-            await using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = request.Sql;
-
-            SqliteDataReader reader;
             try
             {
-                reader = await command.ExecuteReaderAsync(linked.Token).ConfigureAwait(false);
-            }
-            catch (SqliteException ex)
-            {
-                throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message,
-                    new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 }, ex);
-            }
+                await using SqliteCommand command = connection.CreateCommand();
+                command.CommandText = request.Sql;
 
-            await using (reader.ConfigureAwait(false))
-            {
-                int resultSetId = 0;
-                long totalRowsAffected = 0;
-                bool hasResultSet;
-                do
+                SqliteDataReader reader;
+                try
                 {
-                    if (reader.FieldCount > 0)
-                    {
-                        foreach (ExecEvent execEvent in await PumpResultSetAsync(reader, resultSetId, pageRows, linked.Token).ConfigureAwait(false))
-                        {
-                            yield return execEvent;
-                        }
-                        resultSetId++;
-                    }
-                    else
-                    {
-                        totalRowsAffected += reader.RecordsAffected >= 0 ? reader.RecordsAffected : 0;
-                    }
-
-                    hasResultSet = await reader.NextResultAsync(linked.Token).ConfigureAwait(false);
+                    reader = await command.ExecuteReaderAsync(linked.Token).ConfigureAwait(false);
                 }
-                while (hasResultSet);
+                catch (SqliteException ex)
+                {
+                    throw Classify(ex);
+                }
 
-                yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalRowsAffected]);
+                await using (reader.ConfigureAwait(false))
+                {
+                    int resultSetId = 0;
+                    long totalRowsAffected = 0;
+                    bool hasResultSet;
+                    do
+                    {
+                        if (reader.FieldCount > 0)
+                        {
+                            await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, linked.Token).ConfigureAwait(false))
+                            {
+                                yield return execEvent;
+                            }
+                            resultSetId++;
+                        }
+                        else
+                        {
+                            totalRowsAffected += reader.RecordsAffected >= 0 ? reader.RecordsAffected : 0;
+                        }
+
+                        hasResultSet = await NextResultAsync(reader, linked.Token).ConfigureAwait(false);
+                    }
+                    while (hasResultSet);
+
+                    yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalRowsAffected]);
+                }
+            }
+            finally
+            {
+                lock (cancelGate)
+                {
+                    if (currentQueryCancel == queryCancel)
+                    {
+                        currentQueryCancel = null;
+                    }
+                }
+                queryCancel.Dispose();
             }
         }
 
         /// <summary>
-        /// Buffers one result set into result-set/page/completed events. Buffering (rather
-        /// than yielding mid-read) keeps the SqliteException boundary outside the iterator,
-        /// which C# forbids combining with yield.
+        /// Streams one result set page-by-page (no whole-result buffering — R016). Each row
+        /// read is wrapped for the SqliteException boundary in <see cref="ReadRowAsync"/> so
+        /// the iterator can yield each page outside any try/catch (which C# forbids combining).
         /// </summary>
-        private static async Task<IReadOnlyList<ExecEvent>> PumpResultSetAsync(SqliteDataReader reader, int resultSetId, int pageRows, CancellationToken cancellationToken)
+        private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
+            SqliteDataReader reader, int resultSetId, int pageRows, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var events = new List<ExecEvent>();
             var columns = new List<ColumnInfo>(reader.FieldCount);
             for (int i = 0; i < reader.FieldCount; i++)
             {
@@ -97,47 +119,76 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     Nullable = true,
                 });
             }
-            events.Add(new ResultSetStarted(resultSetId, columns));
+            yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
             long rowOffset = 0;
             long rowCount = 0;
             var page = new List<IReadOnlyList<object?>>(pageRows);
 
-            try
+            while (true)
             {
-                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                object?[]? cells = await ReadRowAsync(reader, cancellationToken).ConfigureAwait(false);
+                if (cells is null)
                 {
-                    var cells = new object?[reader.FieldCount];
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        cells[i] = EncodeCell(reader, i);
-                    }
-                    page.Add(cells);
-                    rowCount++;
-
-                    if (page.Count >= pageRows)
-                    {
-                        events.Add(new RowsPage(resultSetId, pageSeq, rowOffset, page));
-                        rowOffset += page.Count;
-                        pageSeq++;
-                        page = new List<IReadOnlyList<object?>>(pageRows);
-                    }
+                    break;
                 }
-            }
-            catch (SqliteException ex)
-            {
-                throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message,
-                    new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 }, ex);
+                page.Add(cells);
+                rowCount++;
+
+                if (page.Count >= pageRows)
+                {
+                    yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
+                    rowOffset += page.Count;
+                    pageSeq++;
+                    page = new List<IReadOnlyList<object?>>(pageRows);
+                }
             }
 
             if (page.Count > 0)
             {
-                events.Add(new RowsPage(resultSetId, pageSeq, rowOffset, page));
+                yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
             }
-            events.Add(new ResultSetCompleted(resultSetId, rowCount));
-            return events;
+            yield return new ResultSetCompleted(resultSetId, rowCount);
         }
+
+        /// <summary>Reads one row's cells, or null at end of result set. Classifies Sqlite faults.</summary>
+        private static async Task<object?[]?> ReadRowAsync(SqliteDataReader reader, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    return null;
+                }
+                var cells = new object?[reader.FieldCount];
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    cells[i] = EncodeCell(reader, i);
+                }
+                return cells;
+            }
+            catch (SqliteException ex)
+            {
+                throw Classify(ex);
+            }
+        }
+
+        private static async Task<bool> NextResultAsync(SqliteDataReader reader, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await reader.NextResultAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (SqliteException ex)
+            {
+                throw Classify(ex);
+            }
+        }
+
+        private static DbDriverException Classify(SqliteException ex) =>
+            new(Sts2ErrorCodes.QueryFailedServer, ex.Message,
+                new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 }, ex);
 
         /// <summary>
         /// Returns one cell as a plain CLR value (long, double, string, byte[], or null).
@@ -162,8 +213,11 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
 
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
         {
-            // Cooperative cancellation: honored between pages and on the next read.
-            activeQueryCancel.Cancel();
+            // Cooperative cancellation of the CURRENT query only; honored between pages and reads.
+            lock (cancelGate)
+            {
+                currentQueryCancel?.Cancel();
+            }
             return ValueTask.CompletedTask;
         }
 
@@ -173,8 +227,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             {
                 return;
             }
-            activeQueryCancel.Cancel();
-            activeQueryCancel.Dispose();
+            lock (cancelGate)
+            {
+                currentQueryCancel?.Cancel();
+            }
             await connection.DisposeAsync().ConfigureAwait(false);
         }
     }

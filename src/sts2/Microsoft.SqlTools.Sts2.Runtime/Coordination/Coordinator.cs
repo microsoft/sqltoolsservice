@@ -327,12 +327,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 ["sink"] = SinkFaultCount,
             };
             obj["envelopesObserved"] = metrics.Total;
+            // Lifetime (session-cumulative) error histogram — named precisely so operators do
+            // not misread it as a recent/windowed count (R047).
             var histogram = new JsonObject();
             foreach (KeyValuePair<string, long> entry in metrics.ErrorsByCode())
             {
                 histogram[entry.Key] = entry.Value;
             }
-            obj["recentErrors"] = histogram;
+            obj["errorsByCodeTotal"] = histogram;
             return JsonDocument.Parse(obj.ToJsonString()).RootElement;
         }
 

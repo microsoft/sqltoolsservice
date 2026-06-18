@@ -77,7 +77,7 @@ Two ways to read metrics, both fed from the same stream:
 - **`v2/diagnostics.health`** — pure-Core counters (latest seq, active connections/queries,
   total queries, unacked pages, shutting down) plus a live Runtime overlay: `configVersion`,
   `queueDepth`, `fatal` (+`fatalReason`), `openLeases`, `opensInFlight`, `activeQueryPumps`,
-  `droppedDiagnostics` {emit, effect, sink}, `envelopesObserved`, `recentErrors` histogram.
+  `droppedDiagnostics` {emit, effect, sink}, `envelopesObserved`, `errorsByCodeTotal` histogram.
 - **`v2/diagnostics.state`** — the redacted machine state in the one shared `CoreStateDump`
   format (connections/queries with phases, counters, and the flags that explain why a machine
   is parked: `hasHandle`, `cancelRequested`, `closeAfterQuery`, `closePending`,

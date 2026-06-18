@@ -331,6 +331,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     PageRows = Sts2Defaults.PageRows,
                     PageBytes = Sts2Defaults.PageBytes,
                 };
+                // Backpressure (SPEC §7.8): a rows page may only POST when the window has
+                // credit; the WaitAsync below is what parks the enumerator. NOTE (R012): the
+                // enumerator materializes the next page during MoveNext before this gate, so
+                // at most ONE page can be read beyond the window. That overrun is bounded and
+                // intentional here — eliminating it cleanly requires a credit-gated page-pull
+                // port (gating MoveNext itself would deadlock trailing non-row events such as
+                // query.complete, which must flow without consuming page credit).
                 await foreach (ExecEvent execEvent in pump.Session.ExecuteAsync(request, pump.Cancellation.Token).ConfigureAwait(false))
                 {
                     if (pump.Suppressed)
@@ -348,8 +355,6 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             break;
 
                         case RowsPage page:
-                            // Backpressure (SPEC §7.8): a rows page may only post when the
-                            // window has credit; this await is what stops the enumerator.
                             await pump.Credits.WaitAsync(pump.Cancellation.Token).ConfigureAwait(false);
                             if (pump.Suppressed)
                             {

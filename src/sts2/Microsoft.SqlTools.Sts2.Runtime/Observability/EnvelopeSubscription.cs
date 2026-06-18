@@ -27,11 +27,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
             // FullMode.Wait + manual eviction gives drop-OLDEST semantics with an exact
             // drop count (DropOldest mode evicts silently and cannot be counted). The pump
             // is the only writer, so once we evict one item the subsequent write has room.
+            // SingleReader is FALSE: the producer also reads (Reader.TryRead) to evict the
+            // oldest, so two distinct readers can touch the channel (R034).
             channel = Channel.CreateBounded<Sts2Envelope>(new BoundedChannelOptions(capacity)
             {
                 FullMode = BoundedChannelFullMode.Wait,
                 SingleWriter = true,
-                SingleReader = true,
+                SingleReader = false,
             });
             this.unsubscribe = unsubscribe;
         }
