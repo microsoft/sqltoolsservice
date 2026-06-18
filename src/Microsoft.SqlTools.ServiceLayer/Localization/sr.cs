@@ -511,14 +511,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ErrorEmptyStringReplacement
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrorEmptyStringReplacement);
-            }
-        }
-
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
@@ -11411,9 +11403,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
-
-
-            public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
 
 
             public const string StarExpansionLabel = "StarExpansionLabel";
