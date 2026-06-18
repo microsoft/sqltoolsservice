@@ -371,6 +371,7 @@ static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.operator !=(Mic
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalOptions? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalReader.ReadAll(string! directoryOrManifestPath) -> System.Collections.Generic.IEnumerable<Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!>!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalReader.ReadManifest(string! manifestPath) -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest!
+static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalReader.ReadRun(string! directory, string! runId) -> System.Collections.Generic.IEnumerable<Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!>!
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.operator ==(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment.operator !=(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? left, Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalSegment? right) -> bool

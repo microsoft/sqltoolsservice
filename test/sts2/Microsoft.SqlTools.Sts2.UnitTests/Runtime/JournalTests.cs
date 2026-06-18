@@ -65,6 +65,30 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task ReadAllRejectsMixedRunsAndReadRunIsolatesThem() // R007
+        {
+            // Two runs share one directory (the production hazard before per-run subdirs).
+            foreach (string runId in new[] { "run-aaa", "run-bbb" })
+            {
+                await using var writer = new JournalWriter(runId,
+                    new JournalOptions { Directory = directory },
+                    new JournalRunInfo { ServiceVersion = "9", CommandLine = [] });
+                await writer.AppendAsync(Envelope(1) with { RunId = runId }, flush: true);
+                await writer.AppendAsync(Envelope(2) with { RunId = runId }, flush: true);
+            }
+
+            // ReadAll must refuse to silently concatenate two runs.
+            Assert.Throws<InvalidDataException>(() => JournalReader.ReadAll(directory).ToList());
+
+            // ReadRun reads exactly one run.
+            List<Sts2Envelope> a = JournalReader.ReadRun(directory, "run-aaa").ToList();
+            Assert.All(a, e => Assert.Equal("run-aaa", e.RunId));
+            Assert.Equal(2, a.Count);
+            List<Sts2Envelope> b = JournalReader.ReadRun(directory, "run-bbb").ToList();
+            Assert.All(b, e => Assert.Equal("run-bbb", e.RunId));
+        }
+
+        [Fact]
         public async Task FlushHintMakesLinesVisibleBeforeDispose()
         {
             await using JournalWriter writer = CreateWriter();

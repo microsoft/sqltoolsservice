@@ -83,7 +83,10 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
                 Input = multiplexer.Sts2Input,
                 Output = multiplexer.Sts2Output,
                 RunId = runId,
-                JournalDirectory = Path.Combine(logDirectory, "sts2"),
+                // One directory per run (R007): every process run journals into its own
+                // sts2/<runId>/ folder so replay, export, tail, and invariant checks can
+                // never conflate this run with an earlier one in the shared log directory.
+                JournalDirectory = Path.Combine(logDirectory, "sts2", runId),
                 ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
                 Drivers = new Dictionary<string, IDbDriver>
                 {
