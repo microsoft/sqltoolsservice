@@ -80,10 +80,11 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             Assert.Equal("2.0.0-preview.1", result.GetProperty("specVersion").GetString());
             Assert.True(result.GetProperty("limits").GetProperty("pageRows").GetInt32() > 0);
 
-            // The journal exists under <log-dir>/sts2 in enabled mode (SPEC §8.3).
+            // The journal exists under <log-dir>/sts2/<runId>/ in enabled mode (SPEC §8.3,
+            // one directory per run — R007).
             string journalDir = Path.Combine(logDirectory, "sts2");
             Assert.True(Directory.Exists(journalDir), "journal directory missing: " + journalDir);
-            Assert.NotEmpty(Directory.EnumerateFiles(journalDir, "journal-*.jsonl"));
+            Assert.NotEmpty(Directory.EnumerateFiles(journalDir, "journal-*.jsonl", SearchOption.AllDirectories));
 
             // Unregistered v2 methods get JSON-RPC method-not-found from the gateway
             // (numeric code, I12-compatible); registered-but-invalid requests get

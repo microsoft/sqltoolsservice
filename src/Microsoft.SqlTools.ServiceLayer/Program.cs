@@ -86,8 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
                 catch (Exception loggerEx)
                 {
-                    Console.WriteLine($"Error: Logger unavailable: {loggerEx}");
-                    Console.WriteLine($"An unhandled exception occurred: {ex}");
+                    // STS2: in enabled mode the multiplexer owns stdout as a framed JSON-RPC
+                    // channel, so emergency text MUST go to stderr or it corrupts the stream
+                    // (R029). stderr is never the protocol channel in either mode.
+                    Console.Error.WriteLine($"Error: Logger unavailable: {loggerEx}");
+                    Console.Error.WriteLine($"An unhandled exception occurred: {ex}");
                 }
                 Environment.Exit(1);
             }
