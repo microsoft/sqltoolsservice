@@ -123,6 +123,9 @@ namespace Microsoft.SqlTools.Sts2.Core
                 {
                     ["capture"] = state.RowCapture,
                     ["sqlCapture"] = state.SqlCapture,
+                    // The host capture policy ceiling a client may request via setCapture (D-0012).
+                    ["maxCapture"] = state.MaxRowCapture,
+                    ["maxSqlCapture"] = state.MaxSqlCapture,
                     ["configVersion"] = state.ConfigVersion,
                     ["latestSeq"] = envelope.Seq,
                 },
@@ -183,6 +186,22 @@ namespace Microsoft.SqlTools.Sts2.Core
             if (sqlCapture is not ("text" or "digest"))
             {
                 return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "sqlCapture must be 'text' or 'digest'.");
+            }
+
+            // Host capture policy (D-0012): a client may not request a mode more revealing than
+            // the host allows. 'digest' is always permitted (the safe floor); the revealing
+            // modes ('full' rows, 'text' SQL) are permitted only when the policy ceiling allows
+            // them. In the product composition the ceiling is digest/digest, so this denies an
+            // untrusted client persisting real row/SQL data.
+            if (!IsWithinCapturePolicy(rowCapture, state.MaxRowCapture))
+            {
+                return Error(state, corr, Sts2ErrorCodes.InvalidRequest,
+                    "rowCapture '" + rowCapture + "' exceeds the host capture policy (max '" + state.MaxRowCapture + "').");
+            }
+            if (!IsWithinCapturePolicy(sqlCapture, state.MaxSqlCapture))
+            {
+                return Error(state, corr, Sts2ErrorCodes.InvalidRequest,
+                    "sqlCapture '" + sqlCapture + "' exceeds the host capture policy (max '" + state.MaxSqlCapture + "').");
             }
 
             // Idempotent: an unchanged request echoes the current config without bumping the
@@ -874,16 +893,22 @@ namespace Microsoft.SqlTools.Sts2.Core
                 maxConnections = parsedMax;
             }
 
-            // Initial capture modes enter through the journaled session.start so replay
-            // starts from the same capture state the live run did (SPEC §8.4, I7).
+            // Initial capture modes AND the host capture policy enter through the journaled
+            // session.start so replay starts from the same capture state the live run did
+            // (SPEC §8.4, I7, D-0012). The policy (maxRow/maxSql) is the ceiling setCapture
+            // may not exceed; the product composition pins it to digest/digest.
             string rowCapture = state.RowCapture;
             string sqlCapture = state.SqlCapture;
+            string maxRowCapture = state.MaxRowCapture;
+            string maxSqlCapture = state.MaxSqlCapture;
             if (envelope.Payload is { ValueKind: JsonValueKind.Object } capturePayload
                 && capturePayload.TryGetProperty("capture", out JsonElement capture)
                 && capture.ValueKind == JsonValueKind.Object)
             {
                 rowCapture = GetString(capture, "row") ?? rowCapture;
                 sqlCapture = GetString(capture, "sql") ?? sqlCapture;
+                maxRowCapture = GetString(capture, "maxRow") ?? maxRowCapture;
+                maxSqlCapture = GetString(capture, "maxSql") ?? maxSqlCapture;
             }
 
             return CoreDecision.StateOnly(state with
@@ -893,6 +918,8 @@ namespace Microsoft.SqlTools.Sts2.Core
                 MaxConnections = maxConnections,
                 RowCapture = rowCapture,
                 SqlCapture = sqlCapture,
+                MaxRowCapture = maxRowCapture,
+                MaxSqlCapture = maxSqlCapture,
             });
         }
 
@@ -916,6 +943,11 @@ namespace Microsoft.SqlTools.Sts2.Core
                 $$"""{"reason":{{JsonSerializer.Serialize(reason)}},"kind":{{JsonSerializer.Serialize(envelope.Kind)}},"type":{{JsonSerializer.Serialize(envelope.Type)}},"seq":{{envelope.Seq}}}""");
             return new CoreDecision(state, [new DiagnosticOutput("core.unexpectedInput", Json(data))]);
         }
+
+        // 'digest' is the safe floor (always allowed); a more-revealing mode is allowed only
+        // when it equals the policy ceiling (D-0012).
+        private static bool IsWithinCapturePolicy(string requested, string max) =>
+            requested == "digest" || requested == max;
 
         private static string? GetString(JsonElement? payload, string property) =>
             payload is { ValueKind: JsonValueKind.Object } p

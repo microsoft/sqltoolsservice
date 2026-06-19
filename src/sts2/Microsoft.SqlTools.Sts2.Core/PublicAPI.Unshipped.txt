@@ -81,6 +81,10 @@ Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.get -> long
 Microsoft.SqlTools.Sts2.Core.CoreState.LastSeq.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.MaxConnections.get -> int
 Microsoft.SqlTools.Sts2.Core.CoreState.MaxConnections.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.MaxRowCapture.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreState.MaxRowCapture.init -> void
+Microsoft.SqlTools.Sts2.Core.CoreState.MaxSqlCapture.get -> string!
+Microsoft.SqlTools.Sts2.Core.CoreState.MaxSqlCapture.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, string!>!
 Microsoft.SqlTools.Sts2.Core.CoreState.OpenIdToConnectionId.init -> void
 Microsoft.SqlTools.Sts2.Core.CoreState.Queries.get -> System.Collections.Immutable.ImmutableSortedDictionary<string!, Microsoft.SqlTools.Sts2.Core.QueryInfo!>!

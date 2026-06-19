@@ -131,6 +131,10 @@ namespace Microsoft.SqlTools.Sts2.Core
             MaxConnections = Contracts.Sts2Defaults.MaxConnections,
             RowCapture = "full",
             SqlCapture = "text",
+            // Permissive ceiling by default (dev/test composition). The product composition
+            // pins a deny policy (maxRow=digest, maxSql=digest) via session.start (D-0012).
+            MaxRowCapture = "full",
+            MaxSqlCapture = "text",
             ConfigVersion = 1,
             Drivers = ImmutableArray<DriverDescriptor>.Empty,
             Connections = ImmutableSortedDictionary<string, ConnectionInfo>.Empty,
@@ -158,6 +162,12 @@ namespace Microsoft.SqlTools.Sts2.Core
 
         /// <summary>SQL capture mode (<c>text</c> | <c>digest</c>); seeded by session.start, changed by setCapture (SPEC §8.4).</summary>
         public required string SqlCapture { get; init; }
+
+        /// <summary>Host policy ceiling for row capture (D-0012): setCapture may not exceed this. Product denies <c>full</c>.</summary>
+        public required string MaxRowCapture { get; init; }
+
+        /// <summary>Host policy ceiling for SQL capture (D-0012): setCapture may not exceed this. Product denies <c>text</c>.</summary>
+        public required string MaxSqlCapture { get; init; }
 
         /// <summary>Monotonic config snapshot version; bumped on each capture change (SPEC §8.4, I15).</summary>
         public required int ConfigVersion { get; init; }

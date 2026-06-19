@@ -373,6 +373,30 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Null(done.NewState.Connections["c-1"].ActiveQueryId);
         }
 
+        [Fact]
+        public void SetCaptureCannotExceedHostCapturePolicy() // D-0012
+        {
+            // session.start pins a product-style deny policy (digest ceiling).
+            CoreState state = Sts2CoreReducer.Decide(CoreState.Initial, new CoreEnvelope
+            {
+                Seq = 1,
+                Kind = "control",
+                Type = "session.start",
+                Payload = JsonDocument.Parse("""{"capture":{"row":"digest","sql":"digest","maxRow":"digest","maxSql":"digest"}}""").RootElement.Clone(),
+            }).NewState;
+
+            // A client may not elevate to full rows / text SQL beyond the policy.
+            CoreDecision full = Sts2CoreReducer.Decide(state, Request(2, "v2/diagnostics.setCapture", "r-1", """{"rowCapture":"full"}"""));
+            Assert.Equal("Sts2.InvalidRequest", Assert.IsType<RpcErrorOutput>(Assert.Single(full.Outputs)).DataCode);
+
+            CoreDecision text = Sts2CoreReducer.Decide(state, Request(3, "v2/diagnostics.setCapture", "r-2", """{"sqlCapture":"text"}"""));
+            Assert.Equal("Sts2.InvalidRequest", Assert.IsType<RpcErrorOutput>(Assert.Single(text.Outputs)).DataCode);
+
+            // digest (the safe floor) is always permitted.
+            CoreDecision digest = Sts2CoreReducer.Decide(state, Request(4, "v2/diagnostics.setCapture", "r-3", """{"rowCapture":"digest","sqlCapture":"digest"}"""));
+            Assert.IsType<RpcResultOutput>(digest.Outputs[0]);
+        }
+
         private static CoreEnvelope Notify(long seq, string type, string payloadJson) => new()
         {
             Seq = seq,

@@ -79,6 +79,8 @@ namespace Microsoft.SqlTools.Sts2.Core
                 ["configVersion"] = state.ConfigVersion,
                 ["rowCapture"] = state.RowCapture,
                 ["sqlCapture"] = state.SqlCapture,
+                ["maxRowCapture"] = state.MaxRowCapture,
+                ["maxSqlCapture"] = state.MaxSqlCapture,
                 ["drivers"] = drivers,
                 ["connections"] = connections,
                 ["queries"] = queries,

@@ -169,8 +169,16 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             {
                 ["serviceVersion"] = options.ServiceVersion,
                 // Privacy-preserving capture by default (SPEC §8.4): row cells and SQL are
-                // elided to digests before journaling. Changeable at runtime via setCapture.
-                ["capture"] = new JsonObject { ["row"] = "digest", ["sql"] = "digest" },
+                // elided to digests before journaling. The host capture POLICY (D-0012) denies
+                // a client elevating to full/text in the product composition, so untrusted
+                // clients cannot persist real row/SQL data even via setCapture.
+                ["capture"] = new JsonObject
+                {
+                    ["row"] = "digest",
+                    ["sql"] = "digest",
+                    ["maxRow"] = "digest",
+                    ["maxSql"] = "digest",
+                },
                 ["drivers"] = drivers,
             };
             coordinator.PostControlAsync("session.start", ToElement(sessionStart)).AsTask().GetAwaiter().GetResult();
