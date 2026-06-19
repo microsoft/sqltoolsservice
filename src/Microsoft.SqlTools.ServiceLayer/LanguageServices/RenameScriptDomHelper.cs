@@ -116,6 +116,31 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return visitor.Locations;
         }
 
+        /// <summary>
+        /// Returns a <see cref="MoveSchemaEdit"/> for every schema-qualified (or unqualified)
+        /// reference to <paramref name="objectName"/> in <paramref name="filePath"/> that resolves
+        /// to the <paramref name="oldSchema"/> schema. Each edit either rewrites an existing schema
+        /// qualifier to <paramref name="newSchema"/> or inserts the new qualifier before an
+        /// unqualified name. Reads the file content from disk — the same source the DacFx model is
+        /// built from.
+        /// </summary>
+        public static IEnumerable<MoveSchemaEdit> FindSchemaMoveEditsInFile(
+            string filePath, string objectName, string oldSchema, string newSchema)
+        {
+            string sqlText = File.Exists(filePath) ? File.ReadAllText(filePath) : null;
+            if (sqlText == null)
+                return Array.Empty<MoveSchemaEdit>();
+
+            TSqlFragment fragment = ParseFragment(sqlText);
+            if (fragment == null)
+                return Array.Empty<MoveSchemaEdit>();
+
+            string fileUri = new Uri(filePath).AbsoluteUri;
+            var visitor = new SchemaMoveLocationVisitor(objectName, oldSchema, newSchema, fileUri);
+            fragment.Accept(visitor);
+            return visitor.Edits;
+        }
+
         private static TSql160Parser CreateParser() => new TSql160Parser(initialQuotedIdentifiers: true);
 
         /// <summary>Parses <paramref name="sqlText"/> and returns its token stream, or <c>null</c>.</summary>
@@ -163,6 +188,40 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             IsNameToken(token) ||
             token.TokenType == TSqlTokenType.AsciiStringLiteral ||
             token.TokenType == TSqlTokenType.UnicodeStringLiteral;
+
+        /// <summary>
+        /// Returns the (role, parameter) pairs of an extended-property stored-procedure call, or
+        /// <c>null</c> when <paramref name="node"/> is not such a call. The role is the parameter's
+        /// explicit <c>@name</c> (without the <c>@</c>) or, for positional calls, the name from the
+        /// procedure's fixed signature. Shared by the rename and move visitors so the argument
+        /// layout is parsed in one place.
+        /// </summary>
+        private static List<(string Role, ExecuteParameter Param)> GetExtendedPropertyArgs(ExecuteStatement node)
+        {
+            if (node.ExecuteSpecification?.ExecutableEntity is not ExecutableProcedureReference proc)
+                return null;
+
+            string procName = proc.ProcedureReference?.ProcedureReference?.Name?.BaseIdentifier?.Value;
+            if (procName == null || !ExtendedPropertyProcs.Contains(procName))
+                return null;
+
+            bool isDrop = string.Equals(procName, "sp_dropextendedproperty", StringComparison.OrdinalIgnoreCase);
+            // Positional argument layout differs because the drop procedure has no @value.
+            string[] signature = isDrop
+                ? new[] { "name", "level0type", "level0name", "level1type", "level1name", "level2type", "level2name" }
+                : new[] { "name", "value", "level0type", "level0name", "level1type", "level1name", "level2type", "level2name" };
+
+            var args = new List<(string, ExecuteParameter)>();
+            for (int i = 0; i < proc.Parameters.Count; i++)
+            {
+                ExecuteParameter param = proc.Parameters[i];
+                string role = param.Variable?.Name?.TrimStart('@')
+                    ?? (i < signature.Length ? signature[i] : null);
+                if (role != null)
+                    args.Add((role, param));
+            }
+            return args;
+        }
 
         /// <summary>Strips surrounding brackets, double-quotes, or string-literal quotes from a token.</summary>
         private static string UnquoteName(TSqlParserToken token)
@@ -218,26 +277,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             public override void Visit(ExecuteStatement node)
             {
-                if (node.ExecuteSpecification?.ExecutableEntity is not ExecutableProcedureReference proc)
+                var args = GetExtendedPropertyArgs(node);
+                if (args == null)
                     return;
 
-                string procName = proc.ProcedureReference?.ProcedureReference?.Name?.BaseIdentifier?.Value;
-                if (procName == null || !ExtendedPropertyProcs.Contains(procName))
-                    return;
-
-                bool isDrop = string.Equals(procName, "sp_dropextendedproperty", StringComparison.OrdinalIgnoreCase);
-                // Positional argument layout differs because the drop procedure has no @value.
-                string[] signature = isDrop
-                    ? new[] { "name", "level0type", "level0name", "level1type", "level1name", "level2type", "level2name" }
-                    : new[] { "name", "value", "level0type", "level0name", "level1type", "level1name", "level2type", "level2name" };
-
-                for (int i = 0; i < proc.Parameters.Count; i++)
+                foreach (var (role, param) in args)
                 {
-                    ExecuteParameter param = proc.Parameters[i];
-
-                    string role = param.Variable?.Name?.TrimStart('@')
-                        ?? (i < signature.Length ? signature[i] : null);
-                    if (role == null || !IsLevelNameRole(role))
+                    if (!IsLevelNameRole(role))
                         continue;
 
                     if (param.ParameterValue is StringLiteral literal &&
@@ -272,6 +318,148 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         Start = new Position { Line = line, Character = startChar },
                         End = new Position { Line = line, Character = startChar + length }
+                    }
+                });
+            }
+        }
+
+        /// <summary>A single text edit produced by the move-to-schema scan: the source span and its replacement.</summary>
+        public sealed class MoveSchemaEdit
+        {
+            public Location Location { get; set; }
+            public string NewText { get; set; }
+        }
+
+        /// <summary>
+        /// AST visitor that collects the schema-qualifier edits needed to move an object to a new
+        /// schema. For each <see cref="SchemaObjectName"/> whose base identifier matches the target
+        /// object and that resolves to the old schema, it either rewrites the existing schema
+        /// qualifier or inserts the new qualifier before an unqualified name.
+        /// </summary>
+        private sealed class SchemaMoveLocationVisitor : TSqlFragmentVisitor
+        {
+            private readonly string objectName;
+            private readonly string oldSchema;
+            private readonly string newSchemaBracketed;
+            private readonly string newSchemaPlain;
+            private readonly string fileUri;
+
+            public List<MoveSchemaEdit> Edits { get; } = new();
+
+            public SchemaMoveLocationVisitor(string objectName, string oldSchema, string newSchema, string fileUri)
+            {
+                this.objectName = objectName;
+                this.oldSchema = oldSchema;
+                // SQL bracket quoting requires a literal "]" inside an identifier to be escaped as "]]".
+                this.newSchemaBracketed = $"[{newSchema.Replace("]", "]]")}]";
+                // Bare schema name for the extended-property string literal (e.g. N'Sales'), which is
+                // not a bracket-quoted identifier. Escape single quotes for T-SQL string literal safety.
+                this.newSchemaPlain = newSchema.Replace("'", "''");
+                this.fileUri = fileUri;
+            }
+
+            public override void Visit(SchemaObjectName node)
+            {
+                if (!string.Equals(node.BaseIdentifier?.Value, this.objectName, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (node.SchemaIdentifier != null)
+                {
+                    // Two-part (or more) name — only rewrite when it points at the old schema.
+                    if (!string.Equals(node.SchemaIdentifier.Value, this.oldSchema, StringComparison.OrdinalIgnoreCase))
+                        return;
+
+                    TSqlParserToken schemaToken = node.SchemaIdentifier.ScriptTokenStream[node.SchemaIdentifier.FirstTokenIndex];
+                    AddReplace(schemaToken.Line, schemaToken.Column, schemaToken.Text?.Length ?? 0, this.newSchemaBracketed);
+                }
+                else
+                {
+                    // Unqualified name — resolves to the old schema by default. Qualify it with the
+                    // new schema so the reference keeps pointing at the moved object.
+                    TSqlParserToken baseToken = node.BaseIdentifier.ScriptTokenStream[node.BaseIdentifier.FirstTokenIndex];
+                    AddInsert(baseToken.Line, baseToken.Column, this.newSchemaBracketed + ".");
+                }
+            }
+
+            /// <summary>
+            /// Rewrites the schema named by <c>@level0name</c> in an extended-property call that
+            /// describes the moved object (its <c>@level1name</c> is the object and <c>@level0type</c>
+            /// is SCHEMA). Without this, the extended property keeps pointing at the old schema after
+            /// the object moves.
+            /// </summary>
+            public override void Visit(ExecuteStatement node)
+            {
+                var args = GetExtendedPropertyArgs(node);
+                if (args == null)
+                    return;
+
+                string level0Type = null;
+                StringLiteral level0Name = null;
+                StringLiteral level1Name = null;
+                foreach (var (role, param) in args)
+                {
+                    if (param.ParameterValue is not StringLiteral lit)
+                        continue;
+                    if (string.Equals(role, "level0type", StringComparison.OrdinalIgnoreCase))
+                        level0Type = lit.Value;
+                    else if (string.Equals(role, "level0name", StringComparison.OrdinalIgnoreCase))
+                        level0Name = lit;
+                    else if (string.Equals(role, "level1name", StringComparison.OrdinalIgnoreCase))
+                        level1Name = lit;
+                }
+
+                if (level0Name != null && level1Name != null &&
+                    string.Equals(level0Type, "SCHEMA", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(level1Name.Value, this.objectName, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(level0Name.Value, this.oldSchema, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Replace only the inner text of the literal, leaving the optional N prefix and
+                    // the surrounding quotes intact.
+                    int offset = level0Name.IsNational ? 2 : 1;
+                    int innerLength = level0Name.FragmentLength - (level0Name.IsNational ? 3 : 2);
+                    AddReplace(level0Name.StartLine, level0Name.StartColumn + offset, innerLength, this.newSchemaPlain);
+                }
+            }
+
+            /// <summary>Adds a replacement edit over a span defined by a 1-based start position and length.</summary>
+            private void AddReplace(int startLine1, int startColumn1, int length, string newText)
+            {
+                if (length <= 0)
+                    return;
+
+                int line = startLine1 - 1;
+                int startChar = startColumn1 - 1;
+                this.Edits.Add(new MoveSchemaEdit
+                {
+                    NewText = newText,
+                    Location = new Location
+                    {
+                        Uri = this.fileUri,
+                        Range = new Range
+                        {
+                            Start = new Position { Line = line, Character = startChar },
+                            End = new Position { Line = line, Character = startChar + length }
+                        }
+                    }
+                });
+            }
+
+            /// <summary>Adds a zero-width insertion edit at a 1-based start position.</summary>
+            private void AddInsert(int startLine1, int startColumn1, string newText)
+            {
+                int line = startLine1 - 1;
+                int startChar = startColumn1 - 1;
+                this.Edits.Add(new MoveSchemaEdit
+                {
+                    NewText = newText,
+                    Location = new Location
+                    {
+                        Uri = this.fileUri,
+                        Range = new Range
+                        {
+                            Start = new Position { Line = line, Character = startChar },
+                            End = new Position { Line = line, Character = startChar }
+                        }
                     }
                 });
             }

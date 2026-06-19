@@ -496,6 +496,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             try
             {
                 string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
+                bool parseSucceeded = false;
+                
                 if (!deleted)
                 {
                     string? sqlText = sqlTextOverride ?? (File.Exists(sourceName)
@@ -503,14 +505,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         : null);
                     if (sqlText == null) return;
                     if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
-                    state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                    
+                    try
+                    {
+                        // TODO: Once DacFx supports TSqlObjectOptions.AllowExistingModelErrors or similar property, set it
+                        // here so the model can update even when a previous parse left build errors.
+                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                        parseSucceeded = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"UpdateProjectIntelliSenseAsync parse error for {sourceName}: {ex}");
+                    }
                 }
                 else
                 {
                     if (!projectIntelliSense.ContainsKey(projectUri)) return;
                     state.Model.DeleteObjects(sourceName);
                 }
-                state.Provider.UpdateForFileChange(sourceName, deleted);
+                
+                // Update provider: deleted=true for actual deletes OR failed parses
+                state.Provider.UpdateForFileChange(sourceName, deleted || !parseSucceeded);
 
                 // The binder built at project-open time holds a snapshot of the metadata.
                 // After mutating the provider, recreate the binder so alias resolution (e.g.

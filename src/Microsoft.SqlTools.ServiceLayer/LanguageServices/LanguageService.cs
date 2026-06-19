@@ -22,6 +22,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
+using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
@@ -279,6 +280,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Returns element metadata so the client can append a .refactorlog entry after the user confirms.
             // Parallel safe: shares FindProjectSymbolLocations which is read-only after parse.
             serviceHost.SetRequestHandler(SqlSymbolRenameRequest.Type, HandleSqlRenameRequest, isParallelProcessingSupported: true);
+
+            // Moves the schema-owned object under the cursor to a different schema across the project.
+            // Returns reference edits plus the full .refactorlog content for the client to write.
+            // Parallel safe: shares FindProjectSymbolLocations which is read-only after parse.
+            serviceHost.SetRequestHandler(SqlMoveToSchemaRequest.Type, HandleMoveToSchemaRequest, isParallelProcessingSupported: true);
+
+            // Lists the schemas defined in the SQL project that owns the document (for the move-to-schema picker).
+            // Parallel safe: reads the DacFx model only.
+            serviceHost.SetRequestHandler(ListProjectSchemasRequest.Type, HandleListSchemasRequest, isParallelProcessingSupported: true);
 
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
@@ -1781,18 +1791,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Step 3: collect candidate files via DacFx dependency graph
             var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            
+            string defFile;
             try
             {
-                string defFile = provider.GetDefiningFilePath(qualifiedName);
-                if (defFile != null)
-                    candidateFiles.Add(defFile);
-                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
-                    candidateFiles.Add(path);
+                defFile = provider.GetDefiningFilePath(qualifiedName);
             }
             catch (Exception ex)
             {
-                Logger.Error($"FindProjectSymbolLocations error: {ex}");
+                Logger.Error($"FindProjectSymbolLocations: GetDefiningFilePath failed: {ex}");
                 return Array.Empty<Location>();
+            }
+            
+            // Only add files if we can successfully get ALL references.
+            // If getting references fails, the model is corrupted - return empty instead of partial results.
+            if (defFile != null)
+            {
+                try
+                {
+                    foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                        candidateFiles.Add(path);
+                    
+                    // Only add defining file after successfully getting all references
+                    candidateFiles.Add(defFile);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"FindProjectSymbolLocations: GetReferencingFilePaths failed: {ex}");
+                    return Array.Empty<Location>();
+                }
             }
 
             var results = new List<Location>();
@@ -1849,6 +1876,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await requestContext.SendResult(null);
                 return;
+            }
+
+            // Resolve element metadata. Rename is only supported for level-1 objects (tables, views, procs, etc.)
+            // and level-2 objects (columns, parameters, etc.). Schema objects themselves cannot be renamed.
+            if (provider != null && qualifiedName != null)
+            {
+                if (provider.TryGetRefactorInfo(
+                        qualifiedName, tokenText,
+                        out _, out string elementType,
+                        out _, out _)
+                    && elementType == "SqlSchema")
+                {
+                    // Reject rename for schema objects
+                    await requestContext.SendResult(null);
+                    return;
+                }
             }
 
             var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
@@ -1917,6 +1960,171 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 RefactorLogContent = refactorLogContent,
                 NewName            = renameParams.NewName
             });
+        }
+
+        /// <summary>
+        /// Handles <c>sql/moveToSchema</c> — rewrites every schema-qualified (or unqualified)
+        /// reference to the object under the cursor so it points at the target schema, and returns
+        /// the full <c>.refactorlog</c> content with a <c>Move Schema</c> entry appended.
+        /// </summary>
+        internal async Task HandleMoveToSchemaRequest(
+            SqlMoveToSchemaParams moveParams,
+            RequestContext<SqlMoveToSchemaResponse> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                moveParams.TextDocument.Uri,
+                moveParams.Position.Line,
+                moveParams.Position.Character,
+                out string qualifiedName,
+                out TSqlModelMetadataProvider provider,
+                out string tokenText);
+
+            if (locations == null || locations.Length == 0 || provider == null || qualifiedName == null)
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Resolve element metadata. Move to schema only applies to schema-level objects
+            // (tables, views, procs, functions) — i.e. those whose parent is a schema. Columns and
+            // unresolved symbols are rejected.
+            if (!provider.TryGetRefactorInfo(
+                    qualifiedName, tokenText,
+                    out string elementName, out string elementType,
+                    out string parentElementName, out string parentElementType)
+                || parentElementType != "SqlSchema")
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            string oldSchema = TextUtilities.RemoveSquareBracketSyntax(parentElementName);
+            if (string.Equals(oldSchema, moveParams.TargetSchema, StringComparison.OrdinalIgnoreCase))
+            {
+                // Already in the target schema — nothing to do.
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Validate memory-optimized tables cannot be moved
+            // (ALTER SCHEMA TRANSFER does not support them).
+            DacModel.TSqlObject obj = provider.FindObject(qualifiedName);
+            if (obj != null && obj.ObjectType == DacModel.ModelSchema.Table)
+            {
+                bool isMemoryOptimized = obj.GetProperty<bool>(DacModel.Table.MemoryOptimized);
+                if (isMemoryOptimized)
+                {
+                    await requestContext.SendResult(null);
+                    return;
+                }
+            }
+
+            // Check for name collision: reject if an object with the same name already exists in
+            // the target schema.
+            string unqualifiedName = TextUtilities.RemoveSquareBracketSyntax(elementName.Split('.').Last());
+            string targetQualifiedName = $"{moveParams.TargetSchema}.{unqualifiedName}";
+            DacModel.TSqlObject existingObject = provider.FindObject(targetQualifiedName);
+            if (existingObject != null)
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Re-scan each file that references the object and compute the schema-qualifier edits.
+            // We use both the identifier-reference locations AND the defining file, because the
+            // defining file may contain sp_addextendedproperty calls that reference the object only
+            // as string literals — those won't appear in `locations` (which tracks SQL identifiers),
+            // but FindSchemaMoveEditsInFile handles them via the AST ExecuteStatement visitor.
+            var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
+            var scannedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var filesToScan = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var loc in locations)
+                filesToScan.Add(new Uri(loc.Uri).LocalPath);
+            string definingFile = null;
+            try
+            {
+                definingFile = provider.GetDefiningFilePath(qualifiedName);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"HandleMoveToSchemaRequest: GetDefiningFilePath failed: {ex}");
+            }
+            if (definingFile != null)
+                filesToScan.Add(definingFile);
+
+            foreach (string localPath in filesToScan)
+            {
+                string fileUri = new Uri(localPath).AbsoluteUri;
+                if (!scannedFiles.Add(fileUri))
+                    continue;
+
+                foreach (var edit in RenameScriptDomHelper.FindSchemaMoveEditsInFile(
+                             localPath, tokenText, oldSchema, moveParams.TargetSchema))
+                {
+                    if (!changes.TryGetValue(edit.Location.Uri, out var edits))
+                        changes[edit.Location.Uri] = edits = new List<TextEdit>();
+                    edits.Add(new TextEdit { Range = edit.Location.Range, NewText = edit.NewText });
+                }
+            }
+
+            string refactorLogContent = RefactorLogGenerator.GenerateMoveSchemaDocument(
+                moveParams.ExistingRefactorLogContent,
+                elementName,
+                elementType,
+                moveParams.TargetSchema);
+
+            await requestContext.SendResult(new SqlMoveToSchemaResponse
+            {
+                Changes            = changes,
+                RefactorLogContent = refactorLogContent,
+                TargetSchema       = moveParams.TargetSchema
+            });
+        }
+
+        /// <summary>
+        /// Handles <c>sql/listSchemas</c> — returns the schemas defined in the SQL project that owns
+        /// the given document, for the move-to-schema target picker.
+        /// </summary>
+        internal async Task HandleListSchemasRequest(
+            ListProjectSchemasParams listParams,
+            RequestContext<ListProjectSchemasResponse> requestContext)
+        {
+            string[] schemas = TryGetProjectMetadataProvider(listParams.TextDocument?.Uri, out var provider)
+                ? provider.GetSchemaNames().ToArray()
+                : Array.Empty<string>();
+
+            await requestContext.SendResult(new ListProjectSchemasResponse { Schemas = schemas });
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="TSqlModelMetadataProvider"/> for the SQL project that owns
+        /// <paramref name="fileUri"/>. Returns false when the file is not a project file or the
+        /// provider is not available.
+        /// </summary>
+        private bool TryGetProjectMetadataProvider(string fileUri, out TSqlModelMetadataProvider provider)
+        {
+            provider = null;
+            if (string.IsNullOrEmpty(fileUri) || ShouldSkipIntellisense(fileUri))
+                return false;
+
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return false;
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (scriptParseInfo == null || !scriptParseInfo.IsProject)
+                return false;
+
+            string contextKey = scriptParseInfo.ConnectionKey;
+            if (contextKey == null ||
+                !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
+                bindCtx is not ConnectedBindingContext connBindCtx ||
+                connBindCtx.MetadataProvider is not TSqlModelMetadataProvider resolved)
+                return false;
+
+            provider = resolved;
+            return true;
         }
 
         /// <summary>

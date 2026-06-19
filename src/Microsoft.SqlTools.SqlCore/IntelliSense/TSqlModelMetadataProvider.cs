@@ -339,6 +339,38 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         }
 
         /// <summary>
+        /// Returns the distinct user-defined schema names in the model (e.g. <c>dbo</c>, <c>sales</c>),
+        /// sorted case-insensitively. Used to populate the "Move to Schema" target picker.
+        /// </summary>
+        public IReadOnlyList<string> GetSchemaNames()
+        {
+            // Explicit CREATE SCHEMA objects — covers user-defined schemas like 'sales'.
+            // Filter to only those with a source file so that built-in SQL Server schemas
+            // (db_owner, db_accessadmin, db_datareader, sys, INFORMATION_SCHEMA, etc.) that
+            // DacFx surfaces as Schema model objects but with no project source are excluded.
+            IEnumerable<string> explicitSchemas = _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema)
+                .Where(o => o.Name?.Parts != null && o.Name.Parts.Count > 0
+                            && o.GetSourceInformation()?.SourceName != null)
+                .Select(o => o.Name.Parts[0]);
+
+            // Implicit schemas derived from top-level schema-owned objects (tables, views, procs,
+            // functions). This catches 'dbo' which is rarely declared with an explicit CREATE SCHEMA.
+            // We intentionally filter by TryGetSqlObjectType so that internal DacFx model objects
+            // (columns, constraints, indexes, etc.) don't pollute the list with names like
+            // 'SqlColumn', 'SqlTableBase', 'SqlDatabaseOptions', etc.
+            IEnumerable<string> implicitSchemas = _model.GetObjects(DacQueryScopes.UserDefined)
+                .Where(o => o.Name?.Parts != null && o.Name.Parts.Count >= 2
+                            && TryGetSqlObjectType(o.ObjectType, out _))
+                .Select(o => o.Name.Parts[0]);
+
+            return implicitSchemas
+                .Concat(explicitSchemas)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        /// <summary>
         /// Returns the <see cref="TSqlObject"/> whose schema-qualified name matches
         /// <paramref name="qualifiedName"/> (case-insensitive), or <c>null</c> if not found.
         /// </summary>
@@ -383,8 +415,19 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             {
                 // Table/view/proc: its own references plus every column's references.
                 CollectReferencingSourceFiles(topLevel, found);
-                foreach (TSqlObject column in GetColumnsOf(qualifiedName))
-                    CollectReferencingSourceFiles(column, found);
+                if (topLevel.ObjectType == ModelSchema.Schema)
+                {
+                    // Schema: DacFx does not report the files that merely name the schema in an
+                    // extended property's @level0name as "referencing" it. Include the source files
+                    // of every object in the schema (and their columns' referencing files) so those
+                    // inline sp_addextendedproperty calls are scanned.
+                    CollectSchemaMemberFiles(qualifiedName, found);
+                }
+                else
+                {
+                    foreach (TSqlObject column in GetColumnsOf(qualifiedName))
+                        CollectReferencingSourceFiles(column, found);
+                }
             }
             else
             {
@@ -411,6 +454,35 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 string? path = dep.GetSourceInformation()?.SourceName;
                 if (path != null)
                     found.Add(path);
+            }
+        }
+
+        /// <summary>
+        /// Adds, for every user-defined object whose schema is <paramref name="schemaName"/>, the
+        /// object's own source file and the referencing files of each of its columns. This surfaces
+        /// inline <c>sp_addextendedproperty</c> calls that name the schema via <c>@level0name</c> but
+        /// are not reported by DacFx as referencing the schema object.
+        /// </summary>
+        private void CollectSchemaMemberFiles(string schemaName, HashSet<string> found)
+        {
+            foreach (TSqlObject obj in _model.GetObjects(DacQueryScopes.UserDefined))
+            {
+                if (obj.Name?.Parts == null || obj.Name.Parts.Count < 2 ||
+                    !string.Equals(obj.Name.Parts[0], schemaName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                string? source = obj.GetSourceInformation()?.SourceName;
+                if (source != null)
+                    found.Add(source);
+
+                // Include referencing files of the object itself — extended properties can target
+                // the object directly (not just its columns via @level1name), so we need these too.
+                CollectReferencingSourceFiles(obj, found);
+
+                // Extended properties attach to the column object, so include each column's
+                // referencing files in case they are scripted in a separate file.
+                foreach (TSqlObject column in GetColumnChildren(obj))
+                    CollectReferencingSourceFiles(column, found);
             }
         }
 
