@@ -13,6 +13,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.SqlTools.Sts2.Runtime.Envelopes;
+using Microsoft.SqlTools.Sts2.Runtime.Replay;
 
 namespace Microsoft.SqlTools.Sts2.Runtime.Export
 {
@@ -190,6 +192,46 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Export
             else if (JsonNode.Parse(ReadEntry(privacy))!["canaryScan"]!.GetValue<string>() != "clean")
             {
                 problems.Add("privacy report canary scan is not clean");
+            }
+
+            // Replay the bundled journal (R023): a hash-consistent bundle can still be
+            // semantically invalid or non-replayable. The export-check contract promises
+            // replayability, so prove it — strict replay must reproduce the outbound digest
+            // sequence exactly and the journal must not be truncated.
+            if (problems.Count == 0)
+            {
+                try
+                {
+                    var envelopes = new List<Sts2Envelope>();
+                    foreach (JsonNode? segment in manifest["segments"]!.AsArray())
+                    {
+                        ZipArchiveEntry? entry = zip.GetEntry(segment!["file"]!.GetValue<string>());
+                        if (entry is null)
+                        {
+                            continue;
+                        }
+                        foreach (string line in ReadEntry(entry).Split('\n'))
+                        {
+                            if (line.Length > 0)
+                            {
+                                envelopes.Add(EnvelopeJsonCodec.DeserializeLine(line));
+                            }
+                        }
+                    }
+                    ReplayResult replay = JournalReplayer.Replay(envelopes);
+                    if (replay.Outcome == ReplayOutcome.Diverged)
+                    {
+                        problems.Add($"replay diverged at seq {replay.Divergence!.Seq}: recorded {replay.Divergence.Recorded}; replayed {replay.Divergence.Replayed}");
+                    }
+                    else if (replay.Outcome == ReplayOutcome.Incomplete)
+                    {
+                        problems.Add($"bundle journal is truncated: {replay.PendingOutputCount} reduced output(s) after seq {replay.LastSeq} were never recorded");
+                    }
+                }
+                catch (Exception ex) when (ex is JsonException or InvalidDataException or FormatException)
+                {
+                    problems.Add("bundle journal could not be parsed for replay: " + ex.Message);
+                }
             }
 
             return problems;

@@ -96,11 +96,13 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
-        public void ExportCheckDetectsTampering()
+        public async Task ExportCheckDetectsTampering()
         {
             string journalDir = Path.Combine(root, "tamper-journal");
-            Directory.CreateDirectory(journalDir);
-            File.WriteAllText(Path.Combine(journalDir, "journal-tamper-0001.jsonl"), "{\"seq\":1}\n");
+            await using (var session = new Sts2TestSession(journalDir, "tamper"))
+            {
+                await session.RequestAsync("v2/diagnostics.ping", """{"echo":"x"}""");
+            }
 
             ExportBundleResult result = ExportBundleWriter.Write(new ExportBundleRequest
             {
@@ -108,7 +110,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
                 JournalDirectory = journalDir,
                 OutputDirectory = Path.Combine(root, "tamper-export"),
             }, TimeProvider.System);
-            Assert.Empty(ExportBundleWriter.Check(result.BundlePath));
+            Assert.Empty(ExportBundleWriter.Check(result.BundlePath)); // valid: hashes match AND replays
 
             // Rewrite a journal entry inside the zip without updating the manifest hash.
             using (ZipArchive zip = ZipFile.Open(result.BundlePath, ZipArchiveMode.Update))
