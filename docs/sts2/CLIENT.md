@@ -40,41 +40,47 @@ const conn = createMessageConnection(
   new StreamMessageWriter(proc.stdin),
 );
 
-// Streaming notifications.
-const pages: unknown[][] = [];
-conn.onNotification("v2/query.resultSet", (p: any) => console.log("columns:", p.columns));
+// One active query per connection, and notifications are keyed by queryId — so NEVER share
+// a single completion promise across queries (that races: a fast first query resolves the
+// promise meant for a later one). Track per-query state in a registry instead.
+type Completion = { queryId: string; status: string; rowsAffected: number | null; error?: unknown };
+const pending = new Map<string, { resolve: (c: Completion) => void; rows: unknown[][] }>();
+
+conn.onNotification("v2/query.resultSet", (p: any) => { /* p.queryId, p.columns */ });
 conn.onNotification("v2/query.rows", (p: any) => {
-  pages.push(...p.rows);
-  // Acknowledge to keep the window open (high-water form).
+  pending.get(p.queryId)?.rows.push(...p.rows);
+  // Acknowledge to keep the backpressure window open (high-water form).
   conn.sendNotification("v2/query.ack", { queryId: p.queryId, throughPageSeq: p.pageSeq });
 });
-
-const completion = new Promise<any>((resolve) =>
-  conn.onNotification("v2/query.complete", resolve),
-);
+conn.onNotification("v2/query.message", (p: any) => { /* server messages as DATA, not errors */ });
+conn.onNotification("v2/query.complete", (p: Completion) => pending.get(p.queryId)?.resolve(p));
 
 conn.listen();
 
+// Execute helper: the execute RESULT (queryId) always precedes that query's notifications on
+// the ordered channel, so registering after the request is race-free. Awaits the matching
+// completion, then disposes to release server resources (dispose now yields one terminal too).
+async function execute(connectionId: string, sql: string) {
+  const { queryId } = await conn.sendRequest<{ queryId: string }>("v2/query.execute", { connectionId, sql });
+  const rows: unknown[][] = [];
+  const completion = await new Promise<Completion>((resolve) => pending.set(queryId, { resolve, rows }));
+  pending.delete(queryId);
+  await conn.sendRequest("v2/query.dispose", { queryId });
+  return { rows, completion };
+}
+
 await conn.sendRequest("v2/initialize", { clientName: "sample", requestedSpecVersion: "2.0" });
 
-const { connectionId } = await conn.sendRequest("v2/connection.open", {
+const { connectionId } = await conn.sendRequest<{ connectionId: string }>("v2/connection.open", {
   openId: "open-1",
-  profile: {
-    server: ":memory:",
-    driver: "sqlite",
-    auth: { kind: "integrated" },
-  },
+  profile: { server: ":memory:", driver: "sqlite", auth: { kind: "integrated" } },
 });
 
-await conn.sendRequest("v2/query.execute", { connectionId, sql: "create table t(n integer)" });
-// ... await each query.complete before the next execute (one active query per connection).
-
-const { queryId } = await conn.sendRequest("v2/query.execute", {
-  connectionId,
-  sql: "select n from t order by n",
-});
-const result = await completion; // { queryId, status: "succeeded", rowsAffected }
-console.log("rows:", pages.length, "status:", result.status);
+// Each execute fully completes before the next (one active query per connection).
+await execute(connectionId, "create table t(n integer)");
+await execute(connectionId, "insert into t values (1),(2),(3)");
+const { rows, completion } = await execute(connectionId, "select n from t order by n");
+console.log("rows:", rows.length, "status:", completion.status);
 
 await conn.sendRequest("v2/connection.close", { connectionId });
 ```

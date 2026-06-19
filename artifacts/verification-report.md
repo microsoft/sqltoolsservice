@@ -2,6 +2,51 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## External-review hardening pass - 2026-06-19 - 70b66034+
+Acted on a detailed external code review (STS2_REVIEW_PACKAGE, 50 findings) after verifying
+each load-bearing finding against source. 18 commits, tiered real-bug → substrate → privacy →
+contract-decisions; over-scoped/low-value items explicitly skipped (see REVIEW_ASSESSMENT_AND_PLAN.md).
+
+Gates (all green):
+- verify.sh --quick: ok (build warnings-as-errors, unit+mux+architecture, scenarios, Sqlite
+  contract real-I/O, replay, 200-seed simulator, canary scan, generated-docs diff, legacy diff
+  budget unchanged at 12 lines/3 files, E2E disabled+enabled).
+- unit suite: 266 (+ ~25 new review-hardening tests).
+- E2E: 5 (real spawned exe, enabled+disabled).
+- SQL Server engine suite (dialect:tsql): **ok — ran for real** against the SQL Server 2025
+  container (2026-06-19); type-encoding matrix + open + syntax-error mapping.
+- simulator: **2000-seed sweep green** validating the concurrency-sensitive changes (dispose
+  state machine with the strengthened I2, bounded cancel, fatal containment, runner ownership).
+
+Fixed (verified bugs): reducer never-throw on bad JSON numbers (R026), ack credit over-grant
+clamp (R011), duplicate-close request-orphan (R010), metric cause (R040), initialize capability
+honesty (R036), query.complete flush checkpoint (R020), EnvelopeSubscription channel contract
+(R034), health histogram naming (R047), flag-casing (R030), SqlClient activeCommand finally
+(R035), SQLite sticky-cancel + incremental streaming (R016), no raw stdout in enabled mode (R029).
+
+Substrate (mechanically-enforced promises): strict-vs-partial replay so truncation can't pass
+as Identical (R006), composite fatal containment → Sts2.Unavailable (R001), runner ownership +
+safe open handoff (R013/R014), observer mailboxes so a blocking sink can't stall the pump (R003),
+one-directory-per-run isolation (R007), real lifecycle pump barrier (R002), export-check strict
+replay (R023), maxCellBytes truncation (R024), bounded cancel (R015).
+
+Privacy: opaque random secret tokens (R032), secret/capture cleanup on rejected paths
+(R004/R005), command-line shape-allowlist (R033), host capture policy — product denies client
+elevation to full/text (R018, D-0012).
+
+Contract decisions (ADRs, owner-approved): dispose now emits exactly one terminal and holds the
+connection until the pump stops (R008/R009, D-0011); host capture policy (D-0012).
+
+Deferred (low-value-for-complexity, noted in commits): R012 credit-before-pull (needs page-pull
+port; bounded +1-page overrun documented), R025 result-set ordering enforcement, R021 idle-flush
+timer, R031 provider-message field classification, R041/R042 typed-internal-values + duplicate-key
+rejection, R027 full ordered outbound writer, R028 oversized outbound frame, R017/R037 forensic
+export snapshot + doc inventory.
+
+Remaining for the merge-to-main PR (deliberate integration step, not done here): merge current
+main (SDK 10.0.203→10.0.301) and regenerate (R039); CI gating PRs into main + evidence artifacts
+(R019); the 10k-seed simulator and Stryker mutation run are CI/nightly per the M7 entry.
+
 ## Observability & event-capture pass (pre-viewer cleanup) - 2026-06-16 - 625f66ad+
 Comprehensive design/quality pass against the §12 observability goals, driven by a read-only
 design audit. Goal: make this part of the system "done right" — a real flexible event-capture
