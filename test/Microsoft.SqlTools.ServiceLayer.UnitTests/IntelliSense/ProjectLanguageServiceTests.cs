@@ -1570,6 +1570,8 @@ END
 
         private const string SalesSchemaScript = "CREATE SCHEMA sales;";
 
+        private const string StagingSchemaScript = "CREATE SCHEMA staging;";
+
         private const string SalesCustomersTableScript =
             "CREATE TABLE sales.Customers (\n" +
             "    CustomerId INT PRIMARY KEY,\n" +
@@ -1599,6 +1601,11 @@ END
                 new SqlObjectScript(Path.Combine("Schemas", "sales.sql")), SalesSchemaScript);
             _project.SqlObjectScripts.Add(
                 new SqlObjectScript(Path.Combine("Tables", "SalesCustomers.sql")), SalesCustomersTableScript);
+            // 'staging' schema exists in the model but has no Customers table — used as the
+            // collision-free target for the happy-path move test so that sales.Customers in the
+            // model doesn't trigger the name-collision guard.
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Schemas", "staging.sql")), StagingSchemaScript);
 
             _model = TSqlModelBuilder.LoadModel(_project);
             _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
@@ -1992,7 +1999,10 @@ END
         public async Task HandleMoveToSchemaRequest_RewritesReferencesAndAppendsMoveSchemaOperation()
         {
             LoadAllFilesIntoWorkspace();
-            const string targetSchema = "sales";
+            // Use 'staging' as the target: it exists in the model (so IsNewSchemaExternal=False)
+            // but has no Customers table, so the name-collision guard does not trigger.
+            // (The model has sales.Customers, which would block a move to 'sales'.)
+            const string targetSchema = "staging";
 
             SqlMoveToSchemaResponse result = null;
             var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
@@ -2013,13 +2023,13 @@ END
             Assert.That(result.TargetSchema, Is.EqualTo(targetSchema));
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should cover the referencing files");
 
-            // The two-part reference (dbo.Customers) becomes a [sales] qualifier; the bare reference
-            // (Customers in ListCustomers.sql) gets a "[sales]." qualifier inserted before it.
+            // The two-part reference (dbo.Customers) becomes a [staging] qualifier; the bare reference
+            // (Customers in ListCustomers.sql) gets a "[staging]." qualifier inserted before it.
             var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
-            Assert.That(allEdits.Any(e => e.NewText == "[sales]"), Is.True,
-                "A two-part reference should have its schema qualifier rewritten to [sales]");
-            Assert.That(allEdits.Any(e => e.NewText == "[sales]."), Is.True,
-                "An unqualified reference should have a [sales]. qualifier inserted");
+            Assert.That(allEdits.Any(e => e.NewText == "[staging]"), Is.True,
+                "A two-part reference should have its schema qualifier rewritten to [staging]");
+            Assert.That(allEdits.Any(e => e.NewText == "[staging]."), Is.True,
+                "An unqualified reference should have a [staging]. qualifier inserted");
 
             // The refactorlog carries a Move Schema operation for the moved table.
             XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";

@@ -353,8 +353,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // SQL bracket quoting requires a literal "]" inside an identifier to be escaped as "]]".
                 this.newSchemaBracketed = $"[{newSchema.Replace("]", "]]")}]";
                 // Bare schema name for the extended-property string literal (e.g. N'Sales'), which is
-                // not a bracket-quoted identifier.
-                this.newSchemaPlain = newSchema;
+                // not a bracket-quoted identifier. Escape single quotes for T-SQL string literal safety.
+                this.newSchemaPlain = newSchema.Replace("'", "''");
                 this.fileUri = fileUri;
             }
 

@@ -344,9 +344,27 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// </summary>
         public IReadOnlyList<string> GetSchemaNames()
         {
-            return _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema)
-                .Where(o => o.Name?.Parts != null && o.Name.Parts.Count > 0)
-                .Select(o => o.Name.Parts[o.Name.Parts.Count - 1])
+            // Explicit CREATE SCHEMA objects — covers user-defined schemas like 'sales'.
+            // Filter to only those with a source file so that built-in SQL Server schemas
+            // (db_owner, db_accessadmin, db_datareader, sys, INFORMATION_SCHEMA, etc.) that
+            // DacFx surfaces as Schema model objects but with no project source are excluded.
+            IEnumerable<string> explicitSchemas = _model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Schema)
+                .Where(o => o.Name?.Parts != null && o.Name.Parts.Count > 0
+                            && o.GetSourceInformation()?.SourceName != null)
+                .Select(o => o.Name.Parts[0]);
+
+            // Implicit schemas derived from top-level schema-owned objects (tables, views, procs,
+            // functions). This catches 'dbo' which is rarely declared with an explicit CREATE SCHEMA.
+            // We intentionally filter by TryGetSqlObjectType so that internal DacFx model objects
+            // (columns, constraints, indexes, etc.) don't pollute the list with names like
+            // 'SqlColumn', 'SqlTableBase', 'SqlDatabaseOptions', etc.
+            IEnumerable<string> implicitSchemas = _model.GetObjects(DacQueryScopes.UserDefined)
+                .Where(o => o.Name?.Parts != null && o.Name.Parts.Count >= 2
+                            && TryGetSqlObjectType(o.ObjectType, out _))
+                .Select(o => o.Name.Parts[0]);
+
+            return implicitSchemas
+                .Concat(explicitSchemas)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
@@ -456,6 +474,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 string? source = obj.GetSourceInformation()?.SourceName;
                 if (source != null)
                     found.Add(source);
+
+                // Include referencing files of the object itself — extended properties can target
+                // the object directly (not just its columns via @level1name), so we need these too.
+                CollectReferencingSourceFiles(obj, found);
 
                 // Extended properties attach to the column object, so include each column's
                 // referencing files in case they are scripted in a separate file.

@@ -1884,8 +1884,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (provider.TryGetRefactorInfo(
                         qualifiedName, tokenText,
-                        out string elementName, out string elementType,
-                        out string parentElementName, out string parentElementType)
+                        out _, out string elementType,
+                        out _, out _)
                     && elementType == "SqlSchema")
                 {
                     // Reject rename for schema objects
@@ -2041,7 +2041,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var filesToScan = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var loc in locations)
                 filesToScan.Add(new Uri(loc.Uri).LocalPath);
-            string definingFile = provider.GetDefiningFilePath(qualifiedName);
+            string definingFile = null;
+            try
+            {
+                definingFile = provider.GetDefiningFilePath(qualifiedName);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"HandleMoveToSchemaRequest: GetDefiningFilePath failed: {ex}");
+            }
             if (definingFile != null)
                 filesToScan.Add(definingFile);
 
