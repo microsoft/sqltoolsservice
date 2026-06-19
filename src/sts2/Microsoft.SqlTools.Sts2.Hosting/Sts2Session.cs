@@ -185,11 +185,21 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             return session;
         }
 
-        /// <summary>Posts a lifecycle signal and flushes the journal (mux flush wait, SPEC §6.2).</summary>
+        /// <summary>
+        /// Posts a lifecycle signal and returns only after the PUMP journaled it and flushed
+        /// — a real write-ahead barrier, not a fire-and-flush (R002, SPEC §6.2). The
+        /// multiplexer's bounded shutdown/exit wait depends on this meaning "durable".
+        /// </summary>
         public async Task SignalLifecycleAsync(string signal)
         {
-            await coordinator.PostControlAsync(signal).ConfigureAwait(false);
-            await coordinator.FlushJournalAsync().ConfigureAwait(false);
+            try
+            {
+                await coordinator.PostControlBarrierAsync(signal).ConfigureAwait(false);
+            }
+            catch (System.Threading.Channels.ChannelClosedException)
+            {
+                // The pump is already stopped/disposed; there is nothing left to commit.
+            }
         }
 
         /// <inheritdoc/>

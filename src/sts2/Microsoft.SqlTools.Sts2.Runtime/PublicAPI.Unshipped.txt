@@ -30,6 +30,7 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.FlushJournalAsync() -> 
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.LatestSeq.get -> long
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Metrics.get -> Microsoft.SqlTools.Sts2.Runtime.Observability.MetricsEnvelopeSink!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostControlAsync(string! signal, System.Text.Json.JsonElement? payload = null) -> System.Threading.Tasks.ValueTask
+Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostControlBarrierAsync(string! signal, System.Text.Json.JsonElement? payload = null) -> System.Threading.Tasks.Task!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostEffectResponseAsync(string! effectId, string! effectName, System.Text.Json.JsonElement? payload, long causeSeq) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcNotificationAsync(string! method, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.PostRpcRequestAsync(string! method, string! corr, System.Text.Json.JsonElement? payload, string? sessionId = null) -> System.Threading.Tasks.ValueTask

@@ -95,6 +95,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task LifecycleBarrierReturnsOnlyAfterTheSignalIsJournaledAndFlushed() // R002
+        {
+            await using (var session = new Sts2TestSession(directory))
+            {
+                // Queue some traffic the barrier must drain past, then await the barrier.
+                await session.RequestAsync("v2/diagnostics.ping", """{"echo":"a"}""");
+                await session.Coordinator.PostControlBarrierAsync("lifecycle.shutdown");
+
+                // When the barrier returns, the lifecycle envelope is already durable on disk —
+                // a reader in another "process" sees it without the session being disposed.
+                List<Sts2Envelope> journal = JournalReader.ReadAll(directory).ToList();
+                Assert.Contains(journal, e => e.Kind == "control" && e.Type == "lifecycle.shutdown");
+                Assert.True(session.Coordinator.CurrentState.ShuttingDown);
+            }
+        }
+
+        [Fact]
         public async Task ControlSignalReachesCoreState()
         {
             await using var session = new Sts2TestSession(directory);

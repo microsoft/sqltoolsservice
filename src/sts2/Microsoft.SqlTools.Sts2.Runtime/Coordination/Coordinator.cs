@@ -24,7 +24,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
     /// </summary>
     public sealed class Coordinator : ICoordinatorInbox, IAsyncDisposable
     {
-        private sealed record PendingInput(string Kind, string Type, string? SessionId, string? Corr, JsonElement? Payload, long? Cause);
+        private sealed record PendingInput(string Kind, string Type, string? SessionId, string? Corr, JsonElement? Payload, long? Cause,
+            TaskCompletionSource? Committed = null);
 
         private static readonly JsonElement NullElement = JsonDocument.Parse("null").RootElement;
 
@@ -129,6 +130,20 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
         public ValueTask PostControlAsync(string signal, JsonElement? payload = null) =>
             inputs.Writer.WriteAsync(new PendingInput(EnvelopeKinds.Control, signal, null, null, payload, Cause: null));
 
+        /// <summary>
+        /// Posts a control signal and returns a task that completes only after the PUMP has
+        /// journaled it, drained its outputs, and flushed (a real write-ahead barrier, R002).
+        /// Enqueuing alone does not prove the tail is durable — the multiplexer's bounded
+        /// shutdown/exit wait depends on this actually meaning "committed to disk".
+        /// </summary>
+        public async Task PostControlBarrierAsync(string signal, JsonElement? payload = null)
+        {
+            var committed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            await inputs.Writer.WriteAsync(
+                new PendingInput(EnvelopeKinds.Control, signal, null, null, payload, Cause: null, Committed: committed)).ConfigureAwait(false);
+            await committed.Task.ConfigureAwait(false);
+        }
+
         /// <inheritdoc/>
         public ValueTask PostEffectResponseAsync(string effectId, string effectName, JsonElement? payload, long causeSeq) =>
             inputs.Writer.WriteAsync(new PendingInput(EnvelopeKinds.EffectResponse, effectName, null, effectId, payload, causeSeq));
@@ -151,6 +166,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             }
             finally
             {
+                // Fail any barrier the (possibly faulted) pump never reached, so a lifecycle
+                // wait cannot hang on a dead pump (R002). The pump is the only reader and has
+                // now stopped, so draining here is race-free.
+                while (inputs.Reader.TryRead(out PendingInput? leftover))
+                {
+                    leftover.Committed?.TrySetException(
+                        new InvalidOperationException("STS2 stopped before the barrier committed."));
+                }
                 elidedFragments.Clear(); // bound the side table: drop any unsubstituted fragments
                 await journal.DisposeAsync().ConfigureAwait(false);
             }
@@ -193,6 +216,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                     foreach (string key in capturedKeys)
                     {
                         elidedFragments.TryRemove(key, out _);
+                    }
+
+                    // Barrier (R002): this input and all causally-prior outputs are now journaled;
+                    // flush and signal the caller that the tail is durable.
+                    if (input.Committed is { } committed)
+                    {
+                        await journal.FlushAsync().ConfigureAwait(false);
+                        committed.TrySetResult();
                     }
 
                     await MaybeSampleMetricsAsync(triggeringSeq: envelope.Seq).ConfigureAwait(false);
