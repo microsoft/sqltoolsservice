@@ -201,16 +201,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     string? queryId = GetString(effect.Args, "queryId");
                     if (queryId is not null && queryPumps.TryGetValue(queryId, out QueryPump? pump))
                     {
+                        // Cancel the LOCAL pump token FIRST (bounded, deterministic): this stops
+                        // the enumerator regardless of the provider. Provider cancellation is a
+                        // best-effort follow-up under a bounded token, so a driver whose
+                        // CancelAsync hangs cannot wedge query.cancel (R015).
+                        pump.Cancellation.Cancel();
                         _ = Task.Run(async () =>
                         {
                             try
                             {
-                                await pump.Session.CancelAsync(queryId, CancellationToken.None).ConfigureAwait(false);
+                                using var bounded = new CancellationTokenSource(Sts2Defaults.CloseTimeoutMs);
+                                await pump.Session.CancelAsync(queryId, bounded.Token).ConfigureAwait(false);
                             }
-                            catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
+                            catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException or OperationCanceledException)
                             {
                             }
-                            pump.Cancellation.Cancel();
                         });
                     }
                     _ = PostAsync(inbox, effect, """{"status":"ok"}""");
