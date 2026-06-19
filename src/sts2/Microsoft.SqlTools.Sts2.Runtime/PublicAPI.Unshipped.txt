@@ -350,6 +350,7 @@ static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator !=(M
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
+static Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder.Encode(object? cell, int maxCellBytes) -> System.Text.Json.Nodes.JsonNode?
 static Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder.Encode(object? cell) -> System.Text.Json.Nodes.JsonNode?
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.DeserializeLine(string! line) -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SerializeLine(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope) -> string!

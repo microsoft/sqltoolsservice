@@ -5,6 +5,7 @@
 
 using System;
 using System.Globalization;
+using System.Text;
 using System.Text.Json.Nodes;
 
 namespace Microsoft.SqlTools.Sts2.Runtime.Effects
@@ -17,6 +18,28 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
     /// </summary>
     public static class WireValueEncoder
     {
+        /// <summary>
+        /// Encodes one cell, truncating oversized string/binary values to at most
+        /// <paramref name="maxCellBytes"/> bytes (SPEC §7.7 maxCellBytes, R024) so a single
+        /// pathological cell cannot blow the memory/frame bound. Truncation is deterministic
+        /// (UTF-8 boundary-safe), so replay reproduces the same digest. A truncated cell
+        /// becomes <c>{"$t":"truncated","of":"string|binary","bytes":N,"v":&lt;prefix&gt;}</c>.
+        /// </summary>
+        public static JsonNode? Encode(object? cell, int maxCellBytes)
+        {
+            if (maxCellBytes > 0)
+            {
+                switch (cell)
+                {
+                    case string str when Encoding.UTF8.GetByteCount(str) > maxCellBytes:
+                        return Truncated("string", Encoding.UTF8.GetByteCount(str), TruncateUtf8(str, maxCellBytes));
+                    case byte[] bytes when bytes.Length > maxCellBytes:
+                        return Truncated("binary", bytes.Length, Convert.ToBase64String(bytes.AsSpan(0, maxCellBytes)));
+                }
+            }
+            return Encode(cell);
+        }
+
         /// <summary>Encodes one cell. Null maps to JSON null.</summary>
         public static JsonNode? Encode(object? cell) => cell switch
         {
@@ -54,6 +77,30 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             ["$t"] = type,
             ["v"] = value,
         };
+
+        private static JsonObject Truncated(string of, int originalBytes, string prefix) => new()
+        {
+            ["$t"] = "truncated",
+            ["of"] = of,
+            ["bytes"] = originalBytes,
+            ["v"] = prefix,
+        };
+
+        /// <summary>Truncates a string to at most <paramref name="maxBytes"/> UTF-8 bytes on a char boundary.</summary>
+        private static string TruncateUtf8(string value, int maxBytes)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            if (bytes.Length <= maxBytes)
+            {
+                return value;
+            }
+            int len = maxBytes;
+            while (len > 0 && (bytes[len] & 0xC0) == 0x80) // don't cut a UTF-8 continuation byte
+            {
+                len--;
+            }
+            return Encoding.UTF8.GetString(bytes, 0, len);
+        }
 
         private static JsonObject NonFinite(double value) => Wrapper(
             "double",

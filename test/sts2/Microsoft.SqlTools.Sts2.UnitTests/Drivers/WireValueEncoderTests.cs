@@ -27,6 +27,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void OversizedCellsAreTruncatedDeterministically() // R024
+        {
+            string big = new('x', 100);
+            JsonNode wrapper = WireValueEncoder.Encode(big, maxCellBytes: 10)!;
+            Assert.Equal("truncated", wrapper["$t"]!.GetValue<string>());
+            Assert.Equal("string", wrapper["of"]!.GetValue<string>());
+            Assert.Equal(100, wrapper["bytes"]!.GetValue<int>());
+            Assert.Equal(new string('x', 10), wrapper["v"]!.GetValue<string>());
+
+            // Binary truncates too; small cells and a 0/large limit pass through unchanged.
+            byte[] blob = new byte[100];
+            Assert.Equal("truncated", WireValueEncoder.Encode(blob, 10)!["$t"]!.GetValue<string>());
+            Assert.Equal("\"abc\"", WireValueEncoder.Encode("abc", 10)!.ToJsonString());
+            Assert.Equal("\"abc\"", WireValueEncoder.Encode("abc", 0)!.ToJsonString());
+
+            // Multi-byte UTF-8 is cut on a char boundary (never a partial code unit).
+            string unicode = new('é', 20); // 'é' = 2 UTF-8 bytes each
+            string prefix = WireValueEncoder.Encode(unicode, 5)!["v"]!.GetValue<string>();
+            Assert.Equal("éé", prefix); // 2 chars = 4 bytes <= 5, third would exceed
+        }
+
+        [Fact]
         public void LosslessNativesStayNative()
         {
             Assert.Equal("true", Json(true));

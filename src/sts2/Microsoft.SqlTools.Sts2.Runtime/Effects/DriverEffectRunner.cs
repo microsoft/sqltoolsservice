@@ -494,7 +494,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 var cells = new System.Text.Json.Nodes.JsonArray();
                 foreach (object? cell in row)
                 {
-                    cells.Add(WireValueEncoder.Encode(cell)); // SPEC §7.7 wire encoding
+                    // SPEC §7.7 wire encoding, with maxCellBytes truncation so one giant cell
+                    // cannot break the memory/frame bound (R024).
+                    cells.Add(WireValueEncoder.Encode(cell, Sts2Defaults.MaxCellBytes));
                 }
                 array.Add(cells);
             }
