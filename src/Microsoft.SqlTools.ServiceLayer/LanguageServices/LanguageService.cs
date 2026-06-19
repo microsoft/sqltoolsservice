@@ -1791,18 +1791,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Step 3: collect candidate files via DacFx dependency graph
             var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            
+            string defFile;
             try
             {
-                string defFile = provider.GetDefiningFilePath(qualifiedName);
-                if (defFile != null)
-                    candidateFiles.Add(defFile);
-                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
-                    candidateFiles.Add(path);
+                defFile = provider.GetDefiningFilePath(qualifiedName);
             }
             catch (Exception ex)
             {
-                Logger.Error($"FindProjectSymbolLocations error: {ex}");
+                Logger.Error($"FindProjectSymbolLocations: GetDefiningFilePath failed: {ex}");
                 return Array.Empty<Location>();
+            }
+            
+            // Only add files if we can successfully get ALL references.
+            // If getting references fails, the model is corrupted - return empty instead of partial results.
+            if (defFile != null)
+            {
+                try
+                {
+                    foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                        candidateFiles.Add(path);
+                    
+                    // Only add defining file after successfully getting all references
+                    candidateFiles.Add(defFile);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"FindProjectSymbolLocations: GetReferencingFilePaths failed: {ex}");
+                    return Array.Empty<Location>();
+                }
             }
 
             var results = new List<Location>();

@@ -506,11 +506,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     if (sqlText == null) return;
                     if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
                     
-                    // Always delete first to clear any stale objects/errors from previous failed parses.
-                    // DacFx's AddOrUpdateObjects checks ThrowIfModelErrorsExist() before processing
-                    // new content, so stale errors from a previous parse failure would reject valid SQL.
-                    state.Model.DeleteObjects(sourceName);
-                    
                     try
                     {
                         state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
@@ -518,16 +513,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     }
                     catch (Exception ex)
                     {
-                        // Parse failed - tell provider the file is effectively deleted so its
-                        // indexes don't reference objects that don't exist in the model.
+                        // Parse failed - model may be corrupted with errors that block future updates.
+                        // TODO: Once DacFx supports TSqlObjectOptions.AllowExistingModelErrors, use it here.
                         Logger.Error($"UpdateProjectIntelliSenseAsync parse error for {sourceName}: {ex}");
-                        // parseSucceeded stays false, so provider will be updated with deleted=true
                     }
                 }
                 else
                 {
                     if (!projectIntelliSense.ContainsKey(projectUri)) return;
-                    state.Model.DeleteObjects(sourceName);
+                    try
+                    {
+                        state.Model.DeleteObjects(sourceName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"DeleteObjects failed for {sourceName}: {ex}");
+                    }
                 }
                 
                 // Update provider: deleted=true for actual deletes OR failed parses
