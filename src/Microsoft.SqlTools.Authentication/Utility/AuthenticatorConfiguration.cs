@@ -41,13 +41,27 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// </summary>
         public bool HttpProxyStrictSSL { get; set; }
 
-        public AuthenticatorConfiguration(string appClientId, string appName, string cacheFolderPath, string cacheFileName, string? httpProxyUrl = null, bool httpProxyStrictSSL = true) {
+        /// <summary>
+        /// Response mode used for Microsoft Entra authorization responses.
+        /// </summary>
+        public string ResponseMode { get; set; }
+
+        public AuthenticatorConfiguration(
+            string appClientId,
+            string appName,
+            string cacheFolderPath,
+            string cacheFileName,
+            string? httpProxyUrl = null,
+            bool httpProxyStrictSSL = true,
+            string responseMode = "form_post")
+        {
             AppClientId = appClientId;
             AppName = appName;
             CacheFolderPath = cacheFolderPath;
             CacheFileName = cacheFileName;
             HttpProxyUrl = httpProxyUrl;
             HttpProxyStrictSSL = httpProxyStrictSSL;
+            ResponseMode = responseMode;
         }
     }
 }

@@ -1300,7 +1300,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
-            return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName, commandOptions.HttpProxyUrl, commandOptions.HttpProxyStrictSSL), () => this.encryptionKeys);
+            return new Authenticator(
+                new(
+                    ApplicationClientId,
+                    applicationName,
+                    cachePath,
+                    MsalCacheName,
+                    commandOptions.HttpProxyUrl,
+                    commandOptions.HttpProxyStrictSSL,
+                    MsalResponseMode),
+                () => this.encryptionKeys);
         }
 
         private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
